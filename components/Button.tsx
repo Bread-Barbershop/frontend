@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import './button.css';
 
 export interface ButtonProps {
@@ -8,7 +9,7 @@ export interface ButtonProps {
   /** How large should the button be? */
   size?: 'small' | 'medium' | 'large';
   /** Button contents */
-  children: React.ReactNode;
+  children: ReactNode;
   /** Optional click handler */
   onClick?: () => void;
 }

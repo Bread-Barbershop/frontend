@@ -45,6 +45,7 @@ const eslintConfig = defineConfig([
     // ============================================
     // 언어 설정
     // ============================================
+    files: ['.storybook/**/*.{ts,tsx}'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
