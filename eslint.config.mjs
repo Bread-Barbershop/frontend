@@ -148,18 +148,12 @@ const eslintConfig = defineConfig([
   // ============================================
   {
     files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
-    env: {
-      jest: true,
-      browser: true,
-      node: true,
-    },
     languageOptions: {
       parser: tsParser,
       parserOptions: {
         ecmaFeatures: { jsx: true },
         ecmaVersion: 'latest',
         sourceType: 'module',
-        // project 제거
       },
       globals: {
         jest: 'readonly',
@@ -170,6 +164,9 @@ const eslintConfig = defineConfig([
         afterEach: 'readonly',
         beforeAll: 'readonly',
         afterAll: 'readonly',
+        window: 'readonly', // browser 전역
+        document: 'readonly', // browser 전역
+        NodeJS: 'readonly', // node 전역
       },
     },
     rules: {
