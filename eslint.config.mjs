@@ -1,44 +1,43 @@
 // eslint.config.ts
+import storybook from 'eslint-plugin-storybook';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import nextVitals from 'eslint-config-next/core-web-vitals';
 import nextTs from 'eslint-config-next/typescript';
 import js from '@eslint/js';
-import prettierConfig from 'eslint-config-prettier';
 import importPlugin from 'eslint-plugin-import';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
-import storybook from 'eslint-plugin-storybook';
+import prettierConfig from 'eslint-config-prettier';
 
-export default defineConfig([
+const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   js.configs.recommended,
   prettierConfig,
 
   // ============================================
-  // 일반 코드 (TS/JSX) - 타입 체크 적용
+  // 일반 코드 블록 (타입 체크 포함)
   // ============================================
   {
     files: ['**/*.{ts,tsx,js,jsx}', '!**/.storybook/**/*.{ts,tsx}'],
     plugins: {
       import: importPlugin,
-      react,
+      react: react,
       'react-hooks': reactHooks,
       '@typescript-eslint': tseslint,
     },
     languageOptions: {
       parser: tsParser,
       parserOptions: {
+        ecmaFeatures: { jsx: true },
         ecmaVersion: 'latest',
         sourceType: 'module',
-        ecmaFeatures: { jsx: true },
-        project: './tsconfig.json', // 타입 체크 필요
+        project: './tsconfig.json', // 타입 체크
       },
     },
     rules: {
-      // React
       'react/react-in-jsx-scope': 'off',
       'react/jsx-filename-extension': [
         'error',
@@ -51,12 +50,8 @@ export default defineConfig([
         { html: 'enforce', custom: 'ignore', explicitSpread: 'ignore' },
       ],
       'react/function-component-definition': 'off',
-
-      // Hooks
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
-
-      // Import
       'import/extensions': [
         'error',
         'ignorePackages',
@@ -95,8 +90,15 @@ export default defineConfig([
           ],
         },
       ],
-
-      // TypeScript
+      'jsx-a11y/alt-text': ['warn', { elements: ['img'], img: ['Image'] }],
+      'jsx-a11y/anchor-is-valid': [
+        'error',
+        {
+          components: ['Link'],
+          specialLink: ['hrefLeft', 'hrefRight'],
+          aspects: ['invalidHref', 'preferButton'],
+        },
+      ],
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
@@ -108,22 +110,9 @@ export default defineConfig([
         },
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
-
-      // 일반 코드 품질
       'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
       'no-var': 'error',
       'prefer-const': 'error',
-
-      // 접근성
-      'jsx-a11y/alt-text': ['warn', { elements: ['img'], img: ['Image'] }],
-      'jsx-a11y/anchor-is-valid': [
-        'error',
-        {
-          components: ['Link'],
-          specialLink: ['hrefLeft', 'hrefRight'],
-          aspects: ['invalidHref', 'preferButton'],
-        },
-      ],
     },
     settings: {
       react: { version: 'detect' },
@@ -135,7 +124,7 @@ export default defineConfig([
   },
 
   // ============================================
-  // Storybook 전용 (타입 체크 X)
+  // Storybook 전용 블록 (타입 체크 제외)
   // ============================================
   {
     files: ['.storybook/**/*.{ts,tsx}'],
@@ -143,9 +132,9 @@ export default defineConfig([
     languageOptions: {
       parser: tsParser,
       parserOptions: {
+        ecmaFeatures: { jsx: true },
         ecmaVersion: 'latest',
         sourceType: 'module',
-        ecmaFeatures: { jsx: true },
       },
     },
     rules: {
@@ -154,16 +143,16 @@ export default defineConfig([
   },
 
   // ============================================
-  // Jest/테스트 전용 (타입 체크 X, Jest globals 추가)
+  // Jest/테스트 전용 블록
   // ============================================
   {
     files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
+        ecmaFeatures: { jsx: true },
         ecmaVersion: 'latest',
         sourceType: 'module',
-        ecmaFeatures: { jsx: true },
       },
       globals: {
         jest: 'readonly',
@@ -174,6 +163,9 @@ export default defineConfig([
         afterEach: 'readonly',
         beforeAll: 'readonly',
         afterAll: 'readonly',
+        window: 'readonly',
+        document: 'readonly',
+        NodeJS: 'readonly',
       },
     },
     rules: {},
@@ -194,3 +186,5 @@ export default defineConfig([
     '*.config.mjs',
   ]),
 ]);
+
+export default eslintConfig;
