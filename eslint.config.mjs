@@ -11,7 +11,7 @@ import tseslint from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import prettierConfig from 'eslint-config-prettier';
 
-const eslintConfig = defineConfig([
+export default defineConfig([
   ...nextVitals,
   ...nextTs,
   js.configs.recommended,
@@ -21,12 +21,10 @@ const eslintConfig = defineConfig([
   // 일반 코드 블록 (타입 체크 포함)
   // ============================================
   {
-    files: ['**/*.{ts,tsx,js,jsx}'],
-    excludedFiles: ['.storybook/**/*.{ts,tsx}'], // 여기서 확실히 제외
-
+    files: ['**/*.{ts,tsx,js,jsx}', '!**/.storybook/**/*.{ts,tsx}'],
     plugins: {
       import: importPlugin,
-      react: react,
+      react,
       'react-hooks': reactHooks,
       '@typescript-eslint': tseslint,
     },
@@ -36,7 +34,7 @@ const eslintConfig = defineConfig([
         ecmaFeatures: { jsx: true },
         ecmaVersion: 'latest',
         sourceType: 'module',
-        project: './tsconfig.json', // 타입 체크
+        project: './tsconfig.json', // 타입 체크 포함
       },
     },
     rules: {
@@ -165,9 +163,6 @@ const eslintConfig = defineConfig([
         afterEach: 'readonly',
         beforeAll: 'readonly',
         afterAll: 'readonly',
-        window: 'readonly',
-        document: 'readonly',
-        NodeJS: 'readonly',
       },
     },
     rules: {},
@@ -188,5 +183,3 @@ const eslintConfig = defineConfig([
     '*.config.mjs',
   ]),
 ]);
-
-export default eslintConfig;
