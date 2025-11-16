@@ -21,7 +21,9 @@ const eslintConfig = defineConfig([
   // 일반 코드 블록 (타입 체크 포함)
   // ============================================
   {
-    files: ['**/*.{ts,tsx,js,jsx}', '!**/.storybook/**/*.{ts,tsx}'],
+    files: ['**/*.{ts,tsx,js,jsx}'],
+    excludedFiles: ['.storybook/**/*.{ts,tsx}'], // 여기서 확실히 제외
+
     plugins: {
       import: importPlugin,
       react: react,
