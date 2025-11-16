@@ -1,4 +1,4 @@
 export default function Home() {
-  const test = 'test';
+  const _test = 'test';
   return <div>브래드 이발소</div>;
 }
