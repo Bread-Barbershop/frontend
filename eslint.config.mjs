@@ -8,7 +8,6 @@ import js from '@eslint/js';
 
 // Airbnb 스타일 구현을 위한 플러그인들
 import importPlugin from 'eslint-plugin-import';
-import jsxA11y from 'eslint-plugin-jsx-a11y';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import tseslint from '@typescript-eslint/eslint-plugin';
@@ -35,10 +34,9 @@ const eslintConfig = defineConfig([
     // ============================================
     plugins: {
       import: importPlugin,
-      'jsx-a11y': jsxA11y,
       react: react,
-      'react-hooks': reactHooks,
-      '@typescript-eslint': tseslint,
+      reactHooks,
+      tseslint,
     },
 
     // ============================================
