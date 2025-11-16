@@ -135,11 +135,10 @@ const eslintConfig = defineConfig([
         ecmaFeatures: { jsx: true },
         ecmaVersion: 'latest',
         sourceType: 'module',
-        // project 제거
       },
     },
     rules: {
-      // Storybook 전용 규칙 추가 가능
+      'react/jsx-props-no-spreading': 'off',
     },
   },
 
@@ -164,14 +163,12 @@ const eslintConfig = defineConfig([
         afterEach: 'readonly',
         beforeAll: 'readonly',
         afterAll: 'readonly',
-        window: 'readonly', // browser 전역
-        document: 'readonly', // browser 전역
-        NodeJS: 'readonly', // node 전역
+        window: 'readonly',
+        document: 'readonly',
+        NodeJS: 'readonly',
       },
     },
-    rules: {
-      // 테스트 파일 전용 규칙 추가 가능
-    },
+    rules: {},
   },
 
   // ============================================
