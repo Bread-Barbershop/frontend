@@ -1,3 +1,6 @@
+// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
+import storybook from 'eslint-plugin-storybook';
+
 import { defineConfig, globalIgnores } from 'eslint/config';
 
 import nextVitals from 'eslint-config-next/core-web-vitals';
@@ -51,6 +54,17 @@ const eslintConfig = defineConfig([
         ecmaVersion: 'latest',
         sourceType: 'module',
         project: './tsconfig.json',
+      },
+      globals: {
+        // Jest 전역 변수 등록
+        jest: 'readonly',
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
       },
     },
 
@@ -159,6 +173,7 @@ const eslintConfig = defineConfig([
             '**/*.config.{js,ts,mjs}',
             '**/test-utils/**',
             '**/__tests__/**',
+            'jest.setup.{ts,js}',
           ],
         },
       ],
