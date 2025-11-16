@@ -21,7 +21,7 @@ const eslintConfig = defineConfig([
   // 일반 코드 블록
   // ============================================
   {
-    files: ['**/*.{ts,tsx,js,jsx}'],
+    files: ['**/*.{ts,tsx,js,jsx}', '!**/.storybook/**/*.{ts,tsx}'],
     plugins: {
       import: importPlugin,
       react: react,
