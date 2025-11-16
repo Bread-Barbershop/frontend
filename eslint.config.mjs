@@ -35,8 +35,8 @@ const eslintConfig = defineConfig([
     plugins: {
       import: importPlugin,
       react: react,
-      reactHooks,
-      tseslint,
+      'react-hooks': reactHooks,
+      '@typescript-eslint': tseslint,
     },
 
     // ============================================
@@ -196,12 +196,12 @@ const eslintConfig = defineConfig([
       // 사용하지 않는 변수 검사 (경고로 완화)
       // _로 시작하면 "의도적으로 미사용"으로 간주
       '@typescript-eslint/no-unused-vars': [
-        'warn',
+        'error',
         {
-          argsIgnorePattern: '^_', // 매개변수: _unused
-          varsIgnorePattern: '^_', // 변수: _temp
-          caughtErrorsIgnorePattern: '^_', // catch: _error
-          destructuredArrayIgnorePattern: '^_', // 구조분해: [_, value]
+          argsIgnorePattern: '^_', // _로 시작하면 무시
+          varsIgnorePattern: '^_', // _로 시작하면 무시
+          caughtErrorsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
         },
       ],
 
@@ -225,16 +225,6 @@ const eslintConfig = defineConfig([
 
       // const 사용 권장 (재할당 없으면 const)
       'prefer-const': 'error',
-
-      // ==========================================
-      // 주의: 아래 규칙들은 Prettier와 충돌하므로 제외
-      // Prettier를 사용한다면 이 규칙들을 추가하지 마세요
-      // ==========================================
-      // "indent": ["error", 2],
-      // "semi": ["error", "always"],
-      // "quotes": ["error", "single"],
-      // "comma-dangle": ["error", "always-multiline"],
-      // "arrow-parens": ["error", "avoid"],
     },
 
     // ============================================
