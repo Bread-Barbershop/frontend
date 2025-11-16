@@ -1,0 +1,6 @@
+@import 'tailwindcss';
+
+/* import sub style */
+@import './_base.css';
+@import './_variables.css';
+@import './_utilities.css';
