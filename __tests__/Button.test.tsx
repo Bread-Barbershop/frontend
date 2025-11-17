@@ -1,30 +1,25 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-
 import { Button } from '@/components/Button';
-import { Primary, Large } from '@/components/Button.stories';
+import * as ButtonStories from '@/components/Button.stories'; // 모든 스토리 import
 
 describe('Button 컴포넌트 (스토리 args 재사용)', () => {
-  it('Primary 버튼 렌더링', () => {
-    render(<Button {...Primary.args} onClick={jest.fn()} />); // 테스트용 이벤트 덮어쓰기
-    expect(screen.getByText('Button')).toBeInTheDocument();
-  });
+  const testCases = [
+    { story: ButtonStories.TemplatePrimaryButton, label: 'Primary' },
+  ];
 
-  it('Large 버튼 렌더링', () => {
-    render(<Button {...Large.args} onClick={jest.fn()} />);
-    expect(screen.getByText('Button')).toBeInTheDocument();
-  });
+  testCases.forEach(({ story, label }) => {
+    it(`${label} 버튼 렌더링`, () => {
+      render(<Button {...story.args} onClick={jest.fn()} />);
+      expect(
+        screen.getByText(story.args.children as string)
+      ).toBeInTheDocument();
+    });
 
-  it('Primary 클릭 이벤트 작동', () => {
-    const handleClick = jest.fn();
-    render(<Button {...Primary.args} onClick={handleClick} />); // 테스트용 핸들러
-    fireEvent.click(screen.getByText('Button'));
-    expect(handleClick).toHaveBeenCalledTimes(1);
-  });
-
-  it('Large 클릭 이벤트 작동', () => {
-    const handleClick = jest.fn();
-    render(<Button {...Large.args} onClick={handleClick} />);
-    fireEvent.click(screen.getByText('Button'));
-    expect(handleClick).toHaveBeenCalledTimes(1);
+    it(`${label} 클릭 이벤트 작동`, () => {
+      const handleClick = jest.fn();
+      render(<Button {...story.args} onClick={handleClick} />);
+      fireEvent.click(screen.getByText(story.args.children as string));
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
   });
 });

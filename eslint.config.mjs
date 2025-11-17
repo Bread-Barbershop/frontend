@@ -28,11 +28,8 @@ export default defineConfig([
   // ============================================
   // Storybook 전용 블록 (타입 체크 제외)
   // ============================================
-  // 일반 코드 블록보다 먼저 배치하여 우선 적용되도록 함
-  // Flat config에서는 뒤에 나오는 설정이 앞의 설정을 덮어쓰므로
-  // 특수한 경우(Storybook)를 먼저 처리
   {
-    files: ['.storybook/**/*.{ts,tsx}'],
+    files: ['.storybook/**/*.{ts,tsx}', '**/*.stories.{ts,tsx}'],
     plugins: {
       storybook,
     },
@@ -42,20 +39,22 @@ export default defineConfig([
         ecmaFeatures: { jsx: true },
         ecmaVersion: 'latest',
         sourceType: 'module',
-        // project 옵션을 설정하지 않음 -> 타입 체크 비활성화
-        // Storybook 설정 파일은 tsconfig.json에 포함되지 않을 수 있으므로
       },
     },
     rules: {
-      // Storybook에서는 args spreading이 일반적인 패턴이므로 허용
       'react/jsx-props-no-spreading': 'off',
+      'import/no-extraneous-dependencies': [
+        'error',
+        {
+          devDependencies: true,
+        },
+      ],
     },
   },
 
   // ============================================
   // Jest/테스트 전용 블록
   // ============================================
-  // 테스트 파일도 특수한 경우이므로 일반 코드 블록보다 먼저 처리
   {
     files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
     languageOptions: {
@@ -80,7 +79,6 @@ export default defineConfig([
       },
     },
     rules: {
-      // 테스트 파일에서는 any 타입 사용이 더 유연할 수 있음
       '@typescript-eslint/no-explicit-any': 'off',
     },
   },
@@ -88,11 +86,14 @@ export default defineConfig([
   // ============================================
   // 일반 코드 블록 (타입 체크 포함)
   // ============================================
-  // 가장 마지막에 배치하여 기본 설정으로 작동
   {
     files: ['**/*.{ts,tsx,js,jsx}'],
-    // ignores를 통해 위에서 처리한 특수 파일들을 명시적으로 제외
-    ignores: ['.storybook/**/*', '**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
+    ignores: [
+      '.storybook/**/*',
+      '**/*.test.{ts,tsx}',
+      '**/*.spec.{ts,tsx}',
+      '**/*.stories.{ts,tsx}',
+    ],
     plugins: {
       import: importPlugin,
       react,
