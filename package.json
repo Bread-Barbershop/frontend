@@ -16,9 +16,11 @@
   "dependencies": {
     "clsx": "^2.1.1",
     "googleapis": "^166.0.0",
+    "konva": "^10.0.12",
     "next": "^16.0.10",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
+    "react-konva": "^19.2.1",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
