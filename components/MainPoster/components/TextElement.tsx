@@ -1,8 +1,9 @@
 'use client';
 
+import Konva from 'konva';
 import { useEffect, useRef } from 'react';
 import { Text, Transformer } from 'react-konva';
-import Konva from 'konva';
+
 import { TextShape } from '@/types/canvas';
 
 interface TextElementProps {
@@ -36,13 +37,13 @@ export const TextElement = ({
         draggable
         onClick={onSelect}
         onTap={onSelect}
-        onDragEnd={(e) => {
+        onDragEnd={e => {
           onChange({
             x: e.target.x(),
             y: e.target.y(),
           });
         }}
-        onTransformEnd={(e) => {
+        onTransformEnd={() => {
           const node = textRef.current;
           if (node) {
             const scaleX = node.scaleX();
@@ -62,4 +63,3 @@ export const TextElement = ({
     </>
   );
 };
-

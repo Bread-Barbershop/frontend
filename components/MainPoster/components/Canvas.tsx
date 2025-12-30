@@ -1,11 +1,13 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
-import { Stage, Layer } from 'react-konva';
 import Konva from 'konva';
+import { useRef } from 'react';
+import { Stage, Layer } from 'react-konva';
+
 import { Shape } from '@/types/canvas';
-import { TextElement } from './TextElement';
+
 import { ImageElement } from './ImageElement';
+import { TextElement } from './TextElement';
 
 interface CanvasProps {
   shapes: Shape[];
@@ -22,7 +24,9 @@ export const Canvas = ({
 }: CanvasProps) => {
   const stageRef = useRef<Konva.Stage>(null);
 
-  const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent>) => {
+  const handleStageClick = (
+    e: Konva.KonvaEventObject<MouseEvent | TouchEvent>
+  ) => {
     // 빈 영역 클릭 시 선택 해제
     if (e.target === e.target.getStage()) {
       onSelect(null);
@@ -39,7 +43,7 @@ export const Canvas = ({
         onTap={handleStageClick}
       >
         <Layer>
-          {shapes.map((shape) => {
+          {shapes.map(shape => {
             const isSelected = shape.id === selectedId;
             const handleSelect = () => onSelect(shape.id);
             const handleChange = (attrs: Partial<Shape>) =>
@@ -73,4 +77,3 @@ export const Canvas = ({
     </div>
   );
 };
-

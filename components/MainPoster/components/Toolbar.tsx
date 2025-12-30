@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { ChangeEvent, useRef } from 'react';
 
 interface ToolbarProps {
   onAddText: () => void;
@@ -10,11 +10,11 @@ interface ToolbarProps {
 export const Toolbar = ({ onAddText, onAddImage }: ToolbarProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = event => {
         const img = new window.Image();
         img.src = event.target?.result as string;
         img.onload = () => {
@@ -65,4 +65,3 @@ export const Toolbar = ({ onAddText, onAddImage }: ToolbarProps) => {
     </div>
   );
 };
-

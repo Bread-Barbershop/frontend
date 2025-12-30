@@ -1,8 +1,9 @@
 'use client';
 
+import Konva from 'konva';
 import { useEffect, useRef, useState } from 'react';
 import { Image, Transformer } from 'react-konva';
-import Konva from 'konva';
+
 import { ImageShape } from '@/types/canvas';
 
 interface ImageElementProps {
@@ -11,7 +12,6 @@ interface ImageElementProps {
   onSelect: () => void;
   onChange: (attrs: Partial<ImageShape>) => void;
 }
-
 export const ImageElement = ({
   shape,
   isSelected,
@@ -41,6 +41,7 @@ export const ImageElement = ({
 
   return (
     <>
+      {/* eslint-disable-next-line jsx-a11y/alt-text */}
       <Image
         ref={imageRef}
         image={image}
@@ -54,13 +55,13 @@ export const ImageElement = ({
         draggable
         onClick={onSelect}
         onTap={onSelect}
-        onDragEnd={(e) => {
+        onDragEnd={e => {
           onChange({
             x: e.target.x(),
             y: e.target.y(),
           });
         }}
-        onTransformEnd={(e) => {
+        onTransformEnd={() => {
           const node = imageRef.current;
           if (node) {
             const scaleX = node.scaleX();
@@ -80,4 +81,3 @@ export const ImageElement = ({
     </>
   );
 };
-

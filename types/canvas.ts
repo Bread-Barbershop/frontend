@@ -26,3 +26,6 @@ export interface ImageShape extends BaseShape {
 
 export type Shape = TextShape | ImageShape;
 
+// Shape 업데이트를 위한 타입 (id와 type은 변경 불가)
+export type ShapeUpdate = Partial<Omit<TextShape, 'id' | 'type'>> &
+  Partial<Omit<ImageShape, 'id' | 'type'>>;

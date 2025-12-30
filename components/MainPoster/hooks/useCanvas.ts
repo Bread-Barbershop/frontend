@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
-import { Shape, TextShape, ImageShape } from '@/types/canvas';
+
+import { Shape, ShapeUpdate, TextShape, ImageShape } from '@/types/canvas';
 
 export const useCanvas = () => {
   const [shapes, setShapes] = useState<Shape[]>([]);
@@ -18,7 +19,7 @@ export const useCanvas = () => {
       scaleX: 1,
       scaleY: 1,
     };
-    setShapes((prev) => [...prev, newText]);
+    setShapes(prev => [...prev, newText]);
     setSelectedId(newText.id);
   }, []);
 
@@ -35,18 +36,20 @@ export const useCanvas = () => {
       scaleX: 1,
       scaleY: 1,
     };
-    setShapes((prev) => [...prev, newImage]);
+    setShapes(prev => [...prev, newImage]);
     setSelectedId(newImage.id);
   }, []);
 
-  const updateShape = useCallback((id: string, attrs: Partial<Shape>) => {
-    setShapes((prev) =>
-      prev.map((shape) => (shape.id === id ? { ...shape, ...attrs } : shape))
+  const updateShape = useCallback((id: string, attrs: ShapeUpdate) => {
+    setShapes(prev =>
+      prev.map(shape =>
+        shape.id === id ? ({ ...shape, ...attrs } as Shape) : shape
+      )
     );
   }, []);
 
   const deleteShape = useCallback((id: string) => {
-    setShapes((prev) => prev.filter((shape) => shape.id !== id));
+    setShapes(prev => prev.filter(shape => shape.id !== id));
     setSelectedId(null);
   }, []);
 
@@ -64,4 +67,3 @@ export const useCanvas = () => {
     selectShape,
   };
 };
-
