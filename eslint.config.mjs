@@ -128,11 +128,11 @@ export default defineConfig([
       'react/prop-types': 'off',
       'react/require-default-props': 'off',
 
-      // Props spreading 경고 (HTML 요소에만 엄격하게 적용)
+      // Props spreading 경고
       'react/jsx-props-no-spreading': [
         'warn',
         {
-          html: 'enforce', // HTML 요소는 엄격하게 제한
+          html: 'ignore', // HTML 요소도 허용
           custom: 'ignore', // 커스텀 컴포넌트는 허용
           explicitSpread: 'ignore', // 명시적 spread는 허용
         },
