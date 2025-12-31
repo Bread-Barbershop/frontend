@@ -5,32 +5,32 @@ import { Button } from './Button';
 const meta = {
   title: 'Atom/Button',
   component: Button,
-  parameters: {
-    layout: 'centered',
-  },
-  tags: ['autodocs'],
   argTypes: {
     variant: {
       control: 'select',
-      options: ['fill', 'ghost'],
-      description: '버튼의 스타일 변형',
+      options: ['solid', 'ghost'],
+      description: '버튼 스타일 (solid: 배경 있음 / ghost: 투명)',
+      type: 'string',
+      defaultValue: 'solid',
     },
     size: {
       control: 'select',
       options: ['sm', 'md', 'lg'],
-      description: '버튼의 크기',
+      description: '버튼 크기 (solid, ghost 서로 다른 크기를 가짐)',
+      type: 'string',
+      defaultValue: 'sm',
     },
     children: {
       control: 'text',
-      description: '버튼 내부 텍스트',
+      description: '버튼 텍스트',
+      type: 'string',
+      defaultValue: '버튼',
     },
     disabled: {
       control: 'boolean',
-      description: '버튼 비활성화 여부',
-    },
-    onClick: {
-      action: 'clicked',
-      description: '클릭 이벤트 핸들러',
+      description: '비활성화 상태',
+      type: 'boolean',
+      defaultValue: false,
     },
   },
 } satisfies Meta<typeof Button>;
@@ -39,114 +39,27 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // ============================================
-// 기본 스토리
+// Solid - Size
 // ============================================
-
-export const Default: Story = {
-  args: {
-    children: '버튼',
-    variant: 'fill',
-    size: 'md',
-  },
-};
-
-// ============================================
-// Variant 별 스토리
-// ============================================
-
-export const Fill: Story = {
-  args: {
-    children: 'Fill 버튼',
-    variant: 'fill',
-    size: 'md',
-  },
-};
-
-export const Ghost: Story = {
-  args: {
-    children: 'Ghost 버튼',
-    variant: 'ghost',
-    size: 'md',
-  },
-};
-
-// ============================================
-// Size 별 스토리
-// ============================================
-
-export const Small: Story = {
-  args: {
-    children: '작은 버튼',
-    variant: 'fill',
-    size: 'sm',
-  },
-};
-
-export const Medium: Story = {
-  args: {
-    children: '중간 버튼',
-    variant: 'fill',
-    size: 'md',
-  },
-};
-
-export const Large: Story = {
-  args: {
-    children: '큰 버튼',
-    variant: 'fill',
-    size: 'lg',
-  },
-};
-
-// ============================================
-// 상태별 스토리
-// ============================================
-
-export const Disabled: Story = {
-  args: {
-    children: '비활성화 버튼',
-    variant: 'fill',
-    size: 'md',
-    disabled: true,
-  },
-};
-
-export const WithClickHandler: Story = {
-  args: {
-    children: '클릭해보세요',
-    variant: 'fill',
-    size: 'md',
-    onClick: () => alert('버튼이 클릭되었습니다!'),
-  },
-};
-
-// ============================================
-// Hover & Active 상태 (마우스를 올려보세요!)
-// ============================================
-
-export const InteractiveStates: Story = {
+export const SolidSizes: Story = {
   render: () => (
     <div className="flex flex-col gap-4">
       <div>
-        <h4 className="mb-2 text-sm font-semibold">
-          Fill 버튼 - 마우스를 올려보세요
-        </h4>
-        <p className="mb-2 text-xs text-gray-600">
-          Hover: 배경색 변경 / Active: 파란색 테두리
-        </p>
-        <Button variant="fill" size="md">
-          Hover & Click Me
+        <p className="mb-2 text-xs text-gray-500">Small - 57×32px</p>
+        <Button variant="solid" size="sm">
+          Small
         </Button>
       </div>
       <div>
-        <h4 className="mb-2 text-sm font-semibold">
-          Ghost 버튼 - 마우스를 올려보세요
-        </h4>
-        <p className="mb-2 text-xs text-gray-600">
-          Hover: 파란색 배경 (투명도 8%)
-        </p>
-        <Button variant="ghost" size="md">
-          Hover Me
+        <p className="mb-2 text-xs text-gray-500">Medium - 131×32px</p>
+        <Button variant="solid" size="md">
+          Medium
+        </Button>
+      </div>
+      <div>
+        <p className="mb-2 text-xs text-gray-500">Large - 335×32px</p>
+        <Button variant="solid" size="lg">
+          Large
         </Button>
       </div>
     </div>
@@ -154,53 +67,130 @@ export const InteractiveStates: Story = {
 };
 
 // ============================================
-// 모든 조합 보기
+// Solid - Active (클릭해보세요)
 // ============================================
 
-export const AllVariants: Story = {
+export const SolidActive: Story = {
   render: () => (
-    <div className="flex flex-col gap-8">
-      <div>
-        <h3 className="mb-4 text-lg font-bold">Fill Variant</h3>
-        <div className="flex gap-4">
-          <Button variant="fill" size="sm">
-            Small
-          </Button>
-          <Button variant="fill" size="md">
-            Medium
-          </Button>
-          <Button variant="fill" size="lg">
-            Large
-          </Button>
-        </div>
+    <div className="flex flex-col gap-4">
+      <p className="text-sm font-semibold">클릭해서 Active 상태 확인</p>
+      <div className="flex items-center gap-3">
+        <Button variant="solid" size="sm">
+          Click
+        </Button>
+        <Button variant="solid" size="md">
+          Click
+        </Button>
+        <Button variant="solid" size="lg">
+          Click
+        </Button>
       </div>
+      <p className="text-xs text-gray-500">
+        클릭(Active) 시 파란색 테두리가 나타납니다
+      </p>
+    </div>
+  ),
+};
 
-      <div>
-        <h3 className="mb-4 text-lg font-bold">Ghost Variant</h3>
-        <div className="flex gap-4">
-          <Button variant="ghost" size="sm">
-            Small
-          </Button>
-          <Button variant="ghost" size="md">
-            Medium
-          </Button>
-          <Button variant="ghost" size="lg">
-            Large
-          </Button>
-        </div>
-      </div>
+// ============================================
+// Solid - Disabled
+// ============================================
 
-      <div>
-        <h3 className="mb-4 text-lg font-bold">Disabled State</h3>
-        <div className="flex gap-4">
-          <Button variant="fill" size="md" disabled>
-            Fill Disabled
-          </Button>
-          <Button variant="ghost" size="md" disabled>
-            Ghost Disabled
-          </Button>
-        </div>
+export const SolidDisabled: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4">
+      <p className="text-sm font-semibold">비활성화 상태</p>
+      <div className="flex items-center gap-3">
+        <Button variant="solid" size="sm" disabled>
+          Disabled
+        </Button>
+        <Button variant="solid" size="md" disabled>
+          Disabled
+        </Button>
+        <Button variant="solid" size="lg" disabled>
+          Disabled
+        </Button>
       </div>
+      <p className="text-xs text-gray-500">
+        반투명, 클릭 불가, Active 스타일 없음
+      </p>
+    </div>
+  ),
+};
+
+// ============================================
+// Ghost - Size
+// ============================================
+
+export const GhostSizes: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4">
+      <div>
+        <p className="mb-2 text-xs text-gray-500">
+          Small - 32px 높이, 너비 auto
+        </p>
+        <Button variant="ghost" size="sm">
+          구룹추가
+        </Button>
+      </div>
+      <div>
+        <p className="mb-2 text-xs text-gray-500">
+          Medium - 44px 높이, 너비 auto
+        </p>
+        <Button variant="ghost" size="md">
+          구룹추가 +
+        </Button>
+      </div>
+      <div>
+        <p className="mb-2 text-xs text-gray-500">
+          Large - 44px 높이, 너비 auto
+        </p>
+        <Button variant="ghost" size="lg">
+          구룹추가 +
+        </Button>
+      </div>
+    </div>
+  ),
+};
+
+// ============================================
+// Ghost - Hover (마우스 올려보세요)
+// ============================================
+
+export const GhostHover: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4">
+      <p className="text-sm font-semibold">마우스를 올려보세요</p>
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="sm">
+          구룹추가
+        </Button>
+        <Button variant="ghost" size="md">
+          구룹추가+
+        </Button>
+      </div>
+      <p className="text-xs text-gray-500">Hover 시 스타일 변화를 확인하세요</p>
+    </div>
+  ),
+};
+
+// ============================================
+// Ghost - Disabled
+// ============================================
+
+export const GhostDisabled: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4">
+      <p className="text-sm font-semibold">비활성화 상태</p>
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="sm" disabled>
+          구룹추가
+        </Button>
+        <Button variant="ghost" size="md" disabled>
+          구룹추가+
+        </Button>
+      </div>
+      <p className="text-xs text-gray-500">클릭 불가</p>
     </div>
   ),
 };

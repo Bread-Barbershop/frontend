@@ -12,8 +12,8 @@ export interface ButtonProps
 
 export function Button({
   children,
-  size,
   variant,
+  size,
   className,
   ...props
 }: ButtonProps) {
