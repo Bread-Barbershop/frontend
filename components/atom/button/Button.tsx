@@ -1,9 +1,10 @@
-import { ButtonHTMLAttributes } from 'react';
 import { VariantProps } from 'class-variance-authority';
-import { buttonVariants } from './Button.style';
+import { ButtonHTMLAttributes } from 'react';
+
 import { cn } from '@/utils/cn';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+import { buttonVariants } from './Button.style';
+
 export interface ButtonProps
   extends
     ButtonHTMLAttributes<HTMLButtonElement>,
