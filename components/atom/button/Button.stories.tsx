@@ -10,21 +10,19 @@ const meta = {
       control: 'select',
       options: ['solid', 'ghost'],
       description: '버튼 스타일 (solid: 배경 있음 / ghost: 투명)',
-      type: 'string',
       defaultValue: 'solid',
     },
     size: {
       control: 'select',
       options: ['sm', 'md', 'lg'],
-      description: '버튼 크기 (solid, ghost 서로 다른 크기를 가짐)',
-      type: 'string',
+      description: '버튼 크기 (solid: 고정폭 / ghost: auto)',
       defaultValue: 'sm',
     },
     children: {
       control: 'text',
       description: '버튼 텍스트',
       type: 'string',
-      defaultValue: '버튼',
+      defaultValue: 'Button',
     },
     disabled: {
       control: 'boolean',
@@ -37,6 +35,18 @@ const meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+// ============================================
+// Default - Docs에서 Controls로 테스트
+// ============================================
+
+export const Default: Story = {
+  args: {
+    children: 'Button',
+    variant: 'solid',
+    size: 'md',
+  },
+};
 
 // ============================================
 // Solid - Size
