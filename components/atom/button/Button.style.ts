@@ -1,13 +1,14 @@
 import { cva } from 'class-variance-authority';
 
 export const buttonVariants = cva(
-  'inline-flex justify-center items-center h-8 py-2 text-[13px] rounded-lg border border-[#EAEAEA] cursor-pointer',
+  'inline-flex justify-center items-center py-2 text-[13px] rounded-lg border transition-colors cursor-pointer disabled:cursor-not-allowed',
   {
     variants: {
       variant: {
-        fill: 'bg-white text-black active:border-[#1F72EF] transition-colors',
+        solid:
+          'bg-white text-black border-[#EAEAEA] active:border-[#1F72EF] disabled:active:border-[#EAEAEA]',
         ghost:
-          'border-transparent text-[#1F72EF] py-3.5 hover:bg-[#1F72EF]/8 transition-colors',
+          'bg-transparent border-transparent text-[#1F72EF] px-2 hover:bg-[#1F72EF]/8 disabled:text-[#D1D5DB] disabled:bg-transparent',
       },
       size: {
         sm: 'w-[57px]',
@@ -15,15 +16,26 @@ export const buttonVariants = cva(
         lg: 'w-[335px]',
       },
     },
+    // ghost 타입일 경우 다른 스타일
     compoundVariants: [
       {
         variant: 'ghost',
-        className: 'w-auto h-auto',
+        size: 'sm',
+        className: 'w-auto h-8',
+      },
+      {
+        variant: 'ghost',
+        size: 'md',
+        className: 'w-auto h-[44px]',
+      },
+      {
+        variant: 'ghost',
+        size: 'lg',
+        className: 'w-[335px] h-[44px]',
       },
     ],
-
     defaultVariants: {
-      variant: 'fill',
+      variant: 'solid',
       size: 'sm',
     },
   }
