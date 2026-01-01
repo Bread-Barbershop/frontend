@@ -9,7 +9,7 @@ reviews:
 
   auto_review:
     enabled: true
-    base_branches: ["**"] 
+    base_branches: [".*"] 
     drafts: false        
 
   path_filters:
