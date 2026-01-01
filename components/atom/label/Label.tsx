@@ -1,11 +1,8 @@
-import { LabelHTMLAttributes, ReactNode } from 'react';
+import { LabelHTMLAttributes } from 'react';
 
 import { cn } from '@/utils/cn';
 
-interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {
-  children: ReactNode;
-  className?: string;
-}
+type LabelProps = LabelHTMLAttributes<HTMLLabelElement>;
 
 export const Label = ({ children, className, ...props }: LabelProps) => {
   return (
