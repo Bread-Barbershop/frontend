@@ -1,5 +1,5 @@
 import { VariantProps } from 'class-variance-authority';
-import { InputHTMLAttributes } from 'react';
+import { forwardRef, InputHTMLAttributes } from 'react';
 
 import { cn } from '@/utils/cn';
 
@@ -10,8 +10,16 @@ interface InputProps
     Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>,
     VariantProps<typeof inputVariants> {}
 
-export const Input = ({ className, size, ...props }: InputProps) => {
-  return (
-    <input className={cn(inputVariants({ className, size }))} {...props} />
-  );
-};
+export const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ className, size, ...props }, ref) => {
+    return (
+      <input
+        ref={ref}
+        className={cn(inputVariants({ className, size }))}
+        {...props}
+      />
+    );
+  }
+);
+
+Input.displayName = 'Input';
