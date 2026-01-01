@@ -7,9 +7,11 @@ import { inputVariants } from './Input.style';
 
 interface InputProps
   extends
-    InputHTMLAttributes<HTMLInputElement>,
+    Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>,
     VariantProps<typeof inputVariants> {}
 
-export const Input = ({ className, ...props }: InputProps) => {
-  return <input className={cn(inputVariants({ className }))} {...props} />;
+export const Input = ({ className, size, ...props }: InputProps) => {
+  return (
+    <input className={cn(inputVariants({ className, size }))} {...props} />
+  );
 };

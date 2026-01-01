@@ -1,1 +1,6 @@
 /* 유틸리티 클래스 커스텀 (플렉스, 마진 등) */
+@layer utilities {
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+}
