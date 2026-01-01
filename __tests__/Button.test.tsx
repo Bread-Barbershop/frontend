@@ -1,6 +1,8 @@
+import { Button, ButtonProps } from '@/components/atom/button/Button';
+
+import * as ButtonStories from '@/components/atom/button/Button.stories';
+
 import { fireEvent, render, screen } from '@testing-library/react';
-import { Button, ButtonProps } from '@/components/Button';
-import * as ButtonStories from '@/components/Button.stories';
 
 // describe 테스트 그룹화 : 같은 컴포넌트나 기능 단위로 테스트를 묶을 때 사용
 // 첫 번째 인자 : 그룹 이름
