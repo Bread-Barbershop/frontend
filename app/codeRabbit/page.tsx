@@ -4,12 +4,12 @@ import { useState, useEffect, useRef } from 'react';
 
 const api_url = 'https://jsonplaceholder.typicode.com/todos';
 
-interface Todo {
-  id: number;
-  title: string;
-  completed: boolean;
-  [key: string]: any; 
-}
+// interface Todo {
+//   id: number;
+//   title: string;
+//   completed: boolean;
+//   [key: string]: any; 
+// }
 
 export default function BadPracticePage() {
   const [todos, setTodos] = useState<any>(null);
