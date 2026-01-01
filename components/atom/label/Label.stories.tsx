@@ -12,6 +12,12 @@ const meta = {
       type: 'string',
       defaultValue: 'Label',
     },
+    htmlFor: {
+      control: 'text',
+      description: 'Label과 연결될 input의 id',
+      type: 'string',
+      defaultValue: 'input-id',
+    },
   },
 } satisfies Meta<typeof Label>;
 
@@ -25,6 +31,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     children: 'Label',
+    htmlFor: 'input-id',
   },
 };
 
@@ -32,20 +39,20 @@ export const Default: Story = {
 // Basic Examples
 // ============================================
 export const BasicExamples: Story = {
-  args: { children: 'Label' },
+  args: { htmlFor: 'example', children: 'Label' },
   render: () => (
     <div className="flex flex-col gap-4">
       <div>
         <p className="mb-2 text-xs text-gray-400">기본 Label</p>
-        <Label>이름</Label>
+        <Label htmlFor="name">이름</Label>
       </div>
       <div>
         <p className="mb-2 text-xs text-gray-400">긴 텍스트</p>
-        <Label>사용자의 이메일 주소를 입력해주세요</Label>
+        <Label htmlFor="email">사용자의 이메일 주소를 입력해주세요</Label>
       </div>
       <div>
         <p className="mb-2 text-xs text-gray-400">짧은 텍스트</p>
-        <Label>ID</Label>
+        <Label htmlFor="id">ID</Label>
       </div>
     </div>
   ),
@@ -55,26 +62,32 @@ export const BasicExamples: Story = {
 // Text Colors
 // ============================================
 export const TextColors: Story = {
-  args: { children: 'Label' },
+  args: { htmlFor: 'example', children: 'Label' },
   render: () => (
     <div className="flex flex-col gap-4">
       <div>
         <p className="mb-2 text-xs text-gray-400">기본 (text-black)</p>
-        <Label>검정색 텍스트</Label>
+        <Label htmlFor="input-1">검정색 텍스트</Label>
       </div>
       <div>
         <p className="mb-2 text-xs text-gray-400">text-gray-500</p>
-        <Label className="text-gray-500">중간 회색</Label>
+        <Label htmlFor="input-2" className="text-gray-500">
+          중간 회색
+        </Label>
       </div>
       <div>
         <p className="mb-2 text-xs text-gray-400">text-gray-300</p>
-        <Label className="text-gray-300">연한 회색</Label>
+        <Label htmlFor="input-3" className="text-gray-300">
+          연한 회색
+        </Label>
       </div>
       <div>
         <p className="mb-2 text-xs text-gray-400">
           text-[#1F72EF] (커스텀 색상)
         </p>
-        <Label className="text-[#1F72EF]">파란색 텍스트</Label>
+        <Label htmlFor="input-4" className="text-[#1F72EF]">
+          파란색 텍스트
+        </Label>
       </div>
     </div>
   ),
@@ -84,20 +97,26 @@ export const TextColors: Story = {
 // Font Sizes
 // ============================================
 export const FontSizes: Story = {
-  args: { children: 'Label' },
+  args: { htmlFor: 'example', children: 'Label' },
   render: () => (
     <div className="flex flex-col gap-4">
       <div>
         <p className="mb-2 text-xs text-gray-400">text-xs (12px)</p>
-        <Label className="text-xs">작은 크기 텍스트</Label>
+        <Label htmlFor="input-5" className="text-xs">
+          작은 크기 텍스트
+        </Label>
       </div>
       <div>
         <p className="mb-2 text-xs text-gray-400">text-base (16px)</p>
-        <Label className="text-base">중간 크기 텍스트</Label>
+        <Label htmlFor="input-6" className="text-base">
+          중간 크기 텍스트
+        </Label>
       </div>
       <div>
         <p className="mb-2 text-xs text-gray-400">text-lg (18px)</p>
-        <Label className="text-lg">큰 크기 텍스트</Label>
+        <Label htmlFor="input-7" className="text-lg">
+          큰 크기 텍스트
+        </Label>
       </div>
     </div>
   ),
@@ -107,24 +126,30 @@ export const FontSizes: Story = {
 // Font Weights
 // ============================================
 export const FontWeights: Story = {
-  args: { children: 'Label' },
+  args: { htmlFor: 'example', children: 'Label' },
   render: () => (
     <div className="flex flex-col gap-4">
       <div>
         <p className="mb-2 text-xs text-gray-400">font-normal (기본)</p>
-        <Label>일반 두께</Label>
+        <Label htmlFor="input-8">일반 두께</Label>
       </div>
       <div>
         <p className="mb-2 text-xs text-gray-400">font-medium</p>
-        <Label className="font-medium">중간 두께</Label>
+        <Label htmlFor="input-9" className="font-medium">
+          중간 두께
+        </Label>
       </div>
       <div>
         <p className="mb-2 text-xs text-gray-400">font-semibold</p>
-        <Label className="font-semibold">세미볼드</Label>
+        <Label htmlFor="input-10" className="font-semibold">
+          세미볼드
+        </Label>
       </div>
       <div>
         <p className="mb-2 text-xs text-gray-400">font-bold</p>
-        <Label className="font-bold">굵은 두께</Label>
+        <Label htmlFor="input-11" className="font-bold">
+          굵은 두께
+        </Label>
       </div>
     </div>
   ),
@@ -134,20 +159,26 @@ export const FontWeights: Story = {
 // Combinations
 // ============================================
 export const Combinations: Story = {
-  args: { children: 'Label' },
+  args: { htmlFor: 'example', children: 'Label' },
   render: () => (
     <div className="flex flex-col gap-4">
       <div>
         <p className="mb-2 text-xs text-gray-400">큰 + 굵은 + 파란색</p>
-        <Label className="text-lg font-bold text-[#1F72EF]">중요한 라벨</Label>
+        <Label htmlFor="input-12" className="text-lg font-bold text-[#1F72EF]">
+          중요한 라벨
+        </Label>
       </div>
       <div>
         <p className="mb-2 text-xs text-gray-400">작은 + 회색</p>
-        <Label className="text-xs text-gray-500">부가 설명 라벨</Label>
+        <Label htmlFor="input-13" className="text-xs text-gray-500">
+          부가 설명 라벨
+        </Label>
       </div>
       <div>
         <p className="mb-2 text-xs text-gray-400">기본 + 세미볼드</p>
-        <Label className="font-semibold">일반 라벨</Label>
+        <Label htmlFor="input-14" className="font-semibold">
+          일반 라벨
+        </Label>
       </div>
     </div>
   ),

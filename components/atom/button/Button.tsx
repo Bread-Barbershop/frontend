@@ -5,7 +5,7 @@ import { cn } from '@/utils/cn';
 
 import { buttonVariants, iconVariants } from './Button.style';
 
-interface ButtonProps
+export interface ButtonProps
   extends
     ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {}
