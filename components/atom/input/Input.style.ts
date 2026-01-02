@@ -1,7 +1,7 @@
 import { cva } from 'class-variance-authority';
 
 export const inputVariants = cva(
-  'min-h-8 px-3 text-[13px] leading-4 text-center rounded-lg border border-transparent placeholder:text-[#838383] bg-[#EAEAEA] focus:outline-none focus:border-[#1F72EF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
+  'min-h-8 px-3 text-[13px] leading-4 text-center rounded-lg border border-transparent placeholder:text-text-secondary bg-neutral-border focus:outline-none focus:border-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
   {
     variants: {
       size: {
