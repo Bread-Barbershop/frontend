@@ -4,14 +4,14 @@ import { forwardRef, type InputHTMLAttributes } from 'react';
 
 import { cn } from '@/utils/cn';
 
-import { iconVariants, sizeVariants } from './CheckBox.style';
+import { iconVariants, sizeVariants } from './Checkbox.style';
 
-interface CheckBoxProps
+interface CheckboxProps
   extends
     Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>,
     VariantProps<typeof sizeVariants> {}
 
-export const CheckBox = forwardRef<HTMLInputElement, CheckBoxProps>(
+export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
   ({ className, size, ...props }, ref) => {
     return (
       <label className="relative flex-center" aria-hidden="true">
@@ -23,4 +23,4 @@ export const CheckBox = forwardRef<HTMLInputElement, CheckBoxProps>(
   }
 );
 
-CheckBox.displayName = 'CheckBox';
+Checkbox.displayName = 'Checkbox';

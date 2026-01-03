@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { CheckBox } from './Checkbox';
+import { Checkbox } from './Checkbox';
 
 const meta = {
-  title: 'Atom/CheckBox',
-  component: CheckBox,
+  title: 'Atom/Checkbox',
+  component: Checkbox,
   argTypes: {
     size: {
       control: 'select',
@@ -25,7 +25,7 @@ const meta = {
       defaultValue: false,
     },
   },
-} satisfies Meta<typeof CheckBox>;
+} satisfies Meta<typeof Checkbox>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -49,22 +49,22 @@ export const Sizes: Story = {
       <div>
         <p className="mb-2 text-xs text-gray-500">Small - 14×14px</p>
         <div className="flex items-center gap-3">
-          <CheckBox size="sm" defaultChecked={false} />
-          <CheckBox size="sm" defaultChecked={true} />
+          <Checkbox size="sm" defaultChecked={false} />
+          <Checkbox size="sm" defaultChecked={true} />
         </div>
       </div>
       <div>
         <p className="mb-2 text-xs text-gray-500">Medium - 20×20px (기본)</p>
         <div className="flex items-center gap-3">
-          <CheckBox size="md" defaultChecked={false} />
-          <CheckBox size="md" defaultChecked={true} />
+          <Checkbox size="md" defaultChecked={false} />
+          <Checkbox size="md" defaultChecked={true} />
         </div>
       </div>
       <div>
         <p className="mb-2 text-xs text-gray-500">Large - 24×24px</p>
         <div className="flex items-center gap-3">
-          <CheckBox size="lg" defaultChecked={false} />
-          <CheckBox size="lg" defaultChecked={true} />
+          <Checkbox size="lg" defaultChecked={false} />
+          <Checkbox size="lg" defaultChecked={true} />
         </div>
       </div>
     </div>
@@ -79,19 +79,19 @@ export const States: Story = {
     <div className="flex flex-col gap-4">
       <div>
         <p className="mb-2 text-xs text-gray-500">Unchecked (기본)</p>
-        <CheckBox size="md" defaultChecked={false} />
+        <Checkbox size="md" defaultChecked={false} />
       </div>
       <div>
         <p className="mb-2 text-xs text-gray-500">Checked</p>
-        <CheckBox size="md" defaultChecked={true} />
+        <Checkbox size="md" defaultChecked={true} />
       </div>
       <div>
         <p className="mb-2 text-xs text-gray-500">Disabled - Unchecked</p>
-        <CheckBox size="md" defaultChecked={false} disabled />
+        <Checkbox size="md" defaultChecked={false} disabled />
       </div>
       <div>
         <p className="mb-2 text-xs text-gray-500">Disabled - Checked</p>
-        <CheckBox size="md" defaultChecked={true} disabled />
+        <Checkbox size="md" defaultChecked={true} disabled />
       </div>
     </div>
   ),
@@ -108,15 +108,15 @@ export const AllSizesWithStates: Story = {
         <div className="flex items-center gap-4">
           <div className="flex flex-col gap-2">
             <p className="text-xs text-gray-500">Unchecked</p>
-            <CheckBox size="sm" defaultChecked={false} />
+            <Checkbox size="sm" defaultChecked={false} />
           </div>
           <div className="flex flex-col gap-2">
             <p className="text-xs text-gray-500">Checked</p>
-            <CheckBox size="sm" defaultChecked={true} />
+            <Checkbox size="sm" defaultChecked={true} />
           </div>
           <div className="flex flex-col gap-2">
             <p className="text-xs text-gray-500">Disabled</p>
-            <CheckBox size="sm" defaultChecked={false} disabled />
+            <Checkbox size="sm" defaultChecked={false} disabled />
           </div>
         </div>
       </div>
@@ -125,15 +125,15 @@ export const AllSizesWithStates: Story = {
         <div className="flex items-center gap-4">
           <div className="flex flex-col gap-2">
             <p className="text-xs text-gray-500">Unchecked</p>
-            <CheckBox size="md" defaultChecked={false} />
+            <Checkbox size="md" defaultChecked={false} />
           </div>
           <div className="flex flex-col gap-2">
             <p className="text-xs text-gray-500">Checked</p>
-            <CheckBox size="md" defaultChecked={true} />
+            <Checkbox size="md" defaultChecked={true} />
           </div>
           <div className="flex flex-col gap-2">
             <p className="text-xs text-gray-500">Disabled</p>
-            <CheckBox size="md" defaultChecked={false} disabled />
+            <Checkbox size="md" defaultChecked={false} disabled />
           </div>
         </div>
       </div>
@@ -142,15 +142,15 @@ export const AllSizesWithStates: Story = {
         <div className="flex items-center gap-4">
           <div className="flex flex-col gap-2">
             <p className="text-xs text-gray-500">Unchecked</p>
-            <CheckBox size="lg" defaultChecked={false} />
+            <Checkbox size="lg" defaultChecked={false} />
           </div>
           <div className="flex flex-col gap-2">
             <p className="text-xs text-gray-500">Checked</p>
-            <CheckBox size="lg" defaultChecked={true} />
+            <Checkbox size="lg" defaultChecked={true} />
           </div>
           <div className="flex flex-col gap-2">
             <p className="text-xs text-gray-500">Disabled</p>
-            <CheckBox size="lg" defaultChecked={false} disabled />
+            <Checkbox size="lg" defaultChecked={false} disabled />
           </div>
         </div>
       </div>
