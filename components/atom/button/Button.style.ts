@@ -40,15 +40,3 @@ export const buttonVariants = cva(
     },
   }
 );
-
-export const iconVariants = cva('inline-flex items-center justify-center', {
-  variants: {
-    size: {
-      sm: 'size-3',
-      md: 'size-4',
-    },
-  },
-  defaultVariants: {
-    size: 'sm',
-  },
-});
