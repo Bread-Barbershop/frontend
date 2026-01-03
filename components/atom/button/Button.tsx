@@ -1,16 +1,16 @@
 import { VariantProps } from 'class-variance-authority';
-import { ButtonHTMLAttributes, ReactNode } from 'react';
+import { ButtonHTMLAttributes } from 'react';
 
 import { cn } from '@/utils/cn';
 
-import { buttonVariants, iconVariants } from './Button.style';
+import { buttonVariants } from './Button.style';
 
 export interface ButtonProps
   extends
     ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {}
 
-const ButtonRoot = ({
+export const Button = ({
   children,
   variant,
   size,
@@ -26,18 +26,3 @@ const ButtonRoot = ({
     </button>
   );
 };
-
-interface ButtonIconProps extends VariantProps<typeof iconVariants> {
-  children: ReactNode;
-  className?: string;
-}
-
-const ButtonIcon = ({ children, className, size }: ButtonIconProps) => {
-  return (
-    <span className={cn(iconVariants({ size }), className)}>{children}</span>
-  );
-};
-
-export const Button = Object.assign(ButtonRoot, {
-  Icon: ButtonIcon,
-});
