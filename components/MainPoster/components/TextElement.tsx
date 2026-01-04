@@ -1,7 +1,7 @@
 'use client';
 
 import Konva from 'konva';
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Text, Transformer } from 'react-konva';
 
 import { TextShape } from '@/types/canvas';
@@ -9,21 +9,40 @@ import { TextShape } from '@/types/canvas';
 interface TextElementProps {
   shape: TextShape;
   isSelected: boolean;
-  onSelect: () => void;
+  selectedId: string | null;
+  isEditing: boolean;
+  isAddText: boolean;
+  onSelect: (
+    e: Konva.KonvaEventObject<MouseEvent | TouchEvent | KeyboardEvent>
+  ) => void;
   onChange: (attrs: Partial<TextShape>) => void;
+  onTextChange: (id: string, newText: string) => void;
+  onTransform: (id: string, node: Konva.Text) => void;
+  onTextDbClick: () => void;
+  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const TextElement = ({
   shape,
   isSelected,
+  selectedId,
+  isEditing,
+  isAddText,
   onSelect,
   onChange,
+  onTransform,
+  onTextDbClick,
 }: TextElementProps) => {
-  const textRef = useRef<Konva.Text>(null);
+  const textRef = useRef(null);
   const transformerRef = useRef<Konva.Transformer>(null);
 
   useEffect(() => {
-    if (isSelected && textRef.current && transformerRef.current) {
+    if (
+      isSelected &&
+      isAddText === false &&
+      textRef.current &&
+      transformerRef.current
+    ) {
       transformerRef.current.nodes([textRef.current]);
       transformerRef.current.getLayer()?.batchDraw();
     }
@@ -35,7 +54,10 @@ export const TextElement = ({
         ref={textRef}
         {...shape}
         draggable
+        wrap="word"
         onClick={onSelect}
+        onMouseDown={onSelect}
+        onTouchStart={onSelect}
         onTap={onSelect}
         onDragEnd={e => {
           onChange({
@@ -43,23 +65,27 @@ export const TextElement = ({
             y: e.target.y(),
           });
         }}
-        onTransformEnd={() => {
-          const node = textRef.current;
-          if (node) {
-            const scaleX = node.scaleX();
-            const scaleY = node.scaleY();
-
-            onChange({
-              x: node.x(),
-              y: node.y(),
-              rotation: node.rotation(),
-              scaleX,
-              scaleY,
-            });
+        onDblClick={onTextDbClick}
+        onDblTap={onTextDbClick}
+        onTransform={() => {
+          if (textRef.current) {
+            onTransform(shape.id, textRef.current);
+            // console.log(shape.id);
           }
         }}
+        visible={selectedId !== shape.id || !isEditing}
       />
-      {isSelected && <Transformer ref={transformerRef} />}
+      {isSelected && !isEditing && (
+        <Transformer
+          ref={transformerRef}
+          enabledAnchors={[
+            'top-center',
+            'bottom-center',
+            'middle-left',
+            'middle-right',
+          ]}
+        />
+      )}
     </>
   );
 };
