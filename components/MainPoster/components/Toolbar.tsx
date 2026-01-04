@@ -3,7 +3,7 @@
 import { ChangeEvent, useRef } from 'react';
 
 interface ToolbarProps {
-  onAddText: () => void;
+  onAddText: (isStart: boolean) => void;
   onAddImage: (src: string, width: number, height: number) => void;
 }
 
@@ -44,7 +44,7 @@ export const Toolbar = ({ onAddText, onAddImage }: ToolbarProps) => {
   return (
     <div className="flex gap-2 p-4 bg-gray-100 border-b border-gray-300">
       <button
-        onClick={onAddText}
+        onClick={() => onAddText(true)}
         className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
       >
         텍스트 추가
