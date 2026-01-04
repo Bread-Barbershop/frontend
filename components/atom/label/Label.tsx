@@ -1,18 +1,18 @@
+import { VariantProps } from 'class-variance-authority';
 import { LabelHTMLAttributes } from 'react';
 
 import { cn } from '@/utils/cn';
 
-type LabelProps = LabelHTMLAttributes<HTMLLabelElement>;
+import { labelVariants } from './Label.style';
+
+interface LabelProps
+  extends
+    LabelHTMLAttributes<HTMLLabelElement>,
+    VariantProps<typeof labelVariants> {}
 
 export const Label = ({ children, className, ...props }: LabelProps) => {
   return (
-    <label
-      className={cn(
-        'min-h-8 py-2 px-1 text-sm leading-4 text-text-primary',
-        className
-      )}
-      {...props}
-    >
+    <label className={cn(labelVariants(), className)} {...props}>
       {children}
     </label>
   );
