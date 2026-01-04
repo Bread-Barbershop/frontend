@@ -1,27 +1,21 @@
+import Konva from 'konva';
 import { useState, useCallback } from 'react';
 
-import { Shape, ShapeUpdate, TextShape, ImageShape } from '@/types/canvas';
+import {
+  Shape,
+  ShapeUpdate,
+  TextShape,
+  ImageShape,
+  TextBox,
+} from '@/types/canvas';
 
 export const useCanvas = () => {
   const [shapes, setShapes] = useState<Shape[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-
-  const addText = useCallback(() => {
-    const newText: TextShape = {
-      id: `text-${Date.now()}`,
-      type: 'text',
-      text: '텍스트를 입력하세요',
-      x: 100,
-      y: 100,
-      fontSize: 24,
-      fill: '#000000',
-      rotation: 0,
-      scaleX: 1,
-      scaleY: 1,
-    };
-    setShapes(prev => [...prev, newText]);
-    setSelectedId(newText.id);
-  }, []);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isAddText, setIsAddText] = useState(false);
+  const [newTextBox, setNewTextBox] = useState<TextBox | null>();
+  const [cursor, setCursor] = useState('default');
 
   const addImage = useCallback((src: string, width: number, height: number) => {
     const newImage: ImageShape = {
@@ -54,16 +48,133 @@ export const useCanvas = () => {
   }, []);
 
   const selectShape = useCallback((id: string | null) => {
+    setIsEditing(false);
     setSelectedId(id);
   }, []);
 
+  const handleTextDblClick = useCallback(() => {
+    setIsEditing(true);
+  }, []);
+
+  // 얘는 setter 바로 써버리고
+  const handleTextChange = useCallback((id: string, newText: string) => {
+    console.log({ newText });
+    setShapes(prev =>
+      prev.map(shape => (shape.id === id ? { ...shape, text: newText } : shape))
+    );
+  }, []);
+
+  // 얘는 update함수를 통해 setter를 쓰고
+  // 내보내기는 셋다 내보내니까,, handle만 내보내던지 updateShape으로 통일할지 정해야함
+  const handleTransform = useCallback(
+    (id: string, node: Konva.Text) => {
+      const scaleX = node.scaleX();
+      const scaleY = node.scaleY();
+      const newWidth = node.width() * scaleX;
+      const newHeight = node.height() * scaleY;
+      const rotation = node.rotation();
+
+      node.setAttrs({
+        width: newWidth,
+        height: newHeight,
+        scaleX: 1,
+        scaleY: 1,
+      });
+
+      updateShape(id, {
+        width: newWidth,
+        height: newHeight,
+        rotation: rotation,
+        x: node.x(),
+        y: node.y(),
+      });
+    },
+    [updateShape]
+  );
+
+  const toggleTextBoxMode = (isStart: boolean) => {
+    setIsAddText(isStart);
+    if (isStart) setCursor('crosshair');
+    else setCursor('default');
+  };
+
+  const drawTextBoxStart = (
+    e: Konva.KonvaEventObject<MouseEvent | TouchEvent>
+  ) => {
+    if (!isAddText) return;
+    const stage = e.target.getStage();
+    if (e.target !== stage) return;
+
+    const position = stage.getPointerPosition();
+    if (!position || !position.x || !position.y) return;
+    setNewTextBox({ x: position?.x, y: position?.y, width: 0, height: 0 });
+  };
+
+  const drawTextBoxMove = (
+    e: Konva.KonvaEventObject<MouseEvent | TouchEvent>
+  ) => {
+    if (!isAddText) return;
+    const stage = e.target.getStage();
+    if (e.target !== stage) return;
+
+    const position = stage.getPointerPosition();
+    if (!position || !position.x || !position.y) return;
+    setNewTextBox(
+      prev =>
+        prev && {
+          ...prev,
+          width: position.x - prev.x,
+          height: position.y - prev.y,
+        }
+    );
+  };
+
+  const drawTextBoxEnd = () => {
+    if (!isAddText) return;
+    if (!newTextBox) {
+      setNewTextBox(null);
+      return;
+    }
+
+    const newText: TextShape = {
+      id: `text-${Date.now()}`,
+      type: 'text',
+      text: '텍스트를 입력하세요',
+      width: Math.abs(newTextBox.width),
+      x: newTextBox.width > 0 ? newTextBox.x : newTextBox.x + newTextBox.width,
+      y:
+        newTextBox.height > 0 ? newTextBox.y : newTextBox.y + newTextBox.height,
+      fontSize: 24,
+      fontFamily: 'Arial',
+      fill: '#000000',
+      rotation: 0,
+      scaleX: 1,
+      scaleY: 1,
+    };
+    setShapes(prev => [...prev, newText]);
+    setSelectedId(newText.id);
+    setNewTextBox(null);
+    toggleTextBoxMode(false);
+  };
+
   return {
     shapes,
-    selectedId,
-    addText,
+    cursor,
     addImage,
     updateShape,
     deleteShape,
     selectShape,
+    selectedId,
+    handleTextDblClick,
+    handleTextChange,
+    handleTransform,
+    isEditing,
+    setIsEditing,
+    isAddText,
+    toggleTextBoxMode,
+    newTextBox,
+    drawTextBoxStart,
+    drawTextBoxMove,
+    drawTextBoxEnd,
   };
 };
