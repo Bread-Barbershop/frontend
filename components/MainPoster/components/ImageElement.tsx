@@ -9,7 +9,9 @@ import { ImageShape } from '@/types/canvas';
 interface ImageElementProps {
   shape: ImageShape;
   isSelected: boolean;
-  onSelect: () => void;
+  onSelect: (
+    e: Konva.KonvaEventObject<MouseEvent | TouchEvent | KeyboardEvent>
+  ) => void;
   onChange: (attrs: Partial<ImageShape>) => void;
 }
 export const ImageElement = ({
@@ -31,11 +33,12 @@ export const ImageElement = ({
   }, [shape.src]);
 
   useEffect(() => {
-    if (isSelected && imageRef.current && transformerRef.current) {
+    if (!transformerRef.current || !imageRef.current) return;
+    if (isSelected) {
       transformerRef.current.nodes([imageRef.current]);
       transformerRef.current.getLayer()?.batchDraw();
     }
-  }, [isSelected]);
+  }, [isSelected, image]);
 
   if (!image) return null;
 
@@ -54,6 +57,8 @@ export const ImageElement = ({
         scaleY={shape.scaleY}
         draggable
         onClick={onSelect}
+        onMouseDown={onSelect}
+        onTouchStart={onSelect}
         onTap={onSelect}
         onDragEnd={e => {
           onChange({
