@@ -25,25 +25,25 @@ export const MultiField = ({
   const generatedId = useId();
   const baseId = id || generatedId;
 
-  const mainId = `${baseId}-first`;
-  const subId = `${baseId}-second`;
+  const mainId = `${baseId}-main`;
+  const subId = `${baseId}-sub`;
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      <Label htmlFor={subId} className="font-semibold shrink-0">
+      <Label htmlFor={mainId} className="font-semibold shrink-0">
         {label}
       </Label>
       <Input
         id={subId}
         {...subInputProps}
         disabled={disabled || subInputProps.disabled}
-        className={cn(subInputProps.className)}
+        className={subInputProps.className}
       />
       <Input
         id={mainId}
         {...mainInputProps}
         disabled={disabled || mainInputProps.disabled}
-        className={cn(mainInputProps.className)}
+        className={mainInputProps.className}
       />
     </div>
   );
