@@ -5,7 +5,7 @@ import { KonvaEventObject } from 'konva/lib/Node';
 import React, { useEffect, useRef } from 'react';
 import { Stage, Layer, Rect } from 'react-konva';
 
-import { Shape, TextBox, TextShape } from '@/types/canvas';
+import { Shape, TextBox, TextShape } from '../types/canvas';
 
 import { ImageElement } from './ImageElement';
 import { TextArea } from './TextArea';

@@ -7,7 +7,7 @@ import {
   TextShape,
   ImageShape,
   TextBox,
-} from '@/types/canvas';
+} from '../types/canvas';
 
 export const useCanvas = () => {
   const [shapes, setShapes] = useState<Shape[]>([]);

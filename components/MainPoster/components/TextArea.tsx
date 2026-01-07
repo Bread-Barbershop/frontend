@@ -3,7 +3,7 @@
 import { Stage } from 'konva/lib/Stage';
 import React, { useEffect, useRef } from 'react';
 
-import { ShapeUpdate, TextShape } from '@/types/canvas';
+import { ShapeUpdate, TextShape } from '../types/canvas';
 
 interface Props {
   shape: TextShape;

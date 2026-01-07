@@ -4,7 +4,7 @@ import Konva from 'konva';
 import React, { useEffect, useRef } from 'react';
 import { Text, Transformer } from 'react-konva';
 
-import { TextShape } from '@/types/canvas';
+import { TextShape } from '../types/canvas';
 
 interface TextElementProps {
   shape: TextShape;
