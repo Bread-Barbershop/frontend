@@ -4,7 +4,7 @@ import Konva from 'konva';
 import { useEffect, useRef, useState } from 'react';
 import { Image, Transformer } from 'react-konva';
 
-import { ImageShape } from '@/types/canvas';
+import { ImageShape } from '../types/canvas';
 
 interface ImageElementProps {
   shape: ImageShape;
