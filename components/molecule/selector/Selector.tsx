@@ -1,31 +1,39 @@
 import { ChevronDown } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, ChangeEvent } from 'react';
 
 import { cn } from '@/utils/cn';
+
+interface Option {
+  label: string;
+  value: string;
+}
 
 interface SelectorProps<T> {
   options: T[];
   placeholder?: string;
   className?: string;
+  onInputChange?: (value: string) => void;
   onSelect: (option: T | { label: string; value: string }) => void;
   selected: T | { label: string; value: string } | null;
 }
 
-export const Selector = <T extends { label: string; value: string }>({
+export const Selector = <T extends Option>({
   options,
   placeholder = '선택',
   className,
   onSelect,
+  onInputChange,
   selected,
 }: SelectorProps<T>) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCustomInput, setIsCustomInput] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // 직접 입력 모드로 전환될 때 포커스 처리
-  useEffect(() => {
-    if (isCustomInput) inputRef.current?.focus();
-  }, [isCustomInput]);
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    onInputChange?.(e.target.value);
+    onSelect({ label: e.target.value, value: 'custom' } as T);
+  };
 
   const handleSelect = (option: T) => {
     setIsCustomInput(false);
@@ -33,13 +41,34 @@ export const Selector = <T extends { label: string; value: string }>({
     setIsOpen(false);
   };
 
-  const handleCustomClick = () => {
+  const handleToggle = () => setIsOpen(!isOpen);
+
+  const handleCustomMenuItemClick = () => {
     setIsCustomInput(true);
-    setIsOpen(false); // 리스트 닫기
+    setIsOpen(false);
+    onSelect({ label: '', value: 'custom' } as T);
   };
 
+  // 직접 입력 모드로 전환될 때 포커스 처리
+  useEffect(() => {
+    if (isCustomInput) inputRef.current?.focus();
+  }, [isCustomInput]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
-    <div className={cn('relative min-w-[72px]', className)}>
+    <div ref={containerRef} className={cn('relative min-w-[72px]', className)}>
       <div
         className={cn(
           'flex items-center justify-between w-full px-2 py-2 text-sm bg-background-base border transition-all border-neutral-border',
@@ -52,14 +81,14 @@ export const Selector = <T extends { label: string; value: string }>({
             type="text"
             className="w-full bg-transparent outline-none text-text-primary"
             value={selected?.label || ''}
-            onChange={e => onSelect({ label: e.target.value, value: 'custom' })}
+            onChange={handleInputChange}
             onBlur={() => {
               if (!selected?.label) setIsCustomInput(false);
             }}
           />
         ) : (
           <button
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={handleToggle}
             className="flex items-center justify-between w-full text-left"
           >
             <span className="text-text-primary truncate">
@@ -74,7 +103,6 @@ export const Selector = <T extends { label: string; value: string }>({
           </button>
         )}
       </div>
-
       {isOpen && (
         <ul className="absolute z-10 w-full bg-background-base border border-neutral-border border-t-0 rounded-b-lg overflow-hidden shadow-lg">
           {options.map(option => (
@@ -86,12 +114,15 @@ export const Selector = <T extends { label: string; value: string }>({
               {option.label}
             </li>
           ))}
-          <li
-            onClick={handleCustomClick}
-            className="px-3 py-2 text-sm text-blue-500 font-medium border-t border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
-          >
-            직접 입력
-          </li>
+          {/* onInputChange 프롭이 있을 때만 '직접 입력' 항목 표시 */}
+          {onInputChange && (
+            <li
+              onClick={handleCustomMenuItemClick}
+              className="px-3 py-2 text-blue-500 font-medium border-t hover:bg-blue-50 cursor-pointer text-sm"
+            >
+              직접 입력
+            </li>
+          )}
         </ul>
       )}
     </div>
