@@ -2,8 +2,8 @@
 
 import { forwardRef, InputHTMLAttributes, ReactNode, useId } from 'react';
 
-import { CheckboxIndicator } from '@/components/atom/checkbox-indicator';
-import { Label } from '@/components/atom/label';
+import { CheckboxIndicator } from '@/components/atoms/checkbox-indicator';
+import { Label } from '@/components/atoms/label';
 import { cn } from '@/utils/cn';
 
 import { checkboxVariants } from './Check.style';

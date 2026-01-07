@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { MultiField } from './MultiField';
 
 const meta = {
-  title: 'Molecule/MultiField',
+  title: 'Molecules/MultiField',
   component: MultiField,
   decorators: [
     Story => (

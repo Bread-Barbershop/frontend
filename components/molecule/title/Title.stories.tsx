@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { ArrowLeftIcon, PlusIcon } from 'lucide-react';
 
-import { Button } from '@/components/atom/button';
+import { Button } from '@/components/atoms/button';
 import { Title } from './Title';
 
 const meta = {
-  title: 'Molecule/Title',
+  title: 'Molecules/Title',
   component: Title,
   parameters: {
     layout: 'fullscreen',

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 import { CheckboxIndicator } from './CheckboxIndicator';
 const meta = {
-  title: 'Atom/CheckboxIndicator',
+  title: 'Atoms/CheckboxIndicator',
   component: CheckboxIndicator,
   argTypes: {
     size: {

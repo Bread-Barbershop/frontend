@@ -4,7 +4,7 @@ import { Button } from './Button';
 import { PlusIcon } from 'lucide-react';
 
 const meta = {
-  title: 'Atom/Button',
+  title: 'Atoms/Button',
   component: Button,
   argTypes: {
     variant: {

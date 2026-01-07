@@ -1,8 +1,8 @@
 import React, { useId, ComponentPropsWithoutRef } from 'react';
 
-import { Button } from '@/components/atom/button';
-import { Input } from '@/components/atom/input';
-import { Label } from '@/components/atom/label';
+import { Button } from '@/components/atoms/button';
+import { Input } from '@/components/atoms/input';
+import { Label } from '@/components/atoms/label';
 import { cn } from '@/utils/cn';
 
 interface ActionFieldProps {

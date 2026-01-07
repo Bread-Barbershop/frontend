@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { ToastBar } from './ToastBar';
 
 const meta = {
-  title: 'Molecule/ToastBar',
+  title: 'Molecules/ToastBar',
   component: ToastBar,
   decorators: [
     Story => (

@@ -1,7 +1,7 @@
 import { ComponentPropsWithoutRef, useId } from 'react';
 
-import { Input } from '@/components/atom/input';
-import { Label } from '@/components/atom/label';
+import { Input } from '@/components/atoms/input';
+import { Label } from '@/components/atoms/label';
 import { cn } from '@/utils/cn';
 
 interface MultiFieldProps {

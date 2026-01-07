@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { TextField } from './TextField';
 
 const meta = {
-  title: 'Molecule/TextField',
+  title: 'Molecules/TextField',
   component: TextField,
   decorators: [
     Story => (

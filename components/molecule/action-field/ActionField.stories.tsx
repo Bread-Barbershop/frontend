@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { ActionField } from './ActionField';
 
 const meta = {
-  title: 'Molecule/ActionField',
+  title: 'Molecules/ActionField',
   component: ActionField,
   decorators: [
     Story => (

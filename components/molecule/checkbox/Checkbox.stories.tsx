@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Checkbox } from './Checkbox';
 
 const meta = {
-  title: 'Molecule/Checkbox',
+  title: 'Molecules/Checkbox',
   component: Checkbox,
   argTypes: {
     defaultChecked: {
