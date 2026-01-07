@@ -2,7 +2,7 @@
 
 import Konva from 'konva';
 import { KonvaEventObject } from 'konva/lib/Node';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Stage, Layer, Rect } from 'react-konva';
 
 import { Shape, TextBox, TextShape } from '@/types/canvas';
@@ -18,6 +18,7 @@ interface CanvasProps {
   cursor: string;
   onSelect: (id: string | null) => void;
   onUpdateShape: (id: string, attrs: Partial<Shape>) => void;
+  handleDeleteShape: (e: KeyboardEvent) => void;
   handleTextChange: (id: string, newText: string) => void;
   handleTransform: (id: string, node: Konva.Text) => void;
   handleTextDblClick: () => void;
@@ -36,6 +37,7 @@ export const Canvas = ({
   cursor,
   onSelect,
   onUpdateShape,
+  handleDeleteShape,
   handleTextChange,
   handleTransform,
   handleTextDblClick,
@@ -60,6 +62,11 @@ export const Canvas = ({
     }
     console.log('스테이지 클릭');
   };
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleDeleteShape);
+    return () => window.removeEventListener('keydown', handleDeleteShape);
+  }, [handleDeleteShape]);
 
   return (
     <div className="flex-1 overflow-hidden bg-gray-50 relative">

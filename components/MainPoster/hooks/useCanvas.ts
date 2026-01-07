@@ -42,15 +42,36 @@ export const useCanvas = () => {
     );
   }, []);
 
+  const selectShape = useCallback((id: string | null) => {
+    setIsEditing(false);
+    setSelectedId(id);
+  }, []);
+
   const deleteShape = useCallback((id: string) => {
     setShapes(prev => prev.filter(shape => shape.id !== id));
     setSelectedId(null);
   }, []);
 
-  const selectShape = useCallback((id: string | null) => {
-    setIsEditing(false);
-    setSelectedId(id);
-  }, []);
+  const handleDeleteShape = useCallback(
+    (e: KeyboardEvent) => {
+      if (
+        !isEditing &&
+        selectedId &&
+        (e.key === 'Delete' || e.key === 'Backspace')
+      ) {
+        e.preventDefault();
+        deleteShape(selectedId);
+      } else if (!selectedId && e.key === 'Backspace') {
+        const checkGoToBack = confirm(
+          '정말 뒤돌아가시겠습니까? 저장되지 않은 내역은 모두 사라집니다'
+        );
+        if (!checkGoToBack) {
+          e.preventDefault();
+        }
+      }
+    },
+    [isEditing, selectedId, shapes]
+  );
 
   const handleTextDblClick = useCallback(() => {
     setIsEditing(true);
@@ -165,6 +186,7 @@ export const useCanvas = () => {
     deleteShape,
     selectShape,
     selectedId,
+    handleDeleteShape,
     handleTextDblClick,
     handleTextChange,
     handleTransform,

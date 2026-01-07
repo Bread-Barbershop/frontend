@@ -12,6 +12,7 @@ const MainPoster = () => {
     addImage,
     updateShape,
     selectShape,
+    handleDeleteShape,
     handleTextChange,
     handleTransform,
     handleTextDblClick,
@@ -36,6 +37,7 @@ const MainPoster = () => {
         isAddText={isAddText}
         onSelect={selectShape}
         onUpdateShape={updateShape}
+        handleDeleteShape={handleDeleteShape}
         handleTextChange={handleTextChange}
         handleTransform={handleTransform}
         handleTextDblClick={handleTextDblClick}
