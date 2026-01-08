@@ -5,7 +5,7 @@ const commonStyles =
 
 // 1. 배경 박스 스타일
 export const radioVariants = cva(
-  ` bg-background-base border-2 border-button-disabled peer-checked:border-primary ${commonStyles}`,
+  ` bg-background-base border-2 border-button-disabled transition-color duration-200 peer-checked:border-primary ${commonStyles}`,
   {
     variants: {
       size: {
@@ -20,7 +20,7 @@ export const radioVariants = cva(
 
 // 2. 인디케이터(중앙 점) 스타일
 export const indicatorVariants = cva(
-  `absolute peer-checked:bg-primary ${commonStyles}`,
+  `absolute transition-color duration-200 peer-checked:bg-primary ${commonStyles}`,
   {
     variants: {
       size: {
