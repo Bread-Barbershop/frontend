@@ -9,7 +9,7 @@ export default function GoogleLoginButton() {
     const top = window.screenY + (window.outerHeight - height) / 2;
 
     window.open(
-      '/api/auth/google/start',
+      '/api/auth/login',
       'google-oauth',
       `width=${width},height=${height},left=${left},top=${top}`
     );
