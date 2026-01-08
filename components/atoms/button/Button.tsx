@@ -14,12 +14,14 @@ export const Button = ({
   children,
   variant,
   size,
+  type = 'button',
   className,
   ...props
 }: ButtonProps) => {
   return (
     <button
       className={cn(buttonVariants({ variant, size }), className)}
+      type={type}
       {...props}
     >
       {children}

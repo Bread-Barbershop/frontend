@@ -1,0 +1,34 @@
+import { ReactNode } from 'react';
+
+import { cn } from '@/utils/cn';
+
+import { actionVariants } from './Title.style';
+
+interface TitleProps {
+  children: ReactNode;
+  action?: ReactNode;
+  direction?: 'left' | 'right';
+  className?: string;
+}
+export const Title = ({
+  children,
+  action,
+  direction = 'right',
+  className,
+}: TitleProps) => {
+  return (
+    <div
+      className={cn(
+        'relative flex-center w-full min-h-[44px] bg-transparent',
+        className
+      )}
+    >
+      <h3 className="font-semibold leading-[17px] py-[13.5px] text-center">
+        {children}
+      </h3>
+      {action && (
+        <div className={cn(actionVariants({ direction }))}>{action}</div>
+      )}
+    </div>
+  );
+};

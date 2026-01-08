@@ -1,6 +1,6 @@
-import { Button, ButtonProps } from '@/components/atom/button/Button';
+import { Button, ButtonProps } from '@/components/atoms/button/Button';
 
-import * as ButtonStories from '@/components/atom/button/Button.stories';
+import * as ButtonStories from '@/components/atoms/button/Button.stories';
 
 import { fireEvent, render, screen } from '@testing-library/react';
 

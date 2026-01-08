@@ -3,4 +3,8 @@
   .flex-center {
     @apply flex items-center justify-center;
   }
+
+  .cursor-inherit {
+    cursor: inherit;
+  }
 }

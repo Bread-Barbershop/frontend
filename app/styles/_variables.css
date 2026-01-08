@@ -30,4 +30,15 @@
   /* Neutral */
   --color-neutral-border: #eaeaea;
   --color-neutral-liner: #444444;
+
+  /* Toast */
+  --color-toast-success-primary: #2db400;
+  --color-toast-error-primary: #ff0000;
+  --color-toast-warning-primary: #ff8c00;
+  --color-toast-info-primary: #1c7ed6;
+
+  --color-toast-success-secondary: #e6f7e6;
+  --color-toast-error-secondary: #ffe8e8;
+  --color-toast-warning-secondary: #fff2e3;
+  --color-toast-info-secondary: #d9efff;
 }
