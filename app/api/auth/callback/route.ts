@@ -5,6 +5,7 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
   const error = searchParams.get('error');
+  const stateFromGoogle = searchParams.get('state');
 
   if (error) {
     return NextResponse.json(
@@ -16,6 +17,14 @@ export async function GET(request: Request) {
   if (!code) {
     return NextResponse.json({ error: 'No code provided' }, { status: 400 });
   }
+
+  const cookieStore = await cookies();
+  const stateInCookie = cookieStore.get('oauth_state')?.value;
+  if (!stateFromGoogle || !stateInCookie || stateFromGoogle !== stateInCookie) {
+    return NextResponse.json({ error: 'Invalid state' }, { status: 400 });
+  }
+
+  cookieStore.set('oauth_state', '', { path: '/', maxAge: 0 });
 
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -41,7 +50,6 @@ export async function GET(request: Request) {
     }
 
     // 브라우저에 쿠키 심기.
-    const cookieStore = await cookies();
     const isProd = process.env.NODE_ENV === 'production';
 
     // Access Token 저장

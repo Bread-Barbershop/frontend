@@ -1,4 +1,7 @@
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+
+import { generateOAuthState } from '@/app/oauthTest/utils/generateOAuthState';
 
 export async function GET(request: Request) {
   const origin = new URL(request.url).origin;
@@ -13,6 +16,18 @@ export async function GET(request: Request) {
 
   const redirectUri = `${origin}/api/auth/callback`;
 
+  const state = generateOAuthState();
+  const cookieStore = await cookies();
+  const isProd = process.env.NODE_ENV === 'production';
+
+  cookieStore.set('oauth_state', state, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 60 * 10, // 10분만 유효
+  });
+
   const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
   authUrl.searchParams.set('client_id', clientId);
   authUrl.searchParams.set('redirect_uri', redirectUri);
@@ -20,7 +35,7 @@ export async function GET(request: Request) {
   authUrl.searchParams.set('access_type', 'offline');
   authUrl.searchParams.set('prompt', 'consent');
   authUrl.searchParams.set('scope', 'openid');
-  authUrl.searchParams.set('state', 'dev-temp-state');
+  authUrl.searchParams.set('state', state);
 
   return NextResponse.redirect(authUrl);
 }
