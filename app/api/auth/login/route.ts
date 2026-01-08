@@ -2,6 +2,10 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 import { generateOAuthState } from '@/app/oauthTest/utils/generateOAuthState';
+import {
+  generateCodeVerifier,
+  generateCodeChallenge,
+} from '@/app/oauthTest/utils/pkce';
 
 export async function GET(request: Request) {
   const origin = new URL(request.url).origin;
@@ -17,6 +21,8 @@ export async function GET(request: Request) {
   const redirectUri = `${origin}/api/auth/callback`;
 
   const state = generateOAuthState();
+  const codeVerifier = generateCodeVerifier();
+  const codeChallenge = generateCodeChallenge(codeVerifier);
   const cookieStore = await cookies();
   const isProd = process.env.NODE_ENV === 'production';
 
@@ -28,6 +34,14 @@ export async function GET(request: Request) {
     maxAge: 60 * 10, // 10분만 유효
   });
 
+  cookieStore.set('pkce_code_verifier', codeVerifier, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 60 * 10,
+  });
+
   const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
   authUrl.searchParams.set('client_id', clientId);
   authUrl.searchParams.set('redirect_uri', redirectUri);
@@ -36,6 +50,8 @@ export async function GET(request: Request) {
   authUrl.searchParams.set('prompt', 'consent');
   authUrl.searchParams.set('scope', 'openid');
   authUrl.searchParams.set('state', state);
+  authUrl.searchParams.set('code_challenge', codeChallenge);
+  authUrl.searchParams.set('code_challenge_method', 'S256');
 
   return NextResponse.redirect(authUrl);
 }

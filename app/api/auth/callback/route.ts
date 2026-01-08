@@ -24,7 +24,16 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Invalid state' }, { status: 400 });
   }
 
+  const codeVerifier = cookieStore.get('pkce_code_verifier')?.value;
+  if (!codeVerifier) {
+    return NextResponse.json(
+      { error: 'Missing PKCE code_verifier' },
+      { status: 400 }
+    );
+  }
+
   cookieStore.set('oauth_state', '', { path: '/', maxAge: 0 });
+  cookieStore.set('pkce_code_verifier', '', { path: '/', maxAge: 0 });
 
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -40,6 +49,7 @@ export async function GET(request: Request) {
         client_secret: clientSecret!,
         redirect_uri: redirectUri,
         grant_type: 'authorization_code',
+        code_verifier: codeVerifier,
       }),
     });
 
