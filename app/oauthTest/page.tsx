@@ -1,5 +1,5 @@
-// app/(auth)/login/page.tsx
 import GoogleLoginButton from './components/GoogleLoginButton';
+import LoginStatusListener from './components/LoginStatusListener';
 
 export const metadata = {
   title: '로그인 | 모바일 청첩장',
@@ -18,6 +18,7 @@ export default function LoginPage() {
         <div className="mt-6">
           <GoogleLoginButton />
         </div>
+        <LoginStatusListener />
       </div>
     </main>
   );

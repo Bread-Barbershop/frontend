@@ -82,7 +82,36 @@ export async function GET(request: Request) {
       });
     }
 
-    return NextResponse.redirect(`${origin}/`);
+    const html = `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>로그인 완료</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 24px; }
+    </style>
+  </head>
+  <body>
+    <p>로그인 성공! 창을 닫는 중...</p>
+    <script>
+      (function () {
+        try {
+          // 부모창에 "로그인 성공" 전달
+          if (window.opener && !window.opener.closed) {
+            window.opener.postMessage({ type: 'GOOGLE_OAUTH_SUCCESS' }, '${origin}');
+          }
+        } catch (e) {}
+        // 팝업 닫기
+        window.close();
+      })();
+    </script>
+  </body>
+</html>`;
+
+    return new NextResponse(html, {
+      headers: { 'Content-Type': 'text/html; charset=utf-8' },
+    });
   } catch (_err) {
     console.error('Token Exchange Error occurred');
     return NextResponse.json(
