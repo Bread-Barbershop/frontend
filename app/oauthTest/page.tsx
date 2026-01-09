@@ -1,3 +1,4 @@
+import CreateWorkspaceButton from './components/CreateWorkspaceButton';
 import GoogleLoginButton from './components/GoogleLoginButton';
 import LoginStatusListener from './components/LoginStatusListener';
 
@@ -19,6 +20,7 @@ export default function LoginPage() {
           <GoogleLoginButton />
         </div>
         <LoginStatusListener />
+        <CreateWorkspaceButton />
       </div>
     </main>
   );
