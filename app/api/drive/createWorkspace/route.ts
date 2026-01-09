@@ -25,8 +25,9 @@ export async function POST() {
 
     const searchParams = new URLSearchParams({
       q,
-      fields: 'files(id,name)',
-      pageSize: '1',
+      fields: 'files(id,name,createdTime)',
+      orderBy: 'createdTime', // 오래된 순으로 정렬.
+      pageSize: '1', // 가장 오래된걸 반환.
     });
 
     const searchResponse = await fetch(

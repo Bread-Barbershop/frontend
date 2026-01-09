@@ -3,6 +3,7 @@
 import { useState } from 'react';
 
 export default function CreateWorkspaceButton() {
+  // 로딩 상태로 워크스페이스 중복 생성 방지. (나중에 이사갈 때 꼭 필요함.)
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [folderId, setFolderId] = useState<string | null>(null);
