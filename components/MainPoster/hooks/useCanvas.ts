@@ -78,12 +78,19 @@ export const useCanvas = () => {
   }, []);
 
   // 얘는 setter 바로 써버리고
-  const handleTextChange = useCallback((id: string, newText: string) => {
-    console.log({ newText });
-    setShapes(prev =>
-      prev.map(shape => (shape.id === id ? { ...shape, text: newText } : shape))
-    );
-  }, []);
+  const handleTextChange = useCallback(
+    (id: string, newText: string, html?: string) => {
+      console.log({ newText, html });
+      setShapes(prev =>
+        prev.map(shape =>
+          shape.id === id
+            ? { ...shape, text: newText, ...(html && { html }) }
+            : shape
+        )
+      );
+    },
+    []
+  );
 
   // 얘는 update함수를 통해 setter를 쓰고
   // 내보내기는 셋다 내보내니까,, handle만 내보내던지 updateShape으로 통일할지 정해야함
@@ -161,6 +168,7 @@ export const useCanvas = () => {
       id: `text-${Date.now()}`,
       type: 'text',
       text: '텍스트를 입력하세요',
+      html: '<p>텍스트를 입력하세요</p>',
       width: Math.abs(newTextBox.width),
       x: newTextBox.width > 0 ? newTextBox.x : newTextBox.x + newTextBox.width,
       y:

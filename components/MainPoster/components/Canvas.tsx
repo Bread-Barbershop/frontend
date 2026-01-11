@@ -19,7 +19,7 @@ interface CanvasProps {
   onSelect: (id: string | null) => void;
   onUpdateShape: (id: string, attrs: Partial<Shape>) => void;
   handleDeleteShape: (e: KeyboardEvent) => void;
-  handleTextChange: (id: string, newText: string) => void;
+  handleTextChange: (id: string, newText: string, html?: string) => void;
   handleTransform: (id: string, node: Konva.Text) => void;
   handleTextDblClick: () => void;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;

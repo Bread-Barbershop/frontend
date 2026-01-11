@@ -13,6 +13,8 @@ export interface BaseShape {
 export interface TextShape extends BaseShape {
   type: 'text';
   text: string;
+  html?: string; // tiptap HTML content
+  imageSrc?: string; // HTML을 이미지로 변환한 데이터 URL
   fontSize: number;
   fontFamily: string;
   fill: string;
