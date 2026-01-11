@@ -1,19 +1,14 @@
 import 'server-only';
-import { refreshWithGoogle } from './tokenRefresh';
+import { cookies } from 'next/headers';
 
-type CookieStoreLike = {
-  get(name: string): { value: string } | undefined;
-};
+import { tokenRefresh } from './tokenRefresh';
 
-export async function googleFetch(
-  cookieStore: CookieStoreLike,
-  url: string,
-  init: RequestInit = {}
-) {
+export async function googleFetch(url: string, init: RequestInit = {}) {
+  const cookieStore = await cookies();
   const accessToken = cookieStore.get('access_token')?.value;
   const refreshToken = cookieStore.get('refresh_token')?.value;
 
-  if (!accessToken) throw new Error('unauthorized');
+  if (!accessToken) throw new Error('유효한 요청이 아닙니다.');
 
   const doFetch = (token: string) =>
     fetch(url, {
@@ -24,26 +19,30 @@ export async function googleFetch(
       },
     });
 
-  // 1차 요청
   let res = await doFetch(accessToken);
 
-  // 401이면 refresh 후 1회 재시도
-  // 여기도 실패했을때는 라우트핸들러에서 처리해야 함.
   if (res.status === 401) {
-    if (!refreshToken) throw new Error('need_relogin');
+    if (!refreshToken) throw new Error('재로그인이 필요합니다.');
 
-    const refreshed = await refreshWithGoogle(refreshToken);
+    const refreshed = await tokenRefresh(refreshToken);
+
+    cookieStore.set('access_token', refreshed.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      expires: new Date(refreshed.expiresAt),
+    });
+
+    if (refreshed.refreshToken) {
+      cookieStore.set('refresh_token', refreshed.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+      });
+    }
+
     res = await doFetch(refreshed.accessToken);
-
-    return {
-      res,
-      refreshed: {
-        accessToken: refreshed.accessToken,
-        expiresAt: refreshed.expiresAt,
-        refreshToken: refreshed.refreshToken,
-      },
-    };
   }
 
-  return { res, refreshed: null as null };
+  return res;
 }

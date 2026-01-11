@@ -1,15 +1,8 @@
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+import { googleFetch } from '@/app/oauthTest/utils/googleFetch';
+
 export async function POST() {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get('access_token')?.value;
-
-  // access token이 없으면 인증이 필요함
-  if (!accessToken) {
-    return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
-  }
-
   try {
     const WORKSPACE_NAME = '나의 모바일 청첩장'; // 사용자가 보게 될 워크스페이스 폴더 이름
     const APP_IDENTIFIER = 'Bread-Barbershop'; // 우리 서비스를 식별하기 위한 메타데이터.
@@ -30,11 +23,8 @@ export async function POST() {
       pageSize: '1', // 가장 오래된걸 반환.
     });
 
-    const searchResponse = await fetch(
-      `https://www.googleapis.com/drive/v3/files?${searchParams.toString()}`,
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }
+    const searchResponse = await googleFetch(
+      `https://www.googleapis.com/drive/v3/files?${searchParams.toString()}`
     );
 
     const searchData = await searchResponse.json();
@@ -59,12 +49,11 @@ export async function POST() {
     }
 
     // 3. 폴더가 없으면 새로 생성
-    const createResponse = await fetch(
+    const createResponse = await googleFetch(
       'https://www.googleapis.com/drive/v3/files',
       {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -93,6 +82,23 @@ export async function POST() {
     });
   } catch (error) {
     console.error('Drive API Error:', error);
+
+    // googleFetch에서 던진 에러 처리
+    if (error instanceof Error) {
+      if (error.message === '유효한 요청이 아닙니다.') {
+        return NextResponse.json(
+          { error: '인증이 필요합니다.' },
+          { status: 401 }
+        );
+      }
+      if (error.message === '재로그인이 필요합니다.') {
+        return NextResponse.json(
+          { error: '재로그인이 필요합니다.' },
+          { status: 401 }
+        );
+      }
+    }
+
     return NextResponse.json(
       { error: '드라이브 작업 중 오류가 발생했습니다.' },
       { status: 500 }
