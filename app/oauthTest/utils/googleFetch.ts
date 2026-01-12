@@ -31,6 +31,7 @@ export async function googleFetch(url: string, init: RequestInit = {}) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       expires: new Date(refreshed.expiresAt),
+      path: '/',
     });
 
     if (refreshed.refreshToken) {
@@ -38,6 +39,7 @@ export async function googleFetch(url: string, init: RequestInit = {}) {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
+        path: '/',
       });
     }
 
