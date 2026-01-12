@@ -37,6 +37,7 @@ export default function CreateWorkspaceButton() {
   return (
     <div className="mt-4">
       <button
+        type="button"
         onClick={handleClick}
         disabled={loading}
         className="w-full rounded-lg bg-black px-4 py-2 text-white disabled:opacity-50"
