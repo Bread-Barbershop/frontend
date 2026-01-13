@@ -1,7 +1,7 @@
 import { VariantProps } from 'class-variance-authority';
 import { LabelHTMLAttributes } from 'react';
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/shared/utils/cn';
 
 import { labelVariants } from './Label.style';
 

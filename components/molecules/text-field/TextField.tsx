@@ -1,27 +1,24 @@
-import React, { useId, ComponentPropsWithoutRef } from 'react';
+import { ComponentPropsWithoutRef, useId } from 'react';
 
-import { Button } from '@/components/atoms/button';
 import { Input } from '@/components/atoms/input';
 import { Label } from '@/components/atoms/label';
-import { cn } from '@/utils/cn';
+import { cn } from '@/shared/utils/cn';
 
-interface ActionFieldProps {
+interface TextFieldProps {
   id?: string;
   label: string;
   disabled?: boolean;
   className?: string;
-  buttonProps?: ComponentPropsWithoutRef<typeof Button>;
   inputProps?: ComponentPropsWithoutRef<typeof Input>;
 }
 
-export const ActionField = ({
+export const TextField = ({
   id,
   label,
   disabled = false,
   className,
-  buttonProps = {},
   inputProps = {},
-}: ActionFieldProps) => {
+}: TextFieldProps) => {
   const generatedId = useId();
   const inputId = id || generatedId;
 
@@ -32,13 +29,9 @@ export const ActionField = ({
       </Label>
       <Input
         id={inputId}
-        {...inputProps} // 모든 표준 속성 주입
+        {...inputProps}
         disabled={disabled || inputProps.disabled}
-        className={cn('flex-1', inputProps.className)}
-      />
-      <Button
-        {...buttonProps} // 모든 표준 속성 주입
-        disabled={disabled || buttonProps.disabled}
+        className={cn(inputProps.className)}
       />
     </div>
   );
