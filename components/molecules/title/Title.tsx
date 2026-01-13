@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/shared/utils/cn';
 
 import { actionVariants } from './Title.style';
 

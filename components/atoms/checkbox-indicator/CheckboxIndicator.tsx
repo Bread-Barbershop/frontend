@@ -2,7 +2,7 @@ import { VariantProps } from 'class-variance-authority';
 import { CheckIcon } from 'lucide-react';
 import { forwardRef, type InputHTMLAttributes } from 'react';
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/shared/utils/cn';
 
 import { iconVariants, sizeVariants } from './CheckboxIndicator.style';
 

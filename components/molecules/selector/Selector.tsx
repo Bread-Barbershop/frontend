@@ -1,7 +1,7 @@
 import { ChevronDown } from 'lucide-react';
 import { useState, useRef, useEffect, ChangeEvent } from 'react';
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/shared/utils/cn';
 
 interface Option {
   label: string;

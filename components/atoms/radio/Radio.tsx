@@ -1,7 +1,7 @@
 import { VariantProps } from 'class-variance-authority';
 import { forwardRef, type InputHTMLAttributes } from 'react';
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/shared/utils/cn';
 
 import { indicatorVariants, radioVariants } from './Radio.style';
 
