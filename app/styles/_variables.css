@@ -1,1 +1,44 @@
 /* 색상, 폰트, spacing 등 커스텀 변수 */
+@theme {
+  --color-primary: #1f72ef;
+  --color-primary-hover: #1f72ef08;
+  --color-primary-border: #1f72ef12;
+
+  /* Semantic */
+  --color-semantic-stroke: #000000;
+
+  /* Text */
+  --color-text-primary: #000000;
+  --color-text-secondary: #838383;
+  --color-text-tertiary: #787878;
+
+  /* Liner */
+  --color-liner-slider: #e5e5e8;
+  --color-liner-divider: #505050;
+  --color-liner-segment: #6fef1f;
+  --color-liner-button: #e5e5e8;
+
+  /* Button */
+  --color-button-disabled: #d1d5db;
+  --color-button-close: #ff0004;
+
+  /* Background */
+  --color-background-base: #ffffff;
+  --color-background-sub: #f5f8ff;
+  --color-background-draft: #00000040;
+
+  /* Neutral */
+  --color-neutral-border: #eaeaea;
+  --color-neutral-liner: #444444;
+
+  /* Toast */
+  --color-toast-success-primary: #2db400;
+  --color-toast-error-primary: #ff0000;
+  --color-toast-warning-primary: #ff8c00;
+  --color-toast-info-primary: #1c7ed6;
+
+  --color-toast-success-secondary: #e6f7e6;
+  --color-toast-error-secondary: #ffe8e8;
+  --color-toast-warning-secondary: #fff2e3;
+  --color-toast-info-secondary: #d9efff;
+}

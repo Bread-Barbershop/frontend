@@ -128,15 +128,8 @@ export default defineConfig([
       'react/prop-types': 'off',
       'react/require-default-props': 'off',
 
-      // Props spreading 경고 (HTML 요소에만 엄격하게 적용)
-      'react/jsx-props-no-spreading': [
-        'warn',
-        {
-          html: 'enforce', // HTML 요소는 엄격하게 제한
-          custom: 'ignore', // 커스텀 컴포넌트는 허용
-          explicitSpread: 'ignore', // 명시적 spread는 허용
-        },
-      ],
+      // Props spreading 허용 (컴포넌트 라이브러리에서 필요)
+      'react/jsx-props-no-spreading': 'off',
 
       // 함수형 컴포넌트 정의 방식 제한 없음 (화살표 함수, function 선언 모두 허용)
       'react/function-component-definition': 'off',
