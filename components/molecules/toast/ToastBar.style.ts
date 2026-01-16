@@ -6,12 +6,11 @@ export const toastBarVariants = cva(
     variants: {
       variant: {
         success:
-          'border-toast-success-primary text-toast-success-primary bg-toast-success-secondary',
-        error:
-          'border-toast-error-primary text-toast-error-primary bg-toast-error-secondary',
+          'border-status-success text-status-success bg-status-success-bg',
+        error: 'border-status-error text-status-error bg-status-error-bg',
         warning:
-          'border-toast-warning-primary text-toast-warning-primary bg-toast-warning-secondary',
-        info: 'border-toast-info-primary text-toast-info-primary bg-toast-info-secondary',
+          'border-status-warning text-status-warning bg-status-warning-bg',
+        info: 'border-status-info text-status-info bg-status-info-bg',
       },
     },
   }

@@ -83,9 +83,9 @@ export const TextColors: Story = {
       </div>
       <div>
         <p className="mb-2 text-xs text-gray-400">
-          text-[#1F72EF] (커스텀 색상)
+          text-primary (CSS 변수 사용)
         </p>
-        <Label htmlFor="input-4" className="text-[#1F72EF]">
+        <Label htmlFor="input-4" className="text-primary">
           파란색 텍스트
         </Label>
       </div>
@@ -164,7 +164,7 @@ export const Combinations: Story = {
     <div className="flex flex-col gap-4">
       <div>
         <p className="mb-2 text-xs text-gray-400">큰 + 굵은 + 파란색</p>
-        <Label htmlFor="input-12" className="text-lg font-bold text-[#1F72EF]">
+        <Label htmlFor="input-12" className="text-lg font-bold text-primary">
           중요한 라벨
         </Label>
       </div>

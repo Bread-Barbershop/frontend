@@ -5,7 +5,7 @@ const commonStyles =
 
 // 1. 배경 박스 스타일
 export const radioVariants = cva(
-  ` bg-background-base border-2 border-button-disabled transition-color duration-200 peer-checked:border-primary ${commonStyles}`,
+  ` bg-bg-base border-2 border-btn-disabled transition-color duration-200 peer-checked:border-primary ${commonStyles}`,
   {
     variants: {
       size: {

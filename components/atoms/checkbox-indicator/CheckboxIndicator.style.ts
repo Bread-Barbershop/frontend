@@ -4,7 +4,7 @@ const commonStyles =
   'peer-disabled:opacity-50 peer-disabled:cursor-not-allowed cursor-pointer';
 
 export const sizeVariants = cva(
-  `flex-center rounded-sm bg-neutral-border peer-checked:bg-primary ${commonStyles}`,
+  `flex-center rounded-sm bg-border-neutral peer-checked:bg-primary ${commonStyles}`,
   {
     variants: {
       size: {

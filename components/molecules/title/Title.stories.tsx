@@ -11,13 +11,13 @@ const meta = {
     layout: 'fullscreen',
     backgrounds: {
       default: 'gray',
-      values: [{ name: 'gray', value: '#e5e5e5' }],
+      values: [{ name: 'gray', value: '#e5e5e8' }], // --color-border-slider 변수 값 사용
     },
   },
   decorators: [
     Story => (
       <div className="flex min-h-200px w-full items-center justify-center p-6">
-        <div className="w-[335px] bg-white">
+        <div className="w-[335px] bg-bg-base">
           <Story />
         </div>
       </div>
