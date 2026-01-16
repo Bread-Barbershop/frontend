@@ -1,0 +1,43 @@
+# GitHub Actions 워크플로우의 전체 이름을 정의합니다.
+name: 'Chromatic Deployment'
+
+# 어떤 상황(이벤트)에서 이 워크플로우를 실행할지 정의합니다.
+on:
+  # Pull Request(PR)가 발생했을 때 실행합니다.
+  pull_request:
+    # 오직 main 브랜치를 대상으로 하는 PR일 때만 작동합니다.
+    branches:
+      - main
+    # 아래 지정된 폴더 내의 파일이 변경되었을 때만 워크플로우를 실행합니다.
+    paths:
+      - 'src/components/**' # src 폴더 안의 컴포넌트 변경 시
+      - 'components/**' # 루트 폴더 안의 컴포넌트 변경 시
+
+# 실제 실행될 작업(Job)을 정의합니다.
+jobs:
+  # 'chromatic-deployment'라는 이름의 작업을 생성합니다.
+  chromatic-deployment:
+    # 최신 버전의 Ubuntu 리눅스 환경에서 실행합니다.
+    runs-on: ubuntu-latest
+    # 작업 내에서 수행할 일련의 단계들을 정의합니다.
+    steps:
+      # 1단계: GitHub 저장소의 소스 코드를 실행 환경으로 가져옵니다.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Chromatic이 UI 변경점을 비교하려면 전체 커밋 히스토리가 필요하므로 0으로 설정합니다.
+          fetch-depth: 0
+
+      # 2단계: 프로젝트 실행에 필요한 패키지들을 설치합니다.
+      - name: Install dependencies
+        # npm 대신 yarn을 사용한다면 'yarn install'로 변경하세요.
+        run: npm install
+
+      # 3단계: 빌드된 스토리북을 Chromatic 서버로 전송하고 배포합니다.
+      - name: Publish to Chromatic
+        uses: chromaui/action@v1
+        with:
+          # GitHub Secrets에 안전하게 저장된 Chromatic 전용 프로젝트 토큰을 호출합니다.
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          # GitHub 내부 API 통신 및 PR 댓글 작성을 위해 자동으로 제공되는 토큰입니다.
+          token: ${{ secrets.GITHUB_TOKEN }}
