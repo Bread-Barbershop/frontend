@@ -47,7 +47,7 @@ export const BasicExamples: Story = {
         <Label htmlFor="name">이름</Label>
       </div>
       <div>
-        <p className="mb-2 text-xs text-gray-400">긴 텍스트</p>
+        <p className="mb-2 text-xs text-gray-400">아주 긴~ 텍스트</p>
         <Label htmlFor="email">사용자의 이메일 주소를 입력해주세요</Label>
       </div>
       <div>
