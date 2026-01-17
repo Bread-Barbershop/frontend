@@ -8,17 +8,14 @@ on:
     branches:
       - main
     paths:
-      - 'components/**/*.stories.{ts,tsx,mdx,js,jsx}'
-      - 'components/**/*.stories.{ts,tsx,mdx,js,jsx}' 
+     - 'components/**'
   # 2. main 브랜치를 대상으로 PR이 생성되거나 업데이트될 때 실행 (리뷰용)
   pull_request:
     branches:
       - main
     # 특정 폴더의 컴포넌트 파일이 변경될 때만 실행하여 불필요한 빌드 방지
     paths:
-      - 'components/**/*.stories.{ts,tsx,mdx,js,jsx}'
-      - 'components/**/*.stories.{ts,tsx,mdx,js,jsx}' 
-
+      - 'components/**'
 jobs:
   chromatic-deployment:
     runs-on: ubuntu-latest
@@ -58,9 +55,6 @@ jobs:
           # 팀원들이 바로 확인할 수 있도록 작업자, PR 제목, 리뷰 전용 링크를 포함
           args: |
             🎨 **스토리북 UI 리뷰가 도착했습니다!**
-            팀원들(<@1439606262345105569>)의 리뷰가 필요합니다. 
-            변경 사항을 확인하고 승인해 주세요! 😎
-
             - **작업자:** ${{ github.actor }}
             - **PR 제목:** ${{ github.event.pull_request.title }}
             - **리뷰 및 승인 링크:** ${{ steps.chromatic.outputs.buildUrl }}

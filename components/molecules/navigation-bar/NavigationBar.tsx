@@ -2,28 +2,29 @@ import { ReactNode } from 'react';
 
 import { cn } from '@/shared/utils/cn';
 
-import { actionVariants } from './Title.style';
+import { actionVariants } from './NavigationBar.style';
 
-interface TitleProps {
+
+interface NavigationBarProps {
   children: ReactNode;
   action?: ReactNode;
   direction?: 'left' | 'right';
   className?: string;
 }
-export const Title = ({
+export const NavigationBar = ({
   children,
   action,
   direction = 'right',
   className,
-}: TitleProps) => {
+}: NavigationBarProps) => {
   return (
     <div
       className={cn(
-        'relative flex-center w-full min-h-[44px] bg-transparent',
+        'relative flex-center w-full min-h-11 bg-transparent',
         className
       )}
     >
-      <h3 className="font-semibold leading-[17px] py-[13.5px] text-center">
+      <h3 className="font-semibold text-[14px] py-[13.5px] text-center">
         {children}
       </h3>
       {action && (
