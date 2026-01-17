@@ -6,9 +6,9 @@ import './styles/globals.css';
 
 
 const pretendard = localFont({
-  src: '../node_modules/pretendard/dist/web/variable/woff2/PretendardVariable.woff2',
+  src: '@/public/fonts/PretendardVariable.woff2',
   display: 'swap',
-  weight: '45 920',
+  weight: '100 900',
   variable: '--font-pretendard',
 });
 
