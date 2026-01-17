@@ -10,7 +10,7 @@
     "prepare": "husky",
     "test": "jest",
     "test:watch": "jest --watch",
-    "storybook": "storybook dev -p 6006",
+    "sb": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "chromatic": "npx chromatic --project-token=chpt_f351e1efe8b4fee"
   },
@@ -21,6 +21,7 @@
     "konva": "^10.0.12",
     "lucide-react": "^0.562.0",
     "next": "^16.0.10",
+    "pretendard": "^1.3.9",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-konva": "^19.2.1",
