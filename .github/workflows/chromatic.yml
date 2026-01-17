@@ -1,43 +1,61 @@
-# GitHub Actions 워크플로우의 전체 이름을 정의합니다.
-name: 'Chromatic Deployment'
+# GitHub Actions 워크플로우 이름: Chromatic 배포 및 디스코드 리뷰 알림
+name: 'Chromatic Deployment & Review'
 
-# 어떤 상황(이벤트)에서 이 워크플로우를 실행할지 정의합니다.
+# 워크플로우 실행 조건 설정
 on:
-  # Pull Request(PR)가 발생했을 때 실행합니다.
-  pull_request:
-    # 오직 main 브랜치를 대상으로 하는 PR일 때만 작동합니다.
+  # 1. PR이 머지되어 main 브랜치에 코드가 반영될 때 실행 (메인 스토리북 주소 업데이트용)
+  push:
     branches:
       - main
-    # 아래 지정된 폴더 내의 파일이 변경되었을 때만 워크플로우를 실행합니다.
+  # 2. main 브랜치를 대상으로 PR이 생성되거나 업데이트될 때 실행 (리뷰용)
+  pull_request:
+    branches:
+      - main
+    # 특정 폴더의 컴포넌트 파일이 변경될 때만 실행하여 불필요한 빌드 방지
     paths:
-      - 'src/components/**' # src 폴더 안의 컴포넌트 변경 시
-      - 'components/**' # 루트 폴더 안의 컴포넌트 변경 시
+      - 'src/components/**'
+      - 'components/**'
 
-# 실제 실행될 작업(Job)을 정의합니다.
 jobs:
-  # 'chromatic-deployment'라는 이름의 작업을 생성합니다.
   chromatic-deployment:
-    # 최신 버전의 Ubuntu 리눅스 환경에서 실행합니다.
     runs-on: ubuntu-latest
-    # 작업 내에서 수행할 일련의 단계들을 정의합니다.
     steps:
-      # 1단계: GitHub 저장소의 소스 코드를 실행 환경으로 가져옵니다.
+      # 단계 1: 소스 코드 체크아웃
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Chromatic이 UI 변경점을 비교하려면 전체 커밋 히스토리가 필요하므로 0으로 설정합니다.
+          # Chromatic은 이전 커밋과의 UI 차이점을 비교하므로 전체 커밋 히스토리(0)가 필수입니다.
           fetch-depth: 0
 
-      # 2단계: 프로젝트 실행에 필요한 패키지들을 설치합니다.
+      # 단계 2: 의존성 패키지 설치
       - name: Install dependencies
-        # npm 대신 yarn을 사용한다면 'yarn install'로 변경하세요.
         run: npm install
 
-      # 3단계: 빌드된 스토리북을 Chromatic 서버로 전송하고 배포합니다.
+      # 단계 3: Chromatic 배포 및 UI 스냅샷 생성
       - name: Publish to Chromatic
+        id: chromatic # 다음 단계(디스코드 알림)에서 결과 URL을 참조하기 위해 ID 지정
         uses: chromaui/action@v1
         with:
-          # GitHub Secrets에 안전하게 저장된 Chromatic 전용 프로젝트 토큰을 호출합니다.
+          # GitHub Secrets에 저장한 프로젝트 토큰 사용
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-          # GitHub 내부 API 통신 및 PR 댓글 작성을 위해 자동으로 제공되는 토큰입니다.
           token: ${{ secrets.GITHUB_TOKEN }}
+          # 빌드 완료 후 CI가 바로 종료되도록 설정 (리뷰는 Chromatic 사이트에서 진행)
+          exitOnceUploaded: true
+          # [핵심 로직] main 브랜치에서 실행될 때만 스냅샷을 자동으로 승인하여 메인 URL을 최신화함
+          autoAcceptChanges: ${{ github.ref == 'refs/heads/main' }}
+
+      # 단계 4: PR 상황에서만 디스코드 채널로 리뷰 요청 메시지 전송
+      - name: Discord Notification
+        # push(머지) 이벤트가 아닌 pull_request 이벤트일 때만 이 단계를 실행
+        if: github.event_name == 'pull_request'
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        uses: Ilshidur/action-discord@master
+        with:
+          # 팀원들이 바로 확인할 수 있도록 작업자, PR 제목, 리뷰 전용 링크를 포함
+          args: |
+            🎨 **스토리북 UI 리뷰가 도착했습니다!**
+            - **작업자:** ${{ github.actor }}
+            - **PR 제목:** ${{ github.event.pull_request.title }}
+            - **리뷰 및 승인 링크:** ${{ steps.chromatic.outputs.buildUrl }}
+            - **컴포넌트 미리보기:** ${{ steps.chromatic.outputs.storybookUrl }}
