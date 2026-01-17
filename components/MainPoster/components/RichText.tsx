@@ -1,59 +1,62 @@
-'use client';
-
 import Konva from 'konva';
-import React, { useEffect, useRef } from 'react';
-import { Text, Transformer } from 'react-konva';
+import { useEffect, useRef, useState } from 'react';
+import { Image, Transformer } from 'react-konva';
 
-import { TextShape } from '../types/canvas';
+import { TiptapText } from '../types/canvas';
 
-interface TextElementProps {
-  shape: TextShape;
+interface Props {
+  shape: TiptapText;
   isSelected: boolean;
   selectedId: string | null;
   isEditing: boolean;
-  isAddText: boolean;
   onSelect: (
     e: Konva.KonvaEventObject<MouseEvent | TouchEvent | KeyboardEvent>
   ) => void;
-  onChange: (attrs: Partial<TextShape>) => void;
-  onTextChange: (id: string, newText: string) => void;
+  onChange: (attrs: Partial<TiptapText>) => void;
   onTransform: (id: string, node: Konva.Text) => void;
   onTextDbClick: () => void;
 }
 
-export const TextElement = ({
+function RichText({
   shape,
   isSelected,
   selectedId,
   isEditing,
-  isAddText,
   onSelect,
   onChange,
-  onTransform,
+  // onTransform,
   onTextDbClick,
-}: TextElementProps) => {
-  const textRef = useRef(null);
+}: Props) {
+  const [image, setImage] = useState<HTMLImageElement | null>(null);
+  const imgRef = useRef<Konva.Image>(null);
   const transformerRef = useRef<Konva.Transformer>(null);
 
   useEffect(() => {
-    if (
-      isSelected &&
-      isAddText === false &&
-      textRef.current &&
-      transformerRef.current
-    ) {
-      transformerRef.current.nodes([textRef.current]);
+    if (!shape || !shape.dataUrl) return;
+    const img = new window.Image();
+
+    img.src = shape.dataUrl;
+    img.onload = () => {
+      setImage(img);
+      imgRef.current?.getLayer()?.batchDraw();
+    };
+  }, [shape, shape.dataUrl]);
+
+  useEffect(() => {
+    if (isSelected && transformerRef.current && imgRef.current) {
+      transformerRef.current.nodes([imgRef.current]);
       transformerRef.current.getLayer()?.batchDraw();
     }
-  }, [isSelected]);
+  }, [isSelected, image]);
 
+  if (!image) return null;
   return (
     <>
-      <Text
-        ref={textRef}
+      {/* eslint-disable-next-line jsx-a11y/alt-text */}
+      <Image
+        ref={imgRef}
+        image={image}
         {...shape}
-        draggable
-        wrap="word"
         onClick={onSelect}
         onMouseDown={onSelect}
         onTouchStart={onSelect}
@@ -64,16 +67,17 @@ export const TextElement = ({
             y: e.target.y(),
           });
         }}
+        draggable
         onDblClick={onTextDbClick}
         onDblTap={onTextDbClick}
-        onTransform={() => {
-          if (textRef.current) {
-            onTransform(shape.id, textRef.current);
-            // console.log(shape.id);
-          }
-        }}
+        // onTransform={() => {
+        //   if (imgRef.current) {
+        //     onTransform(shape.id);
+        //   }
+        // }}
         visible={selectedId !== shape.id || !isEditing}
       />
+
       {isSelected && !isEditing && (
         <Transformer
           ref={transformerRef}
@@ -87,4 +91,5 @@ export const TextElement = ({
       )}
     </>
   );
-};
+}
+export default RichText;

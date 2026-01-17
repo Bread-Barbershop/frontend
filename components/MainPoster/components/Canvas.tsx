@@ -1,17 +1,19 @@
 'use client';
 
+import { Editor } from '@tiptap/react';
 import Konva from 'konva';
 import { KonvaEventObject } from 'konva/lib/Node';
 import React, { useEffect, useRef } from 'react';
 import { Stage, Layer, Rect } from 'react-konva';
 
-import { Shape, TextBox, TextShape } from '../types/canvas';
+import { Shape, TextBox, TiptapText } from '../types/canvas';
 
 import { ImageElement } from './ImageElement';
-import { TextArea } from './TextArea';
-import { TextElement } from './TextElement';
+import RichText from './RichText';
+import RichTextEditor from './RichTextEditor';
 
 interface CanvasProps {
+  editor: Editor | null;
   shapes: Shape[];
   selectedId: string | null;
   isEditing: boolean;
@@ -31,6 +33,7 @@ interface CanvasProps {
 }
 
 export const Canvas = ({
+  editor,
   shapes,
   selectedId,
   isEditing,
@@ -38,7 +41,6 @@ export const Canvas = ({
   onSelect,
   onUpdateShape,
   handleDeleteShape,
-  handleTextChange,
   handleTransform,
   handleTextDblClick,
   setIsEditing,
@@ -60,7 +62,7 @@ export const Canvas = ({
     if (e.target === e.target.getStage()) {
       onSelect(null);
     }
-    console.log('스테이지 클릭');
+    // console.log('스테이지 클릭');
   };
 
   useEffect(() => {
@@ -101,25 +103,7 @@ export const Canvas = ({
             };
             const handleChange = (attrs: Partial<Shape>) =>
               onUpdateShape(shape.id, attrs);
-
-            if (shape.type === 'text' && shape.text.length > 0) {
-              return (
-                <TextElement
-                  key={shape.id}
-                  selectedId={selectedId}
-                  shape={shape}
-                  isSelected={isSelected}
-                  isEditing={isEditing}
-                  isAddText={isAddText}
-                  onSelect={e => handleSelect(e)}
-                  onChange={handleChange}
-                  onTextChange={handleTextChange}
-                  onTransform={handleTransform}
-                  onTextDbClick={handleTextDblClick}
-                  setIsEditing={setIsEditing}
-                />
-              );
-            } else if (shape.type === 'image') {
+            if (shape.type === 'image') {
               return (
                 <ImageElement
                   key={shape.id}
@@ -129,17 +113,31 @@ export const Canvas = ({
                   onChange={handleChange}
                 />
               );
+            } else if (shape.type === 'richtext') {
+              return (
+                <RichText
+                  key={shape.id}
+                  shape={shape}
+                  selectedId={selectedId}
+                  isSelected={isSelected}
+                  isEditing={isEditing}
+                  onSelect={e => handleSelect(e)}
+                  onChange={handleChange}
+                  onTransform={handleTransform}
+                  onTextDbClick={handleTextDblClick}
+                />
+              );
             }
             return null;
           })}
         </Layer>
       </Stage>
-      {isEditing && selectedId && (
-        <TextArea
-          shape={shapes.find(s => s.id === selectedId) as TextShape}
+      {isEditing && selectedId && editor && (
+        <RichTextEditor
+          editor={editor}
+          shape={shapes.find(s => s.id === selectedId) as TiptapText}
           stageRef={stageRef}
           onClose={() => setIsEditing(false)}
-          onTextChange={handleTextChange}
           onUpdateShape={onUpdateShape}
         />
       )}

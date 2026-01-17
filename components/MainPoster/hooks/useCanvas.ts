@@ -4,9 +4,10 @@ import { useState, useCallback } from 'react';
 import {
   Shape,
   ShapeUpdate,
-  TextShape,
+  // TextShape,
   ImageShape,
   TextBox,
+  TiptapText,
 } from '../types/canvas';
 
 export const useCanvas = () => {
@@ -157,23 +158,24 @@ export const useCanvas = () => {
       return;
     }
 
-    const newText: TextShape = {
-      id: `text-${Date.now()}`,
-      type: 'text',
-      text: '텍스트를 입력하세요',
+    const newText: TiptapText = {
+      id: `richtext-${Date.now()}`,
+      type: 'richtext',
+      // text: '텍스트를 입력하세요',
       width: Math.abs(newTextBox.width),
       x: newTextBox.width > 0 ? newTextBox.x : newTextBox.x + newTextBox.width,
       y:
         newTextBox.height > 0 ? newTextBox.y : newTextBox.y + newTextBox.height,
-      fontSize: 24,
-      fontFamily: 'Arial',
-      fill: '#000000',
+      // fontSize: 24,
+      // fontFamily: 'Arial',
+      // fill: '#000000',
       rotation: 0,
       scaleX: 1,
       scaleY: 1,
     };
     setShapes(prev => [...prev, newText]);
     setSelectedId(newText.id);
+    setIsEditing(true);
     setNewTextBox(null);
     toggleTextBoxMode(false);
   };
