@@ -8,17 +8,14 @@ on:
     branches:
       - main
     paths:
-      - 'components/**/*.stories.{ts,tsx,mdx,js,jsx}'
-      - 'components/**/*.stories.{ts,tsx,mdx,js,jsx}' 
+     - 'components/**'
   # 2. main 브랜치를 대상으로 PR이 생성되거나 업데이트될 때 실행 (리뷰용)
   pull_request:
     branches:
       - main
     # 특정 폴더의 컴포넌트 파일이 변경될 때만 실행하여 불필요한 빌드 방지
     paths:
-      - 'components/**/*.stories.{ts,tsx,mdx,js,jsx}'
-      - 'components/**/*.stories.{ts,tsx,mdx,js,jsx}' 
-
+      - 'components/**'
 jobs:
   chromatic-deployment:
     runs-on: ubuntu-latest
