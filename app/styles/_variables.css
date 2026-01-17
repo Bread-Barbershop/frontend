@@ -1,4 +1,13 @@
 @theme {
+  /* font-sans을 pretendard로 변경 */
+  --font-sans: var(--font-pretendard), ui-sans-serif, system-ui, sans-serif;
+  /* text-base의 기본 크기를 13px로 변경 */
+  --font-size-base: 13px;
+  --font-size-base-line-height: 1.25rem; /* text-base의 기본 line-height를 1.25rem로 변경 */
+
+  /* shadow-custom을 0 8px 24px 0 rgba(0, 0, 0, 0.06)로 변경 */
+  --shadow-custom: 0 8px 24px 0 rgba(0, 0, 0, 0.06);
+
   /* --- Brand --- */
   --color-primary: #1f72ef;
   --color-primary-hover: rgba(31, 114, 239, 0.08);
@@ -40,8 +49,8 @@
   /* --- Button States --- */
   --color-btn-disabled: #d1d5db;
   --color-btn-close: rgba(255, 0, 4, 0.8);
+  --color-btn-close-pressed: rgba(255, 10, 14, 0.08);
   --color-btn-pressed: #f5f8ff;
   --color-btn-hover: #fafafb;
   --color-btn-active: #dbe8fc;
-  --color-btn-close-pressed: #dbe8fc;
 }

@@ -10,7 +10,7 @@
     "prepare": "husky",
     "test": "jest",
     "test:watch": "jest --watch",
-    "storybook": "storybook dev -p 6006",
+    "sb": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "chromatic": "npx chromatic --project-token=chpt_f351e1efe8b4fee"
   },
