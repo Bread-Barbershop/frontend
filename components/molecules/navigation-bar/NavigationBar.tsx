@@ -20,11 +20,11 @@ export const NavigationBar = ({
   return (
     <div
       className={cn(
-        'relative flex-center w-full min-h-[44px] bg-transparent',
+        'relative flex-center w-full min-h-11 bg-transparent',
         className
       )}
     >
-      <h3 className="font-semibold leading-[17px] py-[13.5px] text-center">
+      <h3 className="font-semibold text-[14px] py-[13.5px] text-center">
         {children}
       </h3>
       {action && (

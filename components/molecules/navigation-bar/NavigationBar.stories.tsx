@@ -16,7 +16,7 @@ const meta = {
   },
   decorators: [
     Story => (
-      <div className="flex min-h-200px w-full items-center justify-center p-6">
+      <div className="flex min-h-[200px] w-full items-center justify-center p-6">
         <div className="w-[335px] bg-bg-base">
           <Story />
         </div>
