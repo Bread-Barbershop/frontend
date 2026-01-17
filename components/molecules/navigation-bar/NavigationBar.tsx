@@ -2,20 +2,21 @@ import { ReactNode } from 'react';
 
 import { cn } from '@/shared/utils/cn';
 
-import { actionVariants } from './Title.style';
+import { actionVariants } from './NavigationBar.style';
 
-interface TitleProps {
+
+interface NavigationBarProps {
   children: ReactNode;
   action?: ReactNode;
   direction?: 'left' | 'right';
   className?: string;
 }
-export const Title = ({
+export const NavigationBar = ({
   children,
   action,
   direction = 'right',
   className,
-}: TitleProps) => {
+}: NavigationBarProps) => {
   return (
     <div
       className={cn(
