@@ -1,1 +1,7 @@
 /* Tailwind base layer (reset, 기본 스타일) */
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    font-size: var(--font-size-base);
+  }
+}

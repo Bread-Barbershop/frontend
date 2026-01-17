@@ -1,4 +1,4 @@
-import MainPoster from '@/components/MainPoster';
+import MainPoster from '@/widgets/mainPoster';
 
 const EditorPage = () => {
   return (

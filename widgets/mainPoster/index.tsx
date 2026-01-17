@@ -5,8 +5,9 @@ import { TextStyleKit } from '@tiptap/extension-text-style';
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 
-import { Canvas } from './components/Canvas';
-import Menubar from './components/Menubar';
+import { Canvas } from '../../widgets/mainPoster/components/Canvas';
+import Menubar from '../../widgets/mainPoster/components/Menubar';
+
 import { Toolbar } from './components/Toolbar';
 import { useCanvas } from './hooks/useCanvas';
 import { TiptapText } from './types/canvas';
