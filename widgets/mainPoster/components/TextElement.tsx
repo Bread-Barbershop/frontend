@@ -69,7 +69,6 @@ export const TextElement = ({
         onTransform={() => {
           if (textRef.current) {
             onTransform(shape.id, textRef.current);
-            // console.log(shape.id);
           }
         }}
         visible={selectedId !== shape.id || !isEditing}

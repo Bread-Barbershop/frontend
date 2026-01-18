@@ -22,9 +22,8 @@ const MainPoster = () => {
     updateShape,
     selectShape,
     handleDeleteShape,
-    handleTextChange,
-    handleTransform,
-    handleTextDblClick,
+    handleRichTextTransform,
+    handleRichTextDblClick,
     setIsEditing,
     toggleTextBoxMode,
     newTextBox,
@@ -74,9 +73,8 @@ const MainPoster = () => {
         onSelect={selectShape}
         onUpdateShape={updateShape}
         handleDeleteShape={handleDeleteShape}
-        handleTextChange={handleTextChange}
-        handleTransform={handleTransform}
-        handleTextDblClick={handleTextDblClick}
+        handleRichTextTransform={handleRichTextTransform}
+        handleRichTextDblClick={handleRichTextDblClick}
         setIsEditing={setIsEditing}
         drawTextBoxStart={drawTextBoxStart}
         drawTextBoxMove={drawTextBoxMove}

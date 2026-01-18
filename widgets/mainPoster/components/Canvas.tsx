@@ -21,9 +21,8 @@ interface CanvasProps {
   onSelect: (id: string | null) => void;
   onUpdateShape: (id: string, attrs: Partial<Shape>) => void;
   handleDeleteShape: (e: KeyboardEvent) => void;
-  handleTextChange: (id: string, newText: string) => void;
-  handleTransform: (id: string, node: Konva.Text) => void;
-  handleTextDblClick: () => void;
+  handleRichTextTransform: (id: string, node: Konva.Image) => void;
+  handleRichTextDblClick: () => void;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   newTextBox: TextBox | null | undefined;
   isAddText: boolean;
@@ -41,8 +40,8 @@ export const Canvas = ({
   onSelect,
   onUpdateShape,
   handleDeleteShape,
-  handleTransform,
-  handleTextDblClick,
+  handleRichTextDblClick,
+  handleRichTextTransform,
   setIsEditing,
   newTextBox,
   isAddText,
@@ -123,8 +122,8 @@ export const Canvas = ({
                   isEditing={isEditing}
                   onSelect={e => handleSelect(e)}
                   onChange={handleChange}
-                  onTransform={handleTransform}
-                  onTextDbClick={handleTextDblClick}
+                  onTransform={handleRichTextTransform}
+                  onTextDbClick={handleRichTextDblClick}
                 />
               );
             }
