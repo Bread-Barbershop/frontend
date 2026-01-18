@@ -1,4 +1,4 @@
-export type ShapeType = 'text' | 'image' | 'richtext';
+export type ShapeType = 'image' | 'richtext';
 
 export interface BaseShape {
   id: string;
@@ -8,19 +8,6 @@ export interface BaseShape {
   rotation?: number;
   scaleX?: number;
   scaleY?: number;
-}
-
-export interface TextShape extends BaseShape {
-  type: 'text';
-  text: string;
-  fontSize: number;
-  fontFamily: string;
-  fill: string;
-  width?: number;
-  height?: number;
-  lineHeight?: number;
-  wrap?: string;
-  letterSpacing?: number;
 }
 
 export interface ImageShape extends BaseShape {
@@ -35,6 +22,7 @@ export interface TiptapText extends BaseShape {
   dataUrl?: string;
   content?: string;
   width?: number;
+  height?: number;
 }
 
 export interface TextBox {
@@ -44,9 +32,8 @@ export interface TextBox {
   height: number;
 }
 
-export type Shape = TextShape | ImageShape | TiptapText;
+export type Shape = ImageShape | TiptapText;
 
 // Shape 업데이트를 위한 타입 (id와 type은 변경 불가)
-export type ShapeUpdate = Partial<Omit<TextShape, 'id' | 'type'>> &
-  Partial<Omit<ImageShape, 'id' | 'type'>> &
+export type ShapeUpdate = Partial<Omit<ImageShape, 'id' | 'type'>> &
   Partial<Omit<TiptapText, 'id' | 'type'>>;

@@ -34,29 +34,35 @@ function RichTextEditor({
     const stage = stageRef.current;
     const container = stage.container();
     const stageBox = container.getBoundingClientRect();
-    const scale = stage.scaleX();
+    const stageScaleX = stage.scaleX();
+    const stageScaleY = stage.scaleY();
     const areaPosition = {
-      x: stageBox.left + shape.x * scale,
-      y: stageBox.top + shape.y * scale,
+      x: stageBox.left + shape.x * stageScaleX,
+      y: stageBox.top + shape.y * stageScaleY,
     };
     setPosition(areaPosition);
-  }, [shape, stageRef, onClose]);
+  }, [shape.x, shape.y, stageRef]);
 
   const handleSaveAndClose = async () => {
     if (!editorRef.current || !editor) return;
+    const editorElement = editorRef.current.querySelector(
+      '.ProseMirror'
+    ) as HTMLElement;
 
     try {
       await new Promise(resolve => setTimeout(resolve, 50));
-      const dataUrl = await toPng(
-        editorRef.current.querySelector('.ProseMirror') as HTMLElement,
-        {
-          pixelRatio: 1,
-          backgroundColor: 'transparent',
-          cacheBust: true,
-        }
-      );
+      const height = editorElement.scrollHeight;
+      const dataUrl = await toPng(editorElement, {
+        pixelRatio: 1,
+        backgroundColor: 'transparent',
+        cacheBust: true,
+      });
 
-      onUpdateShape(shape.id, { dataUrl, content: editor.getHTML() });
+      onUpdateShape(shape.id, {
+        dataUrl,
+        content: editor.getHTML(),
+        height,
+      });
 
       onClose();
     } catch (err) {
@@ -82,7 +88,7 @@ function RichTextEditor({
         top: `${position.y}px`,
         left: `${position.x}px`,
         width: `${shape.width}px`,
-        transformOrigin: 'left-top',
+        transformOrigin: 'left top',
         transform: `rotate(${shape.rotation}deg)`,
       }}
     >

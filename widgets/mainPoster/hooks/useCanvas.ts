@@ -4,7 +4,6 @@ import { useState, useCallback } from 'react';
 import {
   Shape,
   ShapeUpdate,
-  // TextShape,
   ImageShape,
   TextBox,
   TiptapText,
@@ -74,29 +73,21 @@ export const useCanvas = () => {
     [isEditing, selectedId, shapes]
   );
 
-  const handleTextDblClick = useCallback(() => {
+  const handleRichTextDblClick = useCallback(() => {
     setIsEditing(true);
   }, []);
 
-  // 얘는 setter 바로 써버리고
-  const handleTextChange = useCallback((id: string, newText: string) => {
-    console.log({ newText });
-    setShapes(prev =>
-      prev.map(shape => (shape.id === id ? { ...shape, text: newText } : shape))
-    );
-  }, []);
-
-  // 얘는 update함수를 통해 setter를 쓰고
-  // 내보내기는 셋다 내보내니까,, handle만 내보내던지 updateShape으로 통일할지 정해야함
-  const handleTransform = useCallback(
-    (id: string, node: Konva.Text) => {
+  const handleRichTextTransform = useCallback(
+    (id: string, node: Konva.Image) => {
       const scaleX = node.scaleX();
       const scaleY = node.scaleY();
+      const rotation = node.rotation();
       const newWidth = node.width() * scaleX;
       const newHeight = node.height() * scaleY;
-      const rotation = node.rotation();
+      const image = node.image();
 
       node.setAttrs({
+        image,
         width: newWidth,
         height: newHeight,
         scaleX: 1,
@@ -161,14 +152,13 @@ export const useCanvas = () => {
     const newText: TiptapText = {
       id: `richtext-${Date.now()}`,
       type: 'richtext',
-      // text: '텍스트를 입력하세요',
+
       width: Math.abs(newTextBox.width),
+      height: Math.abs(newTextBox.height),
       x: newTextBox.width > 0 ? newTextBox.x : newTextBox.x + newTextBox.width,
       y:
         newTextBox.height > 0 ? newTextBox.y : newTextBox.y + newTextBox.height,
-      // fontSize: 24,
-      // fontFamily: 'Arial',
-      // fill: '#000000',
+
       rotation: 0,
       scaleX: 1,
       scaleY: 1,
@@ -189,9 +179,8 @@ export const useCanvas = () => {
     selectShape,
     selectedId,
     handleDeleteShape,
-    handleTextDblClick,
-    handleTextChange,
-    handleTransform,
+    handleRichTextDblClick,
+    handleRichTextTransform,
     isEditing,
     setIsEditing,
     isAddText,

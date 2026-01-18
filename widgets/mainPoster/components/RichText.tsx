@@ -13,7 +13,7 @@ interface Props {
     e: Konva.KonvaEventObject<MouseEvent | TouchEvent | KeyboardEvent>
   ) => void;
   onChange: (attrs: Partial<TiptapText>) => void;
-  onTransform: (id: string, node: Konva.Text) => void;
+  onTransform: (id: string, node: Konva.Image) => void;
   onTextDbClick: () => void;
 }
 
@@ -24,7 +24,7 @@ function RichText({
   isEditing,
   onSelect,
   onChange,
-  // onTransform,
+  onTransform,
   onTextDbClick,
 }: Props) {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
@@ -70,11 +70,11 @@ function RichText({
         draggable
         onDblClick={onTextDbClick}
         onDblTap={onTextDbClick}
-        // onTransform={() => {
-        //   if (imgRef.current) {
-        //     onTransform(shape.id);
-        //   }
-        // }}
+        onTransformEnd={() => {
+          if (imgRef.current) {
+            onTransform(shape.id, imgRef.current);
+          }
+        }}
         visible={selectedId !== shape.id || !isEditing}
       />
 
