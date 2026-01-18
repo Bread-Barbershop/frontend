@@ -153,7 +153,7 @@ function Menubar({ editor }: { editor: Editor | null }) {
           editor
             .chain()
             .focus()
-            .toggleHighlight({ color: e.target.value ?? 'yellow' })
+            .setHighlight({ color: e.target.value ?? 'yellow' })
             .run();
         }}
       />

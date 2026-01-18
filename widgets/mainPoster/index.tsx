@@ -47,7 +47,9 @@ const MainPoster = () => {
         //     types: ['heading', 'paragraph'],
         //   },
         // }),
-        Highlight,
+        Highlight.configure({
+          multicolor: true, // 여러 색상을 지원하게 함 (중요!)
+        }),
       ],
       content: shape?.content || '글을 입력해주세요',
       immediatelyRender: false,
