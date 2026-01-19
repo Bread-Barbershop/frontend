@@ -5,10 +5,9 @@ import { TextStyleKit } from '@tiptap/extension-text-style';
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 
-import { Canvas } from '../../widgets/mainPoster/components/Canvas';
-import Menubar from '../../widgets/mainPoster/components/Menubar';
-
-import { Toolbar } from './components/Toolbar';
+import { Canvas } from './components/CanvasRegacy';
+import Menubar from './components/MenubarRegacy';
+import { Toolbar } from './components/ToolbarRegacy';
 import { LetterSpacing } from './extensions/letterSpacing';
 import { TextStroke } from './extensions/textStroke';
 import { useCanvas } from './hooks/useCanvas';
