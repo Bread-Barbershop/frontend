@@ -43,6 +43,8 @@ function Menubar({ editor }: { editor: Editor | null }) {
   const [selectedFontSize, setSelectedFontSize] = useState<selectorOptions>();
   const [selectedLineHeight, setSelectedLineHeight] =
     useState<selectorOptions>();
+  const [selectedLetterSpacing, setSelectedLetterSpacing] =
+    useState<selectorOptions>();
 
   if (!editor) {
     return null;
@@ -50,15 +52,19 @@ function Menubar({ editor }: { editor: Editor | null }) {
   // 폰트, 자간, 행간 옵션만드는 유틸로 따로 빼기
   const fontSize: selectorOptions[] = [];
   const lineHeight: selectorOptions[] = [];
-  const sizeList = [
+  const letterSpacing: selectorOptions[] = [];
+
+  const fontSizeList = [
     10, 11, 12, 13, 14, 15, 16, 20, 24, 32, 36, 40, 48, 64, 96, 128,
   ];
   const lineHeightList = [
-    1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4,
-    2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.5, 4.0,
+    1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.5, 4.0,
+  ];
+  const letterSpacingList = [
+    1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.5, 4.0,
   ];
 
-  sizeList.forEach(size => {
+  fontSizeList.forEach(size => {
     const obj = {
       label: `${size}px`,
       value: `${size}px`,
@@ -71,6 +77,13 @@ function Menubar({ editor }: { editor: Editor | null }) {
       value: size.toString(),
     };
     lineHeight.push(obj);
+  });
+  letterSpacingList.forEach(size => {
+    const obj = {
+      label: size.toString(),
+      value: size.toString(),
+    };
+    letterSpacing.push(obj);
   });
 
   const buttons = [
@@ -111,93 +124,173 @@ function Menubar({ editor }: { editor: Editor | null }) {
       isActive: editor.isActive('strike'),
       disabled: !editor.can().chain().focus().toggleStrike().run(),
     },
-    // {
-    //   icon: <RiMarkPenFill className="size-5" />,
-    //   onClick: () =>
-    //     editor.chain().focus().toggleHighlight({ color: '#000000' }).run(),
-    //   isActive: editor.isActive('highlight'),
-    // },
-    // {
-    //   icon: <AiOutlineUndo className="size-5" />,
-    //   onClick: () => editor.chain().focus().undo().run(),
-    //   isActive: editor.isActive('undo'),
-    //   disabled: !editor.can().chain().focus().undo().run(),
-    // },
-    // {
-    //   icon: <AiOutlineRedo className="size-5" />,
-    //   onClick: () => editor.chain().focus().redo().run(),
-    //   isActive: editor.isActive('redo'),
-    //   disabled: !editor.can().chain().focus().redo().run(),
-    // },
   ];
 
   return (
     <div
-      className="menubarContainer mb-2 flex space-x-2"
+      className="menubarContainer mb-2"
       onPointerDown={e => e.preventDefault()}
     >
-      <input
-        type="color"
-        onChange={e => {
-          editor
-            .chain()
-            .focus()
-            .toggleTextStyle(Color)
-            .setColor(e.target.value ?? '#000000')
-            .run();
-        }}
-      />
-      <input
-        type="color"
-        onChange={e => {
-          editor
-            .chain()
-            .focus()
-            .setHighlight({ color: e.target.value ?? 'yellow' })
-            .run();
-        }}
-      />
-      {/* 폰트 사이즈 */}
-      <Selector
-        placeholder="14px"
-        options={fontSize}
-        // 폰트 사이즈 여러개 섞였을시 mixed 표시 필요
-        onSelect={option => {
-          editor
-            .chain()
-            .focus()
-            .toggleTextStyle()
-            .setFontSize(option.value ?? '14px')
-            .run();
-          setSelectedFontSize(option);
-        }}
-        selected={selectedFontSize ?? null}
-      />
-      {/* 행간 - 슬라이더로 바꿔야함 */}
-      <Selector
-        placeholder="1.0"
-        options={lineHeight}
-        onSelect={option => {
-          editor
-            .chain()
-            .focus()
-            .toggleTextStyle()
-            .setLineHeight(option.value ?? '1.0')
-            .run();
-          setSelectedLineHeight(option);
-        }}
-        selected={selectedLineHeight ?? null}
-      />
-      {buttons.map(({ icon, onClick, isActive, disabled }, index) => (
-        <Button
-          key={index}
-          onClick={onClick}
-          isActive={isActive}
-          disabled={disabled}
-        >
-          {icon}
-        </Button>
-      ))}
+      <section className="flex gap-4">
+        <div>
+          <label htmlFor="textColor">글자색</label>
+          <input
+            id="textColor"
+            type="color"
+            onChange={e => {
+              editor
+                .chain()
+                .focus()
+                .toggleTextStyle(Color)
+                .setColor(e.target.value ?? '#000000')
+                .run();
+            }}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="highlight">하이라이트</label>
+          <input
+            id="highlight"
+            type="color"
+            onChange={e => {
+              editor
+                .chain()
+                .focus()
+                .setHighlight({ color: e.target.value ?? 'yellow' })
+                .run();
+            }}
+          />
+        </div>
+        <div>
+          <label htmlFor="stroke">외곽선 색</label>
+          <input
+            id="stroke"
+            type="color"
+            onChange={e => {
+              const currentAttributes = editor.getAttributes('textStroke');
+              console.log(currentAttributes.color, currentAttributes.width);
+              editor
+                .chain()
+                .focus()
+                .setTextStroke({
+                  color: e.target.value ?? currentAttributes.color ?? 'yellow',
+                  width: currentAttributes.width ?? '2px',
+                })
+                .run();
+            }}
+          />
+        </div>
+        {/* <div>
+          <label htmlFor="stroke">외곽선 색</label>
+          <input
+            id="stroke"
+            type="color"
+            onChange={e => {
+              editor
+                .chain()
+                .focus()
+                .setTextStroke({ color: e.target.value ?? 'yellow' })
+                .run();
+            }}
+          />
+        </div> */}
+      </section>
+      <section className="flex gap-4">
+        <div className="flex">
+          <label>글자 크기</label>
+          <Selector
+            placeholder="14px"
+            options={fontSize}
+            // 폰트 사이즈 여러개 섞였을시 mixed 표시 필요
+            onSelect={option => {
+              editor
+                .chain()
+                .focus()
+                .toggleTextStyle()
+                .setFontSize(option.value ?? '14px')
+                .run();
+              setSelectedFontSize(option);
+            }}
+            selected={selectedFontSize ?? null}
+          />
+        </div>
+
+        {/* 행간 - 슬라이더로 바꿔야함 */}
+        {/* 포커스 바뀌는거 해결해야함 */}
+        {/* <div onPointerDown={e => e.stopPropagation()} className="w-10">
+        <label>행간</label>
+        <div className="flex gap-3">
+          <input
+            type="range"
+            onChange={e => {
+              editor
+                .chain()
+                .focus()
+                .setLineHeight(e.target.value ?? '1.0')
+                .run();
+            }}
+          />
+          <input
+            className="w-2 border-4"
+            type="text"
+            placeholder="1.0"
+            onChange={e => {
+              editor
+                .chain()
+                .focus()
+                .setLineHeight(e.target.value ?? '1.0')
+                .run();
+            }}
+          />
+        </div>
+      </div> */}
+        <div className="flex">
+          <label>행간</label>
+          <Selector
+            placeholder="1.0"
+            options={lineHeight}
+            onSelect={option => {
+              editor
+                .chain()
+                .focus()
+                .setLineHeight(option.value ?? '1.0')
+                .run();
+              setSelectedLineHeight(option);
+            }}
+            selected={selectedLineHeight ?? null}
+          />
+        </div>
+        <div className="flex">
+          <label>자간</label>
+          <Selector
+            placeholder="1.0"
+            options={letterSpacing}
+            onSelect={option => {
+              editor
+                .chain()
+                .focus()
+                .setLetterSpacing(option.value ?? '1.0')
+                .run();
+              setSelectedLetterSpacing(option);
+            }}
+            selected={selectedLetterSpacing ?? null}
+          />
+        </div>
+      </section>
+
+      <section>
+        {buttons.map(({ icon, onClick, isActive, disabled }, index) => (
+          <Button
+            key={index}
+            onClick={onClick}
+            isActive={isActive}
+            disabled={disabled}
+          >
+            {icon}
+          </Button>
+        ))}
+      </section>
     </div>
   );
 }

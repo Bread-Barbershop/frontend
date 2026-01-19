@@ -9,6 +9,8 @@ import { Canvas } from '../../widgets/mainPoster/components/Canvas';
 import Menubar from '../../widgets/mainPoster/components/Menubar';
 
 import { Toolbar } from './components/Toolbar';
+import { LetterSpacing } from './extensions/letterSpacing';
+import { TextStroke } from './extensions/textStroke';
 import { useCanvas } from './hooks/useCanvas';
 import { TiptapText } from './types/canvas';
 
@@ -37,6 +39,7 @@ const MainPoster = () => {
   const editor = useEditor(
     {
       extensions: [
+        TextStroke,
         StarterKit,
         TextAlign.configure({
           types: ['heading', 'paragraph'],
@@ -50,6 +53,7 @@ const MainPoster = () => {
         Highlight.configure({
           multicolor: true, // 여러 색상을 지원하게 함 (중요!)
         }),
+        LetterSpacing,
       ],
       content: shape?.content || '글을 입력해주세요',
       immediatelyRender: false,

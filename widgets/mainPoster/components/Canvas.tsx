@@ -124,6 +124,7 @@ export const Canvas = ({
                   onChange={handleChange}
                   onTransform={handleRichTextTransform}
                   onTextDbClick={handleRichTextDblClick}
+                  onEditorClose={() => setIsEditing(false)}
                 />
               );
             }
@@ -136,7 +137,7 @@ export const Canvas = ({
           editor={editor}
           shape={shapes.find(s => s.id === selectedId) as TiptapText}
           stageRef={stageRef}
-          onClose={() => setIsEditing(false)}
+          // onClose={() => setIsEditing(false)}
           onUpdateShape={onUpdateShape}
         />
       )}

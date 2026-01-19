@@ -11,7 +11,7 @@ interface Props {
   editor: Editor | null;
   shape: TiptapText;
   stageRef: React.RefObject<Konva.Stage | null>;
-  onClose: () => void;
+  // onClose: () => void;
   onUpdateShape: (id: string, attrs: ShapeUpdate) => void;
 }
 
@@ -19,7 +19,7 @@ function RichTextEditor({
   editor,
   shape,
   stageRef,
-  onClose,
+  // onClose,
   onUpdateShape,
 }: Props) {
   const editorRef = useRef<HTMLDivElement>(null);
@@ -52,8 +52,9 @@ function RichTextEditor({
     try {
       await new Promise(resolve => setTimeout(resolve, 50));
       const height = editorElement.scrollHeight;
+      const width = editorElement.scrollWidth;
       const dataUrl = await toPng(editorElement, {
-        pixelRatio: 1,
+        pixelRatio: 5,
         backgroundColor: 'transparent',
         cacheBust: true,
       });
@@ -62,9 +63,10 @@ function RichTextEditor({
         dataUrl,
         content: editor.getHTML(),
         height,
+        width,
       });
 
-      onClose();
+      // onClose();
     } catch (err) {
       console.error('텍스트 내용 이미지 변환 실패 : ', err);
     }

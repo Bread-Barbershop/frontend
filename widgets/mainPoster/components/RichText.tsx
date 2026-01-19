@@ -15,6 +15,7 @@ interface Props {
   onChange: (attrs: Partial<TiptapText>) => void;
   onTransform: (id: string, node: Konva.Image) => void;
   onTextDbClick: () => void;
+  onEditorClose: () => void;
 }
 
 function RichText({
@@ -26,6 +27,7 @@ function RichText({
   onChange,
   onTransform,
   onTextDbClick,
+  onEditorClose,
 }: Props) {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const imgRef = useRef<Konva.Image>(null);
@@ -40,7 +42,11 @@ function RichText({
       setImage(img);
       imgRef.current?.getLayer()?.batchDraw();
     };
-  }, [shape, shape.dataUrl]);
+
+    if (isEditing) {
+      onEditorClose();
+    }
+  }, [shape.dataUrl]);
 
   useEffect(() => {
     if (isSelected && transformerRef.current && imgRef.current) {
@@ -49,13 +55,13 @@ function RichText({
     }
   }, [isSelected, image]);
 
-  if (!image) return null;
+  if (!image && !shape.dataUrl) return null;
   return (
     <>
       {/* eslint-disable-next-line jsx-a11y/alt-text */}
       <Image
         ref={imgRef}
-        image={image}
+        image={image || undefined}
         {...shape}
         onClick={onSelect}
         onMouseDown={onSelect}
@@ -75,7 +81,9 @@ function RichText({
             onTransform(shape.id, imgRef.current);
           }
         }}
-        visible={selectedId !== shape.id || !isEditing}
+        visible={true}
+        opacity={isEditing && selectedId === shape.id ? 0 : 1}
+        // visible={selectedId !== shape.id || !isEditing}
       />
 
       {isSelected && !isEditing && (
