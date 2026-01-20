@@ -21,7 +21,13 @@ import Toolbar from './Toolbar';
 const Editor: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
-  const { shapes, applyRichStyle, dragToCreateTextBox } = useFabric();
+  const {
+    shapes,
+    activeDrawingMode,
+    dragToCreateTextBox,
+    setDrawingMode,
+    applyRichStyle,
+  } = useFabric();
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -30,7 +36,6 @@ const Editor: React.FC = () => {
       height: 450,
       backgroundColor: '#f9fafb',
     });
-    // 최초 캔버스 등록
     setCanvas(fabricCanvas);
 
     return () => {
@@ -38,14 +43,18 @@ const Editor: React.FC = () => {
     };
   }, []);
 
-  // shapes 데이터 렌더링
+  useEffect(() => {
+    if (!canvas) return;
+    if (activeDrawingMode) dragToCreateTextBox(canvas);
+  }, [activeDrawingMode]);
+
   useEffect(() => {
     if (!canvas) return;
     const canvasObjects = canvas.getObjects();
     shapes.forEach(shape => {
       const exists = canvasObjects.find(obj => obj.id === shape.id);
       if (!exists && shape.type === 'text') {
-        const text = new fabric.Textbox(shape.text || '', {
+        const text = new fabric.Textbox(shape.text || '텍스트를 입력하세요', {
           ...shape,
         });
         canvas.add(text);
@@ -65,7 +74,7 @@ const Editor: React.FC = () => {
         padding: '40px',
       }}
     >
-      <Toolbar canvas={canvas} dragToCreateTextBox={dragToCreateTextBox} />
+      <Toolbar canvas={canvas} setDrawingMode={setDrawingMode} />
       <Menubar canvas={canvas} applyRichStyle={applyRichStyle} />
       <div
         style={{

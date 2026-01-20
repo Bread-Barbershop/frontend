@@ -30,36 +30,42 @@ function Menubar({ canvas, applyRichStyle }: Props) {
       }}
     >
       <button
+        type="button"
         onClick={() => applyRichStyle({ fontWeight: 'bold' }, canvas)}
         style={btnStyle}
       >
         Bold
       </button>
       <button
+        type="button"
         onClick={() => applyRichStyle({ fontStyle: 'italic' }, canvas)}
         style={btnStyle}
       >
         Italic
       </button>
       <button
+        type="button"
         onClick={() => applyRichStyle({ underline: true }, canvas)}
         style={btnStyle}
       >
         <u>U</u>
       </button>
       <button
+        type="button"
         onClick={() => applyRichStyle({ fill: '#ef4444' }, canvas)}
         style={{ ...btnStyle, color: 'red' }}
       >
         Red
       </button>
       <button
+        type="button"
         onClick={() => applyRichStyle({ fill: '#10b981' }, canvas)}
         style={{ ...btnStyle, color: 'green' }}
       >
         Green
       </button>
       <button
+        type="button"
         onClick={() =>
           applyRichStyle({ textBackgroundColor: '#fef08a' }, canvas)
         }
@@ -68,6 +74,7 @@ function Menubar({ canvas, applyRichStyle }: Props) {
         Highlight
       </button>
       <button
+        type="button"
         onClick={() => applyRichStyle({ fontSize: 60 }, canvas)}
         style={btnStyle}
       >
