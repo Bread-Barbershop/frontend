@@ -1,6 +1,7 @@
 import CreateWorkspaceButton from './components/CreateWorkspaceButton';
 import GoogleLoginButton from './components/GoogleLoginButton';
 import LoginStatusListener from './components/LoginStatusListener';
+import SaveTestButton from './components/saveTestButton';
 
 export const metadata = {
   title: '로그인 | 모바일 청첩장',
@@ -21,6 +22,7 @@ export default function LoginPage() {
         </div>
         <LoginStatusListener />
         <CreateWorkspaceButton />
+        <SaveTestButton />
       </div>
     </main>
   );
