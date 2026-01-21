@@ -1,11 +1,11 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-import { generateOAuthState } from '@/app/oauthTest/utils/generateOAuthState';
+import { generateOAuthState } from '@/app/api/auth/_lib/generateOAuthState';
 import {
   generateCodeVerifier,
   generateCodeChallenge,
-} from '@/app/oauthTest/utils/pkce';
+} from '@/app/api/auth/_lib/pkce';
 
 export async function GET(request: Request) {
   const origin = new URL(request.url).origin;

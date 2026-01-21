@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
-import { googleFetch } from '@/app/oauthTest/utils/googleFetch';
+import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
 
 import { escapeDriveQueryValue } from './escapeQueryValue';
 
