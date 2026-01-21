@@ -3,6 +3,8 @@ import 'server-only';
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import { googleFetch } from '@/app/oauthTest/utils/googleFetch';
 
+import { escapeDriveQueryValue } from './escapeQueryValue';
+
 type DriveFile = {
   id: string;
   name?: string;
@@ -152,11 +154,4 @@ export async function ensureAssetsFolder(
       audioReused: audios.reused,
     },
   };
-}
-
-/**
- * Drive query 문자열에서 작은따옴표(') 때문에 깨지는 걸 방지하기 위한 최소 이스케이프
- */
-function escapeDriveQueryValue(value: string): string {
-  return value.replace(/'/g, "\\'");
 }
