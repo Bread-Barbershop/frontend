@@ -1,4 +1,3 @@
-import CreateWorkspaceButton from './components/CreateWorkspaceButton';
 import GoogleLoginButton from './components/GoogleLoginButton';
 import LoginStatusListener from './components/LoginStatusListener';
 import SaveTestButton from './components/saveTestButton';
@@ -21,7 +20,6 @@ export default function LoginPage() {
           <GoogleLoginButton />
         </div>
         <LoginStatusListener />
-        <CreateWorkspaceButton />
         <SaveTestButton />
       </div>
     </main>
