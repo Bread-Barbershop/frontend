@@ -1,7 +1,7 @@
 import * as fabric from 'fabric';
 import { useState } from 'react';
 
-import { Shape, Text } from '../types/fabric';
+import { LayoutStyle, RichStyle, Shape, Text } from '../types/fabric';
 
 export const useFabric = () => {
   const [shapes, setShapes] = useState<Shape[]>([]);
@@ -78,19 +78,31 @@ export const useFabric = () => {
     canvas.on('mouse:up', onMouseUp);
   };
 
+  const isLayoutStyle = (style: RichStyle): style is LayoutStyle => {
+    return (
+      'textAlign' in style || 'lineHeight' in style || 'charSpacing' in style
+    );
+  };
+
   // shapes 배열에도 스타일링된 내용 업데이트해두기
-  const applyRichStyle = (styleObj: object, canvas: fabric.Canvas) => {
+  const applyRichStyle = (styleObj: RichStyle, canvas: fabric.Canvas) => {
     const activeObject = canvas.getActiveObject() as fabric.Textbox;
 
-    if (activeObject && activeObject.isType('textbox')) {
-      if (activeObject.isEditing) {
+    if (isLayoutStyle(styleObj)) {
+      activeObject.set(styleObj);
+    } else {
+      const isSelectionPresent =
+        activeObject.selectionStart !== activeObject.selectionEnd;
+
+      if (isSelectionPresent) {
         activeObject.setSelectionStyles(styleObj);
-        activeObject.dirty = true;
       } else {
         activeObject.set(styleObj);
       }
-      canvas.requestRenderAll();
     }
+
+    activeObject.dirty = true;
+    canvas.requestRenderAll();
   };
 
   const deleteShape = ({

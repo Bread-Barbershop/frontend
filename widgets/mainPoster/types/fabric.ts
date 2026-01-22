@@ -46,3 +46,25 @@ export type Shape = Image | Text;
 // Shape 업데이트를 위한 타입 (id와 type은 변경 불가)
 export type ShapeUpdate = Partial<Omit<Image, 'id' | 'type'>> &
   Partial<Omit<Text, 'id' | 'type'>>;
+
+export interface LayoutStyle {
+  textAlign?: 'left' | 'center' | 'right' | 'justify';
+  lineHeight?: number;
+  charSpacing?: number;
+}
+
+export interface AllStyle {
+  fontFamily?: string;
+  fontStyle?: 'normal' | 'italic';
+  fontWeight?: string | number;
+  fontSize?: number;
+  linethrough?: boolean;
+  overline?: boolean;
+  underline?: boolean;
+  textBackgroundColor?: string;
+  stroke?: string;
+  strokeWidth?: number;
+  fill?: string;
+}
+
+export type RichStyle = LayoutStyle | AllStyle;
