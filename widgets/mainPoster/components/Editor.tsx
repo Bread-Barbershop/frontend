@@ -22,11 +22,12 @@ const Editor: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
   const {
-    shapes,
     activeDrawingMode,
     dragToCreateTextBox,
-    setDrawingMode,
+    handleDrawingMode,
     applyRichStyle,
+    handleDeleteShape,
+    handleDeleteEmptyShape,
   } = useFabric();
 
   useEffect(() => {
@@ -46,23 +47,17 @@ const Editor: React.FC = () => {
   useEffect(() => {
     if (!canvas) return;
     if (activeDrawingMode) dragToCreateTextBox(canvas);
-  }, [activeDrawingMode]);
+    const cleanupEmpty = handleDeleteEmptyShape(canvas);
+    const onKeyDown = (e: KeyboardEvent) => {
+      handleDeleteShape(canvas, e);
+    };
+    window.addEventListener('keydown', onKeyDown);
 
-  useEffect(() => {
-    if (!canvas) return;
-    const canvasObjects = canvas.getObjects();
-    shapes.forEach(shape => {
-      const exists = canvasObjects.find(obj => obj.id === shape.id);
-      if (!exists && shape.type === 'text') {
-        const text = new fabric.Textbox(shape.text || '텍스트를 입력하세요', {
-          ...shape,
-        });
-        canvas.add(text);
-      }
-    });
-
-    canvas.requestRenderAll();
-  }, [shapes, canvas]);
+    return () => {
+      cleanupEmpty();
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [canvas, activeDrawingMode]);
 
   return (
     <div
@@ -74,7 +69,7 @@ const Editor: React.FC = () => {
         padding: '40px',
       }}
     >
-      <Toolbar canvas={canvas} setDrawingMode={setDrawingMode} />
+      <Toolbar canvas={canvas} handleDrawingMode={handleDrawingMode} />
       <Menubar canvas={canvas} applyRichStyle={applyRichStyle} />
       <div
         style={{

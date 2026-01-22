@@ -5,6 +5,8 @@ export interface BaseShape {
   type: ShapeType;
   left: number;
   top: number;
+  originX?: 'left' | 'center' | 'right';
+  originY?: 'top' | 'center' | 'bottom';
 
   // --- 트랜스포머(조절 핸들) 커스텀 스타일 ---
   cornerColor?: string; // 핸들 색상
