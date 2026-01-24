@@ -1,7 +1,14 @@
 import * as fabric from 'fabric';
 import { useState } from 'react';
 
-import { LayoutStyle, RichStyle, Shape, Text } from '../types/fabric';
+import {
+  LayoutStyle,
+  RichStyle,
+  Shape,
+  Text,
+  Image,
+  ImageFilterOptions,
+} from '../types/fabric';
 
 export const useFabric = () => {
   const [shapes, setShapes] = useState<Shape[]>([]);
@@ -189,12 +196,110 @@ export const useFabric = () => {
     };
   };
 
+  const applyImageFilter = (
+    options: ImageFilterOptions,
+    canvas: fabric.Canvas
+  ) => {
+    const activeObject = canvas.getActiveObject();
+
+    if (!activeObject || !(activeObject instanceof fabric.FabricImage)) {
+      return;
+    }
+
+    const filters: fabric.filters.BaseFilter<string, any>[] = [];
+
+    if (options.brightness !== undefined) {
+      filters.push(
+        new fabric.filters.Brightness({ brightness: options.brightness })
+      );
+    }
+    if (options.contrast !== undefined) {
+      filters.push(new fabric.filters.Contrast({ contrast: options.contrast }));
+    }
+    if (options.saturation !== undefined) {
+      filters.push(
+        new fabric.filters.Saturation({ saturation: options.saturation })
+      );
+    }
+    if (options.blur !== undefined) {
+      filters.push(new fabric.filters.Blur({ blur: options.blur }));
+    }
+    if (options.pixelate !== undefined) {
+      filters.push(
+        new fabric.filters.Pixelate({ blocksize: options.pixelate })
+      );
+    }
+    if (options.grayscale) {
+      filters.push(new fabric.filters.Grayscale());
+    }
+    if (options.invert) {
+      filters.push(new fabric.filters.Invert());
+    }
+
+    activeObject.filters = filters;
+    activeObject.applyFilters();
+    canvas.requestRenderAll();
+
+    // Update state
+    const id = activeObject.id;
+    setShapes(prev =>
+      prev.map(shape =>
+        shape.id === id ? { ...shape, filters: { ...options } } : shape
+      )
+    );
+  };
+
+  const addImage = async (url: string, canvas: fabric.Canvas) => {
+    try {
+      const img = await fabric.FabricImage.fromURL(url, {
+        crossOrigin: 'anonymous',
+      });
+
+      // 초기 이미지 크기 최적화 - 캔버스 절반 크기로 제한
+      const maxWidth = canvas.width ? canvas.width / 2 : 300;
+      if (img.width > maxWidth) {
+        img.scaleToWidth(maxWidth);
+      }
+
+      // 로드된 이미지가 화면 중앙에 위치하도록 설정
+      img.set({
+        originX: 'center',
+        originY: 'center',
+        left: canvas.width / 2,
+        top: canvas.height / 2,
+        id: `image-${Date.now()}`,
+      });
+
+      canvas.add(img);
+      canvas.setActiveObject(img);
+      canvas.renderAll();
+
+      setShapes(prev => [
+        ...prev,
+        {
+          id: img.id!,
+          type: 'image',
+          src: url,
+          left: img.left!,
+          top: img.top!,
+          width: img.getScaledWidth(),
+          height: img.getScaledHeight(),
+          filters: {},
+        } as Image,
+      ]);
+    } catch (error) {
+      console.error('Failed to load image:', error);
+    }
+  };
+
   return {
     shapes,
     activeDrawingMode,
     handleDrawingMode,
     dragToCreateTextBox,
     applyRichStyle,
+    addImage,
+    applyImageFilter,
     handleDeleteShape,
     handleDeleteEmptyShape,
   };

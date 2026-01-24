@@ -14,18 +14,25 @@ declare module 'fabric' {
 import React, { useEffect, useRef, useState } from 'react';
 
 import { useFabric } from '../hooks/useFabric';
+import { Image } from '../types/fabric';
 
+import ImageFilterPanel from './ImageFilterPanel';
 import Menubar from './Menubar';
 import Toolbar from './Toolbar';
 
 const Editor: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
+  const [selectedObject, setSelectedObject] =
+    useState<fabric.FabricObject | null>(null);
   const {
+    shapes,
     activeDrawingMode,
     dragToCreateTextBox,
     handleDrawingMode,
     applyRichStyle,
+    addImage,
+    applyImageFilter,
     handleDeleteShape,
     handleDeleteEmptyShape,
   } = useFabric();
@@ -38,6 +45,14 @@ const Editor: React.FC = () => {
       backgroundColor: '#f9fafb',
     });
     setCanvas(fabricCanvas);
+
+    const handleSelection = () => {
+      setSelectedObject(fabricCanvas.getActiveObject() ?? null);
+    };
+
+    fabricCanvas.on('selection:created', handleSelection);
+    fabricCanvas.on('selection:updated', handleSelection);
+    fabricCanvas.on('selection:cleared', () => setSelectedObject(null));
 
     return () => {
       fabricCanvas.dispose();
@@ -57,7 +72,18 @@ const Editor: React.FC = () => {
       cleanupEmpty();
       window.removeEventListener('keydown', onKeyDown);
     };
-  }, [canvas, activeDrawingMode]);
+  }, [
+    canvas,
+    activeDrawingMode,
+    dragToCreateTextBox,
+    handleDeleteEmptyShape,
+    handleDeleteShape,
+  ]);
+
+  const isSelectedImage = selectedObject instanceof fabric.FabricImage;
+  const currentImageShape = isSelectedImage
+    ? (shapes.find(s => s.id === selectedObject.id) as Image)
+    : null;
 
   return (
     <div
@@ -69,7 +95,18 @@ const Editor: React.FC = () => {
         padding: '40px',
       }}
     >
-      <Toolbar canvas={canvas} handleDrawingMode={handleDrawingMode} />
+      <Toolbar
+        canvas={canvas}
+        handleDrawingMode={handleDrawingMode}
+        addImage={addImage}
+      />
+      {isSelectedImage && (
+        <ImageFilterPanel
+          canvas={canvas}
+          applyImageFilter={applyImageFilter}
+          currentFilters={currentImageShape?.filters}
+        />
+      )}
       <Menubar canvas={canvas} applyRichStyle={applyRichStyle} />
       <div
         style={{

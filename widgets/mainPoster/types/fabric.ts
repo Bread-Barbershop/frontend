@@ -18,11 +18,22 @@ export interface BaseShape {
   padding?: number; // 컨텐츠와 테두리 사이 여백
 }
 
+export interface ImageFilterOptions {
+  brightness?: number; // -1 to 1
+  contrast?: number; // -1 to 1
+  saturation?: number; // -1 to 1
+  blur?: number; // 0 to 1
+  pixelate?: number; // 1 or more
+  grayscale?: boolean;
+  invert?: boolean;
+}
+
 export interface Image extends BaseShape {
   type: 'image';
   src: string;
   width: number;
   height: number;
+  filters?: ImageFilterOptions;
 }
 
 export interface Text extends BaseShape {
