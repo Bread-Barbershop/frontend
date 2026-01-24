@@ -1,0 +1,64 @@
+# GitHub Actions 워크플로우 이름: Chromatic 배포 및 디스코드 리뷰 알림
+name: 'Chromatic Deployment & Review'
+
+# 워크플로우 실행 조건 설정
+on:
+  # 1. PR이 머지되어 main 브랜치에 코드가 반영될 때 실행 (메인 스토리북 주소 업데이트용)
+  push:
+    branches:
+      - main
+    paths:
+     - 'components/**'
+  # 2. main 브랜치를 대상으로 PR이 생성되거나 업데이트될 때 실행 (리뷰용)
+  pull_request:
+    branches:
+      - main
+    # 특정 폴더의 컴포넌트 파일이 변경될 때만 실행하여 불필요한 빌드 방지
+    paths:
+      - 'components/**'
+jobs:
+  chromatic-deployment:
+    runs-on: ubuntu-latest
+    steps:
+      # 단계 1: 소스 코드 체크아웃
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Chromatic은 이전 커밋과의 UI 차이점을 비교하므로 전체 커밋 히스토리(0)가 필수입니다.
+          fetch-depth: 0
+
+      # 단계 2: 의존성 패키지 설치
+      - name: Install dependencies
+        run: npm install
+
+      # 단계 3: Chromatic 배포 및 UI 스냅샷 생성
+      - name: Publish to Chromatic
+        id: chromatic # 다음 단계(디스코드 알림)에서 결과 URL을 참조하기 위해 ID 지정
+        uses: chromaui/action@v1
+        with:
+          # GitHub Secrets에 저장한 프로젝트 토큰 사용
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # 빌드 완료 후 CI가 바로 종료되도록 설정 (리뷰는 Chromatic 사이트에서 진행)
+          exitOnceUploaded: true
+          # [핵심 로직] main 브랜치에서 실행될 때만 스냅샷을 자동으로 승인하여 메인 URL을 최신화함
+          autoAcceptChanges: ${{ github.ref == 'refs/heads/main' }}
+
+      # 단계 4: PR 상황에서만 디스코드 채널로 리뷰 요청 메시지 전송
+      - name: Discord Notification
+        # push(머지) 이벤트가 아닌 pull_request 이벤트일 때만 이 단계를 실행
+        if: github.event_name == 'pull_request'
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        uses: Ilshidur/action-discord@master
+        with:
+          # 팀원들이 바로 확인할 수 있도록 작업자, PR 제목, 리뷰 전용 링크를 포함
+          args: |
+            🎨 **스토리북 UI 리뷰가 도착했습니다!**
+            팀원분들 (<@1439606262345105569>) 리뷰해 주세요!!
+            변경 사항을 확인하고 승인해 주세요! 😎
+
+            - **작업자:** ${{ github.actor }}
+            - **PR 제목:** ${{ github.event.pull_request.title }}
+            - **리뷰 및 승인 링크:** ${{ steps.chromatic.outputs.buildUrl }}
+            - **컴포넌트 미리보기:** ${{ steps.chromatic.outputs.storybookUrl }}

@@ -71,7 +71,7 @@ export const Selector = <T extends Option>({
     <div ref={containerRef} className={cn('relative min-w-[72px]', className)}>
       <div
         className={cn(
-          'flex items-center justify-between w-full px-2 py-2 text-sm bg-background-base border transition-all border-neutral-border',
+          'flex items-center justify-between w-full px-2 py-2 text-sm bg-bg-base border transition-all border-border-neutral',
           isOpen ? 'rounded-t-lg border-b-transparent' : 'rounded-lg'
         )}
       >
@@ -104,12 +104,12 @@ export const Selector = <T extends Option>({
         )}
       </div>
       {isOpen && (
-        <ul className="absolute z-10 w-full bg-background-base border border-neutral-border border-t-0 rounded-b-lg overflow-hidden shadow-lg">
+        <ul className="absolute z-10 w-full bg-bg-base border border-border-neutral border-t-0 rounded-b-lg overflow-hidden shadow-lg">
           {options.map(option => (
             <li
               key={option.value}
               onClick={() => handleSelect(option)}
-              className="px-3 py-2 text-sm text-text-primary cursor-pointer hover:bg-gray-50 transition-colors"
+              className="px-3 py-2 text-sm text-text-primary cursor-pointer hover:bg-bg-sub transition-colors"
             >
               {option.label}
             </li>
@@ -118,7 +118,7 @@ export const Selector = <T extends Option>({
           {onInputChange && (
             <li
               onClick={handleCustomMenuItemClick}
-              className="px-3 py-2 text-blue-500 font-medium border-t hover:bg-blue-50 cursor-pointer text-sm"
+              className="px-3 py-2 text-primary font-medium border-t border-border-neutral hover:bg-primary-hover cursor-pointer text-sm"
             >
               직접 입력
             </li>

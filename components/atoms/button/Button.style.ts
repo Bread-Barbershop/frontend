@@ -1,42 +1,27 @@
 import { cva } from 'class-variance-authority';
 
 export const buttonVariants = cva(
-  'inline-flex justify-center items-center gap-0.5 text-[13px] leading-4 rounded-lg border cursor-pointer disabled:cursor-not-allowed',
+  'inline-flex justify-center items-center gap-0.5 rounded-lg cursor-pointer disabled:cursor-not-allowed h-8 py-2 px-0.5 bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled',
   {
     variants: {
       variant: {
-        solid:
-          'h-8 py-2 bg-white text-text-primary border-neutral-border hover:bg-neutral-border active:border-primary disabled:text-button-disabled disabled:border-button-disabled disabled:bg-white',
-        ghost:
-          'bg-transparent border-transparent text-primary px-2 hover:bg-primary-hover disabled:text-button-disabled disabled:bg-transparent',
+        bordered: 'border border-border-neutral',
+        borderless: 'border-none bg-transparent',
       },
       size: {
         sm: 'w-[57px]',
         md: 'w-[131px]',
         lg: 'w-[335px]',
       },
+      shadow: {
+        default: 'shadow-none',
+        custom: 'shadow-custom',
+      },
     },
-    // ghost 타입일 경우 다른 스타일
-    compoundVariants: [
-      {
-        variant: 'ghost',
-        size: 'sm',
-        className: 'w-auto h-8',
-      },
-      {
-        variant: 'ghost',
-        size: 'md',
-        className: 'w-auto h-[44px]',
-      },
-      {
-        variant: 'ghost',
-        size: 'lg',
-        className: 'w-[335px] h-[44px]',
-      },
-    ],
     defaultVariants: {
-      variant: 'solid',
-      size: 'sm',
+      variant: 'bordered',
+      size: 'sm', 
+      shadow: 'default',
     },
   }
 );

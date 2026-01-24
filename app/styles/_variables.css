@@ -1,44 +1,56 @@
-/* 색상, 폰트, spacing 등 커스텀 변수 */
 @theme {
+  /* font-sans을 pretendard로 변경 */
+  --font-sans: var(--font-pretendard), ui-sans-serif, system-ui, sans-serif;
+  /* text-base의 기본 크기를 13px로 변경 */
+  --font-size-base: 13px;
+  --font-size-base-line-height: 1.25rem; /* text-base의 기본 line-height를 1.25rem로 변경 */
+
+  /* shadow-custom을 0 8px 24px 0 rgba(0, 0, 0, 0.06)로 변경 */
+  --shadow-custom: 0 8px 24px 0 rgba(0, 0, 0, 0.06);
+
+  /* --- Brand --- */
   --color-primary: #1f72ef;
-  --color-primary-hover: #1f72ef08;
-  --color-primary-border: #1f72ef12;
+  --color-primary-hover: rgba(31, 114, 239, 0.08);
+  --color-primary-border: rgba(31, 114, 239, 0.12);
+  --color-brand-kakao: #ffeb00;
 
-  /* Semantic */
-  --color-semantic-stroke: #000000;
+  /* --- Background --- */
+  --color-bg-base: #ffffff;
+  --color-bg-sub: #f5f8ff;
 
-  /* Text */
+  /* --- Text --- */
   --color-text-primary: #000000;
   --color-text-secondary: #838383;
   --color-text-tertiary: #787878;
+  --color-text-wedding: #fa7564;
+  --color-text-firstbirthday: #fa731f;
+  --color-text-conference: #6470fa;
+  --color-text-birthday: #891ffa;
 
-  /* Liner */
-  --color-liner-slider: #e5e5e8;
-  --color-liner-divider: #505050;
+  /* --- Status (Feedback) --- */
+  --color-status-success: #2db400;
+  --color-status-success-bg: #e6f7e6;
+  --color-status-error: #ff0000;
+  --color-status-error-bg: #ffe8e8;
+  --color-status-warning: #ff8c00;
+  --color-status-warning-bg: #fff2e3;
+  --color-status-info: #1c7ed6;
+  --color-status-info-bg: #d9efff;
+
+  /* --- Border & Stroke --- */
+  --color-border-neutral: #eaeaea;
+  --color-border-liner: #444444;
+  --color-border-slider: #e5e5e8;
+  --color-border-divider: rgba(80, 80, 80, 0.16);
+  --color-border-button: #e5e5e8;
+  --color-stroke-neutral: rgba(0, 0, 0, 0.05);
   --color-liner-segment: #6fef1f;
-  --color-liner-button: #e5e5e8;
 
-  /* Button */
-  --color-button-disabled: #d1d5db;
-  --color-button-close: #ff0004;
-
-  /* Background */
-  --color-background-base: #ffffff;
-  --color-background-sub: #f5f8ff;
-  --color-background-draft: #00000040;
-
-  /* Neutral */
-  --color-neutral-border: #eaeaea;
-  --color-neutral-liner: #444444;
-
-  /* Toast */
-  --color-toast-success-primary: #2db400;
-  --color-toast-error-primary: #ff0000;
-  --color-toast-warning-primary: #ff8c00;
-  --color-toast-info-primary: #1c7ed6;
-
-  --color-toast-success-secondary: #e6f7e6;
-  --color-toast-error-secondary: #ffe8e8;
-  --color-toast-warning-secondary: #fff2e3;
-  --color-toast-info-secondary: #d9efff;
+  /* --- Button States --- */
+  --color-btn-disabled: #d1d5db;
+  --color-btn-close: rgba(255, 0, 4, 0.8);
+  --color-btn-close-pressed: rgba(255, 10, 14, 0.08);
+  --color-btn-pressed: #f5f8ff;
+  --color-btn-hover: #fafafb;
+  --color-btn-active: #dbe8fc;
 }
