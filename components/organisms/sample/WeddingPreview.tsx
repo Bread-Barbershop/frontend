@@ -1,4 +1,11 @@
-function WeddingPreview() {
+import { EditorBlock } from '@/features/editor/store/useEditorStore';
+
+interface Props {
+  blockInfo: EditorBlock<'weddingDay'>;
+}
+
+function WeddingPreview({ blockInfo }: Props) {
+  console.log('blockInfo', blockInfo);
   return (
     <div className="w-full flex flex-col items-center gap-8">
       <div className="flex flex-col items-center">
@@ -8,8 +15,8 @@ function WeddingPreview() {
         <h2 className="text-[#FA7564] text-sm font-extrabold">예식 일시</h2>
       </div>
       <div className="flex flex-col items-center">
-        <p className="text-[13px]">2025.11.27</p>
-        <p className="text-[13px]">목요일 오후 1시</p>
+        <p className="text-[13px]">{blockInfo.props.weddingDay}</p>
+        <p className="text-[13px]">{blockInfo.props.weddingTime}</p>
       </div>
     </div>
   );

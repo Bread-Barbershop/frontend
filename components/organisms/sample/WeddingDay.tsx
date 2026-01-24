@@ -1,43 +1,81 @@
-function WeddingDay() {
+import { ChangeEvent } from 'react';
+
+import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
+import { TextField } from '@/components/molecules/text-field';
+import {
+  EditorBlock,
+  useEditorStore,
+} from '@/features/editor/store/useEditorStore';
+
+interface Props {
+  blockInfo: EditorBlock<'weddingDay'>;
+  id: string;
+}
+
+function WeddingDay({ blockInfo, id }: Props) {
+  const updateBlock = useEditorStore(state => state.updateBlock);
+
+  const handleInputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
+    updateBlock(id, {
+      weddingDay: e.target.value,
+    });
+  };
+  const handleInputOnChange2 = (e: ChangeEvent<HTMLInputElement>) => {
+    updateBlock(id, {
+      weddingTime: e.target.value,
+    });
+  };
+
+  const handleCheckBoxOnChange = (e: ChangeEvent<HTMLInputElement>) => {
+    console.log('타겟 확인', e.target.checked);
+  };
+
   return (
-    <div className="border w-[375px]">
-      <div className=" py-[13.5px] flex flex-col gap-1 items-center ">
-        <h2>예식 일시</h2>
-        <div className="w-full flex">
-          <label htmlFor="" className="px-[10px] py-0.5 mr-2 text-sm">
-            예식일
-          </label>
-          <input
-            type="text"
-            className="w-[270px] h-8 bg-[#EAEAEA] rounded-lg text-center text-[13px]"
-            placeholder="2025-11-27"
+    <div className="w-[375px]">
+      <div className="py-[13.5px] px-5 flex flex-col gap-1 items-center">
+        <h2>행사 일시</h2>
+        <div className="py-1.5 mb-1 w-full">
+          <TextField
+            label="예식일"
+            inputProps={{
+              onChange: e => handleInputOnChange(e),
+              defaultValue: blockInfo?.props.weddingDay,
+            }}
+            className="w-full "
           />
         </div>
-        <div className="w-full flex">
-          <label className="px-1 py-0.5 mr-2 text-sm" htmlFor="">
-            예식시간
-          </label>
-          <input
-            type="text"
-            className="w-[270px] h-8 bg-[#EAEAEA] rounded-lg text-center text-[13px]"
-            placeholder="오후 1:00"
+        <div className="py-1.5 mb-1 w-full">
+          <TextField
+            label="예식시간"
+            inputProps={{
+              onChange: e => handleInputOnChange2(e),
+              defaultValue: blockInfo?.props.weddingTime,
+            }}
+            className="w-full"
           />
         </div>
-        <div className="flex w-full">
+
+        <div className="flex w-full items-center gap-3">
           <p className="px-1 py-0.5 mr-2 text-sm">추가기능</p>
-          <div className="flex gap-2 flex-1">
-            <div>
-              <input type="checkbox" name="" id="" />
-              <label htmlFor="" className="text-[#838383] text-[13px]">
+          <div className="flex gap-2 flex-1 flex-wrap">
+            <Checkbox
+              onChange={e => handleCheckBoxOnChange(e)}
+              className="text-text-secondary"
+            >
+              <p className="font-normal text-[13px] text-text-secondary">
                 캘린더
-              </label>
-            </div>
-            <div>
-              <input type="checkbox" name="" id="" />
-              <label htmlFor="" className="text-[#838383] text-[13px]">
+              </p>
+            </Checkbox>
+            <Checkbox onChange={e => handleCheckBoxOnChange(e)}>
+              <p className="font-normal text-[13px] text-text-secondary">
+                내용 추가
+              </p>
+            </Checkbox>
+            <Checkbox onChange={e => handleCheckBoxOnChange(e)}>
+              <p className="font-normal text-[13px] text-text-secondary">
                 디데이&카운트다운
-              </label>
-            </div>
+              </p>
+            </Checkbox>
           </div>
         </div>
       </div>
