@@ -14,20 +14,30 @@ declare module 'fabric' {
 import React, { useEffect, useRef, useState } from 'react';
 
 import { useFabric } from '../hooks/useFabric';
+import { Image } from '../types/fabric';
 
+import ImageFilterPanel from './ImageFilterPanel';
 import Menubar from './Menubar';
 import Toolbar from './Toolbar';
 
 const Editor: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
+<<<<<<< HEAD
   // 이미지 타입도 추가하기
   const [activeObject, setActiveObject] = useState<fabric.Textbox | null>(null);
+=======
+  const [selectedObject, setSelectedObject] =
+    useState<fabric.FabricObject | null>(null);
+>>>>>>> baee20a ([feat] fabric.js를 이용한 이미지객체 생성 및 필터 적용)
   const {
+    shapes,
     activeDrawingMode,
     dragToCreateTextBox,
     handleDrawingMode,
     applyRichStyle,
+    addImage,
+    applyImageFilter,
     handleDeleteShape,
     handleDeleteEmptyShape,
   } = useFabric();
@@ -40,6 +50,14 @@ const Editor: React.FC = () => {
       backgroundColor: '#f9fafb',
     });
     setCanvas(fabricCanvas);
+
+    const handleSelection = () => {
+      setSelectedObject(fabricCanvas.getActiveObject() ?? null);
+    };
+
+    fabricCanvas.on('selection:created', handleSelection);
+    fabricCanvas.on('selection:updated', handleSelection);
+    fabricCanvas.on('selection:cleared', () => setSelectedObject(null));
 
     return () => {
       fabricCanvas.dispose();
@@ -75,7 +93,18 @@ const Editor: React.FC = () => {
       canvas.off('selection:created', handleSelection);
       canvas.off('selection:updated', handleSelection);
     };
-  }, [canvas, activeDrawingMode]);
+  }, [
+    canvas,
+    activeDrawingMode,
+    dragToCreateTextBox,
+    handleDeleteEmptyShape,
+    handleDeleteShape,
+  ]);
+
+  const isSelectedImage = selectedObject instanceof fabric.FabricImage;
+  const currentImageShape = isSelectedImage
+    ? (shapes.find(s => s.id === selectedObject.id) as Image)
+    : null;
 
   return (
     <div
@@ -87,13 +116,25 @@ const Editor: React.FC = () => {
         padding: '40px',
       }}
     >
-      <Toolbar canvas={canvas} handleDrawingMode={handleDrawingMode} />
+      <Toolbar
+        canvas={canvas}
+        handleDrawingMode={handleDrawingMode}
+        addImage={addImage}
+      />
+            {isSelectedImage && (
+        <ImageFilterPanel
+          canvas={canvas}
+          applyImageFilter={applyImageFilter}
+          currentFilters={currentImageShape?.filters}
+        />
+      )}
       <Menubar
         key={activeObject?.id || 'empty'}
         canvas={canvas}
         applyRichStyle={applyRichStyle}
         activeObject={activeObject}
       />
+
       <div
         style={{
           border: '2px solid #e5e7eb',
