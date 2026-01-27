@@ -1,0 +1,128 @@
+import { Button } from '@/components/atoms/button';
+import { Label } from '@/components/atoms/label';
+import { PhotoPresetOptions } from '@/widgets/mainPoster/types/fabric';
+
+const PHOTO_PRESETS = [
+  {
+    label: '없음',
+    value: {
+      exposure: 50,
+      contrast: 50,
+      saturation: 50,
+      temperature: 50,
+      tint: 50,
+      fade: 0,
+      vignette: 0,
+      grain: 0,
+      bw: 0,
+    },
+  },
+  {
+    label: '흑백',
+    value: {
+      exposure: 65,
+      contrast: 51,
+      saturation: 50,
+      temperature: 50,
+      tint: 50,
+      fade: 25,
+      vignette: 0,
+      grain: 0,
+      bw: 100,
+    },
+  },
+  {
+    label: 'Warm',
+    value: {
+      exposure: 53,
+      contrast: 50,
+      saturation: 65,
+      temperature: 71,
+      tint: 56,
+      fade: 10,
+      vignette: 0,
+      grain: 0,
+      bw: 0,
+    },
+  },
+  {
+    label: 'Cool',
+    value: {
+      exposure: 50,
+      contrast: 49,
+      saturation: 35,
+      temperature: 20,
+      tint: 54,
+      fade: 13,
+      vignette: 0,
+      grain: 0,
+      bw: 0,
+    },
+  },
+  {
+    label: 'Fade',
+    value: {
+      exposure: 69,
+      contrast: 45,
+      saturation: 70,
+      temperature: 93,
+      tint: 58,
+      fade: 53,
+      vignette: 0,
+      grain: 0,
+      bw: 0,
+    },
+  },
+  {
+    label: 'Film Grain',
+    value: {
+      exposure: 57,
+      contrast: 42,
+      saturation: 33,
+      temperature: 43,
+      tint: 48,
+      fade: 66,
+      vignette: 0,
+      grain: 60,
+      bw: 0,
+    },
+  },
+  {
+    label: 'Vignette',
+    value: {
+      exposure: 37,
+      contrast: 51,
+      saturation: 47,
+      temperature: 44,
+      tint: 48,
+      fade: 0,
+      vignette: 76,
+      grain: 0,
+      bw: 0,
+    },
+  },
+];
+
+interface ImageEditorProps {
+  onApply: (options: PhotoPresetOptions) => void;
+}
+
+export const ImageEditor = ({ onApply }: ImageEditorProps) => {
+  return (
+    <div>
+      <Label>효과</Label>
+      <ul className="flex gap-2">
+        {PHOTO_PRESETS.map((preset, index) => (
+          <li key={index}>
+            <Button
+              className="p-2 whitespace-nowrap w-fit"
+              onClick={() => onApply(preset.value)}
+            >
+              {preset.label}
+            </Button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};

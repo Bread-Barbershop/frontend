@@ -1,16 +1,43 @@
 import * as fabric from 'fabric';
 import React from 'react';
 
-import { ImageFilterOptions } from '../types/fabric';
+import { ImageEditor } from '@/components/molecules/image-editor';
+
+import { PhotoPresetOptions } from '../types/fabric';
 
 interface Props {
   canvas: fabric.Canvas | null;
   applyImageFilter: (
-    options: ImageFilterOptions,
+    options: PhotoPresetOptions,
     canvas: fabric.Canvas
   ) => void;
-  currentFilters?: ImageFilterOptions;
+  currentFilters?: PhotoPresetOptions;
 }
+
+// 9가지 필터 항목 설정
+const FILTER_CONFIG: {
+  key: keyof PhotoPresetOptions;
+  label: string;
+  min: number;
+  max: number;
+  default: number;
+}[] = [
+  { key: 'exposure', label: '노출 (Exposure)', min: 0, max: 100, default: 50 },
+  { key: 'contrast', label: '대비 (Contrast)', min: 0, max: 100, default: 50 },
+  {
+    key: 'saturation',
+    label: '채도 (Saturation)',
+    min: 0,
+    max: 100,
+    default: 50,
+  },
+  { key: 'temperature', label: '색온도 (Temp)', min: 0, max: 100, default: 50 },
+  { key: 'tint', label: '색조 (Tint)', min: 0, max: 100, default: 50 },
+  { key: 'fade', label: '페이드 (Fade)', min: 0, max: 100, default: 0 },
+  { key: 'vignette', label: '비네팅 (Vignette)', min: 0, max: 100, default: 0 },
+  { key: 'grain', label: '노이즈 (Grain)', min: 0, max: 100, default: 0 },
+  { key: 'bw', label: '흑백 강도 (B&W)', min: 0, max: 100, default: 0 },
+] as const;
 
 const ImageFilterPanel: React.FC<Props> = ({
   canvas,
@@ -19,128 +46,47 @@ const ImageFilterPanel: React.FC<Props> = ({
 }) => {
   if (!canvas) return null;
 
-  const handleChange = (
-    key: keyof ImageFilterOptions,
-    value: number | boolean
-  ) => {
+  const handleChange = (key: keyof PhotoPresetOptions, value: number) => {
     const newOptions = { ...currentFilters, [key]: value };
     applyImageFilter(newOptions, canvas);
   };
 
-  const labelStyle: React.CSSProperties = {
-    fontSize: '12px',
-    color: '#4b5563',
-    marginBottom: '4px',
-    display: 'block',
-  };
-
-  const sectionStyle: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '2px',
-    minWidth: '120px',
+  const handleApply = (options: PhotoPresetOptions) => {
+    applyImageFilter(options, canvas);
   };
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '20px',
-        padding: '15px',
-        background: '#f3f4f6',
-        borderRadius: '12px',
-        border: '1px solid #e5e7eb',
-        width: '100%',
-        maxWidth: '700px',
-      }}
-    >
-      <div style={sectionStyle}>
-        <label style={labelStyle}>밝기 (Brightness)</label>
-        <input
-          type="range"
-          min="-1"
-          max="1"
-          step="0.1"
-          value={currentFilters?.brightness ?? 0}
-          onChange={e => handleChange('brightness', Number(e.target.value))}
-        />
+    <div className="flex flex-col gap-6 w-full max-w-3xl">
+      {/* 프리셋 선택 섹션 (ImageEditor 내부의 프리셋 버튼들) */}
+      <div className="flex flex-wrap gap-2">
+        <ImageEditor onApply={handleApply} />
       </div>
 
-      <div style={sectionStyle}>
-        <label style={labelStyle}>대비 (Contrast)</label>
-        <input
-          type="range"
-          min="-1"
-          max="1"
-          step="0.1"
-          value={currentFilters?.contrast ?? 0}
-          onChange={e => handleChange('contrast', Number(e.target.value))}
-        />
-      </div>
-
-      <div style={sectionStyle}>
-        <label style={labelStyle}>채도 (Saturation)</label>
-        <input
-          type="range"
-          min="-1"
-          max="1"
-          step="0.1"
-          value={currentFilters?.saturation ?? 0}
-          onChange={e => handleChange('saturation', Number(e.target.value))}
-        />
-      </div>
-
-      <div style={sectionStyle}>
-        <label style={labelStyle}>블러 (Blur)</label>
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.1"
-          value={currentFilters?.blur ?? 0}
-          onChange={e => handleChange('blur', Number(e.target.value))}
-        />
-      </div>
-
-      <div
-        style={{
-          ...sectionStyle,
-          minWidth: '80px',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: '8px',
-        }}
-      >
-        <input
-          type="checkbox"
-          id="grayscale"
-          checked={currentFilters?.grayscale ?? false}
-          onChange={e => handleChange('grayscale', e.target.checked)}
-        />
-        <label htmlFor="grayscale" style={{ ...labelStyle, marginBottom: 0 }}>
-          흑백
-        </label>
-      </div>
-
-      <div
-        style={{
-          ...sectionStyle,
-          minWidth: '80px',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: '8px',
-        }}
-      >
-        <input
-          type="checkbox"
-          id="invert"
-          checked={currentFilters?.invert ?? false}
-          onChange={e => handleChange('invert', e.target.checked)}
-        />
-        <label htmlFor="invert" style={{ ...labelStyle, marginBottom: 0 }}>
-          반전
-        </label>
+      {/* 슬라이더 컨트롤 패널 */}
+      <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 shadow-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-5">
+          {FILTER_CONFIG.map(filter => (
+            <div key={filter.key} className="flex flex-col gap-2">
+              <div className="flex justify-between items-center">
+                <label className="text-xs font-semibold text-gray-600">
+                  {filter.label}
+                </label>
+                <span className="text-[10px] font-mono text-blue-500 bg-blue-50 px-1.5 rounded">
+                  {currentFilters?.[filter.key] ?? filter.default}
+                </span>
+              </div>
+              <input
+                type="range"
+                min={filter.min}
+                max={filter.max}
+                step="1"
+                className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 hover:accent-blue-700 transition-all"
+                value={currentFilters?.[filter.key] ?? filter.default}
+                onChange={e => handleChange(filter.key, Number(e.target.value))}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
