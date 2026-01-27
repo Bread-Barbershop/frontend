@@ -7,8 +7,9 @@ import {
   Shape,
   Text,
   Image,
-  ImageFilterOptions,
+  PhotoPresetOptions,
 } from '../types/fabric';
+import { PhotoPreset } from '../utils/CustomImageFilter';
 
 export const useFabric = () => {
   const [shapes, setShapes] = useState<Shape[]>([]);
@@ -196,8 +197,9 @@ export const useFabric = () => {
     };
   };
 
+  //사진 보정 필터
   const applyImageFilter = (
-    options: ImageFilterOptions,
+    options: PhotoPresetOptions,
     canvas: fabric.Canvas
   ) => {
     const activeObject = canvas.getActiveObject();
@@ -206,41 +208,23 @@ export const useFabric = () => {
       return;
     }
 
-    const filters: fabric.filters.BaseFilter<string, any>[] = [];
+    const photoFilter = new PhotoPreset({
+      exposure: options.exposure ?? 50,
+      contrast: options.contrast ?? 50,
+      saturation: options.saturation ?? 50,
+      temperature: options.temperature ?? 50,
+      tint: options.tint ?? 50,
+      fade: options.fade ?? 0,
+      vignette: options.vignette ?? 0,
+      grain: options.grain ?? 0,
+      bw: options.bw ?? 0,
+    });
 
-    if (options.brightness !== undefined) {
-      filters.push(
-        new fabric.filters.Brightness({ brightness: options.brightness })
-      );
-    }
-    if (options.contrast !== undefined) {
-      filters.push(new fabric.filters.Contrast({ contrast: options.contrast }));
-    }
-    if (options.saturation !== undefined) {
-      filters.push(
-        new fabric.filters.Saturation({ saturation: options.saturation })
-      );
-    }
-    if (options.blur !== undefined) {
-      filters.push(new fabric.filters.Blur({ blur: options.blur }));
-    }
-    if (options.pixelate !== undefined) {
-      filters.push(
-        new fabric.filters.Pixelate({ blocksize: options.pixelate })
-      );
-    }
-    if (options.grayscale) {
-      filters.push(new fabric.filters.Grayscale());
-    }
-    if (options.invert) {
-      filters.push(new fabric.filters.Invert());
-    }
+    activeObject.filters = [photoFilter];
 
-    activeObject.filters = filters;
     activeObject.applyFilters();
     canvas.requestRenderAll();
 
-    // Update state
     const id = activeObject.id;
     setShapes(prev =>
       prev.map(shape =>
@@ -249,6 +233,7 @@ export const useFabric = () => {
     );
   };
 
+  // 이미지 추가
   const addImage = async (url: string, canvas: fabric.Canvas) => {
     try {
       const img = await fabric.FabricImage.fromURL(url, {

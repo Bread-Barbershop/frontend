@@ -23,7 +23,7 @@ function Toolbar({ canvas, handleDrawingMode, addImage }: Props) {
     }
 
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = event => {
       const result = event.target?.result;
       if (typeof result === 'string') {
         addImage(result, canvas);

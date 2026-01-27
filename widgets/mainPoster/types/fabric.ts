@@ -18,14 +18,19 @@ export interface BaseShape {
   padding?: number; // 컨텐츠와 테두리 사이 여백
 }
 
-export interface ImageFilterOptions {
-  brightness?: number; // -1 to 1
-  contrast?: number; // -1 to 1
-  saturation?: number; // -1 to 1
-  blur?: number; // 0 to 1
-  pixelate?: number; // 1 or more
-  grayscale?: boolean;
-  invert?: boolean;
+/**
+ * 필터에 사용할 옵션 인터페이스
+ */
+export interface PhotoPresetOptions {
+  exposure?: number;
+  contrast?: number;
+  saturation?: number;
+  temperature?: number;
+  tint?: number;
+  fade?: number;
+  vignette?: number;
+  grain?: number;
+  bw?: number;
 }
 
 export interface Image extends BaseShape {
@@ -33,7 +38,7 @@ export interface Image extends BaseShape {
   src: string;
   width: number;
   height: number;
-  filters?: ImageFilterOptions;
+  filters?: PhotoPresetOptions;
 }
 
 export interface Text extends BaseShape {
