@@ -25,6 +25,7 @@ interface Props {
 
 function Menubar({ canvas, applyRichStyle }: Props) {
   const [selectedFontSize, setSelectedFontSize] = useState<selectorOptions>();
+
   const [selectedStrokeSize, setSelectedStrokeSize] = useState<selectorOptions>(
     {
       label: '0.5',
@@ -51,6 +52,7 @@ function Menubar({ canvas, applyRichStyle }: Props) {
     };
     strokeSize.push(obj);
   });
+
   const debouncedApplyStyle = useMemo(
     () =>
       debounce((style: RichStyle, canvas: fabric.Canvas) => {
@@ -58,6 +60,14 @@ function Menubar({ canvas, applyRichStyle }: Props) {
       }, 300),
     [applyRichStyle]
   );
+  const handleNumberChange = (value: string | number) => {
+    if (!canvas) return;
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    if (isNaN(numValue) || numValue < 1) {
+      return;
+    }
+    return numValue;
+  };
 
   if (!canvas) return null;
 
@@ -151,11 +161,19 @@ function Menubar({ canvas, applyRichStyle }: Props) {
         options={fontSize}
         // 폰트 사이즈 여러개 섞였을시 mixed 표시 필요
         onSelect={option => {
-          applyRichStyle({ fontSize: Number(option.value) }, canvas);
-          setSelectedFontSize(option);
+          const safeSize = handleNumberChange(option.value);
+          if (safeSize) {
+            applyRichStyle({ fontSize: option.value }, canvas);
+            setSelectedFontSize(option);
+          }
         }}
         onInputChange={value => {
-          debouncedApplyStyle({ fontSize: Number(value) }, canvas);
+          setSelectedFontSize({ label: value, value: 'custom' });
+          const numValue = parseFloat(value);
+          if (isNaN(numValue) || numValue < 1) {
+            return;
+          }
+          debouncedApplyStyle({ fontSize: numValue }, canvas);
         }}
         selected={selectedFontSize ?? null}
       />
@@ -203,6 +221,79 @@ function Menubar({ canvas, applyRichStyle }: Props) {
           selected={selectedStrokeSize ?? null}
         />
       </section>
+      {/* 그림자 */}
+      <section className="flex flex-col">
+        <label htmlFor="shadowColor">그림자</label>
+        <input
+          type="color"
+          id="shadowColor"
+          onChange={e =>
+            debouncedApplyStyle(
+              {
+                shadow: {
+                  color: e.target.value,
+                  blur: 2,
+                  offsetX: 2,
+                  offsetY: 2,
+                },
+              },
+              canvas
+            )
+          }
+        />
+        <label htmlFor="shadowHorizon">horizontal</label>
+        <input
+          type="text"
+          id="shadowHorizontal"
+          placeholder="2"
+          onChange={e => {
+            debouncedApplyStyle(
+              {
+                shadow: {
+                  offsetX: Number(e.target.value),
+                },
+              },
+              canvas
+            );
+          }}
+          className="flex items-center justify-between w-4 px-2 py-2 text-sm bg-bg-base border transition-all border-border-neutral rounded-lg"
+        />
+        <label htmlFor="shadowHorizon">vertical</label>
+        <input
+          type="text"
+          id="shadowVertical"
+          placeholder="2"
+          onChange={e => {
+            debouncedApplyStyle(
+              {
+                shadow: {
+                  offsetY: Number(e.target.value),
+                },
+              },
+              canvas
+            );
+          }}
+          className="flex items-center justify-between w-4 px-2 py-2 text-sm bg-bg-base border transition-all border-border-neutral rounded-lg"
+        />
+        <label htmlFor="shadowHorizon">blur</label>
+        <input
+          type="text"
+          id="shadowBlur"
+          placeholder="2"
+          onChange={e => {
+            debouncedApplyStyle(
+              {
+                shadow: {
+                  blur: Number(e.target.value),
+                },
+              },
+              canvas
+            );
+          }}
+          className="flex items-center justify-between w-4 px-2 py-2 text-sm bg-bg-base border transition-all border-border-neutral rounded-lg"
+        />
+      </section>
+
       <section>
         <label htmlFor="lineHeight">행간</label>
         <input

@@ -51,6 +51,12 @@ export interface LayoutStyle {
   textAlign?: 'left' | 'center' | 'right' | 'justify';
   lineHeight?: number;
   charSpacing?: number;
+  shadow?: {
+    color?: string;
+    blur?: number;
+    offsetX?: number;
+    offsetY?: number;
+  };
 }
 
 export interface AllStyle {

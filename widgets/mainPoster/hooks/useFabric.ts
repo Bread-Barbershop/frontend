@@ -80,16 +80,40 @@ export const useFabric = () => {
 
   const isLayoutStyle = (style: RichStyle): style is LayoutStyle => {
     return (
-      'textAlign' in style || 'lineHeight' in style || 'charSpacing' in style
+      'textAlign' in style ||
+      'lineHeight' in style ||
+      'charSpacing' in style ||
+      'shadow' in style
     );
+  };
+
+  const checkNumberValidity = (value: string | number) => {
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    if (isNaN(numValue) || numValue < 1) {
+      return false;
+    }
+    return true;
   };
 
   // shapes 배열에도 스타일링된 내용 업데이트해두기
   const applyRichStyle = (styleObj: RichStyle, canvas: fabric.Canvas) => {
     const activeObject = canvas.getActiveObject() as fabric.Textbox;
-
+    const hasNumber = Object.values(styleObj).some(
+      value => typeof value === 'number'
+    );
+    if (hasNumber) {
+      if (!checkNumberValidity(Object.values(styleObj)[0])) return false;
+    }
     if (isLayoutStyle(styleObj)) {
-      activeObject.set(styleObj);
+      if (styleObj.shadow) {
+        activeObject.set({
+          shadow: new fabric.Shadow({
+            ...styleObj.shadow,
+          }),
+        });
+      } else {
+        activeObject.set(styleObj);
+      }
     } else {
       const isSelectionPresent =
         activeObject.selectionStart !== activeObject.selectionEnd;
