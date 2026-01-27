@@ -1,4 +1,4 @@
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Check } from 'lucide-react';
 import { useState, useRef, useEffect, ChangeEvent } from 'react';
 
 import { cn } from '@/shared/utils/cn';
@@ -32,7 +32,7 @@ export const Selector = <T extends Option>({
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     onInputChange?.(e.target.value);
-    onSelect({ label: e.target.value, value: 'custom' } as T);
+    onSelect({ label: e.target.value, value: e.target.value });
   };
 
   const handleSelect = (option: T) => {
@@ -46,14 +46,16 @@ export const Selector = <T extends Option>({
   const handleCustomMenuItemClick = () => {
     setIsCustomInput(true);
     setIsOpen(false);
-    onSelect({ label: '', value: 'custom' } as T);
+    onSelect({ label: '', value: '' });
   };
 
-  // 직접 입력 모드로 전환될 때 포커스 처리
   useEffect(() => {
-    if (isCustomInput) inputRef.current?.focus();
+    if (isCustomInput) {
+      inputRef.current?.focus();
+    }
   }, [isCustomInput]);
 
+  // 외부 클릭 시 닫기
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -68,10 +70,11 @@ export const Selector = <T extends Option>({
   }, []);
 
   return (
-    <div ref={containerRef} className={cn('relative min-w-[72px]', className)}>
+    <div ref={containerRef} className={cn('relative', className)}>
       <div
         className={cn(
-          'flex items-center justify-between w-full px-2 py-2 text-sm bg-bg-base border transition-all border-border-neutral',
+          'flex items-center justify-between w-full text-sm transition-all overflow-hidden',
+          selected ? 'bg-bg-base' : 'bg-border-neutral',
           isOpen ? 'rounded-t-lg border-b-transparent' : 'rounded-lg'
         )}
       >
@@ -79,7 +82,7 @@ export const Selector = <T extends Option>({
           <input
             ref={inputRef}
             type="text"
-            className="w-full bg-transparent outline-none text-text-primary"
+            className="w-full h-9 px-2 bg-transparent outline-none text-text-primary text-sm"
             value={selected?.label || ''}
             onChange={handleInputChange}
             onBlur={() => {
@@ -89,38 +92,62 @@ export const Selector = <T extends Option>({
         ) : (
           <button
             onClick={handleToggle}
-            className="flex items-center justify-between w-full text-left"
+            className={cn(
+              'flex items-center justify-between w-full py-1 pl-2 text-left'
+            )}
+            aria-haspopup="listbox"
+            aria-expanded={isOpen}
           >
-            <span className="text-text-primary truncate">
+            <span className="h-7 leading-7 text-center text-text-primary truncate flex-1 min-w-0">
               {selected ? selected.label : placeholder}
             </span>
-            <ChevronDown
+
+            <div
               className={cn(
-                'size-3 ml-2 transition-transform duration-200 shrink-0',
+                'flex-center size-7 transition-transform duration-200 shrink-0',
                 isOpen && 'rotate-180'
               )}
-            />
+            >
+              <ChevronDown size={12} />
+            </div>
           </button>
         )}
       </div>
       {isOpen && (
-        <ul className="absolute z-10 w-full bg-bg-base border border-border-neutral border-t-0 rounded-b-lg overflow-hidden shadow-lg">
+        <ul
+          className={cn(
+            'absolute z-10 top-full left-0 w-full  rounded-b-lg overflow-hidden',
+            selected ? 'bg-bg-base' : 'bg-border-neutral'
+          )}
+        >
           {options.map(option => (
             <li
               key={option.value}
               onClick={() => handleSelect(option)}
-              className="px-3 py-2 text-sm text-text-primary cursor-pointer hover:bg-bg-sub transition-colors"
+              className="flex items-center py-1 pr-2 text-sm text-text-primary cursor-pointer hover:bg-bg-sub transition-colors"
+              role="option"
+              aria-selected={selected?.value === option.value}
             >
-              {option.label}
+              <div
+                className={cn(
+                  'flex-center w-7 shrink-0 text-primary',
+                  selected?.value !== option.value && 'invisible'
+                )}
+              >
+                <Check size={12} />
+              </div>
+              <span className="h-7 leading-7 text-center flex-1 truncate min-w-0">
+                {option.label}
+              </span>
             </li>
           ))}
-          {/* onInputChange 프롭이 있을 때만 '직접 입력' 항목 표시 */}
+
           {onInputChange && (
             <li
               onClick={handleCustomMenuItemClick}
-              className="px-3 py-2 text-primary font-medium border-t border-border-neutral hover:bg-primary-hover cursor-pointer text-sm"
+              className="h-7 leading-7 px-2 py-0.5 text-center text-sm hover:bg-bg-sub cursor-pointer"
             >
-              직접 입력
+              직접입력
             </li>
           )}
         </ul>
