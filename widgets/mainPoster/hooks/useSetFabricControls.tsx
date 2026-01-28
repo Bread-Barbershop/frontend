@@ -8,20 +8,23 @@ export const useSetFabricControls = () => {
   useEffect(() => {
     const img = new Image();
     img.src =
-      'data:image/svg+xml;base64,' +
-      btoa(unescape(encodeURIComponent(MOVE_ICON)));
+      'data:image/svg+xml;base64,' + btoa(encodeURIComponent(MOVE_ICON));
 
     const defaultControls = FabricObject.ownDefaults;
 
     // 스타일 제거
     const newControls: Record<string, Control> = {};
 
+    // 중앙 컨트롤
     newControls.center = new Control({
       x: 0,
       y: 0,
       actionName: 'centerAction',
       render: (ctx, left, top, _, fabricObject) => {
-        if (!img.complete) return; // 이미지 로드 전에는 그리지 않음
+        if (!img.complete) {
+          img.onload = () => fabricObject.canvas?.requestRenderAll();
+          return;
+        }
 
         const size = 24; // 아이콘 출력 크기
         ctx.save();
@@ -35,6 +38,7 @@ export const useSetFabricControls = () => {
       },
     });
 
+    // 모서리 컨트롤
     CORNERS_CONFIG.forEach(corner => {
       // 모서리 확대/축소 컨트롤
       newControls[corner.id] = new Control({
@@ -68,6 +72,7 @@ export const useSetFabricControls = () => {
     // 컨트롤 추가
     defaultControls.controls = newControls;
 
+    // 컨트롤 스타일
     defaultControls.borderColor = '#1F72EF';
     defaultControls.borderScaleFactor = 1;
     defaultControls.cornerStrokeColor = '#1F72EF';
