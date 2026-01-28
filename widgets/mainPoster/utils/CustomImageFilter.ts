@@ -3,7 +3,7 @@ import * as fabric from 'fabric';
 import { PhotoPresetOptions } from '../types/fabric';
 
 /**
- * Fabric.js 커스텀 사진 보정 필터
+ * Fabric.js 커스텀 사진 보정 필터 클래스
  */
 export class PhotoPreset extends fabric.filters.BaseFilter<'PhotoPreset'> {
   public static type = 'PhotoPreset';
@@ -86,6 +86,7 @@ export class PhotoPreset extends fabric.filters.BaseFilter<'PhotoPreset'> {
   /**
    * 실제 픽셀 데이터를 조작하는 메서드
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public applyTo2d(options: any) {
     const imageData = options.imageData;
     const d = imageData.data;
