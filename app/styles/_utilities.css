@@ -4,7 +4,19 @@
     @apply flex items-center justify-center;
   }
 
+  .shadow-left {
+    box-shadow: -2px 0 8px 0 rgba(0, 0, 0, 0.3);
+  }
+
   .cursor-inherit {
     cursor: inherit;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }

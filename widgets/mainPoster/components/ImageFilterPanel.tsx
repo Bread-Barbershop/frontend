@@ -56,7 +56,7 @@ const ImageFilterPanel: React.FC<Props> = ({
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-3xl">
+    <div className="flex flex-col gap-6 w-full max-w-3xl bg-gray-500 p-2">
       {/* 프리셋 선택 섹션 (ImageEditor 내부의 프리셋 버튼들) */}
       <div className="flex flex-wrap gap-2">
         <ImageEditor onApply={handleApply} />
