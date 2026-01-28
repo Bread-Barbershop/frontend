@@ -4,6 +4,10 @@
     @apply flex items-center justify-center;
   }
 
+  .shadow-left {
+    box-shadow: -2px 0 8px 0 rgba(0, 0, 0, 0.3);
+  }
+
   .cursor-inherit {
     cursor: inherit;
   }
@@ -21,7 +25,7 @@
     border-radius: 100vw !important;
 
     border: 2px solid transparent;
-  background-clip: padding-box;
+    background-clip: padding-box;
   }
 
   .textarea-custom-scrollbar::-webkit-scrollbar-thumb {
@@ -29,5 +33,13 @@
     border-radius: 100vw;
     border: 2px solid transparent;
     background-clip: padding-box;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
