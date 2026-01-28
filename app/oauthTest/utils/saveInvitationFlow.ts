@@ -99,12 +99,14 @@ export async function saveInvitationFlow(params: {
       concurrency: step.concurrency,
     });
 
-    const retryAttempt = await retryFailedOnce({
-      failures: firstAttempt.fail,
-      folderId: step.folderId,
-      accessToken: currentToken,
-      refreshAccessToken,
-    });
+    const retryAttempt = firstAttempt.fail.length
+      ? await retryFailedOnce({
+          failures: firstAttempt.fail,
+          folderId: step.folderId,
+          accessToken: currentToken,
+          refreshAccessToken,
+        })
+      : { ok: [], fail: [], refreshedToken: false, usedAccessToken: currentToken };
 
     // retry에서 새 토큰을 썼으면 이후 단계도 그 토큰으로 간다
     if (retryAttempt.refreshedToken) {
