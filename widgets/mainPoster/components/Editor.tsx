@@ -14,6 +14,7 @@ declare module 'fabric' {
 import React, { useEffect, useRef, useState } from 'react';
 
 import { useFabric } from '../hooks/useFabric';
+import { useSetFabricControls } from '../hooks/useSetFabricControls';
 import { Image } from '../types/fabric';
 
 import ImageFilterPanel from './ImageFilterPanel';
@@ -42,6 +43,9 @@ const Editor: React.FC = () => {
     handleDeleteEmptyShape,
   } = useFabric();
 
+  // 컨트롤 설정
+  useSetFabricControls();
+
   useEffect(() => {
     if (!canvasRef.current) return;
     const fabricCanvas = new fabric.Canvas(canvasRef.current, {
@@ -50,6 +54,10 @@ const Editor: React.FC = () => {
       backgroundColor: '#f9fafb',
     });
     setCanvas(fabricCanvas);
+
+    fabricCanvas.on('mouse:move', () => {
+      fabricCanvas.requestRenderAll();
+    });
 
     const handleSelection = () => {
       setSelectedObject(fabricCanvas.getActiveObject() ?? null);
