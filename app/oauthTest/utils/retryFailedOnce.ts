@@ -10,6 +10,7 @@ function getStatus(err: unknown): number | null {
     if (m?.[1]) return Number(m[1]);
   }
   // 다른 형태(라이브러리/원인 객체)의 에러 탐색.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const anyErr = err as any;
   const code = anyErr?.cause?.error?.code ?? anyErr?.status ?? anyErr?.code;
   if (typeof code === 'number') return code;
