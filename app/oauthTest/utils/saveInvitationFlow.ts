@@ -1,4 +1,3 @@
-// lib/upload/saveInvitationFlow.ts
 import { retryFailedOnce } from './retryFailedOnce';
 import {
   uploadAllSettled,
@@ -87,31 +86,36 @@ export async function saveInvitationFlow(params: {
   const runUploadStep = async (step: {
     files: File[];
     folderId: string;
+    concurrency?: number; // 1회 업로드시 파일 개수 제한 옵션.
   }): Promise<{ final: BatchResult; usedAccessToken: string }> => {
     if (step.files.length === 0) {
       return { final: { ok: [], fail: [] }, usedAccessToken: currentToken };
     }
 
-    const r1 = await uploadAllSettled({
+    const firstAttempt = await uploadAllSettled({
       files: step.files,
       folderId: step.folderId,
       accessToken: currentToken,
+      concurrency: step.concurrency,
     });
 
-    const r2 = await retryFailedOnce({
-      failures: r1.fail,
+    const retryAttempt = await retryFailedOnce({
+      failures: firstAttempt.fail,
       folderId: step.folderId,
       accessToken: currentToken,
       refreshAccessToken,
     });
 
     // retry에서 새 토큰을 썼으면 이후 단계도 그 토큰으로 간다
-    if (r2.refreshedToken) {
-      currentToken = r2.usedAccessToken;
+    if (retryAttempt.refreshedToken) {
+      currentToken = retryAttempt.usedAccessToken;
     }
 
     return {
-      final: { ok: [...r1.ok, ...r2.ok], fail: r2.fail },
+      final: {
+        ok: [...firstAttempt.ok, ...retryAttempt.ok],
+        fail: retryAttempt.fail,
+      },
       usedAccessToken: currentToken,
     };
   };
@@ -120,6 +124,7 @@ export async function saveInvitationFlow(params: {
   const imagesStep = await runUploadStep({
     files: images,
     folderId: prep.imageFolderId,
+    concurrency: 5, // 이미지는 5장씩만 끊어서 전송.
   });
 
   // 3) 오디오 업로드(있으면)
