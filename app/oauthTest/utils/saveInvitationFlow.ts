@@ -1,4 +1,7 @@
+import { updateFileToDrive } from '@/app/oauthTest/utils/updateFileToDrive';
+
 import { retryFailedOnce } from './retryFailedOnce';
+import { retryPatchFailedOnce } from './retryPatchFailedOnce';
 import {
   uploadAllSettled,
   type UploadFail,
@@ -9,6 +12,7 @@ type SaveInvitationPrepareResponse = {
   workspaceFolderId: string;
   invitationFolderId: string;
   invitationUuid: string;
+  dataJsonFileId: string;
   imageFolderId: string;
   audioFolderId: string;
   accessToken: string;
@@ -106,7 +110,12 @@ export async function saveInvitationFlow(params: {
           accessToken: currentToken,
           refreshAccessToken,
         })
-      : { ok: [], fail: [], refreshedToken: false, usedAccessToken: currentToken };
+      : {
+          ok: [],
+          fail: [],
+          refreshedToken: false,
+          usedAccessToken: currentToken,
+        };
 
     // retry에서 새 토큰을 썼으면 이후 단계도 그 토큰으로 간다
     if (retryAttempt.refreshedToken) {
@@ -135,11 +144,42 @@ export async function saveInvitationFlow(params: {
     folderId: prep.audioFolderId,
   });
 
-  // 4) data.json 업로드(마지막)
-  const dataStep = await runUploadStep({
-    files: [dataFile],
-    folderId: prep.invitationFolderId,
+  // 4) data.json PATCH 전용 재시도
+  const dataFirstAttempt: BatchResult = await (async () => {
+    try {
+      const result = await updateFileToDrive(
+        dataFile,
+        prep.dataJsonFileId,
+        currentToken
+      );
+      return {
+        ok: [{ file: dataFile, ...result } satisfies UploadOk],
+        fail: [],
+      };
+    } catch (error) {
+      return { ok: [], fail: [{ file: dataFile, error }] };
+    }
+  })();
+
+  const dataRetryAttempt = await retryPatchFailedOnce({
+    failures: dataFirstAttempt.fail,
+    fileId: prep.dataJsonFileId, // PATCH 대상 fileId
+    accessToken: currentToken,
+    refreshAccessToken,
   });
+
+  // retry에서 새 토큰을 썼으면 이후 단계도 그 토큰으로 간다
+  if (dataRetryAttempt.refreshedToken) {
+    currentToken = dataRetryAttempt.usedAccessToken;
+  }
+
+  const dataStep: { final: BatchResult; usedAccessToken: string } = {
+    final: {
+      ok: [...dataFirstAttempt.ok, ...dataRetryAttempt.ok],
+      fail: dataRetryAttempt.fail,
+    },
+    usedAccessToken: currentToken,
+  };
 
   const totalFailed =
     imagesStep.final.fail.length +

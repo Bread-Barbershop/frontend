@@ -3,6 +3,7 @@ import 'server-only';
 import { NextResponse } from 'next/server';
 
 import { ensureAssetsFolder } from '@/app/api/drive/_lib/ensureAssetsFolder';
+import { ensureDataJsonFile } from '@/app/api/drive/_lib/ensureDataJsonFile';
 import { ensureInvitationFolder } from '@/app/api/drive/_lib/ensureInvitationFolder';
 import {
   ensureWorkspace,
@@ -35,6 +36,10 @@ export async function POST(req: Request) {
       invitationUuid,
     });
 
+    // 2.5) data.json 파일 보장 (invitation 하위)
+    const { dataJsonFileId, reused: dataJsonReused } =
+      await ensureDataJsonFile(invitationFolderId);
+
     // 3) 에셋 폴더(이미지/오디오) 보장 (invitation 하위)
     const assets = await ensureAssetsFolder(invitationFolderId);
 
@@ -45,12 +50,17 @@ export async function POST(req: Request) {
       imageFolderId: assets.imageFolderId,
       audioFolderId: assets.audioFolderId,
 
+      dataJsonFileId,
+
       accessToken,
       expiresAt,
 
       meta: {
-        workspaceReused,
-        invitationReused,
+        workspaceReused, // 재사용 여부
+        invitationReused, // 재사용 여부
+
+        dataJsonReused, // 재사용 여부
+
         assets: assets.meta, // imageReused/audioReused
       },
     });
