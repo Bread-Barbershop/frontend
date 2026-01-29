@@ -27,7 +27,7 @@ function WeddingDay({ blockInfo, id }: Props) {
   };
 
   return (
-    <div className="w-[375px]">
+    <div className="w-93.75">
       <div className="py-[13.5px] px-5 flex flex-col gap-1 items-center">
         <h2>행사 일시</h2>
         <div className="py-1.5 mb-1 w-full">
@@ -35,7 +35,7 @@ function WeddingDay({ blockInfo, id }: Props) {
             label="예식일"
             inputProps={{
               onChange: e => handleInputOnChange(e),
-              defaultValue: blockInfo?.props.weddingDay,
+              value: blockInfo?.props.weddingDay,
             }}
             className="w-full "
           />
@@ -45,7 +45,7 @@ function WeddingDay({ blockInfo, id }: Props) {
             label="예식시간"
             inputProps={{
               onChange: e => handleInputOnChange2(e),
-              defaultValue: blockInfo?.props.weddingTime,
+              value: blockInfo?.props.weddingTime,
             }}
             className="w-full"
           />

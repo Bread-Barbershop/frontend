@@ -25,7 +25,7 @@ export const introduceDefinition = {
       default: { content: '제목', color: '#ffffff' },
       required: false,
     },
-    switch: {
+    switchContents: {
       default: true,
       required: false,
     },

@@ -10,6 +10,7 @@ function RightPanel() {
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
+            <title>업로드</title>
             <path
               d="M0.800781 4.7998H8.80078M4.80078 0.799805V8.7998"
               stroke="black"

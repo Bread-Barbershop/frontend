@@ -22,7 +22,7 @@ function Introduce({ blockInfo, id }: Props) {
     updateBlock(id, { bride: e.target.value });
   };
   return (
-    <div className="flex-center flex-col w-[375px] px-5">
+    <div className="flex-center flex-col w-93.75 px-5">
       <h2 className="py-[13.5px]">신랑신부소개</h2>
       <div className="w-full">
         <TextField
@@ -30,7 +30,7 @@ function Introduce({ blockInfo, id }: Props) {
           className="h-11 gap-6"
           inputProps={{
             onChange: handleChangeGroom,
-            placeholder: blockInfo.props.groom,
+            value: blockInfo.props.groom,
           }}
         />
         <TextField
@@ -38,7 +38,7 @@ function Introduce({ blockInfo, id }: Props) {
           className="h-11 gap-6"
           inputProps={{
             onChange: handleChangebride,
-            placeholder: blockInfo.props.bride,
+            value: blockInfo.props.bride,
           }}
         />
       </div>
