@@ -107,8 +107,6 @@ function Preview() {
           </svg>
           페이지 추가
         </button>
-          페이지 추가
-        </button>
       </div>
     </div>
   );
