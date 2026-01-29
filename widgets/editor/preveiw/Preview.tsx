@@ -86,6 +86,7 @@ function Preview() {
         {isTab && <CompoenentsPopup onPopClose={handlePopClose} />}
 
         <button
+          type="button"
           className="w-full h-11 bg-white rounded-lg shadow-edit flex-center gap-2 font-semibold"
           onClick={() => setIsTab(props => !props)}
         >
@@ -96,6 +97,7 @@ function Preview() {
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
+            <title>페이지 추가</title>
             <path
               d="M0.800781 4.7998H8.80078M4.80078 0.799805V8.7998"
               stroke="black"
@@ -103,6 +105,8 @@ function Preview() {
               stroke-linecap="round"
             />
           </svg>
+          페이지 추가
+        </button>
           페이지 추가
         </button>
       </div>
