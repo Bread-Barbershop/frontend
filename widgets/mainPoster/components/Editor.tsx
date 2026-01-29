@@ -24,13 +24,10 @@ import Toolbar from './Toolbar';
 const Editor: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
-<<<<<<< HEAD
   // 이미지 타입도 추가하기
   const [activeObject, setActiveObject] = useState<fabric.Textbox | null>(null);
-=======
   const [selectedObject, setSelectedObject] =
     useState<fabric.FabricObject | null>(null);
->>>>>>> baee20a ([feat] fabric.js를 이용한 이미지객체 생성 및 필터 적용)
   const {
     shapes,
     activeDrawingMode,
@@ -43,7 +40,6 @@ const Editor: React.FC = () => {
     handleDeleteEmptyShape,
   } = useFabric();
 
-  // 컨트롤 설정
   useSetFabricControls();
 
   useEffect(() => {
@@ -54,10 +50,6 @@ const Editor: React.FC = () => {
       backgroundColor: '#f9fafb',
     });
     setCanvas(fabricCanvas);
-
-    fabricCanvas.on('mouse:move', () => {
-      fabricCanvas.requestRenderAll();
-    });
 
     const handleSelection = () => {
       setSelectedObject(fabricCanvas.getActiveObject() ?? null);
@@ -129,20 +121,21 @@ const Editor: React.FC = () => {
         handleDrawingMode={handleDrawingMode}
         addImage={addImage}
       />
-            {isSelectedImage && (
+      {isSelectedImage && (
         <ImageFilterPanel
           canvas={canvas}
           applyImageFilter={applyImageFilter}
           currentFilters={currentImageShape?.filters}
         />
       )}
-      <Menubar
-        key={activeObject?.id || 'empty'}
-        canvas={canvas}
-        applyRichStyle={applyRichStyle}
-        activeObject={activeObject}
-      />
-
+      <div>
+        <Menubar
+          key={activeObject?.id || 'empty'}
+          canvas={canvas}
+          applyRichStyle={applyRichStyle}
+          activeObject={activeObject}
+        />
+      </div>
       <div
         style={{
           border: '2px solid #e5e7eb',

@@ -26,14 +26,14 @@ export const useSetFabricControls = () => {
           return;
         }
 
-        const size = 24; // 아이콘 출력 크기
+        // const size = 24; // 아이콘 출력 크기
         ctx.save();
         ctx.translate(left, top);
 
         // 객체가 회전할 때 아이콘도 같이 회전시키려면 아래 주석 해제
         ctx.rotate(util.degreesToRadians(fabricObject.angle));
 
-        ctx.drawImage(img, -size / 2, -size / 2, size, size);
+        // ctx.drawImage(img, -size / 2, -size / 2, size, size);
         ctx.restore();
       },
     });
