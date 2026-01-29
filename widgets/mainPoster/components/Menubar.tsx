@@ -7,7 +7,6 @@ import { debounce } from '@/shared/utils/debounce';
 
 import { RichStyle } from '../types/fabric';
 
-// 단순 버튼 스타일
 const btnStyle: React.CSSProperties = {
   padding: '8px 16px',
   border: '1px solid #d1d5db',
@@ -200,11 +199,28 @@ function Menubar({ canvas, applyRichStyle }: Props) {
       {/* 외곽선 */}
       <section className="flex flex-col">
         <label htmlFor="lineHeight">외곽선</label>
-        {/* 스트로크 굵기는 이전값이 없는 경우에만 디폴트 굵기 설정*/}
         <input
           type="color"
           id="stroke"
-          onChange={e => applyRichStyle({ stroke: e.target.value }, canvas)}
+          onChange={e => {
+            const activeObject = canvas?.getActiveObject() as fabric.Textbox;
+            if (!activeObject) return;
+
+            const selectionStyles = activeObject.getSelectionStyles();
+
+            const currentWidth =
+              selectionStyles.length > 0 && selectionStyles[0].strokeWidth
+                ? selectionStyles[0].strokeWidth
+                : activeObject.get('strokeWidth');
+
+            applyRichStyle(
+              {
+                stroke: e.target.value,
+                strokeWidth: currentWidth,
+              },
+              canvas
+            );
+          }}
         />
         {/* 외곽선 두께 */}
         <Selector

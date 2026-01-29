@@ -95,19 +95,23 @@ export const useFabric = () => {
     return true;
   };
 
+  const handleNumberValidity = (styleObj: RichStyle) => {
+    for (const [_key, value] of Object.entries(styleObj)) {
+      if (typeof value === 'number') {
+        if (!checkNumberValidity(value)) return false;
+      }
+    }
+  };
+
   // shapes 배열에도 스타일링된 내용 업데이트해두기
   const applyRichStyle = (styleObj: RichStyle, canvas: fabric.Canvas) => {
     const activeObject = canvas.getActiveObject() as fabric.Textbox;
-    const hasNumber = Object.values(styleObj).some(
-      value => typeof value === 'number'
-    );
-    if (hasNumber) {
-      if (!checkNumberValidity(Object.values(styleObj)[0])) return false;
-    }
+    if (handleNumberValidity(styleObj)) return false;
     if (isLayoutStyle(styleObj)) {
       if (styleObj.shadow) {
         activeObject.set({
           shadow: new fabric.Shadow({
+            ...activeObject.shadow,
             ...styleObj.shadow,
           }),
         });
@@ -119,7 +123,9 @@ export const useFabric = () => {
         activeObject.selectionStart !== activeObject.selectionEnd;
 
       if (isSelectionPresent) {
-        activeObject.setSelectionStyles(styleObj);
+        Object.entries(styleObj).forEach(([key, value]) => {
+          activeObject.setSelectionStyles({ [key]: value });
+        });
       } else {
         activeObject.set(styleObj);
       }
