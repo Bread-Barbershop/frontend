@@ -21,7 +21,7 @@ function Edit() {
       </div>
     );
 
-  const EditInfo = blockRegistry[block.type]
+  const EditInfo = blockRegistry[block.component]
     .editComponent as React.ComponentType<{
     blockInfo: typeof block;
     id: string;

@@ -1,19 +1,43 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
+import { useShallow } from 'zustand/shallow';
 
 import { useEditorStore } from '../store/useEditorStore';
 import { blockRegistry } from '../types/registry';
 
 import CompoenentsPopup from './components/CompoenentsPopup';
+import OrderPanel from './components/OrderPanel';
 
 function Preview() {
   const [isTab, setIsTab] = useState(false);
   const [isWeddingTab, setIsWeddingTab] = useState(false);
   const tabRef = useRef<HTMLDivElement>(null);
-  const block = useEditorStore(state => state.block);
+  const blockRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const { block, selectedId, selectedBlock } = useEditorStore(
+    useShallow(state => ({
+      block: state.block,
+      selectedId: state.selectedId,
+      selectedBlock: state.selectedBlock,
+    }))
+  );
+  useEffect(() => {
+    if (!selectedId) return;
+    const el = blockRefs.current[selectedId];
+    if (!el) return;
+
+    el.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    });
+  }, [selectedId, block]);
 
   const handleNewPage = () => {
     setIsTab(props => !props);
+  };
+
+  const handlePageSelect = (id: string) => {
+    console.log('id ::::: ', id);
+    selectedBlock(id);
   };
 
   useEffect(() => {
@@ -34,18 +58,37 @@ function Preview() {
   }, [isTab, isWeddingTab]);
 
   return (
-    <div className="w-[375px] h-[872px] flex flex-col gap-4">
-      <div className="h-full bg-white overflow-y-auto">
-        {block.map(comp => {
-          const registryItem = blockRegistry[comp.type];
+    <div className="w-[375px] h-[872px] flex flex-col gap-4 relative">
+      <div className="h-[812px] bg-white">
+        <div className="overflow-y-auto h-full w-[375px] box-border">
+          {block.map(comp => {
+            const registryItem = blockRegistry[comp.component];
 
-          const View = registryItem.viewComponent as React.ComponentType<{
-            blockInfo: typeof comp;
-          }>;
+            const View = registryItem.viewComponent as React.ComponentType<{
+              blockInfo: typeof comp;
+              className: string;
+              onClick: () => void;
+            }>;
 
-          return <View key={comp.id} blockInfo={comp} />;
-        })}
+            return (
+              <div
+                key={comp.id}
+                ref={el => {
+                  blockRefs.current[comp.id] = el;
+                }}
+              >
+                <View
+                  key={comp.id}
+                  blockInfo={comp}
+                  className={`${selectedId === comp.id ? 'border border-[#1F72EF] rounded-lg' : ''}`}
+                  onClick={() => handlePageSelect(comp.id)}
+                />
+              </div>
+            );
+          })}
+        </div>
       </div>
+      {block.length > 0 && <OrderPanel />}
       <div className="w-full relative" ref={tabRef}>
         {isTab && <CompoenentsPopup />}
 

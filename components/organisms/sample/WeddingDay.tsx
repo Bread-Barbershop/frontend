@@ -5,7 +5,7 @@ import { TextField } from '@/components/molecules/text-field';
 import {
   EditorBlock,
   useEditorStore,
-} from '@/features/editor/store/useEditorStore';
+} from '@/widgets/editor/store/useEditorStore';
 
 interface Props {
   blockInfo: EditorBlock<'weddingDay'>;
@@ -62,7 +62,7 @@ function WeddingDay({ blockInfo, id }: Props) {
               onChange={e => handleCheckBoxOnChange(e)}
               className="text-text-secondary"
             >
-              <p className="font-normal text-[13px] text-text-secondary">
+              <p className="font-normal text-size text-text-secondary">
                 캘린더
               </p>
             </Checkbox>

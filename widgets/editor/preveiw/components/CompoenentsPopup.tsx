@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
-import { Button } from '@/components/atoms/button';
+import { UtilityButton } from '@/components/atoms/button';
 import { componentCls } from '@/shared/samples/componentSample';
 
 import { useEditorStore } from '../../store/useEditorStore';
@@ -54,10 +54,10 @@ function CompoenentsPopup() {
     return () => observer.disconnect();
   }, []);
 
-  const handleAddCompoenent = (component: BlockType | null) => {
+  const handleAddCompoenent = (type: string, component: BlockType | null) => {
     if (!component) return;
     const id = crypto.randomUUID();
-    addBlock(component, id);
+    addBlock(type, component, id);
     selectedBlock(id);
   };
 
@@ -90,7 +90,9 @@ function CompoenentsPopup() {
           <div key={index}>
             <div className="font-semibold flex justify-between h-11">
               <h2 className="text-sm font-semibold">{items.korea}</h2>
-              <Button className="text-primary w-fit">모두 추가하기</Button>
+              <UtilityButton className="text-primary w-fit">
+                모두 추가하기
+              </UtilityButton>
             </div>
             <ul className="grid grid-cols-5 gap-x-7 gap-y-0.5">
               {items.list.map((item, index) => (
@@ -102,7 +104,9 @@ function CompoenentsPopup() {
                     if (!el) return;
                     sectionRefs.current[items.english] = el;
                   }}
-                  onClick={() => handleAddCompoenent(item.component)}
+                  onClick={() =>
+                    handleAddCompoenent(items.english, item.component)
+                  }
                 >
                   <span
                     className={`shrink-0 text-white rounded-sm w-[18px] h-[18px] flex items-center justify-center font-normal text-xs ${COLORS[items.english]}`}

@@ -5,7 +5,7 @@ import { TextField } from '@/components/molecules/text-field';
 import {
   EditorBlock,
   useEditorStore,
-} from '@/features/editor/store/useEditorStore';
+} from '@/widgets/editor/store/useEditorStore';
 
 interface Props {
   blockInfo: EditorBlock<'introduce'>;
@@ -22,7 +22,7 @@ function Introduce({ blockInfo, id }: Props) {
     updateBlock(id, { bride: e.target.value });
   };
   return (
-    <div className="flex flex-col items-center justify-center w-[375px] px-5">
+    <div className="flex-center flex-col w-[375px] px-5">
       <h2 className="py-[13.5px]">신랑신부소개</h2>
       <div className="w-full">
         <TextField

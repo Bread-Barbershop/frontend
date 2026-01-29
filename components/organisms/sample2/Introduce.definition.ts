@@ -22,7 +22,7 @@ export const introduceDefinition = {
       required: false,
     },
     title: {
-      default: () => {},
+      default: { content: '제목', color: 'ffffff' },
       required: false,
     },
     switch: {
