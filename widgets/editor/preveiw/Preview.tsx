@@ -101,8 +101,8 @@ function Preview() {
             <path
               d="M0.800781 4.7998H8.80078M4.80078 0.799805V8.7998"
               stroke="black"
-              stroke-width="1.6"
-              stroke-linecap="round"
+              strokeWidth="1.6"
+              strokeLinecap="round"
             />
           </svg>
           페이지 추가

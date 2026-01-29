@@ -1,8 +1,22 @@
+'use client';
+
+import { saveInvitationFlow } from '@/app/oauthTest/utils/saveInvitationFlow';
+
+import { useEditorStore } from '../store/useEditorStore';
+
 function RightPanel() {
+  const block = useEditorStore(state => state.block);
+
+  const handleUpload = () => {
+    saveInvitationFlow({ images: [], audio: null, data: block });
+  };
   return (
     <div className="w-93.75 h-203 mr-15 flex flex-col gap-5">
       <div>
-        <button className="w-full h-11 bg-white rounded-lg shadow-edit flex-center gap-2 font-semibold">
+        <button
+          className="w-full h-11 bg-white rounded-lg shadow-edit flex-center gap-2 font-semibold"
+          onClick={handleUpload}
+        >
           <svg
             width="10"
             height="10"
@@ -14,8 +28,8 @@ function RightPanel() {
             <path
               d="M0.800781 4.7998H8.80078M4.80078 0.799805V8.7998"
               stroke="black"
-              stroke-width="1.6"
-              stroke-linecap="round"
+              strokeWidth="1.6"
+              strokeLinecap="round"
             />
           </svg>
           업로드
