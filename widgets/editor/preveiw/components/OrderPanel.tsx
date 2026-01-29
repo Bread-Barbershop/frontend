@@ -15,6 +15,7 @@ max-h넘어가면 아래 방향 추가
 클릭 하이라이트
      
 */
+
 function OrderPanel() {
   const block = useEditorStore(state => state.block);
   const moveBlock = useEditorStore(state => state.moveBlock);
@@ -32,14 +33,13 @@ function OrderPanel() {
 
   const handlePageSelect = (event: DragStartEvent) => {
     const active = event.active;
-    console.log('id ::::: ', active.id);
     const id = active.id as string;
     selectedBlock(id);
   };
 
   return (
     <DndContext onDragEnd={handleDragEnd} onDragStart={handlePageSelect}>
-      <div className="w-[112px] max-h-121 overflow-y-auto bg-bg-base absolute -right-43 top-1/2 -translate-y-1/2 flex flex-col items-center rounded-lg shadow-[0_8px_24px_0_rgba(0,0,0,0.06),0_2px_10px_0_rgba(0,0,0,0.08)]">
+      <div className="w-28 max-h-121  bg-bg-base absolute -right-43 top-1/2 -translate-y-1/2 flex flex-col items-center rounded-lg shadow-edit">
         <p className="font-semibold text-sm px-9 py-3.5">순서</p>
         <ul className="mb-3.5 flex flex-col gap-3.5">
           <SortableContext

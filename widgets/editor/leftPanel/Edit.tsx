@@ -13,10 +13,10 @@ function Edit() {
       selectedId: state.selectedId,
     }))
   );
-  console.log('selectedId', selectedId);
+
   if (!block || !selectedId)
     return (
-      <div className="h-[812px] flex justify-center items-center font-semibold text-sm">
+      <div className="h-203 flex-center font-semibold text-sm">
         페이지를 추가해주세요
       </div>
     );

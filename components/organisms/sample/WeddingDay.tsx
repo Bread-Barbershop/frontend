@@ -26,10 +26,6 @@ function WeddingDay({ blockInfo, id }: Props) {
     });
   };
 
-  const handleCheckBoxOnChange = (e: ChangeEvent<HTMLInputElement>) => {
-    console.log('타겟 확인', e.target.checked);
-  };
-
   return (
     <div className="w-[375px]">
       <div className="py-[13.5px] px-5 flex flex-col gap-1 items-center">
@@ -58,20 +54,17 @@ function WeddingDay({ blockInfo, id }: Props) {
         <div className="flex w-full items-center gap-3">
           <p className="px-1 py-0.5 mr-2 text-sm">추가기능</p>
           <div className="flex gap-2 flex-1 flex-wrap">
-            <Checkbox
-              onChange={e => handleCheckBoxOnChange(e)}
-              className="text-text-secondary"
-            >
+            <Checkbox className="text-text-secondary">
               <p className="font-normal text-size text-text-secondary">
                 캘린더
               </p>
             </Checkbox>
-            <Checkbox onChange={e => handleCheckBoxOnChange(e)}>
+            <Checkbox>
               <p className="font-normal text-[13px] text-text-secondary">
                 내용 추가
               </p>
             </Checkbox>
-            <Checkbox onChange={e => handleCheckBoxOnChange(e)}>
+            <Checkbox>
               <p className="font-normal text-[13px] text-text-secondary">
                 디데이&카운트다운
               </p>

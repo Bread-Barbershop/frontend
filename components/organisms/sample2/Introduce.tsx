@@ -29,16 +29,16 @@ function Introduce({ blockInfo, id }: Props) {
           label="신랑"
           className="h-11 gap-6"
           inputProps={{
-            value: blockInfo.props.groom,
             onChange: handleChangeGroom,
+            placeholder: blockInfo.props.groom,
           }}
         />
         <TextField
           label="신부"
           className="h-11 gap-6"
           inputProps={{
-            value: blockInfo.props.bride,
             onChange: handleChangebride,
+            placeholder: blockInfo.props.bride,
           }}
         />
       </div>

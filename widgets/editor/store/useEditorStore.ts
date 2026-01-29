@@ -84,9 +84,9 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     );
     if (!selectedType) return;
 
-    const id = crypto.randomUUID();
-
-    selectedType.list.forEach(item => {
+    selectedType.list.forEach((item, index) => {
+      const id = crypto.randomUUID();
+      if (index === 0) get().selectedBlock(id);
       if (item.component) {
         get().addBlock(selectedType.english, item.component, id);
       }

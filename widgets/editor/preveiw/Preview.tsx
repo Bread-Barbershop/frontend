@@ -10,7 +10,6 @@ import OrderPanel from './components/OrderPanel';
 
 function Preview() {
   const [isTab, setIsTab] = useState(false);
-  const [isWeddingTab, setIsWeddingTab] = useState(false);
   const tabRef = useRef<HTMLDivElement>(null);
   const blockRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const { block, selectedId, selectedBlock } = useEditorStore(
@@ -20,6 +19,7 @@ function Preview() {
       selectedBlock: state.selectedBlock,
     }))
   );
+
   useEffect(() => {
     if (!selectedId) return;
     const el = blockRefs.current[selectedId];
@@ -31,36 +31,29 @@ function Preview() {
     });
   }, [selectedId, block]);
 
-  const handleNewPage = () => {
-    setIsTab(props => !props);
-  };
-
-  const handlePageSelect = (id: string) => {
-    console.log('id ::::: ', id);
-    selectedBlock(id);
-  };
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (tabRef.current && !tabRef.current.contains(event.target as Node)) {
         setIsTab(false);
-        setIsWeddingTab(false);
       }
     };
 
-    if (isTab || isWeddingTab) {
-      document.addEventListener('mousedown', handleClickOutside);
+    if (isTab) {
+      document.addEventListener('click', handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('click', handleClickOutside);
     };
-  }, [isTab, isWeddingTab]);
+  }, [isTab]);
 
+  const handlePopClose = () => {
+    setIsTab(false);
+  };
   return (
-    <div className="w-[375px] h-[872px] flex flex-col gap-4 relative">
-      <div className="h-[812px] bg-white">
-        <div className="overflow-y-auto h-full w-[375px] box-border">
+    <div className="w-93.75 h-218 flex flex-col  gap-4 relative">
+      <div className="h-203 bg-white">
+        <div className="overflow-y-auto h-full w-93.75 box-border flex flex-col justify-center">
           {block.map(comp => {
             const registryItem = blockRegistry[comp.component];
 
@@ -80,8 +73,8 @@ function Preview() {
                 <View
                   key={comp.id}
                   blockInfo={comp}
-                  className={`${selectedId === comp.id ? 'border border-[#1F72EF] rounded-lg' : ''}`}
-                  onClick={() => handlePageSelect(comp.id)}
+                  className={`${selectedId === comp.id ? 'border border-primary rounded-lg' : ''}`}
+                  onClick={() => selectedBlock(comp.id)}
                 />
               </div>
             );
@@ -90,11 +83,11 @@ function Preview() {
       </div>
       {block.length > 0 && <OrderPanel />}
       <div className="w-full relative" ref={tabRef}>
-        {isTab && <CompoenentsPopup />}
+        {isTab && <CompoenentsPopup onPopClose={handlePopClose} />}
 
         <button
-          className="w-full h-11 bg-white rounded-lg shadow-[0_8px_24px_0_rgba(0,0,0,0.06),0_2px_10px_0_rgba(0,0,0,0.08)] flex justify-center items-center gap-2 font-semibold"
-          onClick={handleNewPage}
+          className="w-full h-11 bg-white rounded-lg shadow-edit flex-center gap-2 font-semibold"
+          onClick={() => setIsTab(props => !props)}
         >
           <svg
             width="10"

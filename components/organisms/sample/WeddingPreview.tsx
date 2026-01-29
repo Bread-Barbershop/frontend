@@ -6,7 +6,6 @@ interface Props {
 }
 
 function WeddingPreview({ blockInfo, className, ...rest }: Props) {
-  console.log('blockInfo', blockInfo);
   return (
     <div
       className={`w-full flex flex-col items-center gap-8 py-8 px-5 ${className}`}
