@@ -104,9 +104,63 @@ export const useFabric = () => {
   };
 
   // shapes 배열에도 스타일링된 내용 업데이트해두기
+  // const applyRichStyle = (styleObj: RichStyle, canvas: fabric.Canvas) => {
+  //   const activeObject = canvas.getActiveObject() as fabric.Textbox;
+  //   if (handleNumberValidity(styleObj)) return false;
+  //   if (isLayoutStyle(styleObj)) {
+  //     if (styleObj.shadow) {
+  //       activeObject.set({
+  //         shadow: new fabric.Shadow({
+  //           ...activeObject.shadow,
+  //           ...styleObj.shadow,
+  //         }),
+  //       });
+  //     } else {
+  //       activeObject.set(styleObj);
+  //     }
+  //   } else {
+  //     const isSelectionPresent =
+  //       activeObject.selectionStart !== activeObject.selectionEnd;
+
+  //     if (isSelectionPresent) {
+  //       Object.entries(styleObj).forEach(([key, value]) => {
+  //         activeObject.setSelectionStyles({ [key]: value });
+  //       });
+  //     } else {
+  //       activeObject.set(styleObj);
+  //     }
+  //   }
+
+  //   activeObject.dirty = true;
+  //   canvas.requestRenderAll();
+  // };
+
   const applyRichStyle = (styleObj: RichStyle, canvas: fabric.Canvas) => {
     const activeObject = canvas.getActiveObject() as fabric.Textbox;
+    if (!activeObject) return;
+
     if (handleNumberValidity(styleObj)) return false;
+    const isSelectionPresent =
+      activeObject.selectionStart !== activeObject.selectionEnd ||
+      !isLayoutStyle(styleObj);
+
+    const finalStyle: RichStyle = {};
+    (Object.keys(styleObj) as Array<keyof RichStyle>).forEach(key => {
+      const nextValue = styleObj[key];
+
+      // 현재 값 가져오기
+      const currentStyle = isSelectionPresent
+        ? activeObject.getSelectionStyles()[0]?.[key]
+        : activeObject.get(key as keyof fabric.Textbox);
+
+      // 토글 로직: 현재 값과 들어온 값이 같으면 기본값으로, 다르면 새 값으로
+      if (currentStyle === nextValue) {
+        finalStyle[key] = getFallbackValue(key) as never;
+      } else {
+        finalStyle[key] = nextValue as never;
+      }
+    });
+
     if (isLayoutStyle(styleObj)) {
       if (styleObj.shadow) {
         activeObject.set({
@@ -116,23 +170,48 @@ export const useFabric = () => {
           }),
         });
       } else {
-        activeObject.set(styleObj);
+        activeObject.set(finalStyle);
       }
     } else {
-      const isSelectionPresent =
-        activeObject.selectionStart !== activeObject.selectionEnd;
-
       if (isSelectionPresent) {
-        Object.entries(styleObj).forEach(([key, value]) => {
-          activeObject.setSelectionStyles({ [key]: value });
-        });
+        activeObject.setSelectionStyles(finalStyle);
       } else {
-        activeObject.set(styleObj);
+        activeObject.set(finalStyle);
       }
     }
 
     activeObject.dirty = true;
     canvas.requestRenderAll();
+  };
+
+  // 각 스타일 키별 기본값 정의
+  const getFallbackValue = (key: string) => {
+    switch (key) {
+      case 'fontWeight':
+        return 'normal';
+      case 'fontStyle':
+        return 'normal';
+      case 'underline':
+      case 'linethrough':
+        return false;
+      case 'stroke':
+        return null; // 테두리 제거
+      case 'strokeWidth':
+        return 0;
+      case 'textAlign':
+        return 'left';
+      case 'fill':
+        return 'balck';
+      case 'textBackgroundColor':
+        return null;
+      case 'shadow':
+        return null;
+      case 'lineHeight':
+        return 1;
+      // charSpacing 추가
+      default:
+        return '';
+    }
   };
 
   const deleteShape = ({
@@ -168,7 +247,7 @@ export const useFabric = () => {
       );
 
       if (isEditing) return;
-      if (e.key === 'Delete' || e.key === 'Backspace') {
+      if (e.key === 'Delete') {
         e.preventDefault();
 
         canvas.remove(...activeObjects);

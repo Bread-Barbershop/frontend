@@ -19,12 +19,12 @@ type selectorOptions = { label: string; value: string };
 
 interface Props {
   canvas: fabric.Canvas | null;
+  activeObject: fabric.Textbox | null;
   applyRichStyle: (styleObj: object, canvas: fabric.Canvas) => void;
 }
 
-function Menubar({ canvas, applyRichStyle }: Props) {
+function Menubar({ canvas, activeObject, applyRichStyle }: Props) {
   const [selectedFontSize, setSelectedFontSize] = useState<selectorOptions>();
-
   const [selectedStrokeSize, setSelectedStrokeSize] = useState<selectorOptions>(
     {
       label: '0.5',
@@ -124,36 +124,6 @@ function Menubar({ canvas, applyRichStyle }: Props) {
       >
         <RiMenu3Fill className="size-5" />
       </button>
-      <button
-        type="button"
-        onClick={() => applyRichStyle({ fill: '#ef4444' }, canvas)}
-        style={{ ...btnStyle, color: 'red' }}
-      >
-        Red
-      </button>
-      <button
-        type="button"
-        onClick={() => applyRichStyle({ fill: '#10b981' }, canvas)}
-        style={{ ...btnStyle, color: 'green' }}
-      >
-        Green
-      </button>
-      <button
-        type="button"
-        onClick={() =>
-          applyRichStyle({ textBackgroundColor: '#fef08a' }, canvas)
-        }
-        style={btnStyle}
-      >
-        Highlight
-      </button>
-      <button
-        type="button"
-        onClick={() => applyRichStyle({ fontSize: 60 }, canvas)}
-        style={btnStyle}
-      >
-        Big
-      </button>
       {/* 폰트 */}
       <Selector
         placeholder="16px"
@@ -203,9 +173,7 @@ function Menubar({ canvas, applyRichStyle }: Props) {
           type="color"
           id="stroke"
           onChange={e => {
-            const activeObject = canvas?.getActiveObject() as fabric.Textbox;
-            if (!activeObject) return;
-
+            if (!activeObject) return null;
             const selectionStyles = activeObject.getSelectionStyles();
 
             const currentWidth =

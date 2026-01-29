@@ -21,6 +21,8 @@ import Toolbar from './Toolbar';
 const Editor: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
+  // 이미지 타입도 추가하기
+  const [activeObject, setActiveObject] = useState<fabric.Textbox | null>(null);
   const {
     activeDrawingMode,
     dragToCreateTextBox,
@@ -51,11 +53,27 @@ const Editor: React.FC = () => {
     const onKeyDown = (e: KeyboardEvent) => {
       handleDeleteShape(canvas, e);
     };
+    const handleSelection = () => {
+      // 이미지일때도 처리해주기
+      const selected = canvas.getActiveObject() as fabric.Textbox;
+      setActiveObject(selected || null);
+    };
+
     window.addEventListener('keydown', onKeyDown);
+    canvas.on('selection:created', handleSelection);
+    canvas.on('selection:updated', handleSelection);
+    canvas.on('mouse:down', options => {
+      // 클릭한 지점에 객체가 없으면 선택 해제로 간주
+      if (!options.target) {
+        setActiveObject(null);
+      }
+    });
 
     return () => {
       cleanupEmpty();
       window.removeEventListener('keydown', onKeyDown);
+      canvas.off('selection:created', handleSelection);
+      canvas.off('selection:updated', handleSelection);
     };
   }, [canvas, activeDrawingMode]);
 
@@ -70,7 +88,12 @@ const Editor: React.FC = () => {
       }}
     >
       <Toolbar canvas={canvas} handleDrawingMode={handleDrawingMode} />
-      <Menubar canvas={canvas} applyRichStyle={applyRichStyle} />
+      <Menubar
+        key={activeObject?.id || 'empty'}
+        canvas={canvas}
+        applyRichStyle={applyRichStyle}
+        activeObject={activeObject}
+      />
       <div
         style={{
           border: '2px solid #e5e7eb',
