@@ -1,20 +1,19 @@
 import * as fabric from 'fabric';
-import React, { useMemo, useState } from 'react';
-import { RiMenu2Fill, RiMenu3Fill, RiMenu5Fill } from 'react-icons/ri';
+import {
+  Bold,
+  Italic,
+  TextAlignCenter,
+  TextAlignEnd,
+  TextAlignStart,
+  Underline,
+} from 'lucide-react';
+import { useMemo, useState } from 'react';
 
 import { Selector } from '@/components/molecules/selector';
 import { debounce } from '@/shared/utils/debounce';
 
 import { RichStyle } from '../types/fabric';
 
-const btnStyle: React.CSSProperties = {
-  padding: '8px 16px',
-  border: '1px solid #d1d5db',
-  borderRadius: '6px',
-  background: 'white',
-  cursor: 'pointer',
-  fontWeight: '500',
-};
 type selectorOptions = { label: string; value: string };
 
 interface Props {
@@ -70,6 +69,39 @@ function Menubar({ canvas, activeObject, applyRichStyle }: Props) {
 
   if (!canvas) return null;
 
+  const buttons = [
+    {
+      id: 'bold',
+      style: { fontWeight: 'bold' },
+      component: <Bold className="w-3.5" />,
+    },
+    {
+      id: 'italic',
+      style: { fontStyle: 'italic' },
+      component: <Italic className="w-3.5" />,
+    },
+    {
+      id: 'underline',
+      style: { underline: true },
+      component: <Underline className="w-3.5" />,
+    },
+    {
+      id: 'textAlignLeft',
+      style: { textAlign: 'left' },
+      component: <TextAlignStart className="w-3.5" />,
+    },
+    {
+      id: 'textAlignCenter',
+      style: { textAlign: 'center' },
+      component: <TextAlignCenter className="w-3.5" />,
+    },
+    {
+      id: 'textAlignRight',
+      style: { textAlign: 'right' },
+      component: <TextAlignEnd className="w-3.5" />,
+    },
+  ];
+
   return (
     <div
       style={{
@@ -82,48 +114,19 @@ function Menubar({ canvas, activeObject, applyRichStyle }: Props) {
         boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
       }}
     >
-      <button
-        type="button"
-        onClick={() => applyRichStyle({ fontWeight: 'bold' }, canvas)}
-        style={btnStyle}
-      >
-        Bold
-      </button>
-      <button
-        type="button"
-        onClick={() => applyRichStyle({ fontStyle: 'italic' }, canvas)}
-        style={btnStyle}
-      >
-        Italic
-      </button>
-      <button
-        type="button"
-        onClick={() => applyRichStyle({ underline: true }, canvas)}
-        style={btnStyle}
-      >
-        <u>U</u>
-      </button>
-      <button
-        type="button"
-        onClick={() => applyRichStyle({ textAlign: 'left' }, canvas)}
-        style={btnStyle}
-      >
-        <RiMenu2Fill className="size-5" />
-      </button>
-      <button
-        type="button"
-        onClick={() => applyRichStyle({ textAlign: 'center' }, canvas)}
-        style={btnStyle}
-      >
-        <RiMenu5Fill className="size-5" />
-      </button>
-      <button
-        type="button"
-        onClick={() => applyRichStyle({ textAlign: 'right' }, canvas)}
-        style={btnStyle}
-      >
-        <RiMenu3Fill className="size-5" />
-      </button>
+      {buttons.map(btn => {
+        const { id, style, component } = btn;
+        return (
+          <button
+            key={id}
+            type="button"
+            onClick={() => applyRichStyle({ ...style }, canvas)}
+            className="w-8 h-8 p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
+          >
+            {component}
+          </button>
+        );
+      })}
       {/* 폰트 */}
       <Selector
         placeholder="16px"
