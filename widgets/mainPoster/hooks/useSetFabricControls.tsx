@@ -2,13 +2,15 @@ import { FabricObject, Control, controlsUtils, util } from 'fabric';
 import { useEffect } from 'react';
 
 import { CORNERS_CONFIG, MOVE_ICON } from '../utils/constants';
-import { getRotatedCursorUrl } from '../utils/getRotatedCursorUrl';
+import {
+  createFabricControlImage,
+  getRotatedCursorUrl,
+  isImageReadyForCanvas,
+} from '../utils/fabricUtils';
 
 export const useSetFabricControls = () => {
   useEffect(() => {
-    const img = new Image();
-    img.src =
-      'data:image/svg+xml;base64,' + btoa(encodeURIComponent(MOVE_ICON));
+    const img = createFabricControlImage(MOVE_ICON);
 
     const defaultControls = FabricObject.ownDefaults;
 
@@ -21,19 +23,19 @@ export const useSetFabricControls = () => {
       y: 0,
       actionName: 'centerAction',
       render: (ctx, left, top, _, fabricObject) => {
-        if (!img.complete) {
+        if (!isImageReadyForCanvas(img)) {
           img.onload = () => fabricObject.canvas?.requestRenderAll();
           return;
         }
 
-        // const size = 24; // 아이콘 출력 크기
+        const size = 24; // 아이콘 출력 크기
         ctx.save();
         ctx.translate(left, top);
 
         // 객체가 회전할 때 아이콘도 같이 회전시키려면 아래 주석 해제
         ctx.rotate(util.degreesToRadians(fabricObject.angle));
 
-        // ctx.drawImage(img, -size / 2, -size / 2, size, size);
+        ctx.drawImage(img, -size / 2, -size / 2, size, size);
         ctx.restore();
       },
     });
