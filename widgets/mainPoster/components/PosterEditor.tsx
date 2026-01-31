@@ -5,25 +5,29 @@ declare module 'fabric' {
   // 생성 시 넘기는 옵션 타입 확장
   interface FabricObjectProps {
     id?: string;
+    targetId?: string;
   }
   // 실제 생성된 객체 인스턴스 타입 확장
   interface FabricObject {
     id?: string;
+    targetId?: string;
   }
 }
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
 
 import { useFabric } from '../hooks/useFabric';
 import { useSetFabricControls } from '../hooks/useSetFabricControls';
+import { Image } from '../types/fabric';
 
+import ImageFilterPanel from './ImageFilterPanel';
 import Toolbar from './Toolbar';
 
 const PosterEditor: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { canvas, setCanvas, setActiveObject } = useEditorStore();
+  const { canvas, setCanvas, setActiveObject, activeObject } = useEditorStore();
   const {
     activeDrawingMode,
     dragToCreateTextBox,
@@ -31,6 +35,12 @@ const PosterEditor: React.FC = () => {
     addImage,
     handleDeleteShape,
     handleDeleteEmptyShape,
+    isCropping,
+    startCrop,
+    applyCrop,
+    applyImageFilter,
+    cancelCrop,
+    shapes,
   } = useFabric();
 
   useSetFabricControls();
@@ -99,6 +109,25 @@ const PosterEditor: React.FC = () => {
     handleDeleteShape,
   ]);
 
+  // 현재 선택된 이미지 또는 크롭 중인 대상 이미지 파악
+  const isSelectedImage =
+    activeObject instanceof fabric.FabricImage || isCropping;
+
+  const currentImageShape = useMemo(() => {
+    if (!isSelectedImage) return null;
+
+    // 크롭 중일 때는 존(Zone)의 targetId를, 아니면 일반 객체의 id를 사용
+    const targetId = isCropping ? activeObject?.targetId : activeObject?.id;
+
+    return shapes.find(s => s.id === targetId) as Image;
+  }, [
+    isSelectedImage,
+    shapes,
+    isCropping,
+    activeObject?.id,
+    activeObject?.targetId,
+  ]);
+
   return (
     <div
       onClick={() => selectedBlock('mainPoster')}
@@ -113,6 +142,18 @@ const PosterEditor: React.FC = () => {
         handleDrawingMode={handleDrawingMode}
         addImage={addImage}
       />
+      {isSelectedImage && (
+        <ImageFilterPanel
+          canvas={canvas}
+          applyImageFilter={applyImageFilter}
+          currentFilters={currentImageShape?.filters}
+          isCropping={isCropping}
+          startCrop={startCrop}
+          applyCrop={applyCrop}
+          cancelCrop={cancelCrop}
+        />
+      )}
+
       <div
         style={{
           border: '2px solid #e5e7eb',

@@ -12,6 +12,10 @@ interface Props {
     canvas: fabric.Canvas
   ) => void;
   currentFilters?: PhotoPresetOptions;
+  isCropping: boolean;
+  startCrop: (canvas: fabric.Canvas) => void;
+  applyCrop: (canvas: fabric.Canvas) => void;
+  cancelCrop: (canvas: fabric.Canvas) => void;
 }
 
 // 9가지 필터 항목 설정
@@ -43,6 +47,10 @@ const ImageFilterPanel: React.FC<Props> = ({
   canvas,
   applyImageFilter,
   currentFilters,
+  isCropping,
+  startCrop,
+  applyCrop,
+  cancelCrop,
 }) => {
   if (!canvas) return null;
 
@@ -55,11 +63,50 @@ const ImageFilterPanel: React.FC<Props> = ({
     applyImageFilter(options, canvas);
   };
 
+  const handleStartCrop = () => {
+    startCrop(canvas);
+  };
+
+  const handleApplyCrop = () => {
+    applyCrop(canvas);
+  };
+
+  const handleCancelCrop = () => {
+    cancelCrop(canvas);
+  };
+
   return (
     <div className="flex flex-col gap-6 w-full max-w-3xl bg-gray-500 p-2">
-      {/* 프리셋 선택 섹션 (ImageEditor 내부의 프리셋 버튼들) */}
-      <div className="flex flex-wrap gap-2">
-        <ImageEditor onApply={handleApply} />
+      {/* 크롭 및 필터 프리셋 섹션 */}
+      <div className="flex flex-wrap gap-2 items-center">
+        {!isCropping ? (
+          <button
+            onClick={handleStartCrop}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-sm"
+          >
+            크롭
+          </button>
+        ) : (
+          <div className="flex gap-2">
+            <button
+              onClick={handleApplyCrop}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold text-sm"
+            >
+              크롭 적용
+            </button>
+            <button
+              onClick={handleCancelCrop}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold text-sm"
+            >
+              취소
+            </button>
+          </div>
+        )}
+        <div className="h-6 w-px bg-gray-400 mx-2" />
+        {/* 프리셋 선택 섹션 (ImageEditor 내부의 프리셋 버튼들) */}
+        <div className="flex flex-wrap gap-2">
+          <ImageEditor onApply={handleApply} />
+        </div>
       </div>
 
       {/* 슬라이더 컨트롤 패널 */}
