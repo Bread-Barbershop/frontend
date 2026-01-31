@@ -493,7 +493,7 @@ export const useFabric = () => {
       const dy = zone.top - imgTop;
 
       // 이미지의 회전 각도만큼 역회전시켜 로컬 좌표 구함
-      const rad = fabric.util.degreesToRadians(-activeObject.angle);
+      const rad = fabric.util.degreesToRadians(-originalAngle);
       const localDx = dx * Math.cos(rad) - dy * Math.sin(rad);
       const localDy = dx * Math.sin(rad) + dy * Math.cos(rad);
 
@@ -503,7 +503,7 @@ export const useFabric = () => {
 
       if (clampedLocalDx !== localDx || clampedLocalDy !== localDy) {
         // 클램핑된 로컬 좌표를 다시 월드 좌표로 변환
-        const revRad = fabric.util.degreesToRadians(activeObject.angle);
+        const revRad = fabric.util.degreesToRadians(originalAngle);
         const newDx =
           clampedLocalDx * Math.cos(revRad) - clampedLocalDy * Math.sin(revRad);
         const newDy =
