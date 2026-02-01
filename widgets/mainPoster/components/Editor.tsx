@@ -121,6 +121,7 @@ const Editor: React.FC = () => {
         handleDrawingMode={handleDrawingMode}
         addImage={addImage}
       />
+
       {isSelectedImage && (
         <ImageFilterPanel
           canvas={canvas}
