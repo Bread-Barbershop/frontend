@@ -16,11 +16,15 @@ function FontColor({ canvas, applyRichStyle }: Props) {
   if (!canvas) return;
   return (
     <section className="relative">
-      <button type="button" onClick={() => setOpenFontColor(prev => !prev)}>
+      <button
+        type="button"
+        className="w-8 h-8 p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
+        onClick={() => setOpenFontColor(prev => !prev)}
+      >
         <Baseline className="w-3.5" />
       </button>
       {openFontColor && (
-        <div className="absolute">
+        <div className="absolute z-9999">
           <ColorPicker
             onColorSelect={color => {
               setPickerColor(color);

@@ -39,7 +39,7 @@ function FontSize({ canvas, applyRichStyle, debouncedApplyStyle }: Props) {
     <Selector
       placeholder="16px"
       options={fontSize}
-      className="bg-white"
+      className="bg-bg-base"
       // 폰트 사이즈 여러개 섞였을시 mixed 표시 필요
       onSelect={option => {
         const safeSize = handleNumberChange(option.value);

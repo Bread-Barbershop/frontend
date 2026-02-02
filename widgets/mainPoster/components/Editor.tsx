@@ -45,8 +45,8 @@ const Editor: React.FC = () => {
   useEffect(() => {
     if (!canvasRef.current) return;
     const fabricCanvas = new fabric.Canvas(canvasRef.current, {
-      width: 700,
-      height: 450,
+      width: 1000,
+      height: 1000,
       backgroundColor: '#f9fafb',
     });
     setCanvas(fabricCanvas);
@@ -107,15 +107,7 @@ const Editor: React.FC = () => {
     : null;
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '20px',
-        padding: '40px',
-      }}
-    >
+    <div className="relative overflow-visible flex flex-col items-center gap-5 p-10">
       <Toolbar
         canvas={canvas}
         handleDrawingMode={handleDrawingMode}

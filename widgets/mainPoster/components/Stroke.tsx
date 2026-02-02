@@ -47,11 +47,15 @@ function Stroke({
   if (!canvas) return;
   return (
     <section className="relative">
-      <button type="button" onClick={() => setOpenStrokeColor(prev => !prev)}>
+      <button
+        type="button"
+        className="w-8 h-8 p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
+        onClick={() => setOpenStrokeColor(prev => !prev)}
+      >
         <TypeOutline className="w-3.5" />
       </button>
       {openStrokeColor && (
-        <div className="absolute flex gap-5">
+        <div className="absolute z-9999 flex gap-5">
           <ColorPicker
             onColorSelect={color => {
               if (!activeObject) return null;
@@ -76,6 +80,7 @@ function Stroke({
           <Selector
             placeholder="0.5"
             options={strokeSize}
+            className="absolute -right-18 w-20"
             onSelect={option => {
               applyRichStyle({ strokeWidth: Number(option.value) }, canvas);
               setSelectedStrokeSize(option);

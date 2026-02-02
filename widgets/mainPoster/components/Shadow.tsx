@@ -18,11 +18,15 @@ function Shadow({ canvas, debouncedApplyStyle }: Props) {
   if (!canvas) return;
   return (
     <section className="relative">
-      <button type="button" onClick={() => setOpenShadow(prev => !prev)}>
+      <button
+        type="button"
+        className="w-8 h-8 p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
+        onClick={() => setOpenShadow(prev => !prev)}
+      >
         <Eclipse className="w-3.5" />
       </button>
       {openShadow && (
-        <div className="absolute flex">
+        <div className="absolute z-9999 flex">
           <ColorPicker
             onColorSelect={color => {
               setPickerColor(color);
@@ -56,7 +60,7 @@ function Shadow({ canvas, debouncedApplyStyle }: Props) {
                   canvas
                 );
               }}
-              className="flex items-center justify-between w-4 px-2 py-2 text-sm bg-bg-base border transition-all border-border-neutral rounded-lg"
+              className="flex items-center justify-between w-15 px-2 py-2 text-sm bg-bg-base border transition-all border-border-neutral rounded-lg"
             />
             <label htmlFor="shadowHorizon">vertical</label>
             <input
@@ -73,7 +77,7 @@ function Shadow({ canvas, debouncedApplyStyle }: Props) {
                   canvas
                 );
               }}
-              className="flex items-center justify-between w-4 px-2 py-2 text-sm bg-bg-base border transition-all border-border-neutral rounded-lg"
+              className="flex items-center justify-between w-15 px-2 py-2 text-sm bg-bg-base border transition-all border-border-neutral rounded-lg"
             />
             <label htmlFor="shadowHorizon">blur</label>
             <input
@@ -90,7 +94,7 @@ function Shadow({ canvas, debouncedApplyStyle }: Props) {
                   canvas
                 );
               }}
-              className="flex items-center justify-between w-4 px-2 py-2 text-sm bg-bg-base border transition-all border-border-neutral rounded-lg"
+              className="flex items-center justify-between w-15 px-2 py-2 text-sm bg-bg-base border transition-all border-border-neutral rounded-lg"
             />
           </div>
         </div>

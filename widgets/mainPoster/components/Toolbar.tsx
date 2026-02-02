@@ -39,14 +39,14 @@ function Toolbar({ canvas, handleDrawingMode, addImage }: Props) {
     <div className="flex gap-4 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
       <button
         onClick={handleDrawingMode}
-        className="px-4 py-2 cursor-pointer bg-blue-600 text-primary font-medium rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        className="px-4 py-2 cursor-pointer bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
       >
         텍스트 추가
       </button>
 
       <button
         onClick={() => fileInputRef.current?.click()}
-        className="px-4 py-2 cursor-pointer bg-emerald-600 text-primary font-medium rounded-md hover:bg-emerald-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+        className="px-4 py-2 cursor-pointer bg-emerald-600 text-white font-medium rounded-md hover:bg-emerald-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
       >
         이미지 업로드
       </button>

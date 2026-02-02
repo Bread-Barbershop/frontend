@@ -84,17 +84,7 @@ function Menubar({ canvas, activeObject, applyRichStyle }: Props) {
   ];
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '10px',
-        padding: '15px',
-        background: '#fff',
-        borderRadius: '12px',
-        boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-      }}
-    >
+    <div className="flex flex-wrap items-center gap-2.5 p-3 bg-bg-base rounded-xl shadow-[0_4px_15px_rgba(0,0,0,0.1)]">
       {buttons.map(btn => {
         const { id, style, component } = btn;
         return (

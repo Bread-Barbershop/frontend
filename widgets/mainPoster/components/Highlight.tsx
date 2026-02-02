@@ -16,11 +16,15 @@ function Highlight({ canvas, applyRichStyle }: Props) {
 
   return (
     <section className="relative">
-      <button type="button" onClick={() => setOpenHighlight(prev => !prev)}>
+      <button
+        type="button"
+        className="w-8 h-8 p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
+        onClick={() => setOpenHighlight(prev => !prev)}
+      >
         <Highlighter className="w-3.5" />
       </button>
       {openHighlight && (
-        <div className="absolute">
+        <div className="absolute z-9999">
           <ColorPicker
             onColorSelect={color => {
               setPickerColor(color);
