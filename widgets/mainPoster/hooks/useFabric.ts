@@ -1,5 +1,5 @@
 import * as fabric from 'fabric';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 import {
   LayoutStyle,
@@ -16,9 +16,11 @@ export const useFabric = () => {
   const [shapes, setShapes] = useState<Shape[]>([]);
   const [activeDrawingMode, setDrawingMode] = useState(false);
   const [isCropping, setIsCropping] = useState(false);
-  const [cropZone, setCropZone] = useState<fabric.Rect | null>(null);
-  const [overlay, setOverlay] = useState<fabric.Rect | null>(null);
-  const [croppingGroup, setCroppingGroup] = useState<fabric.Group | null>(null);
+  const autoCropHandlerRef = useRef<
+    ((opt: fabric.TPointerEventInfo) => void) | null
+  >(null);
+  const cropZoneRef = useRef<fabric.Rect | null>(null);
+  const highlightLayerRef = useRef<fabric.FabricImage | null>(null);
 
   const handleDrawingMode = () => {
     setDrawingMode(true);
@@ -347,7 +349,13 @@ export const useFabric = () => {
     canvas: fabric.Canvas
   ) => {
     const targetImage = isCropping
-      ? (croppingGroup?.getObjects()[0] as fabric.FabricImage)
+      ? (canvas
+          .getObjects()
+          .find(
+            obj =>
+              obj instanceof fabric.FabricImage &&
+              (obj as unknown as { name: string }).name === 'ghost-image'
+          ) as fabric.FabricImage)
       : (canvas.getActiveObject() as fabric.FabricImage);
 
     if (!targetImage || !(targetImage instanceof fabric.FabricImage)) {
@@ -367,8 +375,17 @@ export const useFabric = () => {
     });
 
     targetImage.filters = [photoFilter];
-
     targetImage.applyFilters();
+
+    // 크롭 모드일 경우 하이라이트 레이어에도 필터 적용 (프리뷰)
+    if (isCropping) {
+      const highlightImg = highlightLayerRef.current;
+      if (highlightImg) {
+        highlightImg.filters = [photoFilter];
+        highlightImg.applyFilters();
+      }
+    }
+
     canvas.requestRenderAll();
 
     setShapes(prev =>
@@ -385,197 +402,248 @@ export const useFabric = () => {
 
     setIsCropping(true);
 
-    const imgWidth = activeObject.getScaledWidth();
-    const imgHeight = activeObject.getScaledHeight();
-    const center = activeObject.getCenterPoint();
-    const imgLeft = center.x;
-    const imgTop = center.y;
-    const originalAngle = activeObject.angle;
-    const GROUP_ID = 'cropping-group';
+    const img = activeObject;
+    const originalWidth = img.getElement().width;
+    const originalHeight = img.getElement().height;
+    const currentAngle = img.angle;
+    const currentScaleX = img.scaleX;
+    const currentScaleY = img.scaleY;
 
-    // 오버레이 생성 (반투명 배경)
-    const overlayRect = new fabric.Rect({
-      left: 0,
-      top: 0,
-      width: imgWidth,
-      height: imgHeight,
-      fill: 'rgba(0,0,0,0.5)',
+    // 0. 현재 상태 캡처 (재크롭 시 영역 유지를 위함)
+    const currentWidth = img.getScaledWidth();
+    const currentHeight = img.getScaledHeight();
+    const currentCenter = img.getCenterPoint();
+
+    // 1. 현재 잘린 영역의 중심에서 원본 이미지의 중심으로 이동하는 벡터 계산 (이미지 좌표계)
+    const currentCenterInOriginal = {
+      x: img.cropX + img.width / 2,
+      y: img.cropY + img.height / 2,
+    };
+    const vectorToFullCenter = {
+      x: originalWidth / 2 - currentCenterInOriginal.x,
+      y: originalHeight / 2 - currentCenterInOriginal.y,
+    };
+
+    // 2. 벡터를 월드 좌표계로 변환 (스케일 및 회전 적용)
+    const rad = fabric.util.degreesToRadians(currentAngle);
+    const cos = Math.cos(rad);
+    const sin = Math.sin(rad);
+
+    const worldDx =
+      (vectorToFullCenter.x * cos - vectorToFullCenter.y * sin) * currentScaleX;
+    const worldDy =
+      (vectorToFullCenter.x * sin + vectorToFullCenter.y * cos) * currentScaleY;
+
+    const fullLeft = img.left + worldDx;
+    const fullTop = img.top + worldDy;
+
+    // 3. Ghost Layer (하단): 원본 전체 이미지를 투명하게 표시
+    img.set({
+      left: fullLeft,
+      top: fullTop,
+      width: originalWidth,
+      height: originalHeight,
+      cropX: 0,
+      cropY: 0,
+      opacity: 0.4,
       selectable: false,
       evented: false,
+    });
+    (img as unknown as { name: string }).name = 'ghost-image';
+    img.setCoords();
+
+    // 4. Highlight Layer (중간): 선명하게 보일 이미지 (원본 전체)
+    const highlightImg = new fabric.FabricImage(img.getElement(), {
+      left: fullLeft,
+      top: fullTop,
+      angle: currentAngle,
+      scaleX: currentScaleX,
+      scaleY: currentScaleY,
+      width: originalWidth,
+      height: originalHeight,
+      cropX: 0,
+      cropY: 0,
       originX: 'center',
       originY: 'center',
-      angle: 0,
+      selectable: false,
+      evented: false,
+      objectCaching: false,
+      name: 'highlight-layer',
     });
 
-    // 크롭 영역 상자 생성
+    // 5. Control Layer (상단): 이전 크롭 영역 또는 초기 영역 표시 (Zone)
     const zone = new fabric.Rect({
       name: 'crop-zone',
-      left: imgLeft,
-      top: imgTop,
-      width: imgWidth * 0.8,
-      height: imgHeight * 0.8,
+      left: currentCenter.x,
+      top: currentCenter.y,
+      width: currentWidth / currentScaleX,
+      height: currentHeight / currentScaleY,
+      scaleX: currentScaleX,
+      scaleY: currentScaleY,
+      angle: currentAngle,
       fill: 'transparent',
       stroke: 'white',
-      strokeWidth: 2,
-      strokeDashArray: [5, 5],
-      borderColor: 'white',
+      strokeWidth: 2 / currentScaleX,
       cornerColor: 'white',
-      cornerStrokeColor: 'rgba(0,0,0,0.5)',
+      cornerStrokeColor: 'black',
       cornerSize: 10,
       transparentCorners: false,
       originX: 'center',
       originY: 'center',
-      angle: originalAngle,
+      objectCaching: false,
+      absolutePositioned: true,
     });
 
-    // Editor.tsx에서 원본 이미지의 필터 정보를 찾기 위해 ID를 저장합니다.
-    (zone as any).targetId = activeObject.id;
+    highlightImg.clipPath = zone;
 
-    // 이미지와 오버레이를 그룹화하기 전 이미지 상태 조절
-    activeObject.set({
-      left: 0,
-      top: 0,
-      angle: 0,
-      originX: 'center',
-      originY: 'center',
-    });
-
-    // 이미지와 오버레이를 그룹화
-    const group = new fabric.Group([activeObject, overlayRect], {
-      id: GROUP_ID,
-      left: imgLeft,
-      top: imgTop,
-      selectable: false,
-      evented: false,
-      originX: 'center',
-      originY: 'center',
-      angle: originalAngle,
-    });
-
-    // 기존 이미지를 캔버스에서 제거하고 그룹 추가
-    canvas.remove(activeObject);
-    canvas.add(group);
-
-    // 크롭 영역이 이미지를 벗어나지 않도록 제한하는 로직
     const constrainPosition = () => {
-      const currentWidth = zone.getScaledWidth();
-      const currentHeight = zone.getScaledHeight();
+      const imgScaledWidth = originalWidth * currentScaleX;
+      const imgScaledHeight = originalHeight * currentScaleY;
+      const zoneWidth = zone.getScaledWidth();
+      const zoneHeight = zone.getScaledHeight();
 
-      // 1. Scale 제어: 이미지를 넘지 않도록 크기 제한
+      // Scale 제한
       let newScaleX = zone.scaleX;
       let newScaleY = zone.scaleY;
+      if (zoneWidth > imgScaledWidth) newScaleX = imgScaledWidth / zone.width;
+      if (zoneHeight > imgScaledHeight)
+        newScaleY = imgScaledHeight / zone.height;
 
-      if (currentWidth > imgWidth) {
-        newScaleX =
-          (imgWidth / zone.width) *
-          (zone.scaleX / (zone.getScaledWidth() / zone.width));
-        // 간단하게 처리하기 위해 현재 너비 비율 사용
-        newScaleX = (imgWidth / currentWidth) * zone.scaleX;
-      }
-      if (currentHeight > imgHeight) {
-        newScaleY = (imgHeight / currentHeight) * zone.scaleY;
-      }
-
-      // 정비례 확대/축소 대응 (둘 중 더 작은 비율 적용)
       if (newScaleX !== zone.scaleX || newScaleY !== zone.scaleY) {
         const minScale = Math.min(newScaleX, newScaleY);
         zone.set({ scaleX: minScale, scaleY: minScale });
       }
 
-      // 2. Position 제어: 로컬 좌표계(회전 고려) 기준 위치 제한
+      // Position 제한
       const latestWidth = zone.getScaledWidth();
       const latestHeight = zone.getScaledHeight();
+      const maxDeltaX = Math.max(0, (imgScaledWidth - latestWidth) / 2);
+      const maxDeltaY = Math.max(0, (imgScaledHeight - latestHeight) / 2);
 
-      const maxDeltaX = Math.max(0, (imgWidth - latestWidth) / 2);
-      const maxDeltaY = Math.max(0, (imgHeight - latestHeight) / 2);
+      const dx = zone.left - fullLeft;
+      const dy = zone.top - fullTop;
 
-      const dx = zone.left - imgLeft;
-      const dy = zone.top - imgTop;
+      const localRad = fabric.util.degreesToRadians(-currentAngle);
+      const localDx = dx * Math.cos(localRad) - dy * Math.sin(localRad);
+      const localDy = dx * Math.sin(localRad) + dy * Math.cos(localRad);
 
-      // 이미지의 회전 각도만큼 역회전시켜 로컬 좌표 구함
-      const rad = fabric.util.degreesToRadians(-originalAngle);
-      const localDx = dx * Math.cos(rad) - dy * Math.sin(rad);
-      const localDy = dx * Math.sin(rad) + dy * Math.cos(rad);
-
-      // 로컬 좌표 클램핑
       const clampedLocalDx = Math.max(-maxDeltaX, Math.min(maxDeltaX, localDx));
       const clampedLocalDy = Math.max(-maxDeltaY, Math.min(maxDeltaY, localDy));
 
       if (clampedLocalDx !== localDx || clampedLocalDy !== localDy) {
-        // 클램핑된 로컬 좌표를 다시 월드 좌표로 변환
-        const revRad = fabric.util.degreesToRadians(originalAngle);
-        const newDx =
-          clampedLocalDx * Math.cos(revRad) - clampedLocalDy * Math.sin(revRad);
-        const newDy =
-          clampedLocalDx * Math.sin(revRad) + clampedLocalDy * Math.cos(revRad);
-
+        const revRad = fabric.util.degreesToRadians(currentAngle);
         zone.set({
-          left: imgLeft + newDx,
-          top: imgTop + newDy,
+          left:
+            fullLeft +
+            (clampedLocalDx * Math.cos(revRad) -
+              clampedLocalDy * Math.sin(revRad)),
+          top:
+            fullTop +
+            (clampedLocalDx * Math.sin(revRad) +
+              clampedLocalDy * Math.cos(revRad)),
         });
       }
 
-      canvas.renderAll();
+      highlightImg.dirty = true;
+      canvas.requestRenderAll();
     };
 
     zone.on('moving', constrainPosition);
     zone.on('scaling', constrainPosition);
 
-    canvas.add(zone);
+    // 자동 크롭 이벤트 (영역 외부 클릭 시)
+    const onMouseDown = (opt: fabric.TPointerEventInfo) => {
+      const target = opt.target;
+      if (!target || target !== cropZoneRef.current) {
+        applyCrop(canvas);
+      }
+    };
+    autoCropHandlerRef.current = onMouseDown;
+    canvas.on('mouse:down', onMouseDown);
+
+    canvas.add(highlightImg, zone);
     canvas.setActiveObject(zone);
 
-    setOverlay(overlayRect);
-    setCroppingGroup(group);
-    setCropZone(zone);
-    canvas.renderAll();
+    cropZoneRef.current = zone;
+    highlightLayerRef.current = highlightImg;
+    canvas.requestRenderAll();
   };
 
   // 크롭 적용
   const applyCrop = (canvas: fabric.Canvas) => {
-    const targetImage = croppingGroup?.getObjects()[0] as fabric.FabricImage;
-    if (!targetImage || !cropZone || !croppingGroup) return;
+    const ghostImg = canvas
+      .getObjects()
+      .find(
+        obj =>
+          obj instanceof fabric.FabricImage &&
+          (obj as unknown as { name: string }).name === 'ghost-image'
+      ) as fabric.FabricImage;
 
-    // 그룹 해제하여 이미지와 오버레이 좌표를 캔버스 기준으로 복원
-    const objects = croppingGroup.getObjects();
-    croppingGroup.removeAll();
-    canvas.remove(croppingGroup);
-    canvas.add(...objects);
-    canvas.discardActiveObject();
-    if (overlay) canvas.remove(overlay);
+    const zone = cropZoneRef.current;
+    if (!ghostImg || !zone) return;
 
-    // 이미지 대비 상대적인 좌표 계산
-    const imgScaleX = targetImage.scaleX;
-    const imgScaleY = targetImage.scaleY;
+    const img = ghostImg;
+    const originalAngle = img.angle;
 
-    const relativeLeft =
-      (cropZone.left - targetImage.left) / imgScaleX + targetImage.cropX;
-    const relativeTop =
-      (cropZone.top - targetImage.top) / imgScaleY + targetImage.cropY;
-    const relativeWidth = cropZone.getScaledWidth() / imgScaleX;
-    const relativeHeight = cropZone.getScaledHeight() / imgScaleY;
+    const imgCenter = img.getCenterPoint();
+    const zoneCenter = zone.getCenterPoint();
 
-    targetImage.set({
-      cropX: relativeLeft,
-      cropY: relativeTop,
-      width: relativeWidth,
-      height: relativeHeight,
-      left: cropZone.left,
-      top: cropZone.top,
+    const dx = zoneCenter.x - imgCenter.x;
+    const dy = zoneCenter.y - imgCenter.y;
+
+    const rad = fabric.util.degreesToRadians(-originalAngle);
+    const localDx = dx * Math.cos(rad) - dy * Math.sin(rad);
+    const localDy = dx * Math.sin(rad) + dy * Math.cos(rad);
+
+    const newWidthPx = zone.getScaledWidth() / img.scaleX;
+    const newHeightPx = zone.getScaledHeight() / img.scaleY;
+    const localDxPx = localDx / img.scaleX;
+    const localDyPx = localDy / img.scaleY;
+
+    const newCropX = img.cropX + img.width / 2 + localDxPx - newWidthPx / 2;
+    const newCropY = img.cropY + img.height / 2 + localDyPx - newHeightPx / 2;
+
+    img.set({
+      cropX: newCropX,
+      cropY: newCropY,
+      width: newWidthPx,
+      height: newHeightPx,
+      left: zoneCenter.x,
+      top: zoneCenter.y,
+      opacity: 1,
+      selectable: true,
+      evented: true,
     });
 
-    cancelCrop(canvas);
-    canvas.setActiveObject(targetImage);
+    img.setCoords();
+    (img as unknown as { name: string }).name = '';
+
+    // 레이어 정리
+    if (highlightLayerRef.current) canvas.remove(highlightLayerRef.current);
+    if (cropZoneRef.current) canvas.remove(cropZoneRef.current);
+
+    // 이벤트 리스너 제거 (자동 크롭 등)
+    if (autoCropHandlerRef.current) {
+      canvas.off('mouse:down', autoCropHandlerRef.current);
+      autoCropHandlerRef.current = null;
+    }
+
+    setIsCropping(false);
+    cropZoneRef.current = null;
+    highlightLayerRef.current = null;
+
+    canvas.setActiveObject(img);
     canvas.renderAll();
 
     setShapes(prev =>
       prev.map(s =>
-        s.id === targetImage.id
+        s.id === img.id
           ? {
               ...s,
-              left: targetImage.left,
-              top: targetImage.top,
-              width: targetImage.getScaledWidth(),
-              height: targetImage.getScaledHeight(),
+              left: img.left,
+              top: img.top,
+              width: img.getScaledWidth(),
+              height: img.getScaledHeight(),
             }
           : s
       )
@@ -584,33 +652,35 @@ export const useFabric = () => {
 
   // 크롭 취소/정리
   const cancelCrop = (canvas: fabric.Canvas) => {
-    const targetImage = croppingGroup?.getObjects()[0] as fabric.FabricImage;
-    if (croppingGroup && targetImage) {
-      const groupMatrix = croppingGroup.calcTransformMatrix();
-      const imgMatrix = targetImage.calcOwnMatrix();
-      const absoluteMatrix = fabric.util.multiplyTransformMatrices(
-        groupMatrix,
-        imgMatrix
-      );
-      const transform = fabric.util.qrDecompose(absoluteMatrix);
+    const ghostImg = canvas
+      .getObjects()
+      .find(
+        obj =>
+          obj instanceof fabric.FabricImage &&
+          (obj as unknown as { name: string }).name === 'ghost-image'
+      ) as fabric.FabricImage;
 
-      canvas.remove(croppingGroup);
-      targetImage.set({
-        left: transform.translateX,
-        top: transform.translateY,
-        scaleX: transform.scaleX,
-        scaleY: transform.scaleY,
-        angle: transform.angle,
+    if (ghostImg) {
+      (ghostImg as unknown as { name: string }).name = '';
+      ghostImg.set({
+        opacity: 1,
+        selectable: true,
+        evented: true,
       });
-      canvas.add(targetImage);
     }
-    if (overlay) canvas.remove(overlay);
-    if (cropZone) canvas.remove(cropZone);
+
+    if (highlightLayerRef.current) canvas.remove(highlightLayerRef.current);
+    if (cropZoneRef.current) canvas.remove(cropZoneRef.current);
+
+    // 이벤트 리스너 제거
+    if (autoCropHandlerRef.current) {
+      canvas.off('mouse:down', autoCropHandlerRef.current);
+      autoCropHandlerRef.current = null;
+    }
 
     setIsCropping(false);
-    setCropZone(null);
-    setOverlay(null);
-    setCroppingGroup(null);
+    cropZoneRef.current = null;
+    highlightLayerRef.current = null;
     canvas.renderAll();
   };
 
