@@ -56,7 +56,7 @@ function FontSize({ canvas, applyRichStyle, debouncedApplyStyle }: Props) {
         }
         debouncedApplyStyle({ fontSize: numValue }, canvas);
       }}
-      selected={selectedFontSize ?? null}
+      selected={selectedFontSize ?? { label: '16px', value: '16' }}
     />
   );
 }
