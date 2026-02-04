@@ -1,10 +1,10 @@
 import { ChevronDown, Check } from 'lucide-react';
-import { useState, useRef, useEffect, ChangeEvent } from 'react';
+import React, { useState, useRef, useEffect, ChangeEvent } from 'react';
 
 import { cn } from '@/shared/utils/cn';
 
 interface Option {
-  label: string;
+  label: string | React.ReactNode;
   value: string;
 }
 
@@ -78,7 +78,7 @@ export const Selector = <T extends Option>({
           isOpen ? 'rounded-t-lg border-b-transparent' : 'rounded-lg'
         )}
       >
-        {isCustomInput ? (
+        {isCustomInput && typeof selected?.label === 'string' ? (
           <input
             ref={inputRef}
             type="text"
