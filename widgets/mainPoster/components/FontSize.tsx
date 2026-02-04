@@ -29,7 +29,7 @@ function FontSize({ canvas, applyRichStyle, debouncedApplyStyle }: Props) {
     if (!canvas) return;
     const numValue = typeof value === 'string' ? parseFloat(value) : value;
     if (isNaN(numValue) || numValue < 1) {
-      return;
+      return false;
     }
     return numValue;
   };
@@ -40,16 +40,19 @@ function FontSize({ canvas, applyRichStyle, debouncedApplyStyle }: Props) {
       placeholder="16px"
       options={fontSize}
       className="bg-bg-base"
-      // 폰트 사이즈 여러개 섞였을시 mixed 표시 필요
       onSelect={option => {
         const safeSize = handleNumberChange(option.value);
+        const isListItem = fontSize.some(f => f.value === option.value);
+
         if (safeSize) {
-          applyRichStyle({ fontSize: option.value }, canvas);
+          if (isListItem) {
+            applyRichStyle({ fontSize: safeSize }, canvas);
+          }
           setSelectedFontSize(option);
         }
       }}
       onInputChange={value => {
-        setSelectedFontSize({ label: value, value: 'custom' });
+        setSelectedFontSize({ label: value, value: value });
         const numValue = parseFloat(value);
         if (isNaN(numValue) || numValue < 1) {
           return;

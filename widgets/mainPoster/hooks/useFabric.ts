@@ -95,27 +95,27 @@ export const useFabric = () => {
     );
   };
 
-  const checkNumberValidity = (value: string | number) => {
-    const numValue = typeof value === 'string' ? parseFloat(value) : value;
-    if (isNaN(numValue) || numValue < 1) {
-      return false;
-    }
-    return true;
-  };
-
   const handleNumberValidity = (styleObj: RichStyle) => {
-    for (const [_key, value] of Object.entries(styleObj)) {
-      if (typeof value === 'number') {
-        if (!checkNumberValidity(value)) return false;
+    for (const [key, value] of Object.entries(styleObj)) {
+      if (
+        key === 'fontSize' ||
+        key === 'lineHeight' ||
+        key === 'charSpacing' ||
+        key === 'strokeWidth'
+      ) {
+        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+        if (isNaN(numValue as number) || (numValue as number) < 1) return true;
       }
     }
+    return false;
   };
 
   const applyRichStyle = (styleObj: RichStyle, canvas: fabric.Canvas) => {
     const activeObject = canvas.getActiveObject() as fabric.Textbox;
     if (!activeObject) return;
 
-    if (handleNumberValidity(styleObj)) return false;
+    if (handleNumberValidity(styleObj)) return;
+
     const isSelectionPresent =
       activeObject.selectionStart !== activeObject.selectionEnd ||
       !isLayoutStyle(styleObj);
@@ -128,7 +128,13 @@ export const useFabric = () => {
         ? activeObject.getSelectionStyles()[0]?.[key]
         : activeObject.get(key as keyof fabric.Textbox);
 
-      if (currentStyle === nextValue) {
+      if (
+        key === 'fontSize' ||
+        key === 'fontFamily' ||
+        isLayoutStyle(styleObj)
+      ) {
+        finalStyle[key] = nextValue as never;
+      } else if (currentStyle === nextValue) {
         finalStyle[key] = getFallbackValue(key) as never;
       } else {
         finalStyle[key] = nextValue as never;
@@ -155,6 +161,7 @@ export const useFabric = () => {
     }
 
     activeObject.dirty = true;
+    activeObject.initDimensions();
     canvas.requestRenderAll();
   };
 
@@ -165,6 +172,7 @@ export const useFabric = () => {
       case 'fontStyle':
         return 'normal';
       case 'underline':
+        return false;
       case 'linethrough':
         return false;
       case 'stroke':
@@ -180,8 +188,12 @@ export const useFabric = () => {
       case 'shadow':
         return null;
       case 'lineHeight':
-        return 1;
-      // charSpacing 추가
+        return 1.1;
+      case 'fontSize':
+        return 16;
+      case 'charSpacing':
+        return 100;
+      //shadow 추가
       default:
         return '';
     }
@@ -198,14 +210,6 @@ export const useFabric = () => {
       setShapes(prev => prev.filter(shape => !idArray.includes(shape.id)));
     else if (id) setShapes(prev => prev.filter(s => s.id !== id));
   };
-
-  // const updateShape = (id: string, attrs: ShapeUpdate) => {
-  //   setShapes(prev =>
-  //     prev.map(shape =>
-  //       shape.id === id ? ({ ...shape, ...attrs } as Shape) : shape
-  //     )
-  //   );
-  // };
 
   const handleDeleteShape = (canvas: fabric.Canvas, e: KeyboardEvent) => {
     // 페이지 내의 포스터 캔버스가 아닌곳에서 키보드 이벤트 발생시 작동 중지
