@@ -1,11 +1,20 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { saveInvitationFlow } from '@/app/oauthTest/utils/saveInvitationFlow';
 
 type UploadResult = Awaited<ReturnType<typeof saveInvitationFlow>>;
 type BatchResult = UploadResult['results']['images'];
+type PublishResult = {
+  ok: boolean;
+  guestUrl?: string;
+  dataJsonFileId?: string;
+  ignored?: string;
+  error?: string;
+  status?: number;
+  details?: unknown;
+};
 
 function formatBytes(bytes: number) {
   if (!Number.isFinite(bytes)) return '0 B';
@@ -25,11 +34,19 @@ export default function UploadFlowTest() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<UploadResult | null>(null);
+  const [publishBusy, setPublishBusy] = useState(false);
+  const [publishError, setPublishError] = useState<string | null>(null);
+  const [publishResult, setPublishResult] = useState<PublishResult | null>(null);
+  const [origin, setOrigin] = useState('');
 
   const imagesBytes = useMemo(
     () => images.reduce((sum, file) => sum + file.size, 0),
     [images]
   );
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   const renderBatch = (label: string, batch: BatchResult) => {
     return (
@@ -60,6 +77,8 @@ export default function UploadFlowTest() {
   const handleRun = async () => {
     setError(null);
     setResult(null);
+    setPublishError(null);
+    setPublishResult(null);
 
     let data: object;
     try {
@@ -84,6 +103,52 @@ export default function UploadFlowTest() {
       setBusy(false);
     }
   };
+
+  const handlePublish = async () => {
+    if (!result?.folders.invitationFolderId) {
+      setPublishError('Run the upload flow to get an invitationFolderId first.');
+      return;
+    }
+
+    setPublishError(null);
+    setPublishResult(null);
+    setPublishBusy(true);
+
+    try {
+      const res = await fetch('/api/drive/publishInvitation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invitationFolderId: result.folders.invitationFolderId,
+        }),
+      });
+
+      const json = (await res.json().catch(() => ({}))) as PublishResult;
+
+      if (!res.ok || json.ok === false) {
+        setPublishResult(json);
+        setPublishError(
+          json.error ? `Publish failed: ${json.error}` : `Publish failed: ${res.status}`
+        );
+        return;
+      }
+
+      setPublishResult(json);
+    } catch (err) {
+      setPublishError(
+        err instanceof Error ? err.message : 'Publish request failed.'
+      );
+    } finally {
+      setPublishBusy(false);
+    }
+  };
+
+  const finalGuestUrl =
+    publishResult?.guestUrl && publishResult.guestUrl.startsWith('http')
+      ? publishResult.guestUrl
+      : publishResult?.guestUrl && origin
+      ? `${origin}${publishResult.guestUrl}`
+      : publishResult?.guestUrl ?? null;
 
   return (
     <section className="mt-6 rounded-2xl border p-6">
@@ -181,6 +246,53 @@ export default function UploadFlowTest() {
             {renderBatch('Images', result.results.images)}
             {renderBatch('Audio', result.results.audio)}
             {renderBatch('Data', result.results.data)}
+
+            <div className="rounded-md border p-3 text-sm">
+              <p className="font-medium">Publish invitation</p>
+              <p className="mt-1 text-xs text-neutral-600">
+                invitationFolderId: {result.folders.invitationFolderId}
+              </p>
+
+              <button
+                type="button"
+                onClick={handlePublish}
+                disabled={publishBusy}
+                className="mt-3 w-full rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+              >
+                {publishBusy ? 'Publishing...' : 'Publish invitation'}
+              </button>
+
+              {publishError && (
+                <div className="mt-3 rounded-md border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+                  {publishError}
+                </div>
+              )}
+
+              {publishResult?.guestUrl && (
+                <div className="mt-3 rounded-md border bg-neutral-50 p-3 text-xs text-neutral-700">
+                  <p>guestUrl: {publishResult.guestUrl}</p>
+                  {publishResult.dataJsonFileId && (
+                    <p>dataJsonFileId: {publishResult.dataJsonFileId}</p>
+                  )}
+                  {publishResult.ignored && (
+                    <p>note: {publishResult.ignored}</p>
+                  )}
+                  {finalGuestUrl && (
+                    <p className="mt-2">
+                      finalUrl:{' '}
+                      <a
+                        className="text-blue-600 underline"
+                        href={finalGuestUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {finalGuestUrl}
+                      </a>
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
