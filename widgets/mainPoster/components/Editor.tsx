@@ -45,8 +45,8 @@ const Editor: React.FC = () => {
   useEffect(() => {
     if (!canvasRef.current) return;
     const fabricCanvas = new fabric.Canvas(canvasRef.current, {
-      width: 1000,
-      height: 1000,
+      width: 350,
+      height: 600,
       backgroundColor: '#f9fafb',
     });
     setCanvas(fabricCanvas);
@@ -137,9 +137,6 @@ const Editor: React.FC = () => {
         }}
       >
         <canvas ref={canvasRef} />
-      </div>
-      <div style={{ color: '#6b7280', fontSize: '14px' }}>
-        사용법: 텍스트 <b>더블 클릭</b> 후 글자를 <b>드래그</b>하여 입력하세요.
       </div>
     </div>
   );
