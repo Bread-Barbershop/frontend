@@ -1,6 +1,5 @@
 import * as fabric from 'fabric';
 import Image from 'next/image';
-// import React, { useState } from 'react';
 
 // import { Selector } from '@/components/molecules/selector';
 import alignCenter from '@/shared/assets/icons/alignCenter.svg';
@@ -90,7 +89,7 @@ function TextAlign({ canvas, applyRichStyle }: Props) {
               onClick={() => applyRichStyle({ ...style }, canvas)}
               className="w-8 h-8 flex p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
             >
-              <Image src={label} alt={value} width={14} height={14} />
+              <Image src={label} alt={value} width={16} height={12} />
             </button>
           );
         })}
