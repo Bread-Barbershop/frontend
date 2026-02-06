@@ -98,7 +98,7 @@ export const Selector = <T extends Option>({
             aria-haspopup="listbox"
             aria-expanded={isOpen}
           >
-            <span className="h-7 leading-7 text-center text-text-primary truncate flex-1 min-w-0">
+            <span className="h-7 leading-7 text-center text-text-primary truncate flex-1 flex-center min-w-0">
               {selected ? selected.label : placeholder}
             </span>
 
@@ -136,7 +136,7 @@ export const Selector = <T extends Option>({
               >
                 <Check size={12} />
               </div>
-              <span className="h-7 leading-7 text-center flex-1 truncate min-w-0">
+              <span className="h-7 leading-7 text-center flex-1 truncate min-w-0 flex-center">
                 {option.label}
               </span>
             </li>
