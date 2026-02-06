@@ -60,15 +60,15 @@ function Menubar({ canvas, applyRichStyle }: Props) {
   ];
 
   return (
-    <div className="flex flex-wrap flex-col items-center justify-between gap-2.5 p-3 bg-bg-base rounded-xl shadow-[0_4px_15px_rgba(0,0,0,0.1)]">
+    <div className="flex flex-wrap flex-col items-center justify-between w-93.75 gap-2.5 px-3 py-2 bg-bg-base rounded-xl shadow-[0_4px_15px_rgba(0,0,0,0.1)]">
       <div className="flex w-full justify-between">
+        <FontFamily canvas={canvas} applyRichStyle={applyRichStyle} />
         <FontSize
           canvas={canvas}
           applyRichStyle={applyRichStyle}
           debouncedApplyStyle={debouncedApplyStyle}
         />
         <FontColor canvas={canvas} applyRichStyle={applyRichStyle} />
-        <FontFamily canvas={canvas} applyRichStyle={applyRichStyle} />
         <TextBackground canvas={canvas} applyRichStyle={applyRichStyle} />
         {/* <Highlight canvas={canvas} applyRichStyle={applyRichStyle} />
       <Stroke
@@ -79,7 +79,7 @@ function Menubar({ canvas, applyRichStyle }: Props) {
       />
       <Shadow canvas={canvas} debouncedApplyStyle={debouncedApplyStyle} /> */}
       </div>
-      <div className="flex flex-row w-full justify-between outline-1 outline-gray-200  ">
+      <div className="flex flex-row w-full justify-between">
         {buttons.map(btn => {
           const { id, style, component } = btn;
           return (
@@ -87,7 +87,7 @@ function Menubar({ canvas, applyRichStyle }: Props) {
               key={id}
               type="button"
               onClick={() => applyRichStyle({ ...style }, canvas)}
-              className="outline-1 outline-red-200 w-8 h-8 flex p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
+              className="w-8 h-8 flex p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
             >
               {component}
             </button>
@@ -96,14 +96,14 @@ function Menubar({ canvas, applyRichStyle }: Props) {
         <button
           type="button"
           onClick={() => setIsOpen(prev => !prev)}
-          className="outline-1 outline-red-200 w-9 h-8 flex p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
+          className="w-9 h-8 flex p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
         >
           <Image src={charspacing} alt="charspacing" width={17} height={14} />
         </button>
         <TextAlign canvas={canvas} applyRichStyle={applyRichStyle} />
       </div>
 
-      <div className="flex flex-col items-center justify-center">
+      <div className="flex flex-col justify-center w-full">
         {isOpen && (
           <>
             <CharSpacing

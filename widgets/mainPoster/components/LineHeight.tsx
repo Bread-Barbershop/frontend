@@ -14,7 +14,7 @@ function LineHeight({ canvas, debouncedApplyStyle }: Props) {
 
   return (
     <section className="relative">
-      <div className="bg-bg-base px-4 py-3">
+      <div className="bg-bg-base px-4 py-2">
         <div className="mb-2 text-center text-sm font-semibold text-text-primary">
           행간
         </div>
@@ -33,7 +33,7 @@ function LineHeight({ canvas, debouncedApplyStyle }: Props) {
                 canvas
               );
             }}
-            className="h-2 w-full flex-1 cursor-pointer appearance-none rounded-full bg-gray-200"
+            className="h-1 w-full cursor-pointer appearance-none rounded-full bg-gray-200"
           />
           <input
             type="text"
@@ -47,8 +47,7 @@ function LineHeight({ canvas, debouncedApplyStyle }: Props) {
                 canvas
               );
             }}
-            style={{ width: '60px' }}
-            className="flex items-center justify-between px-2 py-2 text-sm bg-bg-base border transition-all border-border-neutral rounded-lg"
+            className="flex items-center justify-between text-center px-2 py-2 w-11.75 h-8 text-sm bg-bg-base border transition-all border-border-neutral rounded-lg"
           />
         </div>
       </div>

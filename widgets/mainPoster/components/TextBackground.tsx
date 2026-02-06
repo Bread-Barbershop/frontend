@@ -36,8 +36,8 @@ function TextBackground({ canvas, applyRichStyle }: Props) {
     setPatternUrl(url);
   };
   return (
-    <label htmlFor="pattern-upload" className="cursor-pointer group">
-      <div className="flex items-center justify-center p-2 group-hover:border-blue-400 group-hover:bg-blue-50 transition-colors">
+    <label htmlFor="pattern-upload" className="group">
+      <div className="w-8 h-8 flex justify-center items-center bg-bg-base text-text-primary group-hover:bg-btn-hover group-active:bg-btn-pressed rounded-sm">
         <Image size={18} className="text-text-primary" />
       </div>
       <input

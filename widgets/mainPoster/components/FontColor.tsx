@@ -1,5 +1,8 @@
 import * as fabric from 'fabric';
-import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+
+import { cn } from '@/shared/utils/cn';
 
 import ColorPicker from './ColorPicker';
 
@@ -27,16 +30,38 @@ const ColorIcon = ({ color }: { color: string }) => (
 function FontColor({ canvas, applyRichStyle }: Props) {
   const [pickerColor, setPickerColor] = useState<string | null>(null);
   const [openFontColor, setOpenFontColor] = useState<boolean>(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setOpenFontColor(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   if (!canvas) return;
   return (
-    <section className="relative">
+    <section className="relative" ref={containerRef}>
       <button
         type="button"
-        className="w-8 h-8 flex justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
+        className="h-8 flex justify-center items-center border border-border-neutral pl-2 bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
         onClick={() => setOpenFontColor(prev => !prev)}
       >
         <ColorIcon color={pickerColor || 'black'} />
+        <div
+          className={cn(
+            'flex-center size-7 transition-transform duration-200 shrink-0',
+            openFontColor && 'rotate-180'
+          )}
+        >
+          <ChevronDown size={12} />
+        </div>
       </button>
       {openFontColor && (
         <div className="absolute z-9999">
