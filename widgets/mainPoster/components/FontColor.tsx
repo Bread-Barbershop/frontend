@@ -4,11 +4,19 @@ import { useEffect, useRef, useState } from 'react';
 
 import { cn } from '@/shared/utils/cn';
 
+import { RichStyleKey } from '../types/fabric';
+
 import ColorPicker from './ColorPicker';
 
 interface Props {
   canvas: fabric.Canvas | null;
+  activeObject: fabric.Textbox | null;
   applyRichStyle: (styleObj: object, canvas: fabric.Canvas) => void;
+  getRichStyles: (
+    activeObject: fabric.Textbox,
+    style: RichStyleKey,
+    onChange: (color: string) => void
+  ) => void;
 }
 
 const ColorIcon = ({ color }: { color: string }) => (
@@ -27,10 +35,33 @@ const ColorIcon = ({ color }: { color: string }) => (
   </svg>
 );
 
-function FontColor({ canvas, applyRichStyle }: Props) {
-  const [pickerColor, setPickerColor] = useState<string | null>(null);
+function FontColor({
+  canvas,
+  applyRichStyle,
+  activeObject,
+  getRichStyles,
+}: Props) {
+  const [pickerColor, setPickerColor] = useState<string | null>('black');
   const [openFontColor, setOpenFontColor] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!activeObject) {
+      return;
+    }
+    const handleSync = () =>
+      getRichStyles(activeObject, 'fill', color => setPickerColor(color));
+
+    activeObject.on('changed', handleSync);
+    activeObject.on('selection:changed', handleSync);
+
+    handleSync();
+
+    return () => {
+      activeObject.off('changed', handleSync);
+      activeObject.off('selection:changed', handleSync);
+    };
+  }, [activeObject, getRichStyles]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -45,7 +76,7 @@ function FontColor({ canvas, applyRichStyle }: Props) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  if (!canvas) return;
+  if (!canvas) return null;
   return (
     <section className="relative" ref={containerRef}>
       <button

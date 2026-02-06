@@ -1,6 +1,6 @@
 import * as fabric from 'fabric';
 import Image from 'next/image';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import bold from '@/shared/assets/icons/bold.svg';
 import charspacing from '@/shared/assets/icons/charspacing.svg';
@@ -8,7 +8,7 @@ import italic from '@/shared/assets/icons/italic.svg';
 import underline from '@/shared/assets/icons/underline.svg';
 import { debounce } from '@/shared/utils/debounce';
 
-import { RichStyle } from '../types/fabric';
+import { RichStyle, RichStyleKey } from '../types/fabric';
 
 import CharSpacing from './CharSpacing';
 import FontColor from './FontColor';
@@ -25,9 +25,19 @@ interface Props {
   canvas: fabric.Canvas | null;
   activeObject: fabric.Textbox | null;
   applyRichStyle: (styleObj: object, canvas: fabric.Canvas) => void;
+  getRichStyles: (
+    activeObject: fabric.Textbox,
+    style: RichStyleKey,
+    onChange: (color: string) => void
+  ) => void;
 }
 
-function Menubar({ canvas, applyRichStyle }: Props) {
+function Menubar({
+  canvas,
+  applyRichStyle,
+  activeObject,
+  getRichStyles,
+}: Props) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const debouncedApplyStyle = useMemo(
     () =>
@@ -37,24 +47,28 @@ function Menubar({ canvas, applyRichStyle }: Props) {
     [applyRichStyle]
   );
 
+  useEffect(() => {
+    // 선택 변경 시 필요한 작업을 여기에 추가할 수 있습니다.
+  }, [activeObject?.id]);
+
   if (!canvas) return null;
 
   const buttons = [
     {
       id: 'bold',
       style: { fontWeight: 'bold' },
-      component: <Image src={bold} alt="bold" width={10} height={10} />,
+      component: <Image src={bold} alt="bold" width={11} height={14} />,
     },
     {
       id: 'italic',
       style: { fontStyle: 'italic' },
-      component: <Image src={italic} alt="italic" width={10} height={10} />,
+      component: <Image src={italic} alt="italic" width={11} height={14} />,
     },
     {
       id: 'underline',
       style: { underline: true },
       component: (
-        <Image src={underline} alt="underline" width={10} height={10} />
+        <Image src={underline} alt="underline" width={10} height={14} />
       ),
     },
   ];
@@ -62,13 +76,25 @@ function Menubar({ canvas, applyRichStyle }: Props) {
   return (
     <div className="flex flex-wrap flex-col items-center justify-between w-93.75 gap-2.5 px-3 py-2 bg-bg-base rounded-xl shadow-[0_4px_15px_rgba(0,0,0,0.1)]">
       <div className="flex w-full justify-between">
-        <FontFamily canvas={canvas} applyRichStyle={applyRichStyle} />
+        <FontFamily
+          canvas={canvas}
+          activeObject={activeObject}
+          getRichStyles={getRichStyles}
+          applyRichStyle={applyRichStyle}
+        />
         <FontSize
           canvas={canvas}
+          activeObject={activeObject}
+          getRichStyles={getRichStyles}
           applyRichStyle={applyRichStyle}
           debouncedApplyStyle={debouncedApplyStyle}
         />
-        <FontColor canvas={canvas} applyRichStyle={applyRichStyle} />
+        <FontColor
+          canvas={canvas}
+          activeObject={activeObject}
+          getRichStyles={getRichStyles}
+          applyRichStyle={applyRichStyle}
+        />
         <TextBackground canvas={canvas} applyRichStyle={applyRichStyle} />
         {/* <Highlight canvas={canvas} applyRichStyle={applyRichStyle} />
       <Stroke

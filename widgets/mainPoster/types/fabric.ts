@@ -90,3 +90,5 @@ export interface AllStyle {
 }
 
 export type RichStyle = LayoutStyle | AllStyle;
+
+export type RichStyleKey = keyof LayoutStyle | keyof AllStyle;

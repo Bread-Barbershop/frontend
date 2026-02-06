@@ -1,7 +1,9 @@
 import * as fabric from 'fabric';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Selector } from '@/components/molecules/selector';
+
+import { RichStyleKey } from '../types/fabric';
 
 type FontOption = {
   label: string;
@@ -15,11 +17,43 @@ type CustomFontOption = {
 
 interface Props {
   canvas: fabric.Canvas | null;
+  activeObject: fabric.Textbox | null;
+  getRichStyles: (
+    activeObject: fabric.Textbox,
+    style: RichStyleKey,
+    onChange: (value: string) => void
+  ) => void;
   applyRichStyle: (styleObj: object, canvas: fabric.Canvas) => void;
 }
 
-function FontFamily({ canvas, applyRichStyle }: Props) {
+function FontFamily({
+  canvas,
+  activeObject,
+  getRichStyles,
+  applyRichStyle,
+}: Props) {
   const [selectedFont, setSelectedFont] = useState<FontOption>();
+
+  useEffect(() => {
+    if (!activeObject) {
+      return;
+    }
+    const handleSync = () =>
+      getRichStyles(activeObject, 'fontFamily', (value: string) =>
+        setSelectedFont({ label: value, value })
+      );
+
+    activeObject.on('changed', handleSync);
+    activeObject.on('selection:changed', handleSync);
+
+    handleSync();
+
+    return () => {
+      activeObject.off('changed', handleSync);
+      activeObject.off('selection:changed', handleSync);
+    };
+  }, [activeObject, getRichStyles]);
+
   const defaultFontOption: FontOption[] = [
     {
       label: 'Times New Roman',

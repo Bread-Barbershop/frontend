@@ -34,6 +34,7 @@ const PosterEditor: React.FC = () => {
     dragToCreateTextBox,
     handleDrawingMode,
     applyRichStyle,
+    getRichStyles,
     addImage,
     applyImageFilter,
     handleDeleteShape,
@@ -122,10 +123,10 @@ const PosterEditor: React.FC = () => {
       )}
       <div>
         <Menubar
-          key={activeObject?.id || 'empty'}
           canvas={canvas}
-          applyRichStyle={applyRichStyle}
           activeObject={activeObject}
+          applyRichStyle={applyRichStyle}
+          getRichStyles={getRichStyles}
         />
       </div>
       <div

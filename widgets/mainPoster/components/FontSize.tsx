@@ -1,19 +1,34 @@
 import * as fabric from 'fabric';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Selector } from '@/components/molecules/selector';
 
 import { selectorOptions } from '../types/editor';
-import { RichStyle } from '../types/fabric';
+import { RichStyle, RichStyleKey } from '../types/fabric';
 
 interface Props {
   canvas: fabric.Canvas | null;
+  activeObject: fabric.Textbox | null;
+  getRichStyles: (
+    activeObject: fabric.Textbox,
+    style: RichStyleKey,
+    onChange: (value: string) => void
+  ) => void;
   applyRichStyle: (styleObj: object, canvas: fabric.Canvas) => void;
   debouncedApplyStyle: (style: RichStyle, canvas: fabric.Canvas) => void;
 }
 
-function FontSize({ canvas, applyRichStyle, debouncedApplyStyle }: Props) {
-  const [selectedFontSize, setSelectedFontSize] = useState<selectorOptions>();
+function FontSize({
+  canvas,
+  activeObject,
+  getRichStyles,
+  applyRichStyle,
+  debouncedApplyStyle,
+}: Props) {
+  const [selectedFontSize, setSelectedFontSize] = useState<selectorOptions>({
+    label: '16px',
+    value: '16',
+  });
 
   const fontSize: selectorOptions[] = [];
   const fontSizeList = [10, 12, 14, 16, 20, 24, 32, 40];
@@ -33,6 +48,29 @@ function FontSize({ canvas, applyRichStyle, debouncedApplyStyle }: Props) {
     }
     return numValue;
   };
+
+  useEffect(() => {
+    if (!activeObject) {
+      return;
+    }
+    const handleSync = () =>
+      getRichStyles(activeObject, 'fontSize', (value: string) =>
+        setSelectedFontSize({
+          label: `${value}px`,
+          value: String(value),
+        })
+      );
+
+    activeObject.on('changed', handleSync);
+    activeObject.on('selection:changed', handleSync);
+
+    handleSync();
+
+    return () => {
+      activeObject.off('changed', handleSync);
+      activeObject.off('selection:changed', handleSync);
+    };
+  }, [activeObject, getRichStyles]);
 
   if (!canvas) return;
   return (

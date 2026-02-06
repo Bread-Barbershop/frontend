@@ -8,6 +8,7 @@ import {
   Text,
   Image,
   PhotoPresetOptions,
+  RichStyleKey,
 } from '../types/fabric';
 import { PhotoPreset } from '../utils/CustomImageFilter';
 
@@ -199,6 +200,28 @@ export const useFabric = () => {
     }
   };
 
+  const getRichStyles = <T extends RichStyleKey>(
+    activeObject: fabric.Textbox,
+    style: T,
+    onChange: (value: string) => void
+  ) => {
+    if (!activeObject) return;
+
+    const isSelectionPresent =
+      activeObject.selectionStart !== activeObject.selectionEnd;
+
+    const currentStyle = isSelectionPresent
+      ? (activeObject.getSelectionStyles(
+          activeObject.selectionStart,
+          activeObject.selectionStart + 1
+        )[0]?.[style] as string)
+      : (activeObject.get(style) as string);
+
+    if (currentStyle) {
+      onChange(currentStyle);
+    }
+  };
+
   const deleteShape = ({
     idArray,
     id,
@@ -361,6 +384,7 @@ export const useFabric = () => {
     handleDrawingMode,
     dragToCreateTextBox,
     applyRichStyle,
+    getRichStyles,
     addImage,
     applyImageFilter,
     handleDeleteShape,
