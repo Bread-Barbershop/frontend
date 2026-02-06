@@ -21,7 +21,7 @@ import ImageFilterPanel from './ImageFilterPanel';
 import Menubar from './Menubar';
 import Toolbar from './Toolbar';
 
-const Editor: React.FC = () => {
+const PosterEditor: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
   // 이미지 타입도 추가하기
@@ -81,7 +81,6 @@ const Editor: React.FC = () => {
     canvas.on('selection:created', handleSelection);
     canvas.on('selection:updated', handleSelection);
     canvas.on('mouse:down', options => {
-      // 클릭한 지점에 객체가 없으면 선택 해제로 간주
       if (!options.target) {
         setActiveObject(null);
       }
@@ -138,11 +137,8 @@ const Editor: React.FC = () => {
       >
         <canvas ref={canvasRef} />
       </div>
-      <div style={{ color: '#6b7280', fontSize: '14px' }}>
-        사용법: 텍스트 <b>더블 클릭</b> 후 글자를 <b>드래그</b>하여 입력하세요.
-      </div>
     </div>
   );
 };
 
-export default Editor;
+export default PosterEditor;
