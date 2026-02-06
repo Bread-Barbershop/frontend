@@ -1,7 +1,11 @@
 import * as fabric from 'fabric';
-import { ArrowRightToLine, Bold, Italic, Underline } from 'lucide-react';
+import Image from 'next/image';
 import { useMemo, useState } from 'react';
 
+import bold from '@/shared/assets/icons/bold.svg';
+import charspacing from '@/shared/assets/icons/charspacing.svg';
+import italic from '@/shared/assets/icons/italic.svg';
+import underline from '@/shared/assets/icons/underline.svg';
 import { debounce } from '@/shared/utils/debounce';
 
 import { RichStyle } from '../types/fabric';
@@ -10,11 +14,12 @@ import CharSpacing from './CharSpacing';
 import FontColor from './FontColor';
 import FontFamily from './FontFamily';
 import FontSize from './FontSize';
-// import Highlight from './Highlight';
 import LineHeight from './LineHeight';
 import TextAlign from './TextAlign';
+import TextBackground from './TextBackground';
 // import Shadow from './Shadow';
 // import Stroke from './Stroke';
+// import Highlight from './Highlight';
 
 interface Props {
   canvas: fabric.Canvas | null;
@@ -38,17 +43,19 @@ function Menubar({ canvas, applyRichStyle }: Props) {
     {
       id: 'bold',
       style: { fontWeight: 'bold' },
-      component: <Bold className="w-3.5" />,
+      component: <Image src={bold} alt="bold" width={10} height={10} />,
     },
     {
       id: 'italic',
       style: { fontStyle: 'italic' },
-      component: <Italic className="w-3.5" />,
+      component: <Image src={italic} alt="italic" width={10} height={10} />,
     },
     {
       id: 'underline',
       style: { underline: true },
-      component: <Underline className="w-3.5" />,
+      component: (
+        <Image src={underline} alt="underline" width={10} height={10} />
+      ),
     },
   ];
 
@@ -62,6 +69,7 @@ function Menubar({ canvas, applyRichStyle }: Props) {
         />
         <FontColor canvas={canvas} applyRichStyle={applyRichStyle} />
         <FontFamily canvas={canvas} applyRichStyle={applyRichStyle} />
+        <TextBackground canvas={canvas} applyRichStyle={applyRichStyle} />
         {/* <Highlight canvas={canvas} applyRichStyle={applyRichStyle} />
       <Stroke
         canvas={canvas}
@@ -71,7 +79,7 @@ function Menubar({ canvas, applyRichStyle }: Props) {
       />
       <Shadow canvas={canvas} debouncedApplyStyle={debouncedApplyStyle} /> */}
       </div>
-      <div className="flex w-full justify-between">
+      <div className="flex flex-row w-full justify-between outline-1 outline-gray-200  ">
         {buttons.map(btn => {
           const { id, style, component } = btn;
           return (
@@ -79,7 +87,7 @@ function Menubar({ canvas, applyRichStyle }: Props) {
               key={id}
               type="button"
               onClick={() => applyRichStyle({ ...style }, canvas)}
-              className="w-8 h-8 p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
+              className="outline-1 outline-red-200 w-8 h-8 flex p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
             >
               {component}
             </button>
@@ -88,9 +96,9 @@ function Menubar({ canvas, applyRichStyle }: Props) {
         <button
           type="button"
           onClick={() => setIsOpen(prev => !prev)}
-          className="w-8 h-8 p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
+          className="outline-1 outline-red-200 w-9 h-8 flex p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
         >
-          <ArrowRightToLine className="w-3.5" />
+          <Image src={charspacing} alt="charspacing" width={17} height={14} />
         </button>
         <TextAlign canvas={canvas} applyRichStyle={applyRichStyle} />
       </div>

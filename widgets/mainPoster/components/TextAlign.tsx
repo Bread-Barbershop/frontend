@@ -1,10 +1,19 @@
 import * as fabric from 'fabric';
-import { TextAlignCenter, TextAlignEnd, TextAlignStart } from 'lucide-react';
+import Image from 'next/image';
 import React, { useState } from 'react';
 
 import { Selector } from '@/components/molecules/selector';
+import alignCenter from '@/shared/assets/icons/alignCenter.svg';
+import alignLeft from '@/shared/assets/icons/alignLeft.svg';
+import alignRight from '@/shared/assets/icons/alignRight.svg';
+
 type alignOption = {
   label: React.ReactNode;
+  value: string;
+  style: { textAlign: 'left' | 'center' | 'right' };
+};
+type alignOptionMobile = {
+  label: string;
   value: string;
   style: { textAlign: 'left' | 'center' | 'right' };
 };
@@ -15,23 +24,40 @@ interface Props {
 }
 function TextAlign({ canvas, applyRichStyle }: Props) {
   const [selectedAlign, setSelectedAlign] = useState<{
-    label: React.ReactNode;
+    label: string | React.ReactNode;
     value: string;
     style: { textAlign: 'left' | 'center' | 'right' };
   }>();
-  const alignOptions: alignOption[] = [
+  const alignOptionsMobile: alignOptionMobile[] = [
     {
-      label: <TextAlignStart className="w-3.5" />,
+      label: alignLeft,
       value: 'left',
       style: { textAlign: 'left' },
     },
     {
-      label: <TextAlignCenter className="w-3.5" />,
+      label: alignCenter,
       value: 'center',
       style: { textAlign: 'center' },
     },
     {
-      label: <TextAlignEnd className="w-3.5" />,
+      label: alignRight,
+      value: 'right',
+      style: { textAlign: 'right' },
+    },
+  ];
+  const alignOptions: alignOption[] = [
+    {
+      label: <Image src={alignLeft} alt="left" width={14} height={14} />,
+      value: 'left',
+      style: { textAlign: 'left' },
+    },
+    {
+      label: <Image src={alignCenter} alt="center" width={14} height={14} />,
+      value: 'center',
+      style: { textAlign: 'center' },
+    },
+    {
+      label: <Image src={alignRight} alt="right" width={14} height={14} />,
       value: 'right',
       style: { textAlign: 'right' },
     },
@@ -44,7 +70,7 @@ function TextAlign({ canvas, applyRichStyle }: Props) {
         <Selector
           placeholder="16px"
           options={alignOptions}
-          className="bg-bg-base"
+          className="bg-bg-base outline-1 outline-red-200 flex items-center justify-center"
           onSelect={option => {
             const alignOption = option as alignOption;
             applyRichStyle(alignOption.style, canvas);
@@ -53,17 +79,17 @@ function TextAlign({ canvas, applyRichStyle }: Props) {
           selected={selectedAlign ?? alignOptions[0]}
         />
       </div>
-      <div className="md:hidden">
-        {alignOptions.map(align => {
+      <div className="md:hidden flex flex-row gap-2">
+        {alignOptionsMobile.map(align => {
           const { label, value, style } = align;
           return (
             <button
               key={value}
               type="button"
               onClick={() => applyRichStyle({ ...style }, canvas)}
-              className="w-8 h-8 p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
+              className="outline-1 outline-red-200 w-8 h-8 flex p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
             >
-              {label}
+              <Image src={label} alt={value} width={14} height={14} />
             </button>
           );
         })}
