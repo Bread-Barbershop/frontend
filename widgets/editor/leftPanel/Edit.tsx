@@ -13,6 +13,7 @@ function Edit() {
       selectedId: state.selectedId,
     }))
   );
+  if (selectedId === 'mainPoster') return <div>Menubar 넣기</div>;
 
   if (!block || !selectedId)
     return (

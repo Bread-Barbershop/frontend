@@ -12,6 +12,9 @@ declare module 'fabric' {
   }
 }
 import React, { useEffect, useRef, useState } from 'react';
+import { useShallow } from 'zustand/shallow';
+
+import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
 
 import { useFabric } from '../hooks/useFabric';
 import { useSetFabricControls } from '../hooks/useSetFabricControls';
@@ -41,6 +44,13 @@ const Editor: React.FC = () => {
   } = useFabric();
 
   useSetFabricControls();
+
+  const { selectedId, selectedBlock } = useEditorStore(
+    useShallow(state => ({
+      selectedId: state.selectedId,
+      selectedBlock: state.selectedBlock,
+    }))
+  );
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -107,7 +117,14 @@ const Editor: React.FC = () => {
     : null;
 
   return (
-    <div className="relative overflow-visible flex flex-col items-center gap-5 p-10">
+    <div
+      onClick={() => selectedBlock('mainPoster')}
+      className={
+        selectedId === 'mainPoster'
+          ? 'relative overflow-visible flex flex-col items-center gap-5 p-10 border border-primary rounded-lg'
+          : 'relative overflow-visible flex flex-col items-center gap-5 p-10'
+      }
+    >
       <Toolbar
         canvas={canvas}
         handleDrawingMode={handleDrawingMode}
