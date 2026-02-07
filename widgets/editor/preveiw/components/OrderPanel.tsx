@@ -9,10 +9,7 @@ import { useEditorStore } from '../../store/useEditorStore';
 import SortableItems from './SortableItems';
 
 /*todo : 
-컴포넌트 명 한글로 변경,
-드래그 이벤트로 제어하기
 max-h넘어가면 아래 방향 추가
-클릭 하이라이트
      
 */
 
