@@ -39,13 +39,18 @@ interface EditorState {
 }
 
 export const useEditorStore = create<EditorState>((set, get) => ({
+  //컴포넌트 데이터
   block: [],
+  //갤러리, 사진 등 사진 FIle 데이터
   images: [],
+  //선택된 블럭 ID
   selectedId: null,
+  //선택된 블럭 Id 설정
   selectedBlock: id =>
     set({
       selectedId: id,
     }),
+  //컴포넌트 추가 로직
   addBlock: (type, component, id) =>
     set(state => ({
       block: [
@@ -58,6 +63,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
         },
       ],
     })),
+  //컴포넌트 수정 로직
   updateBlock: <T extends BlockType>(
     id: string,
     props: Partial<PropsFromFields<(typeof blockRegistry)[T]['fields']>>
@@ -75,10 +81,12 @@ export const useEditorStore = create<EditorState>((set, get) => ({
           : block
       ),
     })),
+  //컴포넌트 삭제
   deleteBlock: (id: string) =>
     set(state => ({
       block: state.block.filter(items => items.id !== id),
     })),
+  //컴포넌트 순서 변경
   moveBlock: (from, to) =>
     set(state => {
       const next = [...state.block];
@@ -87,6 +95,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
       return { block: next };
     }),
+  //컴포넌트 모두 추가하기
   addAllBlock: english => {
     const selectedType = componentCls.find(
       component => component.english === english
@@ -101,10 +110,10 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       }
     });
   },
+  //이미지 추가
   updateImage: (id, image) =>
     set(state => {
       const index = state.images.findIndex(item => item.id === id);
-      console.log('index', index);
       if (index === -1) {
         return { images: [...state.images, { id, file: image }] };
       }
@@ -114,6 +123,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
         ),
       };
     }),
+  //이미지 ID 업데이트 (삭제 예정)
   updateImageId: (id, imageId) =>
     set(state => ({
       block: state.block.map(block =>

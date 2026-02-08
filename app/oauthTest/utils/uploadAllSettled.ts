@@ -8,11 +8,11 @@ export type UploadOk = {
   file: File;
   fileId: string;
   name: string;
-  id: string;
+  id?: string;
 };
 
 export type UploadFail = {
-  file: ImageTask;
+  file: ImageTask | File;
   error: unknown;
 };
 export async function uploadAllSettled(params: {

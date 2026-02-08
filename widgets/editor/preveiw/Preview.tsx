@@ -75,7 +75,6 @@ function Preview() {
                   blockInfo={comp}
                   className={`${selectedId === comp.id ? 'border border-primary rounded-lg' : ''}`}
                   onClick={() => {
-                    console.log(comp.id);
                     selectedBlock(comp.id);
                   }}
                 />

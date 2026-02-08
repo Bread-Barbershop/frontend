@@ -12,12 +12,10 @@ function RightPanel() {
   );
 
   const handleUpload = () => {
-    console.log(images);
-    console.log(block);
     const task = images.flatMap(item =>
       item.file.map(file => ({ id: item.id, file }))
     );
-    console.log('task', task);
+
     saveInvitationFlow({ images: task, audio: null, data: block });
   };
   return (

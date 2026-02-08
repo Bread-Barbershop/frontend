@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { useMemo } from 'react';
 
 import { EditorBlock } from '@/widgets/editor/store/useEditorStore';
@@ -23,9 +24,17 @@ function GalleryPreview({ blockInfo, className, ...rest }: Props) {
             {blockInfo.props.title}
           </p>
         </div>
-        <div className="w-75 h-31.5 bg-border-neutral flex-center">
+        <div className="w-full h-31.5 bg-border-neutral flex-center relative">
           {preview &&
-            preview.map((file, index) => <img key={index} src={file} />)}
+            preview.map((file, index) => (
+              <Image
+                key={index}
+                src={file}
+                alt="갤러리 이미지"
+                fill
+                className="object-cover"
+              />
+            ))}
         </div>
       </div>
     </div>

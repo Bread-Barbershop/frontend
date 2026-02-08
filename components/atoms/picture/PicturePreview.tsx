@@ -11,7 +11,6 @@ interface Props {
 }
 
 export const PicturePreview = ({ src, alt, className }: Props) => {
-  console.log('src', src);
   return (
     <div
       className={cn(pictureVariants({ className }), 'relative overflow-hidden')}

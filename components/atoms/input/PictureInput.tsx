@@ -23,7 +23,7 @@ export const PictureInput = ({ className, ...props }: PictureInputProps) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    console.log('이벤트', file);
+
     const url = URL.createObjectURL(file);
     setPreview(url);
   };

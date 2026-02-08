@@ -2,6 +2,7 @@ import { EditorBlock } from '@/widgets/editor/store/useEditorStore';
 
 import { retryFailedOnce } from './retryFailedOnce';
 import { retryPatchFailedOnce } from './retryPatchFailedOnce';
+import { updateFileToDrive } from './updateFileToDrive';
 import {
   uploadAllSettled,
   type UploadFail,
@@ -137,10 +138,9 @@ export async function saveInvitationFlow(params: {
     concurrency: 5, // 이미지는 5장씩만 끊어서 전송.
   });
 
-  // const dataFacture = data.map(item => item.id === imagesStep.final.ok.find(item => item.id === item.id)?.fileId);
-
   const img = imagesStep.final.ok.reduce<Record<string, string[]>>(
     (acc, cur) => {
+      if (!cur.id) return acc;
       acc[cur.id] ??= [];
       acc[cur.id].push(cur.fileId);
       return acc;
@@ -160,19 +160,21 @@ export async function saveInvitationFlow(params: {
     }
     return item;
   });
+  // 입력 data를 Drive에 저장할 "data.json 파일"로 만든다.
+  // - data가 object면: File로 포장해서 업로드
+  // - data가 File이면(이미 만들어둔 data.json이면): 그대로 사용
+  const dataFile: File =
+    data instanceof File
+      ? data
+      : new File([JSON.stringify(newData)], 'data.json', {
+          type: 'application/json',
+        });
 
   // 3) 오디오 업로드(있으면)
   const audioStep = await runUploadStep({
     files: audio ? [audio] : [],
     folderId: prep.audioFolderId,
   });
-
-  // 4) data.json 업로드(마지막)
-  const dataStep = await runUploadStep({
-    files: [dataFile],
-    folderId: prep.invitationFolderId,
-  });
-  console.log('dataStep', dataStep);
 
   // 4) data.json PATCH 전용 재시도
   const dataFirstAttempt: BatchResult = await (async () => {
