@@ -23,7 +23,7 @@ import TextBackground from './TextBackground';
 
 interface Props {
   canvas: fabric.Canvas | null;
-  activeObject: fabric.Textbox | null;
+  activeObject: fabric.Object | null;
   applyRichStyle: (styleObj: object, canvas: fabric.Canvas) => void;
   getRichStyles: (
     activeObject: fabric.Textbox,
@@ -78,20 +78,20 @@ function Menubar({
       <div className="flex w-full justify-between">
         <FontFamily
           canvas={canvas}
-          activeObject={activeObject}
+          activeObject={activeObject as fabric.Textbox}
           getRichStyles={getRichStyles}
           applyRichStyle={applyRichStyle}
         />
         <FontSize
           canvas={canvas}
-          activeObject={activeObject}
+          activeObject={activeObject as fabric.Textbox}
           getRichStyles={getRichStyles}
           applyRichStyle={applyRichStyle}
           debouncedApplyStyle={debouncedApplyStyle}
         />
         <FontColor
           canvas={canvas}
-          activeObject={activeObject}
+          activeObject={activeObject as fabric.Textbox}
           getRichStyles={getRichStyles}
           applyRichStyle={applyRichStyle}
         />

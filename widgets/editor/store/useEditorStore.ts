@@ -1,3 +1,4 @@
+import * as fabric from 'fabric';
 import { create } from 'zustand';
 
 import { componentCls } from '@/shared/samples/componentSample';
@@ -28,6 +29,10 @@ interface EditorState {
   addAllBlock: (
     english: 'wedding' | 'firstBirthday' | 'birthday' | 'conference' | 'etc'
   ) => void;
+  canvas: fabric.Canvas | null;
+  setCanvas: (canvas: fabric.Canvas | null) => void;
+  activeObject: fabric.Object | null;
+  setActiveObject: (activeObject: fabric.Object | null) => void;
 }
 
 export const useEditorStore = create<EditorState>((set, get) => ({
@@ -92,4 +97,9 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       }
     });
   },
+  activeObject: null,
+  setActiveObject: (activeObject: fabric.Object | null) =>
+    set({ activeObject }),
+  canvas: null,
+  setCanvas: (canvas: fabric.Canvas | null) => set({ canvas }),
 }));

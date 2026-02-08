@@ -21,15 +21,12 @@ import { useSetFabricControls } from '../hooks/useSetFabricControls';
 import { Image } from '../types/fabric';
 
 import ImageFilterPanel from './ImageFilterPanel';
-import Menubar from './Menubar';
 import jsonString from './test.json';
 import Toolbar from './Toolbar';
 
 const PosterEditor: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
-  // 이미지 타입도 추가하기
-  const [activeObject, setActiveObject] = useState<fabric.Textbox | null>(null);
+  const { canvas, setCanvas, setActiveObject } = useEditorStore();
   const [selectedObject, setSelectedObject] =
     useState<fabric.FabricObject | null>(null);
   const {
@@ -37,8 +34,6 @@ const PosterEditor: React.FC = () => {
     activeDrawingMode,
     dragToCreateTextBox,
     handleDrawingMode,
-    applyRichStyle,
-    getRichStyles,
     addImage,
     applyImageFilter,
     handleDeleteShape,
@@ -172,14 +167,14 @@ const PosterEditor: React.FC = () => {
           currentFilters={currentImageShape?.filters}
         />
       )}
-      <div>
+      {/* <div>
         <Menubar
           canvas={canvas}
           activeObject={activeObject}
           applyRichStyle={applyRichStyle}
           getRichStyles={getRichStyles}
         />
-      </div>
+      </div> */}
       <div
         style={{
           border: '2px solid #e5e7eb',

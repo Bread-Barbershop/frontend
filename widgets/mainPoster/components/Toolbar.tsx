@@ -36,7 +36,7 @@ function Toolbar({ canvas, handleDrawingMode, addImage }: Props) {
   };
 
   return (
-    <div className="flex gap-4 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+    <div className=" flex gap-4 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
       <button
         onClick={handleDrawingMode}
         className="px-4 py-2 cursor-pointer bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
