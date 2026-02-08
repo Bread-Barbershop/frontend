@@ -72,8 +72,7 @@ const PosterEditor: React.FC = () => {
       handleDeleteShape(canvas, e);
     };
     const handleSelection = () => {
-      // 이미지일때도 처리해주기
-      const selected = canvas.getActiveObject() as fabric.Textbox;
+      const selected = canvas.getActiveObject() as fabric.Object;
       setActiveObject(selected || null);
     };
 
