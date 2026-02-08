@@ -116,6 +116,23 @@ const Editor: React.FC = () => {
     ? (shapes.find(s => s.id === selectedObject.id) as Image)
     : null;
 
+  const handleExportJSON = () => {
+    if (!canvas) return;
+    const json = canvas.toJSON();
+    console.log('Fabric Canvas JSON:', JSON.stringify(json, null, 2));
+  };
+
+  // const handleImportJSON = async () => {
+  //   console.log({ jsonString });
+  //   if (!canvas) return;
+  //   try {
+  //     await canvas.loadFromJSON(jsonString);
+  //     canvas.requestRenderAll();
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+
   return (
     <div
       onClick={() => selectedBlock('mainPoster')}
@@ -125,6 +142,22 @@ const Editor: React.FC = () => {
           : 'relative overflow-visible flex flex-col items-center gap-5 p-10'
       }
     >
+      <div className="flex gap-2">
+        <button
+          type="button"
+          className="bg-blue-500 text-white px-4 py-2 rounded-md"
+          onClick={handleExportJSON}
+        >
+          Export JSON
+        </button>
+        {/* <button
+          type="button"
+          className="bg-blue-500 text-white px-4 py-2 rounded-md"
+          onClick={handleImportJSON}
+        >
+          Import JSON
+        </button> */}
+      </div>
       <Toolbar
         canvas={canvas}
         handleDrawingMode={handleDrawingMode}
