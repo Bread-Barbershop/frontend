@@ -11,31 +11,24 @@ declare module 'fabric' {
     id?: string;
   }
 }
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
 
 import { useFabric } from '../hooks/useFabric';
 import { useSetFabricControls } from '../hooks/useSetFabricControls';
-import { Image } from '../types/fabric';
 
-import ImageFilterPanel from './ImageFilterPanel';
-import jsonString from './test.json';
 import Toolbar from './Toolbar';
 
 const PosterEditor: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { canvas, setCanvas, setActiveObject } = useEditorStore();
-  const [selectedObject, setSelectedObject] =
-    useState<fabric.FabricObject | null>(null);
   const {
-    shapes,
     activeDrawingMode,
     dragToCreateTextBox,
     handleDrawingMode,
     addImage,
-    applyImageFilter,
     handleDeleteShape,
     handleDeleteEmptyShape,
   } = useFabric();
@@ -59,12 +52,12 @@ const PosterEditor: React.FC = () => {
     setCanvas(fabricCanvas);
 
     const handleSelection = () => {
-      setSelectedObject(fabricCanvas.getActiveObject() ?? null);
+      setActiveObject(fabricCanvas.getActiveObject() ?? null);
     };
 
     fabricCanvas.on('selection:created', handleSelection);
     fabricCanvas.on('selection:updated', handleSelection);
-    fabricCanvas.on('selection:cleared', () => setSelectedObject(null));
+    fabricCanvas.on('selection:cleared', () => setActiveObject(null));
 
     return () => {
       fabricCanvas.dispose();
@@ -107,28 +100,6 @@ const PosterEditor: React.FC = () => {
     handleDeleteShape,
   ]);
 
-  const isSelectedImage = selectedObject instanceof fabric.FabricImage;
-  const currentImageShape = isSelectedImage
-    ? (shapes.find(s => s.id === selectedObject.id) as Image)
-    : null;
-
-  const handleExportJSON = () => {
-    if (!canvas) return;
-    const json = canvas.toJSON();
-    console.log('Fabric Canvas JSON:', JSON.stringify(json, null, 2));
-  };
-
-  const handleImportJSON = async () => {
-    console.log({ jsonString });
-    if (!canvas) return;
-    try {
-      await canvas.loadFromJSON(jsonString);
-      canvas.requestRenderAll();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   return (
     <div
       onClick={() => selectedBlock('mainPoster')}
@@ -138,43 +109,11 @@ const PosterEditor: React.FC = () => {
           : 'relative overflow-visible flex flex-col items-center gap-5 p-10'
       }
     >
-      <div className="flex gap-2">
-        <button
-          type="button"
-          className="bg-blue-500 text-white px-4 py-2 rounded-md"
-          onClick={handleExportJSON}
-        >
-          Export JSON
-        </button>
-        <button
-          type="button"
-          className="bg-blue-500 text-white px-4 py-2 rounded-md"
-          onClick={handleImportJSON}
-        >
-          Import JSON
-        </button>
-      </div>
       <Toolbar
         canvas={canvas}
         handleDrawingMode={handleDrawingMode}
         addImage={addImage}
       />
-
-      {isSelectedImage && (
-        <ImageFilterPanel
-          canvas={canvas}
-          applyImageFilter={applyImageFilter}
-          currentFilters={currentImageShape?.filters}
-        />
-      )}
-      {/* <div>
-        <Menubar
-          canvas={canvas}
-          activeObject={activeObject}
-          applyRichStyle={applyRichStyle}
-          getRichStyles={getRichStyles}
-        />
-      </div> */}
       <div
         style={{
           border: '2px solid #e5e7eb',
