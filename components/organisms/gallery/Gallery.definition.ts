@@ -14,7 +14,7 @@ export const galleryDefinition = {
         '저희의 시작을 알리는 자리를 (행사일), (행사시간)에 마련했습니다.',
       required: true,
     },
-    pictureList: {
+    images: {
       default: [] as File[],
       required: true,
     },

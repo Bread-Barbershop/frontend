@@ -1,4 +1,5 @@
 import { ChangeEvent } from 'react';
+import { useShallow } from 'zustand/shallow';
 
 import { Label } from '@/components/atoms/label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
@@ -15,7 +16,12 @@ interface Props {
 }
 
 function Gallery({ blockInfo, id }: Props) {
-  const updateBlock = useEditorStore(state => state.updateBlock);
+  const { updateBlock, updateImage } = useEditorStore(
+    useShallow(state => ({
+      updateBlock: state.updateBlock,
+      updateImage: state.updateImage,
+    }))
+  );
 
   const handleOnChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { title: e.target.value });
@@ -23,7 +29,8 @@ function Gallery({ blockInfo, id }: Props) {
 
   const handlePictureChange = (file: File[]) => {
     console.log(file);
-    updateBlock(id, { pictureList: file });
+    updateBlock(id, { images: file });
+    updateImage(id, file);
   };
 
   return (
@@ -53,7 +60,7 @@ function Gallery({ blockInfo, id }: Props) {
           label="사진"
           className="py-1"
           multiple={true}
-          value={blockInfo.props.pictureList}
+          value={blockInfo.props.images}
           onChange={file => handlePictureChange(file)}
         />
         <ul className="list-disc pl-5 marker:text-text-secondary py-3.5">

@@ -7,16 +7,15 @@ interface Props {
   className: string;
 }
 
-function GalleryPreview({ blockInfo, className }: Props) {
+function GalleryPreview({ blockInfo, className, ...rest }: Props) {
   const preview = useMemo(() => {
-    return (blockInfo.props.pictureList ?? []).map(file =>
+    return (blockInfo.props.images ?? []).map(file =>
       URL.createObjectURL(file)
     );
-  }, [blockInfo.props.pictureList]);
-  console.log('preview', preview);
-  console.log('blockInfo', blockInfo);
+  }, [blockInfo.props.images]);
+
   return (
-    <div className={`w-full ${className}`}>
+    <div className={`w-full ${className}`} {...rest}>
       <div className="flex flex-col gap-6 py-8 px-5">
         <div className="flex-center flex-col gap-1">
           <p className="text-text-wedding text-[13px] font-semibold">GALLERY</p>

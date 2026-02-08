@@ -14,8 +14,14 @@ export type EditorBlock<T extends BlockType = BlockType> = {
   props: PropsFromFields<(typeof blockRegistry)[T]['fields']>;
 };
 
+type ImageArray = {
+  id: string;
+  file: File[];
+};
+
 interface EditorState {
   block: EditorBlock[];
+  images: ImageArray[];
   selectedId: string | null;
   selectedBlock: (id: string) => void;
   addBlock: (type: string, component: BlockType, id: string) => void;
@@ -28,10 +34,13 @@ interface EditorState {
   addAllBlock: (
     english: 'wedding' | 'firstBirthday' | 'birthday' | 'conference' | 'etc'
   ) => void;
+  updateImage: (id: string, image: File[]) => void;
+  updateImageId: (id: string, imageId: string) => void;
 }
 
 export const useEditorStore = create<EditorState>((set, get) => ({
   block: [],
+  images: [],
   selectedId: null,
   selectedBlock: id =>
     set({
@@ -92,4 +101,25 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       }
     });
   },
+  updateImage: (id, image) =>
+    set(state => {
+      const index = state.images.findIndex(item => item.id === id);
+      console.log('index', index);
+      if (index === -1) {
+        return { images: [...state.images, { id, file: image }] };
+      }
+      return {
+        images: state.images.map(item =>
+          item.id === id ? { id, file: image } : item
+        ),
+      };
+    }),
+  updateImageId: (id, imageId) =>
+    set(state => ({
+      block: state.block.map(block =>
+        block.id === id
+          ? { ...block, props: { ...block.props, images: imageId } }
+          : block
+      ),
+    })),
 }));
