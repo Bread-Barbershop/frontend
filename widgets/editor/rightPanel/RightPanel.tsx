@@ -1,14 +1,22 @@
 'use client';
 
+import { useShallow } from 'zustand/shallow';
+
 import { saveInvitationFlow } from '@/app/oauthTest/utils/saveInvitationFlow';
 
 import { useEditorStore } from '../store/useEditorStore';
 
 function RightPanel() {
-  const block = useEditorStore(state => state.block);
+  const { block, images } = useEditorStore(
+    useShallow(state => ({ block: state.block, images: state.images }))
+  );
 
   const handleUpload = () => {
-    saveInvitationFlow({ images: [], audio: null, data: block });
+    const task = images.flatMap(item =>
+      item.file.map(file => ({ id: item.id, file }))
+    );
+
+    saveInvitationFlow({ images: task, audio: null, data: block });
   };
   return (
     <div className="w-93.75 h-203 mr-15 flex flex-col gap-5">

@@ -24,9 +24,9 @@ export async function uploadFileToDrive(
   }
 
   const { id, name } = await res.json();
+
   return { fileId: id, name };
 }
-
 
 async function buildMultipartBody(
   file: File,
@@ -45,13 +45,13 @@ async function buildMultipartBody(
   const encoder = new TextEncoder();
 
   const fileBuffer = await file.arrayBuffer();
-    const metadataPart = encoder.encode(
-        delimiter +
-        'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
-        JSON.stringify(metadata) +
-        delimiter +
-        `Content-Type: ${file.type}\r\n\r\n`
-    );
-    const closePart = encoder.encode(closeDelimiter);
-    return new Blob([metadataPart, fileBuffer, closePart]);
+  const metadataPart = encoder.encode(
+    delimiter +
+      'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+      JSON.stringify(metadata) +
+      delimiter +
+      `Content-Type: ${file.type}\r\n\r\n`
+  );
+  const closePart = encoder.encode(closeDelimiter);
+  return new Blob([metadataPart, fileBuffer, closePart]);
 }
