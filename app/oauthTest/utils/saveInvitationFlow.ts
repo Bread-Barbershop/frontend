@@ -1,6 +1,7 @@
 import { EditorBlock } from '@/widgets/editor/store/useEditorStore';
 
 import { retryFailedOnce } from './retryFailedOnce';
+import { retryPatchFailedOnce } from './retryPatchFailedOnce';
 import {
   uploadAllSettled,
   type UploadFail,
@@ -11,6 +12,7 @@ type SaveInvitationPrepareResponse = {
   workspaceFolderId: string;
   invitationFolderId: string;
   invitationUuid: string;
+  dataJsonFileId: string;
   imageFolderId: string;
   audioFolderId: string;
   accessToken: string;
@@ -165,22 +167,49 @@ export async function saveInvitationFlow(params: {
     folderId: prep.audioFolderId,
   });
 
-  // 입력 data를 Drive에 저장할 "data.json 파일"로 만든다.
-  // - data가 object면: File로 포장해서 업로드
-  // - data가 File이면(이미 만들어둔 data.json이면): 그대로 사용
-  const dataFile: File =
-    data instanceof File
-      ? data
-      : new File([JSON.stringify(newData)], 'data.json', {
-          type: 'application/json',
-        });
-  console.log('dataFile', dataFile);
   // 4) data.json 업로드(마지막)
   const dataStep = await runUploadStep({
     files: [dataFile],
     folderId: prep.invitationFolderId,
   });
   console.log('dataStep', dataStep);
+
+  // 4) data.json PATCH 전용 재시도
+  const dataFirstAttempt: BatchResult = await (async () => {
+    try {
+      const result = await updateFileToDrive(
+        dataFile,
+        prep.dataJsonFileId,
+        currentToken
+      );
+      return {
+        ok: [{ file: dataFile, ...result } satisfies UploadOk],
+        fail: [],
+      };
+    } catch (error) {
+      return { ok: [], fail: [{ file: dataFile, error }] };
+    }
+  })();
+
+  const dataRetryAttempt = await retryPatchFailedOnce({
+    failures: dataFirstAttempt.fail,
+    fileId: prep.dataJsonFileId, // PATCH 대상 fileId
+    accessToken: currentToken,
+    refreshAccessToken,
+  });
+
+  // retry에서 새 토큰을 썼으면 이후 단계도 그 토큰으로 간다
+  if (dataRetryAttempt.refreshedToken) {
+    currentToken = dataRetryAttempt.usedAccessToken;
+  }
+
+  const dataStep: { final: BatchResult; usedAccessToken: string } = {
+    final: {
+      ok: [...dataFirstAttempt.ok, ...dataRetryAttempt.ok],
+      fail: dataRetryAttempt.fail,
+    },
+    usedAccessToken: currentToken,
+  };
 
   const totalFailed =
     imagesStep.final.fail.length +
