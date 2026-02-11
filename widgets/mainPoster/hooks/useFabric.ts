@@ -298,6 +298,45 @@ export const useFabric = () => {
     };
   };
 
+  const setPatternOffset = (
+    canvas: fabric.Canvas,
+    offsetX: number,
+    offsetY: number
+  ) => {
+    const activeObject = canvas.getActiveObject() as fabric.Textbox;
+    if (!activeObject) return;
+
+    let patternUpdated = false;
+
+    // 1. 전체 객체 레벨의 패턴 업데이트
+    if (activeObject.fill instanceof fabric.Pattern) {
+      activeObject.fill.offsetX = offsetX;
+      activeObject.fill.offsetY = offsetY;
+      patternUpdated = true;
+    }
+
+    // 2. 선택 영역(글자별) 패턴 업데이트 (있는 경우)
+    if (activeObject.isType('textbox') || activeObject.isType('itext')) {
+      const styles = activeObject.getSelectionStyles(
+        0,
+        activeObject.text.length
+      );
+      styles.forEach(style => {
+        if (style.fill instanceof fabric.Pattern) {
+          style.fill.offsetX = offsetX;
+          style.fill.offsetY = offsetY;
+          patternUpdated = true;
+        }
+      });
+    }
+
+    if (patternUpdated) {
+      // 강제 렌더링 갱신
+      activeObject.dirty = true;
+      canvas.requestRenderAll();
+    }
+  };
+
   //사진 보정 필터
   const applyImageFilter = (
     options: PhotoPresetOptions,
@@ -389,5 +428,6 @@ export const useFabric = () => {
     applyImageFilter,
     handleDeleteShape,
     handleDeleteEmptyShape,
+    setPatternOffset,
   };
 };

@@ -95,7 +95,7 @@ function RichTextPanel({
           getRichStyles={getRichStyles}
           applyRichStyle={applyRichStyle}
         />
-        <TextBackground canvas={canvas} applyRichStyle={applyRichStyle} />
+
         {/* <Highlight canvas={canvas} applyRichStyle={applyRichStyle} />
       <Stroke
         canvas={canvas}
@@ -128,6 +128,7 @@ function RichTextPanel({
         </button>
         <TextAlign canvas={canvas} applyRichStyle={applyRichStyle} />
       </div>
+      <TextBackground canvas={canvas} applyRichStyle={applyRichStyle} />
 
       <div className="flex flex-col justify-center w-full">
         {isOpen && (
