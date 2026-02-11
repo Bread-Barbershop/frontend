@@ -24,7 +24,12 @@ export default async function GuestPage({
 
   if (!res.ok) notFound();
 
-  const json = (await res.json()) as unknown;
+  let json: unknown;
+  try {
+    json = await res.json();
+  } catch {
+    notFound();
+  }
   if (!isGuestBlocks(json)) notFound();
 
   return (

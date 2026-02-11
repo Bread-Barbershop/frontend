@@ -1,4 +1,4 @@
-import 'server-only';
+﻿import 'server-only';
 
 import { NextResponse } from 'next/server';
 
@@ -103,13 +103,6 @@ export async function GET() {
       { headers: { 'Cache-Control': 'no-store' } }
     );
   } catch (err) {
-    if (err instanceof Error && err.message === 'auth_required') {
-      return NextResponse.json(
-        { message: '재로그인이 필요합니다.' },
-        { status: 401 }
-      );
-    }
-
     if (err instanceof DriveHttpError) {
       return NextResponse.json(
         { message: err.message, details: err.details },
@@ -117,10 +110,21 @@ export async function GET() {
       );
     }
 
+    if (err instanceof Error && err.message === '유효한 요청이 아닙니다.') {
+      return NextResponse.json({ message: err.message }, { status: 400 });
+    }
+    if (err instanceof Error && err.message === '재로그인이 필요합니다.') {
+      return NextResponse.json(
+        { message: '재로그인이 필요합니다.' },
+        { status: 401 }
+      );
+    }
+
+    // 기타 에러
     return NextResponse.json(
       {
-        message: '알 수 없는 오류',
-        details: err instanceof Error ? err.message : err,
+        message: '초대장 목록을 불러오는 중 오류가 발생했습니다.',
+        error: err instanceof Error ? err.message : String(err),
       },
       { status: 500 }
     );
