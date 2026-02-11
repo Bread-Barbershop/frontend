@@ -31,8 +31,7 @@ type ImageTask = {
 export async function saveInvitationFlow(params: {
   images: ImageTask[];
   audio: File | null;
-  // data: object | File; // 객체든, 이미 File로 만들어진 data.json이든 둘 다 허용. 편집데이터 JSON임.
-  data: EditorBlock[]; // 객체든, 이미 File로 만들어진 data.json이든 둘 다 허용. 편집데이터 JSON임.
+  data: EditorBlock[]; // useEditorStore의 데이터 타입.
   invitationUuid?: string; // 수정 진입이면 해당 파라미터가 존재함.
 }): Promise<{
   success: boolean;
@@ -85,18 +84,16 @@ export async function saveInvitationFlow(params: {
 
   // 공통 실행 패턴: 1차 업로드 → 실패만 1회 재시도
   const runUploadStep = async (step: {
-    files: File[];
     folderId: string;
+    originFile: ImageTask[];
     concurrency?: number; // 1회 업로드시 파일 개수 제한 옵션.
-    originFile?: ImageTask[];
   }): Promise<{ final: BatchResult; usedAccessToken: string }> => {
-    if (step.files.length === 0) {
+    if (step.originFile.length === 0) {
       return { final: { ok: [], fail: [] }, usedAccessToken: currentToken };
     }
 
     const firstAttempt = await uploadAllSettled({
-      files: step.files,
-      originFile: step.originFile ?? [],
+      originFile: step.originFile,
       folderId: step.folderId,
       accessToken: currentToken,
       concurrency: step.concurrency,
@@ -132,7 +129,6 @@ export async function saveInvitationFlow(params: {
 
   // 2) 이미지 업로드
   const imagesStep = await runUploadStep({
-    files: images.map(item => item.file),
     originFile: images,
     folderId: prep.imageFolderId,
     concurrency: 5, // 이미지는 5장씩만 끊어서 전송.
@@ -160,19 +156,14 @@ export async function saveInvitationFlow(params: {
     }
     return item;
   });
-  // 입력 data를 Drive에 저장할 "data.json 파일"로 만든다.
-  // - data가 object면: File로 포장해서 업로드
-  // - data가 File이면(이미 만들어둔 data.json이면): 그대로 사용
-  const dataFile: File =
-    data instanceof File
-      ? data
-      : new File([JSON.stringify(newData)], 'data.json', {
-          type: 'application/json',
-        });
+  // 편집 데이터가 기록될 json 파일 생성.
+  const dataFile = new File([JSON.stringify(newData)], 'data.json', {
+    type: 'application/json',
+  });
 
   // 3) 오디오 업로드(있으면)
   const audioStep = await runUploadStep({
-    files: audio ? [audio] : [],
+    originFile: audio ? [{ id: 'audio', file: audio }] : [],
     folderId: prep.audioFolderId,
   });
 

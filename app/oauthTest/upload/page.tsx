@@ -1,6 +1,5 @@
 import GoogleLoginButton from '../components/GoogleLoginButton';
 import LoginStatusListener from '../components/LoginStatusListener';
-import UploadFlowTest from '../components/UploadFlowTest';
 
 export const metadata = {
   title: 'Drive Upload Test',
@@ -21,8 +20,6 @@ export default function UploadTestPage() {
           </div>
           <LoginStatusListener />
         </header>
-
-        <UploadFlowTest />
       </div>
     </main>
   );
