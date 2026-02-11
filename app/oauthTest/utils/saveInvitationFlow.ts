@@ -31,8 +31,7 @@ type ImageTask = {
 export async function saveInvitationFlow(params: {
   images: ImageTask[];
   audio: File | null;
-  // data: object | File; // 객체든, 이미 File로 만들어진 data.json이든 둘 다 허용. 편집데이터 JSON임.
-  data: EditorBlock[]; // 객체든, 이미 File로 만들어진 data.json이든 둘 다 허용. 편집데이터 JSON임.
+  data: EditorBlock[]; // useEditorStore의 데이터 타입.
   invitationUuid?: string; // 수정 진입이면 해당 파라미터가 존재함.
 }): Promise<{
   success: boolean;
@@ -160,15 +159,10 @@ export async function saveInvitationFlow(params: {
     }
     return item;
   });
-  // 입력 data를 Drive에 저장할 "data.json 파일"로 만든다.
-  // - data가 object면: File로 포장해서 업로드
-  // - data가 File이면(이미 만들어둔 data.json이면): 그대로 사용
-  const dataFile: File =
-    data instanceof File
-      ? data
-      : new File([JSON.stringify(newData)], 'data.json', {
-          type: 'application/json',
-        });
+  // 편집 데이터가 기록될 json 파일 생성.
+  const dataFile = new File([JSON.stringify(newData)], 'data.json', {
+    type: 'application/json',
+  });
 
   // 3) 오디오 업로드(있으면)
   const audioStep = await runUploadStep({
