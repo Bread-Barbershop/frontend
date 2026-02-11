@@ -84,18 +84,16 @@ export async function saveInvitationFlow(params: {
 
   // 공통 실행 패턴: 1차 업로드 → 실패만 1회 재시도
   const runUploadStep = async (step: {
-    files: File[];
     folderId: string;
+    originFile: ImageTask[];
     concurrency?: number; // 1회 업로드시 파일 개수 제한 옵션.
-    originFile?: ImageTask[];
   }): Promise<{ final: BatchResult; usedAccessToken: string }> => {
-    if (step.files.length === 0) {
+    if (step.originFile.length === 0) {
       return { final: { ok: [], fail: [] }, usedAccessToken: currentToken };
     }
 
     const firstAttempt = await uploadAllSettled({
-      files: step.files,
-      originFile: step.originFile ?? [],
+      originFile: step.originFile,
       folderId: step.folderId,
       accessToken: currentToken,
       concurrency: step.concurrency,
@@ -131,7 +129,6 @@ export async function saveInvitationFlow(params: {
 
   // 2) 이미지 업로드
   const imagesStep = await runUploadStep({
-    files: images.map(item => item.file),
     originFile: images,
     folderId: prep.imageFolderId,
     concurrency: 5, // 이미지는 5장씩만 끊어서 전송.
@@ -166,7 +163,7 @@ export async function saveInvitationFlow(params: {
 
   // 3) 오디오 업로드(있으면)
   const audioStep = await runUploadStep({
-    files: audio ? [audio] : [],
+    originFile: audio ? [{ id: 'audio', file: audio }] : [],
     folderId: prep.audioFolderId,
   });
 

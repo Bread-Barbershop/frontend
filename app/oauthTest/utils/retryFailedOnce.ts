@@ -71,12 +71,14 @@ export async function retryFailedOnce(params: {
 
   // 3 재시도 실행
   const tasks = retryTargets.map(async ({ file }) => {
+    const uploadTarget = file instanceof File ? file : file.file;
+
     const { fileId, name } = await uploadFileToDrive(
-      file,
+      uploadTarget,
       folderId,
       usedAccessToken
     );
-    return { file, fileId, name } satisfies UploadOk;
+    return { file: uploadTarget, fileId, name } satisfies UploadOk;
   });
 
   const settled = await Promise.allSettled(tasks);
