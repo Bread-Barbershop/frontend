@@ -3,49 +3,29 @@ import { Radio } from '@/components/atoms/radio/Radio';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 
+import { BGM_LIST } from './bgmList';
+
 export default function Page() {
   return (
     <main>
       <div className="flex flex-col gap-1 w-93.75 border rounded-lg px-5">
         <NavigationBar>배경 음악</NavigationBar>
 
-        {/* 라이오 박스 */}
+        {/* 라디오 박스 */}
         <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2 text-text-secondary has-[input:checked]:text-black px-1">
-            <div className="p-1.5">
-              <Radio name="bgm" value="preset" />
+          {BGM_LIST.map(bgm => (
+            <div
+              key={bgm.id}
+              className="flex items-center gap-2 text-text-secondary has-[input:checked]:text-black px-1"
+            >
+              <div className="p-1.5">
+                <Radio name="bgm-preset" value={bgm.id} />
+              </div>
+
+              <p className="truncate">{bgm.title}</p>
+              <p>{bgm.duration}</p>
             </div>
-            <p>Wedding March N0.12</p>
-            <p>02:58</p>
-          </div>
-          <div className="flex items-center gap-2 text-text-secondary has-[input:checked]:text-black px-1">
-            <div className="p-1.5">
-              <Radio name="bgm" value="preset" />
-            </div>
-            <p>Wedding March N0.12</p>
-            <p>02:58</p>
-          </div>
-          <div className="flex items-center gap-2 text-text-secondary has-[input:checked]:text-black px-1">
-            <div className="p-1.5">
-              <Radio name="bgm" value="preset" />
-            </div>
-            <p>Wedding March N0.12</p>
-            <p>02:58</p>
-          </div>
-          <div className="flex items-center gap-2 text-text-secondary has-[input:checked]:text-black px-1">
-            <div className="p-1.5">
-              <Radio name="bgm" value="preset" />
-            </div>
-            <p>Wedding March N0.12</p>
-            <p>02:58</p>
-          </div>
-          <div className="flex items-center gap-2 text-text-secondary has-[input:checked]:text-black px-1">
-            <div className="p-1.5">
-              <Radio name="bgm" value="preset" />
-            </div>
-            <p>Wedding March N0.12</p>
-            <p>02:58</p>
-          </div>
+          ))}
         </div>
 
         {/* 구분선 */}
