@@ -1,6 +1,6 @@
-import Map from '@/components/organisms/map/Map';
+import Place from '@/components/organisms/place/Place';
 
 function page() {
-  return <Map />;
+  return <Place />;
 }
 export default page;

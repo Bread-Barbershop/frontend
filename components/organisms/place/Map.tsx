@@ -1,0 +1,40 @@
+import { useCallback, useEffect, useRef } from 'react';
+
+import { Label } from '@/components/atoms/label';
+
+type NaverMap = naver.maps.Map;
+type Lng = number;
+type Lat = number;
+
+function Map({ lng, lat }: { lng: Lng; lat: Lat }) {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstance = useRef<NaverMap | null>(null);
+
+  const initMap = useCallback(() => {
+    if (!mapRef.current || !naver) return;
+    const center = new naver.maps.LatLng(lat, lng);
+    mapInstance.current = new naver.maps.Map(mapRef.current, {
+      center,
+      zoom: 15,
+    });
+
+    new naver.maps.Marker({
+      map: mapInstance.current,
+      position: center,
+    });
+  }, [lng, lat]);
+
+  useEffect(() => {
+    if (naver && naver.maps) {
+      initMap();
+    }
+  }, [initMap]);
+
+  return (
+    <section className="w-full flex flex-col gap-1 items-center">
+      <Label className="font-semibold">지도</Label>
+      <div ref={mapRef} style={{ width: '100%', height: '400px' }}></div>
+    </section>
+  );
+}
+export default Map;
