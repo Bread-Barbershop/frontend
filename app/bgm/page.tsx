@@ -1,3 +1,5 @@
+import * as Slider from '@radix-ui/react-slider';
+
 import { Label } from '@/components/atoms/label';
 import { Radio } from '@/components/atoms/radio/Radio';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
@@ -39,7 +41,36 @@ export default function Page() {
         </div>
 
         {/* 컨트롤러 */}
-        <div></div>
+        <div>
+          <Slider.Root
+            defaultValue={[25, 75]}
+            max={100}
+            step={1}
+            className="relative flex items-center w-full h-5"
+          >
+            <Slider.Track className="relative h-0.75 w-full bg-border-neutral rounded-full">
+              <Slider.Range className="absolute h-full bg-[#6FEF1F] rounded-full" />
+            </Slider.Track>
+
+            <Slider.Thumb className="block w-0.75 h-3 bg-[#1F72EF] rounded-full shadow focus:outline-[#1F72EF]" />
+            <Slider.Thumb className="block w-0.75 h-3 bg-[#1F72EF] rounded-full shadow focus:outline-[#1F72EF]" />
+          </Slider.Root>
+        </div>
+
+        <div>
+          <Slider.Root
+            defaultValue={[50]}
+            max={100}
+            step={1}
+            className="relative flex items-center w-full h-5"
+          >
+            <Slider.Track className="relative h-0.75 w-full bg-border-neutral rounded-full">
+              <Slider.Range className="absolute h-full bg-[#6FEF1F] rounded-full" />
+            </Slider.Track>
+
+            <Slider.Thumb className="block w-30 h-11 bg-[#1F72EF]/12 border-2 border-[#1F72EF] rounded-lg shadow focus:outline-none" />
+          </Slider.Root>
+        </div>
       </div>
     </main>
   );
