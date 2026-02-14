@@ -1,4 +1,5 @@
 import * as fabric from 'fabric';
+import { useMemo } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
@@ -17,13 +18,35 @@ function Menubar() {
       activeObject: state.activeObject,
     }))
   );
-  const { shapes, applyRichStyle, applyImageFilter, getRichStyles } =
-    useFabric();
+  const {
+    shapes,
+    applyRichStyle,
+    applyImageFilter,
+    getRichStyles,
+    startCrop,
+    isCropping,
+    applyCrop,
+    cancelCrop,
+  } = useFabric();
   const isSelectedTextbox = activeObject instanceof fabric.Textbox;
-  const isSelectedImage = activeObject instanceof fabric.FabricImage;
-  const currentImageShape = isSelectedImage
-    ? (shapes.find(s => s.id === activeObject.id) as Image)
-    : null;
+  // 현재 선택된 이미지 또는 크롭 중인 대상 이미지 파악
+  const isSelectedImage =
+    activeObject instanceof fabric.FabricImage || isCropping;
+  const currentImageShape = useMemo(() => {
+    if (!isSelectedImage) return null;
+
+    // 크롭 중일 때는 존(Zone)의 targetId를, 아니면 일반 객체의 id를 사용
+    const targetId = isCropping ? activeObject?.targetId : activeObject?.id;
+
+    return shapes.find(s => s.id === targetId) as Image;
+  }, [
+    isSelectedImage,
+    shapes,
+    isCropping,
+    activeObject?.id,
+    activeObject?.targetId,
+  ]);
+
   const handleExportJSON = () => {
     if (!canvas) return;
     const json = canvas.toJSON();
@@ -71,6 +94,10 @@ function Menubar() {
           canvas={canvas}
           applyImageFilter={applyImageFilter}
           currentFilters={currentImageShape?.filters}
+          startCrop={startCrop}
+          isCropping={isCropping}
+          applyCrop={applyCrop}
+          cancelCrop={cancelCrop}
         />
       )}
     </div>

@@ -13,21 +13,24 @@ declare module 'fabric' {
     targetId?: string;
   }
 }
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
 
 import { useFabric } from '../hooks/useFabric';
 import { useSetFabricControls } from '../hooks/useSetFabricControls';
-import { Image } from '../types/fabric';
 
-import ImageFilterPanel from './ImageFilterPanel';
 import Toolbar from './Toolbar';
 
 const PosterEditor: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { canvas, setCanvas, setActiveObject, activeObject } = useEditorStore();
+  const {
+    canvas,
+    setCanvas,
+    setActiveObject,
+    activeObject: _test,
+  } = useEditorStore();
   const {
     activeDrawingMode,
     dragToCreateTextBox,
@@ -35,12 +38,12 @@ const PosterEditor: React.FC = () => {
     addImage,
     handleDeleteShape,
     handleDeleteEmptyShape,
-    isCropping,
-    startCrop,
-    applyCrop,
-    applyImageFilter,
-    cancelCrop,
-    shapes,
+    // isCropping,
+    // startCrop,
+    // applyCrop,
+    // applyImageFilter,
+    // cancelCrop,
+    // shapes,
   } = useFabric();
 
   useSetFabricControls();
@@ -110,23 +113,23 @@ const PosterEditor: React.FC = () => {
   ]);
 
   // 현재 선택된 이미지 또는 크롭 중인 대상 이미지 파악
-  const isSelectedImage =
-    activeObject instanceof fabric.FabricImage || isCropping;
+  // const isSelectedImage =
+  //   activeObject instanceof fabric.FabricImage || isCropping;
 
-  const currentImageShape = useMemo(() => {
-    if (!isSelectedImage) return null;
+  // const currentImageShape = useMemo(() => {
+  //   if (!isSelectedImage) return null;
 
-    // 크롭 중일 때는 존(Zone)의 targetId를, 아니면 일반 객체의 id를 사용
-    const targetId = isCropping ? activeObject?.targetId : activeObject?.id;
+  //   // 크롭 중일 때는 존(Zone)의 targetId를, 아니면 일반 객체의 id를 사용
+  //   const targetId = isCropping ? activeObject?.targetId : activeObject?.id;
 
-    return shapes.find(s => s.id === targetId) as Image;
-  }, [
-    isSelectedImage,
-    shapes,
-    isCropping,
-    activeObject?.id,
-    activeObject?.targetId,
-  ]);
+  //   return shapes.find(s => s.id === targetId) as Image;
+  // }, [
+  //   isSelectedImage,
+  //   shapes,
+  //   isCropping,
+  //   activeObject?.id,
+  //   activeObject?.targetId,
+  // ]);
 
   return (
     <div
@@ -142,18 +145,6 @@ const PosterEditor: React.FC = () => {
         handleDrawingMode={handleDrawingMode}
         addImage={addImage}
       />
-      {isSelectedImage && (
-        <ImageFilterPanel
-          canvas={canvas}
-          applyImageFilter={applyImageFilter}
-          currentFilters={currentImageShape?.filters}
-          isCropping={isCropping}
-          startCrop={startCrop}
-          applyCrop={applyCrop}
-          cancelCrop={cancelCrop}
-        />
-      )}
-
       <div
         style={{
           border: '2px solid #e5e7eb',

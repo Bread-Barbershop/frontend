@@ -61,8 +61,8 @@ export const useSetFabricControls = () => {
         y: corner.y,
         offsetX: corner.offX,
         offsetY: corner.offY,
-        sizeX: 7,
-        sizeY: 7,
+        sizeX: 10,
+        sizeY: 10,
         getVisibility: fabricObject =>
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (fabricObject as any).name !== 'crop-zone',
@@ -84,7 +84,7 @@ export const useSetFabricControls = () => {
     defaultControls.borderColor = '#1F72EF';
     defaultControls.borderScaleFactor = 1;
     defaultControls.cornerStrokeColor = '#1F72EF';
-    defaultControls.cornerSize = 3;
+    defaultControls.cornerSize = 10;
     defaultControls.transparentCorners = false;
     defaultControls.cornerColor = '#fff';
   }, []);

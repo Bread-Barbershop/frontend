@@ -21,6 +21,7 @@ export const useFabric = () => {
   >(null);
   const cropZoneRef = useRef<fabric.Rect | null>(null);
   const highlightLayerRef = useRef<fabric.FabricImage | null>(null);
+  const darkOverlayRef = useRef<fabric.Rect | null>(null);
 
   const handleDrawingMode = () => {
     setDrawingMode(true);
@@ -437,7 +438,7 @@ export const useFabric = () => {
     const fullLeft = img.left + worldDx;
     const fullTop = img.top + worldDy;
 
-    // 3. Ghost Layer (하단): 원본 전체 이미지를 투명하게 표시
+    // 3. Ghost Layer (하단): 원본 전체 이미지 (Overlay와 겹쳐서 어둡게 표현될 예정)
     img.set({
       left: fullLeft,
       top: fullTop,
@@ -445,12 +446,31 @@ export const useFabric = () => {
       height: originalHeight,
       cropX: 0,
       cropY: 0,
-      opacity: 0.4,
+      opacity: 1, // Dark Overlay가 위를 덮을 것이므로 원본은 선명하게 둡니다.
       selectable: false,
       evented: false,
     });
     (img as unknown as { name: string }).name = 'ghost-image';
     img.setCoords();
+
+    // 3.5 Dark Overlay Layer (중간 1): 검은색 반투명 레이어로 배경을 어둡게 처리
+    const darkOverlay = new fabric.Rect({
+      name: 'dark-overlay',
+      left: fullLeft,
+      top: fullTop,
+      width: originalWidth,
+      height: originalHeight,
+      scaleX: currentScaleX,
+      scaleY: currentScaleY,
+      angle: currentAngle,
+      fill: 'black',
+      opacity: 0.6, // 주변 어둡기 농도 (0.0 ~ 1.0)
+      originX: 'center',
+      originY: 'center',
+      selectable: false,
+      evented: false,
+      objectCaching: false,
+    });
 
     // 4. Highlight Layer (중간): 선명하게 보일 이미지 (원본 전체)
     const highlightImg = new fabric.FabricImage(img.getElement(), {
@@ -476,18 +496,12 @@ export const useFabric = () => {
       name: 'crop-zone',
       left: currentCenter.x,
       top: currentCenter.y,
-      width: currentWidth / currentScaleX,
-      height: currentHeight / currentScaleY,
+      width: (currentWidth / currentScaleX) * 0.7, // 70% 크기로 시작
+      height: (currentHeight / currentScaleY) * 0.7,
       scaleX: currentScaleX,
       scaleY: currentScaleY,
       angle: currentAngle,
       fill: 'transparent',
-      stroke: 'white',
-      strokeWidth: 2 / currentScaleX,
-      cornerColor: 'white',
-      cornerStrokeColor: 'black',
-      cornerSize: 10,
-      transparentCorners: false,
       originX: 'center',
       originY: 'center',
       objectCaching: false,
@@ -561,11 +575,12 @@ export const useFabric = () => {
     autoCropHandlerRef.current = onMouseDown;
     canvas.on('mouse:down', onMouseDown);
 
-    canvas.add(highlightImg, zone);
+    canvas.add(darkOverlay, highlightImg, zone); // 순서: Overlay -> Highlight -> Zone
     canvas.setActiveObject(zone);
 
     cropZoneRef.current = zone;
     highlightLayerRef.current = highlightImg;
+    darkOverlayRef.current = darkOverlay;
     canvas.requestRenderAll();
   };
 
@@ -621,6 +636,7 @@ export const useFabric = () => {
     // 레이어 정리
     if (highlightLayerRef.current) canvas.remove(highlightLayerRef.current);
     if (cropZoneRef.current) canvas.remove(cropZoneRef.current);
+    if (darkOverlayRef.current) canvas.remove(darkOverlayRef.current);
 
     // 이벤트 리스너 제거 (자동 크롭 등)
     if (autoCropHandlerRef.current) {
@@ -631,8 +647,9 @@ export const useFabric = () => {
     setIsCropping(false);
     cropZoneRef.current = null;
     highlightLayerRef.current = null;
+    darkOverlayRef.current = null;
 
-    canvas.setActiveObject(img);
+    canvas.discardActiveObject();
     canvas.renderAll();
 
     setShapes(prev =>
@@ -671,6 +688,7 @@ export const useFabric = () => {
 
     if (highlightLayerRef.current) canvas.remove(highlightLayerRef.current);
     if (cropZoneRef.current) canvas.remove(cropZoneRef.current);
+    if (darkOverlayRef.current) canvas.remove(darkOverlayRef.current);
 
     // 이벤트 리스너 제거
     if (autoCropHandlerRef.current) {
@@ -681,6 +699,7 @@ export const useFabric = () => {
     setIsCropping(false);
     cropZoneRef.current = null;
     highlightLayerRef.current = null;
+    darkOverlayRef.current = null;
     canvas.renderAll();
   };
 

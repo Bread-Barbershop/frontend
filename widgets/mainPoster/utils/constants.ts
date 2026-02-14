@@ -28,8 +28,8 @@ export const ICON_PATHS = `<path
       />`;
 
 export const CORNERS_CONFIG = [
-  { id: 'tl', x: -0.5, y: -0.5, offX: -3.5, offY: -3.5, angleOffset: 0 },
-  { id: 'tr', x: 0.5, y: -0.5, offX: 3.5, offY: -3.5, angleOffset: 90 },
-  { id: 'br', x: 0.5, y: 0.5, offX: 3.5, offY: 3.5, angleOffset: 180 },
-  { id: 'bl', x: -0.5, y: 0.5, offX: -3.5, offY: 3.5, angleOffset: 270 },
+  { id: 'tl', x: -0.5, y: -0.5, offX: -5, offY: -5, angleOffset: 0 },
+  { id: 'tr', x: 0.5, y: -0.5, offX: 5, offY: -5, angleOffset: 90 },
+  { id: 'br', x: 0.5, y: 0.5, offX: 5, offY: 5, angleOffset: 180 },
+  { id: 'bl', x: -0.5, y: 0.5, offX: -5, offY: 5, angleOffset: 270 },
 ];
