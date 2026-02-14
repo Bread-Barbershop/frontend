@@ -38,12 +38,6 @@ const PosterEditor: React.FC = () => {
     addImage,
     handleDeleteShape,
     handleDeleteEmptyShape,
-    // isCropping,
-    // startCrop,
-    // applyCrop,
-    // applyImageFilter,
-    // cancelCrop,
-    // shapes,
   } = useFabric();
 
   useSetFabricControls();
@@ -111,25 +105,6 @@ const PosterEditor: React.FC = () => {
     handleDeleteEmptyShape,
     handleDeleteShape,
   ]);
-
-  // 현재 선택된 이미지 또는 크롭 중인 대상 이미지 파악
-  // const isSelectedImage =
-  //   activeObject instanceof fabric.FabricImage || isCropping;
-
-  // const currentImageShape = useMemo(() => {
-  //   if (!isSelectedImage) return null;
-
-  //   // 크롭 중일 때는 존(Zone)의 targetId를, 아니면 일반 객체의 id를 사용
-  //   const targetId = isCropping ? activeObject?.targetId : activeObject?.id;
-
-  //   return shapes.find(s => s.id === targetId) as Image;
-  // }, [
-  //   isSelectedImage,
-  //   shapes,
-  //   isCropping,
-  //   activeObject?.id,
-  //   activeObject?.targetId,
-  // ]);
 
   return (
     <div

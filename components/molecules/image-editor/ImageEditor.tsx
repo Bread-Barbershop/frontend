@@ -22,7 +22,7 @@ export const ImageEditor = ({ onApply }: ImageEditorProps) => {
   return (
     <div
       className={cn(
-        'relative flex items-center bg-bg-base scrollbar-hide overflow-x-auto rounded-tr-lg rounded-br-lg',
+        'relative flex items-center bg-bg-base scrollbar-hide overflow-x-auto rounded-tr-lg rounded-br-lg z-9999',
         extended && 'w-fit',
         !extended && 'w-[335px]'
       )}
@@ -32,7 +32,7 @@ export const ImageEditor = ({ onApply }: ImageEditorProps) => {
         {PHOTO_PRESETS.map((preset, index) => (
           <li key={index}>
             <Button
-              className="p-2 whitespace-nowrap w-fit"
+              className="p-2 whitespace-nowrap w-fit font-normal"
               onClick={() => onApply(preset.value)}
             >
               {preset.label}

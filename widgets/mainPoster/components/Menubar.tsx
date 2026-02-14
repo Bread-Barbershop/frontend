@@ -1,13 +1,11 @@
-import * as fabric from 'fabric';
-import { useMemo } from 'react';
+import { Textbox, FabricImage } from 'fabric';
 import { useShallow } from 'zustand/shallow';
 
 import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
-import { Image } from '@/widgets/mainPoster/types/fabric';
 
 import { useFabric } from '../hooks/useFabric';
 
-import ImageFilterPanel from './ImageFilterPanel';
+import ImageFilterPanel from './image/ImageFilterPanel';
 import RichTextPanel from './RichTextPanel';
 import jsonString from './test.json';
 
@@ -19,33 +17,19 @@ function Menubar() {
     }))
   );
   const {
-    shapes,
     applyRichStyle,
     applyImageFilter,
     getRichStyles,
+    addImage,
     startCrop,
     isCropping,
     applyCrop,
     cancelCrop,
   } = useFabric();
-  const isSelectedTextbox = activeObject instanceof fabric.Textbox;
-  // 현재 선택된 이미지 또는 크롭 중인 대상 이미지 파악
-  const isSelectedImage =
-    activeObject instanceof fabric.FabricImage || isCropping;
-  const currentImageShape = useMemo(() => {
-    if (!isSelectedImage) return null;
 
-    // 크롭 중일 때는 존(Zone)의 targetId를, 아니면 일반 객체의 id를 사용
-    const targetId = isCropping ? activeObject?.targetId : activeObject?.id;
-
-    return shapes.find(s => s.id === targetId) as Image;
-  }, [
-    isSelectedImage,
-    shapes,
-    isCropping,
-    activeObject?.id,
-    activeObject?.targetId,
-  ]);
+  // 현재 선택된 객체가 텍스트인지 이미지인지 확인
+  const isSelectedText = activeObject instanceof Textbox;
+  const isSelectedImage = activeObject instanceof FabricImage || isCropping;
 
   const handleExportJSON = () => {
     if (!canvas) return;
@@ -63,8 +47,11 @@ function Menubar() {
       console.error(error);
     }
   };
+
+  if (!canvas) return null;
+
   return (
-    <div className="flex flex-col pt-2.5 items-center">
+    <div className="flex flex-col pb-3.5 px-5 items-center">
       <div className="flex gap-2 pb-2.5 justify-center">
         <button
           type="button"
@@ -81,19 +68,19 @@ function Menubar() {
           Import JSON
         </button>
       </div>
-      {isSelectedTextbox && (
+      {isSelectedText && (
         <RichTextPanel
           canvas={canvas}
           applyRichStyle={applyRichStyle}
-          activeObject={activeObject as unknown as fabric.Textbox}
+          activeObject={activeObject}
           getRichStyles={getRichStyles}
         />
       )}
       {isSelectedImage && (
         <ImageFilterPanel
           canvas={canvas}
+          addImage={addImage}
           applyImageFilter={applyImageFilter}
-          currentFilters={currentImageShape?.filters}
           startCrop={startCrop}
           isCropping={isCropping}
           applyCrop={applyCrop}
