@@ -11,9 +11,17 @@ export function useBgmPlayer(
   options?: UseBgmPlayerOptions
 ) {
   const volume = options?.volume ?? 0.2;
+
+  // 오디오 객체를 저장할 ref (렌더링과 무관)
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // 현재 선택된 BGM id
   const [selectedBgm, setSelectedBgm] = useState<string | null>(null);
+
+  // UI 동기화용 재생 상태
   const [isPlaying, setIsPlaying] = useState(false);
+
+  // 반복 재생 여부 상태
   const [isLoop, setIsLoop] = useState(false);
 
   const bgmById = useMemo(
@@ -21,6 +29,7 @@ export function useBgmPlayer(
     [bgmList]
   );
 
+  // 오디오 초기화 및 이벤트 등록 (1회)
   useEffect(() => {
     const audio = new Audio();
     audio.volume = volume;
@@ -43,6 +52,7 @@ export function useBgmPlayer(
     };
   }, [volume]);
 
+  // 음악 선택 시 실행
   useEffect(() => {
     if (!selectedBgm) return;
 
@@ -58,6 +68,7 @@ export function useBgmPlayer(
     void audio.play().catch(() => setIsPlaying(false));
   }, [bgmById, selectedBgm]);
 
+  // 반복 재생 토글 시 현재 오디오에만 반영
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -68,6 +79,7 @@ export function useBgmPlayer(
     setSelectedBgm(bgmId);
   };
 
+  // 재생 / 일시정지 토글
   const togglePlay = () => {
     const audio = audioRef.current;
     if (!audio) return;
