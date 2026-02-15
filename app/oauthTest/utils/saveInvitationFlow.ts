@@ -1,8 +1,8 @@
-import { updateFileToDrive } from '@/app/oauthTest/utils/updateFileToDrive';
+import { EditorBlock } from '@/widgets/editor/store/useEditorStore';
 
-import { buildDataPayload, type UploadedImageId } from './buildDataPayload';
 import { retryFailedOnce } from './retryFailedOnce';
 import { retryPatchFailedOnce } from './retryPatchFailedOnce';
+import { updateFileToDrive } from './updateFileToDrive';
 import {
   uploadAllSettled,
   type UploadFail,
@@ -23,10 +23,15 @@ type SaveInvitationPrepareResponse = {
 
 type BatchResult = { ok: UploadOk[]; fail: UploadFail[] };
 
+type ImageTask = {
+  id: string;
+  file: File;
+};
+
 export async function saveInvitationFlow(params: {
-  images: File[];
+  images: ImageTask[];
   audio: File | null;
-  data: object | File; // 객체든, 이미 File로 만들어진 data.json이든 둘 다 허용. 편집데이터 JSON임.
+  data: EditorBlock[]; // useEditorStore의 데이터 타입.
   invitationUuid?: string; // 수정 진입이면 해당 파라미터가 존재함.
 }): Promise<{
   success: boolean;
@@ -77,21 +82,18 @@ export async function saveInvitationFlow(params: {
     return currentToken;
   };
 
-  // 입력 data를 Drive에 저장할 "data.json 파일"로 만든다.
-  // - data가 object면: File로 포장해서 업로드
-  // - data가 File이면(이미 만들어둔 data.json이면): 그대로 사용
   // 공통 실행 패턴: 1차 업로드 → 실패만 1회 재시도
   const runUploadStep = async (step: {
-    files: File[];
     folderId: string;
+    originFile: ImageTask[];
     concurrency?: number; // 1회 업로드시 파일 개수 제한 옵션.
   }): Promise<{ final: BatchResult; usedAccessToken: string }> => {
-    if (step.files.length === 0) {
+    if (step.originFile.length === 0) {
       return { final: { ok: [], fail: [] }, usedAccessToken: currentToken };
     }
 
     const firstAttempt = await uploadAllSettled({
-      files: step.files,
+      originFile: step.originFile,
       folderId: step.folderId,
       accessToken: currentToken,
       concurrency: step.concurrency,
@@ -127,28 +129,42 @@ export async function saveInvitationFlow(params: {
 
   // 2) 이미지 업로드
   const imagesStep = await runUploadStep({
-    files: images,
+    originFile: images,
     folderId: prep.imageFolderId,
     concurrency: 5, // 이미지는 5장씩만 끊어서 전송.
   });
 
-  // 3) 오디오 업로드(있으면)
-  const audioStep = await runUploadStep({
-    files: audio ? [audio] : [],
-    folderId: prep.audioFolderId,
-  });
-
-  // 성공한 이미지 fileId만 수집해서 data.json에 기록
-  const uploadedImageIds: UploadedImageId[] = imagesStep.final.ok.map(
-    item => item.fileId
+  const img = imagesStep.final.ok.reduce<Record<string, string[]>>(
+    (acc, cur) => {
+      if (!cur.id) return acc;
+      acc[cur.id] ??= [];
+      acc[cur.id].push(cur.fileId);
+      return acc;
+    },
+    {}
   );
 
-  // 새 data + imageFileIds로 payload 구성
-  const mergedData = await buildDataPayload(data, uploadedImageIds);
-
-  // 병합된 payload로 data.json 재생성 후 PATCH
-  const dataFile = new File([JSON.stringify(mergedData)], 'data.json', {
+  const newData = data.map(item => {
+    if (item.id in img) {
+      return {
+        ...item,
+        props: {
+          ...item.props,
+          images: img[item.id],
+        },
+      };
+    }
+    return item;
+  });
+  // 편집 데이터가 기록될 json 파일 생성.
+  const dataFile = new File([JSON.stringify(newData)], 'data.json', {
     type: 'application/json',
+  });
+
+  // 3) 오디오 업로드(있으면)
+  const audioStep = await runUploadStep({
+    originFile: audio ? [{ id: 'audio', file: audio }] : [],
+    folderId: prep.audioFolderId,
   });
 
   // 4) data.json PATCH 전용 재시도
