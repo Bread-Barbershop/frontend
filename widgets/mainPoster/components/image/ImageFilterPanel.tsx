@@ -38,11 +38,24 @@ const ImageFilterPanel = ({
   const { activeObject } = useEditorStore(useShallow(state => state));
 
   // 이미지 Preview 업데이트 함수
-  const updateImageSrc = () => {
+  const updateImageSrc = async () => {
     if (!activeObject || !(activeObject instanceof FabricImage)) {
       return;
     }
-    const newDataUrl = activeObject.toDataURL({
+
+    // 객체 복제 (원본 객체에 영향 주지 않기 위함)
+    const clonedObject = await activeObject.clone();
+
+    // 복제된 객체의 변환 초기화 (정자세, 원본 크기)
+    clonedObject.set({
+      angle: 0,
+      scaleX: 1,
+      scaleY: 1,
+      left: 0,
+      top: 0,
+    });
+
+    const newDataUrl = clonedObject.toDataURL({
       format: 'webp',
       quality: 0.8,
     });
@@ -100,8 +113,7 @@ const ImageFilterPanel = ({
       </div>
       <ImageFilterSelector onApply={handleApply} />
       <AspectRatioSelector />
-      {/* 
-      <div className="flex flex-wrap gap-2 items-center justify-center w-full mt-4">
+      {/* <div className="flex flex-wrap gap-2 items-center justify-center w-full mt-4">
         {!isCropping ? (
           <button
             onClick={handleStartCrop}
