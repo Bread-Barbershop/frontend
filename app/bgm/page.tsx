@@ -1,4 +1,6 @@
-import * as Slider from '@radix-ui/react-slider';
+'use client';
+
+import Image from 'next/image';
 
 import { Label } from '@/components/atoms/label';
 import { Radio } from '@/components/atoms/radio/Radio';
@@ -6,8 +8,12 @@ import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 
 import { BGM_LIST } from './bgmList';
+import { useBgmPlayer } from './useBgmPlayer';
 
 export default function Page() {
+  const { isLoop, isPlaying, selectedBgm, selectBgm, setIsLoop, togglePlay } =
+    useBgmPlayer(BGM_LIST, { volume: 0.2 });
+
   return (
     <main>
       <div className="flex flex-col gap-1 w-93.75 border rounded-lg px-5">
@@ -21,11 +27,36 @@ export default function Page() {
               className="flex items-center gap-2 text-text-secondary has-[input:checked]:text-black px-1"
             >
               <div className="p-1.5">
-                <Radio name="bgm-preset" value={bgm.id} />
+                <Radio
+                  name="bgm"
+                  value={bgm.id}
+                  onChange={() => selectBgm(bgm.id)}
+                />
               </div>
 
               <p className="truncate">{bgm.title}</p>
               <p>{bgm.duration}</p>
+
+              {/* 선택된 항목에만 버튼 표시 */}
+              {selectedBgm === bgm.id && (
+                <button type="button" onClick={togglePlay}>
+                  {isPlaying ? (
+                    <Image
+                      src="/assets/icons/pause.svg"
+                      alt="정지"
+                      width={32}
+                      height={32}
+                    />
+                  ) : (
+                    <Image
+                      src="/assets/icons/play.svg"
+                      alt="재생"
+                      width={32}
+                      height={32}
+                    />
+                  )}
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -34,42 +65,17 @@ export default function Page() {
         <hr className="border-t border-gray-200" />
 
         {/* 추가기능 */}
-        <div className="flex gap-2 py-2.5">
-          <Label className="font-bold text-[14px]">추가기능</Label>
-          <Checkbox className="gap-1 pl-1">반복재생</Checkbox>
-          <Checkbox className="gap-1">하이라이트만 재생</Checkbox>
-        </div>
-
-        {/* 컨트롤러 */}
-        <div>
-          <Slider.Root
-            defaultValue={[25, 75]}
-            max={100}
-            step={1}
-            className="relative flex items-center w-full h-5"
+        <div className="flex gap-2">
+          <Label className="font-semibold text-[14px]">
+            추가기능
+          </Label>
+          <Checkbox
+            className="gap-1 pl-1"
+            checked={isLoop}
+            onChange={e => setIsLoop(e.target.checked)}
           >
-            <Slider.Track className="relative h-0.75 w-full bg-border-neutral rounded-full">
-              <Slider.Range className="absolute h-full bg-[#6FEF1F] rounded-full" />
-            </Slider.Track>
-
-            <Slider.Thumb className="block w-0.75 h-3 bg-[#1F72EF] rounded-full shadow focus:outline-[#1F72EF]" />
-            <Slider.Thumb className="block w-0.75 h-3 bg-[#1F72EF] rounded-full shadow focus:outline-[#1F72EF]" />
-          </Slider.Root>
-        </div>
-
-        <div>
-          <Slider.Root
-            defaultValue={[50]}
-            max={100}
-            step={1}
-            className="relative flex items-center w-full h-5"
-          >
-            <Slider.Track className="relative h-0.75 w-full bg-border-neutral rounded-full">
-              <Slider.Range className="absolute h-full bg-[#6FEF1F] rounded-full" />
-            </Slider.Track>
-
-            <Slider.Thumb className="block w-30 h-11 bg-[#1F72EF]/12 border-2 border-[#1F72EF] rounded-lg shadow focus:outline-none" />
-          </Slider.Root>
+            반복재생
+          </Checkbox>
         </div>
       </div>
     </main>
