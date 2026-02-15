@@ -5,10 +5,12 @@ declare module 'fabric' {
   // 생성 시 넘기는 옵션 타입 확장
   interface FabricObjectProps {
     id?: string;
+    targetId?: string;
   }
   // 실제 생성된 객체 인스턴스 타입 확장
   interface FabricObject {
     id?: string;
+    targetId?: string;
   }
 }
 import React, { useEffect, useRef } from 'react';
@@ -23,7 +25,12 @@ import Toolbar from './Toolbar';
 
 const PosterEditor: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { canvas, setCanvas, setActiveObject } = useEditorStore();
+  const {
+    canvas,
+    setCanvas,
+    setActiveObject,
+    activeObject: _test,
+  } = useEditorStore();
   const {
     activeDrawingMode,
     dragToCreateTextBox,

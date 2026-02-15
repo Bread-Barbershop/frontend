@@ -14,7 +14,6 @@ function Edit() {
       selectedId: state.selectedId,
     }))
   );
-
   if (selectedId === 'mainPoster') return <Menubar />;
 
   if (!block || !selectedId)
