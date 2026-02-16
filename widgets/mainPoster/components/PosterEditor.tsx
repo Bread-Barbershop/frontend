@@ -1,6 +1,6 @@
 'use client';
 
-import * as fabric from 'fabric';
+import { Canvas, FabricObject, TPointerEvent, TPointerEventInfo } from 'fabric';
 declare module 'fabric' {
   // 생성 시 넘기는 옵션 타입 확장
   interface FabricObjectProps {
@@ -13,7 +13,7 @@ declare module 'fabric' {
     targetId?: string;
   }
 }
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
@@ -21,16 +21,12 @@ import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
 import { useFabric } from '../hooks/useFabric';
 import { useSetFabricControls } from '../hooks/useSetFabricControls';
 
+import ContextMenu from './ContextMenu';
 import Toolbar from './Toolbar';
 
 const PosterEditor: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const {
-    canvas,
-    setCanvas,
-    setActiveObject,
-    activeObject: _test,
-  } = useEditorStore();
+  const { canvas, setCanvas, setActiveObject, activeObject } = useEditorStore();
   const {
     activeDrawingMode,
     dragToCreateTextBox,
@@ -38,7 +34,11 @@ const PosterEditor: React.FC = () => {
     addImage,
     handleDeleteShape,
     handleDeleteEmptyShape,
+    copy,
+    paste,
   } = useFabric();
+
+  const [clipboard, setClipboard] = useState<FabricObject | null>(null);
 
   useSetFabricControls();
 
@@ -51,10 +51,12 @@ const PosterEditor: React.FC = () => {
 
   useEffect(() => {
     if (!canvasRef.current) return;
-    const fabricCanvas = new fabric.Canvas(canvasRef.current, {
+    const fabricCanvas = new Canvas(canvasRef.current, {
       width: 350,
       height: 600,
       backgroundColor: '#f9fafb',
+      fireRightClick: true,
+      stopContextMenu: true,
     });
     setCanvas(fabricCanvas);
 
@@ -79,24 +81,27 @@ const PosterEditor: React.FC = () => {
       handleDeleteShape(canvas, e);
     };
     const handleSelection = () => {
-      const selected = canvas.getActiveObject() as fabric.Object;
+      const selected = canvas.getActiveObject() as FabricObject;
       setActiveObject(selected || null);
+    };
+
+    const handleMouseDown = (opt: TPointerEventInfo<TPointerEvent>) => {
+      const e = opt.e as MouseEvent;
+      if (e.button === 2) return; // 우클릭은 무시
+      if (!opt.target) setActiveObject(null);
     };
 
     window.addEventListener('keydown', onKeyDown);
     canvas.on('selection:created', handleSelection);
     canvas.on('selection:updated', handleSelection);
-    canvas.on('mouse:down', options => {
-      if (!options.target) {
-        setActiveObject(null);
-      }
-    });
+    canvas.on('mouse:down', handleMouseDown);
 
     return () => {
       cleanupEmpty();
       window.removeEventListener('keydown', onKeyDown);
       canvas.off('selection:created', handleSelection);
       canvas.off('selection:updated', handleSelection);
+      canvas.off('mouse:down', handleMouseDown);
     };
   }, [
     canvas,
@@ -105,6 +110,44 @@ const PosterEditor: React.FC = () => {
     handleDeleteEmptyShape,
     handleDeleteShape,
   ]);
+
+  const isMouseInCanvasRef = useRef(false);
+
+  useEffect(() => {
+    if (!canvas) return;
+    const onOver = () => (isMouseInCanvasRef.current = true);
+    const onOut = () => (isMouseInCanvasRef.current = false);
+
+    canvas.on('mouse:over', onOver);
+    canvas.on('mouse:out', onOut);
+
+    return () => {
+      canvas.off('mouse:over', onOver);
+      canvas.off('mouse:out', onOut);
+    };
+  }, [canvas]);
+
+  useEffect(() => {
+    if (!activeObject || !canvas) return;
+    const handleKeyboard = (e: KeyboardEvent) => {
+      if (!isMouseInCanvasRef.current) return;
+
+      // Ctrl(Windows/Linux) / Cmd(Mac) 둘 다 지원
+      const mod = e.ctrlKey || e.metaKey;
+
+      if (mod && e.code === 'KeyC' && activeObject) {
+        e.preventDefault();
+        copy({ activeObject, setClipboard });
+      }
+      if (mod && e.code === 'KeyV' && clipboard) {
+        e.preventDefault();
+        paste({ canvas, clipboard });
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyboard);
+    return () => document.removeEventListener('keydown', handleKeyboard);
+  }, [activeObject, clipboard]);
 
   return (
     <div
@@ -120,6 +163,15 @@ const PosterEditor: React.FC = () => {
         handleDrawingMode={handleDrawingMode}
         addImage={addImage}
       />
+      {canvas && (
+        <ContextMenu
+          canvas={canvas}
+          activeObject={activeObject}
+          handleDeleteShape={handleDeleteShape}
+          clipboard={clipboard}
+          setClipboard={setClipboard}
+        />
+      )}
       <div
         style={{
           border: '2px solid #e5e7eb',

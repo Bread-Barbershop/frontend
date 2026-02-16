@@ -6,7 +6,7 @@ import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
 import { useFabric } from '../hooks/useFabric';
 
 import ImageFilterPanel from './image/ImageFilterPanel';
-import RichTextPanel from './RichTextPanel';
+import RichTextPanel from './richtext/RichTextPanel';
 import jsonString from './test.json';
 
 function Menubar() {
