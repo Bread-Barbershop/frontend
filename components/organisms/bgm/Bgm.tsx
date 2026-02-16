@@ -71,7 +71,7 @@ export default function Bgm() {
   };
 
   return (
-    <main>
+    <section aria-label="배경 음악">
       <div className="flex flex-col gap-1 w-93.75 border rounded-lg px-5">
         <NavigationBar>배경 음악</NavigationBar>
         <input
@@ -161,6 +161,6 @@ export default function Bgm() {
           </Checkbox>
         </div>
       </div>
-    </main>
+    </section>
   );
 }
