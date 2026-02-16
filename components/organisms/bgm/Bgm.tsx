@@ -72,7 +72,7 @@ export default function Bgm() {
 
   return (
     <section aria-label="배경 음악">
-      <div className="flex flex-col gap-1 w-93.75 border rounded-lg px-5">
+      <div className="flex flex-col gap-1 w-93.75 rounded-lg px-5">
         <NavigationBar>배경 음악</NavigationBar>
         <input
           ref={fileInputRef}
@@ -98,8 +98,8 @@ export default function Bgm() {
                 />
               </div>
 
-              <p className="truncate">{bgm.title}</p>
-              <p>{bgm.duration}</p>
+              <p className="truncate font-medium">{bgm.title}</p>
+              <p className="font-medium">{bgm.duration}</p>
 
               {/* 선택된 항목에만 버튼 표시 */}
               {selectedBgm === bgm.id && (
@@ -119,7 +119,7 @@ export default function Bgm() {
             </div>
 
             {userBgm ? (
-              <p className="truncate">{userBgm.title}</p>
+              <p className="truncate font-medium">{userBgm.title}</p>
             ) : (
               <button
                 type="button"
@@ -129,11 +129,13 @@ export default function Bgm() {
                 음악 추가하기
               </button>
             )}
-            {userBgm && <p className="shrink-0">{userBgm.duration}</p>}
+            {userBgm && (
+              <p className="shrink-0 font-medium">{userBgm.duration}</p>
+            )}
             {userBgm && (
               <button
                 type="button"
-                className="shrink-0 text-primary cursor-pointer"
+                className="shrink-0 text-primary cursor-pointer font-medium"
                 onClick={openFilePicker}
               >
                 음악 변경
@@ -153,7 +155,7 @@ export default function Bgm() {
         <div className="flex gap-2">
           <Label className="font-semibold text-[14px]">추가기능</Label>
           <Checkbox
-            className="gap-1 pl-1"
+            className="gap-1 pl-1 font-medium"
             checked={isLoop}
             onChange={e => setIsLoop(e.target.checked)}
           >
