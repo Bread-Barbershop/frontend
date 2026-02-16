@@ -21,6 +21,22 @@ export function useUserBgmUpload() {
 
     if (!file) return false;
 
+    // 파일 포맷 검증 (mp3만 허용)
+    if (
+      file.type !== 'audio/mpeg' &&
+      !file.name.toLowerCase().endsWith('.mp3')
+    ) {
+      alert('MP3 파일만 업로드 가능합니다.');
+      return false;
+    }
+
+    // 파일 용량 검증 (10MB 제한)
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert('파일 크기는 10MB를 초과할 수 없습니다.');
+      return false;
+    }
+
     const objectUrl = URL.createObjectURL(file);
     let duration = '00:00';
 

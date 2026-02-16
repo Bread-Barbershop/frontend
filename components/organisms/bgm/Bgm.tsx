@@ -28,12 +28,7 @@ const PlayToggleButton = ({ isPlaying, onToggle }: PlayToggleButtonProps) => {
           height={32}
         />
       ) : (
-        <Image
-          src="/assets/icons/play.svg"
-          alt="재생"
-          width={32}
-          height={32}
-        />
+        <Image src="/assets/icons/play.svg" alt="재생" width={32} height={32} />
       )}
     </button>
   );
@@ -82,7 +77,7 @@ export default function Bgm() {
         <input
           ref={fileInputRef}
           type="file"
-          accept="audio/*"
+          accept="audio/mpeg,.mp3"
           className="hidden"
           onChange={handleUserBgmUpload}
         />
