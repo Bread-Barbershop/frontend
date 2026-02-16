@@ -1,4 +1,4 @@
-import { ICON_PATHS } from './constants';
+import { ICON_PATHS } from '../constants/fabric';
 
 /**
  * SVG 문자열을 Data URL로 변환합니다.

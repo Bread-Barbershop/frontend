@@ -1,7 +1,7 @@
 import { FabricObject, Control, controlsUtils, util } from 'fabric';
 import { useEffect } from 'react';
 
-import { CORNERS_CONFIG, MOVE_ICON } from '../utils/constants';
+import { CORNERS_CONFIG, MOVE_ICON, SIDES_CONFIG } from '../constants/fabric';
 import {
   createFabricControlImage,
   getRotatedCursorUrl,
@@ -97,6 +97,34 @@ export const useSetFabricControls = () => {
         },
         actionName: 'rotate',
         render: () => {},
+      });
+    });
+
+    // 상하좌우 컨트롤
+    SIDES_CONFIG.forEach(({ id, x, y, action }) => {
+      newControls[id] = new Control({
+        x,
+        y,
+        actionHandler:
+          action === 'scalingX'
+            ? controlsUtils.scalingX
+            : controlsUtils.scalingY,
+        cursorStyleHandler: controlsUtils.scaleCursorStyleHandler,
+        actionName: action,
+        render: (ctx, left, top) => {
+          const isVertical = id === 'ml' || id === 'mr';
+          const width = isVertical ? 8 : 16;
+          const height = isVertical ? 16 : 8;
+
+          ctx.save();
+          ctx.fillStyle = '#1F72EF';
+          ctx.strokeStyle = '#1F72EF';
+          ctx.beginPath();
+          ctx.rect(left - width / 2, top - height / 2, width, height);
+          ctx.fill();
+          ctx.stroke();
+          ctx.restore();
+        },
       });
     });
 
