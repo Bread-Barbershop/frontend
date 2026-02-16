@@ -3,8 +3,7 @@ import { ChevronDown } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { cn } from '@/shared/utils/cn';
-
-import { RichStyleKey } from '../types/fabric';
+import { RichStyleKey } from '@/widgets/mainPoster/types/fabric';
 
 import ColorPicker from './ColorPicker';
 

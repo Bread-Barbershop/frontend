@@ -7,8 +7,7 @@ import charspacing from '@/shared/assets/icons/charspacing.svg';
 import italic from '@/shared/assets/icons/italic.svg';
 import underline from '@/shared/assets/icons/underline.svg';
 import { debounce } from '@/shared/utils/debounce';
-
-import { RichStyle, RichStyleKey } from '../types/fabric';
+import { RichStyle, RichStyleKey } from '@/widgets/mainPoster/types/fabric';
 
 import CharSpacing from './CharSpacing';
 import FontColor from './FontColor';

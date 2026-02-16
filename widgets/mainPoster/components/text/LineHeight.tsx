@@ -1,7 +1,7 @@
 import * as fabric from 'fabric';
 import { useState } from 'react';
 
-import { RichStyle } from '../types/fabric';
+import { RichStyle } from '@/widgets/mainPoster/types/fabric';
 interface Props {
   canvas: fabric.Canvas | null;
   debouncedApplyStyle: (style: RichStyle, canvas: fabric.Canvas) => void;

@@ -2,7 +2,7 @@ import * as fabric from 'fabric';
 import { Eclipse } from 'lucide-react';
 import { useState } from 'react';
 
-import { RichStyle } from '../types/fabric';
+import { RichStyle } from '@/widgets/mainPoster/types/fabric';
 
 import ColorPicker from './ColorPicker';
 

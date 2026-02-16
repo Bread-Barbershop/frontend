@@ -3,9 +3,8 @@ import { TypeOutline } from 'lucide-react';
 import { useState } from 'react';
 
 import { Selector } from '@/components/molecules/selector';
-
-import { selectorOptions } from '../types/editor';
-import { RichStyle } from '../types/fabric';
+import { selectorOptions } from '@/widgets/mainPoster/types/editor';
+import { RichStyle } from '@/widgets/mainPoster/types/fabric';
 
 import ColorPicker from './ColorPicker';
 

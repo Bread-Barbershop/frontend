@@ -2,9 +2,8 @@ import * as fabric from 'fabric';
 import { useEffect, useState } from 'react';
 
 import { Selector } from '@/components/molecules/selector';
-
-import { selectorOptions } from '../types/editor';
-import { RichStyle, RichStyleKey } from '../types/fabric';
+import { selectorOptions } from '@/widgets/mainPoster/types/editor';
+import { RichStyle, RichStyleKey } from '@/widgets/mainPoster/types/fabric';
 
 interface Props {
   canvas: fabric.Canvas | null;

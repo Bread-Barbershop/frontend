@@ -2,7 +2,7 @@ import * as fabric from 'fabric';
 import { Image } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { useFabric } from '../hooks/useFabric';
+import { useFabric } from '@/widgets/mainPoster/hooks/useFabric';
 
 interface Props {
   canvas: fabric.Canvas | null;

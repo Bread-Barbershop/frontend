@@ -2,8 +2,7 @@ import * as fabric from 'fabric';
 import { useEffect, useState } from 'react';
 
 import { Selector } from '@/components/molecules/selector';
-
-import { RichStyleKey } from '../types/fabric';
+import { RichStyleKey } from '@/widgets/mainPoster/types/fabric';
 
 type FontOption = {
   label: string;
