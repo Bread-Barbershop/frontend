@@ -18,7 +18,7 @@ interface Props {
   applyImageFilter: (options: PhotoPresetOptions, canvas: Canvas) => void;
   currentFilters?: PhotoPresetOptions;
   isCropping: boolean;
-  startCrop: (canvas: Canvas) => void;
+  startCrop: (canvas: Canvas, ratio: number | 'free') => void;
   applyCrop: (canvas: Canvas) => void;
   cancelCrop: (canvas: Canvas) => void;
 }
@@ -27,10 +27,7 @@ const ImageFilterPanel = ({
   canvas,
   applyImageFilter,
   addImage,
-  isCropping,
   startCrop,
-  applyCrop,
-  cancelCrop,
 }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [imageSrc, setImageSrc] = useState('');
@@ -129,9 +126,7 @@ const ImageFilterPanel = ({
     applyImageFilter(options, canvas);
     updateImageSrc(); // 필터 적용 후 Preview 갱신
   };
-  const handleStartCrop = () => startCrop(canvas);
-  const handleApplyCrop = () => applyCrop(canvas);
-  const handleCancelCrop = () => cancelCrop(canvas);
+  const handleStartCrop = (ratio: number | 'free') => startCrop(canvas, ratio);
 
   // 객체가 변경될 때마다 Preview 업데이트
   useEffect(() => {
@@ -160,32 +155,7 @@ const ImageFilterPanel = ({
         )}
       </div>
       <ImageFilterSelector onApply={handleApply} />
-      <AspectRatioSelector />
-      <div className="flex flex-wrap gap-2 items-center justify-center w-full mt-4">
-        {!isCropping ? (
-          <button
-            onClick={handleStartCrop}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-sm"
-          >
-            크롭 모드
-          </button>
-        ) : (
-          <div className="flex gap-2">
-            <button
-              onClick={handleApplyCrop}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold text-sm"
-            >
-              적용
-            </button>
-            <button
-              onClick={handleCancelCrop}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold text-sm"
-            >
-              취소
-            </button>
-          </div>
-        )}
-      </div>
+      <AspectRatioSelector startCrop={handleStartCrop} />
     </div>
   );
 };

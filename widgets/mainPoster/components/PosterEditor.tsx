@@ -24,14 +24,15 @@ import { useShallow } from 'zustand/shallow';
 
 import { cn } from '@/shared/utils/cn';
 import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
+import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
-import { useFabric } from '../hooks/useFabric';
 import { useSetFabricControls } from '../hooks/useSetFabricControls';
 
 import ContextMenu from './ContextMenu';
 import Toolbar from './Toolbar';
 
 export const PosterEditor = () => {
+  const [clipboard, setClipboard] = useState<FabricObject | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { canvas, setCanvas, setActiveObject, setActiveTab, activeObject } =
     useEditorStore(
@@ -52,9 +53,9 @@ export const PosterEditor = () => {
     handleDeleteEmptyShape,
     copy,
     paste,
-  } = useFabric();
-
-  const [clipboard, setClipboard] = useState<FabricObject | null>(null);
+    startCrop,
+    isCropping,
+  } = useFabricContext();
 
   useSetFabricControls();
 
@@ -80,10 +81,14 @@ export const PosterEditor = () => {
       const activeObj = fabricCanvas.getActiveObject();
       setActiveObject(activeObj ?? null);
 
-      if (activeObj instanceof FabricImage) {
-        useEditorStore.getState().setActiveTab('image');
+      const isActiveImage = activeObj instanceof FabricImage;
+      const isCropZone =
+        (activeObj as FabricObject & { name?: string })?.name === 'crop-zone';
+
+      if (isActiveImage || isCropZone) {
+        setActiveTab('image');
       } else {
-        useEditorStore.getState().setActiveTab(null);
+        setActiveTab(null);
       }
     };
 
@@ -91,13 +96,13 @@ export const PosterEditor = () => {
     fabricCanvas.on('selection:updated', handleSelection);
     fabricCanvas.on('selection:cleared', () => {
       setActiveObject(null);
-      useEditorStore.getState().setActiveTab(null);
+      setActiveTab(null);
     });
 
     return () => {
       fabricCanvas.dispose();
     };
-  }, [setCanvas, setActiveObject]);
+  }, [setCanvas, setActiveObject, setActiveTab]);
 
   useEffect(() => {
     if (!canvas) return;
@@ -127,9 +132,22 @@ export const PosterEditor = () => {
     };
 
     window.addEventListener('keydown', onKeyDown);
-    canvas.on('selection:created', handleSelection);
-    canvas.on('selection:updated', handleSelection);
-    canvas.on('mouse:down', handleMouseDown);
+    canvas.on('mouse:down', options => {
+      if (!options.target) {
+        setActiveObject(null);
+        setActiveTab(null);
+      }
+    });
+
+    canvas.on('mouse:dblclick', options => {
+      if (
+        options.target &&
+        options.target instanceof FabricImage &&
+        !isCropping
+      ) {
+        startCrop(canvas);
+      }
+    });
 
     return () => {
       cleanupEmpty();

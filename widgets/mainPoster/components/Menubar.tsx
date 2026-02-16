@@ -2,8 +2,7 @@ import { Textbox } from 'fabric';
 import { useShallow } from 'zustand/shallow';
 
 import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
-
-import { useFabric } from '../hooks/useFabric';
+import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import ImageFilterPanel from './image/ImageFilterPanel';
 import RichTextPanel from './richtext/RichTextPanel';
@@ -27,7 +26,7 @@ function Menubar() {
     isCropping,
     applyCrop,
     cancelCrop,
-  } = useFabric();
+  } = useFabricContext();
 
   // 현재 선택된 객체가 텍스트인지 이미지인지 확인
   const isSelectedText = activeObject instanceof Textbox;
@@ -35,12 +34,9 @@ function Menubar() {
 
   const handleExportJSON = () => {
     if (!canvas) return;
-    const json = canvas.toJSON();
-    console.log('Fabric Canvas JSON:', JSON.stringify(json, null, 2));
   };
 
   const handleImportJSON = async () => {
-    console.log({ jsonString });
     if (!canvas) return;
     try {
       await canvas.loadFromJSON(jsonString);

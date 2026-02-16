@@ -11,6 +11,7 @@ import {
   RichStyleKey,
 } from '../types/fabric';
 import { PhotoPreset } from '../utils/CustomImageFilter';
+import { updateCropRatio } from '../utils/fabricUtils';
 
 export const useFabric = () => {
   const [shapes, setShapes] = useState<Shape[]>([]);
@@ -401,7 +402,13 @@ export const useFabric = () => {
   };
 
   // 이미지 크롭 시작
-  const startCrop = (canvas: fabric.Canvas) => {
+  const startCrop = (canvas: fabric.Canvas, ratio?: number | 'free') => {
+    // 1. 이미 크롭 중이라면 비율만 업데이트
+    if (cropZoneRef.current && ratio) {
+      updateCropRatio(canvas, ratio);
+      return;
+    }
+
     const activeObject = canvas.getActiveObject();
     if (!activeObject || !(activeObject instanceof fabric.FabricImage)) return;
 
@@ -500,16 +507,34 @@ export const useFabric = () => {
       name: 'crop-zone',
       left: currentCenter.x,
       top: currentCenter.y,
-      width: (currentWidth / currentScaleX) * 0.7, // 70% 크기로 시작
-      height: (currentHeight / currentScaleY) * 0.7,
+      width: (currentWidth / currentScaleX) * 0.8,
+      height: (currentHeight / currentScaleY) * 0.8,
       scaleX: currentScaleX,
       scaleY: currentScaleY,
       angle: currentAngle,
       fill: 'transparent',
+      strokeWidth: 0, // 경계 계산 오차 방지를 위해 스트로크 제거 (Visual은 selection border로 처리)
       originX: 'center',
       originY: 'center',
       objectCaching: false,
       absolutePositioned: true,
+    }) as fabric.Rect & { lockUniScaling?: boolean };
+
+    // Center 컨트롤 숨김
+    // 주의: zone.controls.center.visible = false로 설정하면 전역 컨트롤 인스턴스가 수정되어 다른 객체에도 영향을 줌.
+    // 따라서 controls 객체를 얕은 복사하여 인스턴스만의 controls를 만들고 key를 delete 해야 함.
+    zone.controls = { ...zone.controls };
+
+    // Center 컨트롤 제거
+    if (zone.controls.center) {
+      delete zone.controls.center;
+    }
+
+    // 회전 컨트롤 제거 (커스텀 컨트롤)
+    ['tl_rotate', 'tr_rotate', 'bl_rotate', 'br_rotate'].forEach(key => {
+      if (zone.controls[key]) {
+        delete zone.controls[key];
+      }
     });
 
     highlightImg.clipPath = zone;
@@ -517,24 +542,37 @@ export const useFabric = () => {
     const constrainPosition = () => {
       const imgScaledWidth = originalWidth * currentScaleX;
       const imgScaledHeight = originalHeight * currentScaleY;
-      const zoneWidth = zone.getScaledWidth();
-      const zoneHeight = zone.getScaledHeight();
+
+      // getScaledWidth() 대신 순수 기하학적 크기 사용 (stroke 제외)
+      const zoneWidth = zone.width * zone.scaleX;
+      const zoneHeight = zone.height * zone.scaleY;
 
       // Scale 제한
       let newScaleX = zone.scaleX;
       let newScaleY = zone.scaleY;
+
       if (zoneWidth > imgScaledWidth) newScaleX = imgScaledWidth / zone.width;
       if (zoneHeight > imgScaledHeight)
         newScaleY = imgScaledHeight / zone.height;
 
-      if (newScaleX !== zone.scaleX || newScaleY !== zone.scaleY) {
-        const minScale = Math.min(newScaleX, newScaleY);
-        zone.set({ scaleX: minScale, scaleY: minScale });
+      // 비율 고정 모드(Fixed Ratio)와 자유 모드(Free) 분기 처리
+      if (zone.lockUniScaling) {
+        // 고정 비율이면 둘 중 더 작은 스케일에 맞춰 비율 유지
+        if (newScaleX !== zone.scaleX || newScaleY !== zone.scaleY) {
+          const minScale = Math.min(newScaleX, newScaleY);
+          zone.set({ scaleX: minScale, scaleY: minScale });
+        }
+      } else {
+        // 자유 모드면 각 축을 독립적으로 제한 (사이드 리사이징 시 다른 축 영향 스킵)
+        if (newScaleX !== zone.scaleX) zone.set({ scaleX: newScaleX });
+        if (newScaleY !== zone.scaleY) zone.set({ scaleY: newScaleY });
       }
 
       // Position 제한
-      const latestWidth = zone.getScaledWidth();
-      const latestHeight = zone.getScaledHeight();
+      // getScaledWidth() 대신 순수 기하학적 크기 사용 (stroke 제외)
+      const latestWidth = zone.width * zone.scaleX;
+      const latestHeight = zone.height * zone.scaleY;
+
       const maxDeltaX = Math.max(0, (imgScaledWidth - latestWidth) / 2);
       const maxDeltaY = Math.max(0, (imgScaledHeight - latestHeight) / 2);
 
@@ -579,8 +617,12 @@ export const useFabric = () => {
     autoCropHandlerRef.current = onMouseDown;
     canvas.on('mouse:down', onMouseDown);
 
-    canvas.add(darkOverlay, highlightImg, zone); // 순서: Overlay -> Highlight -> Zone
+    canvas.add(darkOverlay, highlightImg, zone);
     canvas.setActiveObject(zone);
+
+    if (ratio) {
+      updateCropRatio(canvas, ratio);
+    }
 
     cropZoneRef.current = zone;
     highlightLayerRef.current = highlightImg;

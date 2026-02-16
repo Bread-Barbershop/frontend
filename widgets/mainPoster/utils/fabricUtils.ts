@@ -1,4 +1,6 @@
-import { ICON_PATHS } from '../constants/fabric';
+import { Canvas, FabricObject } from 'fabric';
+
+import { ICON_PATHS, SIDES_CONFIG } from '../constants/fabric';
 
 /**
  * SVG 문자열을 Data URL로 변환합니다.
@@ -45,4 +47,89 @@ export const getRotatedCursorUrl = (angle: number) => {
   `.trim();
 
   return `url('${createSvgDataUrl(svg)}') 16 16, auto`;
+};
+
+export const updateCropRatio = (canvas: Canvas, ratio: number | 'free') => {
+  const cropZone = canvas
+    .getObjects()
+    .find(obj => (obj as FabricObject & { name: string }).name === 'crop-zone');
+
+  if (!cropZone) {
+    return;
+  }
+
+  const sideControls = SIDES_CONFIG.map(side => side.id);
+
+  // 1. 자유 조절 모드
+  if (ratio === 'free') {
+    cropZone.set({
+      lockUniScaling: false, // 비례 제한 해제
+    });
+
+    // 모든 컨트롤 복구 (기본값에서 복사)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const defaultControls = (FabricObject as any).ownDefaults.controls;
+    cropZone.controls = { ...defaultControls };
+  }
+  // 2. 고정 비율 모드
+  else {
+    // 원본 이미지(ghost-image)를 찾아 최대 크기 제한 확인
+    const ghostImg = canvas.getObjects().find(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      obj => (obj as any).name === 'ghost-image'
+    );
+
+    let maxAllowedWidth = Infinity;
+    let maxAllowedHeight = Infinity;
+
+    if (ghostImg) {
+      maxAllowedWidth = ghostImg.width * ghostImg.scaleX;
+      maxAllowedHeight = ghostImg.height * ghostImg.scaleY;
+    }
+
+    // 현재 시각적 크기 계산 (Scale이 적용된 실제 화면상의 크기)
+    // getScaledWidth()는 strokeWidth를 포함할 수 있어 반복 적용 시 크기가 증가할 수 있음.
+    // 순수 기하학적 너비인 width * scaleX 사용.
+    let currentVisualWidth = cropZone.width * cropZone.scaleX;
+    let targetVisualHeight = currentVisualWidth / ratio;
+
+    // 크기 제한 적용 (원본 이미지 범위를 벗어나지 않도록)
+    if (currentVisualWidth > maxAllowedWidth) {
+      currentVisualWidth = maxAllowedWidth;
+      targetVisualHeight = currentVisualWidth / ratio;
+    }
+
+    if (targetVisualHeight > maxAllowedHeight) {
+      targetVisualHeight = maxAllowedHeight;
+      currentVisualWidth = targetVisualHeight * ratio;
+    }
+
+    // Scale Normalization (스케일 정규화)
+    // Scale을 1로 초기화하고, width/height를 그에 맞게 명시적으로 설정하여
+    // 이전의 비균등 스케일(Non-uniform scaling) 상태를 제거함.
+    cropZone.set({
+      width: currentVisualWidth,
+      height: targetVisualHeight,
+      scaleX: 1,
+      scaleY: 1,
+      lockUniScaling: true, // 정비례 잠금
+    });
+
+    // 상하좌우 컨트롤 숨김 (공유된 Control 인스턴스를 수정하지 않고, 맵에서 키를 제거함)
+    // 1. 기본 컨트롤셋 복사
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const defaultControls = (FabricObject as any).ownDefaults.controls;
+    const newControls = { ...defaultControls };
+
+    // 2. 사이드 컨트롤 키 제거
+    sideControls.forEach(id => {
+      delete newControls[id];
+    });
+
+    // 3. 적용
+    cropZone.controls = newControls;
+  }
+
+  cropZone.setCoords();
+  canvas.requestRenderAll();
 };

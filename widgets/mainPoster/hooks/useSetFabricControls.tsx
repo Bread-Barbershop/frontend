@@ -45,9 +45,6 @@ export const useSetFabricControls = () => {
       y: 0,
       actionName: 'centerAction',
       render: (ctx, left, top, _, fabricObject) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((fabricObject as any).name === 'crop-zone') return;
-
         if (!isImageReadyForCanvas(img)) {
           img.onload = () => fabricObject.canvas?.requestRenderAll();
           return;
@@ -86,9 +83,6 @@ export const useSetFabricControls = () => {
         offsetY: corner.offY,
         sizeX: 10,
         sizeY: 10,
-        getVisibility: fabricObject =>
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (fabricObject as any).name !== 'crop-zone',
         actionHandler: controlsUtils.rotationWithSnapping,
         cursorStyleHandler: (_, __, fabricObject) => {
           const totalAngle =
@@ -111,20 +105,7 @@ export const useSetFabricControls = () => {
             : controlsUtils.scalingY,
         cursorStyleHandler: controlsUtils.scaleCursorStyleHandler,
         actionName: action,
-        render: (ctx, left, top) => {
-          const isVertical = id === 'ml' || id === 'mr';
-          const width = isVertical ? 8 : 16;
-          const height = isVertical ? 16 : 8;
-
-          ctx.save();
-          ctx.fillStyle = '#1F72EF';
-          ctx.strokeStyle = '#1F72EF';
-          ctx.beginPath();
-          ctx.rect(left - width / 2, top - height / 2, width, height);
-          ctx.fill();
-          ctx.stroke();
-          ctx.restore();
-        },
+        render: controlsUtils.renderSquareControl,
       });
     });
 
