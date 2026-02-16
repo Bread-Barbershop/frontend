@@ -68,7 +68,7 @@ jobs:
           fi
 
           # Discord Webhook으로 POST 요청
-          curl -sS -X POST \
+          curl -sSf -X POST \
             -H "Content-Type: application/json" \
             -d "$PAYLOAD" \
             "$DISCORD_WEBHOOK_POSTER"
