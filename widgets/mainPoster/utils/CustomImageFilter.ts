@@ -29,6 +29,15 @@ export class PhotoPreset extends fabric.filters.BaseFilter<'PhotoPreset'> {
     };
   }
 
+  /**
+   * 객체 복제(serialization/deserialization)를 위한 정적 메서드
+   * fabric.Image.fromObject 등에서 사용됨
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static fromObject(object: any) {
+    return Promise.resolve(new PhotoPreset(object.options));
+  }
+
   // 유틸리티 메서드
   private _clamp01 = (v: number) => Math.min(1, Math.max(0, v));
   private _lerp = (a: number, b: number, t: number) => a + (b - a) * t;

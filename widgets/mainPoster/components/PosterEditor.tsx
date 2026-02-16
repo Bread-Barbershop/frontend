@@ -1,6 +1,12 @@
 'use client';
 
-import { Canvas, FabricObject, TPointerEvent, TPointerEventInfo } from 'fabric';
+import {
+  Canvas,
+  FabricObject,
+  TPointerEvent,
+  TPointerEventInfo,
+  FabricImage,
+} from 'fabric';
 declare module 'fabric' {
   // 생성 시 넘기는 옵션 타입 확장
   interface FabricObjectProps {
@@ -16,6 +22,7 @@ declare module 'fabric' {
 import React, { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import { cn } from '@/shared/utils/cn';
 import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
 
 import { useFabric } from '../hooks/useFabric';
@@ -24,9 +31,18 @@ import { useSetFabricControls } from '../hooks/useSetFabricControls';
 import ContextMenu from './ContextMenu';
 import Toolbar from './Toolbar';
 
-const PosterEditor: React.FC = () => {
+export const PosterEditor = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { canvas, setCanvas, setActiveObject, activeObject } = useEditorStore();
+  const { canvas, setCanvas, setActiveObject, setActiveTab, activeObject } =
+    useEditorStore(
+      useShallow(state => ({
+        canvas: state.canvas,
+        setCanvas: state.setCanvas,
+        setActiveObject: state.setActiveObject,
+        setActiveTab: state.setActiveTab,
+        activeObject: state.activeObject,
+      }))
+    );
   const {
     activeDrawingMode,
     dragToCreateTextBox,
@@ -61,17 +77,27 @@ const PosterEditor: React.FC = () => {
     setCanvas(fabricCanvas);
 
     const handleSelection = () => {
-      setActiveObject(fabricCanvas.getActiveObject() ?? null);
+      const activeObj = fabricCanvas.getActiveObject();
+      setActiveObject(activeObj ?? null);
+
+      if (activeObj instanceof FabricImage) {
+        useEditorStore.getState().setActiveTab('image');
+      } else {
+        useEditorStore.getState().setActiveTab(null);
+      }
     };
 
     fabricCanvas.on('selection:created', handleSelection);
     fabricCanvas.on('selection:updated', handleSelection);
-    fabricCanvas.on('selection:cleared', () => setActiveObject(null));
+    fabricCanvas.on('selection:cleared', () => {
+      setActiveObject(null);
+      useEditorStore.getState().setActiveTab(null);
+    });
 
     return () => {
       fabricCanvas.dispose();
     };
-  }, []);
+  }, [setCanvas, setActiveObject]);
 
   useEffect(() => {
     if (!canvas) return;
@@ -83,12 +109,21 @@ const PosterEditor: React.FC = () => {
     const handleSelection = () => {
       const selected = canvas.getActiveObject() as FabricObject;
       setActiveObject(selected || null);
+
+      if (selected instanceof FabricImage) {
+        setActiveTab('image');
+      } else {
+        setActiveTab(null);
+      }
     };
 
     const handleMouseDown = (opt: TPointerEventInfo<TPointerEvent>) => {
       const e = opt.e as MouseEvent;
       if (e.button === 2) return; // 우클릭은 무시
-      if (!opt.target) setActiveObject(null);
+      if (!opt.target) {
+        setActiveObject(null);
+        setActiveTab(null);
+      }
     };
 
     window.addEventListener('keydown', onKeyDown);
@@ -109,6 +144,8 @@ const PosterEditor: React.FC = () => {
     dragToCreateTextBox,
     handleDeleteEmptyShape,
     handleDeleteShape,
+    setActiveObject,
+    setActiveTab,
   ]);
 
   const isMouseInCanvasRef = useRef(false);
@@ -148,44 +185,46 @@ const PosterEditor: React.FC = () => {
 
     document.addEventListener('keydown', handleKeyboard);
     return () => document.removeEventListener('keydown', handleKeyboard);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeObject, clipboard]);
 
   return (
-    <div
-      onClick={() => selectedBlock('mainPoster')}
-      className={
-        selectedId === 'mainPoster'
-          ? 'relative overflow-visible flex flex-col items-center gap-5 p-10 border border-primary rounded-lg'
-          : 'relative overflow-visible flex flex-col items-center gap-5 p-10'
-      }
-    >
-      <Toolbar
-        canvas={canvas}
-        handleDrawingMode={handleDrawingMode}
-        addImage={addImage}
-      />
-      {canvas && (
-        <ContextMenu
+    <>
+      <div
+        onClick={() => selectedBlock('mainPoster')}
+        className={cn(
+          'relative overflow-visible flex flex-col items-center gap-5 p-10',
+          selectedId === 'mainPoster' && 'border border-primary rounded-lg'
+        )}
+      >
+        {canvas && (
+          <ContextMenu
+            canvas={canvas}
+            activeObject={activeObject}
+            handleDeleteShape={handleDeleteShape}
+            clipboard={clipboard}
+            setClipboard={setClipboard}
+            copy={copy}
+            paste={paste}
+          />
+        )}
+        <div
+          style={{
+            border: '2px solid #e5e7eb',
+            borderRadius: '8px',
+            overflow: 'hidden',
+          }}
+        >
+          <canvas ref={canvasRef} />
+        </div>
+      </div>
+      {selectedId === 'mainPoster' && (
+        <Toolbar
           canvas={canvas}
-          activeObject={activeObject}
-          handleDeleteShape={handleDeleteShape}
-          clipboard={clipboard}
-          setClipboard={setClipboard}
-          copy={copy}
-          paste={paste}
+          handleDrawingMode={handleDrawingMode}
+          addImage={addImage}
         />
       )}
-      <div
-        style={{
-          border: '2px solid #e5e7eb',
-          borderRadius: '8px',
-          overflow: 'hidden',
-        }}
-      >
-        <canvas ref={canvasRef} />
-      </div>
-    </div>
+    </>
   );
 };
-
-export default PosterEditor;

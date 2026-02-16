@@ -41,6 +41,9 @@ interface EditorState {
   setActiveObject: (activeObject: FabricObject | null) => void;
   updateImage: (id: string, image: File[]) => void;
   updateImageId: (id: string, imageId: string) => void;
+  // 메인포스터 탭 상태 관리
+  activeTab: 'image' | null;
+  setActiveTab: (tab: 'image' | null) => void;
 }
 
 export const useEditorStore = create<EditorState>((set, get) => ({
@@ -141,4 +144,6 @@ export const useEditorStore = create<EditorState>((set, get) => ({
           : block
       ),
     })),
+  activeTab: null,
+  setActiveTab: (tab: 'image' | null) => set({ activeTab: tab }),
 }));

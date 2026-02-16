@@ -1,5 +1,9 @@
 import * as fabric from 'fabric';
 import React, { useRef } from 'react';
+import { useShallow } from 'zustand/shallow';
+
+import { Button } from '@/components/atoms/button';
+import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
 
 interface Props {
   canvas: fabric.Canvas | null;
@@ -9,6 +13,12 @@ interface Props {
 
 function Toolbar({ canvas, handleDrawingMode, addImage }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { activeTab, setActiveTab } = useEditorStore(
+    useShallow(state => ({
+      activeTab: state.activeTab,
+      setActiveTab: state.setActiveTab,
+    }))
+  );
 
   if (!canvas) return null;
 
@@ -36,21 +46,18 @@ function Toolbar({ canvas, handleDrawingMode, addImage }: Props) {
   };
 
   return (
-    <div className=" flex gap-4 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
-      <button
-        onClick={handleDrawingMode}
-        className="px-4 py-2 cursor-pointer bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+    <div className="absolute top-1/2 -left-[60px] -translate-x-full flex flex-col gap-3">
+      <Button onClick={handleDrawingMode}>텍스트</Button>
+      <Button
+        onClick={() => {
+          setActiveTab('image');
+        }}
+        variant="bordered"
+        className={activeTab === 'image' ? 'bg-blue-100 border-blue-500' : ''}
       >
-        텍스트 추가
-      </button>
-
-      <button
-        onClick={() => fileInputRef.current?.click()}
-        className="px-4 py-2 cursor-pointer bg-emerald-600 text-white font-medium rounded-md hover:bg-emerald-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-      >
-        이미지 업로드
-      </button>
-
+        사진
+      </Button>
+      {/*  */}
       <input
         type="file"
         ref={fileInputRef}
