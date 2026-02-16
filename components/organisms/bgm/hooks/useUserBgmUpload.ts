@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { formatDuration } from '../utils/formatDuration';
 import { getAudioDurationFromUrl } from '../utils/getAudioDurationFromUrl';
 
-import type { BgmItem } from '../bgmList';
+import type { BgmItem } from '../data/bgmList';
 
 export const USER_BGM_ID = 'user-bgm';
 

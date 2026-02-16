@@ -8,7 +8,7 @@ import { Radio } from '@/components/atoms/radio/Radio';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 
-import { BGM_LIST } from './bgmList';
+import { BGM_LIST } from './data/bgmList';
 import { useBgmPlayer } from './hooks/useBgmPlayer';
 import { USER_BGM_ID, useUserBgmUpload } from './hooks/useUserBgmUpload';
 
@@ -39,7 +39,7 @@ const PlayToggleButton = ({ isPlaying, onToggle }: PlayToggleButtonProps) => {
   );
 };
 
-export default function Page() {
+export default function Bgm() {
   const { fileInputRef, openFilePicker, uploadUserBgm, userBgm } =
     useUserBgmUpload();
 
@@ -124,11 +124,11 @@ export default function Page() {
             </div>
 
             {userBgm ? (
-              <p className="flex-1 min-w-0 truncate">{userBgm.title}</p>
+              <p className="truncate">{userBgm.title}</p>
             ) : (
               <button
                 type="button"
-                className="flex-1 min-w-0 truncate text-left appearance-none bg-transparent border-0 p-0 cursor-pointer"
+                className="truncate text-left appearance-none bg-transparent border-0 p-0 cursor-pointer"
                 onClick={openFilePicker}
               >
                 음악 추가하기

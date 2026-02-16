@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import type { BgmItem } from './bgmList';
+import type { BgmItem } from '../data/bgmList';
 
 interface UseBgmPlayerOptions {
   volume?: number;
