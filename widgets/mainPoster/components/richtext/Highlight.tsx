@@ -1,12 +1,12 @@
-import * as fabric from 'fabric';
+import { Canvas } from 'fabric';
 import { Highlighter } from 'lucide-react';
 import { useState } from 'react';
 
 import ColorPicker from './ColorPicker';
 
 interface Props {
-  canvas: fabric.Canvas | null;
-  applyRichStyle: (styleObj: object, canvas: fabric.Canvas) => void;
+  canvas: Canvas | null;
+  applyRichStyle: (styleObj: object, canvas: Canvas) => void;
 }
 function Highlight({ canvas, applyRichStyle }: Props) {
   const [pickerColor, setPickerColor] = useState<string | null>(null);

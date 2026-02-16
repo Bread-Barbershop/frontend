@@ -1,4 +1,4 @@
-import * as fabric from 'fabric';
+import { Canvas } from 'fabric';
 import Image from 'next/image';
 
 // import { Selector } from '@/components/molecules/selector';
@@ -18,8 +18,8 @@ type alignOptionMobile = {
 };
 
 interface Props {
-  canvas: fabric.Canvas | null;
-  applyRichStyle: (styleObj: object, canvas: fabric.Canvas) => void;
+  canvas: Canvas | null;
+  applyRichStyle: (styleObj: object, canvas: Canvas) => void;
 }
 function TextAlign({ canvas, applyRichStyle }: Props) {
   // const [selectedAlign, setSelectedAlign] = useState<{

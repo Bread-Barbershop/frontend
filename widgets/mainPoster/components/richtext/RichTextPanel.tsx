@@ -1,4 +1,4 @@
-import * as fabric from 'fabric';
+import { Canvas, Textbox, FabricObject } from 'fabric';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -21,11 +21,11 @@ import TextBackground from './TextBackground';
 // import Highlight from './Highlight';
 
 interface Props {
-  canvas: fabric.Canvas | null;
-  activeObject: fabric.Object | null;
-  applyRichStyle: (styleObj: object, canvas: fabric.Canvas) => void;
+  canvas: Canvas | null;
+  activeObject: FabricObject | null;
+  applyRichStyle: (styleObj: object, canvas: Canvas) => void;
   getRichStyles: (
-    activeObject: fabric.Textbox,
+    activeObject: Textbox,
     style: RichStyleKey,
     onChange: (color: string) => void
   ) => void;
@@ -40,7 +40,7 @@ function RichTextPanel({
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const debouncedApplyStyle = useMemo(
     () =>
-      debounce((style: RichStyle, canvas: fabric.Canvas) => {
+      debounce((style: RichStyle, canvas: Canvas) => {
         applyRichStyle(style, canvas);
       }, 300),
     [applyRichStyle]
@@ -77,20 +77,20 @@ function RichTextPanel({
       <div className="flex w-full justify-between">
         <FontFamily
           canvas={canvas}
-          activeObject={activeObject as fabric.Textbox}
+          activeObject={activeObject as Textbox}
           getRichStyles={getRichStyles}
           applyRichStyle={applyRichStyle}
         />
         <FontSize
           canvas={canvas}
-          activeObject={activeObject as fabric.Textbox}
+          activeObject={activeObject as Textbox}
           getRichStyles={getRichStyles}
           applyRichStyle={applyRichStyle}
           debouncedApplyStyle={debouncedApplyStyle}
         />
         <FontColor
           canvas={canvas}
-          activeObject={activeObject as fabric.Textbox}
+          activeObject={activeObject as Textbox}
           getRichStyles={getRichStyles}
           applyRichStyle={applyRichStyle}
         />
