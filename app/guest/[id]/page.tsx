@@ -1,8 +1,9 @@
 ﻿import 'server-only';
 import { notFound } from 'next/navigation';
 
+//import GuestBgm from './components/GuestBgm';
 import GuestRenderer from './components/GuestRenderer';
-import { isGuestBlocks } from './utils/guestBlockTypeGuards';
+import { isGuestPayload } from './utils/guestBlockTypeGuards';
 
 export const dynamic = 'force-static';
 export const revalidate = false;
@@ -24,19 +25,19 @@ export default async function GuestPage({
 
   if (!res.ok) notFound();
 
-  let json: unknown;
+  let payload: unknown;
   try {
-    json = await res.json();
+    payload  = await res.json();
   } catch {
     notFound();
   }
-  if (!isGuestBlocks(json)) notFound();
+  if (!isGuestPayload(payload)) notFound();
 
   return (
     <main className="min-h-screen bg-neutral-50">
       <div className="mx-auto w-full max-w-xl bg-white shadow-sm">
-        <GuestRenderer blocks={json} />
-        {/* <GuestBgm /> */}
+        <GuestRenderer blocks={payload.blocks} />
+        {/* <GuestBgm bgm={payload.bgm} /> */}
       </div>
     </main>
   );

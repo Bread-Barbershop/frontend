@@ -1,30 +1,64 @@
-import type { GuestBlock } from '../types/guestTypes';
+import type { GuestBlock, GuestBgm, GuestPayload } from '../types/guestTypes';
 
 /**
- * 구글 드라이브(JSON)에서 받아온 편집 데이터가
- * 하객 페이지에서 사용하는 GuestBlock 배열 형식인지
- * 최소한으로 검사하는 런타임 타입 가드입니다.
+ * data.json이 게스트 렌더링에 필요한 "최상위 payload 객체" 형식인지 검증합니다.
  *
- * - 최상위가 배열인지 확인
- * - 각 요소가 객체인지 확인
- * - id, type, component가 문자열인지 확인
- * - props 키가 존재하는지 확인
+ * 기대 형식:
+ * {
+ *   blocks: GuestBlock[],
+ *   bgm: {
+ *     selectedBgmId: string | null,
+ *     isLoop: boolean,
+ *     volume: number,
+ *     userBgmTitle: string | null,
+ *     userBgmDuration: string | null,
+ *     userBgmFileId: string | null
+ *   }
+ * }
  *
- * 검증에 실패하면 false를 반환하여,
- * 이후 notFound() 등 안전한 분기로 처리할 수 있습니다.
+ * 검증 목적:
+ * - 잘못된 JSON 구조로 인한 런타임 에러 방지
+ * - 타입 가드 통과 후 페이지에서 안전하게 payload.blocks / payload.bgm 사용
+ * - 실패 시 상위 레벨에서 notFound() 등으로 처리 가능
  */
-export function isGuestBlocks(x: unknown): x is GuestBlock[] {
+
+function isRecord(x: unknown): x is Record<string, unknown> {
+  return typeof x === 'object' && x !== null;
+}
+
+function isNullableString(x: unknown): x is string | null {
+  return x === null || typeof x === 'string';
+}
+
+function isGuestBlock(x: unknown): x is GuestBlock {
+  if (!isRecord(x)) return false;
+
   return (
-    Array.isArray(x) &&
-    x.every(b => {
-      if (!b || typeof b !== 'object') return false;
-      const o = b as Record<string, unknown>;
-      return (
-        typeof o.id === 'string' &&
-        typeof o.type === 'string' &&
-        typeof o.component === 'string' &&
-        'props' in o
-      );
-    })
+    typeof x.id === 'string' &&
+    typeof x.type === 'string' &&
+    typeof x.component === 'string' &&
+    'props' in x
   );
+}
+
+function isGuestBgm(x: unknown): x is GuestBgm {
+  if (!isRecord(x)) return false;
+
+  return (
+    isNullableString(x.selectedBgmId) &&
+    typeof x.isLoop === 'boolean' &&
+    typeof x.volume === 'number' &&
+    isNullableString(x.userBgmTitle) &&
+    isNullableString(x.userBgmDuration) &&
+    isNullableString(x.userBgmFileId)
+  );
+}
+
+export function isGuestPayload(x: unknown): x is GuestPayload {
+  if (!isRecord(x)) return false;
+
+  if (!Array.isArray(x.blocks)) return false;
+  if (!x.blocks.every(isGuestBlock)) return false;
+
+  return isGuestBgm(x.bgm);
 }
