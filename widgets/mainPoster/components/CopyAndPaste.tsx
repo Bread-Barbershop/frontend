@@ -1,13 +1,16 @@
 import { Canvas, FabricObject } from 'fabric';
 
-import { useFabric } from '../hooks/useFabric';
-
 interface Props {
   onClick: () => void;
   canvas: Canvas;
   activeObject: FabricObject | null;
   clipboard: FabricObject | null;
   setClipboard: (clipboard: FabricObject | null) => void;
+  copy: (args: {
+    activeObject: FabricObject | null;
+    setClipboard: (clipboard: FabricObject | null) => void;
+  }) => void;
+  paste: (args: { canvas: Canvas; clipboard: FabricObject | null }) => void;
 }
 
 function CopyAndPaste({
@@ -16,9 +19,9 @@ function CopyAndPaste({
   activeObject,
   clipboard,
   setClipboard,
+  copy,
+  paste,
 }: Props) {
-  const { copy, paste } = useFabric();
-
   return (
     <>
       <button

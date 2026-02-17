@@ -755,8 +755,8 @@ export const useFabric = () => {
     activeObject,
     setClipboard,
   }: {
-    activeObject: fabric.Object;
-    setClipboard: (clipboard: fabric.Object) => void;
+    activeObject: fabric.FabricObject | null;
+    setClipboard: (clipboard: fabric.FabricObject | null) => void;
   }) => {
     if (!activeObject) return;
     const cloned = await activeObject.clone();
@@ -768,7 +768,7 @@ export const useFabric = () => {
     clipboard,
   }: {
     canvas: fabric.Canvas;
-    clipboard: fabric.Object;
+    clipboard: fabric.FabricObject | null;
   }) => {
     if (!clipboard) return;
     const cloned = await clipboard.clone();

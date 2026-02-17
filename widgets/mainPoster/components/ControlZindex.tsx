@@ -8,22 +8,26 @@ interface Props {
 
 function ControlZindex({ onClick, canvas, activeObject }: Props) {
   const moveUp = () => {
-    canvas.bringObjectForward(activeObject as FabricObject);
+    if (!activeObject) return;
+    canvas.bringObjectForward(activeObject);
     canvas.requestRenderAll();
   };
 
   const moveDown = () => {
-    canvas.sendObjectBackwards(activeObject as FabricObject);
+    if (!activeObject) return;
+    canvas.sendObjectBackwards(activeObject);
     canvas.requestRenderAll();
   };
 
   const moveTop = () => {
-    canvas.bringObjectToFront(activeObject as FabricObject);
+    if (!activeObject) return;
+    canvas.bringObjectToFront(activeObject);
     canvas.requestRenderAll();
   };
 
   const moveBottom = () => {
-    canvas.sendObjectToBack(activeObject as FabricObject);
+    if (!activeObject) return;
+    canvas.sendObjectToBack(activeObject);
     canvas.requestRenderAll();
   };
 

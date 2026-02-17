@@ -14,6 +14,20 @@ interface Props {
   ) => void;
   clipboard: FabricObject | null;
   setClipboard: (clipboard: FabricObject | null) => void;
+  copy: ({
+    activeObject,
+    setClipboard,
+  }: {
+    activeObject: FabricObject | null;
+    setClipboard: (clipboard: FabricObject | null) => void;
+  }) => void;
+  paste: ({
+    canvas,
+    clipboard,
+  }: {
+    canvas: Canvas;
+    clipboard: FabricObject | null;
+  }) => void;
 }
 
 function ContextMenu({
@@ -22,6 +36,8 @@ function ContextMenu({
   handleDeleteShape,
   clipboard,
   setClipboard,
+  copy,
+  paste,
 }: Props) {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -86,6 +102,8 @@ function ContextMenu({
         activeObject={activeObject}
         clipboard={clipboard}
         setClipboard={setClipboard}
+        copy={copy}
+        paste={paste}
       />
       <ControlZindex
         onClick={() => setOpen(false)}

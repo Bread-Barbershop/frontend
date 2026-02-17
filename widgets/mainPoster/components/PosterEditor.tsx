@@ -170,6 +170,8 @@ const PosterEditor: React.FC = () => {
           handleDeleteShape={handleDeleteShape}
           clipboard={clipboard}
           setClipboard={setClipboard}
+          copy={copy}
+          paste={paste}
         />
       )}
       <div
