@@ -5,3 +5,17 @@ export type GuestBlock = {
   component: string;
   props: unknown;
 };
+
+export type GuestBgm = {
+  selectedBgmId: string | null;
+  isLoop: boolean;
+  volume: number;
+  userBgmTitle: string | null;
+  userBgmDuration: string | null;
+  userBgmFileId: string | null;
+};
+
+export type GuestPayload = {
+  blocks: GuestBlock[];
+  bgm: GuestBgm;
+};
