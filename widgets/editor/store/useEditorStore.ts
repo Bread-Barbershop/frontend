@@ -42,8 +42,8 @@ interface EditorState {
   updateImage: (id: string, image: File[]) => void;
   updateImageId: (id: string, imageId: string) => void;
   // 메인포스터 탭 상태 관리
-  activeTab: 'image' | null;
-  setActiveTab: (tab: 'image' | null) => void;
+  activeTab: 'image' | 'diagram' | null;
+  setActiveTab: (tab: 'image' | 'diagram' | null) => void;
 }
 
 export const useEditorStore = create<EditorState>((set, get) => ({
@@ -145,5 +145,5 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       ),
     })),
   activeTab: null,
-  setActiveTab: (tab: 'image' | null) => set({ activeTab: tab }),
+  setActiveTab: (tab: 'image' | 'diagram' | null) => set({ activeTab: tab }),
 }));

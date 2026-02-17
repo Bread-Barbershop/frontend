@@ -48,7 +48,6 @@ export const PosterEditor = () => {
     activeDrawingMode,
     dragToCreateTextBox,
     handleDrawingMode,
-    addImage,
     handleDeleteShape,
     handleDeleteEmptyShape,
     copy,
@@ -237,11 +236,7 @@ export const PosterEditor = () => {
         </div>
       </div>
       {selectedId === 'mainPoster' && (
-        <Toolbar
-          canvas={canvas}
-          handleDrawingMode={handleDrawingMode}
-          addImage={addImage}
-        />
+        <Toolbar canvas={canvas} handleDrawingMode={handleDrawingMode} />
       )}
     </>
   );

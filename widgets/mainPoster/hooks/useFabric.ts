@@ -836,6 +836,281 @@ export const useFabric = () => {
     canvas.requestRenderAll();
   };
 
+  // --- 도형 및 그리기 기능 ---
+
+  // 도형 추가 (Rect, Circle, Triangle)
+  const addShape = (
+    canvas: fabric.Canvas,
+    type: 'rect' | 'circle' | 'triangle',
+    options?: fabric.FabricObjectProps
+  ) => {
+    let shape: fabric.FabricObject;
+    const commonOptions = {
+      left: 100,
+      top: 100,
+      fill: '#000000',
+      width: 100,
+      height: 100,
+      ...options,
+    };
+
+    switch (type) {
+      case 'rect':
+        shape = new fabric.Rect(commonOptions);
+        break;
+      case 'circle':
+        shape = new fabric.Circle({
+          ...commonOptions,
+          radius: (commonOptions.width || 100) / 2,
+        });
+        break;
+      case 'triangle':
+        shape = new fabric.Triangle(commonOptions);
+        break;
+      default:
+        return;
+    }
+
+    canvas.add(shape);
+    canvas.setActiveObject(shape);
+    canvas.requestRenderAll();
+  };
+
+  // 선 추가
+  const addLine = (
+    canvas: fabric.Canvas,
+    options?: fabric.FabricObjectProps
+  ) => {
+    const line = new fabric.Line([50, 100, 250, 100], {
+      left: 100,
+      top: 100,
+      stroke: '#000',
+      strokeWidth: 5,
+      ...options,
+    });
+    canvas.add(line);
+    canvas.setActiveObject(line);
+    canvas.requestRenderAll();
+  };
+
+  // 리스너 관리를 위해 useRef 사용
+  const drawingListenerRef = useRef<
+    ((e: fabric.TPointerEventInfo) => void) | null
+  >(null);
+
+  // 그리기 모드 토글 (수정됨)
+  const toggleDrawingModeUpdated = (canvas: fabric.Canvas, enable: boolean) => {
+    canvas.isDrawingMode = enable;
+
+    // 기존 리스너 제거
+    if (drawingListenerRef.current) {
+      canvas.off('path:created', drawingListenerRef.current);
+      drawingListenerRef.current = null;
+    }
+
+    if (enable) {
+      // 그리기 모드 활성화 시 기본 브러시 설정
+      if (!canvas.freeDrawingBrush) {
+        canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+      }
+      const currentBrushWidth = canvas.freeDrawingBrush.width || 5;
+      const currentBrushColor = canvas.freeDrawingBrush.color || '#000000';
+
+      canvas.freeDrawingBrush.width = currentBrushWidth;
+      canvas.freeDrawingBrush.color = currentBrushColor;
+
+      // 한 번 그리고 나면 그리기 모드 해제
+      const disableDrawingAfterPath = () => {
+        canvas.isDrawingMode = false;
+        setDrawingMode(false);
+        canvas.requestRenderAll();
+        // 실행 후 자기 자신 제거
+        canvas.off('path:created', disableDrawingAfterPath);
+        drawingListenerRef.current = null;
+      };
+
+      drawingListenerRef.current = disableDrawingAfterPath;
+      canvas.on('path:created', disableDrawingAfterPath);
+    }
+
+    canvas.requestRenderAll();
+  };
+
+  // 브러시 속성 설정
+  const setBrushProperties = (
+    canvas: fabric.Canvas,
+    color: string,
+    width: number
+  ) => {
+    if (canvas.freeDrawingBrush) {
+      canvas.freeDrawingBrush.color = color;
+      canvas.freeDrawingBrush.width = width;
+    }
+  };
+
+  // --- Drag to Create Shape Logic ---
+  const [activeShapeType, setActiveShapeType] = useState<
+    'rect' | 'circle' | 'triangle' | 'line' | null
+  >(null);
+  const shapeCreationRef = useRef<{
+    isDrawing: boolean;
+    startPoint: { x: number; y: number };
+    activeShape: fabric.Object | null;
+  }>({
+    isDrawing: false,
+    startPoint: { x: 0, y: 0 },
+    activeShape: null,
+  });
+
+  const activateShapeMode = (
+    canvas: fabric.Canvas,
+    type: 'rect' | 'circle' | 'triangle' | 'line' | null
+  ) => {
+    // 기존 모드 해제
+    if (activeShapeType === type) {
+      // 이미 활성화된 타입을 다시 누르면 취소
+      setActiveShapeType(null);
+      canvas.selection = true;
+      canvas.defaultCursor = 'default';
+      canvas.off('mouse:down', onShapeMouseDown);
+      canvas.off('mouse:move', onShapeMouseMove);
+      canvas.off('mouse:up', onShapeMouseUp);
+      return;
+    }
+
+    setActiveShapeType(type);
+
+    if (type) {
+      canvas.selection = false;
+      canvas.defaultCursor = 'crosshair';
+      canvas.on('mouse:down', onShapeMouseDown);
+      canvas.on('mouse:move', onShapeMouseMove);
+      canvas.on('mouse:up', onShapeMouseUp);
+    } else {
+      canvas.selection = true;
+      canvas.defaultCursor = 'default';
+      canvas.off('mouse:down', onShapeMouseDown);
+      canvas.off('mouse:move', onShapeMouseMove);
+      canvas.off('mouse:up', onShapeMouseUp);
+    }
+  };
+
+  const onShapeMouseDown = (opt: fabric.TPointerEventInfo) => {
+    const canvas = opt.target?.canvas;
+    if (!canvas || !activeShapeType) return;
+
+    // 빈 공간 클릭시에만 생성 (객체 위 클릭은 무시하고 싶다면 activeObject 체크)
+    // 하지만 "Drag to create"는 객체 위에서도 시작될 수 있어야 편할 수 있음.
+    // 여기서는 selection을 껐으므로 객체 선택은 안됨.
+
+    const pointer = canvas.getScenePoint(opt.e);
+    shapeCreationRef.current.isDrawing = true;
+    shapeCreationRef.current.startPoint = { x: pointer.x, y: pointer.y };
+
+    let shape: fabric.Object;
+    const commonOptions = {
+      left: pointer.x,
+      top: pointer.y,
+      fill: '#000000', // 기본값
+      selectable: false, // 생성 중에는 선택 불가
+      evented: false,
+    };
+
+    switch (activeShapeType) {
+      case 'rect':
+        shape = new fabric.Rect({ ...commonOptions, width: 0, height: 0 });
+        break;
+      case 'circle':
+        shape = new fabric.Circle({
+          ...commonOptions,
+          radius: 0,
+          // Fabric Circle은 좌상단 기준이므로 radius조정 방식에 따라 origin 조정 필요
+          // 여기서는 좌상단 클릭 -> 드래그로 반경 결정 방식으로 구현
+          originX: 'left',
+          originY: 'top',
+        });
+        break;
+      case 'triangle':
+        shape = new fabric.Triangle({ ...commonOptions, width: 0, height: 0 });
+        break;
+      case 'line':
+        shape = new fabric.Line([pointer.x, pointer.y, pointer.x, pointer.y], {
+          ...commonOptions,
+          fill: undefined,
+          stroke: '#000000',
+          strokeWidth: 5,
+        });
+        break;
+      default:
+        return;
+    }
+
+    if (shape) {
+      canvas.add(shape);
+      shapeCreationRef.current.activeShape = shape;
+    }
+  };
+
+  const onShapeMouseMove = (opt: fabric.TPointerEventInfo) => {
+    if (!shapeCreationRef.current.isDrawing) return;
+    const canvas = opt.target?.canvas;
+    const shape = shapeCreationRef.current.activeShape;
+    if (!canvas || !shape) return;
+
+    const pointer = canvas.getScenePoint(opt.e);
+    const startPoint = shapeCreationRef.current.startPoint;
+
+    if (activeShapeType === 'line') {
+      (shape as fabric.Line).set({ x2: pointer.x, y2: pointer.y });
+    } else if (activeShapeType === 'circle') {
+      const dx = Math.abs(pointer.x - startPoint.x);
+      const dy = Math.abs(pointer.y - startPoint.y);
+      const radius = Math.max(dx, dy) / 2; // 지름의 절반
+      // 드래그 방향에 따라 left/top 조정이 필요할 수 있음
+      const left = Math.min(pointer.x, startPoint.x);
+      const top = Math.min(pointer.y, startPoint.y);
+      (shape as fabric.Circle).set({ radius: radius, left: left, top: top });
+    } else {
+      // Rect, Triangle
+      const width = Math.abs(pointer.x - startPoint.x);
+      const height = Math.abs(pointer.y - startPoint.y);
+      const left = Math.min(pointer.x, startPoint.x);
+      const top = Math.min(pointer.y, startPoint.y);
+      shape.set({ width, height, left, top });
+    }
+
+    canvas.requestRenderAll();
+  };
+
+  const onShapeMouseUp = (opt: fabric.TPointerEventInfo) => {
+    if (!shapeCreationRef.current.isDrawing) return;
+    const canvas = opt.target?.canvas;
+    const shape = shapeCreationRef.current.activeShape;
+    if (!canvas || !shape) return;
+
+    // 너무 작은 도형은 삭제 (클릭 실수 방지)
+    if (shape.width! < 5 && shape.height! < 5 && activeShapeType !== 'line') {
+      canvas.remove(shape);
+    } else {
+      shape.set({ selectable: true, evented: true });
+      canvas.setActiveObject(shape);
+    }
+
+    if (activeShapeType === 'line') {
+      // Line의 경우 길이 체크 등 추가 가능
+      shape.set({ selectable: true, evented: true });
+      canvas.setActiveObject(shape);
+    }
+
+    shapeCreationRef.current.isDrawing = false;
+    shapeCreationRef.current.activeShape = null;
+
+    // 도형 생성 완료 후 모드 자동 해제 (One-time creation)
+    activateShapeMode(canvas, null);
+
+    canvas.requestRenderAll();
+  };
+
   return {
     shapes,
     activeDrawingMode,
@@ -851,6 +1126,15 @@ export const useFabric = () => {
     startCrop,
     applyCrop,
     cancelCrop,
+
+    // Diagram functions
+    addShape,
+    addLine,
+    toggleDrawingMode: toggleDrawingModeUpdated,
+    setBrushProperties,
+    activateShapeMode,
+    activeShapeType,
+
     setPatternOffset,
     copy,
     paste,
