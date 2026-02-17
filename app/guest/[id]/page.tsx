@@ -1,7 +1,7 @@
 ﻿import 'server-only';
 import { notFound } from 'next/navigation';
 
-//import GuestBgm from './components/GuestBgm';
+import GuestBgm from './components/GuestBgm';
 import GuestRenderer from './components/GuestRenderer';
 import { isGuestPayload } from './utils/guestBlockTypeGuards';
 
@@ -37,7 +37,7 @@ export default async function GuestPage({
     <main className="min-h-screen bg-neutral-50">
       <div className="mx-auto w-full max-w-xl bg-white shadow-sm">
         <GuestRenderer blocks={payload.blocks} />
-        {/* <GuestBgm bgm={payload.bgm} /> */}
+        <GuestBgm bgm={payload.bgm} />
       </div>
     </main>
   );
