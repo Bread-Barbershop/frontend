@@ -1,19 +1,18 @@
-import * as fabric from 'fabric';
+import { Canvas, Textbox } from 'fabric';
 import { ChevronDown } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { cn } from '@/shared/utils/cn';
-
-import { RichStyleKey } from '../types/fabric';
+import { RichStyleKey } from '@/widgets/mainPoster/types/fabric';
 
 import ColorPicker from './ColorPicker';
 
 interface Props {
-  canvas: fabric.Canvas | null;
-  activeObject: fabric.Textbox | null;
-  applyRichStyle: (styleObj: object, canvas: fabric.Canvas) => void;
+  canvas: Canvas | null;
+  activeObject: Textbox | null;
+  applyRichStyle: (styleObj: object, canvas: Canvas) => void;
   getRichStyles: (
-    activeObject: fabric.Textbox,
+    activeObject: Textbox,
     style: RichStyleKey,
     onChange: (color: string) => void
   ) => void;

@@ -1,4 +1,4 @@
-import * as fabric from 'fabric';
+import { Canvas, FabricObject } from 'fabric';
 import { create } from 'zustand';
 
 import { componentCls } from '@/shared/samples/componentSample';
@@ -35,10 +35,10 @@ interface EditorState {
   addAllBlock: (
     english: 'wedding' | 'firstBirthday' | 'birthday' | 'conference' | 'etc'
   ) => void;
-  canvas: fabric.Canvas | null;
-  setCanvas: (canvas: fabric.Canvas | null) => void;
-  activeObject: fabric.Object | null;
-  setActiveObject: (activeObject: fabric.Object | null) => void;
+  canvas: Canvas | null;
+  setCanvas: (canvas: Canvas | null) => void;
+  activeObject: FabricObject | null;
+  setActiveObject: (activeObject: FabricObject | null) => void;
   updateImage: (id: string, image: File[]) => void;
   updateImageId: (id: string, imageId: string) => void;
 }
@@ -116,10 +116,9 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     });
   },
   activeObject: null,
-  setActiveObject: (activeObject: fabric.Object | null) =>
-    set({ activeObject }),
+  setActiveObject: (activeObject: FabricObject | null) => set({ activeObject }),
   canvas: null,
-  setCanvas: (canvas: fabric.Canvas | null) => set({ canvas }),
+  setCanvas: (canvas: Canvas | null) => set({ canvas }),
   //이미지 추가
   updateImage: (id, image) =>
     set(state => {

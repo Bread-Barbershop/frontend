@@ -241,7 +241,11 @@ export const useFabric = () => {
     else if (id) setShapes(prev => prev.filter(s => s.id !== id));
   };
 
-  const handleDeleteShape = (canvas: fabric.Canvas, e: KeyboardEvent) => {
+  const handleDeleteShape = (
+    canvas: fabric.Canvas,
+    e?: KeyboardEvent,
+    flag?: boolean
+  ) => {
     // 페이지 내의 포스터 캔버스가 아닌곳에서 키보드 이벤트 발생시 작동 중지
     const activeObjects = canvas.getActiveObjects();
     const isHoveringCanvas = canvas.elements.container.matches(':hover');
@@ -254,8 +258,8 @@ export const useFabric = () => {
       );
 
       if (isEditing) return;
-      if (e.key === 'Delete') {
-        e.preventDefault();
+      if (e?.key === 'Delete' || flag === true) {
+        e?.preventDefault();
 
         canvas.remove(...activeObjects);
 
@@ -267,7 +271,7 @@ export const useFabric = () => {
         canvas.discardActiveObject();
         canvas.requestRenderAll();
       }
-    } else if (!exist && e.key === 'Backspace') {
+    } else if (!exist && e?.key === 'Backspace') {
       const checkGoToBack = confirm(
         '정말 뒤돌아가시겠습니까? 저장되지 않은 내역은 모두 사라집니다'
       );
@@ -747,6 +751,49 @@ export const useFabric = () => {
     }
   };
 
+  const copy = async ({
+    activeObject,
+    setClipboard,
+  }: {
+    activeObject: fabric.FabricObject | null;
+    setClipboard: (clipboard: fabric.FabricObject | null) => void;
+  }) => {
+    if (!activeObject) return;
+    const cloned = await activeObject.clone();
+    setClipboard(cloned);
+  };
+
+  const paste = async ({
+    canvas,
+    clipboard,
+  }: {
+    canvas: fabric.Canvas;
+    clipboard: fabric.FabricObject | null;
+  }) => {
+    if (!clipboard) return;
+    const cloned = await clipboard.clone();
+    if (!cloned) return;
+
+    canvas.discardActiveObject();
+    cloned.set({
+      left: (cloned.left ?? 0) + 10,
+      top: (cloned.top ?? 0) + 10,
+      evented: true,
+    });
+
+    if (cloned instanceof fabric.ActiveSelection) {
+      cloned.canvas = canvas;
+      cloned.forEachObject(obj => canvas.add(obj));
+      cloned.setCoords();
+    } else {
+      canvas.add(cloned);
+    }
+
+    canvas.setActiveObject(cloned);
+    canvas.bringObjectForward(cloned);
+    canvas.requestRenderAll();
+  };
+
   return {
     shapes,
     activeDrawingMode,
@@ -763,5 +810,7 @@ export const useFabric = () => {
     applyCrop,
     cancelCrop,
     setPatternOffset,
+    copy,
+    paste,
   };
 };
