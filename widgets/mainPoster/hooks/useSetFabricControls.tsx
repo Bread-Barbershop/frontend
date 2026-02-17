@@ -8,6 +8,28 @@ import {
   isImageReadyForCanvas,
 } from '../utils/fabricUtils';
 
+const scaleOrResizeTextbox: Control['actionHandler'] = (
+  eventData,
+  transform,
+  x,
+  y
+) => {
+  const target = transform.target;
+
+  const isTextbox =
+    typeof target?.isType === 'function'
+      ? target.isType('textbox')
+      : target?.type === 'textbox';
+
+  // Textbox면: scale 말고 width 변경 (폰트 크기 유지)
+  if (isTextbox) {
+    return controlsUtils.changeWidth(eventData, transform, x, y);
+  }
+
+  // 그 외(이미지 등)는 기존처럼 스케일
+  return controlsUtils.scalingEqually(eventData, transform, x, y);
+};
+
 export const useSetFabricControls = () => {
   useEffect(() => {
     const img = createFabricControlImage(MOVE_ICON);
@@ -49,7 +71,8 @@ export const useSetFabricControls = () => {
       newControls[corner.id] = new Control({
         x: corner.x,
         y: corner.y,
-        actionHandler: controlsUtils.scalingEqually, // 정비례 확대/축소
+        // actionHandler: controlsUtils.scalingEqually, // 정비례 확대/축소
+        actionHandler: scaleOrResizeTextbox,
         cursorStyleHandler: controlsUtils.scaleCursorStyleHandler, // 확대/축소 커서 적용
         actionName: 'scale',
         render: controlsUtils.renderSquareControl,
