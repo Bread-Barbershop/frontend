@@ -15,11 +15,13 @@ export async function GET(req: NextRequest) {
   if (range) forwardHeaders.set('range', range);
 
   let driveRes: Response;
+  let driveRes: Response;
   try {
     driveRes = await fetch(driveUrl, {
       redirect: 'follow',
       headers: forwardHeaders,
       cache: 'no-store',
+      signal: AbortSignal.timeout(15_000),
     });
   } catch {
     return NextResponse.json(
