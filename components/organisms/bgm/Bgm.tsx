@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { useMemo, type ChangeEvent } from 'react';
 
 import { Label } from '@/components/atoms/label';
@@ -8,43 +7,27 @@ import { Radio } from '@/components/atoms/radio/Radio';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 
+import { PlayToggleButton } from './components/PlayToggleButton';
 import { BGM_LIST } from './data/bgmList';
 import { useBgmPlayer } from './hooks/useBgmPlayer';
 import { USER_BGM_ID, useUserBgmUpload } from './hooks/useUserBgmUpload';
-
-interface PlayToggleButtonProps {
-  isPlaying: boolean;
-  onToggle: () => void;
-}
-
-const PlayToggleButton = ({ isPlaying, onToggle }: PlayToggleButtonProps) => {
-  return (
-    <button type="button" className="shrink-0" onClick={onToggle}>
-      {isPlaying ? (
-        <Image
-          src="/assets/icons/pause.svg"
-          alt="정지"
-          width={32}
-          height={32}
-        />
-      ) : (
-        <Image src="/assets/icons/play.svg" alt="재생" width={32} height={32} />
-      )}
-    </button>
-  );
-};
+import { useBgmStore } from './store/useBgmStore';
 
 export default function Bgm() {
+  const { selectedBgmId } = useBgmStore();
   const { fileInputRef, openFilePicker, uploadUserBgm, userBgm } =
     useUserBgmUpload();
 
-  const mergedBgmList = useMemo(
-    () => (userBgm ? [...BGM_LIST, userBgm] : BGM_LIST),
-    [userBgm]
-  );
+  // 선택된 id로부터 재생할 src를 직접 resolve — bgmList를 훅에 넘기지 않음
+  const currentSrc = useMemo(() => {
+    if (!selectedBgmId) return null;
+    if (selectedBgmId === USER_BGM_ID) return userBgm?.src ?? null;
+    return BGM_LIST.find(b => b.id === selectedBgmId)?.src ?? null;
+  }, [selectedBgmId, userBgm?.src]);
 
   const { isLoop, isPlaying, selectedBgm, selectBgm, setIsLoop, togglePlay } =
-    useBgmPlayer(mergedBgmList, { volume: 0.2 });
+    useBgmPlayer(currentSrc);
+
   const isUserBgmSelected = selectedBgm === USER_BGM_ID;
 
   const handlePresetBgmChange = (e: ChangeEvent<HTMLInputElement>) => {
