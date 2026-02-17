@@ -65,7 +65,7 @@ export function useBgmPlayer(
     audio.pause();
     audio.src = bgm.src;
     audio.load();
-    void audio.play().catch(() => setIsPlaying(false));
+
   }, [bgmById, selectedBgm]);
 
   // 반복 재생 토글 시 현재 오디오에만 반영
