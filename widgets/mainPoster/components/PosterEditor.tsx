@@ -115,15 +115,16 @@ const PosterEditor: React.FC = () => {
 
   useEffect(() => {
     if (!canvas) return;
-    const onOver = () => (isMouseInCanvasRef.current = true);
-    const onOut = () => (isMouseInCanvasRef.current = false);
+    const el = canvas.upperCanvasEl;
+    const onEnter = () => (isMouseInCanvasRef.current = true);
+    const onLeave = () => (isMouseInCanvasRef.current = false);
 
-    canvas.on('mouse:over', onOver);
-    canvas.on('mouse:out', onOut);
+    el.addEventListener('mouseenter', onEnter);
+    el.addEventListener('mouseleave', onLeave);
 
     return () => {
-      canvas.off('mouse:over', onOver);
-      canvas.off('mouse:out', onOut);
+      el.removeEventListener('mouseenter', onEnter);
+      el.removeEventListener('mouseleave', onLeave);
     };
   }, [canvas]);
 
