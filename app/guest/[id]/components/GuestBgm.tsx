@@ -5,6 +5,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { BGM_LIST } from '@/components/organisms/bgm/data/bgmList';
 
+import BgmToggleButton from './BgmToggleButton';
+
 import type { GuestBgm as GuestBgmData } from '../types/guestTypes';
 
 interface GuestBgmProps {
@@ -96,13 +98,10 @@ function GuestBgm({ bgm }: GuestBgmProps) {
     <>
       <audio ref={audioRef} preload="none" />
       {src && (
-        <button
-          type="button"
-          className="fixed right-4 top-4 z-50 rounded-full bg-black px-3 py-1.5 text-xs font-semibold text-white"
-          onClick={() => setIsOn(prev => !prev)}
-        >
-          {isOn ? 'ON' : 'OFF'}
-        </button>
+        <BgmToggleButton
+          isOn={isOn}
+          onToggle={() => setIsOn(prev => !prev)}
+        />
       )}
     </>
   );

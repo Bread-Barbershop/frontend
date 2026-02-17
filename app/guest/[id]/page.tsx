@@ -35,7 +35,7 @@ export default async function GuestPage({
 
   return (
     <main className="min-h-screen bg-neutral-50">
-      <div className="mx-auto w-full max-w-xl bg-white shadow-sm">
+      <div className="relative mx-auto w-full max-w-xl bg-white shadow-sm">
         <GuestRenderer blocks={payload.blocks} />
         <GuestBgm bgm={payload.bgm} />
       </div>
