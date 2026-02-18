@@ -93,7 +93,7 @@ export const Selector = <T extends Option>({
           <button
             onClick={handleToggle}
             className={cn(
-              'flex items-center justify-between w-full py-1 pl-2 text-left'
+              'flex items-center justify-between w-full py-1 pl-2 text-left cursor-pointer'
             )}
             aria-haspopup="listbox"
             aria-expanded={isOpen}

@@ -29,12 +29,13 @@ function TextEditorButton({
       disabled={disabled}
       onMouseDown={handleMouseDown}
       onClick={onClick}
-      className={`
-        w-8 h-8
+      className="w-8 h-8
         flex items-center justify-center
-        rounded-md transition-colors
-        ${active ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200'}
-      `}
+        transition-colors
+        hover:bg-gray-200
+        rounded-md
+        cursor-pointer
+        "
     >
       {icon}
     </button>

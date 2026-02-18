@@ -11,7 +11,7 @@ import Text from '@tiptap/extension-text';
 import TextAlign from '@tiptap/extension-text-align';
 import { TextStyle, FontSize } from '@tiptap/extension-text-style';
 import Underline from '@tiptap/extension-underline';
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useEditor, EditorContent, JSONContent } from '@tiptap/react';
 import { TextAlignCenter, TextAlignEnd, TextAlignStart } from 'lucide-react';
 import { ReactNode, useState } from 'react';
 
@@ -25,6 +25,11 @@ import { FontColorIcon } from './components/FontColorIcon';
 import { ItalicIcon } from './components/ItalicIcon';
 import { UnderlineIcon } from './components/UnderlineIcon';
 
+interface TextEditorBarProps {
+  initialContent?: string;
+  onChange?: (json: JSONContent) => void;
+}
+
 interface FontSizeOption {
   label: string;
   value: string;
@@ -36,12 +41,12 @@ interface TextAlignOption {
 }
 
 const FontSizeOptions: FontSizeOption[] = [
-  { label: '14px', value: '14' },
-  { label: '16px', value: '16' },
-  { label: '18px', value: '18' },
-  { label: '20px', value: '20' },
-  { label: '24px', value: '24' },
-  { label: '30px', value: '30' },
+  { label: '14px', value: '14px' },
+  { label: '16px', value: '16px' },
+  { label: '18px', value: '18px' },
+  { label: '20px', value: '20px' },
+  { label: '24px', value: '24px' },
+  { label: '30px', value: '30px' },
 ];
 
 const TextAlignOptions: TextAlignOption[] = [
@@ -50,10 +55,13 @@ const TextAlignOptions: TextAlignOption[] = [
   { label: <TextAlignEnd size={16} />, value: 'right' },
 ];
 
-export function TextEditorBar() {
+export function TextEditorBar({
+  initialContent = '내용을 입력하세요.',
+  onChange,
+}: TextEditorBarProps) {
   const [fontSizeSelected, setFontSizeSelected] = useState<FontSizeOption>({
-    label: '20px',
-    value: '20',
+    label: '14px',
+    value: '14px',
   });
   const [textAlignSelected, setTextAlignSelected] = useState<TextAlignOption>({
     label: <TextAlignStart size={16} />,
@@ -76,17 +84,27 @@ export function TextEditorBar() {
       FontSize,
       TextAlign.configure({
         types: ['paragraph', 'listItem'],
+        defaultAlignment: 'left',
       }),
     ],
-    content: '<p>내용을 입력하세요.</p>',
+    content: `<p>${initialContent}</p>`,
+    editorProps: {
+      attributes: {
+        class: 'min-h-[120px] outline-none text-[14px] leading-7',
+      },
+    },
+    onUpdate({ editor }) {
+      if (!onChange) return;
+      onChange(editor.getJSON());
+    },
   });
 
   if (!editor) return null;
 
   return (
-    <div className="space-y-3">
+    <div className="w-full space-y-1">
       {/* 툴바 */}
-      <div className="flex gap-1 border-b pb-2">
+      <div className="flex justify-between">
         {/* Font Size */}
         <Selector<FontSizeOption>
           options={FontSizeOptions}
@@ -94,13 +112,10 @@ export function TextEditorBar() {
           onSelect={option => {
             const selected = option as FontSizeOption;
             setFontSizeSelected(selected);
-            editor
-              .chain()
-              .focus()
-              .setMark('textStyle', { fontSize: `${selected.value}px` })
-              .run();
+            editor.chain().focus().setFontSize(selected.value).run();
           }}
           placeholder="폰트 크기"
+          className="font-bold"
         />
 
         {/* Bold */}
@@ -159,7 +174,7 @@ export function TextEditorBar() {
       </div>
 
       {/* 입력 영역 */}
-      <div className="border p-3 rounded-md min-h-30">
+      <div className="bg-border-neutral rounded-lg p-3">
         <EditorContent editor={editor} />
       </div>
     </div>
