@@ -18,21 +18,9 @@ export interface BaseShape {
   padding?: number; // 컨텐츠와 테두리 사이 여백
 }
 
-/**
- * 필터에 사용할 옵션 인터페이스
- */
-export interface PhotoPresetOptions {
-  exposure?: number;
-  contrast?: number;
-  saturation?: number;
-  temperature?: number;
-  tint?: number;
-  fade?: number;
-  vignette?: number;
-  grain?: number;
-  bw?: number;
-  type?: 'bw' | 'warm' | 'cool' | 'fade' | 'filmGrain' | 'vignette' | null;
-}
+import { PhotoPresetOptions } from '@/components/molecules/image-editor';
+
+export type { PhotoPresetOptions };
 
 export interface Image extends BaseShape {
   type: 'image';

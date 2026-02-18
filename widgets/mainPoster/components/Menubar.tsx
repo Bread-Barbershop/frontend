@@ -24,8 +24,6 @@ function Menubar() {
     addImage,
     startCrop,
     isCropping,
-    applyCrop,
-    cancelCrop,
     activeInfo,
   } = useFabricContext();
 

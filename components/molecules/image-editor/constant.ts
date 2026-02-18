@@ -1,8 +1,8 @@
-import { PhotoPresetOptions } from '@/widgets/mainPoster/types/fabric';
+import { FilterType, PhotoPresetOptions } from './types';
 
 export const PHOTO_PRESETS: {
   label: string;
-  type: 'bw' | 'warm' | 'cool' | 'fade' | 'filmGrain' | 'vignette' | null;
+  type: FilterType;
   value: PhotoPresetOptions;
 }[] = [
   {

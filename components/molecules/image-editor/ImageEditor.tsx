@@ -4,15 +4,12 @@ import { useState } from 'react';
 import { Button } from '@/components/atoms/button';
 import { Label } from '@/components/atoms/label';
 import { cn } from '@/shared/utils/cn';
-import { PhotoPresetOptions } from '@/widgets/mainPoster/types/fabric';
 
 import { PHOTO_PRESETS } from './constant';
+import { FilterType, PhotoPresetOptions } from './types';
 
 interface ImageEditorProps {
-  onApply: (
-    options: PhotoPresetOptions,
-    type: 'bw' | 'warm' | 'cool' | 'fade' | 'filmGrain' | 'vignette' | null
-  ) => void;
+  onApply: (options: PhotoPresetOptions, type: FilterType) => void;
 }
 
 export const ImageEditor = ({ onApply }: ImageEditorProps) => {
