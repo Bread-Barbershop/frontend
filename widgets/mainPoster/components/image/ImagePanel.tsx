@@ -27,7 +27,7 @@ interface Props {
   cancelCrop: (canvas: Canvas) => void;
 }
 
-const ImageFilterPanel = ({
+export const ImagePanel = ({
   canvas,
   applyImageFilter,
   addImage,
@@ -166,5 +166,3 @@ const ImageFilterPanel = ({
     </div>
   );
 };
-
-export default ImageFilterPanel;

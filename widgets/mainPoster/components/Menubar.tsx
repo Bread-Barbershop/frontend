@@ -4,8 +4,8 @@ import { useShallow } from 'zustand/shallow';
 import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
-import DiagramPanel from './diagrams/DiagramPanel';
-import ImageFilterPanel from './image/ImageFilterPanel';
+import { GraphicPanel } from './graphic/GraphicPanel';
+import { ImagePanel } from './image/ImagePanel';
 import RichTextPanel from './richtext/RichTextPanel';
 
 function Menubar() {
@@ -26,7 +26,7 @@ function Menubar() {
     isCropping,
     applyCrop,
     cancelCrop,
-    // activeInfo,
+    activeInfo,
   } = useFabricContext();
 
   // 현재 선택된 객체가 텍스트인지 이미지인지 확인
@@ -80,19 +80,18 @@ function Menubar() {
 
       {/* 이미지 */}
       {activeTab === 'image' && (
-        <ImageFilterPanel
+        <ImagePanel
           canvas={canvas}
           addImage={addImage}
           applyImageFilter={applyImageFilter}
           startCrop={startCrop}
           isCropping={isCropping}
-          applyCrop={applyCrop}
-          cancelCrop={cancelCrop}
+          activeInfo={activeInfo}
         />
       )}
 
       {/* 도형 */}
-      {activeTab === 'diagram' && <DiagramPanel />}
+      {activeTab === 'diagram' && <GraphicPanel />}
     </div>
   );
 }

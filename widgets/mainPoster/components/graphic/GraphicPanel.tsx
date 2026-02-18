@@ -8,7 +8,7 @@ import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationB
 import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
-export default function DiagramPanel() {
+export function GraphicPanel() {
   const { canvas } = useEditorStore(
     useShallow(state => ({
       canvas: state.canvas,

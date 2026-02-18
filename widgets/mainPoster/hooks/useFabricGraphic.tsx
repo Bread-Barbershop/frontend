@@ -15,11 +15,11 @@ const shapeCreators = {
   // 여기에 신규 도형을 한 줄만 추가하면 끝!
 };
 
-interface UseFabricDiagramProps {
+interface Props {
   setDrawingMode: (isDrawing: boolean) => void;
 }
 
-export const useFabricDiagram = ({ setDrawingMode }: UseFabricDiagramProps) => {
+export const useFabricGraphic = ({ setDrawingMode }: Props) => {
   const activeHandlerCleanup = useRef<(() => void) | null>(null);
   const drawingListenerRef = useRef<((e: any) => void) | null>(null);
 

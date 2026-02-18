@@ -3,12 +3,12 @@
 import { createContext, useContext, ReactNode } from 'react';
 
 import { useFabric } from '../hooks/useFabric';
-import { useFabricDiagram } from '../hooks/useFabricDiagram';
+import { useFabricGraphic } from '../hooks/useFabricGraphic';
 import { useFabricImage } from '../hooks/useFabricImage';
 
 // useFabric, useFabricDiagram, useFabricImage 훅의 반환 타입 정의 (Intersection)
 type FabricContextType = ReturnType<typeof useFabric> &
-  ReturnType<typeof useFabricDiagram> &
+  ReturnType<typeof useFabricGraphic> &
   ReturnType<typeof useFabricImage>;
 
 const FabricContext = createContext<FabricContextType | null>(null);
@@ -16,7 +16,7 @@ const FabricContext = createContext<FabricContextType | null>(null);
 export const FabricProvider = ({ children }: { children: ReactNode }) => {
   const fabricValues = useFabric();
 
-  const fabricDiagramValues = useFabricDiagram({
+  const fabricDiagramValues = useFabricGraphic({
     setDrawingMode: fabricValues.setDrawingMode,
   });
 
