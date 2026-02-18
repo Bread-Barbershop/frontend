@@ -4,15 +4,17 @@ import { useState } from 'react';
 import { Button } from '@/components/atoms/button';
 import { Label } from '@/components/atoms/label';
 import { cn } from '@/shared/utils/cn';
+import { ActiveObject } from '@/widgets/mainPoster/types/fabric';
 
 import { PHOTO_PRESETS } from './constant';
 import { FilterType, PhotoPresetOptions } from './types';
 
 interface ImageEditorProps {
   onApply: (options: PhotoPresetOptions, type: FilterType) => void;
+  activeInfo: ActiveObject;
 }
 
-export const ImageEditor = ({ onApply }: ImageEditorProps) => {
+export const ImageEditor = ({ onApply, activeInfo }: ImageEditorProps) => {
   const [extended, setExtended] = useState(false);
 
   const handleExtend = () => {
@@ -34,6 +36,7 @@ export const ImageEditor = ({ onApply }: ImageEditorProps) => {
             <Button
               className="p-2 whitespace-nowrap w-fit font-normal"
               onClick={() => onApply(preset.value, preset.type)}
+              active={activeInfo.filters[0]?.options.type === preset.type}
             >
               {preset.label}
             </Button>

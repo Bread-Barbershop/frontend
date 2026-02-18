@@ -4,10 +4,11 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { ImageUploadButton } from '@/components/atoms/button/ImageUploadButton';
+import { FilterType } from '@/components/molecules/image-editor';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
 
-import { PhotoPresetOptions } from '../../types/fabric';
+import { ActiveObject, PhotoPresetOptions } from '../../types/fabric';
 
 import { AspectRatioSelector } from './AspectRatioSelector';
 import { ImageFilterSelector } from './ImageFilterSelector';
@@ -18,13 +19,12 @@ interface Props {
   applyImageFilter: (
     options: PhotoPresetOptions,
     canvas: Canvas,
-    type: 'bw' | 'warm' | 'cool' | 'fade' | 'filmGrain' | 'vignette' | null
+    type: FilterType
   ) => void;
   currentFilters?: PhotoPresetOptions;
   isCropping: boolean;
   startCrop: (canvas: Canvas, ratio: number | 'free') => void;
-  applyCrop: (canvas: Canvas) => void;
-  cancelCrop: (canvas: Canvas) => void;
+  activeInfo: ActiveObject;
 }
 
 export const ImagePanel = ({
@@ -32,6 +32,7 @@ export const ImagePanel = ({
   applyImageFilter,
   addImage,
   startCrop,
+  activeInfo,
 }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [imageSrc, setImageSrc] = useState('');
@@ -162,7 +163,7 @@ export const ImagePanel = ({
         )}
       </div>
       <AspectRatioSelector startCrop={handleStartCrop} />
-      <ImageFilterSelector onApply={handleApply} />
+      <ImageFilterSelector onApply={handleApply} activeInfo={activeInfo} />
     </div>
   );
 };

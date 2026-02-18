@@ -93,3 +93,9 @@ export type DragPoints = {
   endX: number;
   endY: number;
 };
+
+export interface ActiveObject {
+  type: string | null;
+  filters?: any;
+  styles: Record<string, any>;
+}

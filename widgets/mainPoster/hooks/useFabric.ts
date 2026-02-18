@@ -9,15 +9,12 @@ import {
   Text,
   RichStyleKey,
   DragPoints,
+  ActiveObject,
 } from '../types/fabric';
 import { initDragHandler } from '../utils/fabricUtils';
 
 export const useFabric = () => {
-  const [activeInfo, setActiveInfo] = useState<{
-    type: string | null;
-    filters: any[];
-    styles: Record<string, any>;
-  }>({
+  const [activeInfo, setActiveInfo] = useState<ActiveObject>({
     type: null,
     filters: [],
     styles: {},
@@ -25,8 +22,6 @@ export const useFabric = () => {
 
   const [shapes, setShapes] = useState<Shape[]>([]);
   const [activeDrawingMode, setDrawingMode] = useState(false);
-
-  // 이미지/크롭 관련 State 및 Ref 제거됨 (useFabricImage로 이동)
 
   const handleDrawingMode = () => {
     setDrawingMode(true);
