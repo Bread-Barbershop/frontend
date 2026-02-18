@@ -1,6 +1,7 @@
 'use client';
 import Script from 'next/script';
 import { useState } from 'react';
+import DaumPostcode from 'react-daum-postcode';
 
 import { Input } from '@/components/atoms/input';
 import { Label } from '@/components/atoms/label';
@@ -9,13 +10,22 @@ import { Selector } from '@/components/molecules/selector';
 import { TextField } from '@/components/molecules/text-field';
 
 import Map from './Map';
+import Navigation from './Navigation';
 
 function Place() {
   const [country, setCountry] = useState<{ label: string; value: string }>();
   const [openMap, setOpenMap] = useState(false);
+  const [address, setAddress] = useState('');
+  const [openAddress, setOpenAddress] = useState(false);
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
-  const [lng, setLng] = useState<number>();
-  const [lat, setLat] = useState<number>();
+  const [dlng, setDLng] = useState<number>();
+  const [dlat, setDLat] = useState<number>();
+  const [slng, setSLng] = useState<number>();
+  const [slat, setSLat] = useState<number>();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [dname, setDname] = useState('');
+
+  // 현재 위치를 가져올지 아니면 장소까지만 뜨게해서 길찾기를 누르게 할지?
 
   const searchAddress = (query: string) => {
     naver.maps.Service.geocode({ query }, function (status, response) {
@@ -26,11 +36,37 @@ function Place() {
         // console.log({ response });
         const { x, y } = response.v2.addresses[0];
         if (x === undefined || y === undefined) return;
-        setLng(Number(x));
-        setLat(Number(y));
+        setDLng(Number(x));
+        setDLat(Number(y));
       }
     });
   };
+
+  const getCurrentLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(position => {
+        const { latitude, longitude } = position.coords;
+        setSLng(longitude);
+        setSLat(latitude);
+      });
+    }
+    naver.maps.Service.reverseGeocode(
+      {
+        coords: new naver.maps.LatLng(slat ?? 0, slng ?? 0),
+      },
+      function (status, response) {
+        if (status === naver.maps.Service.Status.ERROR) {
+          console.log('주소를 찾을 수 없습니다.');
+        }
+        if (status === naver.maps.Service.Status.OK) {
+          const { address } = response.v2;
+          console.log(address);
+          // setDname(address);
+        }
+      }
+    );
+  };
+
   return (
     <>
       <Script
@@ -55,10 +91,33 @@ function Place() {
             onSelect={value => setCountry(value)}
             selected={country ?? null}
           />
+          {openAddress && (
+            <div className="absolute flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-8 w-96 shadow-lg relative">
+                <button
+                  className="absolute top-3 right-3 text-gray-500"
+                  onClick={() => setOpenAddress(false)}
+                >
+                  ✕
+                </button>
+                <DaumPostcode
+                  onComplete={data => {
+                    setAddress(data.address);
+                    searchAddress(data.address);
+                  }}
+                  autoClose={false}
+                />
+              </div>
+            </div>
+          )}
           <Input
             placeholder="주소 검색"
             id="address"
-            onChange={address => searchAddress(address.target.value)}
+            onClick={e => {
+              e.preventDefault();
+              setOpenAddress(prev => !prev);
+            }}
+            value={address}
           />
         </section>
         <TextField
@@ -85,12 +144,23 @@ function Place() {
               </Checkbox>
               <Checkbox direction="right">약도</Checkbox>
             </div>
-            <Checkbox direction="right">
+            <Checkbox direction="right" onClick={getCurrentLocation}>
               내비 앱 바로가기 버튼(카카오, 티맵, 네이버)
             </Checkbox>
+            {/* 썸네일로 분리 필요 */}
+            <Navigation
+              slat={slat ?? 0}
+              slng={slng ?? 0}
+              sname={address}
+              dlat={dlat ?? 0}
+              dlng={dlng ?? 0}
+              dname={dname}
+            />
           </div>
         </section>
-        {openMap && isScriptLoaded && lng && lat && <Map lng={lng} lat={lat} />}
+        {openMap && isScriptLoaded && dlng && dlat && (
+          <Map lng={dlng} lat={dlat} />
+        )}
       </div>
     </>
   );
