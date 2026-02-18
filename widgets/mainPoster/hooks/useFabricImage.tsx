@@ -1,17 +1,17 @@
 import { Canvas, FabricImage, Rect, TPointerEventInfo } from 'fabric';
 import { useRef, useState } from 'react';
 
+import { FilterType } from '@/components/molecules/image-editor';
+
 import { PhotoPresetOptions } from '../types/fabric';
 import { PhotoPreset } from '../utils/CustomImageFilter';
 import { updateCropRatio } from '../utils/fabricUtils';
 
-interface UseFabricImageProps {
+interface Props {
   syncActiveObjectInfo?: (canvas: Canvas) => void;
 }
 
-export const useFabricImage = ({
-  syncActiveObjectInfo,
-}: UseFabricImageProps) => {
+export const useFabricImage = ({ syncActiveObjectInfo }: Props) => {
   const [isCropping, setIsCropping] = useState(false);
   const cropZoneRef = useRef<Rect | null>(null);
   const highlightLayerRef = useRef<FabricImage | null>(null);
@@ -24,7 +24,7 @@ export const useFabricImage = ({
   const applyImageFilter = (
     options: PhotoPresetOptions,
     canvas: Canvas,
-    type: 'bw' | 'warm' | 'cool' | 'fade' | 'filmGrain' | 'vignette' | null
+    type: FilterType
   ) => {
     const targetImage = isCropping
       ? (canvas
@@ -183,29 +183,43 @@ export const useFabricImage = ({
       name: 'crop-zone',
       left: currentCenter.x,
       top: currentCenter.y,
-      width: (currentWidth / currentScaleX) * 0.8,
-      height: (currentHeight / currentScaleY) * 0.8,
+      width: (currentWidth / currentScaleX) * 0.6,
+      height: (currentHeight / currentScaleY) * 0.6,
       scaleX: currentScaleX,
       scaleY: currentScaleY,
       angle: currentAngle,
       fill: 'transparent',
-      strokeWidth: 0, // 경계 계산 오차 방지를 위해 스트로크 제거 (Visual은 selection border로 처리)
+      strokeWidth: 0,
       originX: 'center',
       originY: 'center',
       objectCaching: false,
       absolutePositioned: true,
     }) as Rect & { lockUniScaling?: boolean };
 
-    // Center 컨트롤 숨김
+    // 컨트롤 설정 로직 개선 (Free Mode vs Fixed Mode)
     zone.controls = { ...zone.controls };
+    zone.lockRotation = true; // 회전 비활성화
 
-    // Center 컨트롤 제거
-    if (zone.controls.center) {
-      delete zone.controls.center;
+    // 제거할 컨트롤 목록
+    const controlsToRemove = [
+      'center',
+      'mtr', // 기본 회전
+      'tl_rotate',
+      'tr_rotate',
+      'bl_rotate',
+      'br_rotate', // 커스텀 회전
+    ];
+
+    if (ratio && ratio !== 'free') {
+      // 비율 고정 모드: 변 핸들 제거 및 uniScaling 잠금
+      controlsToRemove.push('ml', 'mt', 'mr', 'mb');
+      zone.lockUniScaling = true;
+    } else {
+      // 자유 모드: uniScaling 해제 (개별 축 조절 가능)
+      zone.lockUniScaling = false;
     }
 
-    // 회전 컨트롤 제거 (커스텀 컨트롤)
-    ['tl_rotate', 'tr_rotate', 'bl_rotate', 'br_rotate'].forEach(key => {
+    controlsToRemove.forEach(key => {
       if (zone.controls[key]) {
         delete zone.controls[key];
       }

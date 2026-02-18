@@ -45,6 +45,14 @@ export const useSetFabricControls = () => {
       y: 0,
       actionName: 'centerAction',
       render: (ctx, left, top, _, fabricObject) => {
+        // Textbox는 중앙 인디케이터 표시 안 함
+        const isTextbox =
+          typeof fabricObject?.isType === 'function'
+            ? fabricObject.isType('textbox')
+            : fabricObject?.type === 'textbox';
+
+        if (isTextbox) return;
+
         if (!isImageReadyForCanvas(img)) {
           img.onload = () => fabricObject.canvas?.requestRenderAll();
           return;
