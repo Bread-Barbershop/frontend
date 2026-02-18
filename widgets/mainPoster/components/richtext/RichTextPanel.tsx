@@ -2,6 +2,7 @@ import { Canvas, Textbox, FabricObject } from 'fabric';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 
+import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import bold from '@/shared/assets/icons/bold.svg';
 import charspacing from '@/shared/assets/icons/charspacing.svg';
 import italic from '@/shared/assets/icons/italic.svg';
@@ -73,7 +74,8 @@ function RichTextPanel({
   ];
 
   return (
-    <div className="flex flex-wrap flex-col items-center justify-between w-93.75 gap-2.5 px-3 py-2 bg-bg-base rounded-xl shadow-[0_4px_15px_rgba(0,0,0,0.1)]">
+    <div className="flex flex-col items-center gap-1.5 w-full p-2">
+      <NavigationBar>텍스트</NavigationBar>
       <div className="flex w-full justify-between">
         <FontFamily
           canvas={canvas}

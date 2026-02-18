@@ -1,6 +1,7 @@
-import { Canvas, FabricObject } from 'fabric';
+import { Canvas, FabricObject, TPointerEventInfo } from 'fabric';
 
 import { ICON_PATHS, SIDES_CONFIG } from '../constants/fabric';
+import { DragPoints } from '../types/fabric';
 
 /**
  * SVG 문자열을 Data URL로 변환합니다.
@@ -132,4 +133,81 @@ export const updateCropRatio = (canvas: Canvas, ratio: number | 'free') => {
 
   cropZone.setCoords();
   canvas.requestRenderAll();
+};
+
+// 드래그 시작점 설정
+export const initDragHandler = ({
+  canvas,
+  onComplete,
+  onFinalize,
+}: {
+  canvas: Canvas;
+  onComplete: (points: DragPoints) => void;
+  onFinalize?: () => void;
+}) => {
+  let isDrawing = false;
+  let startPoint = { x: 0, y: 0 };
+
+  // 커서 설정 변경 ('crosshair')
+  const defaultCursorInternal = canvas.defaultCursor;
+  const hoverCursorInternal = canvas.hoverCursor;
+
+  canvas.defaultCursor = 'crosshair';
+  canvas.hoverCursor = 'crosshair';
+  canvas.requestRenderAll();
+
+  const cleanupCursor = () => {
+    canvas.defaultCursor = defaultCursorInternal;
+    canvas.hoverCursor = hoverCursorInternal;
+  };
+
+  const onMouseDown = (opt: TPointerEventInfo) => {
+    if (canvas.getActiveObject()) {
+      return;
+    }
+    const pointer = canvas.getScenePoint(opt.e);
+    isDrawing = true;
+    startPoint = { x: pointer.x, y: pointer.y };
+  };
+
+  const onMouseUp = (opt: TPointerEventInfo) => {
+    if (!isDrawing) {
+      return;
+    }
+
+    const pointer = canvas.getScenePoint(opt.e);
+    const points: DragPoints = {
+      left: Math.min(startPoint.x, pointer.x),
+      top: Math.min(startPoint.y, pointer.y),
+      width: Math.abs(startPoint.x - pointer.x),
+      height: Math.abs(startPoint.y - pointer.y),
+      startX: startPoint.x,
+      startY: startPoint.y,
+      endX: pointer.x,
+      endY: pointer.y,
+    };
+
+    // 최소 드래그 거리 검증 (너무 작은 클릭 방지)
+    if (points.width > 5 || points.height > 5) {
+      onComplete(points);
+    }
+
+    isDrawing = false;
+    canvas.off('mouse:down', onMouseDown);
+    canvas.off('mouse:up', onMouseUp);
+    cleanupCursor(); // 커서 복구
+    if (onFinalize) onFinalize();
+    canvas.requestRenderAll();
+  };
+
+  canvas.on('mouse:down', onMouseDown);
+  canvas.on('mouse:up', onMouseUp);
+
+  // 클린업 함수 반환
+  return () => {
+    canvas.off('mouse:down', onMouseDown);
+    canvas.off('mouse:up', onMouseUp);
+    cleanupCursor(); // 커서 복구
+    canvas.requestRenderAll();
+  };
 };

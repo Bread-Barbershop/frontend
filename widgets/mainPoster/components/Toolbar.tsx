@@ -1,11 +1,11 @@
-import fabric from 'fabric';
+import { Canvas } from 'fabric';
 import { useShallow } from 'zustand/shallow';
 
 import { Button } from '@/components/atoms/button';
 import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
 
 interface Props {
-  canvas: fabric.Canvas | null;
+  canvas: Canvas | null;
   handleDrawingMode: () => void;
 }
 
@@ -27,7 +27,7 @@ function Toolbar({ canvas, handleDrawingMode }: Props) {
           setActiveTab('image');
         }}
         variant="bordered"
-        className={activeTab === 'image' ? 'bg-blue-100 border-blue-500' : ''}
+        active={activeTab === 'image'}
       >
         사진
       </Button>
@@ -36,9 +36,9 @@ function Toolbar({ canvas, handleDrawingMode }: Props) {
           setActiveTab('diagram');
         }}
         variant="bordered"
-        className={activeTab === 'diagram' ? 'bg-blue-100 border-blue-500' : ''}
+        active={activeTab === 'diagram'}
       >
-        도형
+        기타
       </Button>
     </div>
   );

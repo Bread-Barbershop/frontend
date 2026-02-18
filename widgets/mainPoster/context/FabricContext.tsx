@@ -3,19 +3,35 @@
 import { createContext, useContext, ReactNode } from 'react';
 
 import { useFabric } from '../hooks/useFabric';
+import { useFabricDiagram } from '../hooks/useFabricDiagram';
+import { useFabricImage } from '../hooks/useFabricImage';
 
-// useFabric 훅의 반환 타입 정의
-type FabricContextType = ReturnType<typeof useFabric>;
+// useFabric, useFabricDiagram, useFabricImage 훅의 반환 타입 정의 (Intersection)
+type FabricContextType = ReturnType<typeof useFabric> &
+  ReturnType<typeof useFabricDiagram> &
+  ReturnType<typeof useFabricImage>;
 
 const FabricContext = createContext<FabricContextType | null>(null);
 
 export const FabricProvider = ({ children }: { children: ReactNode }) => {
   const fabricValues = useFabric();
 
+  const fabricDiagramValues = useFabricDiagram({
+    setDrawingMode: fabricValues.setDrawingMode,
+  });
+
+  const fabricImageValues = useFabricImage({
+    syncActiveObjectInfo: fabricValues.syncActiveObjectInfo,
+  });
+
+  const value = {
+    ...fabricValues,
+    ...fabricDiagramValues,
+    ...fabricImageValues,
+  };
+
   return (
-    <FabricContext.Provider value={fabricValues}>
-      {children}
-    </FabricContext.Provider>
+    <FabricContext.Provider value={value}>{children}</FabricContext.Provider>
   );
 };
 

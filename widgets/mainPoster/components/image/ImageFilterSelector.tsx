@@ -3,7 +3,10 @@ import { ImageEditor } from '@/components/molecules/image-editor';
 import { PhotoPresetOptions } from '../../types/fabric';
 
 interface Props {
-  onApply: (options: PhotoPresetOptions) => void;
+  onApply: (
+    options: PhotoPresetOptions,
+    type: 'bw' | 'warm' | 'cool' | 'fade' | 'filmGrain' | 'vignette' | null
+  ) => void;
 }
 
 export const ImageFilterSelector = ({ onApply }: Props) => {

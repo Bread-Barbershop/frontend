@@ -1,6 +1,13 @@
-export const PHOTO_PRESETS = [
+import { PhotoPresetOptions } from '@/widgets/mainPoster/types/fabric';
+
+export const PHOTO_PRESETS: {
+  label: string;
+  type: 'bw' | 'warm' | 'cool' | 'fade' | 'filmGrain' | 'vignette' | null;
+  value: PhotoPresetOptions;
+}[] = [
   {
     label: '없음',
+    type: null,
     value: {
       exposure: 50,
       contrast: 50,
@@ -15,6 +22,7 @@ export const PHOTO_PRESETS = [
   },
   {
     label: '흑백',
+    type: 'bw',
     value: {
       exposure: 65,
       contrast: 51,
@@ -29,6 +37,7 @@ export const PHOTO_PRESETS = [
   },
   {
     label: 'Warm',
+    type: 'warm',
     value: {
       exposure: 53,
       contrast: 50,
@@ -43,6 +52,7 @@ export const PHOTO_PRESETS = [
   },
   {
     label: 'Cool',
+    type: 'cool',
     value: {
       exposure: 50,
       contrast: 49,
@@ -57,6 +67,7 @@ export const PHOTO_PRESETS = [
   },
   {
     label: 'Fade',
+    type: 'fade',
     value: {
       exposure: 69,
       contrast: 45,
@@ -71,6 +82,7 @@ export const PHOTO_PRESETS = [
   },
   {
     label: 'Film Grain',
+    type: 'filmGrain',
     value: {
       exposure: 57,
       contrast: 42,
@@ -85,6 +97,7 @@ export const PHOTO_PRESETS = [
   },
   {
     label: 'Vignette',
+    type: 'vignette',
     value: {
       exposure: 37,
       contrast: 51,

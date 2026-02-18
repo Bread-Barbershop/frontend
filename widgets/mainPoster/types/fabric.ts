@@ -31,6 +31,7 @@ export interface PhotoPresetOptions {
   vignette?: number;
   grain?: number;
   bw?: number;
+  type?: 'bw' | 'warm' | 'cool' | 'fade' | 'filmGrain' | 'vignette' | null;
 }
 
 export interface Image extends BaseShape {
@@ -92,3 +93,15 @@ export interface AllStyle {
 export type RichStyle = LayoutStyle | AllStyle;
 
 export type RichStyleKey = keyof LayoutStyle | keyof AllStyle;
+
+// 드래그 타입
+export type DragPoints = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+};

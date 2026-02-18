@@ -6,20 +6,11 @@ import {
   TPointerEvent,
   TPointerEventInfo,
   FabricImage,
+  Rect,
+  Circle,
+  Triangle,
 } from 'fabric';
-declare module 'fabric' {
-  // 생성 시 넘기는 옵션 타입 확장
-  interface FabricObjectProps {
-    id?: string;
-    targetId?: string;
-  }
-  // 실제 생성된 객체 인스턴스 타입 확장
-  interface FabricObject {
-    id?: string;
-    targetId?: string;
-  }
-}
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { cn } from '@/shared/utils/cn';
@@ -34,6 +25,7 @@ import Toolbar from './Toolbar';
 export const PosterEditor = () => {
   const [clipboard, setClipboard] = useState<FabricObject | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
   const { canvas, setCanvas, setActiveObject, setActiveTab, activeObject } =
     useEditorStore(
       useShallow(state => ({
@@ -44,6 +36,7 @@ export const PosterEditor = () => {
         activeObject: state.activeObject,
       }))
     );
+
   const {
     activeDrawingMode,
     dragToCreateTextBox,
@@ -54,6 +47,7 @@ export const PosterEditor = () => {
     paste,
     startCrop,
     isCropping,
+    setupEventListeners,
   } = useFabricContext();
 
   useSetFabricControls();
@@ -78,14 +72,21 @@ export const PosterEditor = () => {
 
     const handleSelection = () => {
       const activeObj = fabricCanvas.getActiveObject();
+
       setActiveObject(activeObj ?? null);
 
       const isActiveImage = activeObj instanceof FabricImage;
+      const isActiveDiagram =
+        activeObj instanceof Rect ||
+        activeObj instanceof Circle ||
+        activeObj instanceof Triangle;
       const isCropZone =
         (activeObj as FabricObject & { name?: string })?.name === 'crop-zone';
 
       if (isActiveImage || isCropZone) {
         setActiveTab('image');
+      } else if (isActiveDiagram) {
+        setActiveTab('diagram');
       } else {
         setActiveTab(null);
       }
@@ -105,7 +106,13 @@ export const PosterEditor = () => {
 
   useEffect(() => {
     if (!canvas) return;
-    if (activeDrawingMode) dragToCreateTextBox(canvas);
+    setupEventListeners(canvas);
+
+    let cleanupDrawing: (() => void) | undefined;
+    if (activeDrawingMode) {
+      cleanupDrawing = dragToCreateTextBox(canvas);
+    }
+
     const cleanupEmpty = handleDeleteEmptyShape(canvas);
     const onKeyDown = (e: KeyboardEvent) => {
       handleDeleteShape(canvas, e);
@@ -149,6 +156,7 @@ export const PosterEditor = () => {
     });
 
     return () => {
+      if (cleanupDrawing) cleanupDrawing();
       cleanupEmpty();
       window.removeEventListener('keydown', onKeyDown);
       canvas.off('selection:created', handleSelection);
@@ -163,6 +171,7 @@ export const PosterEditor = () => {
     handleDeleteShape,
     setActiveObject,
     setActiveTab,
+    setupEventListeners,
   ]);
 
   const isMouseInCanvasRef = useRef(false);

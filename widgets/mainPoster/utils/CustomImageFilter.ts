@@ -25,6 +25,7 @@ export class PhotoPreset extends fabric.filters.BaseFilter<'PhotoPreset'> {
       vignette: 0,
       grain: 0,
       bw: 0,
+      type: null,
       ...options,
     };
   }

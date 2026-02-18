@@ -1,6 +1,6 @@
 'use client';
 
-import { Pencil, Square, Circle, Triangle, Minus } from 'lucide-react';
+import { Pencil, Square, Circle, Triangle } from 'lucide-react';
 import React, { useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
@@ -19,8 +19,7 @@ export default function DiagramPanel() {
     toggleDrawingMode,
     setBrushProperties,
     activeDrawingMode,
-    activateShapeMode,
-    activeShapeType,
+    addDiagram,
   } = useFabricContext();
 
   const [brushColor, setBrushColor] = useState('#000000');
@@ -54,53 +53,17 @@ export default function DiagramPanel() {
       <NavigationBar>도형</NavigationBar>
 
       <div className="grid grid-cols-3 gap-2">
-        <button
-          onClick={() => activateShapeMode(canvas, 'rect')}
-          className={`flex flex-col items-center justify-center p-2 rounded-md transition-colors ${
-            activeShapeType === 'rect'
-              ? 'bg-blue-100 text-blue-600'
-              : 'hover:bg-gray-100'
-          }`}
-          title="사각형"
-        >
+        <button onClick={() => addDiagram(canvas, 'rect')} title="사각형">
           <Square size={20} />
           <span className="text-xs mt-1">사각형</span>
         </button>
-        <button
-          onClick={() => activateShapeMode(canvas, 'circle')}
-          className={`flex flex-col items-center justify-center p-2 rounded-md transition-colors ${
-            activeShapeType === 'circle'
-              ? 'bg-blue-100 text-blue-600'
-              : 'hover:bg-gray-100'
-          }`}
-          title="원"
-        >
+        <button onClick={() => addDiagram(canvas, 'circle')} title="원">
           <Circle size={20} />
           <span className="text-xs mt-1">원</span>
         </button>
-        <button
-          onClick={() => activateShapeMode(canvas, 'triangle')}
-          className={`flex flex-col items-center justify-center p-2 rounded-md transition-colors ${
-            activeShapeType === 'triangle'
-              ? 'bg-blue-100 text-blue-600'
-              : 'hover:bg-gray-100'
-          }`}
-          title="삼각형"
-        >
+        <button onClick={() => addDiagram(canvas, 'triangle')} title="삼각형">
           <Triangle size={20} />
           <span className="text-xs mt-1">삼각형</span>
-        </button>
-        <button
-          onClick={() => activateShapeMode(canvas, 'line')}
-          className={`flex flex-col items-center justify-center p-2 rounded-md transition-colors ${
-            activeShapeType === 'line'
-              ? 'bg-blue-100 text-blue-600'
-              : 'hover:bg-gray-100'
-          }`}
-          title="선"
-        >
-          <Minus size={20} />
-          <span className="text-xs mt-1">선</span>
         </button>
         <button
           onClick={handleToggleDrawing}

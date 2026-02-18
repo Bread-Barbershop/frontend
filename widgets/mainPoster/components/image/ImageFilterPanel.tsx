@@ -15,7 +15,11 @@ import { ImageFilterSelector } from './ImageFilterSelector';
 interface Props {
   canvas: Canvas;
   addImage: (url: string, canvas: Canvas) => void;
-  applyImageFilter: (options: PhotoPresetOptions, canvas: Canvas) => void;
+  applyImageFilter: (
+    options: PhotoPresetOptions,
+    canvas: Canvas,
+    type: 'bw' | 'warm' | 'cool' | 'fade' | 'filmGrain' | 'vignette' | null
+  ) => void;
   currentFilters?: PhotoPresetOptions;
   isCropping: boolean;
   startCrop: (canvas: Canvas, ratio: number | 'free') => void;
@@ -46,7 +50,7 @@ const ImageFilterPanel = ({
     // 2. 리사이징용 캔버스 생성 (300px 제한) - 필터 적용 속도 최적화
     const originalElem = clonedObject.getElement(); // 원본 엘리먼트 가져오기
     const canvas = document.createElement('canvas');
-    const MAX_SIZE = 160;
+    const MAX_SIZE = 335;
 
     let width = originalElem.width;
     let height = originalElem.height;
@@ -122,8 +126,11 @@ const ImageFilterPanel = ({
     reader.readAsDataURL(file);
   };
 
-  const handleApply = (options: PhotoPresetOptions) => {
-    applyImageFilter(options, canvas);
+  const handleApply = (
+    options: PhotoPresetOptions,
+    type: 'bw' | 'warm' | 'cool' | 'fade' | 'filmGrain' | 'vignette' | null
+  ) => {
+    applyImageFilter(options, canvas, type);
     updateImageSrc(); // 필터 적용 후 Preview 갱신
   };
   const handleStartCrop = (ratio: number | 'free') => startCrop(canvas, ratio);
@@ -143,8 +150,8 @@ const ImageFilterPanel = ({
             src={imageSrc}
             alt="Active Object Preview"
             className="object-contain"
-            width={160}
-            height={160}
+            width={335}
+            height={335}
           />
         ) : (
           <ImageUploadButton
@@ -154,8 +161,8 @@ const ImageFilterPanel = ({
           />
         )}
       </div>
-      <ImageFilterSelector onApply={handleApply} />
       <AspectRatioSelector startCrop={handleStartCrop} />
+      <ImageFilterSelector onApply={handleApply} />
     </div>
   );
 };

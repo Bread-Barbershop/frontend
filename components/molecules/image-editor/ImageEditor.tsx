@@ -9,7 +9,10 @@ import { PhotoPresetOptions } from '@/widgets/mainPoster/types/fabric';
 import { PHOTO_PRESETS } from './constant';
 
 interface ImageEditorProps {
-  onApply: (options: PhotoPresetOptions) => void;
+  onApply: (
+    options: PhotoPresetOptions,
+    type: 'bw' | 'warm' | 'cool' | 'fade' | 'filmGrain' | 'vignette' | null
+  ) => void;
 }
 
 export const ImageEditor = ({ onApply }: ImageEditorProps) => {
@@ -33,7 +36,7 @@ export const ImageEditor = ({ onApply }: ImageEditorProps) => {
           <li key={index}>
             <Button
               className="p-2 whitespace-nowrap w-fit font-normal"
-              onClick={() => onApply(preset.value)}
+              onClick={() => onApply(preset.value, preset.type)}
             >
               {preset.label}
             </Button>
