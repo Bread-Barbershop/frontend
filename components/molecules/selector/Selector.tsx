@@ -1,4 +1,4 @@
-import { ChevronDown, Check } from 'lucide-react';
+﻿import { ChevronDown, Check } from 'lucide-react';
 import React, { useState, useRef, useEffect, ChangeEvent } from 'react';
 
 import { cn } from '@/shared/utils/cn';
@@ -55,7 +55,7 @@ export const Selector = <T extends Option>({
     }
   }, [isCustomInput]);
 
-  // 외부 클릭 시 닫기
+  // 바깥 영역 클릭 시 닫기
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -147,7 +147,7 @@ export const Selector = <T extends Option>({
               onClick={handleCustomMenuItemClick}
               className="h-7 leading-7 px-2 py-0.5 text-center text-sm hover:bg-bg-sub cursor-pointer"
             >
-              직접입력
+              직접 입력
             </li>
           )}
         </ul>

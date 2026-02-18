@@ -1,0 +1,30 @@
+import * as React from 'react';
+
+export interface IconProps extends React.SVGProps<SVGSVGElement> {
+  size?: number | string;
+}
+
+export const TextAlignIcon = React.forwardRef<SVGSVGElement, IconProps>(
+  ({ size = 20, className, ...props }, ref) => {
+    return (
+      <svg
+        ref={ref}
+        viewBox="0 0 20 20"
+        width={size}
+        height={size}
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+        className={className}
+        aria-hidden="true"
+        {...props}
+      >
+        <path d="M2 4.85714C2 4.38376 2.38376 4 2.85714 4H17.1429C17.6162 4 18 4.38376 18 4.85714C18 5.33053 17.6162 5.71429 17.1429 5.71429H2.85714C2.38376 5.71429 2 5.33053 2 4.85714Z" />
+        <path d="M2 11.7143C2 11.2409 2.38376 10.8571 2.85714 10.8571H17.1429C17.6162 10.8571 18 11.2409 18 11.7143C18 12.1877 17.6162 12.5714 17.1429 12.5714H2.85714C2.38376 12.5714 2 12.1877 2 11.7143Z" />
+        <path d="M2 8.28571C2 7.81233 2.38376 7.42857 2.85714 7.42857H12.5714C13.0448 7.42857 13.4286 7.81233 13.4286 8.28571C13.4286 8.7591 13.0448 9.14286 12.5714 9.14286H2.85714C2.38376 9.14286 2 8.7591 2 8.28571Z" />
+        <path d="M2 15.1429C2 14.6695 2.38376 14.2857 2.85714 14.2857H12.5714C13.0448 14.2857 13.4286 14.6695 13.4286 15.1429C13.4286 15.6162 13.0448 16 12.5714 16H2.85714C2.38376 16 2 15.6162 2 15.1429Z" />
+      </svg>
+    );
+  }
+);
+
+TextAlignIcon.displayName = 'TextAlignIcon';
