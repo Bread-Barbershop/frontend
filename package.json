@@ -20,6 +20,8 @@
     "@dnd-kit/utilities": "^3.2.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "embla-carousel": "^8.6.0",
+    "embla-carousel-react": "^8.6.0",
     "googleapis": "^166.0.0",
     "konva": "^10.0.12",
     "lucide-react": "^0.562.0",

@@ -9,12 +9,16 @@ import SortableItem from '@/features/DndKit/Sort/SortableItem';
 import SortableWrapper from '@/features/DndKit/Sort/SortableWrapper';
 import { cn } from '@/shared/utils/cn';
 
+import { pictureVariants } from './Picture.style';
+
 interface PictureProps {
   value?: File[];
   label: string;
   multiple?: boolean;
   onChange?: (files: File[]) => void;
   className?: string;
+  previewClassName?: string;
+  inputClassName?: string;
 }
 
 export const Picture = ({
@@ -23,17 +27,13 @@ export const Picture = ({
   multiple,
   onChange,
   className,
+  previewClassName,
+  inputClassName,
 }: PictureProps) => {
   const [preview, setPreview] = useState<
     { id: string; src: string; file: File }[]
   >([]);
 
-  /* 
-    previewRef: 
-    useEffect 내부에서 상태(preview)를 참조하면 의존성 배열에 추가해야 하고, 
-    그러면 무한 루프에 빠질 수 있습니다.
-    최신 preview 상태를 참조만 하기 위해 ref를 사용합니다.
-  */
   const previewRef = useRef(preview);
 
   // 매 렌더링마다 ref 동기화
@@ -82,6 +82,7 @@ export const Picture = ({
       onChange(files);
     }
   };
+
   const handleMove = (items: { id: string; src: string; file: File }[]) => {
     setPreview(items);
     const files = items.map(item => item.file);
@@ -90,39 +91,43 @@ export const Picture = ({
     }
   };
 
+  const handleRemove = (src: string) => {
+    if (!value || !onChange) return;
+    const target = preview.find(p => p.src === src);
+    if (!target) return;
+
+    const updatedFiles = value.filter(file => file !== target.file);
+    onChange(updatedFiles);
+  };
   return (
-    <div className={cn('flex items-center gap-2', className)}>
+    <div className={cn(pictureVariants(), className)}>
       <Label className="font-semibold shrink-0">{label}</Label>
-      <div className="flex-center flex-wrap">
-        {
-          preview.length > 0 && (
-            <SortableWrapper
-              items={preview}
-              onChange={items => handleMove(items)}
-              className="flex-row gap-0"
-            >
-              {item => (
-                <SortableItem id={item.id} key={item.id}>
-                  <PicturePreview src={item.src} className={className} />
-                </SortableItem>
-              )}
-            </SortableWrapper>
+      <SortableWrapper
+        items={preview}
+        onChange={items => handleMove(items)}
+        className="flex-row flex-wrap gap-2"
+        suffix={
+          (multiple || preview.length === 0) && (
+            <li>
+              <PictureInput
+                multiple={multiple}
+                className={inputClassName}
+                onChange={handleChange}
+              />
+            </li>
           )
-          // preview.map(pictureScr => {
-          //   const id = crypto.randomUUID();
-          //   return (
-          //     <PicturePreview src={pictureScr} key={id} className={className} />
-          //   );
-          // })
         }
-        {(multiple || preview.length === 0) && (
-          <PictureInput
-            onChange={e => handleChange(e)}
-            multiple={multiple}
-            className={className}
-          />
+      >
+        {item => (
+          <SortableItem id={item.id} key={item.id}>
+            <PicturePreview
+              src={item.src}
+              className={previewClassName}
+              onDelete={handleRemove}
+            />
+          </SortableItem>
         )}
-      </div>
+      </SortableWrapper>
     </div>
   );
 };

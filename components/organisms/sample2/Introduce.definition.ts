@@ -4,6 +4,7 @@ import IntroducePreview from './IntroducePreview';
 export const introduceDefinition = {
   viewComponent: IntroducePreview,
   editComponent: Introduce,
+  type: null,
   fields: {
     groom: {
       default: '신랑',

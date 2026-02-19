@@ -1,39 +1,27 @@
-import React from 'react';
+import { VariantProps } from 'class-variance-authority';
+import { InputHTMLAttributes } from 'react';
 
 import { cn } from '@/shared/utils/cn';
 
-import { pictureVariants } from './PictureInput.style';
+import { pictureInputVariants } from './PictureInput.style';
 
-interface Props {
-  value?: string;
-  multiple?: boolean;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  className?: string;
-}
+interface Props
+  extends
+    InputHTMLAttributes<HTMLInputElement>,
+    VariantProps<typeof pictureInputVariants> {}
 
-export const PictureInput = ({
-  value,
-  multiple,
-  onChange,
-  className,
-}: Props) => {
+export const PictureInput = ({ multiple, className, ...props }: Props) => {
   return (
-    <div>
+    <>
       <input
         type="file"
+        accept="image/*"
         id="file"
-        value={value}
         multiple={multiple}
         className="hidden"
-        onChange={e => onChange(e)}
+        {...props}
       />
-      <label
-        htmlFor="file"
-        className={cn(
-          pictureVariants({ className }),
-          'relative overflow-hidden'
-        )}
-      >
+      <label htmlFor="file" className={cn(pictureInputVariants(), className)}>
         <svg
           width="16"
           height="16"
@@ -50,6 +38,6 @@ export const PictureInput = ({
           />
         </svg>
       </label>
-    </div>
+    </>
   );
 };

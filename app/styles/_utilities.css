@@ -21,7 +21,7 @@
     border-radius: 100vw !important;
 
     border: 2px solid transparent;
-  background-clip: padding-box;
+    background-clip: padding-box;
   }
 
   .textarea-custom-scrollbar::-webkit-scrollbar-thumb {
@@ -29,5 +29,35 @@
     border-radius: 100vw;
     border: 2px solid transparent;
     background-clip: padding-box;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-custom {
+    scrollbar-width: thin;
+    scrollbar-color: #000000 transparent;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 9999px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    background-color: #94a3b8;
   }
 }

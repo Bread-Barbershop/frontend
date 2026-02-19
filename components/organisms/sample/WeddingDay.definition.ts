@@ -4,6 +4,7 @@ import WeddingPreview from './WeddingPreview';
 export const weddingDayDefinition = {
   viewComponent: WeddingPreview,
   editComponent: WeddingDay,
+  type: null,
   fields: {
     weddingDay: {
       default: '2025-11-27',

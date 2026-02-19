@@ -7,7 +7,7 @@ interface Props {
   onPopClose: () => void;
 }
 
-function CompoenentsPopup({ onPopClose }: Props) {
+function ComponentsPopup({ onPopClose }: Props) {
   const [active, setActive] = useState('wedding');
   const sectionRefs = useRef<Record<string, HTMLLIElement | null>>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -60,4 +60,4 @@ function CompoenentsPopup({ onPopClose }: Props) {
     </div>
   );
 }
-export default CompoenentsPopup;
+export default ComponentsPopup;

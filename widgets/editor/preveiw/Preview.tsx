@@ -5,7 +5,7 @@ import { useShallow } from 'zustand/shallow';
 import { useEditorStore } from '../store/useEditorStore';
 import { blockRegistry } from '../types/registry';
 
-import CompoenentsPopup from './components/CompoenentsPopup';
+import CompoenentsPopup from './components/ComponentsPopup';
 import OrderPanel from './components/OrderPanel';
 
 function Preview() {
@@ -50,37 +50,43 @@ function Preview() {
   const handlePopClose = () => {
     setIsTab(false);
   };
+
   return (
-    <div className="w-93.75 h-218 flex flex-col  gap-4 relative">
+    <div
+      id="preview-container"
+      className="w-93.75 h-218 flex flex-col  gap-4 relative"
+    >
       <div className="h-203 bg-white">
-        <div className="overflow-y-auto h-full w-93.75 box-border flex flex-col justify-center">
-          {block.map(comp => {
-            const registryItem = blockRegistry[comp.component];
+        <div className="overflow-y-auto h-full w-93.75 box-border textarea-custom-scrollbar">
+          <div className="flex flex-col justify-center min-h-full">
+            {block.map(comp => {
+              const registryItem = blockRegistry[comp.component];
 
-            const View = registryItem.viewComponent as React.ComponentType<{
-              blockInfo: typeof comp;
-              className: string;
-              onClick: () => void;
-            }>;
+              const View = registryItem.viewComponent as React.ComponentType<{
+                blockInfo: typeof comp;
+                className: string;
+                onClick: () => void;
+              }>;
 
-            return (
-              <div
-                key={comp.id}
-                ref={el => {
-                  blockRefs.current[comp.id] = el;
-                }}
-              >
-                <View
+              return (
+                <div
                   key={comp.id}
-                  blockInfo={comp}
-                  className={`${selectedId === comp.id ? 'border border-primary rounded-lg' : ''}`}
-                  onClick={() => {
-                    selectedBlock(comp.id);
+                  ref={el => {
+                    blockRefs.current[comp.id] = el;
                   }}
-                />
-              </div>
-            );
-          })}
+                >
+                  <View
+                    key={comp.id}
+                    blockInfo={comp}
+                    className={`${selectedId === comp.id ? 'border border-primary rounded-lg' : ''}`}
+                    onClick={() => {
+                      selectedBlock(comp.id);
+                    }}
+                  />
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
       {block.length > 0 && <OrderPanel />}
