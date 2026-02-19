@@ -5,7 +5,7 @@ import BulletList from '@tiptap/extension-bullet-list';
 import Color from '@tiptap/extension-color';
 import Document from '@tiptap/extension-document';
 import Italic from '@tiptap/extension-italic';
-import ListItem from '@tiptap/extension-list-item';
+// import ListItem from '@tiptap/extension-list-item';
 import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
 import TextAlign from '@tiptap/extension-text-align';
@@ -20,10 +20,11 @@ import TextEditorButton from '@/components/atoms/text-editor-button/TextEditorBu
 import { Selector } from '../selector';
 
 import { BoldIcon } from './components/BoldIcon';
-// import { BulletPointIcon } from './components/BulletPointIcon';
+import { BulletPointIcon } from './components/BulletPointIcon';
 import { FontColorIcon } from './components/FontColorIcon';
 import { ItalicIcon } from './components/ItalicIcon';
 import { UnderlineIcon } from './components/UnderlineIcon';
+import { customListItem } from './utils/customListItem';
 
 interface TextEditorBarProps {
   initialContent?: string;
@@ -50,9 +51,9 @@ const FontSizeOptions: FontSizeOption[] = [
 ];
 
 const TextAlignOptions: TextAlignOption[] = [
-  { label: <TextAlignStart size={16} />, value: 'left' },
-  { label: <TextAlignCenter size={16} />, value: 'center' },
-  { label: <TextAlignEnd size={16} />, value: 'right' },
+  { label: <TextAlignStart size={16} strokeWidth={2.5} />, value: 'left' },
+  { label: <TextAlignCenter size={16} strokeWidth={2.5} />, value: 'center' },
+  { label: <TextAlignEnd size={16} strokeWidth={2.5} />, value: 'right' },
 ];
 
 export function TextEditorBar({
@@ -64,7 +65,7 @@ export function TextEditorBar({
     value: '14px',
   });
   const [textAlignSelected, setTextAlignSelected] = useState<TextAlignOption>({
-    label: <TextAlignStart size={16} />,
+    label: <TextAlignStart size={16} strokeWidth={2.5} />,
     value: 'left',
   });
 
@@ -79,18 +80,19 @@ export function TextEditorBar({
       Underline,
       TextStyle,
       Color,
-      ListItem,
+      customListItem,
       BulletList,
       FontSize,
       TextAlign.configure({
-        types: ['paragraph', 'listItem'],
+        types: ['paragraph'],
         defaultAlignment: 'left',
       }),
     ],
     content: `<p>${initialContent}</p>`,
     editorProps: {
       attributes: {
-        class: 'min-h-[120px] outline-none text-[14px] leading-7',
+        class:
+          'min-h-[120px] outline-none text-[14px] leading-7 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6',
       },
     },
     onUpdate({ editor }) {
@@ -101,10 +103,28 @@ export function TextEditorBar({
 
   if (!editor) return null;
 
+  const handleBulletListToggle = () => {
+    if (!editor.isActive('bulletList')) {
+      editor.chain().focus().toggleBulletList().run();
+      return;
+    }
+
+    let safety = 0;
+    while (editor.isActive('bulletList') && safety < 20) {
+      const lifted = editor.chain().focus().liftListItem('listItem').run();
+      if (!lifted) break;
+      safety += 1;
+    }
+
+    if (editor.isActive('bulletList')) {
+      editor.chain().focus().toggleBulletList().run();
+    }
+  };
+
   return (
     <div className="w-full space-y-1">
       {/* 툴바 */}
-      <div className="flex justify-between">
+      <div className="flex justify-between items-center">
         {/* Font Size */}
         <Selector<FontSizeOption>
           options={FontSizeOptions}
@@ -115,7 +135,7 @@ export function TextEditorBar({
             editor.chain().focus().setFontSize(selected.value).run();
           }}
           placeholder="폰트 크기"
-          className="font-bold"
+          className="font-semibold"
         />
 
         {/* Bold */}
@@ -151,12 +171,12 @@ export function TextEditorBar({
         />
 
         {/* Bullet */}
-        {/* <TextEditorButton
+        <TextEditorButton
           icon={<BulletPointIcon size={20} />}
           label="글머리 기호"
           active={editor.isActive('bulletList')}
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-        /> */}
+          onClick={handleBulletListToggle}
+        />
 
         <Selector<TextAlignOption>
           options={TextAlignOptions}
