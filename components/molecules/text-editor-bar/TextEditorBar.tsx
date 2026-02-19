@@ -21,6 +21,7 @@ import { Selector } from '../selector';
 
 import { BoldIcon } from './components/BoldIcon';
 import { BulletPointIcon } from './components/BulletPointIcon';
+import ColorPicker from './components/ColorPicker';
 import { FontColorIcon } from './components/FontColorIcon';
 import { ItalicIcon } from './components/ItalicIcon';
 import { UnderlineIcon } from './components/UnderlineIcon';
@@ -68,6 +69,7 @@ export function TextEditorBar({
     label: <TextAlignStart size={16} strokeWidth={2.5} />,
     value: 'left',
   });
+  const [colorPickerOpen, setColorPickerOpen] = useState(false);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -163,12 +165,20 @@ export function TextEditorBar({
         />
 
         {/* Color (현재 핑크색 고정) */}
-        <TextEditorButton
-          icon={<FontColorIcon size={28} />}
-          label="글자색"
-          active={editor.isActive('textStyle', { color: '#ff4d6d' })}
-          onClick={() => editor.chain().focus().setColor('#ff4d6d').run()}
-        />
+        <div className="relative">
+          <TextEditorButton
+            icon={<FontColorIcon size={28} />}
+            label="글자색"
+            active={editor.isActive('textStyle')}
+            onClick={() => setColorPickerOpen(prev => !prev)}
+          />
+
+          {colorPickerOpen && (
+            <div className="absolute">
+              <ColorPicker editor={editor} />
+            </div>
+          )}
+        </div>
 
         {/* Bullet */}
         <TextEditorButton
@@ -194,7 +204,7 @@ export function TextEditorBar({
       </div>
 
       {/* 입력 영역 */}
-      <div className="bg-border-neutral rounded-lg p-3">
+      <div className="bg-border-neutral rounded-lg py-3 px-4">
         <EditorContent editor={editor} />
       </div>
     </div>
