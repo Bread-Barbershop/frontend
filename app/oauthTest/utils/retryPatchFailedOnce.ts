@@ -75,13 +75,18 @@ export async function retryPatchFailedOnce(params: {
 
   // 3 재시도 실행 (PATCH)
   const tasks = retryTargets.map(async ({ file }) => {
+    const patchTarget = file instanceof File ? file : file.file;
     const { fileId: updatedFileId, name } = await updateFileToDrive(
-      file,
+      patchTarget,
       fileId,
       usedAccessToken
     );
     // update 결과의 id는 보통 입력 fileId와 동일하지만, 응답을 신뢰해서 넣어줌
-    return { file, fileId: updatedFileId, name } satisfies UploadOk;
+    return {
+      file: patchTarget,
+      fileId: updatedFileId,
+      name,
+    } satisfies UploadOk;
   });
 
   const settled = await Promise.allSettled(tasks);

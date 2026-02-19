@@ -16,23 +16,21 @@ export type UploadFail = {
   error: unknown;
 };
 export async function uploadAllSettled(params: {
-  files: File[];
   originFile: ImageTask[];
   folderId: string;
   accessToken: string;
   concurrency?: number; // 동시 업로드 개수 옵션. 호출할 때 지정하면서 테스트.
 }): Promise<{ ok: UploadOk[]; fail: UploadFail[] }> {
-  const { files, originFile, folderId, accessToken, concurrency } = params;
+  const { originFile, folderId, accessToken, concurrency } = params;
 
   // 파일이 없으면 바로 끝
-  if (files.length === 0) return { ok: [], fail: [] };
+  if (originFile.length === 0) return { ok: [], fail: [] };
 
-  const limit = Math.max(1, concurrency ?? files.length);
+  const limit = Math.max(1, concurrency ?? originFile.length);
 
   const ok: UploadOk[] = [];
   const fail: UploadFail[] = [];
 
-  // for (let i = 0; i < files.length; i += limit) {
   for (let i = 0; i < originFile.length; i += limit) {
     const chunk = originFile.slice(i, i + limit);
 

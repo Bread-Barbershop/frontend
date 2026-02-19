@@ -2,6 +2,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import PosterEditor from '@/widgets/mainPoster/components/PosterEditor';
+
 import { useEditorStore } from '../store/useEditorStore';
 import { blockRegistry } from '../types/registry';
 
@@ -59,6 +61,7 @@ function Preview() {
       <div className="h-203 bg-white">
         <div className="overflow-y-auto h-full w-93.75 box-border textarea-custom-scrollbar">
           <div className="flex flex-col justify-center min-h-full">
+            <PosterEditor />
             {block.map(comp => {
               const registryItem = blockRegistry[comp.component];
 
