@@ -12,7 +12,7 @@ export type ListType = {
 };
 
 export const weddingComponents: ListType[] = [
-  { contents: '인사말', component: null },
+  { contents: '인사말', component: 'greeting' },
   { contents: '신랑신부소개', component: 'introduce' },
   { contents: '가족소개', component: null },
   { contents: '예식일시', component: 'weddingDay' },
@@ -33,7 +33,7 @@ export const weddingComponents: ListType[] = [
   { contents: '카카오초대장 썸네일', component: null },
 ];
 export const firstBirthdayComponents: ListType[] = [
-  { contents: '인사말', component: null },
+  { contents: '인사말', component: 'greeting' },
   { contents: '아기소개', component: null },
   { contents: '가족소개', component: null },
   { contents: '행사일시', component: null },
@@ -52,7 +52,7 @@ export const firstBirthdayComponents: ListType[] = [
   { contents: '카카오초대장 썸네일', component: null },
 ];
 export const birthdayComponents: ListType[] = [
-  { contents: '인사말', component: null },
+  { contents: '인사말', component: 'greeting' },
   { contents: '행사일시', component: null },
   { contents: '행사장소', component: null },
   { contents: '연락처', component: null },
@@ -66,7 +66,7 @@ export const birthdayComponents: ListType[] = [
   { contents: '카카오초대장 썸네일', component: null },
 ];
 export const conferenceComponents: ListType[] = [
-  { contents: '인사말', component: null },
+  { contents: '인사말', component: 'greeting' },
   { contents: '주차정보', component: null },
   { contents: '후원정보', component: null },
   { contents: '연사정보', component: null },
@@ -81,7 +81,7 @@ export const conferenceComponents: ListType[] = [
   { contents: '카카오초대장 썸네일', component: null },
 ];
 export const etcComponents: ListType[] = [
-  { contents: '인사말', component: null },
+  { contents: '인사말', component: 'greeting' },
   { contents: '행사일시', component: null },
   { contents: '행사장소', component: null },
   { contents: '공지사항', component: null },
