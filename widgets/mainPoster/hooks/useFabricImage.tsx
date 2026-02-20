@@ -86,6 +86,13 @@ export const useFabricImage = ({ syncActiveObjectInfo }: Props) => {
     setIsCropping(true);
 
     const img = activeObject;
+    // 이전에 적용되었던 비율 정보가 있다면 사용하고, 없다면 'free' 적용
+    const activeRatio =
+      ratio ||
+      (img as FabricImage & { customCropRatio?: string | number })
+        .customCropRatio ||
+      'free';
+
     const originalWidth = img.getElement().width;
     const originalHeight = img.getElement().height;
     const currentAngle = img.angle;
@@ -178,13 +185,28 @@ export const useFabricImage = ({ syncActiveObjectInfo }: Props) => {
       name: 'highlight-layer',
     });
 
+    // 원본 이미지 크기와 현재 가져보는 크기 비교하여 크롭 여부 판단
+    const isCropped =
+      img.cropX > 0 ||
+      img.cropY > 0 ||
+      img.width !== originalWidth ||
+      img.height !== originalHeight;
+
     // 5. Control Layer (상단): 이전 크롭 영역 또는 초기 영역 표시 (Zone)
+    // 크롭된 이미지라면 현재 크롭 영역의 크기를 유지하고, 아니면 0.7 비율로 생성
+    const initialZoneWidth = isCropped
+      ? currentWidth / currentScaleX
+      : originalWidth * 0.7;
+    const initialZoneHeight = isCropped
+      ? currentHeight / currentScaleY
+      : originalHeight * 0.7;
+
     const zone = new Rect({
       name: 'crop-zone',
       left: currentCenter.x,
       top: currentCenter.y,
-      width: (currentWidth / currentScaleX) * 0.6,
-      height: (currentHeight / currentScaleY) * 0.6,
+      width: initialZoneWidth,
+      height: initialZoneHeight,
       scaleX: currentScaleX,
       scaleY: currentScaleY,
       angle: currentAngle,
@@ -210,7 +232,7 @@ export const useFabricImage = ({ syncActiveObjectInfo }: Props) => {
       'br_rotate', // 커스텀 회전
     ];
 
-    if (ratio && ratio !== 'free') {
+    if (activeRatio !== 'free') {
       // 비율 고정 모드: 변 핸들 제거 및 uniScaling 잠금
       controlsToRemove.push('ml', 'mt', 'mr', 'mb');
       zone.lockUniScaling = true;
@@ -308,8 +330,8 @@ export const useFabricImage = ({ syncActiveObjectInfo }: Props) => {
     canvas.add(darkOverlay, highlightImg, zone);
     canvas.setActiveObject(zone);
 
-    if (ratio) {
-      updateCropRatio(canvas, ratio);
+    if (activeRatio !== 'free') {
+      updateCropRatio(canvas, activeRatio as number | 'free');
     }
 
     cropZoneRef.current = zone;
@@ -352,7 +374,13 @@ export const useFabricImage = ({ syncActiveObjectInfo }: Props) => {
     const newCropX = img.cropX + img.width / 2 + localDxPx - newWidthPx / 2;
     const newCropY = img.cropY + img.height / 2 + localDyPx - newHeightPx / 2;
 
-    img.set({
+    // 비율 모드였다면 결과 비율을 계산하여 저장
+    const customRatio = (zone as Rect & { lockUniScaling?: boolean })
+      .lockUniScaling
+      ? (zone.width * zone.scaleX) / (zone.height * zone.scaleY)
+      : 'free';
+
+    (img as FabricImage & { customCropRatio?: string | number }).set({
       cropX: newCropX,
       cropY: newCropY,
       width: newWidthPx,
@@ -362,6 +390,7 @@ export const useFabricImage = ({ syncActiveObjectInfo }: Props) => {
       opacity: 1,
       selectable: true,
       evented: true,
+      customCropRatio: customRatio,
     });
 
     img.setCoords();

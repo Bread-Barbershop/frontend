@@ -1,4 +1,3 @@
-import { Textbox } from 'fabric';
 import { useShallow } from 'zustand/shallow';
 
 import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
@@ -9,26 +8,16 @@ import { ImagePanel } from './image/ImagePanel';
 import RichTextPanel from './richtext/RichTextPanel';
 
 function Menubar() {
-  const { canvas, activeObject, activeTab } = useEditorStore(
+  const { activeTab } = useEditorStore(
     useShallow(state => ({
-      canvas: state.canvas,
-      activeObject: state.activeObject,
       activeTab: state.activeTab,
     }))
   );
-
-  const {
-    applyRichStyle,
-    applyImageFilter,
-    getRichStyles,
-    addImage,
-    startCrop,
-    isCropping,
-    activeInfo,
-  } = useFabricContext();
+  const { activeInfo, canvas, applyRichStyle } = useFabricContext();
 
   // 현재 선택된 객체가 텍스트인지 이미지인지 확인
-  const isSelectedText = activeObject instanceof Textbox;
+  const isSelectedText =
+    activeInfo.type === 'textbox' || activeInfo.type === 'itext';
 
   // const handleExportJSON = () => {
   //   if (!canvas) return;
@@ -68,25 +57,11 @@ function Menubar() {
 
       {/* 텍스트 */}
       {isSelectedText && activeTab === null && (
-        <RichTextPanel
-          canvas={canvas}
-          applyRichStyle={applyRichStyle}
-          activeObject={activeObject}
-          getRichStyles={getRichStyles}
-        />
+        <RichTextPanel canvas={canvas} applyRichStyle={applyRichStyle} />
       )}
 
       {/* 이미지 */}
-      {activeTab === 'image' && (
-        <ImagePanel
-          canvas={canvas}
-          addImage={addImage}
-          applyImageFilter={applyImageFilter}
-          startCrop={startCrop}
-          isCropping={isCropping}
-          activeInfo={activeInfo}
-        />
-      )}
+      {activeTab === 'image' && <ImagePanel />}
 
       {/* 도형 */}
       {activeTab === 'diagram' && <GraphicPanel />}

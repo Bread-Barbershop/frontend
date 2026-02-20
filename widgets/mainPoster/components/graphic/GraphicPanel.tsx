@@ -2,20 +2,13 @@
 
 import { Pencil, Square, Circle, Triangle } from 'lucide-react';
 import React, { useState } from 'react';
-import { useShallow } from 'zustand/shallow';
 
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
-import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 export function GraphicPanel() {
-  const { canvas } = useEditorStore(
-    useShallow(state => ({
-      canvas: state.canvas,
-    }))
-  );
-
   const {
+    canvas,
     toggleDrawingMode,
     setBrushProperties,
     activeDrawingMode,

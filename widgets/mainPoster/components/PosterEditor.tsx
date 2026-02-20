@@ -1,16 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import {
   Canvas,
   FabricObject,
-  TPointerEvent,
-  TPointerEventInfo,
   FabricImage,
   Rect,
   Circle,
   Triangle,
+  TPointerEventInfo,
+  TPointerEvent,
 } from 'fabric';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { cn } from '@/shared/utils/cn';
@@ -23,31 +24,25 @@ import ContextMenu from './ContextMenu';
 import Toolbar from './Toolbar';
 
 export const PosterEditor = () => {
-  const [clipboard, setClipboard] = useState<FabricObject | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const { canvas, setCanvas, setActiveObject, setActiveTab, activeObject } =
-    useEditorStore(
-      useShallow(state => ({
-        canvas: state.canvas,
-        setCanvas: state.setCanvas,
-        setActiveObject: state.setActiveObject,
-        setActiveTab: state.setActiveTab,
-        activeObject: state.activeObject,
-      }))
-    );
+  const { setActiveTab } = useEditorStore(
+    useShallow(state => ({
+      setActiveTab: state.setActiveTab,
+    }))
+  );
 
   const {
-    activeDrawingMode,
+    canvas,
+    setCanvas,
     dragToCreateTextBox,
-    handleDrawingMode,
     handleDeleteShape,
     handleDeleteEmptyShape,
+    setupEventListeners,
     copy,
     paste,
     startCrop,
     isCropping,
-    setupEventListeners,
   } = useFabricContext();
 
   useSetFabricControls();
@@ -61,19 +56,18 @@ export const PosterEditor = () => {
 
   useEffect(() => {
     if (!canvasRef.current) return;
+
     const fabricCanvas = new Canvas(canvasRef.current, {
-      width: 350,
+      width: 375,
       height: 600,
-      backgroundColor: '#f9fafb',
       fireRightClick: true,
       stopContextMenu: true,
     });
+
     setCanvas(fabricCanvas);
 
     const handleSelection = () => {
       const activeObj = fabricCanvas.getActiveObject();
-
-      setActiveObject(activeObj ?? null);
 
       const isActiveImage = activeObj instanceof FabricImage;
       const isActiveDiagram =
@@ -95,57 +89,21 @@ export const PosterEditor = () => {
     fabricCanvas.on('selection:created', handleSelection);
     fabricCanvas.on('selection:updated', handleSelection);
     fabricCanvas.on('selection:cleared', () => {
-      setActiveObject(null);
       setActiveTab(null);
     });
 
     return () => {
       fabricCanvas.dispose();
     };
-  }, [setCanvas, setActiveObject, setActiveTab]);
+  }, [setCanvas, setActiveTab]);
 
   useEffect(() => {
     if (!canvas) return;
     setupEventListeners(canvas);
 
-    let cleanupDrawing: (() => void) | undefined;
-    if (activeDrawingMode) {
-      cleanupDrawing = dragToCreateTextBox(canvas);
-    }
-
     const cleanupEmpty = handleDeleteEmptyShape(canvas);
-    const onKeyDown = (e: KeyboardEvent) => {
-      handleDeleteShape(canvas, e);
-    };
-    const handleSelection = () => {
-      const selected = canvas.getActiveObject() as FabricObject;
-      setActiveObject(selected || null);
 
-      if (selected instanceof FabricImage) {
-        setActiveTab('image');
-      } else {
-        setActiveTab(null);
-      }
-    };
-
-    const handleMouseDown = (opt: TPointerEventInfo<TPointerEvent>) => {
-      const e = opt.e as MouseEvent;
-      if (e.button === 2) return; // 우클릭은 무시
-      if (!opt.target) {
-        setActiveObject(null);
-        setActiveTab(null);
-      }
-    };
-
-    window.addEventListener('keydown', onKeyDown);
-    canvas.on('mouse:down', options => {
-      if (!options.target) {
-        setActiveObject(null);
-        setActiveTab(null);
-      }
-    });
-
-    canvas.on('mouse:dblclick', options => {
+    const handleDoubleClick = (options: TPointerEventInfo<TPointerEvent>) => {
       if (
         options.target &&
         options.target instanceof FabricImage &&
@@ -153,25 +111,33 @@ export const PosterEditor = () => {
       ) {
         startCrop(canvas);
       }
-    });
+    };
+
+    const handleMouseDown = (options: TPointerEventInfo<TPointerEvent>) => {
+      const e = options.e as MouseEvent;
+      if (e.button === 2) return; // 우클릭(Right Click)은 무시
+      if (!options.target) {
+        setActiveTab(null);
+      }
+    };
+
+    canvas.on('mouse:dblclick', handleDoubleClick);
+    canvas.on('mouse:down', handleMouseDown);
 
     return () => {
-      if (cleanupDrawing) cleanupDrawing();
       cleanupEmpty();
-      window.removeEventListener('keydown', onKeyDown);
-      canvas.off('selection:created', handleSelection);
-      canvas.off('selection:updated', handleSelection);
+      canvas.off('mouse:dblclick', handleDoubleClick);
       canvas.off('mouse:down', handleMouseDown);
     };
   }, [
     canvas,
-    activeDrawingMode,
     dragToCreateTextBox,
     handleDeleteEmptyShape,
     handleDeleteShape,
-    setActiveObject,
     setActiveTab,
     setupEventListeners,
+    startCrop,
+    isCropping,
   ]);
 
   const isMouseInCanvasRef = useRef(false);
@@ -192,61 +158,60 @@ export const PosterEditor = () => {
   }, [canvas]);
 
   useEffect(() => {
-    if (!activeObject || !canvas) return;
-    const handleKeyboard = (e: KeyboardEvent) => {
-      if (!isMouseInCanvasRef.current) return;
+    if (!canvas) return;
 
-      // Ctrl(Windows/Linux) / Cmd(Mac) 둘 다 지원
+    const handleKeyboard = (e: KeyboardEvent) => {
+      // 캔버스 내부에 마우스가 있거나 현재 선택된 객체가 있을 경우에만 실행
+      const hasActiveObj = canvas.getActiveObjects().length > 0;
+      if (!isMouseInCanvasRef.current && !hasActiveObj) return;
+
       const mod = e.ctrlKey || e.metaKey;
 
-      if (mod && e.code === 'KeyC' && activeObject) {
-        e.preventDefault();
-        copy({ activeObject, setClipboard });
+      if (mod && e.code === 'KeyC') {
+        const activeObj = canvas.getActiveObject();
+        const isEditingText =
+          activeObj && 'isEditing' in activeObj && (activeObj as any).isEditing;
+        if (activeObj && !isEditingText) {
+          e.preventDefault();
+          copy();
+        }
       }
-      if (mod && e.code === 'KeyV' && clipboard) {
-        e.preventDefault();
-        paste({ canvas, clipboard });
+
+      if (mod && e.code === 'KeyV') {
+        const activeObj = canvas.getActiveObject();
+        const isEditingText =
+          activeObj && 'isEditing' in activeObj && (activeObj as any).isEditing;
+        if (!isEditingText) {
+          e.preventDefault();
+          paste();
+        }
+      }
+
+      // 딜리트 및 백스페이스 (기존 로직 수행)
+      if (e.key === 'Delete') {
+        handleDeleteShape(canvas, e);
       }
     };
 
-    document.addEventListener('keydown', handleKeyboard);
-    return () => document.removeEventListener('keydown', handleKeyboard);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeObject, clipboard]);
+    window.addEventListener('keydown', handleKeyboard);
+    return () => window.removeEventListener('keydown', handleKeyboard);
+  }, [canvas, copy, paste, handleDeleteShape]);
 
   return (
     <>
       <div
         onClick={() => selectedBlock('mainPoster')}
         className={cn(
-          'relative overflow-visible flex flex-col items-center gap-5 p-10',
+          'relative',
           selectedId === 'mainPoster' && 'border border-primary rounded-lg'
         )}
       >
-        {canvas && (
-          <ContextMenu
-            canvas={canvas}
-            activeObject={activeObject}
-            handleDeleteShape={handleDeleteShape}
-            clipboard={clipboard}
-            setClipboard={setClipboard}
-            copy={copy}
-            paste={paste}
-          />
-        )}
-        <div
-          style={{
-            border: '2px solid #e5e7eb',
-            borderRadius: '8px',
-            overflow: 'hidden',
-          }}
-        >
-          <canvas ref={canvasRef} />
+        {canvas && <ContextMenu />}
+        <div className="rounded-lg overflow-hidden">
+          <canvas ref={canvasRef} className="w-full" />
         </div>
       </div>
-      {selectedId === 'mainPoster' && (
-        <Toolbar canvas={canvas} handleDrawingMode={handleDrawingMode} />
-      )}
+      {selectedId === 'mainPoster' && <Toolbar />}
     </>
   );
 };

@@ -1,35 +1,19 @@
-import { Canvas, FabricObject } from 'fabric';
+import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 interface Props {
   onClick: () => void;
-  canvas: Canvas;
-  activeObject: FabricObject | null;
-  clipboard: FabricObject | null;
-  setClipboard: (clipboard: FabricObject | null) => void;
-  copy: (args: {
-    activeObject: FabricObject | null;
-    setClipboard: (clipboard: FabricObject | null) => void;
-  }) => void;
-  paste: (args: { canvas: Canvas; clipboard: FabricObject | null }) => void;
 }
 
-function CopyAndPaste({
-  onClick,
-  canvas,
-  activeObject,
-  clipboard,
-  setClipboard,
-  copy,
-  paste,
-}: Props) {
+function CopyAndPaste({ onClick }: Props) {
+  const { copy, paste } = useFabricContext();
+
   return (
     <>
       <button
         type="button"
         className="hover:bg-gray-100 active:bg-gray-200"
-        onClick={() => {
-          if (!activeObject) return;
-          copy({ activeObject, setClipboard });
+        onClick={async () => {
+          await copy();
           onClick();
         }}
       >
@@ -38,9 +22,8 @@ function CopyAndPaste({
       <button
         type="button"
         className="hover:bg-gray-100 active:bg-gray-200"
-        onClick={() => {
-          if (!clipboard) return;
-          paste({ canvas, clipboard });
+        onClick={async () => {
+          await paste();
           onClick();
         }}
       >

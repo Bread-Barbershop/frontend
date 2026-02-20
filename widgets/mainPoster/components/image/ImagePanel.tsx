@@ -1,46 +1,27 @@
-import { Canvas, FabricImage } from 'fabric';
+import { FabricImage } from 'fabric';
 import Image from 'next/image';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { useShallow } from 'zustand/shallow';
 
 import { ImageUploadButton } from '@/components/atoms/button/ImageUploadButton';
-import { FilterType } from '@/components/molecules/image-editor';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
-import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
+import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
-import { ActiveObject, PhotoPresetOptions } from '../../types/fabric';
+import { PhotoPresetOptions } from '../../types/fabric';
 
 import { AspectRatioSelector } from './AspectRatioSelector';
 import { ImageFilterSelector } from './ImageFilterSelector';
 
-interface Props {
-  canvas: Canvas;
-  addImage: (url: string, canvas: Canvas) => void;
-  applyImageFilter: (
-    options: PhotoPresetOptions,
-    canvas: Canvas,
-    type: FilterType
-  ) => void;
-  currentFilters?: PhotoPresetOptions;
-  isCropping: boolean;
-  startCrop: (canvas: Canvas, ratio: number | 'free') => void;
-  activeInfo: ActiveObject;
-}
+export const ImagePanel = () => {
+  const { canvas, applyImageFilter, addImage, startCrop, activeInfo } =
+    useFabricContext();
 
-export const ImagePanel = ({
-  canvas,
-  applyImageFilter,
-  addImage,
-  startCrop,
-  activeInfo,
-}: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [imageSrc, setImageSrc] = useState('');
 
-  const { activeObject } = useEditorStore(useShallow(state => state));
-
   // 이미지 Preview 업데이트 함수
   const updateImageSrc = async () => {
+    if (!canvas) return;
+    const activeObject = canvas.getActiveObject();
     if (!activeObject || !(activeObject instanceof FabricImage)) {
       return;
     }
@@ -50,7 +31,7 @@ export const ImagePanel = ({
 
     // 2. 리사이징용 캔버스 생성 (300px 제한) - 필터 적용 속도 최적화
     const originalElem = clonedObject.getElement(); // 원본 엘리먼트 가져오기
-    const canvas = document.createElement('canvas');
+    const offscreenCanvas = document.createElement('canvas');
     const MAX_SIZE = 335;
 
     let width = originalElem.width;
@@ -69,9 +50,9 @@ export const ImagePanel = ({
       }
     }
 
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
+    offscreenCanvas.width = width;
+    offscreenCanvas.height = height;
+    const ctx = offscreenCanvas.getContext('2d');
     if (!ctx) return;
 
     // 원본 이미지를 작게 그리기 (Downscaling)
@@ -79,7 +60,7 @@ export const ImagePanel = ({
 
     // 3. 복제된 객체의 소스를 작은 이미지로 교체
     // 이제 applyFilters()는 이 작은 캔버스(300px)에 대해 수행되므로 매우 빠름
-    clonedObject.setElement(canvas);
+    clonedObject.setElement(offscreenCanvas);
 
     // 4. 변환 초기화 (정자세, 리사이징된 크기 반영)
     clonedObject.set({
@@ -122,7 +103,7 @@ export const ImagePanel = ({
     const reader = new FileReader();
     reader.onload = e => {
       const url = e.target?.result as string;
-      addImage(url, canvas);
+      if (canvas) addImage(url, canvas);
     };
     reader.readAsDataURL(file);
   };
@@ -131,16 +112,18 @@ export const ImagePanel = ({
     options: PhotoPresetOptions,
     type: 'bw' | 'warm' | 'cool' | 'fade' | 'filmGrain' | 'vignette' | null
   ) => {
-    applyImageFilter(options, canvas, type);
+    if (canvas) applyImageFilter(options, canvas, type);
     updateImageSrc(); // 필터 적용 후 Preview 갱신
   };
-  const handleStartCrop = (ratio: number | 'free') => startCrop(canvas, ratio);
+  const handleStartCrop = (ratio: number | 'free') => {
+    if (canvas) startCrop(canvas, ratio);
+  };
 
   // 객체가 변경될 때마다 Preview 업데이트
   useEffect(() => {
     updateImageSrc();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeObject]);
+  }, [canvas, activeInfo]);
 
   return (
     <div className="flex flex-col items-center gap-1.5 w-full p-2">

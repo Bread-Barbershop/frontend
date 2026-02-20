@@ -1,4 +1,3 @@
-import { Canvas, FabricObject } from 'fabric';
 import { create } from 'zustand';
 
 import { componentCls } from '@/shared/samples/componentSample';
@@ -35,10 +34,6 @@ interface EditorState {
   addAllBlock: (
     english: 'wedding' | 'firstBirthday' | 'birthday' | 'conference' | 'etc'
   ) => void;
-  canvas: Canvas | null;
-  setCanvas: (canvas: Canvas | null) => void;
-  activeObject: FabricObject | null;
-  setActiveObject: (activeObject: FabricObject | null) => void;
   updateImage: (id: string, image: File[]) => void;
   updateImageId: (id: string, imageId: string) => void;
   // 메인포스터 탭 상태 관리
@@ -118,10 +113,6 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       }
     });
   },
-  activeObject: null,
-  setActiveObject: (activeObject: FabricObject | null) => set({ activeObject }),
-  canvas: null,
-  setCanvas: (canvas: Canvas | null) => set({ canvas }),
   //이미지 추가
   updateImage: (id, image) =>
     set(state => {

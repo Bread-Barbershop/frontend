@@ -1,15 +1,11 @@
-import { Canvas } from 'fabric';
 import { useShallow } from 'zustand/shallow';
 
 import { Button } from '@/components/atoms/button';
 import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
+import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
-interface Props {
-  canvas: Canvas | null;
-  handleDrawingMode: () => void;
-}
-
-function Toolbar({ canvas, handleDrawingMode }: Props) {
+function Toolbar() {
+  const { canvas, dragToCreateTextBox } = useFabricContext();
   const { activeTab, setActiveTab } = useEditorStore(
     useShallow(state => ({
       activeTab: state.activeTab,
@@ -21,7 +17,7 @@ function Toolbar({ canvas, handleDrawingMode }: Props) {
 
   return (
     <div className="absolute top-1/2 -translate-y-1/2 -left-3 -translate-x-full flex flex-col gap-3">
-      <Button onClick={handleDrawingMode}>텍스트</Button>
+      <Button onClick={() => dragToCreateTextBox(canvas)}>텍스트</Button>
       <Button
         onClick={() => {
           setActiveTab('image');

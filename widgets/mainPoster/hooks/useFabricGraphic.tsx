@@ -7,11 +7,28 @@ import { initDragHandler } from '../utils/fabricUtils';
 
 const shapeCreators = {
   rect: (p: DragPoints, opts: any) =>
-    new Rect({ ...opts, width: p.width, height: p.height }),
+    new Rect({
+      originX: 'left',
+      originY: 'top',
+      ...opts,
+      width: p.width,
+      height: p.height,
+    }),
   circle: (p: DragPoints, opts: any) =>
-    new Circle({ ...opts, radius: Math.max(p.width, p.height) / 2 }),
+    new Circle({
+      originX: 'left',
+      originY: 'top',
+      ...opts,
+      radius: Math.max(p.width, p.height) / 2,
+    }),
   triangle: (p: DragPoints, opts: any) =>
-    new Triangle({ ...opts, width: p.width, height: p.height }),
+    new Triangle({
+      originX: 'left',
+      originY: 'top',
+      ...opts,
+      width: p.width,
+      height: p.height,
+    }),
   // 여기에 신규 도형을 한 줄만 추가하면 끝!
 };
 

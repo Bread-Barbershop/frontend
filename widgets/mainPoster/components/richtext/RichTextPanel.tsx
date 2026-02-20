@@ -1,4 +1,4 @@
-import { Canvas, Textbox, FabricObject } from 'fabric';
+import { Canvas } from 'fabric';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -8,7 +8,8 @@ import charspacing from '@/shared/assets/icons/charspacing.svg';
 import italic from '@/shared/assets/icons/italic.svg';
 import underline from '@/shared/assets/icons/underline.svg';
 import { debounce } from '@/shared/utils/debounce';
-import { RichStyle, RichStyleKey } from '@/widgets/mainPoster/types/fabric';
+import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
+import { RichStyle } from '@/widgets/mainPoster/types/fabric';
 
 import CharSpacing from './CharSpacing';
 import FontColor from './FontColor';
@@ -23,21 +24,11 @@ import TextBackground from './TextBackground';
 
 interface Props {
   canvas: Canvas | null;
-  activeObject: FabricObject | null;
   applyRichStyle: (styleObj: object, canvas: Canvas) => void;
-  getRichStyles: (
-    activeObject: Textbox,
-    style: RichStyleKey,
-    onChange: (color: string) => void
-  ) => void;
 }
 
-function RichTextPanel({
-  canvas,
-  applyRichStyle,
-  activeObject,
-  getRichStyles,
-}: Props) {
+function RichTextPanel({ canvas, applyRichStyle }: Props) {
+  const { activeInfo } = useFabricContext();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const debouncedApplyStyle = useMemo(
     () =>
@@ -49,7 +40,7 @@ function RichTextPanel({
 
   useEffect(() => {
     // 선택 변경 시 필요한 작업을 여기에 추가할 수 있습니다.
-  }, [activeObject?.id]);
+  }, [activeInfo]);
 
   if (!canvas) return null;
 
@@ -77,25 +68,13 @@ function RichTextPanel({
     <div className="flex flex-col items-center gap-1.5 w-full p-2">
       <NavigationBar>텍스트</NavigationBar>
       <div className="flex w-full justify-between">
-        <FontFamily
-          canvas={canvas}
-          activeObject={activeObject as Textbox}
-          getRichStyles={getRichStyles}
-          applyRichStyle={applyRichStyle}
-        />
+        <FontFamily canvas={canvas} applyRichStyle={applyRichStyle} />
         <FontSize
           canvas={canvas}
-          activeObject={activeObject as Textbox}
-          getRichStyles={getRichStyles}
           applyRichStyle={applyRichStyle}
           debouncedApplyStyle={debouncedApplyStyle}
         />
-        <FontColor
-          canvas={canvas}
-          activeObject={activeObject as Textbox}
-          getRichStyles={getRichStyles}
-          applyRichStyle={applyRichStyle}
-        />
+        <FontColor canvas={canvas} applyRichStyle={applyRichStyle} />
 
         {/* <Highlight canvas={canvas} applyRichStyle={applyRichStyle} />
       <Stroke

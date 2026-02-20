@@ -6,7 +6,6 @@ import { useFabric } from '../hooks/useFabric';
 import { useFabricGraphic } from '../hooks/useFabricGraphic';
 import { useFabricImage } from '../hooks/useFabricImage';
 
-// useFabric, useFabricDiagram, useFabricImage 훅의 반환 타입 정의 (Intersection)
 type FabricContextType = ReturnType<typeof useFabric> &
   ReturnType<typeof useFabricGraphic> &
   ReturnType<typeof useFabricImage>;

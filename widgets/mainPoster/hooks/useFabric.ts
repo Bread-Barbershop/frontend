@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as fabric from 'fabric';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import {
   LayoutStyle,
@@ -14,6 +14,7 @@ import {
 import { initDragHandler } from '../utils/fabricUtils';
 
 export const useFabric = () => {
+  const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
   const [activeInfo, setActiveInfo] = useState<ActiveObject>({
     type: null,
     filters: [],
@@ -22,17 +23,19 @@ export const useFabric = () => {
 
   const [shapes, setShapes] = useState<Shape[]>([]);
   const [activeDrawingMode, setDrawingMode] = useState(false);
+  const [clipboard, setClipboard] = useState<fabric.FabricObject | null>(null);
+  const dragCleanupRef = useRef<(() => void) | null>(null);
 
-  const handleDrawingMode = () => {
+  const dragToCreateTextBox = (canvas: fabric.Canvas) => {
+    if (dragCleanupRef.current) {
+      dragCleanupRef.current();
+    }
+
     setDrawingMode(true);
-  };
 
-  const dragToCreateTextBox = (canvas: fabric.Canvas) =>
-    initDragHandler({
+    dragCleanupRef.current = initDragHandler({
       canvas,
       onComplete: (points: DragPoints) => {
-        if (!activeDrawingMode) return;
-
         const { width, height, left, top } = points;
 
         if (width > 20 || height > 20) {
@@ -67,9 +70,11 @@ export const useFabric = () => {
         }
 
         setDrawingMode(false);
+        dragCleanupRef.current = null;
         canvas.requestRenderAll();
       },
     });
+  };
 
   const isLayoutStyle = (style: RichStyle): style is LayoutStyle => {
     return (
@@ -327,26 +332,16 @@ export const useFabric = () => {
 
   // 이미지 관련 함수들(applyImageFilter, startCrop, applyCrop, cancelCrop, addImage) 제거됨
 
-  const copy = async ({
-    activeObject,
-    setClipboard,
-  }: {
-    activeObject: fabric.FabricObject | null;
-    setClipboard: (clipboard: fabric.FabricObject | null) => void;
-  }) => {
+  const copy = async () => {
+    if (!canvas) return;
+    const activeObject = canvas.getActiveObject();
     if (!activeObject) return;
     const cloned = await activeObject.clone();
     setClipboard(cloned);
   };
 
-  const paste = async ({
-    canvas,
-    clipboard,
-  }: {
-    canvas: fabric.Canvas;
-    clipboard: fabric.FabricObject | null;
-  }) => {
-    if (!clipboard) return;
+  const paste = async () => {
+    if (!clipboard || !canvas) return;
     const cloned = await clipboard.clone();
     if (!cloned) return;
 
@@ -371,22 +366,29 @@ export const useFabric = () => {
   };
 
   const syncActiveObjectInfo = (canvas: fabric.Canvas) => {
-    const activeObject = canvas.getActiveObject();
+    const activeObjects = canvas.getActiveObjects();
 
-    if (!activeObject) {
+    if (activeObjects.length === 0) {
       setActiveInfo({ type: null, filters: [], styles: {} });
       return;
     }
 
+    const primaryObject = activeObjects[0];
+
     // UI 버튼 활성화를 위해 필요한 정보만 추출
     setActiveInfo({
-      type: activeObject.type,
-      filters: (activeObject as any).filters || [],
+      type: primaryObject.type,
+      filters: (primaryObject as any).filters || [],
       styles: {
-        fontWeight: (activeObject as any).fontWeight,
-        fill: activeObject.fill,
-        fontSize: (activeObject as any).fontSize,
-        // 여기에 필요한 스타일 속성 추가
+        fontWeight: (primaryObject as any).fontWeight,
+        fill: primaryObject.fill,
+        fontSize: (primaryObject as any).fontSize,
+        textAlign: (primaryObject as any).textAlign,
+        lineHeight: (primaryObject as any).lineHeight,
+        charSpacing: (primaryObject as any).charSpacing,
+        paintFirst: (primaryObject as any).paintFirst,
+        stroke: primaryObject.stroke,
+        strokeWidth: primaryObject.strokeWidth,
       },
     });
   };
@@ -407,6 +409,8 @@ export const useFabric = () => {
   };
 
   return {
+    canvas,
+    setCanvas,
     activeInfo, // State 추가됨
     setupEventListeners,
     syncActiveObjectInfo,
@@ -414,7 +418,6 @@ export const useFabric = () => {
     shapes,
     activeDrawingMode,
     setDrawingMode, // Export setDrawingMode for useFabricDiagram
-    handleDrawingMode,
     dragToCreateTextBox,
     applyRichStyle,
     getRichStyles,
