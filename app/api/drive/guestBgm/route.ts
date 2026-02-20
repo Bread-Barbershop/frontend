@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   if (range) forwardHeaders.set('range', range);
 
   let driveRes: Response;
-  let driveRes: Response;
+
   try {
     driveRes = await fetch(driveUrl, {
       redirect: 'follow',
