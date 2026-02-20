@@ -1,16 +1,5 @@
 ﻿'use client';
 
-import Bold from '@tiptap/extension-bold';
-import BulletList from '@tiptap/extension-bullet-list';
-import Color from '@tiptap/extension-color';
-import Document from '@tiptap/extension-document';
-import Italic from '@tiptap/extension-italic';
-// import ListItem from '@tiptap/extension-list-item';
-import Paragraph from '@tiptap/extension-paragraph';
-import Text from '@tiptap/extension-text';
-import TextAlign from '@tiptap/extension-text-align';
-import { TextStyle, FontSize } from '@tiptap/extension-text-style';
-import Underline from '@tiptap/extension-underline';
 import { useEditor, EditorContent, JSONContent } from '@tiptap/react';
 import { TextAlignCenter, TextAlignEnd, TextAlignStart } from 'lucide-react';
 import { ReactNode, useState } from 'react';
@@ -25,7 +14,7 @@ import ColorPicker from './components/ColorPicker';
 import { FontColorIcon } from './components/FontColorIcon';
 import { ItalicIcon } from './components/ItalicIcon';
 import { UnderlineIcon } from './components/UnderlineIcon';
-import { customListItem } from './utils/customListItem';
+import { createTextEditorBarExtensions } from './utils/tiptapExtensions';
 
 interface TextEditorBarProps {
   initialContent?: string;
@@ -73,23 +62,7 @@ export function TextEditorBar({
 
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: [
-      Document,
-      Paragraph,
-      Text,
-      Bold,
-      Italic,
-      Underline,
-      TextStyle,
-      Color,
-      customListItem,
-      BulletList,
-      FontSize,
-      TextAlign.configure({
-        types: ['paragraph'],
-        defaultAlignment: 'left',
-      }),
-    ],
+    extensions: createTextEditorBarExtensions(),
     content: `<p>${initialContent}</p>`,
     editorProps: {
       attributes: {
