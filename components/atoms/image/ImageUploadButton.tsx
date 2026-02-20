@@ -5,6 +5,8 @@ import { forwardRef, InputHTMLAttributes, useId } from 'react';
 
 import { cn } from '@/shared/utils/cn';
 
+import { imageUploadButtonVariants } from './ImageUploadButton.style';
+
 interface ImageUploadButtonProps extends Omit<
   InputHTMLAttributes<HTMLInputElement>,
   'type'
@@ -36,16 +38,7 @@ export const ImageUploadButton = forwardRef<
       <label
         htmlFor={inputId}
         aria-label="이미지 업로드"
-        className={cn(
-          'w-15 h-15',
-          'flex items-center justify-center',
-          'border border-dashed',
-          'cursor-pointer',
-          'transition-colors',
-          'hover:bg-gray-50',
-          disabled && 'opacity-50 cursor-not-allowed',
-          className
-        )}
+        className={cn(imageUploadButtonVariants({ disabled }), className)}
       >
         <Plus size={24} strokeWidth={2} />
       </label>
