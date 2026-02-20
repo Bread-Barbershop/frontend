@@ -49,9 +49,9 @@ const FONT_SIZE_OPTIONS: FontSizeOption[] = [
 
 // 텍스트 정렬 선택 옵션 목록.
 const TEXT_ALIGN_OPTIONS: TextAlignOption[] = [
-  { label: <AlignLeftIcon size={20} />, value: 'left' },
-  { label: <AlignCenterIcon size={20} />, value: 'center' },
-  { label: <AlignRightIcon size={20} />, value: 'right' },
+  { label: <AlignLeftIcon size={24} />, value: 'left' },
+  { label: <AlignCenterIcon size={24} />, value: 'center' },
+  { label: <AlignRightIcon size={24} />, value: 'right' },
 ];
 
 // 폰트 크기 기본 선택값.
@@ -156,7 +156,7 @@ export function TextEditorBar({
 
         {/* Italic */}
         <TextEditorButton
-          icon={<ItalicIcon size={28} />}
+          icon={<ItalicIcon size={30} />}
           label="기울임"
           active={editor.isActive('italic')}
           onClick={() => editor.chain().focus().toggleItalic().run()}
@@ -164,7 +164,7 @@ export function TextEditorBar({
 
         {/* Underline */}
         <TextEditorButton
-          icon={<UnderlineIcon size={28} />}
+          icon={<UnderlineIcon size={32} />}
           label="밑줄"
           active={editor.isActive('underline')}
           onClick={() => editor.chain().focus().toggleUnderline().run()}
@@ -173,7 +173,7 @@ export function TextEditorBar({
         {/* Color */}
         <div className="relative">
           <TextEditorButton
-            icon={<FontColorIcon size={28} />}
+            icon={<FontColorIcon size={32} />}
             label="글자색"
             active={editor.isActive('textStyle')}
             onClick={handleColorPickerToggle}
@@ -188,7 +188,7 @@ export function TextEditorBar({
 
         {/* Bullet */}
         <TextEditorButton
-          icon={<BulletPointIcon size={20} />}
+          icon={<BulletPointIcon size={24} />}
           label="글머리 기호"
           active={editor.isActive('bulletList')}
           onClick={handleBulletListToggle}
