@@ -22,7 +22,7 @@ export default function BgmToggleButton({
       onClick={onToggle}
       aria-label={isOn ? '배경음악 끄기' : '배경음악 켜기'}
       className={clsx(
-        'absolute right-4 top-4 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-black/16 backdrop-blur-md cursor-pointer',
+        'absolute right-4 top-4 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-black/[16%] backdrop-blur-md cursor-pointer',
         className
       )}
     >
