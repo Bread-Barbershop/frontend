@@ -6,7 +6,7 @@ import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 import ControlZindex from './ControlZindex';
 import CopyAndPaste from './CopyAndPaste';
 
-function ContextMenu() {
+export function ContextMenu() {
   const { canvas, handleDeleteShape } = useFabricContext();
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -82,4 +82,3 @@ function ContextMenu() {
     </div>
   );
 }
-export default ContextMenu;

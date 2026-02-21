@@ -13,7 +13,6 @@ import { useRef, useState } from 'react';
 import {
   LayoutStyle,
   RichStyle,
-  Shape,
   Text,
   RichStyleKey,
   DragPoints,
@@ -28,8 +27,6 @@ export const useFabric = () => {
     filters: [],
     styles: {},
   });
-
-  const [shapes, setShapes] = useState<Shape[]>([]);
   const [clipboard, setClipboard] = useState<FabricObject | null>(null);
   const dragCleanupRef = useRef<(() => void) | null>(null);
 
@@ -40,9 +37,7 @@ export const useFabric = () => {
 
     dragCleanupRef.current = initDragHandler({
       canvas,
-      onComplete: (points: DragPoints) => {
-        const { width, height, left, top } = points;
-
+      onComplete: ({ width, height, left, top }: DragPoints) => {
         if (width > 20 || height > 20) {
           const newTextbox = new Textbox('텍스트를 입력해주세요', {
             left,
@@ -69,7 +64,6 @@ export const useFabric = () => {
           canvas.add(newTextbox);
           canvas.setActiveObject(newTextbox);
 
-          setShapes(prev => [...prev, newTextData]);
           newTextbox.enterEditing();
           newTextbox.selectAll();
         }
@@ -215,18 +209,6 @@ export const useFabric = () => {
     }
   };
 
-  const deleteShape = ({
-    idArray,
-    id,
-  }: {
-    idArray?: string[];
-    id?: string;
-  }) => {
-    if (idArray)
-      setShapes(prev => prev.filter(shape => !idArray.includes(shape.id)));
-    else if (id) setShapes(prev => prev.filter(s => s.id !== id));
-  };
-
   const handleDeleteShape = (
     canvas: Canvas,
     e?: KeyboardEvent,
@@ -248,11 +230,6 @@ export const useFabric = () => {
         e?.preventDefault();
 
         canvas.remove(...activeObjects);
-
-        const idArray = activeObjects
-          .map(obj => obj.id)
-          .filter(Boolean) as string[];
-        deleteShape({ idArray });
 
         canvas.discardActiveObject();
         canvas.requestRenderAll();
@@ -278,8 +255,6 @@ export const useFabric = () => {
           setTimeout(() => {
             if (!textObject) return;
             canvas.remove(textObject);
-            const id = textObject.id;
-            deleteShape({ id });
 
             canvas.discardActiveObject();
             canvas.requestRenderAll();
@@ -333,8 +308,6 @@ export const useFabric = () => {
       canvas.requestRenderAll();
     }
   };
-
-  // 이미지 관련 함수들(applyImageFilter, startCrop, applyCrop, cancelCrop, addImage) 제거됨
 
   const copy = async () => {
     if (!canvas) return;
@@ -415,24 +388,16 @@ export const useFabric = () => {
   return {
     canvas,
     setCanvas,
-    activeInfo, // State 추가됨
+    activeInfo,
     setupEventListeners,
     syncActiveObjectInfo,
-
-    shapes,
     dragToCreateTextBox,
     applyRichStyle,
     getRichStyles,
-
-    // 이미지/크롭 관련 반환값 제거됨
-
     handleDeleteShape,
     handleDeleteEmptyShape,
-
     setPatternOffset,
     copy,
     paste,
-
-    setShapes,
   };
 };

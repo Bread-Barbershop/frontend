@@ -21,14 +21,17 @@ import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 import { useSetFabricControls } from '../hooks/useSetFabricControls';
 import { initAligningGuidelines } from '../libs/aligning-guidelines';
 
-import ContextMenu from './ContextMenu';
+import { ContextMenu } from './context-menu/ContextMenu';
 import Toolbar from './Toolbar';
 
 export const PosterEditor = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const isMouseInCanvasRef = useRef(false);
 
-  const { setActiveTab } = useEditorStore(
+  const { selectedId, selectedBlock, setActiveTab } = useEditorStore(
     useShallow(state => ({
+      selectedId: state.selectedId,
+      selectedBlock: state.selectedBlock,
       setActiveTab: state.setActiveTab,
     }))
   );
@@ -47,13 +50,6 @@ export const PosterEditor = () => {
   } = useFabricContext();
 
   useSetFabricControls();
-
-  const { selectedId, selectedBlock } = useEditorStore(
-    useShallow(state => ({
-      selectedId: state.selectedId,
-      selectedBlock: state.selectedBlock,
-    }))
-  );
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -141,8 +137,6 @@ export const PosterEditor = () => {
     startCrop,
     isCropping,
   ]);
-
-  const isMouseInCanvasRef = useRef(false);
 
   useEffect(() => {
     if (!canvas) return;
