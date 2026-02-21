@@ -27,10 +27,10 @@ const ImageFilterPanel = ({
   canvas,
   applyImageFilter,
   addImage,
-  // isCropping,
-  // startCrop,
-  // applyCrop,
-  // cancelCrop,
+  isCropping,
+  startCrop,
+  applyCrop,
+  cancelCrop,
 }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [imageSrc, setImageSrc] = useState('');
@@ -68,9 +68,9 @@ const ImageFilterPanel = ({
     applyImageFilter(options, canvas);
     updateImageSrc(); // 필터 적용 후 Preview 갱신
   };
-  // const handleStartCrop = () => startCrop(canvas);
-  // const handleApplyCrop = () => applyCrop(canvas);
-  // const handleCancelCrop = () => cancelCrop(canvas);
+  const handleStartCrop = () => startCrop(canvas);
+  const handleApplyCrop = () => applyCrop(canvas);
+  const handleCancelCrop = () => cancelCrop(canvas);
 
   // 객체가 변경될 때마다 Preview 업데이트
   useEffect(() => {
@@ -100,7 +100,7 @@ const ImageFilterPanel = ({
       </div>
       <ImageFilterSelector onApply={handleApply} />
       <AspectRatioSelector />
-      {/* 
+
       <div className="flex flex-wrap gap-2 items-center justify-center w-full mt-4">
         {!isCropping ? (
           <button
@@ -125,7 +125,7 @@ const ImageFilterPanel = ({
             </button>
           </div>
         )}
-      </div> */}
+      </div>
     </div>
   );
 };

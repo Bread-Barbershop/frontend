@@ -479,6 +479,7 @@ export const useFabric = () => {
       selectable: false,
       evented: false,
       objectCaching: false,
+      excludeFromExport: true,
     });
 
     // 4. Highlight Layer (중간): 선명하게 보일 이미지 (원본 전체)
@@ -498,6 +499,7 @@ export const useFabric = () => {
       evented: false,
       objectCaching: false,
       name: 'highlight-layer',
+      excludeFromExport: true,
     });
 
     // 5. Control Layer (상단): 이전 크롭 영역 또는 초기 영역 표시 (Zone)
@@ -515,6 +517,7 @@ export const useFabric = () => {
       originY: 'center',
       objectCaching: false,
       absolutePositioned: true,
+      excludeFromExport: true,
     });
 
     highlightImg.clipPath = zone;
@@ -659,6 +662,7 @@ export const useFabric = () => {
     darkOverlayRef.current = null;
 
     canvas.discardActiveObject();
+    saveHistory();
     canvas.renderAll();
 
     setShapes(prev =>
