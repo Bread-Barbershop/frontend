@@ -1,7 +1,7 @@
 import { FabricObject, Control, controlsUtils, util } from 'fabric';
 import { useEffect } from 'react';
 
-import { CORNERS_CONFIG, MOVE_ICON } from '../utils/constants';
+import { CORNERS_CONFIG, MOVE_ICON, SIDES_CONFIG } from '../constants/fabric';
 import {
   createFabricControlImage,
   getRotatedCursorUrl,
@@ -45,8 +45,13 @@ export const useSetFabricControls = () => {
       y: 0,
       actionName: 'centerAction',
       render: (ctx, left, top, _, fabricObject) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((fabricObject as any).name === 'crop-zone') return;
+        // Textbox는 중앙 인디케이터 표시 안 함
+        const isTextbox =
+          typeof fabricObject?.isType === 'function'
+            ? fabricObject.isType('textbox')
+            : fabricObject?.type === 'textbox';
+
+        if (isTextbox) return;
 
         if (!isImageReadyForCanvas(img)) {
           img.onload = () => fabricObject.canvas?.requestRenderAll();
@@ -86,9 +91,6 @@ export const useSetFabricControls = () => {
         offsetY: corner.offY,
         sizeX: 10,
         sizeY: 10,
-        getVisibility: fabricObject =>
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (fabricObject as any).name !== 'crop-zone',
         actionHandler: controlsUtils.rotationWithSnapping,
         cursorStyleHandler: (_, __, fabricObject) => {
           const totalAngle =
@@ -97,6 +99,21 @@ export const useSetFabricControls = () => {
         },
         actionName: 'rotate',
         render: () => {},
+      });
+    });
+
+    // 상하좌우 컨트롤
+    SIDES_CONFIG.forEach(({ id, x, y, action }) => {
+      newControls[id] = new Control({
+        x,
+        y,
+        actionHandler:
+          action === 'scalingX'
+            ? controlsUtils.scalingX
+            : controlsUtils.scalingY,
+        cursorStyleHandler: controlsUtils.scaleCursorStyleHandler,
+        actionName: action,
+        render: controlsUtils.renderSquareControl,
       });
     });
 

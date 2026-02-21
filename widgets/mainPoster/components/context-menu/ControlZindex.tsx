@@ -1,32 +1,33 @@
-import { Canvas, FabricObject } from 'fabric';
+import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 interface Props {
   onClick: () => void;
-  canvas: Canvas;
-  activeObject: FabricObject | null;
 }
 
-function ControlZindex({ onClick, canvas, activeObject }: Props) {
+function ControlZindex({ onClick }: Props) {
+  const { canvas } = useFabricContext();
+  const activeObject = canvas?.getActiveObject();
+
   const moveUp = () => {
-    if (!activeObject) return;
+    if (!activeObject || !canvas) return;
     canvas.bringObjectForward(activeObject);
     canvas.requestRenderAll();
   };
 
   const moveDown = () => {
-    if (!activeObject) return;
+    if (!activeObject || !canvas) return;
     canvas.sendObjectBackwards(activeObject);
     canvas.requestRenderAll();
   };
 
   const moveTop = () => {
-    if (!activeObject) return;
+    if (!activeObject || !canvas) return;
     canvas.bringObjectToFront(activeObject);
     canvas.requestRenderAll();
   };
 
   const moveBottom = () => {
-    if (!activeObject) return;
+    if (!activeObject || !canvas) return;
     canvas.sendObjectToBack(activeObject);
     canvas.requestRenderAll();
   };

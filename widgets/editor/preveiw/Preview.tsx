@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
-import PosterEditor from '@/widgets/mainPoster/components/PosterEditor';
+import { PosterEditor } from '@/widgets/mainPoster/components/PosterEditor';
 
 import { useEditorStore } from '../store/useEditorStore';
 import { blockRegistry } from '../types/registry';
@@ -53,9 +53,9 @@ function Preview() {
     setIsTab(false);
   };
   return (
-    <div className="w-93.75 h-218 flex flex-col  gap-4 relative">
+    <div className="w-93.75 h-218 flex flex-col gap-4 relative">
       <div className="h-203 bg-white">
-        <div className="overflow-y-auto h-full w-93.75 box-border flex flex-col justify-center">
+        <div className="overflow-y-auto h-full w-93.75 box-border flex flex-col justify-start">
           <PosterEditor />
 
           {block.map(comp => {

@@ -1,11 +1,16 @@
-import * as fabric from 'fabric';
+import {
+  filters,
+  classRegistry,
+  setFilterBackend,
+  Canvas2dFilterBackend,
+} from 'fabric';
 
 import { PhotoPresetOptions } from '../types/fabric';
 
 /**
  * Fabric.js 커스텀 사진 보정 필터 클래스
  */
-export class PhotoPreset extends fabric.filters.BaseFilter<'PhotoPreset'> {
+export class PhotoPreset extends filters.BaseFilter<'PhotoPreset'> {
   public static type = 'PhotoPreset';
   public get type(): 'PhotoPreset' {
     return 'PhotoPreset';
@@ -25,8 +30,18 @@ export class PhotoPreset extends fabric.filters.BaseFilter<'PhotoPreset'> {
       vignette: 0,
       grain: 0,
       bw: 0,
+      type: null,
       ...options,
     };
+  }
+
+  /**
+   * 객체 복제(serialization/deserialization)를 위한 정적 메서드
+   * fabric.Image.fromObject 등에서 사용됨
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static fromObject(object: any) {
+    return Promise.resolve(new PhotoPreset(object.options));
   }
 
   // 유틸리티 메서드
@@ -173,7 +188,7 @@ export class PhotoPreset extends fabric.filters.BaseFilter<'PhotoPreset'> {
   }
 }
 
-fabric.classRegistry.setClass(PhotoPreset);
+classRegistry.setClass(PhotoPreset);
 if (typeof window !== 'undefined') {
-  fabric.setFilterBackend(new fabric.Canvas2dFilterBackend());
+  setFilterBackend(new Canvas2dFilterBackend());
 }

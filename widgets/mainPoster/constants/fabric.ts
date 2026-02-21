@@ -27,9 +27,18 @@ export const ICON_PATHS = `<path
         fill="#1F72EF"
       />`;
 
+// 모서리 컨트롤 설정
 export const CORNERS_CONFIG = [
   { id: 'tl', x: -0.5, y: -0.5, offX: -5, offY: -5, angleOffset: 0 },
   { id: 'tr', x: 0.5, y: -0.5, offX: 5, offY: -5, angleOffset: 90 },
   { id: 'br', x: 0.5, y: 0.5, offX: 5, offY: 5, angleOffset: 180 },
   { id: 'bl', x: -0.5, y: 0.5, offX: -5, offY: 5, angleOffset: 270 },
+];
+
+// 상하좌우 컨트롤 설정 추가
+export const SIDES_CONFIG = [
+  { id: 'mt', x: 0, y: -0.5, action: 'scalingY' },
+  { id: 'mb', x: 0, y: 0.5, action: 'scalingY' },
+  { id: 'ml', x: -0.5, y: 0, action: 'scalingX' },
+  { id: 'mr', x: 0.5, y: 0, action: 'scalingX' },
 ];

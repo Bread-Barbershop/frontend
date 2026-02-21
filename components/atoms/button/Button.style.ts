@@ -17,10 +17,14 @@ export const buttonVariants = cva(
         default: 'shadow-none',
         custom: 'shadow-custom',
       },
+      active: {
+        true: 'text-primary border-primary', // 원하는 액티브 스타일
+        false: '',
+      },
     },
     defaultVariants: {
       variant: 'bordered',
-      size: 'sm', 
+      size: 'sm',
       shadow: 'default',
     },
   }
