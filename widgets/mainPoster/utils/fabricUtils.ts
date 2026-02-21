@@ -59,7 +59,7 @@ export const updateCropRatio = (canvas: Canvas, ratio: number | 'free') => {
     return;
   }
 
-  const sideControls = SIDES_CONFIG.map(side => side.id);
+  const sideControls = SIDES_CONFIG.map((side: { id: string }) => side.id);
 
   // 1. 자유 조절 모드
   if (ratio === 'free') {
@@ -123,7 +123,7 @@ export const updateCropRatio = (canvas: Canvas, ratio: number | 'free') => {
     const newControls = { ...defaultControls };
 
     // 2. 사이드 컨트롤 키 제거
-    sideControls.forEach(id => {
+    sideControls.forEach((id: string) => {
       delete newControls[id];
     });
 

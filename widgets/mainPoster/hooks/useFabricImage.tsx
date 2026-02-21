@@ -3,8 +3,8 @@ import { useRef, useState } from 'react';
 
 import { FilterType } from '@/components/molecules/image-editor';
 
+import { PhotoPreset } from '../libs/customImage-filter';
 import { PhotoPresetOptions } from '../types/fabric';
-import { PhotoPreset } from '../utils/CustomImageFilter';
 import { updateCropRatio } from '../utils/fabricUtils';
 
 interface Props {

@@ -19,6 +19,7 @@ import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import { useSetFabricControls } from '../hooks/useSetFabricControls';
+import { initAligningGuidelines } from '../libs/aligning-guidelines';
 
 import ContextMenu from './ContextMenu';
 import Toolbar from './Toolbar';
@@ -65,6 +66,7 @@ export const PosterEditor = () => {
     });
 
     setCanvas(fabricCanvas);
+    initAligningGuidelines(fabricCanvas);
 
     const handleSelection = () => {
       const activeObj = fabricCanvas.getActiveObject();
