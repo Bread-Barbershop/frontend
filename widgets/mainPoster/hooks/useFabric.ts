@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as fabric from 'fabric';
+import {
+  Canvas,
+  FabricObject,
+  Textbox,
+  Shadow,
+  IText,
+  Pattern,
+  ActiveSelection,
+} from 'fabric';
 import { useRef, useState } from 'react';
 
 import {
@@ -14,7 +22,7 @@ import {
 import { initDragHandler } from '../utils/fabricUtils';
 
 export const useFabric = () => {
-  const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
+  const [canvas, setCanvas] = useState<Canvas | null>(null);
   const [activeInfo, setActiveInfo] = useState<ActiveObject>({
     type: null,
     filters: [],
@@ -22,16 +30,13 @@ export const useFabric = () => {
   });
 
   const [shapes, setShapes] = useState<Shape[]>([]);
-  const [activeDrawingMode, setDrawingMode] = useState(false);
-  const [clipboard, setClipboard] = useState<fabric.FabricObject | null>(null);
+  const [clipboard, setClipboard] = useState<FabricObject | null>(null);
   const dragCleanupRef = useRef<(() => void) | null>(null);
 
-  const dragToCreateTextBox = (canvas: fabric.Canvas) => {
+  const dragToCreateTextBox = (canvas: Canvas) => {
     if (dragCleanupRef.current) {
       dragCleanupRef.current();
     }
-
-    setDrawingMode(true);
 
     dragCleanupRef.current = initDragHandler({
       canvas,
@@ -39,7 +44,7 @@ export const useFabric = () => {
         const { width, height, left, top } = points;
 
         if (width > 20 || height > 20) {
-          const newTextbox = new fabric.Textbox('텍스트를 입력해주세요', {
+          const newTextbox = new Textbox('텍스트를 입력해주세요', {
             left,
             top,
             originX: 'left',
@@ -69,7 +74,6 @@ export const useFabric = () => {
           newTextbox.selectAll();
         }
 
-        setDrawingMode(false);
         dragCleanupRef.current = null;
         canvas.requestRenderAll();
       },
@@ -100,8 +104,8 @@ export const useFabric = () => {
     return false;
   };
 
-  const applyRichStyle = (styleObj: RichStyle, canvas: fabric.Canvas) => {
-    const activeObject = canvas.getActiveObject() as fabric.Textbox;
+  const applyRichStyle = (styleObj: RichStyle, canvas: Canvas) => {
+    const activeObject = canvas.getActiveObject() as Textbox;
     if (!activeObject) return;
 
     if (handleNumberValidity(styleObj)) return;
@@ -116,7 +120,7 @@ export const useFabric = () => {
 
       const currentStyle = isSelectionPresent
         ? activeObject.getSelectionStyles()[0]?.[key]
-        : activeObject.get(key as keyof fabric.Textbox);
+        : activeObject.get(key as keyof Textbox);
 
       if (
         key === 'fontSize' ||
@@ -134,7 +138,7 @@ export const useFabric = () => {
     if (isLayoutStyle(styleObj)) {
       if (styleObj.shadow) {
         activeObject.set({
-          shadow: new fabric.Shadow({
+          shadow: new Shadow({
             ...activeObject.shadow,
             ...styleObj.shadow,
           }),
@@ -190,7 +194,7 @@ export const useFabric = () => {
   };
 
   const getRichStyles = <T extends RichStyleKey>(
-    activeObject: fabric.Textbox,
+    activeObject: Textbox,
     style: T,
     onChange: (value: string) => void
   ) => {
@@ -224,7 +228,7 @@ export const useFabric = () => {
   };
 
   const handleDeleteShape = (
-    canvas: fabric.Canvas,
+    canvas: Canvas,
     e?: KeyboardEvent,
     flag?: boolean
   ) => {
@@ -236,7 +240,7 @@ export const useFabric = () => {
 
     if (exist) {
       const isEditing = activeObjects.some(
-        obj => obj instanceof fabric.Textbox && obj.isEditing
+        obj => obj instanceof Textbox && obj.isEditing
       );
 
       if (isEditing) return;
@@ -263,8 +267,8 @@ export const useFabric = () => {
     }
   };
 
-  const handleDeleteEmptyShape = (canvas: fabric.Canvas) => {
-    const deleteEmptyShape = (opt: { target: fabric.IText }) => {
+  const handleDeleteEmptyShape = (canvas: Canvas) => {
+    const deleteEmptyShape = (opt: { target: IText }) => {
       const textObject = opt.target;
 
       if (textObject && textObject.isType('textbox')) {
@@ -292,17 +296,17 @@ export const useFabric = () => {
   };
 
   const setPatternOffset = (
-    canvas: fabric.Canvas,
+    canvas: Canvas,
     offsetX: number,
     offsetY: number
   ) => {
-    const activeObject = canvas.getActiveObject() as fabric.Textbox;
+    const activeObject = canvas.getActiveObject() as Textbox;
     if (!activeObject) return;
 
     let patternUpdated = false;
 
     // 1. 전체 객체 레벨의 패턴 업데이트
-    if (activeObject.fill instanceof fabric.Pattern) {
+    if (activeObject.fill instanceof Pattern) {
       activeObject.fill.offsetX = offsetX;
       activeObject.fill.offsetY = offsetY;
       patternUpdated = true;
@@ -315,7 +319,7 @@ export const useFabric = () => {
         activeObject.text.length
       );
       styles.forEach(style => {
-        if (style.fill instanceof fabric.Pattern) {
+        if (style.fill instanceof Pattern) {
           style.fill.offsetX = offsetX;
           style.fill.offsetY = offsetY;
           patternUpdated = true;
@@ -352,7 +356,7 @@ export const useFabric = () => {
       evented: true,
     });
 
-    if (cloned instanceof fabric.ActiveSelection) {
+    if (cloned instanceof ActiveSelection) {
       cloned.canvas = canvas;
       cloned.forEachObject(obj => canvas.add(obj));
       cloned.setCoords();
@@ -365,7 +369,7 @@ export const useFabric = () => {
     canvas.requestRenderAll();
   };
 
-  const syncActiveObjectInfo = (canvas: fabric.Canvas) => {
+  const syncActiveObjectInfo = (canvas: Canvas) => {
     const activeObjects = canvas.getActiveObjects();
 
     if (activeObjects.length === 0) {
@@ -394,7 +398,7 @@ export const useFabric = () => {
   };
 
   // 캔버스 초기화 시 이벤트 리스너 등록
-  const setupEventListeners = (canvas: fabric.Canvas) => {
+  const setupEventListeners = (canvas: Canvas) => {
     const events = [
       'selection:created',
       'selection:updated',
@@ -416,8 +420,6 @@ export const useFabric = () => {
     syncActiveObjectInfo,
 
     shapes,
-    activeDrawingMode,
-    setDrawingMode, // Export setDrawingMode for useFabricDiagram
     dragToCreateTextBox,
     applyRichStyle,
     getRichStyles,

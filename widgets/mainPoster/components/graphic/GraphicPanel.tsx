@@ -7,37 +7,34 @@ import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationB
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 export function GraphicPanel() {
-  const {
-    canvas,
-    toggleDrawingMode,
-    setBrushProperties,
-    activeDrawingMode,
-    addDiagram,
-  } = useFabricContext();
+  const { canvas, toggleDrawingMode, addDiagram } = useFabricContext();
 
-  const [brushColor, setBrushColor] = useState('#000000');
-  const [brushWidth, setBrushWidth] = useState(5);
+  // const [brushColor, setBrushColor] = useState('#000000');
+  // const [brushWidth, setBrushWidth] = useState(5);
+  const [isDrawing, setIsDrawing] = useState(false);
 
   const handleToggleDrawing = () => {
     if (!canvas) return;
-    toggleDrawingMode(canvas, !activeDrawingMode);
+    const nextState = !isDrawing;
+    setIsDrawing(nextState);
+    toggleDrawingMode(canvas, nextState, () => setIsDrawing(false));
   };
 
-  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const color = e.target.value;
-    setBrushColor(color);
-    if (canvas) {
-      setBrushProperties(canvas, color, brushWidth);
-    }
-  };
+  // const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const color = e.target.value;
+  //   setBrushColor(color);
+  //   if (canvas) {
+  //     setBrushProperties(canvas, color, brushWidth);
+  //   }
+  // };
 
-  const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const width = parseInt(e.target.value, 10);
-    setBrushWidth(width);
-    if (canvas) {
-      setBrushProperties(canvas, brushColor, width);
-    }
-  };
+  // const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const width = parseInt(e.target.value, 10);
+  //   setBrushWidth(width);
+  //   if (canvas) {
+  //     setBrushProperties(canvas, brushColor, width);
+  //   }
+  // };
 
   if (!canvas) return null;
 
@@ -61,9 +58,7 @@ export function GraphicPanel() {
         <button
           onClick={handleToggleDrawing}
           className={`flex flex-col items-center justify-center p-2 rounded-md transition-colors ${
-            activeDrawingMode
-              ? 'bg-blue-100 text-blue-600'
-              : 'hover:bg-gray-100'
+            isDrawing ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100'
           }`}
           title="그리기"
         >
@@ -72,7 +67,7 @@ export function GraphicPanel() {
         </button>
       </div>
 
-      {activeDrawingMode && (
+      {/* {isDrawing && (
         <>
           <div className="border-t border-gray-200 my-2"></div>
           <div className="flex flex-col gap-2 p-2 bg-gray-50 rounded-md">
@@ -103,7 +98,7 @@ export function GraphicPanel() {
             </div>
           </div>
         </>
-      )}
+      )} */}
     </div>
   );
 }

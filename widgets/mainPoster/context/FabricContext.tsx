@@ -15,9 +15,7 @@ const FabricContext = createContext<FabricContextType | null>(null);
 export const FabricProvider = ({ children }: { children: ReactNode }) => {
   const fabricValues = useFabric();
 
-  const fabricDiagramValues = useFabricGraphic({
-    setDrawingMode: fabricValues.setDrawingMode,
-  });
+  const fabricDiagramValues = useFabricGraphic();
 
   const fabricImageValues = useFabricImage({
     syncActiveObjectInfo: fabricValues.syncActiveObjectInfo,

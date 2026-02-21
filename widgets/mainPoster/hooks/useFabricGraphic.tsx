@@ -29,14 +29,9 @@ const shapeCreators = {
       width: p.width,
       height: p.height,
     }),
-  // 여기에 신규 도형을 한 줄만 추가하면 끝!
 };
 
-interface Props {
-  setDrawingMode: (isDrawing: boolean) => void;
-}
-
-export const useFabricGraphic = ({ setDrawingMode }: Props) => {
+export const useFabricGraphic = () => {
   const activeHandlerCleanup = useRef<(() => void) | null>(null);
   const drawingListenerRef = useRef<((e: any) => void) | null>(null);
 
@@ -77,7 +72,11 @@ export const useFabricGraphic = ({ setDrawingMode }: Props) => {
     activeHandlerCleanup.current = cleanup;
   };
 
-  const toggleDrawingMode = (canvas: Canvas, enable: boolean) => {
+  const toggleDrawingMode = (
+    canvas: Canvas,
+    enable: boolean,
+    onFinish?: () => void
+  ) => {
     canvas.isDrawingMode = enable;
 
     // 기존 리스너 제거
@@ -100,7 +99,9 @@ export const useFabricGraphic = ({ setDrawingMode }: Props) => {
       // 한 번 그리고 나면 그리기 모드 해제
       const disableDrawingAfterPath = () => {
         canvas.isDrawingMode = false;
-        setDrawingMode(false);
+        if (onFinish) {
+          onFinish();
+        }
         canvas.requestRenderAll();
         // 실행 후 자기 자신 제거
         canvas.off('path:created', disableDrawingAfterPath);
