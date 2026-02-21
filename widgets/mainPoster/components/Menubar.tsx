@@ -5,6 +5,7 @@ import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
 
 import { useFabric } from '../hooks/useFabric';
 
+import History from './History';
 import ImageFilterPanel from './image/ImageFilterPanel';
 import RichTextPanel from './richtext/RichTextPanel';
 import jsonString from './test.json';
@@ -68,6 +69,7 @@ function Menubar() {
           Import JSON
         </button>
       </div>
+      <History canvas={canvas} />
       {isSelectedText && (
         <RichTextPanel
           canvas={canvas}

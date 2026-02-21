@@ -1,6 +1,7 @@
 import * as fabric from 'fabric';
 import { useState, useRef } from 'react';
 
+import { useFabricState } from '../context/FabricContext';
 import {
   LayoutStyle,
   RichStyle,
@@ -13,6 +14,7 @@ import {
 import { PhotoPreset } from '../utils/CustomImageFilter';
 
 export const useFabric = () => {
+  const { saveHistory } = useFabricState();
   const [shapes, setShapes] = useState<Shape[]>([]);
   const [activeDrawingMode, setDrawingMode] = useState(false);
   const [isCropping, setIsCropping] = useState(false);
@@ -170,6 +172,7 @@ export const useFabric = () => {
 
     activeObject.dirty = true;
     activeObject.initDimensions();
+    saveHistory();
     canvas.requestRenderAll();
   };
 
@@ -344,6 +347,7 @@ export const useFabric = () => {
     if (patternUpdated) {
       // 강제 렌더링 갱신
       activeObject.dirty = true;
+      saveHistory();
       canvas.requestRenderAll();
     }
   };
@@ -391,6 +395,7 @@ export const useFabric = () => {
       }
     }
 
+    saveHistory();
     canvas.requestRenderAll();
 
     setShapes(prev =>
@@ -704,6 +709,7 @@ export const useFabric = () => {
     cropZoneRef.current = null;
     highlightLayerRef.current = null;
     darkOverlayRef.current = null;
+    saveHistory();
     canvas.renderAll();
   };
 
