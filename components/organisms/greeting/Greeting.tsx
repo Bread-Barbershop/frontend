@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react';
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useState } from 'react';
 
 import { UtilityButton } from '@/components/atoms/button';
 import { ImageUploadButton } from '@/components/atoms/image';
@@ -8,10 +8,13 @@ import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { TextEditorBar } from '@/components/molecules/text-editor-bar';
 import { TextField } from '@/components/molecules/text-field';
+import Popup from '@/components/organisms/popup/Popup';
 import {
   EditorBlock,
   useEditorStore,
 } from '@/widgets/editor/store/useEditorStore';
+
+import { GREETING_SAMPLE_MESSAGES } from './greetingSampleMessages';
 
 import type { JSONContent } from '@tiptap/react';
 
@@ -22,6 +25,8 @@ interface Props {
 
 function Greeting({ blockInfo, id }: Props) {
   const updateBlock = useEditorStore(state => state.updateBlock);
+  const [isSamplePopupOpen, setIsSamplePopupOpen] = useState(false);
+  const [editorResetKey, setEditorResetKey] = useState(0);
 
   // (타이틀)실시간 변경사항 Editor 스토어에 적재.
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -34,20 +39,27 @@ function Greeting({ blockInfo, id }: Props) {
   };
 
   // (추가기능 1)실시간 변경사항 Editor 스토어에 적재.
-  const handleFamilyNamesChange = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { familyNames: e.target.checked });
-  };
+  // const handleFamilyNamesChange = (e: ChangeEvent<HTMLInputElement>) => {
+  //   updateBlock(id, { familyNames: e.target.checked });
+  // };
 
   // (추가기능 1)실시간 변경사항 Editor 스토어에 적재.
-  const handleCustomFamilyNamesChange = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { customFamilyNames: e.target.checked });
-  };
+  // const handleCustomFamilyNamesChange = (e: ChangeEvent<HTMLInputElement>) => {
+  //   updateBlock(id, { customFamilyNames: e.target.checked });
+  // };
 
   // (사진)실시간 변경사항 Editor 스토어에 적재.
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
     updateBlock(id, { image: files });
     e.target.value = '';
+  };
+
+  const handleSampleSelect = (text: string) => {
+    updateBlock(id, { message: text, messageJson: undefined } as any);
+    // 같은 문구를 다시 선택해도 에디터가 해당 문구로 초기화되도록 강제 리마운트한다.
+    setEditorResetKey(prev => prev + 1);
+    setIsSamplePopupOpen(false);
   };
 
   return (
@@ -70,7 +82,11 @@ function Greeting({ blockInfo, id }: Props) {
         {/* 소제목 - 내용 */}
         <NavigationBar
           action={
-            <UtilityButton size="md" variant="primary">
+            <UtilityButton
+              size="md"
+              variant="primary"
+              onClick={() => setIsSamplePopupOpen(true)}
+            >
               <Plus size={16} />
               샘플문구
             </UtilityButton>
@@ -82,7 +98,8 @@ function Greeting({ blockInfo, id }: Props) {
 
         {/* 텍스트 에디터 */}
         <TextEditorBar
-          initialContent="내용을 입력해 주세요."
+          key={`${id}-${editorResetKey}`}
+          initialContent={blockInfo.props.message ?? '내용을 입력해 주세요.'}
           onChange={handleEditorChange}
         />
 
@@ -91,17 +108,18 @@ function Greeting({ blockInfo, id }: Props) {
           <Label className="text-center">추가기능</Label>
           <div className="flex flex-col">
             <Checkbox
-              checked={!!blockInfo.props.familyNames}
-              onChange={handleFamilyNamesChange}
+              // checked={!!blockInfo.props.familyNames}
+              // onChange={handleFamilyNamesChange}
             >
               인사말 하단 신랑&신부&혼주 성함 표시
             </Checkbox>
             <Checkbox
-              checked={!!blockInfo.props.customFamilyNames}
-              onChange={handleCustomFamilyNamesChange}
+              // checked={!!blockInfo.props.customFamilyNames}
+              // onChange={handleCustomFamilyNamesChange}
             >
               성함 자유 입력
             </Checkbox>
+
           </div>
         </div>
 
@@ -111,6 +129,15 @@ function Greeting({ blockInfo, id }: Props) {
           <ImageUploadButton onChange={handleImageChange} />
         </div>
       </div>
+
+      {isSamplePopupOpen && (
+        <Popup
+          popupTitle="샘플 문구"
+          options={GREETING_SAMPLE_MESSAGES}
+          onSelect={text => handleSampleSelect(text)}
+          onClose={() => setIsSamplePopupOpen(false)}
+        />
+      )}
     </section>
   );
 }
