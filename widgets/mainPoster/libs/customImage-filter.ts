@@ -1,11 +1,16 @@
-import * as fabric from 'fabric';
+import {
+  filters,
+  classRegistry,
+  setFilterBackend,
+  Canvas2dFilterBackend,
+} from 'fabric';
 
 import { PhotoPresetOptions } from '../types/fabric';
 
 /**
  * Fabric.js 커스텀 사진 보정 필터 클래스
  */
-export class PhotoPreset extends fabric.filters.BaseFilter<'PhotoPreset'> {
+export class PhotoPreset extends filters.BaseFilter<'PhotoPreset'> {
   public static type = 'PhotoPreset';
   public get type(): 'PhotoPreset' {
     return 'PhotoPreset';
@@ -183,7 +188,7 @@ export class PhotoPreset extends fabric.filters.BaseFilter<'PhotoPreset'> {
   }
 }
 
-fabric.classRegistry.setClass(PhotoPreset);
+classRegistry.setClass(PhotoPreset);
 if (typeof window !== 'undefined') {
-  fabric.setFilterBackend(new fabric.Canvas2dFilterBackend());
+  setFilterBackend(new Canvas2dFilterBackend());
 }

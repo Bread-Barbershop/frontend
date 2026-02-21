@@ -222,18 +222,18 @@ export function initAligningGuidelines(
     }
   };
 
-  canvas.on('mouse:up', mouseUp as any);
-  canvas.on('object:resizing', scalingOrResizing as any);
-  canvas.on('object:scaling', scalingOrResizing as any);
-  canvas.on('object:moving', moving as any);
+  canvas.on('mouse:up', mouseUp);
+  canvas.on('object:resizing', scalingOrResizing);
+  canvas.on('object:scaling', scalingOrResizing);
+  canvas.on('object:moving', moving);
   canvas.on('before:render', beforeRender);
   canvas.on('after:render', afterRender);
 
   return () => {
-    canvas.off('mouse:up', mouseUp as any);
-    canvas.off('object:resizing', scalingOrResizing as any);
-    canvas.off('object:scaling', scalingOrResizing as any);
-    canvas.off('object:moving', moving as any);
+    canvas.off('mouse:up', mouseUp);
+    canvas.off('object:resizing', scalingOrResizing);
+    canvas.off('object:scaling', scalingOrResizing);
+    canvas.off('object:moving', moving);
     canvas.off('before:render', beforeRender);
     canvas.off('after:render', afterRender);
   };
