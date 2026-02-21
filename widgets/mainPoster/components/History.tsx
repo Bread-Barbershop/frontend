@@ -1,10 +1,10 @@
 import { Canvas } from 'fabric';
 import { useEffect } from 'react';
 
-import { useFabricState } from '../context/FabricContext';
+import { useFabricContext } from '../context/FabricContext';
 
 function History({ canvas }: { canvas: Canvas }) {
-  const { saveHistory, undo, redo } = useFabricState();
+  const { saveHistory, undo, redo } = useFabricContext();
 
   useEffect(() => {
     if (!canvas) return;

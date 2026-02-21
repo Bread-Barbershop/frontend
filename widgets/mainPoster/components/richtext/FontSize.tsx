@@ -1,33 +1,24 @@
-import { Canvas, Textbox } from 'fabric';
-import { useEffect, useState } from 'react';
+import { Canvas } from 'fabric';
 
 import { Selector } from '@/components/molecules/selector';
+import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 import { selectorOptions } from '@/widgets/mainPoster/types/editor';
-import { RichStyle, RichStyleKey } from '@/widgets/mainPoster/types/fabric';
+import { RichStyle } from '@/widgets/mainPoster/types/fabric';
 
 interface Props {
   canvas: Canvas | null;
-  activeObject: Textbox | null;
-  getRichStyles: (
-    activeObject: Textbox,
-    style: RichStyleKey,
-    onChange: (value: string) => void
-  ) => void;
   applyRichStyle: (styleObj: object, canvas: Canvas) => void;
   debouncedApplyStyle: (style: RichStyle, canvas: Canvas) => void;
 }
 
-function FontSize({
-  canvas,
-  activeObject,
-  getRichStyles,
-  applyRichStyle,
-  debouncedApplyStyle,
-}: Props) {
-  const [selectedFontSize, setSelectedFontSize] = useState<selectorOptions>({
-    label: '16px',
-    value: '16',
-  });
+function FontSize({ canvas, applyRichStyle, debouncedApplyStyle }: Props) {
+  const { activeInfo } = useFabricContext();
+  const currentFontSize =
+    (activeInfo?.styles?.fontSize as string | number) || '16';
+  const selectedFontSize: selectorOptions = {
+    label: `${currentFontSize}px`,
+    value: String(currentFontSize),
+  };
 
   const fontSize: selectorOptions[] = [];
   const fontSizeList = [10, 12, 14, 16, 20, 24, 32, 40];
@@ -48,29 +39,6 @@ function FontSize({
     return numValue;
   };
 
-  useEffect(() => {
-    if (!activeObject) {
-      return;
-    }
-    const handleSync = () =>
-      getRichStyles(activeObject, 'fontSize', (value: string) =>
-        setSelectedFontSize({
-          label: `${value}px`,
-          value: String(value),
-        })
-      );
-
-    activeObject.on('changed', handleSync);
-    activeObject.on('selection:changed', handleSync);
-
-    handleSync();
-
-    return () => {
-      activeObject.off('changed', handleSync);
-      activeObject.off('selection:changed', handleSync);
-    };
-  }, [activeObject, getRichStyles]);
-
   if (!canvas) return;
   return (
     <Selector
@@ -85,18 +53,16 @@ function FontSize({
           if (isListItem) {
             applyRichStyle({ fontSize: safeSize }, canvas);
           }
-          setSelectedFontSize(option);
         }
       }}
       onInputChange={value => {
-        setSelectedFontSize({ label: value, value: value });
         const numValue = parseFloat(value);
         if (isNaN(numValue) || numValue < 1) {
           return;
         }
         debouncedApplyStyle({ fontSize: numValue }, canvas);
       }}
-      selected={selectedFontSize ?? { label: '16px', value: '16' }}
+      selected={selectedFontSize}
     />
   );
 }

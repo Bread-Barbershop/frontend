@@ -1,44 +1,13 @@
-import { Canvas, FabricObject, TPointerEvent, TPointerEventInfo } from 'fabric';
+import { TPointerEvent, TPointerEventInfo } from 'fabric';
 import { useEffect, useRef, useState } from 'react';
+
+import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import ControlZindex from './ControlZindex';
 import CopyAndPaste from './CopyAndPaste';
 
-interface Props {
-  canvas: Canvas;
-  activeObject: FabricObject | null;
-  handleDeleteShape: (
-    canvas: Canvas,
-    e?: KeyboardEvent,
-    flag?: boolean
-  ) => void;
-  clipboard: FabricObject | null;
-  setClipboard: (clipboard: FabricObject | null) => void;
-  copy: ({
-    activeObject,
-    setClipboard,
-  }: {
-    activeObject: FabricObject | null;
-    setClipboard: (clipboard: FabricObject | null) => void;
-  }) => void;
-  paste: ({
-    canvas,
-    clipboard,
-  }: {
-    canvas: Canvas;
-    clipboard: FabricObject | null;
-  }) => void;
-}
-
-function ContextMenu({
-  canvas,
-  activeObject,
-  handleDeleteShape,
-  clipboard,
-  setClipboard,
-  copy,
-  paste,
-}: Props) {
+export function ContextMenu() {
+  const { canvas, handleDeleteShape } = useFabricContext();
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
@@ -91,30 +60,20 @@ function ContextMenu({
   return (
     <div
       ref={menuRef}
-      className="fixed z-[9999] flex flex-col gap-3 p-3 bg-white border border-gray-200 rounded-md shadow-lg"
+      className="fixed z-9999 flex flex-col gap-3 p-3 bg-white border border-gray-200 rounded-md shadow-lg"
       style={{ top: pos.y, left: pos.x }}
       // onMouseDown={e => e.stopPropagation()}
       onContextMenu={e => e.preventDefault()}
     >
-      <CopyAndPaste
-        onClick={() => setOpen(false)}
-        canvas={canvas}
-        activeObject={activeObject}
-        clipboard={clipboard}
-        setClipboard={setClipboard}
-        copy={copy}
-        paste={paste}
-      />
-      <ControlZindex
-        onClick={() => setOpen(false)}
-        canvas={canvas}
-        activeObject={activeObject}
-      />
+      <CopyAndPaste onClick={() => setOpen(false)} />
+      <ControlZindex onClick={() => setOpen(false)} />
       <button
         type="button"
         className="hover:bg-gray-100 active:bg-gray-200"
         onClick={() => {
-          handleDeleteShape(canvas, undefined, true);
+          if (canvas) {
+            handleDeleteShape(canvas, undefined, true);
+          }
           setOpen(false);
         }}
       >
@@ -123,4 +82,3 @@ function ContextMenu({
     </div>
   );
 }
-export default ContextMenu;

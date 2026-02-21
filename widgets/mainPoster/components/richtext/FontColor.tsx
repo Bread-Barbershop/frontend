@@ -1,21 +1,15 @@
-import { Canvas, Textbox } from 'fabric';
+import { Canvas } from 'fabric';
 import { ChevronDown } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { cn } from '@/shared/utils/cn';
-import { RichStyleKey } from '@/widgets/mainPoster/types/fabric';
+import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import ColorPicker from './ColorPicker';
 
 interface Props {
   canvas: Canvas | null;
-  activeObject: Textbox | null;
   applyRichStyle: (styleObj: object, canvas: Canvas) => void;
-  getRichStyles: (
-    activeObject: Textbox,
-    style: RichStyleKey,
-    onChange: (color: string) => void
-  ) => void;
 }
 
 const ColorIcon = ({ color }: { color: string }) => (
@@ -34,33 +28,11 @@ const ColorIcon = ({ color }: { color: string }) => (
   </svg>
 );
 
-function FontColor({
-  canvas,
-  applyRichStyle,
-  activeObject,
-  getRichStyles,
-}: Props) {
-  const [pickerColor, setPickerColor] = useState<string | null>('black');
+function FontColor({ canvas, applyRichStyle }: Props) {
+  const { activeInfo } = useFabricContext();
+  const currentFillColor = (activeInfo?.styles?.fill as string) || 'black';
   const [openFontColor, setOpenFontColor] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!activeObject) {
-      return;
-    }
-    const handleSync = () =>
-      getRichStyles(activeObject, 'fill', color => setPickerColor(color));
-
-    activeObject.on('changed', handleSync);
-    activeObject.on('selection:changed', handleSync);
-
-    handleSync();
-
-    return () => {
-      activeObject.off('changed', handleSync);
-      activeObject.off('selection:changed', handleSync);
-    };
-  }, [activeObject, getRichStyles]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -83,7 +55,7 @@ function FontColor({
         className="h-8 flex justify-center items-center border border-border-neutral pl-2 bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
         onClick={() => setOpenFontColor(prev => !prev)}
       >
-        <ColorIcon color={pickerColor || 'black'} />
+        <ColorIcon color={currentFillColor} />
         <div
           className={cn(
             'flex-center size-7 transition-transform duration-200 shrink-0',
@@ -97,10 +69,9 @@ function FontColor({
         <div className="absolute z-9999">
           <ColorPicker
             onColorSelect={color => {
-              setPickerColor(color);
               applyRichStyle({ fill: color }, canvas);
             }}
-            selectedColor={pickerColor}
+            selectedColor={currentFillColor}
           />
         </div>
       )}
