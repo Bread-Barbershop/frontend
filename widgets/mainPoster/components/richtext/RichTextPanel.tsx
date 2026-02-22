@@ -17,7 +17,7 @@ import FontFamily from './FontFamily';
 import FontSize from './FontSize';
 import LineHeight from './LineHeight';
 import TextAlign from './TextAlign';
-import TextBackground from './TextBackground';
+// import TextBackground from './TextBackground';
 // import Shadow from './Shadow';
 // import Stroke from './Stroke';
 // import Highlight from './Highlight';
@@ -108,7 +108,7 @@ function RichTextPanel({ canvas, applyRichStyle }: Props) {
         </button>
         <TextAlign canvas={canvas} applyRichStyle={applyRichStyle} />
       </div>
-      <TextBackground canvas={canvas} applyRichStyle={applyRichStyle} />
+      {/* <TextBackground canvas={canvas} applyRichStyle={applyRichStyle} /> */}
 
       <div className="flex flex-col justify-center w-full">
         {isOpen && (
