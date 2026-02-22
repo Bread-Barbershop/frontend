@@ -26,12 +26,14 @@ function RightPanel() {
       <div className="w-93.75 min-h-0 flex-1 bg-white rounded-lg shadow-edit flex-center flex-col gap-3 px-5 ">
         <div className="w-full">
           <button
+            type="button"
             className={` w-41.5 h-11 font-semibold ${tab === 'poster' ? 'border-b text-text-primary' : 'text-text-tertiary'}`}
             onClick={() => setTab('poster')}
           >
             포스터
           </button>
           <button
+            type="button"
             className={`w-41.75 h-11 font-semibold ${tab === 'type' ? 'border-b text-text-primary' : 'text-text-tertiary'}`}
             onClick={() => setTab('type')}
           >
