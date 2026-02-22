@@ -36,18 +36,7 @@ export const useFabricText = ({ saveHistory }: Props) => {
             splitByGrapheme: true,
           });
 
-          const newTextData: Text = {
-            id: `text-${Date.now()}`,
-            type: 'text',
-            text: newTextbox.text,
-            left,
-            top,
-            originX: 'left',
-            originY: 'top',
-            width,
-          };
-
-          newTextbox.set({ id: newTextData.id });
+          newTextbox.set({ id: `text-${Date.now()}` });
           canvas.add(newTextbox);
           canvas.setActiveObject(newTextbox);
 
@@ -158,7 +147,7 @@ export const useFabricText = ({ saveHistory }: Props) => {
       case 'textAlign':
         return 'left';
       case 'fill':
-        return 'balck';
+        return 'black';
       case 'textBackgroundColor':
         return null;
       case 'shadow':
@@ -192,7 +181,7 @@ export const useFabricText = ({ saveHistory }: Props) => {
         )[0]?.[style] as string)
       : (activeObject.get(style) as string);
 
-    if (currentStyle) {
+    if (currentStyle !== undefined && currentStyle !== null) {
       onChange(currentStyle);
     }
   };
