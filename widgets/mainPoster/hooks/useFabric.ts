@@ -1,25 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  Canvas,
-  FabricObject,
-  Textbox,
-  Shadow,
-  IText,
-  Pattern,
-  ActiveSelection,
-} from 'fabric';
+import { Canvas, FabricObject, Textbox, IText, ActiveSelection } from 'fabric';
 import { useRef, useState } from 'react';
 
-import {
-  LayoutStyle,
-  RichStyle,
-  Text,
-  RichStyleKey,
-  DragPoints,
-  ActiveObject,
-} from '../types/fabric';
-import { initDragHandler } from '../utils/fabricUtils';
-
+import { ActiveObject } from '../types/fabric';
 export const useFabric = () => {
   const [canvas, setCanvas] = useState<Canvas | null>(null);
   const [activeInfo, setActiveInfo] = useState<ActiveObject>({
@@ -28,190 +11,9 @@ export const useFabric = () => {
     styles: {},
   });
   const [clipboard, setClipboard] = useState<FabricObject | null>(null);
-  const dragCleanupRef = useRef<(() => void) | null>(null);
   const undoStack = useRef<string[]>([]);
   const redoStack = useRef<string[]>([]);
   const isUpdating = useRef<boolean>(false);
-
-  const dragToCreateTextBox = (canvas: Canvas) => {
-    if (dragCleanupRef.current) {
-      dragCleanupRef.current();
-    }
-
-    dragCleanupRef.current = initDragHandler({
-      canvas,
-      onComplete: ({ width, height, left, top }: DragPoints) => {
-        if (width > 20 || height > 20) {
-          const newTextbox = new Textbox('텍스트를 입력해주세요', {
-            left,
-            top,
-            originX: 'left',
-            originY: 'top',
-            width,
-            fontSize: 16,
-            splitByGrapheme: true,
-          });
-
-          const newTextData: Text = {
-            id: `text-${Date.now()}`,
-            type: 'text',
-            text: newTextbox.text,
-            left,
-            top,
-            originX: 'left',
-            originY: 'top',
-            width,
-          };
-
-          newTextbox.set({ id: newTextData.id });
-          canvas.add(newTextbox);
-          canvas.setActiveObject(newTextbox);
-
-          newTextbox.enterEditing();
-          newTextbox.selectAll();
-        }
-
-        dragCleanupRef.current = null;
-        canvas.requestRenderAll();
-      },
-    });
-  };
-
-  const isLayoutStyle = (style: RichStyle): style is LayoutStyle => {
-    return (
-      'textAlign' in style ||
-      'lineHeight' in style ||
-      'charSpacing' in style ||
-      'shadow' in style
-    );
-  };
-
-  const handleNumberValidity = (styleObj: RichStyle) => {
-    for (const [key, value] of Object.entries(styleObj)) {
-      if (
-        key === 'fontSize' ||
-        key === 'lineHeight' ||
-        key === 'charSpacing' ||
-        key === 'strokeWidth'
-      ) {
-        const numValue = typeof value === 'string' ? parseFloat(value) : value;
-        if (isNaN(numValue as number) || (numValue as number) < 1) return true;
-      }
-    }
-    return false;
-  };
-
-  const applyRichStyle = (styleObj: RichStyle, canvas: Canvas) => {
-    const activeObject = canvas.getActiveObject() as Textbox;
-    if (!activeObject) return;
-
-    if (handleNumberValidity(styleObj)) return;
-
-    const isSelectionPresent =
-      activeObject.selectionStart !== activeObject.selectionEnd ||
-      !isLayoutStyle(styleObj);
-
-    const finalStyle: RichStyle = {};
-    (Object.keys(styleObj) as Array<keyof RichStyle>).forEach(key => {
-      const nextValue = styleObj[key];
-
-      const currentStyle = isSelectionPresent
-        ? activeObject.getSelectionStyles()[0]?.[key]
-        : activeObject.get(key as keyof Textbox);
-
-      if (
-        key === 'fontSize' ||
-        key === 'fontFamily' ||
-        isLayoutStyle(styleObj)
-      ) {
-        finalStyle[key] = nextValue as never;
-      } else if (currentStyle === nextValue) {
-        finalStyle[key] = getFallbackValue(key) as never;
-      } else {
-        finalStyle[key] = nextValue as never;
-      }
-    });
-
-    if (isLayoutStyle(styleObj)) {
-      if (styleObj.shadow) {
-        activeObject.set({
-          shadow: new Shadow({
-            ...activeObject.shadow,
-            ...styleObj.shadow,
-          }),
-        });
-      } else {
-        activeObject.set(finalStyle);
-      }
-    } else {
-      if (isSelectionPresent) {
-        activeObject.setSelectionStyles(finalStyle);
-      } else {
-        activeObject.set(finalStyle);
-      }
-    }
-
-    activeObject.dirty = true;
-    activeObject.initDimensions();
-    saveHistory();
-    canvas.requestRenderAll();
-  };
-
-  const getFallbackValue = (key: string) => {
-    switch (key) {
-      case 'fontWeight':
-        return 'normal';
-      case 'fontStyle':
-        return 'normal';
-      case 'underline':
-        return false;
-      case 'linethrough':
-        return false;
-      case 'stroke':
-        return null;
-      case 'strokeWidth':
-        return 0;
-      case 'textAlign':
-        return 'left';
-      case 'fill':
-        return 'balck';
-      case 'textBackgroundColor':
-        return null;
-      case 'shadow':
-        return null;
-      case 'lineHeight':
-        return 1.1;
-      case 'fontSize':
-        return 16;
-      case 'charSpacing':
-        return 100;
-      //shadow 추가
-      default:
-        return '';
-    }
-  };
-
-  const getRichStyles = <T extends RichStyleKey>(
-    activeObject: Textbox,
-    style: T,
-    onChange: (value: string) => void
-  ) => {
-    if (!activeObject) return;
-
-    const isSelectionPresent =
-      activeObject.selectionStart !== activeObject.selectionEnd;
-
-    const currentStyle = isSelectionPresent
-      ? (activeObject.getSelectionStyles(
-          activeObject.selectionStart,
-          activeObject.selectionStart + 1
-        )[0]?.[style] as string)
-      : (activeObject.get(style) as string);
-
-    if (currentStyle) {
-      onChange(currentStyle);
-    }
-  };
 
   const handleDeleteShape = (
     canvas: Canvas,
@@ -272,46 +74,6 @@ export const useFabric = () => {
     return () => {
       canvas.off('text:editing:exited', deleteEmptyShape);
     };
-  };
-
-  const setPatternOffset = (
-    canvas: Canvas,
-    offsetX: number,
-    offsetY: number
-  ) => {
-    const activeObject = canvas.getActiveObject() as Textbox;
-    if (!activeObject) return;
-
-    let patternUpdated = false;
-
-    // 1. 전체 객체 레벨의 패턴 업데이트
-    if (activeObject.fill instanceof Pattern) {
-      activeObject.fill.offsetX = offsetX;
-      activeObject.fill.offsetY = offsetY;
-      patternUpdated = true;
-    }
-
-    // 2. 선택 영역(글자별) 패턴 업데이트 (있는 경우)
-    if (activeObject.isType('textbox') || activeObject.isType('itext')) {
-      const styles = activeObject.getSelectionStyles(
-        0,
-        activeObject.text.length
-      );
-      styles.forEach(style => {
-        if (style.fill instanceof Pattern) {
-          style.fill.offsetX = offsetX;
-          style.fill.offsetY = offsetY;
-          patternUpdated = true;
-        }
-      });
-    }
-
-    if (patternUpdated) {
-      // 강제 렌더링 갱신
-      activeObject.dirty = true;
-      saveHistory();
-      canvas.requestRenderAll();
-    }
   };
 
   const copy = async () => {
@@ -393,7 +155,10 @@ export const useFabric = () => {
   const saveHistory = () => {
     if (isUpdating.current || !canvas) return;
 
-    const json = JSON.stringify(canvas.toJSON());
+    // 객체 상태 직렬화 시 filters 등 커스텀 속성도 포함
+    const json = JSON.stringify(
+      (canvas as any).toJSON(['filters', 'id', 'name'])
+    );
     undoStack.current.push(json);
 
     if (redoStack.current.length > 0) {
@@ -411,6 +176,19 @@ export const useFabric = () => {
     const prevState = undoStack.current[undoStack.current.length - 1];
 
     await canvas.loadFromJSON(prevState);
+
+    // 저장된 필터 효과를 다시 렌더링하도록 applyFilters 호출
+    const objects = canvas.getObjects();
+    for (const obj of objects) {
+      if (
+        obj.isType('image') &&
+        'applyFilters' in obj &&
+        (obj as any).filters?.length
+      ) {
+        (obj as any).applyFilters();
+      }
+    }
+
     canvas.requestRenderAll();
     isUpdating.current = false;
   };
@@ -423,6 +201,19 @@ export const useFabric = () => {
     if (nextState) {
       undoStack.current.push(nextState);
       await canvas.loadFromJSON(nextState);
+
+      // 저장된 필터 효과를 다시 렌더링하도록 applyFilters 호출
+      const objects = canvas.getObjects();
+      for (const obj of objects) {
+        if (
+          obj.isType('image') &&
+          'applyFilters' in obj &&
+          (obj as any & { filters?: any[] }).filters?.length
+        ) {
+          (obj as any).applyFilters();
+        }
+      }
+
       canvas.requestRenderAll();
     }
     isUpdating.current = false;
@@ -434,12 +225,8 @@ export const useFabric = () => {
     activeInfo,
     setupEventListeners,
     syncActiveObjectInfo,
-    dragToCreateTextBox,
-    applyRichStyle,
-    getRichStyles,
     handleDeleteShape,
     handleDeleteEmptyShape,
-    setPatternOffset,
     copy,
     paste,
     redo,

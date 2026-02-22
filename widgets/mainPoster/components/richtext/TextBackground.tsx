@@ -2,7 +2,7 @@ import { Canvas, Pattern, util } from 'fabric';
 import { Image } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { useFabric } from '@/widgets/mainPoster/hooks/useFabric';
+import { useFabricContext } from '../../context/FabricContext';
 
 interface Props {
   canvas: Canvas | null;
@@ -11,7 +11,7 @@ interface Props {
 
 function TextBackground({ canvas, applyRichStyle }: Props) {
   const [patternUrl, setPatternUrl] = useState<string>();
-  const { setPatternOffset } = useFabric();
+  const { setPatternOffset } = useFabricContext();
   const [offsets, setOffsets] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
