@@ -3,7 +3,6 @@ import { Canvas, FabricObject, Textbox, IText, ActiveSelection } from 'fabric';
 import { useRef, useState } from 'react';
 
 import { ActiveObject } from '../types/fabric';
-
 export const useFabric = () => {
   const [canvas, setCanvas] = useState<Canvas | null>(null);
   const [activeInfo, setActiveInfo] = useState<ActiveObject>({
@@ -156,7 +155,10 @@ export const useFabric = () => {
   const saveHistory = () => {
     if (isUpdating.current || !canvas) return;
 
-    const json = JSON.stringify(canvas.toJSON());
+    // 객체 상태 직렬화 시 filters 등 커스텀 속성도 포함
+    const json = JSON.stringify(
+      (canvas as any).toJSON(['filters', 'id', 'name'])
+    );
     undoStack.current.push(json);
 
     if (redoStack.current.length > 0) {
@@ -174,6 +176,19 @@ export const useFabric = () => {
     const prevState = undoStack.current[undoStack.current.length - 1];
 
     await canvas.loadFromJSON(prevState);
+
+    // 저장된 필터 효과를 다시 렌더링하도록 applyFilters 호출
+    const objects = canvas.getObjects();
+    for (const obj of objects) {
+      if (
+        obj.isType('image') &&
+        'applyFilters' in obj &&
+        (obj as any).filters?.length
+      ) {
+        (obj as any).applyFilters();
+      }
+    }
+
     canvas.requestRenderAll();
     isUpdating.current = false;
   };
@@ -186,6 +201,19 @@ export const useFabric = () => {
     if (nextState) {
       undoStack.current.push(nextState);
       await canvas.loadFromJSON(nextState);
+
+      // 저장된 필터 효과를 다시 렌더링하도록 applyFilters 호출
+      const objects = canvas.getObjects();
+      for (const obj of objects) {
+        if (
+          obj.isType('image') &&
+          'applyFilters' in obj &&
+          (obj as any & { filters?: any[] }).filters?.length
+        ) {
+          (obj as any).applyFilters();
+        }
+      }
+
       canvas.requestRenderAll();
     }
     isUpdating.current = false;

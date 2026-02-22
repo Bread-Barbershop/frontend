@@ -7,6 +7,7 @@ import { GraphicPanel } from './graphic/GraphicPanel';
 import History from './History';
 import { ImagePanel } from './image/ImagePanel';
 import RichTextPanel from './richtext/RichTextPanel';
+import jsonString from './test.json';
 
 function Menubar() {
   const { activeTab } = useEditorStore(
@@ -20,25 +21,27 @@ function Menubar() {
   const isSelectedText =
     activeInfo.type === 'textbox' || activeInfo.type === 'itext';
 
-  // const handleExportJSON = () => {
-  //   if (!canvas) return;
-  // };
+  const handleExportJSON = () => {
+    if (!canvas) return;
+    const json = canvas.toJSON();
+    console.log('Fabric Canvas JSON:', JSON.stringify(json, null, 2));
+  };
 
-  // const handleImportJSON = async () => {
-  //   if (!canvas) return;
-  //   try {
-  //     await canvas.loadFromJSON(jsonString);
-  //     canvas.requestRenderAll();
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
+  const handleImportJSON = async () => {
+    if (!canvas) return;
+    try {
+      await canvas.loadFromJSON(jsonString);
+      canvas.requestRenderAll();
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   if (!canvas) return null;
 
   return (
     <div className="flex flex-col pb-3.5 px-5 items-center">
-      {/* <div className="flex gap-2 pb-2.5 justify-center">
+      <div className="flex gap-2 pb-2.5 justify-center">
         <button
           type="button"
           className="bg-blue-500 text-white px-4 py-2 rounded-md"
@@ -53,8 +56,7 @@ function Menubar() {
         >
           Import JSON
         </button>
-      </div> */}
-      {/* {renderPanel()} */}
+      </div>
       <History canvas={canvas} />
       {/* 텍스트 */}
       {isSelectedText && activeTab === null && (
