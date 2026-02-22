@@ -9,9 +9,13 @@ import { updateCropRatio } from '../utils/fabricUtils';
 
 interface Props {
   syncActiveObjectInfo?: (canvas: Canvas) => void;
+  saveHistory: () => void;
 }
 
-export const useFabricImage = ({ syncActiveObjectInfo }: Props) => {
+export const useFabricImage = ({
+  syncActiveObjectInfo,
+  saveHistory,
+}: Props) => {
   const [isCropping, setIsCropping] = useState(false);
   const cropZoneRef = useRef<Rect | null>(null);
   const highlightLayerRef = useRef<FabricImage | null>(null);
@@ -70,6 +74,8 @@ export const useFabricImage = ({ syncActiveObjectInfo }: Props) => {
     if (syncActiveObjectInfo) {
       syncActiveObjectInfo(canvas);
     }
+
+    saveHistory();
   };
 
   // 이미지 크롭 시작

@@ -3,6 +3,7 @@ import {
   classRegistry,
   setFilterBackend,
   Canvas2dFilterBackend,
+  WebGLFilterBackend,
 } from 'fabric';
 
 import { PhotoPresetOptions } from '../types/fabric';
@@ -15,7 +16,136 @@ export class PhotoPreset extends filters.BaseFilter<'PhotoPreset'> {
   public get type(): 'PhotoPreset' {
     return 'PhotoPreset';
   }
-  public options: Required<PhotoPresetOptions>;
+  public options!: Required<PhotoPresetOptions>;
+
+  public static uniformLocations = [
+    'uExpMul',
+    'uConMul',
+    'uSatMul',
+    'uTemp',
+    'uTint',
+    'uFadeLift',
+    'uVignStr',
+    'uGrainAmp',
+    'uBwWeight',
+    'uSeed',
+  ];
+
+  protected getFragmentSource(): string {
+    return `
+      precision highp float;
+      varying vec2 vTexCoord;
+      uniform sampler2D uTexture;
+      uniform float uExpMul;
+      uniform float uConMul;
+      uniform float uSatMul;
+      uniform float uTemp;
+      uniform float uTint;
+      uniform float uFadeLift;
+      uniform float uVignStr;
+      uniform float uGrainAmp;
+      uniform float uBwWeight;
+      uniform float uSeed;
+
+      vec3 rgb2hsl(vec3 c) {
+          float cMin = min(min(c.r, c.g), c.b);
+          float cMax = max(max(c.r, c.g), c.b);
+          float l = (cMax + cMin) / 2.0;
+          float s = 0.0;
+          float h = 0.0;
+          float d = cMax - cMin;
+          if (d > 0.0) {
+              s = d / (1.0 - abs(2.0 * l - 1.0));
+              if (cMax == c.r) {
+                  h = mod((c.g - c.b) / d, 6.0);
+              } else if (cMax == c.g) {
+                  h = (c.b - c.r) / d + 2.0;
+              } else {
+                  h = (c.r - c.g) / d + 4.0;
+              }
+              h /= 6.0;
+              if (h < 0.0) h += 1.0;
+          }
+          return vec3(h, s, l);
+      }
+
+      vec3 hsl2rgb(vec3 c) {
+          vec3 rgb = clamp(abs(mod(c.x * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
+          return c.z + c.y * (rgb - 0.5) * (1.0 - abs(2.0 * c.z - 1.0));
+      }
+
+      float rand(vec2 co, float seed){
+          return fract(sin(dot(co.xy ,vec2(12.9898,78.233)) + seed) * 43758.5453);
+      }
+
+      void main() {
+          vec4 color = texture2D(uTexture, vTexCoord);
+          if (color.a == 0.0) {
+              gl_FragColor = color;
+              return;
+          }
+          vec3 r = color.rgb;
+
+          r.r *= uExpMul * (1.0 + uTemp * 0.12);
+          r.g *= uExpMul * (1.0 + uTint * 0.08);
+          r.b *= uExpMul * (1.0 - uTemp * 0.12);
+
+          r = (r - 0.5) * uConMul + 0.5;
+
+          r = clamp(r, 0.0, 1.0);
+          vec3 hsl = rgb2hsl(r);
+          hsl.y = clamp(hsl.y * uSatMul, 0.0, 1.0);
+          r = hsl2rgb(hsl);
+
+          r = r * (1.0 - uFadeLift) + uFadeLift;
+
+          if (uVignStr > 0.0) {
+              vec2 uv = vTexCoord - 0.5;
+              float dist = length(uv) / 0.70710678;
+              float mask = 1.0 - uVignStr * (dist * dist);
+              r *= mask;
+          }
+
+          if (uGrainAmp > 0.0) {
+              float noise = (rand(vTexCoord, uSeed) * 2.0 - 1.0) * uGrainAmp; 
+              r += vec3(noise);
+          }
+
+          if (uBwWeight > 0.0) {
+              float lum = 0.2126 * r.r + 0.7152 * r.g + 0.0722 * r.b;
+              r = mix(r, vec3(lum), uBwWeight);
+          }
+
+          r = clamp(r, 0.0, 1.0);
+          gl_FragColor = vec4(r, color.a);
+      }
+    `;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public sendUniformData(gl: WebGLRenderingContext, uniformLocations: any) {
+    const p = this.options;
+    const expMul = Math.pow(2, (p.exposure - 50) / 50);
+    const conMul = 1 + ((p.contrast - 50) / 50) * 0.8;
+    const satMul = 1 + (p.saturation - 50) / 50;
+    const temp = (p.temperature - 50) / 50;
+    const tint = (p.tint - 50) / 50;
+    const fadeLift = (p.fade / 100) * 0.25;
+    const vignStr = (p.vignette / 100) * 0.75;
+    const grainAmp = (p.grain / 100) * 0.1;
+    const bwWeight = p.bw / 100;
+
+    gl.uniform1f(uniformLocations.uExpMul, expMul);
+    gl.uniform1f(uniformLocations.uConMul, conMul);
+    gl.uniform1f(uniformLocations.uSatMul, satMul);
+    gl.uniform1f(uniformLocations.uTemp, temp);
+    gl.uniform1f(uniformLocations.uTint, tint);
+    gl.uniform1f(uniformLocations.uFadeLift, fadeLift);
+    gl.uniform1f(uniformLocations.uVignStr, vignStr);
+    gl.uniform1f(uniformLocations.uGrainAmp, grainAmp);
+    gl.uniform1f(uniformLocations.uBwWeight, bwWeight);
+    gl.uniform1f(uniformLocations.uSeed, Math.random());
+  }
 
   constructor(options?: PhotoPresetOptions) {
     super();
@@ -42,6 +172,10 @@ export class PhotoPreset extends filters.BaseFilter<'PhotoPreset'> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static fromObject(object: any) {
     return Promise.resolve(new PhotoPreset(object.options));
+  }
+
+  isNeutralState(): boolean {
+    return false;
   }
 
   // 유틸리티 메서드
@@ -188,7 +322,16 @@ export class PhotoPreset extends filters.BaseFilter<'PhotoPreset'> {
   }
 }
 
-classRegistry.setClass(PhotoPreset);
+classRegistry.setClass(PhotoPreset, 'PhotoPreset');
 if (typeof window !== 'undefined') {
-  setFilterBackend(new Canvas2dFilterBackend());
+  try {
+    const backend = new WebGLFilterBackend();
+    setFilterBackend(backend);
+  } catch (e) {
+    console.warn(
+      'WebGLFilterBackend initialization failed. Falling back to Canvas2dFilterBackend',
+      e
+    );
+    setFilterBackend(new Canvas2dFilterBackend());
+  }
 }

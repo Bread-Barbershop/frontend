@@ -36,6 +36,10 @@ export const useSetFabricControls = () => {
 
     const defaultControls = FabricObject.ownDefaults;
 
+    // 회전 스냅(자석 효과) 기본값 설정
+    defaultControls.snapAngle = 90; // 90도 간격
+    defaultControls.snapThreshold = 2; // 2도 범위 내에 들어오면 스냅
+
     // 스타일 제거
     const newControls: Record<string, Control> = {};
 
