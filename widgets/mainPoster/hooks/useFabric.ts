@@ -32,6 +32,7 @@ export const useFabric = () => {
   const undoStack = useRef<string[]>([]);
   const redoStack = useRef<string[]>([]);
   const isUpdating = useRef<boolean>(false);
+  const MAX_STACK_SIZE = 30;
 
   const dragToCreateTextBox = (canvas: Canvas) => {
     if (dragCleanupRef.current) {
@@ -397,6 +398,10 @@ export const useFabric = () => {
     const prevState = undoStack.current[undoStack.current.length - 1];
     if (prevState === json) return;
     undoStack.current.push(json);
+
+    if (undoStack.current.length > MAX_STACK_SIZE) {
+      undoStack.current.shift();
+    }
 
     if (redoStack.current.length > 0) {
       redoStack.current.length = 0;
