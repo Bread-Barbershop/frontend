@@ -394,6 +394,8 @@ export const useFabric = () => {
     if (isUpdating.current || !canvas) return;
 
     const json = JSON.stringify(canvas.toJSON());
+    const prevState = undoStack.current[undoStack.current.length - 1];
+    if (prevState === json) return;
     undoStack.current.push(json);
 
     if (redoStack.current.length > 0) {
