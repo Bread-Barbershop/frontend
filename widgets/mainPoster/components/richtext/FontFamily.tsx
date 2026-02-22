@@ -1,9 +1,9 @@
-import * as fabric from 'fabric';
+import { Canvas, Textbox } from 'fabric';
 import { useEffect, useState } from 'react';
 
 import { Selector } from '@/components/molecules/selector';
 
-import { RichStyleKey } from '../types/fabric';
+import { useFabricContext } from '../../context/FabricContext';
 
 type FontOption = {
   label: string;
@@ -16,31 +16,31 @@ type CustomFontOption = {
 };
 
 interface Props {
-  canvas: fabric.Canvas | null;
-  activeObject: fabric.Textbox | null;
-  getRichStyles: (
-    activeObject: fabric.Textbox,
-    style: RichStyleKey,
-    onChange: (value: string) => void
-  ) => void;
-  applyRichStyle: (styleObj: object, canvas: fabric.Canvas) => void;
+  canvas: Canvas | null;
+  applyRichStyle: (styleObj: object, canvas: Canvas) => void;
 }
 
-function FontFamily({
-  canvas,
-  activeObject,
-  getRichStyles,
-  applyRichStyle,
-}: Props) {
-  const [selectedFont, setSelectedFont] = useState<FontOption>();
+function FontFamily({ canvas, applyRichStyle }: Props) {
+  const { activeInfo, getRichStyles } = useFabricContext();
+  const activeObject = canvas?.getActiveObject() as Textbox;
+
+  const currentFontFamily =
+    (activeInfo?.styles?.fontFamily as string) || 'Times New Roman';
+  const [selectedFont, setSelectedFont] = useState<FontOption>({
+    label: currentFontFamily,
+    value: currentFontFamily,
+  });
 
   useEffect(() => {
     if (!activeObject) {
       return;
     }
     const handleSync = () =>
-      getRichStyles(activeObject, 'fontFamily', (value: string) =>
-        setSelectedFont({ label: value, value })
+      getRichStyles(activeObject, 'fontFamily', fontFamily =>
+        setSelectedFont({
+          label: fontFamily,
+          value: fontFamily,
+        })
       );
 
     activeObject.on('changed', handleSync);
@@ -141,9 +141,8 @@ function FontFamily({
         className="bg-bg-base max-w-30 border border-border-neutral rounded-sm w-21.5"
         onSelect={option => {
           applyRichStyle({ fontFamily: option.value }, canvas);
-          setSelectedFont(option);
         }}
-        selected={selectedFont ?? fontOption[0]}
+        selected={selectedFont}
       />
     </div>
   );

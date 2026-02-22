@@ -10,7 +10,7 @@ export const ImageUploadButton = forwardRef<HTMLInputElement, Props>(
   ({ onButtonClick, onInputChange }, ref) => {
     return (
       <div
-        className="flex-center size-40 border border-dashed cursor-pointer"
+        className="flex-center size-[335px] border border-dashed cursor-pointer"
         onClick={onButtonClick}
       >
         <Plus size={16} />

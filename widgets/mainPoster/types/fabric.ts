@@ -18,20 +18,9 @@ export interface BaseShape {
   padding?: number; // 컨텐츠와 테두리 사이 여백
 }
 
-/**
- * 필터에 사용할 옵션 인터페이스
- */
-export interface PhotoPresetOptions {
-  exposure?: number;
-  contrast?: number;
-  saturation?: number;
-  temperature?: number;
-  tint?: number;
-  fade?: number;
-  vignette?: number;
-  grain?: number;
-  bw?: number;
-}
+import { PhotoPresetOptions } from '@/components/molecules/image-editor';
+
+export type { PhotoPresetOptions };
 
 export interface Image extends BaseShape {
   type: 'image';
@@ -92,3 +81,21 @@ export interface AllStyle {
 export type RichStyle = LayoutStyle | AllStyle;
 
 export type RichStyleKey = keyof LayoutStyle | keyof AllStyle;
+
+// 드래그 타입
+export type DragPoints = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+};
+
+export interface ActiveObject {
+  type: string | null;
+  filters?: any;
+  styles: Record<string, any>;
+}

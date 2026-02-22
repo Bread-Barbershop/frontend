@@ -1,19 +1,18 @@
-import * as fabric from 'fabric';
+import { Canvas, Textbox } from 'fabric';
 import { TypeOutline } from 'lucide-react';
 import { useState } from 'react';
 
 import { Selector } from '@/components/molecules/selector';
-
-import { selectorOptions } from '../types/editor';
-import { RichStyle } from '../types/fabric';
+import { selectorOptions } from '@/widgets/mainPoster/types/editor';
+import { RichStyle } from '@/widgets/mainPoster/types/fabric';
 
 import ColorPicker from './ColorPicker';
 
 interface Props {
-  canvas: fabric.Canvas | null;
-  activeObject: fabric.Textbox | null;
-  applyRichStyle: (styleObj: object, canvas: fabric.Canvas) => void;
-  debouncedApplyStyle: (style: RichStyle, canvas: fabric.Canvas) => void;
+  canvas: Canvas | null;
+  activeObject: Textbox | null;
+  applyRichStyle: (styleObj: object, canvas: Canvas) => void;
+  debouncedApplyStyle: (style: RichStyle, canvas: Canvas) => void;
 }
 
 // 스트로크 색상 변경시 두께 초기화되는거 수정

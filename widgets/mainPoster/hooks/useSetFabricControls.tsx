@@ -1,18 +1,44 @@
 import { FabricObject, Control, controlsUtils, util } from 'fabric';
 import { useEffect } from 'react';
 
-import { CORNERS_CONFIG, MOVE_ICON } from '../utils/constants';
+import { CORNERS_CONFIG, MOVE_ICON, SIDES_CONFIG } from '../constants/fabric';
 import {
   createFabricControlImage,
   getRotatedCursorUrl,
   isImageReadyForCanvas,
 } from '../utils/fabricUtils';
 
+const scaleOrResizeTextbox: Control['actionHandler'] = (
+  eventData,
+  transform,
+  x,
+  y
+) => {
+  const target = transform.target;
+
+  const isTextbox =
+    typeof target?.isType === 'function'
+      ? target.isType('textbox')
+      : target?.type === 'textbox';
+
+  // Textbox면: scale 말고 width 변경 (폰트 크기 유지)
+  if (isTextbox) {
+    return controlsUtils.changeWidth(eventData, transform, x, y);
+  }
+
+  // 그 외(이미지 등)는 기존처럼 스케일
+  return controlsUtils.scalingEqually(eventData, transform, x, y);
+};
+
 export const useSetFabricControls = () => {
   useEffect(() => {
     const img = createFabricControlImage(MOVE_ICON);
 
     const defaultControls = FabricObject.ownDefaults;
+
+    // 회전 스냅(자석 효과) 기본값 설정
+    defaultControls.snapAngle = 90; // 90도 간격
+    defaultControls.snapThreshold = 2; // 2도 범위 내에 들어오면 스냅
 
     // 스타일 제거
     const newControls: Record<string, Control> = {};
@@ -23,8 +49,13 @@ export const useSetFabricControls = () => {
       y: 0,
       actionName: 'centerAction',
       render: (ctx, left, top, _, fabricObject) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((fabricObject as any).name === 'crop-zone') return;
+        // Textbox는 중앙 인디케이터 표시 안 함
+        const isTextbox =
+          typeof fabricObject?.isType === 'function'
+            ? fabricObject.isType('textbox')
+            : fabricObject?.type === 'textbox';
+
+        if (isTextbox) return;
 
         if (!isImageReadyForCanvas(img)) {
           img.onload = () => fabricObject.canvas?.requestRenderAll();
@@ -49,7 +80,8 @@ export const useSetFabricControls = () => {
       newControls[corner.id] = new Control({
         x: corner.x,
         y: corner.y,
-        actionHandler: controlsUtils.scalingEqually, // 정비례 확대/축소
+        // actionHandler: controlsUtils.scalingEqually, // 정비례 확대/축소
+        actionHandler: scaleOrResizeTextbox,
         cursorStyleHandler: controlsUtils.scaleCursorStyleHandler, // 확대/축소 커서 적용
         actionName: 'scale',
         render: controlsUtils.renderSquareControl,
@@ -63,9 +95,6 @@ export const useSetFabricControls = () => {
         offsetY: corner.offY,
         sizeX: 10,
         sizeY: 10,
-        getVisibility: fabricObject =>
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (fabricObject as any).name !== 'crop-zone',
         actionHandler: controlsUtils.rotationWithSnapping,
         cursorStyleHandler: (_, __, fabricObject) => {
           const totalAngle =
@@ -74,6 +103,21 @@ export const useSetFabricControls = () => {
         },
         actionName: 'rotate',
         render: () => {},
+      });
+    });
+
+    // 상하좌우 컨트롤
+    SIDES_CONFIG.forEach(({ id, x, y, action }) => {
+      newControls[id] = new Control({
+        x,
+        y,
+        actionHandler:
+          action === 'scalingX'
+            ? controlsUtils.scalingX
+            : controlsUtils.scalingY,
+        cursorStyleHandler: controlsUtils.scaleCursorStyleHandler,
+        actionName: action,
+        render: controlsUtils.renderSquareControl,
       });
     });
 

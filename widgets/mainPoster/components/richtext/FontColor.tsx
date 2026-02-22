@@ -1,22 +1,15 @@
-import * as fabric from 'fabric';
+import { Canvas, Textbox } from 'fabric';
 import { ChevronDown } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { cn } from '@/shared/utils/cn';
-
-import { RichStyleKey } from '../types/fabric';
+import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import ColorPicker from './ColorPicker';
 
 interface Props {
-  canvas: fabric.Canvas | null;
-  activeObject: fabric.Textbox | null;
-  applyRichStyle: (styleObj: object, canvas: fabric.Canvas) => void;
-  getRichStyles: (
-    activeObject: fabric.Textbox,
-    style: RichStyleKey,
-    onChange: (color: string) => void
-  ) => void;
+  canvas: Canvas | null;
+  applyRichStyle: (styleObj: object, canvas: Canvas) => void;
 }
 
 const ColorIcon = ({ color }: { color: string }) => (
@@ -35,15 +28,26 @@ const ColorIcon = ({ color }: { color: string }) => (
   </svg>
 );
 
-function FontColor({
-  canvas,
-  applyRichStyle,
-  activeObject,
-  getRichStyles,
-}: Props) {
+function FontColor({ canvas, applyRichStyle }: Props) {
+  const { getRichStyles } = useFabricContext();
   const [pickerColor, setPickerColor] = useState<string | null>('black');
   const [openFontColor, setOpenFontColor] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const activeObject = canvas?.getActiveObject() as Textbox;
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setOpenFontColor(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (!activeObject) {
@@ -62,19 +66,6 @@ function FontColor({
       activeObject.off('selection:changed', handleSync);
     };
   }, [activeObject, getRichStyles]);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
-        setOpenFontColor(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   if (!canvas) return null;
   return (

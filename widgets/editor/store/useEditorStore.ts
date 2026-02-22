@@ -1,4 +1,3 @@
-import * as fabric from 'fabric';
 import { create } from 'zustand';
 
 import { componentCls } from '@/shared/samples/componentSample';
@@ -35,12 +34,11 @@ interface EditorState {
   addAllBlock: (
     english: 'wedding' | 'firstBirthday' | 'birthday' | 'conference' | 'etc'
   ) => void;
-  canvas: fabric.Canvas | null;
-  setCanvas: (canvas: fabric.Canvas | null) => void;
-  activeObject: fabric.Object | null;
-  setActiveObject: (activeObject: fabric.Object | null) => void;
   updateImage: (id: string, image: File[]) => void;
   updateImageId: (id: string, imageId: string) => void;
+  // 메인포스터 탭 상태 관리
+  activeTab: 'image' | 'diagram' | null;
+  setActiveTab: (tab: 'image' | 'diagram' | null) => void;
 }
 
 export const useEditorStore = create<EditorState>((set, get) => ({
@@ -115,11 +113,6 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       }
     });
   },
-  activeObject: null,
-  setActiveObject: (activeObject: fabric.Object | null) =>
-    set({ activeObject }),
-  canvas: null,
-  setCanvas: (canvas: fabric.Canvas | null) => set({ canvas }),
   //이미지 추가
   updateImage: (id, image) =>
     set(state => {
@@ -142,4 +135,6 @@ export const useEditorStore = create<EditorState>((set, get) => ({
           : block
       ),
     })),
+  activeTab: null,
+  setActiveTab: (tab: 'image' | 'diagram' | null) => set({ activeTab: tab }),
 }));

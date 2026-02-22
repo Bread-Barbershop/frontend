@@ -1,17 +1,17 @@
-import * as fabric from 'fabric';
+import { Canvas, Pattern, util } from 'fabric';
 import { Image } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { useFabric } from '../hooks/useFabric';
+import { useFabricContext } from '../../context/FabricContext';
 
 interface Props {
-  canvas: fabric.Canvas | null;
-  applyRichStyle: (styleObj: object, canvas: fabric.Canvas) => void;
+  canvas: Canvas | null;
+  applyRichStyle: (styleObj: object, canvas: Canvas) => void;
 }
 
 function TextBackground({ canvas, applyRichStyle }: Props) {
   const [patternUrl, setPatternUrl] = useState<string>();
-  const { setPatternOffset } = useFabric();
+  const { setPatternOffset } = useFabricContext();
   const [offsets, setOffsets] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -19,7 +19,7 @@ function TextBackground({ canvas, applyRichStyle }: Props) {
 
     const syncOffsets = () => {
       const activeObject = canvas.getActiveObject();
-      if (activeObject && activeObject.fill instanceof fabric.Pattern) {
+      if (activeObject && activeObject.fill instanceof Pattern) {
         setOffsets({
           x: activeObject.fill.offsetX || 0,
           y: activeObject.fill.offsetY || 0,
@@ -52,9 +52,9 @@ function TextBackground({ canvas, applyRichStyle }: Props) {
   const applyPattern = async (url: string) => {
     if (!canvas) return;
     try {
-      const img = await fabric.util.loadImage(url);
+      const img = await util.loadImage(url);
 
-      const pattern = new fabric.Pattern({
+      const pattern = new Pattern({
         source: img,
         repeat: 'repeat',
       });
