@@ -1,4 +1,5 @@
-import { Canvas } from 'fabric';
+import { Canvas, Textbox } from 'fabric';
+import { useEffect, useState } from 'react';
 
 import { Selector } from '@/components/molecules/selector';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
@@ -12,13 +13,37 @@ interface Props {
 }
 
 function FontSize({ canvas, applyRichStyle, debouncedApplyStyle }: Props) {
-  const { activeInfo } = useFabricContext();
+  const { activeInfo, getRichStyles } = useFabricContext();
+  const activeObject = canvas?.getActiveObject() as Textbox;
   const currentFontSize =
     (activeInfo?.styles?.fontSize as string | number) || '16';
-  const selectedFontSize: selectorOptions = {
+  const [selectedFontSize, setSelectedFontSize] = useState<selectorOptions>({
     label: `${currentFontSize}px`,
     value: String(currentFontSize),
-  };
+  });
+
+  useEffect(() => {
+    if (!activeObject) {
+      return;
+    }
+    const handleSync = () =>
+      getRichStyles(activeObject, 'fontSize', fontSize =>
+        setSelectedFontSize({
+          label: `${fontSize}px`,
+          value: String(fontSize),
+        })
+      );
+
+    activeObject.on('changed', handleSync);
+    activeObject.on('selection:changed', handleSync);
+
+    handleSync();
+
+    return () => {
+      activeObject.off('changed', handleSync);
+      activeObject.off('selection:changed', handleSync);
+    };
+  }, [activeObject, getRichStyles]);
 
   const fontSize: selectorOptions[] = [];
   const fontSizeList = [10, 12, 14, 16, 20, 24, 32, 40];

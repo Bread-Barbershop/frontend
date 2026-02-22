@@ -1,7 +1,9 @@
-import { Canvas } from 'fabric';
+import { Canvas, Textbox } from 'fabric';
+import { useEffect, useState } from 'react';
 
 import { Selector } from '@/components/molecules/selector';
-import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
+
+import { useFabricContext } from '../../context/FabricContext';
 
 type FontOption = {
   label: string;
@@ -19,14 +21,38 @@ interface Props {
 }
 
 function FontFamily({ canvas, applyRichStyle }: Props) {
-  const { activeInfo } = useFabricContext();
+  const { activeInfo, getRichStyles } = useFabricContext();
+  const activeObject = canvas?.getActiveObject() as Textbox;
 
   const currentFontFamily =
     (activeInfo?.styles?.fontFamily as string) || 'Times New Roman';
-  const selectedFont: FontOption = {
+  const [selectedFont, setSelectedFont] = useState<FontOption>({
     label: currentFontFamily,
     value: currentFontFamily,
-  };
+  });
+
+  useEffect(() => {
+    if (!activeObject) {
+      return;
+    }
+    const handleSync = () =>
+      getRichStyles(activeObject, 'fontFamily', fontFamily =>
+        setSelectedFont({
+          label: fontFamily,
+          value: fontFamily,
+        })
+      );
+
+    activeObject.on('changed', handleSync);
+    activeObject.on('selection:changed', handleSync);
+
+    handleSync();
+
+    return () => {
+      activeObject.off('changed', handleSync);
+      activeObject.off('selection:changed', handleSync);
+    };
+  }, [activeObject, getRichStyles]);
 
   const defaultFontOption: FontOption[] = [
     {
