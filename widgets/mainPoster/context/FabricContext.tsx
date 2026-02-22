@@ -25,6 +25,7 @@ export const FabricProvider = ({ children }: { children: ReactNode }) => {
 
   const fabricImageValues = useFabricImage({
     syncActiveObjectInfo: fabricValues.syncActiveObjectInfo,
+    saveHistory: fabricValues.saveHistory,
   });
 
   const value = {
