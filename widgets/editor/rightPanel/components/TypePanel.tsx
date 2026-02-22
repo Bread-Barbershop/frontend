@@ -20,7 +20,8 @@ function TypePanel({ block, selectedId }: Props) {
     return (
       <div className="flex-1 flex-center">타입이 없는 컴포넌트입니다.</div>
     );
-  const typeArray = blockRegistry[selectedBlock.component].type;
+  const registryEntry = blockRegistry[selectedBlock.component];
+  const typeArray = registryEntry?.type;
   if (!typeArray)
     return (
       <div className="flex-1 flex-center">타입이 없는 컴포넌트입니다.</div>

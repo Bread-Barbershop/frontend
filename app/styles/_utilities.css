@@ -47,13 +47,13 @@
     animation: equalize 1.8s infinite ease-in-out;
     will-change: transform;
   }
-  .main-title {
+  .sub-title {
     font-size: 13px;
     font-weight: 600;
   }
-  .sub-title {
+  .main-title {
     font-size: 20px;
-    font-weight: 400;
+    font-weight: 600;
   }
 }
 

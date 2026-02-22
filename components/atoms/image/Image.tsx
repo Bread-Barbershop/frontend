@@ -1,5 +1,5 @@
 import NextImage, { ImageProps as NextImageProps } from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { cn } from '@/shared/utils/cn';
 
@@ -22,6 +22,10 @@ export const Image = ({
 }: ImageProps) => {
   const [isLoading, setIsLoading] = useState(true);
 
+  useEffect(() => {
+    setIsLoading(true);
+  }, [src]);
+
   // blob: URL인 경우 서버 최적화가 불가능하므로 unoptimized 속성 자동 적용
   const isBlob = typeof src === 'string' && src.startsWith('blob:');
 
@@ -36,13 +40,14 @@ export const Image = ({
         <div className={cn(skeletonVariants(), skeletonClassName)} />
       )}
       <NextImage
+        {...rest}
         src={src}
         alt={alt ?? '이미지 미리보기'}
         unoptimized={rest.unoptimized || isBlob}
         sizes={rest.sizes || defaultSizes}
-        {...rest}
         className={cn(className, imageVariants({ loading: isLoading }))}
         onLoad={() => setIsLoading(false)}
+        onError={() => setIsLoading(false)}
       />
     </div>
   );

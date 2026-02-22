@@ -1,5 +1,5 @@
 import { VariantProps } from 'class-variance-authority';
-import { InputHTMLAttributes } from 'react';
+import { InputHTMLAttributes, useId } from 'react';
 
 import { cn } from '@/shared/utils/cn';
 
@@ -11,17 +11,22 @@ interface Props
     VariantProps<typeof pictureInputVariants> {}
 
 export const PictureInput = ({ multiple, className, ...rest }: Props) => {
+  const generatedId = useId();
+
   return (
     <>
       <input
         type="file"
         accept="image/*"
-        id="file"
+        id={generatedId}
         multiple={multiple}
         className="hidden"
         {...rest}
       />
-      <label htmlFor="file" className={cn(pictureInputVariants(), className)}>
+      <label
+        htmlFor={generatedId}
+        className={cn(pictureInputVariants(), className)}
+      >
         <svg
           width="16"
           height="16"

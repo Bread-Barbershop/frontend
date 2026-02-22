@@ -43,10 +43,10 @@ function GalleryPreview({
     <div className={`w-full ${className} relative`} {...rest}>
       <div className="flex flex-col gap-6 py-8 px-5">
         <div className="flex-center flex-col gap-1">
-          <p className={cn(`text-text-wedding main-title`, titleClassName)}>
+          <p className={cn(`text-text-wedding sub-title`, titleClassName)}>
             GALLERY
           </p>
-          <p className={cn(`text-text-wedding sub-title`, titleClassName)}>
+          <p className={cn(`text-text-wedding main-title`, titleClassName)}>
             {blockInfo.props.title}
           </p>
         </div>

@@ -30,7 +30,7 @@ function ContentsArea({ scrollContainerRef, sectionRefs }: Props) {
     }))
   );
 
-  const handleAddCompoenent = (
+  const handleAddComponent = (
     type: 'wedding' | 'firstBirthday' | 'birthday' | 'conference' | 'etc',
     component: BlockType | null
   ) => {
@@ -66,7 +66,7 @@ function ContentsArea({ scrollContainerRef, sectionRefs }: Props) {
                   sectionRefs.current[items.english] = el;
                 }}
                 onClick={() =>
-                  handleAddCompoenent(items.english, item.component)
+                  handleAddComponent(items.english, item.component)
                 }
               >
                 <span
