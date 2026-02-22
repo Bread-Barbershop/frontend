@@ -1,5 +1,5 @@
 import LeftPanel from '@/widgets/editor/leftPanel/LeftPanel';
-import Preview from '@/widgets/editor/preveiw/Preview';
+import Preview from '@/widgets/editor/preview/Preview';
 import RightPanel from '@/widgets/editor/rightPanel/RightPanel';
 
 const EditorPage = () => {
