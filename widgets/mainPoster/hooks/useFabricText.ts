@@ -6,7 +6,6 @@ import {
   LayoutStyle,
   RichStyle,
   RichStyleKey,
-  Text,
 } from '../types/fabric';
 import { initDragHandler } from '../utils/fabricUtils';
 
