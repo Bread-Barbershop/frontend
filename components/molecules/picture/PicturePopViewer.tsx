@@ -1,12 +1,15 @@
-import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { Button } from '@/components/atoms/button';
+import { Image } from '@/components/atoms/image';
 import Carousel from '@/features/EmblaCarousel/Carousel/Carousel';
+import { cn } from '@/shared/utils/cn';
 
 interface Props {
   isOpen: boolean;
   images: string[];
+  ratio: string;
   startIndex: number;
   onClose: () => void;
 }
@@ -16,23 +19,45 @@ export const PicturePopViewer = ({
   images,
   startIndex,
   onClose,
+  ratio = '1:1',
 }: Props) => {
-  const [portalElement, setPortalElement] = useState<Element | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  const ratioClass = useMemo(() => {
+    switch (ratio) {
+      case '1:1':
+        return 'aspect-square';
+      case '4:3':
+        return 'aspect-[4/3]';
+      case '3:4':
+        return 'aspect-[3/4]';
+      case '16:9':
+        return 'aspect-[16/9]';
+      case '9:16':
+        return 'aspect-[9/16]';
+      default:
+        return 'aspect-square';
+    }
+  }, [ratio]);
 
   useEffect(() => {
-    setPortalElement(document.getElementById('preview-container'));
+    const raf = requestAnimationFrame(() => {
+      setIsMounted(true);
+    });
+    return () => cancelAnimationFrame(raf);
   }, []);
 
-  if (!isOpen || !portalElement) return null;
+  if (!isOpen || !isMounted) return null;
+
+  const portalElement = document.getElementById('preview-container');
+  if (!portalElement) return null;
 
   return createPortal(
     <div className="absolute inset-0 z-50 bg-black/80 flex-center">
-      <button
+      <Button
         type="button"
-        className="absolute top-4 right-4 z-100 flex-center rounded-full bg-black/32 w-8 h-8"
-        onClick={() => {
-          onClose();
-        }}
+        className="group absolute top-4 right-4 z-100 flex-center rounded-full bg-black/32 w-8 h-8 "
+        onClick={() => onClose()}
       >
         <svg
           width="14"
@@ -43,14 +68,14 @@ export const PicturePopViewer = ({
         >
           <path
             d="M13 1L1 13M1 1L13 13"
-            stroke="white"
+            className="stroke-white group-hover:stroke-black transition-colors"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
         </svg>
-      </button>
-      <div className="w-[90%] aspect-square relative">
+      </Button>
+      <div className={cn('w-[90%] max-h-[85%] relative', ratioClass)}>
         <Carousel
           options={{
             startIndex,

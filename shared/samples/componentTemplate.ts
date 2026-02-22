@@ -4,5 +4,4 @@ export const galleryTemplate = [
   'galleryType3',
   'galleryType4',
   'galleryType5',
-  'galleryType6',
 ];

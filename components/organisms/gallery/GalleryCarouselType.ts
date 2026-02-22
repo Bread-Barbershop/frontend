@@ -5,12 +5,11 @@ export const GalleryCarouselVariants = cva(
   {
     variants: {
       variant: {
-        galleryType1: 'flex-[0_0_70%]', //스케일만 조절
-        galleryType2: 'flex-[0_0_70%]', //스케일 + 회전 + y축 이동
-        galleryType3: '', //넓이 스케일 조절하면 될듯?
-        galleryType4: 'flex-[0_0_70%]', //기본 아무것도 없음
-        galleryType5: 'flex-[0_0_70%] p-2 ', //지그재그 어케하지
-        galleryType6: {}, //2개씩 묶고 y좌표는 일정 수치만큼 조절하면 되지 않으려나
+        galleryType1: 'flex-[0_0_70%]',
+        galleryType2: 'flex-[0_0_70%]',
+        galleryType3: '',
+        galleryType4: 'flex-[0_0_70%]',
+        galleryType5: 'flex-[0_0_70%]',
       },
       ratio: {
         '1:1': 'aspect-square',

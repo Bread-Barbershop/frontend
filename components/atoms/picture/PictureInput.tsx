@@ -10,7 +10,7 @@ interface Props
     InputHTMLAttributes<HTMLInputElement>,
     VariantProps<typeof pictureInputVariants> {}
 
-export const PictureInput = ({ multiple, className, ...props }: Props) => {
+export const PictureInput = ({ multiple, className, ...rest }: Props) => {
   return (
     <>
       <input
@@ -19,7 +19,7 @@ export const PictureInput = ({ multiple, className, ...props }: Props) => {
         id="file"
         multiple={multiple}
         className="hidden"
-        {...props}
+        {...rest}
       />
       <label htmlFor="file" className={cn(pictureInputVariants(), className)}>
         <svg

@@ -1,8 +1,13 @@
 import React from 'react';
 
+import { Button } from '@/components/atoms/button';
+
 function NextButton({ ...rest }) {
   return (
-    <button {...rest} className="flex-center rounded-full bg-black/32 w-8 h-8">
+    <Button
+      {...rest}
+      className="group flex-center rounded-full bg-black/32 w-8 h-8 "
+    >
       <svg
         width="11"
         height="16"
@@ -12,13 +17,13 @@ function NextButton({ ...rest }) {
       >
         <path
           d="M1.00032 1L9.16699 8L1.00032 15"
-          stroke="white"
+          className="stroke-white group-hover:stroke-black transition-colors"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
       </svg>
-    </button>
+    </Button>
   );
 }
 

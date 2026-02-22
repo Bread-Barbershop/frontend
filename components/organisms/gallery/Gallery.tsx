@@ -11,18 +11,12 @@ import {
   useEditorStore,
 } from '@/widgets/editor/store/useEditorStore';
 
+import { ASPECT_RATIO_OPTIONS } from './constants/AspectRatio';
+
 interface Props {
   blockInfo: EditorBlock<'gallery'>;
   id: string;
 }
-
-const ASPECT_RATIO_OPTIONS = [
-  { label: '1:1', value: '1:1' },
-  { label: '4:3', value: '4:3' },
-  { label: '3:4', value: '3:4' },
-  { label: '16:9', value: '16:9' },
-  { label: '9:16', value: '9:16' },
-];
 
 function Gallery({ blockInfo, id }: Props) {
   const { updateBlock, updateImage } = useEditorStore(
@@ -79,8 +73,10 @@ function Gallery({ blockInfo, id }: Props) {
           value={blockInfo.props.images}
           onChange={file => handlePictureChange(file)}
         />
-        {blockInfo.props.images && blockInfo.props.images?.length > 0 && (
+        {((blockInfo.props.images && blockInfo.props.images?.length > 0) ||
+          blockInfo.props.template !== 'galleryType3') && (
           <ButtonSelector
+            className="gap-2"
             label="비율"
             selectorOption={ASPECT_RATIO_OPTIONS}
             onPointerDown={handleAspectRatioChange}

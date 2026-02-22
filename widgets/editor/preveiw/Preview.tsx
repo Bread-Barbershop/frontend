@@ -9,6 +9,7 @@ import { blockRegistry } from '../types/registry';
 
 import CompoenentsPopup from './components/ComponentsPopup';
 import OrderPanel from './components/OrderPanel';
+import { previewTitleVariants } from './previewTitle.style';
 
 function Preview() {
   const [isTab, setIsTab] = useState(false);
@@ -68,9 +69,10 @@ function Preview() {
               const View = registryItem.viewComponent as React.ComponentType<{
                 blockInfo: typeof comp;
                 className: string;
+                titleClassName: string;
                 onClick: () => void;
               }>;
-
+              console.log(comp);
               return (
                 <div
                   key={comp.id}
@@ -82,6 +84,9 @@ function Preview() {
                     key={comp.id}
                     blockInfo={comp}
                     className={`${selectedId === comp.id ? 'border border-primary rounded-lg' : ''}`}
+                    titleClassName={previewTitleVariants({
+                      variant: comp.type,
+                    })}
                     onClick={() => {
                       selectedBlock(comp.id);
                     }}

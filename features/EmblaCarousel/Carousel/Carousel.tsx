@@ -124,6 +124,10 @@ function Carousel({
   const [emblaRef, emblaApi] = useEmblaCarousel(options);
 
   useEffect(() => {
+    if (emblaApi) emblaApi.reInit();
+  }, [emblaApi, children, options]);
+
+  useEffect(() => {
     if (!emblaApi || !onScroll) return;
 
     const scrollHandler = () => onScroll(emblaApi);
@@ -146,7 +150,7 @@ function Carousel({
       <div className="overflow-hidden h-full relative" ref={emblaRef}>
         <div
           className={cn(
-            `flex touch-pan-y touch-pinch-zoom w-full h-full py-10`,
+            `flex touch-pan-y touch-pinch-zoom w-full h-full`,
             carouselClassName
           )}
         >

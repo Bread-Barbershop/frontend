@@ -47,6 +47,14 @@
     animation: equalize 1.8s infinite ease-in-out;
     will-change: transform;
   }
+  .main-title {
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .sub-title {
+    font-size: 20px;
+    font-weight: 400;
+  }
 }
 
 @keyframes equalize {

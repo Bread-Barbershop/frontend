@@ -1,5 +1,6 @@
-import Image from 'next/image';
 import React, { useMemo } from 'react';
+
+import { Image } from '@/components/atoms/image';
 
 import { EditorBlock, useEditorStore } from '../../store/useEditorStore';
 import { blockRegistry } from '../../types/registry';
@@ -25,7 +26,6 @@ function TypePanel({ block, selectedId }: Props) {
       <div className="flex-1 flex-center">타입이 없는 컴포넌트입니다.</div>
     );
   const handleSelectType = (type: string) => {
-    console.log('type', type);
     if (!selectedId) return;
     updateBlock(selectedId, { template: type });
   };

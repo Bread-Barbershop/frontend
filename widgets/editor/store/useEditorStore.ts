@@ -10,7 +10,7 @@ import { createDefaultProps } from './createDefaultProps';
 
 export type EditorBlock<T extends BlockType = BlockType> = {
   id: string;
-  type: string;
+  type: 'wedding' | 'firstBirthday' | 'birthday' | 'conference' | 'etc';
   component: T;
   props: PropsFromFields<(typeof blockRegistry)[T]['fields']>;
 };
@@ -25,7 +25,11 @@ interface EditorState {
   images: ImageArray[];
   selectedId: string | null;
   selectedBlock: (id: string) => void;
-  addBlock: (type: string, component: BlockType, id: string) => void;
+  addBlock: (
+    type: 'wedding' | 'firstBirthday' | 'birthday' | 'conference' | 'etc',
+    component: BlockType,
+    id: string
+  ) => void;
   updateBlock: <T extends BlockType>(
     id: string,
     props: Partial<PropsFromFields<(typeof blockRegistry)[T]['fields']>>

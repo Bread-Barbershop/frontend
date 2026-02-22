@@ -26,7 +26,7 @@ export const galleryDefinition = {
       required: true,
     },
     ratio: {
-      default: '1/1',
+      default: '1:1',
       required: true,
     },
     isPopupViewer: {

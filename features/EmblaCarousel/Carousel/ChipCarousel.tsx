@@ -11,7 +11,7 @@ interface Props {
 }
 
 function ChipCarousel({ items, className, onPointerDown }: Props) {
-  const [selectedValue, setSelectedValue] = useState('');
+  const [selectedValue, setSelectedValue] = useState(items[0].value);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
 
@@ -52,7 +52,7 @@ function ChipCarousel({ items, className, onPointerDown }: Props) {
     <div className={cn('min-w-0 flex-1', className)}>
       <div className="flex items-center relative">
         <div
-          className={`w-11 h-11  absolute left-0 cursor-pointer z-10 bg-bg-base ${canScrollPrev ? 'opacity-100' : 'opacity-0'}`}
+          className={`w-11 h-11  absolute left-0 cursor-pointer  bg-bg-base ${canScrollPrev ? 'opacity-100 z-10' : 'opacity-0 -z-10'}`}
         >
           <button
             className="w-full h-full flex-center"
@@ -110,7 +110,7 @@ function ChipCarousel({ items, className, onPointerDown }: Props) {
         </div>
 
         <div
-          className={`w-11 h-11 absolute right-0 cursor-pointer z-10 bg-bg-base ${canScrollNext ? 'opacity-100' : 'opacity-0'}`}
+          className={`w-11 h-11 absolute right-0 cursor-pointer bg-bg-base ${canScrollNext ? 'opacity-100 z-10' : 'opacity-0 -z-10'}`}
         >
           <button
             className="w-full h-full flex-center"

@@ -4,6 +4,7 @@ import BgmPreview from './BgmPreview';
 export const bgmDefinition = {
   viewComponent: BgmPreview,
   editComponent: Bgm,
+  type: null,
   fields: {
     selectedBgmId: {
       default: '',

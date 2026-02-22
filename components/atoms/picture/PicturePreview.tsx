@@ -1,6 +1,6 @@
-import Image from 'next/image';
-
 import { cn } from '@/shared/utils/cn';
+
+import { Image } from '../image';
 
 import { picturePreviewVariants } from './PicturePreview.style';
 
