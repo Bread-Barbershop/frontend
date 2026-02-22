@@ -14,6 +14,7 @@ export const useFabric = () => {
   const undoStack = useRef<string[]>([]);
   const redoStack = useRef<string[]>([]);
   const isUpdating = useRef<boolean>(false);
+  const MAX_STACK_SIZE = 30;
 
   const handleDeleteShape = (
     canvas: Canvas,
@@ -154,12 +155,20 @@ export const useFabric = () => {
 
   const saveHistory = () => {
     if (isUpdating.current || !canvas) return;
-
+    
     // 객체 상태 직렬화 시 filters 등 커스텀 속성도 포함
     const json = JSON.stringify(
       (canvas as any).toJSON(['filters', 'id', 'name'])
     );
+    
+    const prevState = undoStack.current[undoStack.current.length - 1];
+    if (prevState === json) return;
+    
     undoStack.current.push(json);
+
+    if (undoStack.current.length > MAX_STACK_SIZE) {
+      undoStack.current.shift();
+    }
 
     if (redoStack.current.length > 0) {
       redoStack.current.length = 0;
