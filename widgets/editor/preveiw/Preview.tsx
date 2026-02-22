@@ -72,7 +72,6 @@ function Preview() {
                 titleClassName: string;
                 onClick: () => void;
               }>;
-              console.log(comp);
               return (
                 <div
                   key={comp.id}
