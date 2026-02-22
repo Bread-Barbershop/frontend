@@ -30,7 +30,10 @@ function ContentsArea({ scrollContainerRef, sectionRefs }: Props) {
     }))
   );
 
-  const handleAddCompoenent = (type: string, component: BlockType | null) => {
+  const handleAddCompoenent = (
+    type: 'wedding' | 'firstBirthday' | 'birthday' | 'conference' | 'etc',
+    component: BlockType | null
+  ) => {
     if (!component) return;
     const id = crypto.randomUUID();
     addBlock(type, component, id);

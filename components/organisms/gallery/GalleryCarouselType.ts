@@ -7,7 +7,7 @@ export const GalleryCarouselVariants = cva(
       variant: {
         galleryType1: 'flex-[0_0_70%]',
         galleryType2: 'flex-[0_0_70%]',
-        galleryType3: '',
+        galleryType3: 'transition-all duration-500',
         galleryType4: 'flex-[0_0_70%]',
         galleryType5: 'flex-[0_0_70%]',
       },
@@ -17,6 +17,7 @@ export const GalleryCarouselVariants = cva(
         '3:4': 'aspect-[3/4]',
         '9:16': 'aspect-[9/16]',
         '16:9': 'aspect-[16/9]',
+        none: '',
       },
     },
     defaultVariants: {

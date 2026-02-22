@@ -51,7 +51,14 @@ function GalleryPreview({
           </p>
         </div>
         <div
-          className={`w-full  ${preview.length === 0 ? 'bg-border-neutral' : ''} flex-center`}
+          className={cn(
+            'w-full flex-center',
+            preview.length === 0 ? 'bg-border-neutral' : '',
+            variant === 'galleryType3' &&
+              GalleryCarouselVariants({ ratio })
+                .split(' ')
+                .find(c => c.startsWith('aspect-'))
+          )}
         >
           <Carousel
             options={{ align: 'center', containScroll: false }}
@@ -65,7 +72,10 @@ function GalleryPreview({
                 <div
                   key={index}
                   className={cn(
-                    GalleryCarouselVariants({ variant: variant, ratio: ratio })
+                    GalleryCarouselVariants({
+                      variant: variant,
+                      ratio: variant === 'galleryType3' ? 'none' : ratio,
+                    })
                   )}
                   onClick={() => {
                     setActiveIndex(index);

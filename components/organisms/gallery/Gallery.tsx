@@ -73,11 +73,11 @@ function Gallery({ blockInfo, id }: Props) {
           value={blockInfo.props.images}
           onChange={file => handlePictureChange(file)}
         />
-        {((blockInfo.props.images && blockInfo.props.images?.length > 0) ||
-          blockInfo.props.template !== 'galleryType3') && (
+        {blockInfo.props.images && blockInfo.props.images?.length > 0 && (
           <ButtonSelector
             className="gap-2"
             label="비율"
+            disabled={blockInfo.props.template === 'galleryType3'}
             selectorOption={ASPECT_RATIO_OPTIONS}
             onPointerDown={handleAspectRatioChange}
           />

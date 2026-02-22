@@ -48,13 +48,9 @@ export const useCarouselOnScroll = (variant: GalleryVariant) => {
           }
           case 'galleryType3': {
             if (index === selectedIndex) {
-              slide.style.aspectRatio = '1/1';
               slide.style.flex = `0 0 60%`;
-              // slide.style.transition = `all 0.5s cubic-bezier(0.22, 1, 0.36, 1)`;
             } else {
-              slide.style.aspectRatio = '1/6';
               slide.style.flex = `0 0 10%`;
-              // slide.style.transition = `all 0.5s cubic-bezier(0.22, 1, 0.36, 1)`;
             }
             break;
           }
