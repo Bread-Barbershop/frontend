@@ -7,7 +7,7 @@ import PosterEditor from '@/widgets/mainPoster/components/PosterEditor';
 import { useEditorStore } from '../store/useEditorStore';
 import { blockRegistry } from '../types/registry';
 
-import CompoenentsPopup from './components/ComponentsPopup';
+import ComponentsPopup from './components/ComponentsPopup';
 import OrderPanel from './components/OrderPanel';
 import { previewTitleVariants } from './previewTitle.style';
 
@@ -80,7 +80,6 @@ function Preview() {
                   }}
                 >
                   <View
-                    key={comp.id}
                     blockInfo={comp}
                     className={`${selectedId === comp.id ? 'border border-primary rounded-lg' : ''}`}
                     titleClassName={previewTitleVariants({
@@ -98,7 +97,7 @@ function Preview() {
       </div>
       {block.length > 0 && <OrderPanel />}
       <div className="w-full relative" ref={tabRef}>
-        {isTab && <CompoenentsPopup onPopClose={handlePopClose} />}
+        {isTab && <ComponentsPopup onPopClose={handlePopClose} />}
 
         <button
           type="button"

@@ -1,12 +1,20 @@
 import React from 'react';
 
 import { Button } from '@/components/atoms/button';
+import { cn } from '@/shared/utils/cn';
 
-function PrevButton({ ...rest }) {
+function PrevButton({
+  className,
+  ...rest
+}: React.ComponentProps<typeof Button>) {
   return (
     <Button
       {...rest}
-      className="group flex-center rounded-full bg-black/32 w-8 h-8 "
+      className={cn(
+        `group flex-center rounded-full bg-black/32 w-8 h-8`,
+        className
+      )}
+      aria-label="이전 버튼"
     >
       <svg
         width="11"

@@ -11,7 +11,7 @@ interface Props {
 }
 
 function ChipCarousel({ items, className, onPointerDown }: Props) {
-  const [selectedValue, setSelectedValue] = useState(items[0].value);
+  const [selectedValue, setSelectedValue] = useState(items[0]?.value ?? '');
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
 
@@ -60,7 +60,7 @@ function ChipCarousel({ items, className, onPointerDown }: Props) {
               e.stopPropagation();
               scrollPrev();
             }}
-            aria-label="이전"
+            aria-label="이전 버튼"
           >
             <svg
               width="9"
@@ -88,10 +88,7 @@ function ChipCarousel({ items, className, onPointerDown }: Props) {
                   <div key={item.value} className="flex-auto">
                     <Button
                       key={item.value}
-                      className={cn(
-                        `w-[63px] font-normal ${selectedValue === item.value ? 'border-primary' : 'border-border-neutral'}`,
-                        className
-                      )}
+                      className={`w-[63px] font-normal ${selectedValue === item.value ? 'border-primary' : 'border-border-neutral'}`}
                       value={item.value}
                       onPointerDown={e => {
                         if (onPointerDown) {
@@ -100,7 +97,7 @@ function ChipCarousel({ items, className, onPointerDown }: Props) {
                         setSelectedValue(item.value);
                       }}
                     >
-                      {item.value}
+                      {item.label}
                     </Button>
                   </div>
                 );
@@ -118,7 +115,7 @@ function ChipCarousel({ items, className, onPointerDown }: Props) {
               e.stopPropagation();
               scrollNext();
             }}
-            aria-label="다음"
+            aria-label="다음 버튼"
           >
             <svg
               width="9"

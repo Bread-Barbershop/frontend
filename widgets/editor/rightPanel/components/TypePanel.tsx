@@ -32,8 +32,9 @@ function TypePanel({ block, selectedId }: Props) {
   };
   return (
     <div className="min-h-0 flex-1 flex flex-wrap gap-3.5 content-start w-full overflow-y-auto scrollbar-hide">
-      {typeArray?.map((item, index) => (
-        <div
+      {typeArray.map((item, index) => (
+        <button
+          type="button"
           key={index}
           className="aspect-square relative w-40 h-40 rounded-lg border border-text-tertiary"
           onClick={() => handleSelectType(item)}
@@ -44,7 +45,7 @@ function TypePanel({ block, selectedId }: Props) {
             fill
             className="object-contain"
           />
-        </div>
+        </button>
       ))}
     </div>
   );

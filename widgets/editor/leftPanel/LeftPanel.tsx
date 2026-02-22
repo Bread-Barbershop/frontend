@@ -13,6 +13,7 @@ function LeftPanel() {
       >
         <p>일괄 편집</p>
         <button
+          type="button"
           className={`absolute right-6 ${isEdit ? 'rotate-180' : ''} transition-all duration-300 ease-in-out`}
         >
           <svg

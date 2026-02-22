@@ -7,7 +7,12 @@ import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import { useEditorStore } from '../../store/useEditorStore';
 
 function UploadButton() {
-  const { images, block } = useEditorStore();
+  const { images, block } = useEditorStore(
+    useShallow(state => ({
+      images: state.images,
+      block: state.block,
+    }))
+  );
 
   const {
     selectedBgmId,
@@ -53,6 +58,7 @@ function UploadButton() {
 
   return (
     <button
+      type="button"
       className="w-full h-11 bg-white rounded-lg shadow-edit flex-center gap-2 font-semibold"
       onClick={handleUpload}
     >

@@ -9,7 +9,7 @@ import { cn } from '@/shared/utils/cn';
 interface Props {
   isOpen: boolean;
   images: string[];
-  ratio: string;
+  ratio: '1:1' | '4:3' | '3:4' | '16:9' | '9:16';
   startIndex: number;
   onClose: () => void;
 }
@@ -57,7 +57,7 @@ export const PicturePopViewer = ({
       <Button
         type="button"
         className="group absolute top-4 right-4 z-100 flex-center rounded-full bg-black/32 w-8 h-8 "
-        onClick={() => onClose()}
+        onClick={onClose}
       >
         <svg
           width="14"
