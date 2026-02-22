@@ -117,7 +117,6 @@ function ColorPicker({ onColorSelect, selectedColor }: Props) {
               style={{ backgroundColor: value, width: '32px', height: '32px' }}
               onClick={() => {
                 onColorSelect(value);
-                console.log(value);
               }}
             />
           );
