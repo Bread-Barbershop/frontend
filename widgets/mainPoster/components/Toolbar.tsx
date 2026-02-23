@@ -1,63 +1,41 @@
-import * as fabric from 'fabric';
-import React, { useRef } from 'react';
+import { useShallow } from 'zustand/shallow';
 
-interface Props {
-  canvas: fabric.Canvas | null;
-  handleDrawingMode: () => void;
-  addImage: (url: string, canvas: fabric.Canvas) => void;
-}
+import { Button } from '@/components/atoms/button';
+import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
+import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
-function Toolbar({ canvas, handleDrawingMode, addImage }: Props) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+function Toolbar() {
+  const { canvas, dragToCreateTextBox } = useFabricContext();
+  const { activeTab, setActiveTab } = useEditorStore(
+    useShallow(state => ({
+      activeTab: state.activeTab,
+      setActiveTab: state.setActiveTab,
+    }))
+  );
 
   if (!canvas) return null;
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // 파일 타입 체크
-    if (!file.type.startsWith('image/')) {
-      alert('이미지 파일만 업로드 가능합니다.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = event => {
-      const result = event.target?.result;
-      if (typeof result === 'string') {
-        addImage(result, canvas);
-      }
-    };
-    reader.readAsDataURL(file);
-
-    // 같은 파일을 다시 올릴 수 있도록 초기화
-    e.target.value = '';
-  };
-
   return (
-    <div className=" flex gap-4 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
-      <button
-        onClick={handleDrawingMode}
-        className="px-4 py-2 cursor-pointer bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+    <div className="absolute top-1/2 -translate-y-1/2 -left-3 -translate-x-full flex flex-col gap-3">
+      <Button onClick={() => dragToCreateTextBox(canvas)}>텍스트</Button>
+      <Button
+        onClick={() => {
+          setActiveTab('image');
+        }}
+        variant="bordered"
+        active={activeTab === 'image'}
       >
-        텍스트 추가
-      </button>
-
-      <button
-        onClick={() => fileInputRef.current?.click()}
-        className="px-4 py-2 cursor-pointer bg-emerald-600 text-white font-medium rounded-md hover:bg-emerald-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+        사진
+      </Button>
+      <Button
+        onClick={() => {
+          setActiveTab('diagram');
+        }}
+        variant="bordered"
+        active={activeTab === 'diagram'}
       >
-        이미지 업로드
-      </button>
-
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleImageUpload}
-        accept="image/*"
-        className="hidden"
-      />
+        기타
+      </Button>
     </div>
   );
 }

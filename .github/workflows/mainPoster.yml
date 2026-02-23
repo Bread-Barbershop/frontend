@@ -5,7 +5,7 @@ name: mainPoster PR -> Discord Notify
 on:
   pull_request:
     # PR "생성(opened)" 이벤트에서만 실행
-    types: [opened]
+    types: [opened, reopened]
     # PR의 base(대상) 브랜치가 아래일 때만 실행
     branches:
       - feat/mainPoster/base
@@ -39,7 +39,7 @@ jobs:
 
             const payload = {
               username: "📮mainPoster 알림봇",
-              content: "🎨mainPoster에 새로운 PR이 도착했어요!",
+              content: "mainPoster에 새로운 PR이 도착했어요!",
               embeds: [
                 {
                   title: `🧡 PR #${pr.number} · ${pr.title}`,

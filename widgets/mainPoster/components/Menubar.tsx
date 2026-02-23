@@ -1,35 +1,25 @@
-import { Textbox, FabricImage } from 'fabric';
 import { useShallow } from 'zustand/shallow';
 
 import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
+import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
-import { useFabric } from '../hooks/useFabric';
-
-import ImageFilterPanel from './image/ImageFilterPanel';
-import RichTextPanel from './RichTextPanel';
+import { GraphicPanel } from './graphic/GraphicPanel';
+import History from './History';
+import { ImagePanel } from './image/ImagePanel';
+import RichTextPanel from './richtext/RichTextPanel';
 import jsonString from './test.json';
 
 function Menubar() {
-  const { canvas, activeObject } = useEditorStore(
+  const { activeTab } = useEditorStore(
     useShallow(state => ({
-      canvas: state.canvas,
-      activeObject: state.activeObject,
+      activeTab: state.activeTab,
     }))
   );
-  const {
-    applyRichStyle,
-    applyImageFilter,
-    getRichStyles,
-    addImage,
-    startCrop,
-    isCropping,
-    applyCrop,
-    cancelCrop,
-  } = useFabric();
+  const { activeInfo, canvas, applyRichStyle } = useFabricContext();
 
   // 현재 선택된 객체가 텍스트인지 이미지인지 확인
-  const isSelectedText = activeObject instanceof Textbox;
-  const isSelectedImage = activeObject instanceof FabricImage || isCropping;
+  const isSelectedText =
+    activeInfo.type === 'textbox' || activeInfo.type === 'itext';
 
   const handleExportJSON = () => {
     if (!canvas) return;
@@ -38,7 +28,6 @@ function Menubar() {
   };
 
   const handleImportJSON = async () => {
-    console.log({ jsonString });
     if (!canvas) return;
     try {
       await canvas.loadFromJSON(jsonString);
@@ -68,25 +57,17 @@ function Menubar() {
           Import JSON
         </button>
       </div>
-      {isSelectedText && (
-        <RichTextPanel
-          canvas={canvas}
-          applyRichStyle={applyRichStyle}
-          activeObject={activeObject}
-          getRichStyles={getRichStyles}
-        />
+      <History canvas={canvas} />
+      {/* 텍스트 */}
+      {isSelectedText && activeTab === null && (
+        <RichTextPanel canvas={canvas} applyRichStyle={applyRichStyle} />
       )}
-      {isSelectedImage && (
-        <ImageFilterPanel
-          canvas={canvas}
-          addImage={addImage}
-          applyImageFilter={applyImageFilter}
-          startCrop={startCrop}
-          isCropping={isCropping}
-          applyCrop={applyCrop}
-          cancelCrop={cancelCrop}
-        />
-      )}
+
+      {/* 이미지 */}
+      {activeTab === 'image' && <ImagePanel />}
+
+      {/* 도형 */}
+      {activeTab === 'diagram' && <GraphicPanel />}
     </div>
   );
 }

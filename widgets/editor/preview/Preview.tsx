@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
-import PosterEditor from '@/widgets/mainPoster/components/PosterEditor';
+import { PosterEditor } from '@/widgets/mainPoster/components/PosterEditor';
 
 import { useEditorStore } from '../store/useEditorStore';
 import { blockRegistry } from '../types/registry';
