@@ -1,6 +1,5 @@
 ﻿/* 유틸리티 클래스 커스텀 (플렉스, 마진 등) */
 @layer utilities {
-  
   .flex-center {
     @apply flex items-center justify-center;
   }
@@ -48,16 +47,38 @@
     animation: equalize 1.8s infinite ease-in-out;
     will-change: transform;
   }
+  .sub-title {
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .main-title {
+    font-size: 20px;
+    font-weight: 600;
+  }
 }
 
 @keyframes equalize {
-  0%   { transform: scaleY(0.25); }
-  18%  { transform: scaleY(0.85); }
-  33%  { transform: scaleY(0.4); }
-  52%  { transform: scaleY(0.95); }
-  71%  { transform: scaleY(0.5); }
-  88%  { transform: scaleY(0.75); }
-  100% { transform: scaleY(0.35); }
+  0% {
+    transform: scaleY(0.25);
+  }
+  18% {
+    transform: scaleY(0.85);
+  }
+  33% {
+    transform: scaleY(0.4);
+  }
+  52% {
+    transform: scaleY(0.95);
+  }
+  71% {
+    transform: scaleY(0.5);
+  }
+  88% {
+    transform: scaleY(0.75);
+  }
+  100% {
+    transform: scaleY(0.35);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

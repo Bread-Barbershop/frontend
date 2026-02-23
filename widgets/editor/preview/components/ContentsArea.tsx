@@ -30,7 +30,10 @@ function ContentsArea({ scrollContainerRef, sectionRefs }: Props) {
     }))
   );
 
-  const handleAddCompoenent = (type: string, component: BlockType | null) => {
+  const handleAddComponent = (
+    type: 'wedding' | 'firstBirthday' | 'birthday' | 'conference' | 'etc',
+    component: BlockType | null
+  ) => {
     if (!component) return;
     const id = crypto.randomUUID();
     addBlock(type, component, id);
@@ -63,7 +66,7 @@ function ContentsArea({ scrollContainerRef, sectionRefs }: Props) {
                   sectionRefs.current[items.english] = el;
                 }}
                 onClick={() =>
-                  handleAddCompoenent(items.english, item.component)
+                  handleAddComponent(items.english, item.component)
                 }
               >
                 <span

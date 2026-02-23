@@ -7,9 +7,16 @@ import { blockRegistry } from '../types/registry';
 
 import { createDefaultProps } from './createDefaultProps';
 
+export type InvitationType =
+  | 'wedding'
+  | 'firstBirthday'
+  | 'birthday'
+  | 'conference'
+  | 'etc';
+
 export type EditorBlock<T extends BlockType = BlockType> = {
   id: string;
-  type: string;
+  type: InvitationType;
   component: T;
   props: PropsFromFields<(typeof blockRegistry)[T]['fields']>;
 };
@@ -24,16 +31,14 @@ interface EditorState {
   images: ImageArray[];
   selectedId: string | null;
   selectedBlock: (id: string) => void;
-  addBlock: (type: string, component: BlockType, id: string) => void;
+  addBlock: (type: InvitationType, component: BlockType, id: string) => void;
   updateBlock: <T extends BlockType>(
     id: string,
     props: Partial<PropsFromFields<(typeof blockRegistry)[T]['fields']>>
   ) => void;
   deleteBlock: (id: string) => void;
   moveBlock: (from: number, to: number) => void;
-  addAllBlock: (
-    english: 'wedding' | 'firstBirthday' | 'birthday' | 'conference' | 'etc'
-  ) => void;
+  addAllBlock: (type: InvitationType) => void;
   updateImage: (id: string, image: File[]) => void;
   updateImageId: (id: string, imageId: string) => void;
   // 메인포스터 탭 상태 관리

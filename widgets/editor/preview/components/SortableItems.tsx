@@ -29,7 +29,7 @@ function SortableItems({ id, blockInfo, className }: Props) {
       style={style}
       {...attributes}
       {...listeners}
-      className={`text-sm font-normal rounded-sm flex-center w-24 h-6 cursor-grab ${className}`}
+      className={`text-sm font-normal rounded-sm flex-center w-24 h-8 cursor-grab ${className}`}
     >
       {componentName?.contents}
     </li>
