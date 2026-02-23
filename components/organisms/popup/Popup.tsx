@@ -49,7 +49,7 @@ function Popup({
   // 모달이 열려있는 동안 Esc 키로 닫기 이벤트를 부모에 전달한다.
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' || event.key === 'Backspace') {
+      if (event.key === 'Escape') {
         handleClose();
       }
     };
