@@ -11,11 +11,11 @@ export const PopupText = ({ text, className }: PopupTextProps) => {
   return (
     <div
       className={cn(
-        'h-18.5 overflow-hidden rounded-md bg-[#F5F8FF] p-4 text-sm',
+        'h-18.5 overflow-hidden rounded-md bg-[`#F5F8FF`] p-4 text-sm',
         className
       )}
     >
-      <p className={cn('line-clamp-2', className)}>{text}</p>
+      <p className="line-clamp-2">{text}</p>
     </div>
   );
 };
