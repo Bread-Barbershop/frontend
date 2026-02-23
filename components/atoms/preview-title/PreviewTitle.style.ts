@@ -1,7 +1,7 @@
 import { cva } from 'class-variance-authority';
 
 export const previewTitleVariants = cva(
-  ['w-full', 'text-center', 'whitespace-pre-wrap', 'break-keep'].join(' '),
+  'w-full text-center whitespace-pre-wrap break-keep',
   {
     variants: {
       language: {
