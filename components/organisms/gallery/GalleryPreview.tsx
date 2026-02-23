@@ -1,13 +1,12 @@
 import { useMemo, useState } from 'react';
 
-import { Image } from '@/components/atoms/image';
 import { PicturePopViewer } from '@/components/molecules/picture/PicturePopViewer';
-import Carousel from '@/features/EmblaCarousel/Carousel/Carousel';
 import { cn } from '@/shared/utils/cn';
 import { EditorBlock } from '@/widgets/editor/store/useEditorStore';
 
-import { GalleryCarouselVariants } from './GalleryCarouselType';
-import { useCarouselOnScroll } from './hooks/useCarouselOnScroll';
+import ImageCarousel from './components/ImageCarousel';
+import ImageDefault from './components/ImageDefault';
+import ImageGrid from './components/ImageGrid';
 import { GalleryVariant, RatioType } from './types/galleryType';
 
 interface Props {
@@ -17,7 +16,6 @@ interface Props {
   onClick: () => void;
 }
 
-//캐싱된 URL 고려해야함
 function GalleryPreview({
   blockInfo,
   className,
@@ -37,10 +35,15 @@ function GalleryPreview({
     'galleryType1') as GalleryVariant;
   const ratio = (blockInfo.props.ratio ?? '1:1') as RatioType;
 
-  const { onScroll } = useCarouselOnScroll(variant);
+  const handleImageClick = (index: number) => {
+    setActiveIndex(index);
+    if (blockInfo.props.isPopupViewer) {
+      setIsOpen(true);
+    }
+  };
 
   return (
-    <div className={`w-full ${className} relative`} {...rest}>
+    <div className={cn('w-full relative', className)} {...rest}>
       <div className="flex flex-col gap-6 py-8 px-5">
         <div className="flex-center flex-col gap-1">
           <p className={cn(`text-text-wedding sub-title`, titleClassName)}>
@@ -50,68 +53,28 @@ function GalleryPreview({
             {blockInfo.props.title}
           </p>
         </div>
-        <div
-          className={cn(
-            'w-full flex-center',
-            preview.length === 0 ? 'bg-border-neutral' : '',
-            variant === 'galleryType3' &&
-              GalleryCarouselVariants({ ratio })
-                .split(' ')
-                .find(c => c.startsWith('aspect-'))
+        <div className="w-full ">
+          {preview.length === 0 && <ImageDefault />}
+          {preview.length !== 0 &&
+          (variant === 'galleryType1' ||
+            variant === 'galleryType2' ||
+            variant === 'galleryType3' ||
+            variant === 'galleryType4' ||
+            variant === 'galleryType5') ? (
+            <ImageCarousel
+              preview={preview}
+              variant={variant}
+              ratio={ratio}
+              imageClick={() => handleImageClick(activeIndex)} // Carousel 내부 index 관리에 맞춰 수정 필요할 수 있음
+            />
+          ) : (
+            <ImageGrid
+              variant={variant}
+              preview={preview}
+              ratio={ratio}
+              imageClick={handleImageClick}
+            />
           )}
-        >
-          <Carousel
-            options={{ align: 'center', containScroll: false }}
-            onScroll={onScroll}
-            carouselClassName={cn({
-              'gap-2': variant === 'galleryType4' || variant === 'galleryType3',
-            })}
-          >
-            {preview.length > 0 &&
-              preview.map((file, index) => (
-                <div
-                  key={index}
-                  className={cn(
-                    GalleryCarouselVariants({
-                      variant: variant,
-                      ratio: variant === 'galleryType3' ? 'none' : ratio,
-                    })
-                  )}
-                  onClick={() => {
-                    setActiveIndex(index);
-                    if (blockInfo.props.isPopupViewer) {
-                      setIsOpen(true);
-                    }
-                  }}
-                >
-                  {variant === 'galleryType5' && (
-                    <div className="flex flex-col w-full h-[95%] p-2 pb-8 bg-bg-base shadow-[0_1px_2px_0_rgba(0,0,0,0.04),0_1px_4px_0_rgba(0,0,0,0.08),0_8px_24px_0_rgba(0,0,0,0.1)] rounded-sm">
-                      <div className="relative flex-1 w-full overflow-hidden rounded-sm">
-                        <Image
-                          src={file}
-                          alt="갤러리 이미지"
-                          fill
-                          className="object-cover "
-                        />
-                      </div>
-                    </div>
-                  )}
-                  {variant !== 'galleryType5' && (
-                    <Image
-                      src={file}
-                      alt="갤러리 이미지"
-                      fill
-                      className="object-cover rounded-lg"
-                    />
-                  )}
-                </div>
-              ))}
-            {preview.length === 0 && (
-              <div className="flex-center w-full h-31.5">
-                사진을 추가해주세요
-              </div>
-            )}
-          </Carousel>
         </div>
       </div>
       {blockInfo.props.isPopupViewer && (

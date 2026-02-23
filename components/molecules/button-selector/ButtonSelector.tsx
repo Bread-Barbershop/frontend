@@ -9,7 +9,6 @@ interface ButtonSelectorProps {
   selectorOption: { value: string; label: string }[];
   onPointerDown: (e: React.PointerEvent<HTMLButtonElement>) => void;
   className?: string;
-  disabled?: boolean;
 }
 
 export const ButtonSelector = ({
@@ -17,16 +16,9 @@ export const ButtonSelector = ({
   selectorOption,
   onPointerDown,
   className,
-  disabled,
 }: ButtonSelectorProps) => {
   return (
-    <div
-      className={cn(
-        'flex items-center',
-        disabled && 'opacity-50 pointer-events-none',
-        className
-      )}
-    >
+    <div className={cn('flex items-center', className)}>
       <Label>{label}</Label>
       <ChipCarousel items={selectorOption} onPointerDown={onPointerDown} />
     </div>

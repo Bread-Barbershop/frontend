@@ -66,6 +66,7 @@ export const PicturePopViewer = ({
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
+          <title>닫기 버튼</title>
           <path
             d="M13 1L1 13M1 1L13 13"
             className="stroke-white group-hover:stroke-black transition-colors"

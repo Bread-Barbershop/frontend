@@ -3,22 +3,18 @@ import { useState } from 'react';
 
 import { cn } from '@/shared/utils/cn';
 
-import {
-  imageVariants,
-  imageWrapperVariants,
-  skeletonVariants,
-} from './Image.style';
+import { imageVariants, imageWrapperVariants } from './Image.style';
 
 interface ImageProps extends Omit<NextImageProps, 'onLoad' | 'alt'> {
   alt?: string;
-  skeletonClassName?: string;
+  loadingClassName?: string;
 }
 
 export const Image = ({
   src,
   alt = '이미지 미리보기',
   className,
-  skeletonClassName,
+  loadingClassName,
   ...rest
 }: ImageProps) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -40,7 +36,30 @@ export const Image = ({
   return (
     <div className={cn(imageWrapperVariants({ fill: rest.fill }))}>
       {isLoading && (
-        <div className={cn(skeletonVariants(), skeletonClassName)} />
+        <div
+          className={cn(
+            'absolute inset-0 flex items-center justify-center',
+            loadingClassName
+          )}
+        >
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 22 22"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="animate-spin text-gray-400"
+          >
+            <title>로딩 스피너</title>
+            <path
+              d="M11 1V5M11 17V21M3.93 3.93L6.76 6.76M15.24 15.24L18.07 18.07M1 11H5M17 11H21M3.93 18.07L6.76 15.24M15.24 6.76L18.07 3.93"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
       )}
       <NextImage
         {...rest}

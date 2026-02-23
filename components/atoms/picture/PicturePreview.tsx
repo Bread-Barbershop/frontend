@@ -31,6 +31,7 @@ export const PicturePreview = ({ src, alt, className, onDelete }: Props) => {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
+          <title>이미지 삭제</title>
           <path
             d="M6 1L1 6M1 1L6 6"
             stroke="white"
