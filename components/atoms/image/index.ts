@@ -1,1 +1,0 @@
-export { ImageUploadButton } from './ImageUploadButton';

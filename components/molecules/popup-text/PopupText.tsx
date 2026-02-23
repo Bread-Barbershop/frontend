@@ -11,14 +11,11 @@ export const PopupText = ({ text, className }: PopupTextProps) => {
   return (
     <div
       className={cn(
-        'rounded-md bg-[#F5F8FF] text-sm p-1',
+        'h-18.5 overflow-hidden rounded-md bg-[#F5F8FF] p-4 text-sm',
         className
       )}
-      role="dialog"
     >
-      <p className="whitespace-pre-wrap break-keep p-4">
-        {text}
-      </p>
+      <p className={cn('line-clamp-2', className)}>{text}</p>
     </div>
   );
 };

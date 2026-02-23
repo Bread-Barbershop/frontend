@@ -2,11 +2,8 @@ import { Plus } from 'lucide-react';
 import { ChangeEvent, useState } from 'react';
 
 import { UtilityButton } from '@/components/atoms/button';
-import { ImageUploadButton } from '@/components/atoms/image';
-import { Label } from '@/components/atoms/label';
-import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
-import { TextEditorBar } from '@/components/molecules/text-editor-bar';
+import { TextEditor } from '@/components/molecules/text-editor';
 import { TextField } from '@/components/molecules/text-field';
 import Popup from '@/components/organisms/popup/Popup';
 import {
@@ -23,40 +20,41 @@ interface Props {
   id: string;
 }
 
+function createParagraphJson(text: string): JSONContent {
+  const lines = text.replace(/\r\n/g, '\n').split('\n');
+
+  return {
+    type: 'doc',
+    content: lines.map(line =>
+      line.length === 0
+        ? {
+            type: 'paragraph',
+            attrs: { textAlign: 'center' },
+          }
+        : {
+            type: 'paragraph',
+            attrs: { textAlign: 'center' },
+            content: [{ type: 'text', text: line }],
+          }
+    ),
+  };
+}
+
 function Greeting({ blockInfo, id }: Props) {
   const updateBlock = useEditorStore(state => state.updateBlock);
   const [isSamplePopupOpen, setIsSamplePopupOpen] = useState(false);
   const [editorResetKey, setEditorResetKey] = useState(0);
 
-  // (타이틀)실시간 변경사항 Editor 스토어에 적재.
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { title: e.target.value });
   };
 
-  // (내용)실시간 변경사항 Editor 스토어에 적재.
   const handleEditorChange = (json: JSONContent) => {
-    updateBlock(id, { messageJson: json } as any);
-  };
-
-  // (추가기능 1)실시간 변경사항 Editor 스토어에 적재.
-  // const handleFamilyNamesChange = (e: ChangeEvent<HTMLInputElement>) => {
-  //   updateBlock(id, { familyNames: e.target.checked });
-  // };
-
-  // (추가기능 1)실시간 변경사항 Editor 스토어에 적재.
-  // const handleCustomFamilyNamesChange = (e: ChangeEvent<HTMLInputElement>) => {
-  //   updateBlock(id, { customFamilyNames: e.target.checked });
-  // };
-
-  // (사진)실시간 변경사항 Editor 스토어에 적재.
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files ? Array.from(e.target.files) : [];
-    updateBlock(id, { image: files });
-    e.target.value = '';
+    updateBlock(id, { messageJson: json });
   };
 
   const handleSampleSelect = (text: string) => {
-    updateBlock(id, { message: text, messageJson: undefined } as any);
+    updateBlock(id, { messageJson: createParagraphJson(text) });
     // 같은 문구를 다시 선택해도 에디터가 해당 문구로 초기화되도록 강제 리마운트한다.
     setEditorResetKey(prev => prev + 1);
     setIsSamplePopupOpen(false);
@@ -65,21 +63,18 @@ function Greeting({ blockInfo, id }: Props) {
   return (
     <section aria-label="인사말">
       <div className="flex flex-col gap-1 w-93.75 rounded-lg px-5 pb-2.5">
-        {/* 컴포넌트 제목 */}
         <NavigationBar>인사말</NavigationBar>
 
-        {/* 제목 입력 필드 */}
         <TextField
           label="제목"
           inputProps={{
-            placeholder: '제목을 입력해 주세요.',
+            placeholder: '제목을 입력해 주세요',
             value: blockInfo.props.title,
             onChange: handleTitleChange,
           }}
           className="text-center"
         />
 
-        {/* 소제목 - 내용 */}
         <NavigationBar
           action={
             <UtilityButton
@@ -96,49 +91,25 @@ function Greeting({ blockInfo, id }: Props) {
           내용
         </NavigationBar>
 
-        {/* 텍스트 에디터 */}
-        <TextEditorBar
+        <TextEditor
           key={`${id}-${editorResetKey}`}
-          initialContent={blockInfo.props.message ?? '내용을 입력해 주세요.'}
+          value={blockInfo.props.messageJson}
+          defaultText="내용을 입력해 주세요"
+          defaultAlign="center"
           onChange={handleEditorChange}
         />
-
-        {/* 추가기능 */}
-        <div className="flex gap-2 items-center">
-          <Label className="text-center">추가기능</Label>
-          <div className="flex flex-col">
-            <Checkbox
-              // checked={!!blockInfo.props.familyNames}
-              // onChange={handleFamilyNamesChange}
-            >
-              인사말 하단 신랑&신부&혼주 성함 표시
-            </Checkbox>
-            <Checkbox
-              // checked={!!blockInfo.props.customFamilyNames}
-              // onChange={handleCustomFamilyNamesChange}
-            >
-              성함 자유 입력
-            </Checkbox>
-
-          </div>
-        </div>
-
-        {/* 사진 */}
-        <div className="flex gap-2 items-center">
-          <Label className="text-center">사진</Label>
-          <ImageUploadButton onChange={handleImageChange} />
-        </div>
       </div>
 
       {isSamplePopupOpen && (
         <Popup
           popupTitle="샘플 문구"
           options={GREETING_SAMPLE_MESSAGES}
-          onSelect={text => handleSampleSelect(text)}
+          onSelect={handleSampleSelect}
           onClose={() => setIsSamplePopupOpen(false)}
         />
       )}
     </section>
   );
 }
+
 export default Greeting;

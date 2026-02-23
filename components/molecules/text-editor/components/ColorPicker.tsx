@@ -3,21 +3,26 @@
 import { hexToHsva, hsvaToHex, validHex } from '@uiw/color-convert';
 import ShadeSlider from '@uiw/react-color-shade-slider';
 import Wheel from '@uiw/react-color-wheel';
-import { useState } from 'react';
+import { type RefObject, useEffect, useRef, useState } from 'react';
 
 import type { Editor } from '@tiptap/react';
 
 interface Props {
   editor: Editor | null;
   initialHex?: string;
+  onClose?: () => void;
+  containerRef?: RefObject<HTMLElement | null>;
 }
 
 export default function SimpleWheelColorPicker({
   editor,
   initialHex = '#FF4D6D',
+  onClose,
+  containerRef,
 }: Props) {
   // HEX → HSVA 변환
   const [hsva, setHsva] = useState(() => hexToHsva(initialHex));
+  const pickerRef = useRef<HTMLDivElement>(null);
 
   const hex = hsvaToHex(hsva).toUpperCase();
 
@@ -26,8 +31,38 @@ export default function SimpleWheelColorPicker({
     editor?.chain().focus().setColor(nextHex).run();
   };
 
+  useEffect(() => {
+    if (!onClose) return;
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      if (pickerRef.current?.contains(target)) return;
+      if (containerRef?.current?.contains(target)) return;
+
+      onClose();
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose, containerRef]);
+
   return (
-    <div className="flex flex-col items-center justify-center gap-2 w-50 p-3 bg-white rounded-xl shadow-xl">
+    <div
+      ref={pickerRef}
+      className="flex flex-col items-center justify-center gap-2 w-50 p-3 bg-white rounded-xl shadow-xl"
+    >
       {/* Wheel */}
       <Wheel
         color={hsva}

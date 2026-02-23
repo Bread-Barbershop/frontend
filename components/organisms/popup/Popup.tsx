@@ -1,6 +1,7 @@
-'use client';
+﻿'use client';
 
 import {
+  useCallback,
   useEffect,
   useId,
   useState,
@@ -8,6 +9,7 @@ import {
   type MouseEvent,
 } from 'react';
 
+import { UtilityButton } from '@/components/atoms/button';
 import { Radio } from '@/components/atoms/radio';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { PopupText } from '@/components/molecules/popup-text';
@@ -37,23 +39,26 @@ function Popup({
   const [innerSelectedText, setInnerSelectedText] = useState(
     defaultSelectedText ?? ''
   );
+  const handleClose = useCallback(() => {
+    onClose?.();
+  }, [onClose]);
 
   // 선택 상태는 controlled/ uncontrolled 두 방식을 모두 지원한다.
   const currentSelectedText = isControlled ? selectedText : innerSelectedText;
 
   // 모달이 열려있는 동안 Esc 키로 닫기 이벤트를 부모에 전달한다.
   useEffect(() => {
-  const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'Escape' || event.key === 'Backspace') {
-      onClose?.();
-    }
-  };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' || event.key === 'Backspace') {
+        handleClose();
+      }
+    };
 
-  window.addEventListener('keydown', handleKeyDown);
-  return () => {
-    window.removeEventListener('keydown', handleKeyDown);
-  };
-}, [onClose]);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleClose]);
 
   const handleSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const nextText = e.target.value;
@@ -72,7 +77,7 @@ function Popup({
 
   // 배경(overlay) 클릭 시 팝업 닫기.
   const handleBackdropClick = () => {
-    onClose?.();
+    handleClose();
   };
 
   // 팝업 본문 클릭은 배경 클릭 이벤트로 전파되지 않게 차단한다.
@@ -82,17 +87,32 @@ function Popup({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center"
       onClick={handleBackdropClick}
     >
       <section
         aria-label={popupTitle}
         role="dialog"
         aria-modal="true"
-        className="w-full max-w-93.75 rounded-lg bg-white p-4 shadow-edit"
+        className="w-full max-w-93.75 rounded-lg bg-white px-4 pb-4 shadow-edit"
         onClick={handleDialogClick}
       >
-        <NavigationBar>{popupTitle}</NavigationBar>
+        <NavigationBar
+          action={
+            <UtilityButton
+              size="md"
+              variant="danger"
+              onClick={handleClose}
+              aria-label="닫기"
+              className="text-sm"
+            >
+              닫기
+            </UtilityButton>
+          }
+          direction="right"
+        >
+          {popupTitle}
+        </NavigationBar>
 
         <ul className=" max-h-120 overflow-y-auto space-y-2 pr-1">
           {options.length === 0 && (
