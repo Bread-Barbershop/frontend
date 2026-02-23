@@ -56,25 +56,25 @@ function GalleryPreview({
         <div className="w-full ">
           {preview.length === 0 && <ImageDefault />}
           {preview.length !== 0 &&
-          (variant === 'galleryType1' ||
+            (variant === 'galleryType1' ||
             variant === 'galleryType2' ||
             variant === 'galleryType3' ||
             variant === 'galleryType4' ||
-            variant === 'galleryType5') ? (
-            <ImageCarousel
-              preview={preview}
-              variant={variant}
-              ratio={ratio}
-              imageClick={() => handleImageClick(activeIndex)} // Carousel 내부 index 관리에 맞춰 수정 필요할 수 있음
-            />
-          ) : (
-            <ImageGrid
-              variant={variant}
-              preview={preview}
-              ratio={ratio}
-              imageClick={handleImageClick}
-            />
-          )}
+            variant === 'galleryType5' ? (
+              <ImageCarousel
+                preview={preview}
+                variant={variant}
+                ratio={ratio}
+                imageClick={() => handleImageClick(activeIndex)} // Carousel 내부 index 관리에 맞춰 수정 필요할 수 있음
+              />
+            ) : (
+              <ImageGrid
+                variant={variant}
+                preview={preview}
+                ratio={ratio}
+                imageClick={handleImageClick}
+              />
+            ))}
         </div>
       </div>
       {blockInfo.props.isPopupViewer && (
