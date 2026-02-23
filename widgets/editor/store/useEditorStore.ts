@@ -39,10 +39,6 @@ interface EditorState {
   deleteBlock: (id: string) => void;
   moveBlock: (from: number, to: number) => void;
   addAllBlock: (type: InvitationType) => void;
-  canvas: fabric.Canvas | null;
-  setCanvas: (canvas: fabric.Canvas | null) => void;
-  activeObject: fabric.Object | null;
-  setActiveObject: (activeObject: fabric.Object | null) => void;
   updateImage: (id: string, image: File[]) => void;
   updateImageId: (id: string, imageId: string) => void;
   // 메인포스터 탭 상태 관리
