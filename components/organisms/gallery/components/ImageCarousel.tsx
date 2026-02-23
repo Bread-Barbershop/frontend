@@ -15,7 +15,7 @@ interface Props {
   preview: string[];
   variant: GalleryVariant;
   ratio: RatioType;
-  imageClick: () => void;
+  imageClick: (index: number) => void;
 }
 
 function ImageCarousel({ preview, variant, ratio, imageClick }: Props) {
@@ -69,7 +69,7 @@ function ImageCarousel({ preview, variant, ratio, imageClick }: Props) {
                   ratio: 'none',
                 })
               )}
-              onClick={imageClick}
+              onClick={() => imageClick(index)}
             >
               {variant === 'galleryType5' && (
                 <div className="flex flex-col w-full h-[95%] p-2 pb-8 bg-bg-base shadow-[0_1px_2px_0_rgba(0,0,0,0.04),0_1px_4px_0_rgba(0,0,0,0.08),0_8px_24px_0_rgba(0,0,0,0.1)] rounded-sm">

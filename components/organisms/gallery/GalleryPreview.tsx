@@ -65,7 +65,7 @@ function GalleryPreview({
                 preview={preview}
                 variant={variant}
                 ratio={ratio}
-                imageClick={() => handleImageClick(activeIndex)} // Carousel 내부 index 관리에 맞춰 수정 필요할 수 있음
+                imageClick={handleImageClick}
               />
             ) : (
               <ImageGrid
