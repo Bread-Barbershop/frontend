@@ -89,7 +89,7 @@ function Showcase() {
             (item, index) => (
               <div
                 key={index}
-                className="w-65 min-w-65 h-full border shadow-[0px_8px_24px_rgba(0,0,0,0.08),0px_2px_10px_rgba(0,0,0,0.12)] bg-white"
+                className="w-65 min-w-65 h-full border shadow-[0px_8px_24px_rgba(0,0,0,0.08),0px_2px_10px_rgba(0,0,0,0.12)] bg-blue-700"
               >
                 {item.item}
               </div>
