@@ -1,6 +1,34 @@
-function Cta() {
+'use client';
+
+import { useRouter } from 'next/navigation';
+
+import LoginModal from '@/app/(home)/components/LoginModal';
+import { useAuthGate } from '@/app/(home)/components/useAuthGate';
+
+type CtaProps = {
+  initialIsLoggedIn: boolean;
+};
+
+function Cta({ initialIsLoggedIn }: CtaProps) {
+  const router = useRouter();
+  const {
+    isBusy,
+    isLoginOpen,
+    isLoginPending,
+    closeLogin,
+    loginWithGoogle,
+    runAfterAuth,
+  } = useAuthGate({ initialIsLoggedIn });
+
+  const handleStart = () => {
+    runAfterAuth(() => {
+      router.push('/editor');
+    });
+  };
+
   return (
-    <section className="absolute left-10 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-10 border-none">
+    <>
+      <section className="absolute left-10 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-10 border-none">
       <div
         className="
           flex w-185 flex-col gap-2 rounded-4xl p-8
@@ -26,15 +54,25 @@ function Cta() {
       </div>
 
       <button
+        type="button"
+        onClick={handleStart}
+        disabled={isBusy}
         className="
           flex h-13.25 w-43.25 items-center justify-center rounded-full 
           bg-[#121212] text-2xl font-medium text-white 
-          transition-all hover:opacity-90 active:scale-95 cursor-pointer
+          transition-all hover:opacity-90 active:scale-95 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed
         "
       >
         만들러 가기
       </button>
-    </section>
+      </section>
+      <LoginModal
+        open={isLoginOpen}
+        isLoading={isLoginPending}
+        onClose={closeLogin}
+        onGoogleLogin={loginWithGoogle}
+      />
+    </>
   );
 }
 
