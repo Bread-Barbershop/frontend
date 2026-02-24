@@ -1,8 +1,9 @@
-import localFont from 'next/font/local';
-import { ReactNode } from 'react';
-import './styles/globals.css';
 import { Metadata } from 'next';
+import localFont from 'next/font/local';
 import Link from 'next/link';
+import { ReactNode } from 'react';
+
+import './styles/globals.css';
 
 const NAV_MENU = [
   { title: 'TITLE', href: '#' },
@@ -59,7 +60,7 @@ export default function RootLayout({
               </Link>
             ))}
 
-            <Link href="#" className="text-text-secondary ml-4">
+            <Link href="/empty" className="text-text-secondary ml-4">
               <div className="w-10 h-10 bg-transparent rounded-full border border-[#d9d9d9] cursor-pointer hover:bg-neutral-50 transition-colors"></div>
             </Link>
           </div>
@@ -68,7 +69,7 @@ export default function RootLayout({
         <main className="flex-1 max-w-480 w-full mx-auto">{children}</main>
 
         <footer className="h-15.5 bg-transparent flex items-center justify-between px-10">
-          <Link href="#" className="text-text-secondary">
+          <Link href="/empty" className="text-text-secondary">
             개인정보 처리방침
           </Link>
 
