@@ -1,4 +1,4 @@
-import { EditorBlock } from '@/widgets/editor/store/useEditorStore';
+import { EditorBlock } from '@/shared/types/block';
 
 import { retryFailedOnce } from './retryFailedOnce';
 import { retryPatchFailedOnce } from './retryPatchFailedOnce';
@@ -197,7 +197,6 @@ export async function saveInvitationFlow(params: {
   const dataFile = new File([JSON.stringify(payload)], 'data.json', {
     type: 'application/json',
   });
-
 
   // 4) data.json PATCH 전용 재시도
   const dataFirstAttempt: BatchResult = await (async () => {

@@ -10,6 +10,15 @@ const nextConfig: NextConfig = {
     ],
     minimumCacheTTL: 31536000,
   },
+
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
+      },
+    },
+  },
 };
 
 export default nextConfig;

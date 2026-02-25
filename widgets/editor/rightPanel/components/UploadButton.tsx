@@ -3,8 +3,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { saveInvitationFlow } from '@/app/oauthTest/utils/saveInvitationFlow';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
-
-import { useEditorStore } from '../../store/useEditorStore';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 function UploadButton() {
   const { images, block } = useEditorStore(

@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 
 import { PicturePopViewer } from '@/components/molecules/picture/PicturePopViewer';
+import { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
-import { EditorBlock } from '@/widgets/editor/store/useEditorStore';
 
 import ImageCarousel from './components/ImageCarousel';
 import ImageDefault from './components/ImageDefault';
