@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ReactNode } from 'react';
 
-import AuthAction from '@/app/(home)/components/AuthAction';
+import HeaderAuthControl from '@/app/(home)/components/HeaderAuthControl';
 import { getAuthSession } from '@/app/api/auth/_lib/getAuthSession';
 
 const NAV_MENU = [
@@ -35,7 +35,7 @@ export default async function HomeLayout({
             </Link>
           ))}
 
-          <AuthAction initialIsLoggedIn={session.isLoggedIn} />
+          <HeaderAuthControl initialIsLoggedIn={session.isLoggedIn} />
         </div>
       </header>
 

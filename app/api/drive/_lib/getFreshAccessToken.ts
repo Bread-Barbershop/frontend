@@ -1,7 +1,7 @@
 import 'server-only';
 import { cookies } from 'next/headers';
 
-import { tokenRefresh } from './tokenRefresh';
+import { tokenRefresh } from '@/app/api/auth/_lib/tokenRefresh';
 
 /**
  * 항상 "새 access token"을 발급받아 반환함.

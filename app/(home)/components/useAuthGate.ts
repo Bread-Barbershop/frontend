@@ -125,6 +125,35 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
     }
   };
 
+  // 서버 세션을 재검증한다. refresh 실패(401)면 로그인 상태를 해제하고 홈으로 보낸다.
+  const validateSession = async () => {
+    try {
+      const res = await fetch('/api/auth/session', {
+        method: 'GET',
+        cache: 'no-store',
+      });
+
+      if (res.status === 401) {
+        pendingActionRef.current = null;
+        setIsLoggedIn(false);
+        setIsLoginOpen(false);
+        router.replace('/');
+        router.refresh();
+        return false;
+      }
+
+      if (!res.ok) {
+        throw new Error(`session check failed: ${res.status}`);
+      }
+
+      setIsLoggedIn(true);
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  };
+
   // API로 로그아웃 요청을 보내고 인증 관련 UI를 새로고침한다
   const logout = async () => {
     if (isBusy) return;
@@ -148,7 +177,19 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
   // 로그인 상태면 바로 실행, 아니면 로그인 성공 후 실행되도록 액션을 예약한다
   const runAfterAuth = (action: () => void | Promise<void>) => {
     if (isLoggedIn) {
-      void Promise.resolve(action()).catch(console.error);
+      if (isBusy) return;
+
+      setIsBusy(true);
+      void (async () => {
+        const isSessionValid = await validateSession();
+        if (!isSessionValid) return;
+
+        await Promise.resolve(action());
+      })()
+        .catch(console.error)
+        .finally(() => {
+          setIsBusy(false);
+        });
       return;
     }
 
