@@ -1,6 +1,6 @@
 import { StateCreator } from 'zustand';
 
-import { EditorState, UISlice } from '../types';
+import { EditorState, UISlice } from '@/shared/types/block';
 
 export const createUISlice: StateCreator<
   EditorState,

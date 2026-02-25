@@ -1,6 +1,6 @@
 import { StateCreator } from 'zustand';
 
-import { EditorState, ImageSlice } from '../types';
+import { EditorState, ImageSlice } from '@/shared/types/block';
 
 export const createImageSlice: StateCreator<
   EditorState,

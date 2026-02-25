@@ -1,9 +1,8 @@
 import { StateCreator } from 'zustand';
 
 import { componentCls } from '@/shared/data/componentsInfo/componentInfo';
+import { BlockSlice, EditorState } from '@/shared/types/block';
 import { createDefaultProps } from '@/shared/utils/createDefaultProps';
-
-import { BlockSlice, EditorState } from '../types';
 
 export const createBlockSlice: StateCreator<EditorState, [], [], BlockSlice> = (
   set,

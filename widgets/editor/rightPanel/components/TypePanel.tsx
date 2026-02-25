@@ -1,31 +1,16 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 
 import { Image } from '@/components/atoms/image';
-import { blockRegistry } from '@/shared/data/registry/registry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
-import { EditorBlock } from '@/shared/types/block';
 
 interface Props {
-  block: EditorBlock[];
+  typeArray: string[];
   selectedId: string | null;
 }
 
-function TypePanel({ block, selectedId }: Props) {
-  const selectedBlock = useMemo(
-    () => block.find(b => b.id === selectedId),
-    [block, selectedId]
-  );
+function TypePanel({ typeArray, selectedId }: Props) {
   const updateBlock = useEditorStore(state => state.updateBlock);
-  if (!selectedBlock)
-    return (
-      <div className="flex-1 flex-center">타입이 없는 컴포넌트입니다.</div>
-    );
-  const registryEntry = blockRegistry[selectedBlock.component];
-  const typeArray = registryEntry?.type;
-  if (!typeArray)
-    return (
-      <div className="flex-1 flex-center">타입이 없는 컴포넌트입니다.</div>
-    );
+
   const handleSelectType = (type: string) => {
     if (!selectedId) return;
     updateBlock(selectedId, { template: type });
