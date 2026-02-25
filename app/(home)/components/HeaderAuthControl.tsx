@@ -40,7 +40,7 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
         type="button"
         onClick={login}
         disabled={isBusy}
-        className="text-text-secondary h-full px-8 flex items-center hover:text-black transition-colors disabled:opacity-50 cursor-pointer"
+        className="text-text-secondary h-full px-8 flex items-center text-[16px] font-semibold hover:text-black transition-colors disabled:opacity-50 cursor-pointer"
       >
         LOGIN
       </button>

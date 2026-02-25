@@ -29,7 +29,7 @@ export default async function HomeLayout({
             <Link
               key={index}
               href={menu.href}
-              className="text-text-secondary h-full px-8 flex items-center hover:text-black transition-colors"
+              className="text-text-secondary h-full px-8 flex items-center text-[16px] font-semibold hover:text-black transition-colors"
             >
               {menu.title}
             </Link>
