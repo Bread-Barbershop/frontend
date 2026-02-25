@@ -1,6 +1,6 @@
-import { blockRegistry } from '../data/registry/registry';
+import { blockSchema } from '../data/registry/block.schema';
 
-export type BlockType = keyof typeof blockRegistry;
+export type BlockType = keyof typeof blockSchema;
 
 type Field<T> = {
   default: T | (() => T); //string | number | boolean

@@ -1,4 +1,4 @@
-import { blockRegistry } from '../data/registry/registry';
+import { blockSchema } from '../data/registry/block.schema';
 
 import { BlockType, PropsFromFields } from './editor';
 
@@ -13,5 +13,5 @@ export type EditorBlock<T extends BlockType = BlockType> = {
   id: string;
   type: InvitationType;
   component: T;
-  props: PropsFromFields<(typeof blockRegistry)[T]['fields']>;
+  props: PropsFromFields<(typeof blockSchema)[T]['fields']>;
 };
