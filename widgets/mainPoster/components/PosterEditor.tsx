@@ -14,8 +14,8 @@ import {
 import { useEffect, useRef } from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { cn } from '@/shared/utils/cn';
-import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import { useSetFabricControls } from '../hooks/useSetFabricControls';

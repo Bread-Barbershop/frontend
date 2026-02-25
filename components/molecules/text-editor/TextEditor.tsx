@@ -4,18 +4,18 @@ import { EditorContent, JSONContent, useEditor } from '@tiptap/react';
 import { type ReactNode, useRef, useState } from 'react';
 
 import TextEditorButton from '@/components/atoms/text-editor-button/TextEditorButton';
+import AlignCenterIcon from '@/shared/assets/icons/alignCenter.svg';
+import AlignLeftIcon from '@/shared/assets/icons/alignLeft.svg';
+import AlignRightIcon from '@/shared/assets/icons/alignRight.svg';
+import BoldIcon from '@/shared/assets/icons/bold.svg';
+import FontColorIcon from '@/shared/assets/icons/color.svg';
+import ItalicIcon from '@/shared/assets/icons/italic.svg';
+import BulletPointIcon from '@/shared/assets/icons/order.svg';
+import UnderlineIcon from '@/shared/assets/icons/underline.svg';
 
 import { Selector } from '../selector';
 
-import { AlignCenterIcon } from './components/AlignCenterIcon';
-import { AlignLeftIcon } from './components/AlignLeftIcon';
-import { AlignRightIcon } from './components/AlignRightIcon';
-import { BoldIcon } from './components/BoldIcon';
-import { BulletPointIcon } from './components/BulletPointIcon';
 import ColorPicker from './components/ColorPicker';
-import { FontColorIcon } from './components/FontColorIcon';
-import { ItalicIcon } from './components/ItalicIcon';
-import { UnderlineIcon } from './components/UnderlineIcon';
 import { createTextEditorBarExtensions } from './utils/tiptapExtensions';
 
 interface TextEditorProps {
@@ -48,9 +48,9 @@ const FONT_SIZE_OPTIONS: FontSizeOption[] = [
 ];
 
 const TEXT_ALIGN_OPTIONS: TextAlignOption[] = [
-  { label: <AlignLeftIcon size={24} />, value: 'left' },
-  { label: <AlignCenterIcon size={24} />, value: 'center' },
-  { label: <AlignRightIcon size={24} />, value: 'right' },
+  { label: <AlignLeftIcon />, value: 'left' },
+  { label: <AlignCenterIcon />, value: 'center' },
+  { label: <AlignRightIcon />, value: 'right' },
 ];
 
 const DEFAULT_FONT_SIZE_OPTION: FontSizeOption = FONT_SIZE_OPTIONS[0];
@@ -158,21 +158,21 @@ export function TextEditor({
         />
 
         <TextEditorButton
-          icon={<BoldIcon size={28} />}
+          icon={<BoldIcon />}
           label="굵게"
           active={editor.isActive('bold')}
           onClick={() => editor.chain().focus().toggleBold().run()}
         />
 
         <TextEditorButton
-          icon={<ItalicIcon size={30} />}
+          icon={<ItalicIcon />}
           label="기울임"
           active={editor.isActive('italic')}
           onClick={() => editor.chain().focus().toggleItalic().run()}
         />
 
         <TextEditorButton
-          icon={<UnderlineIcon size={32} />}
+          icon={<UnderlineIcon />}
           label="밑줄"
           active={editor.isActive('underline')}
           onClick={() => editor.chain().focus().toggleUnderline().run()}
@@ -180,7 +180,7 @@ export function TextEditor({
 
         <div className="relative" ref={colorPickerContainerRef}>
           <TextEditorButton
-            icon={<FontColorIcon size={32} />}
+            icon={<FontColorIcon />}
             label="글자색"
             active={editor.isActive('textStyle')}
             onClick={handleColorPickerToggle}
@@ -198,7 +198,7 @@ export function TextEditor({
         </div>
 
         <TextEditorButton
-          icon={<BulletPointIcon size={24} />}
+          icon={<BulletPointIcon />}
           label="글머리 기호"
           active={editor.isActive('bulletList')}
           onClick={handleBulletListToggle}

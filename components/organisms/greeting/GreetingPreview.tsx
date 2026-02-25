@@ -1,6 +1,6 @@
 import { PreviewTitle } from '@/components/atoms/preview-title/PreviewTitle';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
-import type { EditorBlock } from '@/widgets/editor/store/useEditorStore';
+import { EditorBlock } from '@/shared/types/block';
 
 import type { HTMLAttributes } from 'react';
 
