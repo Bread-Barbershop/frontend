@@ -6,10 +6,8 @@ import { ButtonSelector } from '@/components/molecules/button-selector/ButtonSel
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { Picture } from '@/components/molecules/picture/Picture';
 import { TextField } from '@/components/molecules/text-field';
-import {
-  EditorBlock,
-  useEditorStore,
-} from '@/widgets/editor/store/useEditorStore';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { EditorBlock } from '@/shared/types/block';
 
 import { ASPECT_RATIO_OPTIONS } from './constants/AspectRatio';
 

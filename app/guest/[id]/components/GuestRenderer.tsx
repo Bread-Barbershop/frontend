@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { blockRegistry } from '@/widgets/editor/types/registry';
+import { blockRegistry } from '@/shared/data/registry/registry';
 
 import type { GuestBlock } from '../types/guestTypes';
 

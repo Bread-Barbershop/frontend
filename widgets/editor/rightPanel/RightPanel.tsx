@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
-import { useEditorStore } from '../store/useEditorStore';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import PosterPanel from './components/PosterPanel';
 import TypePanel from './components/TypePanel';
 import UploadButton from './components/UploadButton';
+import { useComponentType } from './hooks/useComponentType';
 
 function RightPanel() {
   const { block, selectedId } = useEditorStore(
@@ -17,7 +18,7 @@ function RightPanel() {
     }))
   );
   const [tab, setTab] = useState('poster');
-
+  const { typeArray } = useComponentType({ block, selectedId });
   return (
     <div className="w-93.75 h-203 mr-15 flex flex-col gap-5">
       <div>
@@ -28,20 +29,22 @@ function RightPanel() {
           <button
             type="button"
             className={` w-41.5 h-11 font-semibold ${tab === 'poster' ? 'border-b text-text-primary' : 'text-text-tertiary'}`}
-            onClick={() => setTab('poster')}
+            onPointerDown={() => setTab('poster')}
           >
             포스터
           </button>
           <button
             type="button"
-            className={`w-41.75 h-11 font-semibold ${tab === 'type' ? 'border-b text-text-primary' : 'text-text-tertiary'}`}
-            onClick={() => setTab('type')}
+            className={`w-41.75 h-11 font-semibold ${typeArray ? 'pointer-events-auto' : 'pointer-events-none'} ${tab === 'type' ? 'border-b text-text-primary' : 'text-text-tertiary'}`}
+            onPointerDown={() => setTab('type')}
           >
             타입
           </button>
         </div>
 
-        {tab === 'type' && <TypePanel block={block} selectedId={selectedId} />}
+        {tab === 'type' && typeArray && typeArray.length > 0 && (
+          <TypePanel typeArray={typeArray} selectedId={selectedId} />
+        )}
         {tab === 'poster' && <PosterPanel />}
       </div>
     </div>

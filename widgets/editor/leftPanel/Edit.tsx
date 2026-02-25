@@ -2,10 +2,9 @@
 import React from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import { blockRegistry } from '@/shared/data/registry/registry';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import Menubar from '@/widgets/mainPoster/components/Menubar';
-
-import { useEditorStore } from '../store/useEditorStore';
-import { blockRegistry } from '../types/registry';
 
 function Edit() {
   const { block, selectedId } = useEditorStore(
