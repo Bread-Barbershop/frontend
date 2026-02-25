@@ -1,7 +1,8 @@
 'use client';
-
 import React from 'react';
 import { useShallow } from 'zustand/shallow';
+
+import Menubar from '@/widgets/mainPoster/components/Menubar';
 
 import { useEditorStore } from '../store/useEditorStore';
 import { blockRegistry } from '../types/registry';
@@ -13,6 +14,7 @@ function Edit() {
       selectedId: state.selectedId,
     }))
   );
+  if (selectedId === 'mainPoster') return <Menubar />;
 
   if (!block || !selectedId)
     return (

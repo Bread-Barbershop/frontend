@@ -1,7 +1,11 @@
-/* 유틸리티 클래스 커스텀 (플렉스, 마진 등) */
+﻿/* 유틸리티 클래스 커스텀 (플렉스, 마진 등) */
 @layer utilities {
   .flex-center {
     @apply flex items-center justify-center;
+  }
+
+  .shadow-left {
+    box-shadow: -2px 0 8px 0 rgba(0, 0, 0, 0.3);
   }
 
   .cursor-inherit {
@@ -21,7 +25,7 @@
     border-radius: 100vw !important;
 
     border: 2px solid transparent;
-  background-clip: padding-box;
+    background-clip: padding-box;
   }
 
   .textarea-custom-scrollbar::-webkit-scrollbar-thumb {
@@ -29,5 +33,56 @@
     border-radius: 100vw;
     border: 2px solid transparent;
     background-clip: padding-box;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .animate-eq {
+    animation: equalize 1.8s infinite ease-in-out;
+    will-change: transform;
+  }
+  .sub-title {
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .main-title {
+    font-size: 20px;
+    font-weight: 600;
+  }
+}
+
+@keyframes equalize {
+  0% {
+    transform: scaleY(0.25);
+  }
+  18% {
+    transform: scaleY(0.85);
+  }
+  33% {
+    transform: scaleY(0.4);
+  }
+  52% {
+    transform: scaleY(0.95);
+  }
+  71% {
+    transform: scaleY(0.5);
+  }
+  88% {
+    transform: scaleY(0.75);
+  }
+  100% {
+    transform: scaleY(0.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-eq {
+    animation: none;
   }
 }

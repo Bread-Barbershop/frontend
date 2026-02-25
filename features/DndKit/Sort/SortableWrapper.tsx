@@ -14,6 +14,7 @@ type SortableWrapperProps<T extends { id: string }> = {
   className?: string;
   onChange: (items: T[]) => void;
   children: (item: T) => React.ReactNode;
+  suffix?: React.ReactNode;
 };
 
 function SortableWrapper<T extends { id: string }>({
@@ -21,6 +22,7 @@ function SortableWrapper<T extends { id: string }>({
   onChange,
   children,
   className,
+  suffix,
 }: SortableWrapperProps<T>) {
   const sensors = useSensors(useSensor(PointerSensor));
   return (
@@ -35,10 +37,11 @@ function SortableWrapper<T extends { id: string }>({
         onChange(arrayMove(items, oldIndex, newIndex));
       }}
     >
-      <ul className={cn(`flex flex-col gap-3.5`, className)}>
+      <ul className={cn(`flex gap-3.5`, className)}>
         <SortableContext items={items.map(i => i.id)}>
           {items.map(item => children(item))}
         </SortableContext>
+        {suffix}
       </ul>
     </DndContext>
   );

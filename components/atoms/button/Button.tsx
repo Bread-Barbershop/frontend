@@ -13,6 +13,7 @@ export interface ButtonProps
 export const Button = ({
   children,
   variant,
+  active,
   size,
   shadow,
   type = 'button',
@@ -21,7 +22,10 @@ export const Button = ({
 }: ButtonProps) => {
   return (
     <button
-      className={cn(buttonVariants({ variant, size, shadow }), className)}
+      className={cn(
+        buttonVariants({ variant, size, shadow, active }),
+        className
+      )}
       type={type}
       {...props}
     >

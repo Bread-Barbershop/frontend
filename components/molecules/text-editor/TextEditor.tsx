@@ -1,0 +1,219 @@
+'use client';
+
+import { EditorContent, JSONContent, useEditor } from '@tiptap/react';
+import { type ReactNode, useRef, useState } from 'react';
+
+import TextEditorButton from '@/components/atoms/text-editor-button/TextEditorButton';
+
+import { Selector } from '../selector';
+
+import { AlignCenterIcon } from './components/AlignCenterIcon';
+import { AlignLeftIcon } from './components/AlignLeftIcon';
+import { AlignRightIcon } from './components/AlignRightIcon';
+import { BoldIcon } from './components/BoldIcon';
+import { BulletPointIcon } from './components/BulletPointIcon';
+import ColorPicker from './components/ColorPicker';
+import { FontColorIcon } from './components/FontColorIcon';
+import { ItalicIcon } from './components/ItalicIcon';
+import { UnderlineIcon } from './components/UnderlineIcon';
+import { createTextEditorBarExtensions } from './utils/tiptapExtensions';
+
+interface TextEditorProps {
+  value?: JSONContent | null;
+  defaultText?: string;
+  defaultAlign?: TextAlignValue;
+  onChange?: (json: JSONContent) => void;
+}
+
+interface FontSizeOption {
+  label: string;
+  value: string;
+}
+
+type TextAlignValue = 'left' | 'center' | 'right';
+
+interface TextAlignOption {
+  label: ReactNode;
+  value: TextAlignValue;
+}
+
+const MAX_LIFT_LIST_ITEM_TRIES = 20;
+const FONT_SIZE_OPTIONS: FontSizeOption[] = [
+  { label: '14px', value: '14px' },
+  { label: '16px', value: '16px' },
+  { label: '18px', value: '18px' },
+  { label: '20px', value: '20px' },
+  { label: '24px', value: '24px' },
+  { label: '30px', value: '30px' },
+];
+
+const TEXT_ALIGN_OPTIONS: TextAlignOption[] = [
+  { label: <AlignLeftIcon size={24} />, value: 'left' },
+  { label: <AlignCenterIcon size={24} />, value: 'center' },
+  { label: <AlignRightIcon size={24} />, value: 'right' },
+];
+
+const DEFAULT_FONT_SIZE_OPTION: FontSizeOption = FONT_SIZE_OPTIONS[0];
+const DEFAULT_TEXT_ALIGN_OPTION: TextAlignOption = TEXT_ALIGN_OPTIONS[1];
+const DEFAULT_EDITOR_TEXT = '내용을 입력하세요.';
+
+function createDefaultDoc(
+  text: string,
+  align: TextAlignValue = DEFAULT_TEXT_ALIGN_OPTION.value
+): JSONContent {
+  return {
+    type: 'doc',
+    content: [
+      {
+        type: 'paragraph',
+        attrs: { textAlign: align },
+        content: [{ type: 'text', text }],
+      },
+    ],
+  };
+}
+
+export function TextEditor({
+  value,
+  defaultText = DEFAULT_EDITOR_TEXT,
+  defaultAlign = DEFAULT_TEXT_ALIGN_OPTION.value,
+  onChange,
+}: TextEditorProps) {
+  const [fontSizeSelected, setFontSizeSelected] = useState<FontSizeOption>(
+    DEFAULT_FONT_SIZE_OPTION
+  );
+  const [textAlignSelected, setTextAlignSelected] = useState<TextAlignOption>(
+    DEFAULT_TEXT_ALIGN_OPTION
+  );
+  const [colorPickerOpen, setColorPickerOpen] = useState(false);
+  const colorPickerContainerRef = useRef<HTMLDivElement>(null);
+
+  const editor = useEditor({
+    immediatelyRender: false,
+    extensions: createTextEditorBarExtensions(),
+    content: value ?? createDefaultDoc(defaultText, defaultAlign),
+    editorProps: {
+      attributes: {
+        class:
+          'min-h-[120px] outline-none text-[14px] leading-7 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6',
+      },
+    },
+    onCreate({ editor }) {
+      onChange?.(editor.getJSON());
+    },
+    onUpdate({ editor }) {
+      onChange?.(editor.getJSON());
+    },
+  });
+
+  if (!editor) return null;
+
+  const handleFontSizeSelect = (
+    option: FontSizeOption | { label: string; value: string }
+  ) => {
+    const selected = option as FontSizeOption;
+    setFontSizeSelected(selected);
+    editor.chain().focus().setFontSize(selected.value).run();
+  };
+
+  const handleTextAlignSelect = (
+    option: TextAlignOption | { label: string; value: string }
+  ) => {
+    const selected = option as TextAlignOption;
+    setTextAlignSelected(selected);
+    editor.chain().focus().setTextAlign(selected.value).run();
+  };
+
+  const handleColorPickerToggle = () => {
+    setColorPickerOpen(prev => !prev);
+  };
+
+  const handleBulletListToggle = () => {
+    if (!editor.isActive('bulletList')) {
+      editor.chain().focus().toggleBulletList().run();
+      return;
+    }
+
+    let safety = 0;
+    while (editor.isActive('bulletList') && safety < MAX_LIFT_LIST_ITEM_TRIES) {
+      const lifted = editor.chain().focus().liftListItem('listItem').run();
+      if (!lifted) break;
+      safety += 1;
+    }
+
+    if (editor.isActive('bulletList')) {
+      editor.chain().focus().toggleBulletList().run();
+    }
+  };
+
+  return (
+    <div className="w-full space-y-1">
+      <div className="flex justify-between items-center">
+        <Selector<FontSizeOption>
+          options={FONT_SIZE_OPTIONS}
+          selected={fontSizeSelected}
+          onSelect={handleFontSizeSelect}
+          placeholder="폰트 크기"
+          className="font-semibold"
+        />
+
+        <TextEditorButton
+          icon={<BoldIcon size={28} />}
+          label="굵게"
+          active={editor.isActive('bold')}
+          onClick={() => editor.chain().focus().toggleBold().run()}
+        />
+
+        <TextEditorButton
+          icon={<ItalicIcon size={30} />}
+          label="기울임"
+          active={editor.isActive('italic')}
+          onClick={() => editor.chain().focus().toggleItalic().run()}
+        />
+
+        <TextEditorButton
+          icon={<UnderlineIcon size={32} />}
+          label="밑줄"
+          active={editor.isActive('underline')}
+          onClick={() => editor.chain().focus().toggleUnderline().run()}
+        />
+
+        <div className="relative" ref={colorPickerContainerRef}>
+          <TextEditorButton
+            icon={<FontColorIcon size={32} />}
+            label="글자색"
+            active={editor.isActive('textStyle')}
+            onClick={handleColorPickerToggle}
+          />
+
+          {colorPickerOpen && (
+            <div className="absolute z-50">
+              <ColorPicker
+                editor={editor}
+                onClose={() => setColorPickerOpen(false)}
+                containerRef={colorPickerContainerRef}
+              />
+            </div>
+          )}
+        </div>
+
+        <TextEditorButton
+          icon={<BulletPointIcon size={24} />}
+          label="글머리 기호"
+          active={editor.isActive('bulletList')}
+          onClick={handleBulletListToggle}
+        />
+
+        <Selector<TextAlignOption>
+          options={TEXT_ALIGN_OPTIONS}
+          selected={textAlignSelected}
+          onSelect={handleTextAlignSelect}
+        />
+      </div>
+
+      <div className="bg-border-neutral rounded-lg py-3 px-4">
+        <EditorContent editor={editor} />
+      </div>
+    </div>
+  );
+}

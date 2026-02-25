@@ -1,9 +1,12 @@
+import { galleryTemplate } from '@/shared/samples/componentTemplate';
+
 import Gallery from './Gallery';
 import GalleryPreview from './GalleryPreview';
 
 export const galleryDefinition = {
   viewComponent: GalleryPreview,
   editComponent: Gallery,
+  type: galleryTemplate,
   fields: {
     title: {
       default: '제목',
@@ -16,6 +19,18 @@ export const galleryDefinition = {
     },
     images: {
       default: [] as File[],
+      required: true,
+    },
+    template: {
+      default: 'galleryType1',
+      required: true,
+    },
+    ratio: {
+      default: '1:1',
+      required: true,
+    },
+    isPopupViewer: {
+      default: false,
       required: true,
     },
   },

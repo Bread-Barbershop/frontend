@@ -23,16 +23,30 @@ type SaveInvitationPrepareResponse = {
 
 type BatchResult = { ok: UploadOk[]; fail: UploadFail[] };
 
-type ImageTask = {
+type UploadTask = {
   id: string;
   file: File;
 };
 
+export type BgmData = {
+  selectedBgmId: string | null;
+  isLoop: boolean;
+  volume: number;
+  userBgmTitle: string | null;
+  userBgmDuration: string | null;
+  userBgmFileId: string | null;
+};
+
+type InvitationPayload = {
+  blocks: EditorBlock[];
+  bgm: BgmData;
+};
+
 export async function saveInvitationFlow(params: {
-  images: ImageTask[];
+  images: UploadTask[];
   audio: File | null;
-  // data: object | File; // 객체든, 이미 File로 만들어진 data.json이든 둘 다 허용. 편집데이터 JSON임.
-  data: EditorBlock[]; // 객체든, 이미 File로 만들어진 data.json이든 둘 다 허용. 편집데이터 JSON임.
+  data: EditorBlock[]; // useEditorStore의 데이터 타입.
+  bgmData: BgmData;
   invitationUuid?: string; // 수정 진입이면 해당 파라미터가 존재함.
 }): Promise<{
   success: boolean;
@@ -53,7 +67,7 @@ export async function saveInvitationFlow(params: {
     usedAccessToken: string;
   };
 }> {
-  const { images, audio, data, invitationUuid } = params;
+  const { images, audio, data, bgmData, invitationUuid } = params;
 
   // 1) 서버에서 폴더 구조 + fresh 토큰 받기
   const prepRes = await fetch('/api/drive/saveInvitation', {
@@ -85,18 +99,16 @@ export async function saveInvitationFlow(params: {
 
   // 공통 실행 패턴: 1차 업로드 → 실패만 1회 재시도
   const runUploadStep = async (step: {
-    files: File[];
     folderId: string;
+    originFile: UploadTask[];
     concurrency?: number; // 1회 업로드시 파일 개수 제한 옵션.
-    originFile?: ImageTask[];
   }): Promise<{ final: BatchResult; usedAccessToken: string }> => {
-    if (step.files.length === 0) {
+    if (step.originFile.length === 0) {
       return { final: { ok: [], fail: [] }, usedAccessToken: currentToken };
     }
 
     const firstAttempt = await uploadAllSettled({
-      files: step.files,
-      originFile: step.originFile ?? [],
+      originFile: step.originFile,
       folderId: step.folderId,
       accessToken: currentToken,
       concurrency: step.concurrency,
@@ -132,7 +144,6 @@ export async function saveInvitationFlow(params: {
 
   // 2) 이미지 업로드
   const imagesStep = await runUploadStep({
-    files: images.map(item => item.file),
     originFile: images,
     folderId: prep.imageFolderId,
     concurrency: 5, // 이미지는 5장씩만 끊어서 전송.
@@ -160,21 +171,33 @@ export async function saveInvitationFlow(params: {
     }
     return item;
   });
-  // 입력 data를 Drive에 저장할 "data.json 파일"로 만든다.
-  // - data가 object면: File로 포장해서 업로드
-  // - data가 File이면(이미 만들어둔 data.json이면): 그대로 사용
-  const dataFile: File =
-    data instanceof File
-      ? data
-      : new File([JSON.stringify(newData)], 'data.json', {
-          type: 'application/json',
-        });
 
   // 3) 오디오 업로드(있으면)
   const audioStep = await runUploadStep({
-    files: audio ? [audio] : [],
+    originFile: audio ? [{ id: 'bgm', file: audio }] : [],
     folderId: prep.audioFolderId,
   });
+
+  const uploadedAudioFileId = audioStep.final.ok[0]?.fileId ?? null;
+  const isUserBgmSelected = bgmData.selectedBgmId === 'user-bgm';
+
+  const finalBgm: BgmData = {
+    ...bgmData,
+    userBgmFileId: isUserBgmSelected
+      ? (uploadedAudioFileId ?? bgmData.userBgmFileId ?? null)
+      : null,
+  };
+
+  const payload: InvitationPayload = {
+    blocks: newData,
+    bgm: finalBgm,
+  };
+
+  // 편집 데이터가 기록될 json 파일 생성.
+  const dataFile = new File([JSON.stringify(payload)], 'data.json', {
+    type: 'application/json',
+  });
+
 
   // 4) data.json PATCH 전용 재시도
   const dataFirstAttempt: BatchResult = await (async () => {

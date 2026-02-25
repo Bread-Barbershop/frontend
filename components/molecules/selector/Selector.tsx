@@ -1,10 +1,10 @@
-import { ChevronDown, Check } from 'lucide-react';
-import { useState, useRef, useEffect, ChangeEvent } from 'react';
+﻿import { ChevronDown, Check } from 'lucide-react';
+import React, { useState, useRef, useEffect, ChangeEvent } from 'react';
 
 import { cn } from '@/shared/utils/cn';
 
 interface Option {
-  label: string;
+  label: string | React.ReactNode;
   value: string;
 }
 
@@ -55,7 +55,7 @@ export const Selector = <T extends Option>({
     }
   }, [isCustomInput]);
 
-  // 외부 클릭 시 닫기
+  // 바깥 영역 클릭 시 닫기
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -78,7 +78,7 @@ export const Selector = <T extends Option>({
           isOpen ? 'rounded-t-lg border-b-transparent' : 'rounded-lg'
         )}
       >
-        {isCustomInput ? (
+        {isCustomInput && typeof selected?.label === 'string' ? (
           <input
             ref={inputRef}
             type="text"
@@ -93,12 +93,12 @@ export const Selector = <T extends Option>({
           <button
             onClick={handleToggle}
             className={cn(
-              'flex items-center justify-between w-full py-1 pl-2 text-left'
+              'flex items-center justify-between w-full py-1 pl-2 text-left cursor-pointer'
             )}
             aria-haspopup="listbox"
             aria-expanded={isOpen}
           >
-            <span className="h-7 leading-7 text-center text-text-primary truncate flex-1 min-w-0">
+            <span className="h-7 leading-7 text-center text-text-primary truncate flex-1 flex-center min-w-0">
               {selected ? selected.label : placeholder}
             </span>
 
@@ -136,7 +136,7 @@ export const Selector = <T extends Option>({
               >
                 <Check size={12} />
               </div>
-              <span className="h-7 leading-7 text-center flex-1 truncate min-w-0">
+              <span className="h-7 leading-7 text-center flex-1 truncate min-w-0 flex-center">
                 {option.label}
               </span>
             </li>
@@ -147,7 +147,7 @@ export const Selector = <T extends Option>({
               onClick={handleCustomMenuItemClick}
               className="h-7 leading-7 px-2 py-0.5 text-center text-sm hover:bg-bg-sub cursor-pointer"
             >
-              직접입력
+              직접 입력
             </li>
           )}
         </ul>
