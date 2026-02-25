@@ -1,6 +1,6 @@
 import { useShallow } from 'zustand/shallow';
 
-import { useEditorStore } from '@/widgets/editor/store/useEditorStore';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import { GraphicPanel } from './graphic/GraphicPanel';
