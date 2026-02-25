@@ -10,8 +10,9 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { useShallow } from 'zustand/shallow';
 
-import { useEditorStore } from '../../store/useEditorStore';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import SortableItems from './SortableItems';
 
@@ -21,10 +22,14 @@ max-h넘어가면 아래 방향 추가
 */
 
 function OrderPanel() {
-  const block = useEditorStore(state => state.block);
-  const moveBlock = useEditorStore(state => state.moveBlock);
-  const selectedBlock = useEditorStore(state => state.selectedBlock);
-  const selectedId = useEditorStore(state => state.selectedId);
+  const { block, moveBlock, selectedBlock, selectedId } = useEditorStore(
+    useShallow(state => ({
+      block: state.block,
+      moveBlock: state.moveBlock,
+      selectedBlock: state.selectedBlock,
+      selectedId: state.selectedId,
+    }))
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor, {

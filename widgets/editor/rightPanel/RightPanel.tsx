@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
-import { useEditorStore } from '../store/useEditorStore';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import PosterPanel from './components/PosterPanel';
 import TypePanel from './components/TypePanel';

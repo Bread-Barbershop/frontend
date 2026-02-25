@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 
 import { Image } from '@/components/atoms/image';
-
-import { EditorBlock, useEditorStore } from '../../store/useEditorStore';
-import { blockRegistry } from '../../types/registry';
+import { blockRegistry } from '@/shared/data/registry/registry';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { EditorBlock } from '@/shared/types/block';
 
 interface Props {
   block: EditorBlock[];

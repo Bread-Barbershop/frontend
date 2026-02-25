@@ -1,4 +1,4 @@
-import { blockRegistry } from './registry';
+import { blockRegistry } from '../data/registry/registry';
 
 export type BlockType = keyof typeof blockRegistry;
 
@@ -18,15 +18,6 @@ type DefaultValue<T> = T extends () => infer R ? R : T;
 
 type FieldValue<F extends Field<any>> = Widen<DefaultValue<F['default']>>;
 
-// export type PropsFromFields<F extends Record<string, Field<any>>> = {
-//   [K in keyof F as F[K] extends { required: true } ? K : never]: Widen<
-//     F[K]['default']
-//   >;
-// } & {
-//   [K in keyof F as F[K] extends { required: true } ? never : K]?: Widen<
-//     F[K]['default']
-//   >;
-// };
 export type PropsFromFields<F extends Record<string, Field<any>>> = {
   [K in keyof F as F[K]['required'] extends true ? K : never]: FieldValue<F[K]>;
 } & {

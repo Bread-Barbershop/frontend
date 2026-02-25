@@ -1,9 +1,8 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import { componentCls } from '@/shared/samples/componentSample';
-
-import { EditorBlock } from '../../store/useEditorStore';
+import { componentCls } from '@/shared/data/componentsInfo/componentInfo';
+import { EditorBlock } from '@/shared/types/block';
 
 interface Props {
   id: string;

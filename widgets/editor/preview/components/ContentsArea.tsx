@@ -2,10 +2,10 @@ import { RefObject } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
-import { componentCls } from '@/shared/samples/componentSample';
-
-import { useEditorStore } from '../../store/useEditorStore';
-import { BlockType } from '../../types/editor';
+import { componentCls } from '@/shared/data/componentsInfo/componentInfo';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { InvitationType } from '@/shared/types/block';
+import { BlockType } from '@/shared/types/editor';
 
 const COLORS = {
   wedding: 'bg-[#E96B8A]',
@@ -31,7 +31,7 @@ function ContentsArea({ scrollContainerRef, sectionRefs }: Props) {
   );
 
   const handleAddComponent = (
-    type: 'wedding' | 'firstBirthday' | 'birthday' | 'conference' | 'etc',
+    type: InvitationType,
     component: BlockType | null
   ) => {
     if (!component) return;

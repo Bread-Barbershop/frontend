@@ -6,10 +6,8 @@ import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationB
 import { TextEditor } from '@/components/molecules/text-editor';
 import { TextField } from '@/components/molecules/text-field';
 import Popup from '@/components/organisms/popup/Popup';
-import {
-  EditorBlock,
-  useEditorStore,
-} from '@/widgets/editor/store/useEditorStore';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { EditorBlock } from '@/shared/types/block';
 
 import { GREETING_SAMPLE_MESSAGES } from './greetingSampleMessages';
 

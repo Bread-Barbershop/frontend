@@ -1,5 +1,5 @@
 import { UtilityButton } from '@/components/atoms/button';
-import { componentCls } from '@/shared/samples/componentSample';
+import { componentCls } from '@/shared/data/componentsInfo/componentInfo';
 interface Props {
   active: string;
   tabClick: (english: string) => void;

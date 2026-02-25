@@ -1,4 +1,4 @@
-import { galleryTemplate } from '@/shared/samples/componentTemplate';
+import { galleryTemplate } from '@/shared/data/template/componentTemplate';
 
 import Gallery from './Gallery';
 import GalleryPreview from './GalleryPreview';

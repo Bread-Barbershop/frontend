@@ -1,7 +1,8 @@
-import { BlockType } from '@/widgets/editor/types/editor';
+import { InvitationType } from '@/shared/types/block';
+import { BlockType } from '@/shared/types/editor';
 
 export type SampleDataType = {
-  english: 'wedding' | 'firstBirthday' | 'birthday' | 'conference' | 'etc';
+  english: InvitationType;
   korea: string;
   list: ListType[];
 };
@@ -92,21 +93,6 @@ export const etcComponents: ListType[] = [
   { contents: 'URL공유 썸네일', component: null, isType: false },
   { contents: '카카오초대장 썸네일', component: null, isType: false },
 ];
-// export const eventComponents: ListType[] = [
-//   { contents: '인사말' },
-//   { contents: '주차 정보' },
-//   { contents: '후원 정보' },
-//   { contents: '연사 정보' },
-//   { contents: '행사 일시' },
-//   { contents: '행사 장소' },
-//   { contents: '계좌 번호' },
-//   { contents: '공지 사항' },
-//   { contents: '연락처' },
-//   { contents: '동영상' },
-//   { contents: '사진' },
-//   { contents: 'URL 공유 썸네일' },
-//   { contents: '카카오 초대장 썸네일' },
-// ];
 
 export const componentCls: SampleDataType[] = [
   {
@@ -124,25 +110,6 @@ export const componentCls: SampleDataType[] = [
     korea: '생일',
     list: birthdayComponents,
   },
-  // {
-  //   english: 'event',
-  //   korea: '이벤트',
-  //   list: [
-  //     { contents: '인사말' },
-  //     { contents: '주차 정보' },
-  //     { contents: '후원 정보' },
-  //     { contents: '연사 정보' },
-  //     { contents: '행사 일시' },
-  //     { contents: '행사 장소' },
-  //     { contents: '계좌 번호' },
-  //     { contents: '공지 사항' },
-  //     { contents: '연락처' },
-  //     { contents: '동영상' },
-  //     { contents: '사진' },
-  //     { contents: 'URL 공유 썸네일' },
-  //     { contents: '카카오 초대장 썸네일' },
-  //   ],
-  // },
   {
     english: 'conference',
     korea: '컨퍼런스',
