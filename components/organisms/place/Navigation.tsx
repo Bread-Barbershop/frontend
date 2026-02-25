@@ -4,16 +4,15 @@ import {
   openTMap,
 } from '@/app/api/place/navigation';
 import { Button } from '@/components/atoms/button';
+import MapIcon from '@/shared/assets/icons/map.svg';
 
-function Navigation({
-  lat,
-  lng,
-  name,
-}: {
+interface Props {
   lat: number;
   lng: number;
   name: string;
-}) {
+}
+
+function Navigation({ lat, lng, name }: Props) {
   const handleNavigation = (type: 'naver' | 'kakao' | 'tmap') => {
     switch (type) {
       case 'naver':
@@ -29,10 +28,37 @@ function Navigation({
   };
 
   return (
-    <div className="flex flex-row gap-1">
-      <Button onClick={() => handleNavigation('kakao')}>카카오맵</Button>
-      <Button onClick={() => handleNavigation('tmap')}>티맵</Button>
-      <Button onClick={() => handleNavigation('naver')}>네이버맵</Button>
+    <div className="space-y-1">
+      <p className="font-bold text-center text-text-tertiary">길 안내</p>
+      <div className="flex flex-row items-center justify-center gap-2">
+        <Button
+          variant="bordered"
+          size="sm"
+          className="w-26.5"
+          onClick={() => handleNavigation('naver')}
+        >
+          <MapIcon />
+          <p className="text-sm text-text-tertiary">네이버지도</p>
+        </Button>
+        <Button
+          variant="bordered"
+          size="sm"
+          className="w-26.5"
+          onClick={() => handleNavigation('kakao')}
+        >
+          <MapIcon />
+          <p className="text-sm text-text-tertiary">카카오맵</p>
+        </Button>
+        <Button
+          variant="bordered"
+          size="sm"
+          className="w-26.5"
+          onClick={() => handleNavigation('tmap')}
+        >
+          <MapIcon />
+          <p className="text-sm text-text-tertiary">티맵</p>
+        </Button>
+      </div>
     </div>
   );
 }

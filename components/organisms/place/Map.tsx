@@ -6,7 +6,15 @@ type NaverMap = naver.maps.Map;
 type Lng = number;
 type Lat = number;
 
-function Map({ lng, lat }: { lng: Lng; lat: Lat }) {
+function Map({
+  lng,
+  lat,
+  category = '',
+}: {
+  lng: Lng;
+  lat: Lat;
+  category?: string;
+}) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<NaverMap | null>(null);
 
@@ -32,7 +40,11 @@ function Map({ lng, lat }: { lng: Lng; lat: Lat }) {
 
   return (
     <section className="w-full flex flex-col gap-1 items-center">
-      <Label className="font-semibold">지도</Label>
+      <Label
+        className={`font-semibold text-center pb-3.5 ${category === 'preview' ? 'hidden' : ''}`}
+      >
+        지도
+      </Label>
       <div ref={mapRef} className="rounded-lg w-full h-64.5"></div>
     </section>
   );

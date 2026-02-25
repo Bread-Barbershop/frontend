@@ -2,17 +2,24 @@
 import Script from 'next/script';
 import { useState } from 'react';
 import DaumPostcode from 'react-daum-postcode';
+import { useShallow } from 'zustand/shallow';
 
 import { Input } from '@/components/atoms/input';
 import { Label } from '@/components/atoms/label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { Selector } from '@/components/molecules/selector';
 import { TextField } from '@/components/molecules/text-field';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { EditorBlock } from '@/shared/types/block';
 
 import Map from './Map';
-import Navigation from './Navigation';
 
-function Place() {
+interface Props {
+  blockInfo: EditorBlock<'place'>;
+  id: string;
+}
+
+export function Place({ blockInfo, id }: Props) {
   const [country, setCountry] = useState<{ label: string; value: string }>();
   const [openMap, setOpenMap] = useState(false);
   const [openNavi, setOpenNavi] = useState(false);
@@ -21,7 +28,11 @@ function Place() {
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const [lng, setLng] = useState<number>();
   const [lat, setLat] = useState<number>();
-  const [name, setName] = useState('');
+  const { updateBlock } = useEditorStore(
+    useShallow(state => ({
+      updateBlock: state.updateBlock,
+    }))
+  );
 
   const searchAddress = (query: string) => {
     naver.maps.Service.geocode({ query }, function (status, response) {
@@ -31,11 +42,28 @@ function Place() {
       if (status === naver.maps.Service.Status.OK) {
         const { x, y } = response.v2.addresses[0];
         if (x === undefined || y === undefined) return;
-        setName(response.v2.addresses[0].roadAddress);
         setLng(Number(x));
         setLat(Number(y));
+        handleUpdateStringBlock(
+          'placeAddress',
+          response.v2.addresses[0].roadAddress
+        );
+        handleUpdateNumberBlock('lng', Number(x));
+        handleUpdateNumberBlock('lat', Number(y));
       }
     });
+  };
+
+  const handleUpdateStringBlock = (key: string, value: string) => {
+    updateBlock(id, { [key]: value });
+  };
+
+  const handleUpdateNumberBlock = (key: string, value: number) => {
+    updateBlock(id, { [key]: value });
+  };
+
+  const handleUpdateBooleanBlock = (key: string, value: boolean) => {
+    updateBlock(id, { [key]: value });
   };
 
   return (
@@ -47,10 +75,17 @@ function Place() {
           setIsScriptLoaded(true);
         }}
       />
-      <div className="flex flex-col justify-center items-center gap-2 w-93.75 h-fit">
+      <div className="flex flex-col justify-center items-center gap-4 px-5 py-3.5 w-93.75 h-fit">
+        <div className="w-full flex justify-center pb-3.5">
+          <h2 className="text-text-primary font-semibold text-sm">오시는 길</h2>
+        </div>
         <TextField
           label="제목"
-          inputProps={{ placeholder: '오시는 길' }}
+          inputProps={{
+            placeholder: '오시는 길',
+            onChange: e => handleUpdateStringBlock('title', e.target.value),
+            value: blockInfo.props.title,
+          }}
           className="w-full text-center"
         />
         <section className="flex flex-row gap-2 w-full">
@@ -102,17 +137,30 @@ function Place() {
         </section>
         <TextField
           label="예식장명"
-          inputProps={{ placeholder: '예식장 이름 입력' }}
+          inputProps={{
+            placeholder: '예식장 이름 입력',
+            onChange: e => handleUpdateStringBlock('placeName', e.target.value),
+            value: blockInfo.props.placeName,
+          }}
           className="w-full text-center"
         />
         <TextField
           label="층과 홀"
-          inputProps={{ placeholder: '층과 웨딩홀 이름 입력' }}
+          inputProps={{
+            placeholder: '층과 웨딩홀 이름 입력',
+            onChange: e =>
+              handleUpdateStringBlock('placeDetail', e.target.value),
+            value: blockInfo.props.placeDetail,
+          }}
           className="w-full text-center"
         />
         <TextField
           label="연락처"
-          inputProps={{ placeholder: '예식장 연락처, ex.02-000-000' }}
+          inputProps={{
+            placeholder: '예식장 연락처, ex.02-000-000',
+            onChange: e => handleUpdateStringBlock('placeTel', e.target.value),
+            value: blockInfo.props.placeTel,
+          }}
           className="w-full text-center"
         />
         <section className="flex flex-row gap-1 items-center w-full">
@@ -121,7 +169,10 @@ function Place() {
             <div>
               <Checkbox
                 direction="right"
-                onChange={() => setOpenMap(prev => !prev)}
+                onChange={() => {
+                  setOpenMap(prev => !prev);
+                  handleUpdateBooleanBlock('openMap', !openMap);
+                }}
                 checked={openMap}
               >
                 지도
@@ -129,7 +180,10 @@ function Place() {
             </div>
             <Checkbox
               direction="right"
-              onChange={() => setOpenNavi(prev => !prev)}
+              onChange={() => {
+                setOpenNavi(prev => !prev);
+                handleUpdateBooleanBlock('openNavi', !openNavi);
+              }}
               checked={openNavi}
             >
               내비 앱 바로가기 버튼(카카오, 티맵, 네이버)
@@ -137,9 +191,7 @@ function Place() {
           </div>
         </section>
         {openMap && isScriptLoaded && lng && lat && <Map lng={lng} lat={lat} />}
-        {openNavi && <Navigation lat={lat ?? 0} lng={lng ?? 0} name={name} />}
       </div>
     </>
   );
 }
-export default Place;
