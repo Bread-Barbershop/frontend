@@ -8,22 +8,10 @@ import {
   wrap,
 } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 import { useRef } from 'react';
 
-const showcaseList = [
-  { item: '1' },
-  { item: '2' },
-  { item: '3' },
-  { item: '4' },
-  { item: '5' },
-  { item: '6' },
-  { item: '7' },
-  { item: '8' },
-  { item: '9' },
-  { item: '10' },
-  { item: '11' },
-  { item: '12' },
-];
+import { showcaseItems } from '@/app/(home)/components/showcaseItems';
 
 function Showcase() {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -77,25 +65,33 @@ function Showcase() {
 
   return (
     <section className="h-134.75 w-full relative flex flex-col justify-between items-center">
-      <div className="w-full h-118.75 overflow-hidden">
-        <motion.div
-          ref={trackRef}
-          className="flex gap-10 w-max h-118.75"
-          style={{ x }}
-          onMouseEnter={() => (isPaused.current = true)}
-          onMouseLeave={() => (isPaused.current = false)}
-        >
-          {[...showcaseList, ...showcaseList, ...showcaseList].map(
-            (item, index) => (
-              <div
-                key={index}
-                className="w-65 min-w-65 h-full border shadow-[0px_8px_24px_rgba(0,0,0,0.08),0px_2px_10px_rgba(0,0,0,0.12)] bg-blue-700"
-              >
-                {item.item}
-              </div>
-            )
-          )}
-        </motion.div>
+      <div className="relative w-full h-118.75 overflow-visible">
+        <div className="absolute inset-x-0 -top-6 -bottom-6 overflow-x-hidden">
+          <motion.div
+            ref={trackRef}
+            className="mt-4 flex gap-10 w-max h-118.75"
+            style={{ x }}
+            onMouseEnter={() => (isPaused.current = true)}
+            onMouseLeave={() => (isPaused.current = false)}
+          >
+            {[...showcaseItems, ...showcaseItems, ...showcaseItems].map(
+              (item, index) => (
+                <div
+                  key={`${item.id}-${index}`}
+                  className="relative w-65 min-w-65 h-full overflow-hidden shadow-[0px_8px_24px_rgba(0,0,0,0.08),0px_2px_10px_rgba(0,0,0,0.12)]"
+                >
+                  <Image
+                    src={item.image}
+                    alt={item.alt}
+                    fill
+                    sizes="260px"
+                    className="object-cover"
+                  />
+                </div>
+              )
+            )}
+          </motion.div>
+        </div>
       </div>
 
       <div className="flex gap-6">
