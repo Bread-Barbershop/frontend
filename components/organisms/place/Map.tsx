@@ -33,7 +33,7 @@ function Map({ lng, lat }: { lng: Lng; lat: Lat }) {
   return (
     <section className="w-full flex flex-col gap-1 items-center">
       <Label className="font-semibold">지도</Label>
-      <div ref={mapRef} style={{ width: '100%', height: '400px' }}></div>
+      <div ref={mapRef} className="rounded-lg w-full h-64.5"></div>
     </section>
   );
 }
