@@ -45,7 +45,10 @@ export function Place({ blockInfo, id }: Props) {
   } = blockInfo.props;
 
   const searchAddress = (query: string) => {
-    if (!window.naver) return;
+    if (!isScriptLoaded || !window.naver) {
+      alert('지도를 불러오는 중입니다. 잠시후 다시 시도해주세요.');
+      return;
+    }
     naver.maps.Service.geocode({ query }, function (status, response) {
       if (status === naver.maps.Service.Status.ERROR) {
         return alert('주소를 찾을 수 없습니다.');
@@ -60,6 +63,7 @@ export function Place({ blockInfo, id }: Props) {
           lng: Number(x),
           lat: Number(y),
         });
+        setOpenAddress(false);
       }
     });
   };
@@ -111,7 +115,6 @@ export function Place({ blockInfo, id }: Props) {
               <DaumPostcode
                 onComplete={data => {
                   searchAddress(data.address);
-                  setOpenAddress(false);
                 }}
                 autoClose={false}
               />
