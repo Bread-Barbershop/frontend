@@ -8,11 +8,23 @@ function openApp(
     return;
   }
 
-  const startTime = Date.now();
+  let timer: ReturnType<typeof setTimeout>;
+
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === 'hidden') {
+      clearTimeout(timer);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }
+  };
+
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+
   window.location.href = url;
 
-  setTimeout(() => {
-    if (Date.now() - startTime < 2500) {
+  timer = setTimeout(() => {
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+
+    if (document.visibilityState === 'visible') {
       if (type === 'tmap') {
         if (
           confirm(
@@ -25,7 +37,7 @@ function openApp(
         window.location.href = webUrl;
       }
     }
-  }, 2000);
+  }, 1500);
 }
 
 function isValidProtocol(url: string) {
