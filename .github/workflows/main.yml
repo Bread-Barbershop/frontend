@@ -1,30 +1,21 @@
-# 워크플로우 이름 (GitHub Actions 탭에 표시됨)
 name: main PR -> Discord Notify
 
-# 언제 실행할지(트리거) 정의
 on:
   pull_request:
-    # PR "생성(opened)" 이벤트에서만 실행
     types: [opened, reopened]
-    # PR의 base(대상) 브랜치가 아래일 때만 실행
     branches:
       - main
 
-# 최소 권한 원칙(필요한 읽기 권한만 부여)
 permissions:
   pull-requests: read
   contents: read
 
 jobs:
   notify-discord:
-    # Draft PR은 알림 제외(원하면 이 줄 삭제)
     if: ${{ !github.event.pull_request.draft }}
-
-    # 실행 환경
     runs-on: ubuntu-latest
 
     steps:
-      # Discord로 보낼 JSON(payload) 생성
       - name: Build Discord payload
         id: payload
         uses: actions/github-script@v7
@@ -32,42 +23,67 @@ jobs:
           script: |
             const pr = context.payload.pull_request;
 
-            const repo = `${context.repo.owner}/${context.repo.repo}`;
             const from = pr.head.ref;
             const to = pr.base.ref;
             const author = pr.user.login;
 
+            // Discord embed limits:
+            // - field value: 1024 chars (safe to truncate to 1000~1024)
+            const truncate = (text = '', max = 1024) => {
+              const t = String(text ?? '').trim();
+              if (!t) return '—';
+              return t.length > max ? `${t.slice(0, max - 1)}…` : t;
+            };
+
+            const prLink = pr.html_url;
+            const prBody = truncate(pr.body, 1024);
+
             const payload = {
-              username: "🧚‍♀️main 알림봇",
-              content: "main에 새로운 PR이 도착했어요!",
+              username: "🧚main 알림봇",
+              content: `\`${from}\`에 **${author}**가 PR을 등록했어요!`,
               embeds: [
                 {
                   title: `🧡 PR #${pr.number} · ${pr.title}`,
-                  url: pr.html_url,
+                  url: prLink,
                   color: 16761035,
-                  description:
-                    `🌿 **From**: \`${from}\` ➡️ **To**: \`${to}\`\n` +
-                    `🐣 **Author**: **${author}**\n`,
+                  fields: [
+                    {
+                      name: "브랜치",
+                      value: `From \`${from}\` → To \`${to}\``,
+                      inline: false
+                    },
+                    {
+                      name: "Author",
+                      value: `**${author}**`,
+                      inline: true
+                    },
+                    {
+                      name: "PR 링크",
+                      value: `[바로가기](${prLink})`,
+                      inline: true
+                    },
+                    {
+                      name: "PR 내용",
+                      value: prBody,
+                      inline: false
+                    }
+                  ]
                 }
               ]
             };
 
             core.setOutput("json", JSON.stringify(payload));
 
-      # Discord Webhook으로 실제 전송
       - name: Send to Discord
         env:
           DISCORD_WEBHOOK_MAIN: ${{ secrets.DISCORD_WEBHOOK_MAIN }}
-          # 위 step에서 만든 JSON 문자열
           PAYLOAD: ${{ steps.payload.outputs.json }}
         run: |
-          # 시크릿이 없으면 실패 처리
           if [ -z "$DISCORD_WEBHOOK_MAIN" ]; then
             echo "Missing DISCORD_WEBHOOK_MAIN secret"
             exit 1
           fi
 
-          # Discord Webhook으로 POST 요청
           curl -sSf -X POST \
             -H "Content-Type: application/json" \
             -d "$PAYLOAD" \
