@@ -180,7 +180,10 @@ export function Place({ blockInfo, id }: Props) {
             </Checkbox>
           </div>
         </section>
-        {openMap && isScriptLoaded && lng && lat && <Map lng={lng} lat={lat} />}
+        {openMap &&
+          isScriptLoaded &&
+          Number.isFinite(lng) &&
+          Number.isFinite(lat) && <Map lng={lng} lat={lat} />}
       </div>
     </>
   );
