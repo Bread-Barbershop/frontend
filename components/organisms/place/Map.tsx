@@ -32,11 +32,18 @@ function Map({
     });
   }, [lng, lat]);
 
+  const validatePosition = (lng: Lng, lat: Lat) => {
+    if (lng > 180 || lng < -180 || lat > 90 || lat < -90) {
+      return false;
+    }
+    return true;
+  };
+
   useEffect(() => {
-    if (naver && naver.maps) {
+    if (naver && naver.maps && validatePosition(lng, lat)) {
       initMap();
     }
-  }, [initMap]);
+  }, [initMap, lng, lat]);
 
   return (
     <section className="w-full flex flex-col gap-1 items-center">
