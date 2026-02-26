@@ -8,10 +8,14 @@ import Navigation from './Navigation';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'place'>;
-  titleClassName: string;
+  titleClassName?: string;
 }
 
-export const PlacePreview = ({ blockInfo, ...rest }: Props) => {
+export const PlacePreview = ({
+  blockInfo,
+  titleClassName = 'py-6',
+  ...rest
+}: Props) => {
   const { placeName, placeDetail, placeAddress, placeTel } = blockInfo.props;
 
   return (
@@ -19,7 +23,7 @@ export const PlacePreview = ({ blockInfo, ...rest }: Props) => {
       <PreviewTitle
         enTitle="LOCATION"
         koTitle={blockInfo.props.title}
-        className="py-6"
+        className={titleClassName}
       />
       <div className="px-5 flex flex-col items-center justify-center text-center gap-3.5 pb-6">
         <section className="flex flex-col justify-center items-center text-text-primary">
