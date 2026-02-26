@@ -20,7 +20,6 @@ export async function tokenRefresh(refreshToken: string) {
   const data = await res.json();
 
   if (!res.ok) {
-    // 토큰 재발급 실패 했을때 처리 필요함. (like 재로그인 요청)
     throw new Error(data?.error ?? 'refresh_failed');
   }
 

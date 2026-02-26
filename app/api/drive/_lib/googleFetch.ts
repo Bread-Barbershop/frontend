@@ -1,7 +1,7 @@
 import 'server-only';
 import { cookies } from 'next/headers';
 
-import { tokenRefresh } from './tokenRefresh';
+import { tokenRefresh } from '@/app/api/auth/_lib/tokenRefresh';
 
 export async function googleFetch(url: string, init: RequestInit = {}) {
   const cookieStore = await cookies();
