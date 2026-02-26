@@ -32,22 +32,51 @@ jobs:
           script: |
             const pr = context.payload.pull_request;
 
-            const repo = `${context.repo.owner}/${context.repo.repo}`;
             const from = pr.head.ref;
             const to = pr.base.ref;
             const author = pr.user.login;
 
+            // Discord embed limits:
+            // - field value: 1024 chars (safe to truncate to 1000~1024)
+            const truncate = (text = '', max = 1024) => {
+              const t = String(text ?? '').trim();
+              if (!t) return '—';
+              return t.length > max ? `${t.slice(0, max - 1)}…` : t;
+            };
+
+            const prLink = pr.html_url;
+            const prBody = truncate(pr.body, 1024);
+
             const payload = {
               username: "📮mainPoster 알림봇",
-              content: "mainPoster에 새로운 PR이 도착했어요!",
+              content: `\`${to}\`에 ${author}님이 PR을 등록했어요!`,
               embeds: [
                 {
                   title: `🧡 PR #${pr.number} · ${pr.title}`,
-                  url: pr.html_url,
+                  url: prLink,
                   color: 16761035,
-                  description:
-                    `🌿 **From**: \`${from}\` ➡️ **To**: \`${to}\`\n` +
-                    `🐣 **Author**: **${author}**\n`,
+                  fields: [
+                    {
+                      name: "브랜치",
+                      value: `From \`${from}\` → To \`${to}\``,
+                      inline: false
+                    },
+                    {
+                      name: "Author",
+                      value: `**${author}**`,
+                      inline: true
+                    },
+                    {
+                      name: "PR 링크",
+                      value: `[바로가기](${prLink})`,
+                      inline: true
+                    },
+                    {
+                      name: "PR 내용",
+                      value: prBody,
+                      inline: false
+                    }
+                  ]
                 }
               ]
             };
