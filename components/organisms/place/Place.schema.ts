@@ -5,6 +5,10 @@ export const placeSchema = {
       default: '오시는 길',
       required: true,
     },
+    country: {
+      default: '국내',
+      required: true,
+    },
     placeName: {
       default: '',
       required: true,

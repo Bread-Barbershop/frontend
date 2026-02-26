@@ -8,6 +8,7 @@ import Navigation from './Navigation';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'place'>;
+  titleClassName: string;
 }
 
 export const PlacePreview = ({ blockInfo, ...rest }: Props) => {

@@ -14,16 +14,21 @@ interface Props {
 
 function Navigation({ lat, lng, name }: Props) {
   const handleNavigation = (type: 'naver' | 'kakao' | 'tmap') => {
-    switch (type) {
-      case 'naver':
-        openNaverMap(lat, lng, name);
-        break;
-      case 'kakao':
-        openKakaoMap(lat, lng, name);
-        break;
-      case 'tmap':
-        openTMap(lat, lng, name);
-        break;
+    if (
+      // 추후 수정되거나 삭제될 부분
+      confirm('편집 내역이 저장되지 않았습니다. 길안내를 시작하시겠습니까?')
+    ) {
+      switch (type) {
+        case 'naver':
+          openNaverMap(lat, lng, name);
+          break;
+        case 'kakao':
+          openKakaoMap(lat, lng, name);
+          break;
+        case 'tmap':
+          openTMap(lat, lng, name);
+          break;
+      }
     }
   };
 
@@ -34,7 +39,7 @@ function Navigation({ lat, lng, name }: Props) {
         <Button
           variant="bordered"
           size="sm"
-          className="w-26.5"
+          className="w-26.5 shadow-btn-drop-black"
           onClick={() => handleNavigation('naver')}
         >
           <MapIcon />
@@ -43,7 +48,7 @@ function Navigation({ lat, lng, name }: Props) {
         <Button
           variant="bordered"
           size="sm"
-          className="w-26.5"
+          className="w-26.5 shadow-btn-drop-black"
           onClick={() => handleNavigation('kakao')}
         >
           <MapIcon />
@@ -52,7 +57,7 @@ function Navigation({ lat, lng, name }: Props) {
         <Button
           variant="bordered"
           size="sm"
-          className="w-26.5"
+          className="w-26.5 shadow-btn-drop-black"
           onClick={() => handleNavigation('tmap')}
         >
           <MapIcon />
@@ -62,4 +67,5 @@ function Navigation({ lat, lng, name }: Props) {
     </div>
   );
 }
+
 export default Navigation;

@@ -12,6 +12,8 @@ import { TextField } from '@/components/molecules/text-field';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 
+import { Popup } from '../popup/Popup';
+
 import Map from './Map';
 
 interface Props {
@@ -20,49 +22,49 @@ interface Props {
 }
 
 export function Place({ blockInfo, id }: Props) {
-  const [country, setCountry] = useState<{ label: string; value: string }>();
-  const [openMap, setOpenMap] = useState(false);
-  const [openNavi, setOpenNavi] = useState(false);
-  const [address, setAddress] = useState('');
   const [openAddress, setOpenAddress] = useState(false);
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
-  const [lng, setLng] = useState<number>();
-  const [lat, setLat] = useState<number>();
+
   const { updateBlock } = useEditorStore(
     useShallow(state => ({
       updateBlock: state.updateBlock,
     }))
   );
 
+  const {
+    title,
+    placeName,
+    placeDetail,
+    placeAddress,
+    placeTel,
+    openMap,
+    openNavi,
+    lng,
+    lat,
+    country,
+  } = blockInfo.props;
+
   const searchAddress = (query: string) => {
+    if (!window.naver) return;
     naver.maps.Service.geocode({ query }, function (status, response) {
       if (status === naver.maps.Service.Status.ERROR) {
         return alert('주소를 찾을 수 없습니다.');
       }
       if (status === naver.maps.Service.Status.OK) {
-        const { x, y } = response.v2.addresses[0];
+        const addr = response.v2.addresses[0];
+        const { x, y } = addr;
         if (x === undefined || y === undefined) return;
-        setLng(Number(x));
-        setLat(Number(y));
-        handleUpdateStringBlock(
-          'placeAddress',
-          response.v2.addresses[0].roadAddress
-        );
-        handleUpdateNumberBlock('lng', Number(x));
-        handleUpdateNumberBlock('lat', Number(y));
+
+        updateBlock(id, {
+          placeAddress: addr.roadAddress || addr.jibunAddress,
+          lng: Number(x),
+          lat: Number(y),
+        });
       }
     });
   };
 
-  const handleUpdateStringBlock = (key: string, value: string) => {
-    updateBlock(id, { [key]: value });
-  };
-
-  const handleUpdateNumberBlock = (key: string, value: number) => {
-    updateBlock(id, { [key]: value });
-  };
-
-  const handleUpdateBooleanBlock = (key: string, value: boolean) => {
+  const handleUpdateBlock = (key: string, value: string | number | boolean) => {
     updateBlock(id, { [key]: value });
   };
 
@@ -83,8 +85,8 @@ export function Place({ blockInfo, id }: Props) {
           label="제목"
           inputProps={{
             placeholder: '오시는 길',
-            onChange: e => handleUpdateStringBlock('title', e.target.value),
-            value: blockInfo.props.title,
+            onChange: e => handleUpdateBlock('title', e.target.value),
+            value: title,
           }}
           className="w-full text-center"
         />
@@ -101,27 +103,19 @@ export function Place({ blockInfo, id }: Props) {
               { value: '국내', label: '국내' },
               { value: '국외', label: '국외' },
             ]}
-            onSelect={value => setCountry(value)}
-            selected={country ?? null}
+            onSelect={val => handleUpdateBlock('country', val.value)}
+            selected={country ? { label: country, value: country } : null}
           />
           {openAddress && (
-            <div className="absolute flex items-center justify-center z-50">
-              <div className="bg-white rounded-lg p-8 w-96 shadow-lg relative">
-                <button
-                  className="absolute top-3 right-3 text-gray-500"
-                  onClick={() => setOpenAddress(false)}
-                >
-                  ✕
-                </button>
-                <DaumPostcode
-                  onComplete={data => {
-                    setAddress(data.address);
-                    searchAddress(data.address);
-                  }}
-                  autoClose={false}
-                />
-              </div>
-            </div>
+            <Popup onClose={() => setOpenAddress(false)} popupTitle="주소 검색">
+              <DaumPostcode
+                onComplete={data => {
+                  searchAddress(data.address);
+                  setOpenAddress(false);
+                }}
+                autoClose={false}
+              />
+            </Popup>
           )}
           <Input
             placeholder="주소 검색"
@@ -130,7 +124,7 @@ export function Place({ blockInfo, id }: Props) {
               e.preventDefault();
               setOpenAddress(prev => !prev);
             }}
-            value={address}
+            value={placeAddress}
             readOnly
             className="cursor-pointer"
           />
@@ -139,8 +133,8 @@ export function Place({ blockInfo, id }: Props) {
           label="예식장명"
           inputProps={{
             placeholder: '예식장 이름 입력',
-            onChange: e => handleUpdateStringBlock('placeName', e.target.value),
-            value: blockInfo.props.placeName,
+            onChange: e => handleUpdateBlock('placeName', e.target.value),
+            value: placeName,
           }}
           className="w-full text-center"
         />
@@ -148,9 +142,8 @@ export function Place({ blockInfo, id }: Props) {
           label="층과 홀"
           inputProps={{
             placeholder: '층과 웨딩홀 이름 입력',
-            onChange: e =>
-              handleUpdateStringBlock('placeDetail', e.target.value),
-            value: blockInfo.props.placeDetail,
+            onChange: e => handleUpdateBlock('placeDetail', e.target.value),
+            value: placeDetail,
           }}
           className="w-full text-center"
         />
@@ -158,8 +151,8 @@ export function Place({ blockInfo, id }: Props) {
           label="연락처"
           inputProps={{
             placeholder: '예식장 연락처, ex.02-000-000',
-            onChange: e => handleUpdateStringBlock('placeTel', e.target.value),
-            value: blockInfo.props.placeTel,
+            onChange: e => handleUpdateBlock('placeTel', e.target.value),
+            value: placeTel,
           }}
           className="w-full text-center"
         />
@@ -169,10 +162,7 @@ export function Place({ blockInfo, id }: Props) {
             <div>
               <Checkbox
                 direction="right"
-                onChange={() => {
-                  setOpenMap(prev => !prev);
-                  handleUpdateBooleanBlock('openMap', !openMap);
-                }}
+                onChange={() => handleUpdateBlock('openMap', !openMap)}
                 checked={openMap}
               >
                 지도
@@ -180,13 +170,10 @@ export function Place({ blockInfo, id }: Props) {
             </div>
             <Checkbox
               direction="right"
-              onChange={() => {
-                setOpenNavi(prev => !prev);
-                handleUpdateBooleanBlock('openNavi', !openNavi);
-              }}
+              onChange={() => handleUpdateBlock('openNavi', !openNavi)}
               checked={openNavi}
             >
-              내비 앱 바로가기 버튼(카카오, 티맵, 네이버)
+              내비 앱 바로가기 버튼(네이버, 카카오, 티맵)
             </Checkbox>
           </div>
         </section>
