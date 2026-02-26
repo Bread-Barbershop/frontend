@@ -19,7 +19,7 @@ function Map({
   const mapInstance = useRef<NaverMap | null>(null);
 
   const initMap = useCallback(() => {
-    if (!mapRef.current || !naver) return;
+    if (!mapRef.current || !window.naver || !window.naver.maps) return;
     const center = new naver.maps.LatLng(lat, lng);
     mapInstance.current = new naver.maps.Map(mapRef.current, {
       center,
@@ -40,7 +40,7 @@ function Map({
   };
 
   useEffect(() => {
-    if (naver && naver.maps && validatePosition(lng, lat)) {
+    if (window.naver && window.naver.maps && validatePosition(lng, lat)) {
       initMap();
     }
   }, [initMap, lng, lat]);
