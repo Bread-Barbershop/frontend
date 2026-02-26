@@ -53,6 +53,8 @@ export const Popup = ({
         'fixed inset-0 z-50 bg-black/50 flex items-center justify-center',
         wrapperClassName
       )}
+      role="button"
+      tabIndex={0}
       onClick={handleOutsideClick}
     >
       <section className="w-full flex flex-col max-w-93.75 rounded-lg bg-white px-4 pt-5 pb-4 shadow-edit relative">
