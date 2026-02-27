@@ -11,5 +11,9 @@ export const greetingSchema = {
       default: null as JSONContent | null,
       required: false,
     },
+    messageHtml: {
+      default: null as string | null,
+      required: false,
+    },
   },
 } as const;

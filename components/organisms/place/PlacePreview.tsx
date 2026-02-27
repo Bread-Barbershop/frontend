@@ -13,7 +13,7 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 
 export const PlacePreview = ({
   blockInfo,
-  titleClassName = 'py-6',
+  titleClassName = '',
   ...rest
 }: Props) => {
   const { placeName, placeDetail, placeAddress, placeTel } = blockInfo.props;
@@ -23,7 +23,8 @@ export const PlacePreview = ({
       <PreviewTitle
         enTitle="LOCATION"
         koTitle={blockInfo.props.title}
-        className={titleClassName}
+        className="py-6"
+        titleClassName={titleClassName}
       />
       <div className="px-5 flex flex-col items-center justify-center text-center gap-3.5 pb-6">
         <section className="flex flex-col justify-center items-center text-text-primary">

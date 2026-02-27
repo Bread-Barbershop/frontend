@@ -15,18 +15,30 @@ const scaleOrResizeTextbox: Control['actionHandler'] = (
   y
 ) => {
   const target = transform.target;
+  const corner = transform.corner;
 
   const isTextbox =
     typeof target?.isType === 'function'
       ? target.isType('textbox')
       : target?.type === 'textbox';
 
-  // Textbox면: scale 말고 width 변경 (폰트 크기 유지)
-  if (isTextbox) {
+  if (isTextbox && ['tl', 'tr', 'bl', 'br', 'ml', 'mr'].includes(corner)) {
     return controlsUtils.changeWidth(eventData, transform, x, y);
   }
 
-  // 그 외(이미지 등)는 기존처럼 스케일
+  if (isTextbox && ['mt', 'mb'].includes(corner)) {
+    if (typeof controlsUtils.changeHeight === 'function') {
+      return controlsUtils.changeHeight(eventData, transform, x, y);
+    }
+    return controlsUtils.scalingY(eventData, transform, x, y);
+  }
+
+  if (['mr', 'ml'].includes(corner)) {
+    return controlsUtils.scalingX(eventData, transform, x, y);
+  }
+  if (['mt', 'mb'].includes(corner)) {
+    return controlsUtils.scalingY(eventData, transform, x, y);
+  }
   return controlsUtils.scalingEqually(eventData, transform, x, y);
 };
 
@@ -111,10 +123,7 @@ export const useSetFabricControls = () => {
       newControls[id] = new Control({
         x,
         y,
-        actionHandler:
-          action === 'scalingX'
-            ? controlsUtils.scalingX
-            : controlsUtils.scalingY,
+        actionHandler: scaleOrResizeTextbox,
         cursorStyleHandler: controlsUtils.scaleCursorStyleHandler,
         actionName: action,
         render: controlsUtils.renderSquareControl,
