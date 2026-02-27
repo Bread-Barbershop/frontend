@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from 'react';
+﻿import { ChangeEvent, useState } from 'react';
 
 import { UtilityButton } from '@/components/atoms/button';
 import { MultiField } from '@/components/molecules/multi-field';
@@ -36,6 +36,15 @@ function sanitizeContacts(contacts: PhoneContact[]) {
   return contacts.filter(contact => !isEmptyContact(contact));
 }
 
+// 연락처 번호는 숫자만 저장되도록 정규화한다.
+function normalizeContactValue(key: 'label' | 'number', value: string): string {
+  if (key === 'number') {
+    return value.replace(/\D/g, '');
+  }
+
+  return value;
+}
+
 function Phone({ blockInfo, id }: Props) {
   const updateBlock = useEditorStore(state => state.updateBlock);
   const storedContacts = blockInfo.props.contacts ?? [];
@@ -62,9 +71,10 @@ function Phone({ blockInfo, id }: Props) {
   const handleContactChange =
     (index: number, key: 'label' | 'number') =>
     (e: ChangeEvent<HTMLInputElement>) => {
+      const normalizedValue = normalizeContactValue(key, e.target.value);
       const nextRows = rows.map((contact, contactIndex) =>
         contactIndex === index
-          ? { ...contact, [key]: e.target.value }
+          ? { ...contact, [key]: normalizedValue }
           : contact
       );
 
@@ -90,15 +100,18 @@ function Phone({ blockInfo, id }: Props) {
           label="명칭 & 번호"
           subInputProps={{
             size: 'fixed',
-            className: 'w-[65px]',
+            className: 'w-[85px]',
             placeholder: '명칭',
             value: contact.label,
+            maxLength: 15,
             onChange: handleContactChange(index, 'label'),
           }}
           mainInputProps={{
             size: 'full',
             type: 'tel',
-            placeholder: '010.0000.0000',
+            inputMode: 'numeric',
+            pattern: '[0-9]*',
+            placeholder: '010-1234-5678',
             value: contact.number,
             onChange: handleContactChange(index, 'number'),
           }}
