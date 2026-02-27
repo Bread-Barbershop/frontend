@@ -60,15 +60,22 @@ export const useFabricText = ({ saveHistory }: Props) => {
 
   const handleNumberInValidity = (styleObj: RichStyle) => {
     for (const [key, value] of Object.entries(styleObj)) {
-      const numValue = typeof value === 'string' ? parseFloat(value) : value;
-      if (typeof numValue !== 'number' || Number.isNaN(numValue)) return true;
+      if (
+        key === 'fontSize' ||
+        key === 'strokeWidth' ||
+        key === 'charSpacing' ||
+        key === 'lineHeight'
+      ) {
+        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+        if (typeof numValue !== 'number' || Number.isNaN(numValue)) return true;
 
-      if (key === 'fontSize') {
-        if (numValue < 1) return true;
-      } else if (key === 'strokeWidth') {
-        if (numValue < 0) return true;
-      } else if (key === 'charSpacing' || key === 'lineHeight') {
-        if (numValue < -200 || numValue > 200) return true;
+        if (key === 'fontSize' && numValue < 1) return true;
+        if (key === 'strokeWidth' && numValue < 0) return true;
+        if (
+          (key === 'charSpacing' || key === 'lineHeight') &&
+          (numValue < -200 || numValue > 200)
+        )
+          return true;
       }
     }
     return false;
@@ -80,23 +87,24 @@ export const useFabricText = ({ saveHistory }: Props) => {
 
     if (handleNumberInValidity(styleObj)) return;
 
+    const isLayout = isLayoutStyle(styleObj);
     const isSelectionPresent =
-      activeObject.selectionStart !== activeObject.selectionEnd ||
-      !isLayoutStyle(styleObj);
+      activeObject.selectionStart !== undefined &&
+      activeObject.selectionEnd !== undefined &&
+      activeObject.selectionStart !== activeObject.selectionEnd;
 
     const finalStyle: RichStyle = {};
     (Object.keys(styleObj) as Array<keyof RichStyle>).forEach(key => {
       const nextValue = styleObj[key];
 
       const currentStyle = isSelectionPresent
-        ? activeObject.getSelectionStyles()[0]?.[key]
+        ? activeObject.getSelectionStyles(
+            activeObject.selectionStart,
+            activeObject.selectionStart + 1
+          )[0]?.[key]
         : activeObject.get(key as keyof Textbox);
 
-      if (
-        key === 'fontSize' ||
-        key === 'fontFamily' ||
-        isLayoutStyle(styleObj)
-      ) {
+      if (key === 'fontSize' || key === 'fontFamily' || isLayout) {
         finalStyle[key] = nextValue as never;
       } else if (currentStyle === nextValue) {
         finalStyle[key] = getFallbackValue(key) as never;
@@ -105,7 +113,7 @@ export const useFabricText = ({ saveHistory }: Props) => {
       }
     });
 
-    if (isLayoutStyle(styleObj)) {
+    if (isLayout) {
       if (styleObj.shadow) {
         activeObject.set({
           shadow: new Shadow({
