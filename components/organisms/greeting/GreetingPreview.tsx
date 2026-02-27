@@ -15,7 +15,9 @@ function GreetingPreview({
   titleClassName,
   ...rest
 }: Props) {
-  const html = tiptapJsonToHtmlUniversal(blockInfo.props.messageJson);
+  const html =
+    blockInfo.props.messageHtml ??
+    tiptapJsonToHtmlUniversal(blockInfo.props.messageJson);
 
   return (
     <div className={`px-5 ${className}`} {...rest}>
