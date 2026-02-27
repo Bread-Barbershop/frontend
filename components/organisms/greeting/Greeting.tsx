@@ -5,9 +5,10 @@ import { UtilityButton } from '@/components/atoms/button';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { TextEditor } from '@/components/molecules/text-editor';
 import { TextField } from '@/components/molecules/text-field';
-import Popup from '@/components/organisms/popup/Popup';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+
+import PopupOptions from '../popup/PopupOptions';
 
 import { GREETING_SAMPLE_MESSAGES } from './greetingSampleMessages';
 
@@ -99,7 +100,7 @@ function Greeting({ blockInfo, id }: Props) {
       </div>
 
       {isSamplePopupOpen && (
-        <Popup
+        <PopupOptions
           popupTitle="샘플 문구"
           options={GREETING_SAMPLE_MESSAGES}
           onSelect={handleSampleSelect}
