@@ -58,16 +58,17 @@ export const useFabricText = ({ saveHistory }: Props) => {
     );
   };
 
-  const handleNumberValidity = (styleObj: RichStyle) => {
+  const handleNumberInValidity = (styleObj: RichStyle) => {
     for (const [key, value] of Object.entries(styleObj)) {
-      if (
-        key === 'fontSize' ||
-        key === 'lineHeight' ||
-        key === 'charSpacing' ||
-        key === 'strokeWidth'
-      ) {
-        const numValue = typeof value === 'string' ? parseFloat(value) : value;
-        if (isNaN(numValue as number) || (numValue as number) < 1) return true;
+      const numValue = typeof value === 'string' ? parseFloat(value) : value;
+      if (typeof numValue !== 'number' || Number.isNaN(numValue)) return true;
+
+      if (key === 'fontSize') {
+        if (numValue < 1) return true;
+      } else if (key === 'strokeWidth') {
+        if (numValue < 0) return true;
+      } else if (key === 'charSpacing' || key === 'lineHeight') {
+        if (numValue < -200 || numValue > 200) return true;
       }
     }
     return false;
@@ -77,7 +78,7 @@ export const useFabricText = ({ saveHistory }: Props) => {
     const activeObject = canvas.getActiveObject() as Textbox;
     if (!activeObject) return;
 
-    if (handleNumberValidity(styleObj)) return;
+    if (handleNumberInValidity(styleObj)) return;
 
     const isSelectionPresent =
       activeObject.selectionStart !== activeObject.selectionEnd ||
