@@ -67,6 +67,7 @@ export async function saveInvitationFlow(params: {
     usedAccessToken: string;
   };
 }> {
+  // 여기에 포스터 데이터 추가
   const { images, audio, data, bgmData, invitationUuid } = params;
 
   // 1) 서버에서 폴더 구조 + fresh 토큰 받기
@@ -188,6 +189,7 @@ export async function saveInvitationFlow(params: {
       : null,
   };
 
+  // 여기에 포스터 데이터 추가
   const payload: InvitationPayload = {
     blocks: newData,
     bgm: finalBgm,

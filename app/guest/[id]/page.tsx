@@ -27,7 +27,7 @@ export default async function GuestPage({
 
   let payload: unknown;
   try {
-    payload  = await res.json();
+    payload = await res.json();
   } catch {
     notFound();
   }
@@ -36,6 +36,7 @@ export default async function GuestPage({
   return (
     <main className="min-h-screen bg-neutral-50">
       <div className="relative mx-auto w-full max-w-xl bg-white shadow-sm">
+        {/* 여기에 포스터 추가(게스트용) */}
         <GuestRenderer blocks={payload.blocks} />
         <GuestBgm bgm={payload.bgm} />
       </div>
