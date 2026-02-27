@@ -1,27 +1,90 @@
-﻿import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 
 import { UtilityButton } from '@/components/atoms/button';
 import { MultiField } from '@/components/molecules/multi-field';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { EditorBlock } from '@/shared/types/block';
+
+type PhoneContact = {
+  label: string;
+  number: string;
+};
 
 const MAX_MULTI_FIELDS = 10;
+const EMPTY_CONTACT: PhoneContact = { label: '', number: '' };
 
-function Phone() {
-  const [multiFieldCount, setMultiFieldCount] = useState(1);
-  const isAddDisabled = multiFieldCount >= MAX_MULTI_FIELDS;
+interface Props {
+  blockInfo: EditorBlock<'phone'>;
+  id: string;
+}
 
+// 연락처가 하나도 없을 때도 입력할 수 있도록 최소 1행은 화면에 노출한다.
+function createInitialRows(contacts: PhoneContact[]) {
+  return contacts.length > 0 ? contacts : [EMPTY_CONTACT];
+}
+
+// 저장 제외 기준: 명칭/번호가 모두 비어 있으면 빈 행으로 본다.
+function isEmptyContact(contact: PhoneContact) {
+  return (
+    contact.label.trim().length === 0 && contact.number.trim().length === 0
+  );
+}
+
+// 스토어에는 유효한 연락처만 저장하고, 빈 행은 로컬 UI 상태로만 유지한다.
+function sanitizeContacts(contacts: PhoneContact[]) {
+  return contacts.filter(contact => !isEmptyContact(contact));
+}
+
+function Phone({ blockInfo, id }: Props) {
+  const updateBlock = useEditorStore(state => state.updateBlock);
+  const storedContacts = blockInfo.props.contacts ?? [];
+  const [rowsById, setRowsById] = useState<Record<string, PhoneContact[]>>({});
+  const rows = rowsById[id] ?? createInitialRows(storedContacts);
+  const lastRow = rows[rows.length - 1] ?? EMPTY_CONTACT;
+  const isAddDisabled =
+    rows.length >= MAX_MULTI_FIELDS || isEmptyContact(lastRow);
+
+  // 현재 블록(id)에 해당하는 로컬 입력 행 상태를 갱신한다.
+  const setRowsForCurrentBlock = (nextRows: PhoneContact[]) => {
+    setRowsById(prev => ({
+      ...prev,
+      [id]: nextRows,
+    }));
+  };
+
+  // 로컬 입력 상태에서 빈 행을 제거한 뒤 editor store에 반영한다.
+  const persistContacts = (nextRows: PhoneContact[]) => {
+    updateBlock(id, { contacts: sanitizeContacts(nextRows) });
+  };
+
+  // 각 입력 필드(label/number) 변경을 처리한다.
+  const handleContactChange =
+    (index: number, key: 'label' | 'number') =>
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const nextRows = rows.map((contact, contactIndex) =>
+        contactIndex === index
+          ? { ...contact, [key]: e.target.value }
+          : contact
+      );
+
+      setRowsForCurrentBlock(nextRows);
+      persistContacts(nextRows);
+    };
+
+  // 마지막 행이 비어있지 않을 때만 새 빈 행을 추가한다.
   const handleAddUtility = () => {
     if (isAddDisabled) {
       return;
     }
 
-    setMultiFieldCount(prev => prev + 1);
+    setRowsForCurrentBlock([...rows, { ...EMPTY_CONTACT }]);
   };
 
   return (
     <section className="flex flex-col justify-center gap-1 px-5 pb-2">
       <NavigationBar>연락처</NavigationBar>
-      {Array.from({ length: multiFieldCount }, (_, index) => (
+      {rows.map((contact, index) => (
         <MultiField
           key={`phone-multi-field-${index}`}
           label="명칭 & 번호"
@@ -29,8 +92,16 @@ function Phone() {
             size: 'fixed',
             className: 'w-[65px]',
             placeholder: '명칭',
+            value: contact.label,
+            onChange: handleContactChange(index, 'label'),
           }}
-          mainInputProps={{ size: 'full', placeholder: '010.000.0000' }}
+          mainInputProps={{
+            size: 'full',
+            type: 'tel',
+            placeholder: '010.0000.0000',
+            value: contact.number,
+            onChange: handleContactChange(index, 'number'),
+          }}
           className="py-1.5"
         />
       ))}
