@@ -56,10 +56,8 @@ export const firstBirthdayComponents: ListType[] = [
 export const birthdayComponents: ListType[] = [
   { contents: '인사말', component: 'greeting', isType: false },
   { contents: '행사일시', component: null, isType: false },
-  { contents: '행사장소', component: null, isType: false },
-  { contents: '연락처', component: 'phone', isType: false },
   { contents: '행사장소', component: 'place', isType: false },
-  { contents: '연락처', component: null, isType: false },
+  { contents: '연락처', component: 'phone', isType: false },
   { contents: '배경음악', component: 'bgm', isType: false },
   { contents: '모청스냅', component: null, isType: false },
   { contents: '방명록', component: null, isType: false },
