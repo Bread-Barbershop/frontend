@@ -84,6 +84,7 @@ function Showcase() {
                     src={item.image}
                     alt={item.alt}
                     fill
+                    loading="eager"
                     sizes="260px"
                     className="object-cover"
                   />

@@ -10,20 +10,26 @@ interface PreviewTitleProps extends VariantProps<typeof previewTitleVariants> {
   koTitle?: string;
   enTitle?: string;
   className?: string;
+  titleClassName?: string;
 }
 
 export const PreviewTitle = ({
   koTitle,
   enTitle,
   className,
+  titleClassName,
 }: PreviewTitleProps) => {
   const koText = koTitle?.trim() || '제목을 입력해주세요';
   const enText = enTitle?.trim() || '제목을 입력해주세요';
 
   return (
     <div className={cn('flex flex-col gap-1 w-full', className)}>
-      <p className={previewTitleVariants({ language: 'en' })}>{enText}</p>
-      <p className={previewTitleVariants({ language: 'ko' })}>{koText}</p>
+      <p className={cn(previewTitleVariants({ language: 'en' }), titleClassName)}>
+        {enText}
+      </p>
+      <p className={cn(previewTitleVariants({ language: 'ko' }), titleClassName)}>
+        {koText}
+      </p>
     </div>
   );
 };
