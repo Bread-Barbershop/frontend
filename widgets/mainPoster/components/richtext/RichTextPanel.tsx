@@ -1,12 +1,11 @@
 import { Canvas } from 'fabric';
-import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
-import bold from '@/shared/assets/icons/bold.svg';
-import charspacing from '@/shared/assets/icons/charspacing.svg';
-import italic from '@/shared/assets/icons/italic.svg';
-import underline from '@/shared/assets/icons/underline.svg';
+import BoldIcon from '@/shared/assets/icons/bold.svg';
+import CharspacingIcon from '@/shared/assets/icons/charspacing.svg';
+import ItalicIcon from '@/shared/assets/icons/italic.svg';
+import UnderlineIcon from '@/shared/assets/icons/underline.svg';
 import { debounce } from '@/shared/utils/debounce';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 import { RichStyle } from '@/widgets/mainPoster/types/fabric';
@@ -48,19 +47,17 @@ function RichTextPanel({ canvas, applyRichStyle }: Props) {
     {
       id: 'bold',
       style: { fontWeight: 'bold' },
-      component: <Image src={bold} alt="bold" width={11} height={14} />,
+      component: <BoldIcon className="w-2.75 h-3.5" />,
     },
     {
       id: 'italic',
       style: { fontStyle: 'italic' },
-      component: <Image src={italic} alt="italic" width={11} height={14} />,
+      component: <ItalicIcon className="w-2.75 h-3.5" />,
     },
     {
       id: 'underline',
       style: { underline: true },
-      component: (
-        <Image src={underline} alt="underline" width={10} height={14} />
-      ),
+      component: <UnderlineIcon className="w-2.5 h-3.5" />,
     },
   ];
 
@@ -104,7 +101,7 @@ function RichTextPanel({ canvas, applyRichStyle }: Props) {
           onClick={() => setIsOpen(prev => !prev)}
           className="w-9 h-8 flex p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
         >
-          <Image src={charspacing} alt="charspacing" width={17} height={14} />
+          <CharspacingIcon className="w-4.25 h-3.5" />
         </button>
         <TextAlign canvas={canvas} applyRichStyle={applyRichStyle} />
       </div>
