@@ -27,7 +27,7 @@ export default async function GuestPage({
 
   let payload: unknown;
   try {
-    payload  = await res.json();
+    payload = await res.json();
   } catch {
     notFound();
   }
