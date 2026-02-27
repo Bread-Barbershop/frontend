@@ -4,6 +4,7 @@ import { useShallow } from 'zustand/shallow';
 import { saveInvitationFlow } from '@/app/oauthTest/utils/saveInvitationFlow';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 function UploadButton() {
   const { images, block } = useEditorStore(
@@ -33,7 +34,11 @@ function UploadButton() {
     }))
   );
 
+  const { canvas } = useFabricContext();
+
   const handleUpload = () => {
+    if (!canvas) return;
+
     const task = images.flatMap(item =>
       item.file.map(file => ({ id: item.id, file }))
     );
@@ -47,11 +52,14 @@ function UploadButton() {
       userBgmFileId: audioFileId ?? null,
     };
 
+    const mainPoster = canvas.toJSON();
+
     void saveInvitationFlow({
       images: task,
       audio: userFile,
       data: block,
       bgmData, // bgm의 data 버전.
+      mainPoster,
     });
   };
 

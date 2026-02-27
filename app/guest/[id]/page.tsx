@@ -2,6 +2,7 @@
 import { notFound } from 'next/navigation';
 
 import GuestBgm from './components/GuestBgm';
+import { GuestMainPoster } from './components/GuestMainPoster';
 import GuestRenderer from './components/GuestRenderer';
 import { isGuestPayload } from './utils/guestBlockTypeGuards';
 
@@ -36,7 +37,7 @@ export default async function GuestPage({
   return (
     <main className="min-h-screen bg-neutral-50">
       <div className="relative mx-auto w-full max-w-xl bg-white shadow-sm">
-        {/* 여기에 포스터 추가(게스트용) */}
+        <GuestMainPoster json={payload.mainPoster} />
         <GuestRenderer blocks={payload.blocks} />
         <GuestBgm bgm={payload.bgm} />
       </div>
