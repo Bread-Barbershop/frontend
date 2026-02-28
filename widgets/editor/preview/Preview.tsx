@@ -8,6 +8,7 @@ import { PosterEditor } from '@/widgets/mainPoster/components/PosterEditor';
 
 import ComponentsPopup from './components/ComponentsPopup';
 import OrderPanel from './components/OrderPanel';
+import UploadButton from './components/UploadButton';
 import { previewTitleVariants } from './previewTitle.style';
 
 function Preview() {
@@ -94,7 +95,11 @@ function Preview() {
           </div>
         </div>
       </div>
-      {block.length > 0 && <OrderPanel />}
+      <div className="w-28 flex flex-col gap-4 absolute -right-43 top-1/2 -translate-y-1/2">
+        {block.length > 0 && <OrderPanel />}
+        <UploadButton />
+      </div>
+
       <div className="w-full relative" ref={tabRef}>
         {isTab && <ComponentsPopup onPopClose={handlePopClose} />}
 

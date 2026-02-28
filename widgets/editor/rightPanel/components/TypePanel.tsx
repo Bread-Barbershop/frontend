@@ -21,7 +21,7 @@ function TypePanel({ typeArray, selectedId }: Props) {
         <button
           type="button"
           key={index}
-          className="aspect-square relative w-40 h-40 rounded-lg border border-text-tertiary"
+          className="aspect-square relative w-40 h-40 rounded-lg border border-text-primary/5 bg-[#FAFAFB]"
           onClick={() => handleSelectType(item)}
         >
           <Image

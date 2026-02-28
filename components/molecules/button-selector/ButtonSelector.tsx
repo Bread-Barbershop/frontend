@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Label } from '@/components/atoms/label';
-import ChipCarousel from '@/features/EmblaCarousel/Carousel/ChipCarousel';
+import ChipCarousel from '@/components/molecules/button-selector/ChipCarousel';
 import { cn } from '@/shared/utils/cn';
 
 interface ButtonSelectorProps {

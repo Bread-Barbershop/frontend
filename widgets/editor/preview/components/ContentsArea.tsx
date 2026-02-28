@@ -18,7 +18,7 @@ const COLORS = {
 
 interface Props {
   scrollContainerRef: RefObject<HTMLDivElement | null>;
-  sectionRefs: RefObject<Record<string, HTMLLIElement | null>>;
+  sectionRefs: RefObject<Record<string, HTMLDivElement | null>>;
 }
 
 function ContentsArea({ scrollContainerRef, sectionRefs }: Props) {
@@ -45,7 +45,14 @@ function ContentsArea({ scrollContainerRef, sectionRefs }: Props) {
       ref={scrollContainerRef}
     >
       {componentCls.map((items, index) => (
-        <div key={index}>
+        <div
+          key={index}
+          data-type={items.english}
+          ref={el => {
+            if (!el) return;
+            sectionRefs.current[items.english] = el;
+          }}
+        >
           <div className="font-semibold flex justify-between h-11">
             <h2 className="text-sm font-semibold">{items.korea}</h2>
             <UtilityButton
@@ -60,11 +67,6 @@ function ContentsArea({ scrollContainerRef, sectionRefs }: Props) {
               <li
                 key={index}
                 className="w-25.25 h-11 flex items-center gap-0.5"
-                data-type={items.english}
-                ref={el => {
-                  if (!el) return;
-                  sectionRefs.current[items.english] = el;
-                }}
                 onClick={() =>
                   handleAddComponent(items.english, item.component)
                 }
