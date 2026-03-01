@@ -2,6 +2,7 @@ import { EmblaCarouselType, EmblaOptionsType } from 'embla-carousel';
 import useEmblaCarousel from 'embla-carousel-react';
 import React, { useCallback, useEffect, useState } from 'react';
 
+import SlideArrow from '@/shared/assets/icons/slideArrow.svg';
 import { cn } from '@/shared/utils/cn';
 
 interface Props {
@@ -83,22 +84,7 @@ function ChipCarousel({
               }}
               aria-label="이전 버튼"
             >
-              <svg
-                width="9"
-                height="14"
-                viewBox="0 0 9 14"
-                fill="none"
-                className={cn(isVertical && 'rotate-90')}
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M8 13L1 7L8 1"
-                  stroke="black"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <SlideArrow className="w-[9px] h-[14px]" />
             </button>
           </div>
         )}
@@ -124,22 +110,7 @@ function ChipCarousel({
               }}
               aria-label="다음 버튼"
             >
-              <svg
-                width="9"
-                height="14"
-                viewBox="0 0 9 14"
-                fill="none"
-                className={cn(isVertical && 'rotate-90')}
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M1 1L8 7L0.999999 13"
-                  stroke="black"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <SlideArrow className="w-[9px] h-[14px] rotate-180" />
             </button>
           </div>
         )}

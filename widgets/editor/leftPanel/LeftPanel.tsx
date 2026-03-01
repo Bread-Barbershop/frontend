@@ -1,8 +1,9 @@
 'use client';
 import { useState } from 'react';
 
-import Edit from './Edit';
+import SectionArrow from '@/shared/assets/icons/sectionArrow.svg';
 
+import Edit from './Edit';
 function LeftPanel() {
   const [isEdit, setIsEdit] = useState(false);
   return (
@@ -16,21 +17,7 @@ function LeftPanel() {
           type="button"
           className={`absolute right-6 ${isEdit ? 'rotate-180' : ''} transition-all duration-300 ease-in-out`}
         >
-          <svg
-            width="14"
-            height="7"
-            viewBox="0 0 14 7"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M1 1L7 6L13 1"
-              stroke="black"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <SectionArrow className="w-[14px] h-[7px]" />
         </button>
       </div>
       <div

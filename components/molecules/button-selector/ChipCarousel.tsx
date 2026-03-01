@@ -2,6 +2,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import React, { PointerEvent, useCallback, useEffect, useState } from 'react';
 
 import { Button } from '@/components/atoms/button';
+import SlideArrow from '@/shared/assets/icons/slideArrow.svg';
 import { cn } from '@/shared/utils/cn';
 
 interface Props {
@@ -62,21 +63,7 @@ function ChipCarousel({ items, className, onPointerDown }: Props) {
             }}
             aria-label="이전 버튼"
           >
-            <svg
-              width="9"
-              height="14"
-              viewBox="0 0 9 14"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M8 13L1 7L8 1"
-                stroke="black"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <SlideArrow className="w-[9px] h-3.5" />
           </button>
         </div>
 
@@ -117,21 +104,7 @@ function ChipCarousel({ items, className, onPointerDown }: Props) {
             }}
             aria-label="다음 버튼"
           >
-            <svg
-              width="9"
-              height="14"
-              viewBox="0 0 9 14"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M1 1L8 7L0.999999 13"
-                stroke="black"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <SlideArrow className="w-[9px] h-3.5 rotate-180" />
           </button>
         </div>
       </div>
