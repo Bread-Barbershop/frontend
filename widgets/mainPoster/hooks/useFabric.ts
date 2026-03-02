@@ -87,6 +87,7 @@ export const useFabric = () => {
 
   const paste = async () => {
     if (!clipboard || !canvas) return;
+    isUpdating.current = true;
 
     const cloned = await clipboard.clone();
     if (!cloned) return;
@@ -113,9 +114,13 @@ export const useFabric = () => {
       const selection = new ActiveSelection(pasted, { canvas });
       canvas.setActiveObject(selection);
 
-      pasted.forEach(o => canvas.bringObjectForward(o));
+      pasted.forEach(o => {
+        canvas.bringObjectForward(o);
+      });
 
       canvas.requestRenderAll();
+      isUpdating.current = false;
+      saveHistory();
       return;
     }
 
@@ -130,6 +135,8 @@ export const useFabric = () => {
     canvas.setActiveObject(cloned);
     canvas.bringObjectForward(cloned);
     canvas.requestRenderAll();
+    isUpdating.current = false;
+    saveHistory();
   };
 
   const syncActiveObjectInfo = (canvas: Canvas) => {
