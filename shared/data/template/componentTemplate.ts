@@ -6,6 +6,4 @@ export const galleryTemplate = [
   'galleryType5',
   'galleryType6',
   'galleryType7',
-  'galleryType7',
-  'galleryType7',
 ];
