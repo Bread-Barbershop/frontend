@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { saveInvitationFlow } from '@/app/oauthTest/utils/saveInvitationFlow';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+
+import SaveModal from './SaveModal';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 function UploadButton() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const tabRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const { images, block } = useEditorStore(
     useShallow(state => ({
       images: state.images,
@@ -36,9 +42,10 @@ function UploadButton() {
 
   const { canvas } = useFabricContext();
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!canvas) return;
 
+    setIsLoading(true);
     const task = images.flatMap(item =>
       item.file.map(file => ({ id: item.id, file }))
     );
@@ -54,38 +61,46 @@ function UploadButton() {
 
     const mainPoster = canvas.toJSON();
 
-    void saveInvitationFlow({
+    await saveInvitationFlow({
       images: task,
       audio: userFile,
       data: block,
       bgmData, // bgm의 data 버전.
       mainPoster,
     });
+    setIsLoading(false);
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (tabRef.current && !tabRef.current.contains(event.target as Node)) {
+        setIsModalOpen(false);
+      }
+    };
+
+    if (isModalOpen) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isModalOpen]);
+
   return (
-    <button
-      type="button"
-      className="w-full h-11 bg-white rounded-lg shadow-edit flex-center gap-2 font-semibold"
-      onClick={handleUpload}
-    >
-      <svg
-        width="10"
-        height="10"
-        viewBox="0 0 10 10"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
+    <div ref={tabRef}>
+      <button
+        type="button"
+        className="w-full h-11 bg-white rounded-lg shadow-edit flex-center text-sm font-semibold"
+        onClick={() => {
+          handleUpload();
+          setIsModalOpen(true);
+        }}
       >
-        <title>업로드</title>
-        <path
-          d="M0.800781 4.7998H8.80078M4.80078 0.799805V8.7998"
-          stroke="black"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-        />
-      </svg>
-      업로드
-    </button>
+        저장하기
+      </button>
+      {isModalOpen && <SaveModal isLoading={isLoading} />}
+    </div>
   );
 }
 

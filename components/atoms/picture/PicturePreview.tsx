@@ -1,3 +1,4 @@
+import Cancel from '@/shared/assets/icons/cancel.svg';
 import { cn } from '@/shared/utils/cn';
 
 import { Image } from '../image';
@@ -24,22 +25,7 @@ export const PicturePreview = ({ src, alt, className, onDelete }: Props) => {
           onDelete(src);
         }}
       >
-        <svg
-          width="7"
-          height="7"
-          viewBox="0 0 7 7"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <title>이미지 삭제</title>
-          <path
-            d="M6 1L1 6M1 1L6 6"
-            stroke="white"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        <Cancel className="w-[7px] h-[7px] text-white" />
       </button>
       <Image
         src={src}

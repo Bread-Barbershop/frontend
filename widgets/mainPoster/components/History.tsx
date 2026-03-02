@@ -20,7 +20,7 @@ function History({ canvas }: { canvas: Canvas }) {
       canvas.off('object:added', handleSave);
       canvas.off('object:removed', handleSave);
     };
-  }, [canvas]);
+  }, [canvas, saveHistory]);
 
   return (
     <div>

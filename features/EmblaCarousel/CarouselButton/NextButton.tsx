@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Button } from '@/components/atoms/button';
+import SlideArrow from '@/shared/assets/icons/slideArrow.svg';
 import { cn } from '@/shared/utils/cn';
 
 function NextButton({
@@ -16,21 +17,7 @@ function NextButton({
       )}
       aria-label="다음 버튼"
     >
-      <svg
-        width="11"
-        height="16"
-        viewBox="0 0 11 16"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M1.00032 1L9.16699 8L1.00032 15"
-          className="stroke-white group-hover:stroke-black transition-colors"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <SlideArrow className="w-[11px] h-4 rotate-180 text-white group-hover:text-black transition-colors" />
     </Button>
   );
 }

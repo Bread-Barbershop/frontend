@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { Image } from '@/components/atoms/image';
+import Arrow from '@/shared/assets/icons/arrow.svg';
 import { cn } from '@/shared/utils/cn';
 
 import {
@@ -75,21 +76,7 @@ function ImageGrid({ preview, variant, ratio, imageClick }: Props) {
               setExpandCount(prev => prev + 1);
             }}
           >
-            <svg
-              width="12"
-              height="15"
-              viewBox="0 0 12 15"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M6 1L6 13M1 9L6 14L11 9"
-                stroke="black"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <Arrow className="w-3 h-[15px] text-black" />
           </button>
         </div>
       )}

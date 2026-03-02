@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 
 import HeaderAuthControl from '@/app/(home)/components/HeaderAuthControl';
 import { getAuthSession } from '@/app/api/auth/_lib/getAuthSession';
+import homeBackgroundImage from '@/shared/assets/images/home/home-background.png';
 
 const NAV_MENU = [
   { title: 'TITLE', href: '#' },
@@ -18,7 +19,10 @@ export default async function HomeLayout({
   const session = await getAuthSession();
 
   return (
-    <div className="min-h-dvh grid grid-rows-[auto_1fr_auto] bg-white">
+    <div
+      className="min-h-dvh grid grid-rows-[auto_1fr_auto] bg-center bg-cover bg-no-repeat"
+      style={{ backgroundImage: `url(${homeBackgroundImage.src})` }}
+    >
       <header className="h-15.5 bg-white flex items-center justify-between px-10">
         <Link href="/" className="font-semibold text-xl text-black">
           브랜드 로고
@@ -29,7 +33,7 @@ export default async function HomeLayout({
             <Link
               key={index}
               href={menu.href}
-              className="text-text-secondary h-full px-8 flex items-center text-[16px] font-semibold hover:text-black transition-colors"
+              className="text-text-secondary h-full px-8 flex items-center text-[14px] font-semibold hover:text-black transition-colors"
             >
               {menu.title}
             </Link>
@@ -47,7 +51,8 @@ export default async function HomeLayout({
         </Link>
 
         <div className="text-text-secondary">
-          © {new Date().getFullYear()} <span>미정</span>. All rights reserved.
+          © {new Date().getFullYear()}{' '}
+          <span className="font-semibold">Invia</span>. All rights reserved.
         </div>
       </footer>
     </div>

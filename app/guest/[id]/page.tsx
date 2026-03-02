@@ -26,13 +26,16 @@ export default async function GuestPage({
 
   if (!res.ok) notFound();
 
+  const raw = await res.text();
   let payload: unknown;
   try {
-    payload = await res.json();
+    payload = JSON.parse(raw);
   } catch {
     notFound();
   }
-  if (!isGuestPayload(payload)) notFound();
+  if (!isGuestPayload(payload)) {
+    notFound();
+  }
 
   return (
     <main className="min-h-screen bg-neutral-50">

@@ -77,6 +77,7 @@ function Gallery({ blockInfo, id }: Props) {
             label="비율"
             selectorOption={ASPECT_RATIO_OPTIONS}
             onPointerDown={handleAspectRatioChange}
+            selectedValue={blockInfo.props.ratio}
           />
         )}
         <ul className="list-disc pl-5 marker:text-text-secondary py-3.5">

@@ -13,7 +13,11 @@ import { useRef } from 'react';
 
 import { showcaseItems } from '@/app/(home)/components/showcaseItems';
 
-function Showcase() {
+type ShowcaseProps = {
+  onHoverChange?: (hovered: boolean) => void;
+};
+
+function Showcase({ onHoverChange }: ShowcaseProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const isPaused = useRef(false);
 
@@ -71,8 +75,14 @@ function Showcase() {
             ref={trackRef}
             className="mt-4 flex gap-10 w-max h-118.75"
             style={{ x }}
-            onMouseEnter={() => (isPaused.current = true)}
-            onMouseLeave={() => (isPaused.current = false)}
+            onMouseEnter={() => {
+              isPaused.current = true;
+              onHoverChange?.(true);
+            }}
+            onMouseLeave={() => {
+              isPaused.current = false;
+              onHoverChange?.(false);
+            }}
           >
             {[...showcaseItems, ...showcaseItems, ...showcaseItems].map(
               (item, index) => (

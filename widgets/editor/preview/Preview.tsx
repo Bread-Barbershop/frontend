@@ -2,12 +2,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import Add from '@/shared/assets/icons/add.svg';
 import { blockRegistry } from '@/shared/data/registry/registry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { PosterEditor } from '@/widgets/mainPoster/components/PosterEditor';
 
 import ComponentsPopup from './components/ComponentsPopup';
 import OrderPanel from './components/OrderPanel';
+import UploadButton from './components/UploadButton';
 import { previewTitleVariants } from './previewTitle.style';
 
 function Preview() {
@@ -94,7 +96,11 @@ function Preview() {
           </div>
         </div>
       </div>
-      {block.length > 0 && <OrderPanel />}
+      <div className="w-28 flex flex-col gap-4 absolute -right-43 top-1/2 -translate-y-1/2">
+        <OrderPanel />
+        <UploadButton />
+      </div>
+
       <div className="w-full relative" ref={tabRef}>
         {isTab && <ComponentsPopup onPopClose={handlePopClose} />}
 
@@ -103,21 +109,7 @@ function Preview() {
           className="w-full h-11 bg-white rounded-lg shadow-edit flex-center gap-2 font-semibold"
           onClick={() => setIsTab(props => !props)}
         >
-          <svg
-            width="10"
-            height="10"
-            viewBox="0 0 10 10"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <title>페이지 추가</title>
-            <path
-              d="M0.800781 4.7998H8.80078M4.80078 0.799805V8.7998"
-              stroke="black"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-            />
-          </svg>
+          <Add className="w-2.5 h-2.5" />
           페이지 추가
         </button>
       </div>

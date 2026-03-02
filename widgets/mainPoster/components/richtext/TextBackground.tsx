@@ -1,6 +1,6 @@
 import { Canvas, Pattern, util } from 'fabric';
 import { Image } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useFabricContext } from '../../context/FabricContext';
 
@@ -49,27 +49,30 @@ function TextBackground({ canvas, applyRichStyle }: Props) {
     setPatternOffset(canvas, newOffsets.x, newOffsets.y);
   };
 
-  const applyPattern = async (url: string) => {
-    if (!canvas) return;
-    try {
-      const img = await util.loadImage(url);
+  const applyPattern = useCallback(
+    async (url: string) => {
+      if (!canvas) return;
+      try {
+        const img = await util.loadImage(url);
 
-      const pattern = new Pattern({
-        source: img,
-        repeat: 'repeat',
-      });
+        const pattern = new Pattern({
+          source: img,
+          repeat: 'repeat',
+        });
 
-      applyRichStyle({ fill: pattern }, canvas);
-    } catch (err) {
-      console.error('패턴 이미지 불러오기 실패:', err);
-    }
-  };
+        applyRichStyle({ fill: pattern }, canvas);
+      } catch (err) {
+        console.error('패턴 이미지 불러오기 실패:', err);
+      }
+    },
+    [canvas, applyRichStyle]
+  );
 
   useEffect(() => {
     if (patternUrl) {
       applyPattern(patternUrl);
     }
-  }, [patternUrl]);
+  }, [patternUrl, applyPattern]);
 
   const handlePatternChange = (url: string) => {
     setPatternUrl(url);
@@ -79,6 +82,7 @@ function TextBackground({ canvas, applyRichStyle }: Props) {
       <div className="flex items-center gap-2">
         <label htmlFor="pattern-upload" className="group cursor-pointer">
           <div className="w-10 h-10 flex justify-center items-center bg-bg-base text-text-primary group-hover:bg-btn-hover group-active:bg-btn-pressed rounded-md border border-border-base transition-colors">
+            {/* eslint-disable-next-line jsx-a11y/alt-text */}
             <Image size={20} className="text-text-primary" />
           </div>
           <input

@@ -10,9 +10,11 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { useCallback } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import ChipCarousel from '@/widgets/editor/preview/components/ChipCarousel';
 
 import SortableItems from './SortableItems';
 
@@ -53,16 +55,39 @@ function OrderPanel() {
     const id = active.id as string;
     selectedBlock(id);
   };
+
+  const handleSelect = useCallback(
+    (id: string) => {
+      selectedBlock(id);
+    },
+    [selectedBlock]
+  );
+
   return (
     <DndContext
       sensors={sensors}
       onDragEnd={handleDragEnd}
       onDragStart={handlePageSelect}
     >
-      <div className="w-28 max-h-121  bg-bg-base absolute -right-43 top-1/2 -translate-y-1/2 flex flex-col items-center rounded-lg shadow-edit">
+      <div className="w-full bg-bg-base flex flex-col items-center rounded-lg shadow-edit  ">
         <p className="font-semibold text-sm px-9 py-3.5">순서</p>
-        <div className="h-[400px] overflow-hidden">
-          <ul className="flex flex-col gap-2">
+        <div className="w-full px-2 relative">
+          <ChipCarousel
+            options={{
+              align: 'start',
+              axis: 'y',
+              containScroll: 'trimSnaps',
+              watchDrag: false,
+            }}
+            parentClassName="flex-col mb-2"
+          >
+            <button
+              type="button"
+              className={`flex-center px-3 py-2 w-24 rounded-sm ${selectedId === 'mainPoster' ? 'bg-[#DBE8FC]' : ''}`}
+              onPointerDown={() => handleSelect('mainPoster')}
+            >
+              포스터
+            </button>
             <SortableContext
               items={block.map(b => b.id)}
               strategy={verticalListSortingStrategy}
@@ -72,14 +97,16 @@ function OrderPanel() {
                   key={items.id}
                   id={items.id}
                   blockInfo={items}
-                  className={`${selectedId === items.id ? 'bg-[#DBE8FC]' : ''}`}
+                  isSelected={selectedId === items.id}
+                  onSelect={handleSelect}
                 />
               ))}
             </SortableContext>
-          </ul>
+          </ChipCarousel>
         </div>
       </div>
     </DndContext>
   );
 }
+
 export default OrderPanel;
