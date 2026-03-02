@@ -32,10 +32,10 @@ function Cta({ initialIsLoggedIn }: CtaProps) {
         <div
           className="
           flex w-185 flex-col gap-2 rounded-4xl p-8
-          bg-white/10 backdrop-blur-sm
-          border border-white/30 
+          bg-white/6 backdrop-blur-xs
+          border-x border-white/30 
           shadow-2xl 
-          supports-backdrop-filter:bg-white/5
+          supports-backdrop-filter:bg-white/6
         "
         >
           <p className="text-2xl font-medium text-[#121212] select-none">
