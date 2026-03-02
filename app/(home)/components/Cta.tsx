@@ -4,12 +4,14 @@ import { useRouter } from 'next/navigation';
 
 import LoginModal from '@/app/(home)/components/LoginModal';
 import { useAuthGate } from '@/app/(home)/components/useAuthGate';
+import { cn } from '@/shared/utils/cn';
 
 type CtaProps = {
   initialIsLoggedIn: boolean;
+  isShowcaseHovered?: boolean;
 };
 
-function Cta({ initialIsLoggedIn }: CtaProps) {
+function Cta({ initialIsLoggedIn, isShowcaseHovered = false }: CtaProps) {
   const router = useRouter();
   const {
     isBusy,
@@ -42,13 +44,29 @@ function Cta({ initialIsLoggedIn }: CtaProps) {
             Signature Invitation
           </p>
 
-          <h1 className="text-[64px] font-black leading-tight text-[#121212] select-none">
+          <h1
+            data-showcase-hovered={isShowcaseHovered ? 'true' : 'false'}
+            className={cn(
+              'text-[64px] font-black leading-tight select-none',
+              isShowcaseHovered
+                ? 'text-white [text-shadow:0_4px_16px_rgba(0,0,0,0.28)]'
+                : 'text-[#121212]'
+            )}
+          >
             우리의 이야기 첫 시작은
             <br />
             초대장으로.
           </h1>
 
-          <p className="text-2xl font-medium text-[#121212] select-none">
+          <p
+            data-showcase-hovered={isShowcaseHovered ? 'true' : 'false'}
+            className={cn(
+              'text-2xl font-medium select-none',
+              isShowcaseHovered
+                ? 'text-white [text-shadow:0_4px_16px_rgba(0,0,0,0.28)]'
+                : 'text-[#121212]'
+            )}
+          >
             폰트·컬러·레이아웃까지, 우리만의 시그니처로 마무리해요.
           </p>
         </div>
