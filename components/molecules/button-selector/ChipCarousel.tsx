@@ -10,7 +10,7 @@ interface Props {
   className?: string;
   onPointerDown?: (e: PointerEvent<HTMLButtonElement>) => void;
 }
-
+//컨펌 후 삭제 예정
 function ChipCarousel({ items, className, onPointerDown }: Props) {
   const [selectedValue, setSelectedValue] = useState(items[0]?.value ?? '');
   const [canScrollPrev, setCanScrollPrev] = useState(false);
@@ -75,7 +75,7 @@ function ChipCarousel({ items, className, onPointerDown }: Props) {
                   <div key={item.value} className="flex-auto">
                     <Button
                       key={item.value}
-                      className={`w-[63px] font-normal ${selectedValue === item.value ? 'border-primary' : 'border-border-neutral'}`}
+                      className={`w-[49px] font-normal ${selectedValue === item.value ? 'border-primary' : 'border-border-neutral'}`}
                       value={item.value}
                       onPointerDown={e => {
                         if (onPointerDown) {

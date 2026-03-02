@@ -97,7 +97,7 @@ function Preview() {
         </div>
       </div>
       <div className="w-28 flex flex-col gap-4 absolute -right-43 top-1/2 -translate-y-1/2">
-        {block.length > 0 && <OrderPanel />}
+        <OrderPanel />
         <UploadButton />
       </div>
 

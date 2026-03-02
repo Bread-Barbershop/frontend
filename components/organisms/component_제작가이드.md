@@ -15,6 +15,9 @@
 - 2.  **schema** 파일을 만듭니다. (데이터 구조 및 기본값)
   - **예시**: [Gallery.schema.ts](file:///c:/Users/tampl/Desktop/frontend/components/organisms/gallery/Gallery.schema.ts)
   - 타입(Template)이 필요한 경우 [shared/data/template/componentTemplate.ts](file:///c:/Users/tampl/Desktop/frontend/shared/data/template/componentTemplate.ts)에 먼저 정의합니다.
+  - **주의**: 기본값을 설정할 때, 필수로 값이 필요한 경우 `required: true`로 설정하고, 기본값을 설정하지 않으면 `required: false`로 설정해야 합니다.
+  - **주의**: 기본값을 설정할 때, 필수로 기본 값이 필요한 경우 의미있는 값을 넣고, 필요하지 않은 경우 타입 추론을 위한 값을 넣습니다.
+    **예시**: `title` : `''` => 초기 값을 빈 문자열로 넣고 placeholder를 설정합니다.
 
 ## 3. Registry 등록
 

@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 
 import { Image } from '@/components/atoms/image';
@@ -15,8 +17,9 @@ function TypePanel({ typeArray, selectedId }: Props) {
     if (!selectedId) return;
     updateBlock(selectedId, { template: type });
   };
+
   return (
-    <div className="min-h-0 flex-1 flex flex-wrap gap-3.5 content-start w-full overflow-y-auto scrollbar-hide">
+    <div className="min-h-0 flex-1 flex flex-wrap gap-3.5 content-start w-full overflow-y-auto scrollbar-hide relative">
       {typeArray.map((item, index) => (
         <button
           type="button"
@@ -32,6 +35,8 @@ function TypePanel({ typeArray, selectedId }: Props) {
           />
         </button>
       ))}
+
+      <div className="flex justify-center w-full h-13 items-end sticky bottom-0 left-0 right-0  bg-linear-to-t from-white from-0% via-white/24 via-53% to-white/6 to-100%"></div>
     </div>
   );
 }

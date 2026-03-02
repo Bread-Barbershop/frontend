@@ -9,10 +9,10 @@ function LeftPanel() {
   return (
     <div className="w-93.75 ml-15 flex flex-col gap-4">
       <div
-        className={`flex-center relative bg-white rounded-lg shadow-edit font-semibold border border-black/5 ${isEdit ? 'h-203' : 'h-11'} transition-all duration-300 ease-in-out`}
+        className={`flex-center relative bg-white rounded-lg shadow-edit border border-black/5 ${isEdit ? 'h-203' : 'h-11'} transition-all duration-300 ease-in-out`}
         onClick={() => setIsEdit(!isEdit)}
       >
-        <p>일괄 편집</p>
+        <p className="font-semibold">일괄 편집</p>
         <button
           type="button"
           className={`absolute right-6 ${isEdit ? 'rotate-180' : ''} transition-all duration-300 ease-in-out`}
@@ -21,7 +21,7 @@ function LeftPanel() {
         </button>
       </div>
       <div
-        className={`${isEdit ? 'h-11' : 'h-fit'} flex-center bg-white rounded-lg shadow-edit font-semibold border border-black/5 transition-all duration-300 ease-in-out`}
+        className={`${isEdit ? 'h-11' : 'h-fit'} flex-center bg-white rounded-lg shadow-edit border border-black/5 transition-all duration-300 ease-in-out`}
       >
         {!isEdit && <Edit />}
       </div>
