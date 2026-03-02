@@ -3,7 +3,7 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 
 import { ensureDataJsonFile } from '@/app/api/drive/_lib/ensureDataJsonFile';
-import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
+import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissionWithRetry';
 
 // publish API 요청 본문
 type Body = { invitationFolderId: string };
@@ -32,11 +32,6 @@ type ReadinessResult =
 
 const VERIFY_MAX_ATTEMPTS = 3;
 const VERIFY_DELAY_MS = 350;
-
-const permissionCreateUrl = (folderId: string) =>
-  `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(
-    folderId
-  )}/permissions?supportsAllDrives=true&sendNotificationEmail=false&fields=id`;
 
 const guestPath = (dataJsonFileId: string) => `/guest/${dataJsonFileId}`;
 
@@ -194,20 +189,10 @@ export async function POST(req: Request) {
   const { dataJsonFileId } = await ensureDataJsonFile(invitationFolderId);
   const guestUrl = guestPath(dataJsonFileId);
 
-  const res = await googleFetch(permissionCreateUrl(invitationFolderId), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      type: 'anyone',
-      role: 'reader',
-      allowFileDiscovery: false,
-    }),
-    cache: 'no-store',
-  });
+  const permissionResult = await publishPermissionWithRetry(invitationFolderId);
 
-  if (res.status === 409) {
-    // 409는 "이미 공개 상태"를 의미한다.
-    // 캐시 갱신 및 준비 상태 확인을 계속 진행한다.
+  if (permissionResult.ok && permissionResult.ignored === 'already_public') {
+    // 409는 "이미 공개 상태"이므로 발행 성공 흐름을 유지한다.
     return buildPublishSuccessResponse({
       guestUrl,
       dataJsonFileId,
@@ -215,18 +200,25 @@ export async function POST(req: Request) {
     });
   }
 
-  if (!res.ok) {
-    const details = await res.json().catch(() => undefined);
+  if (!permissionResult.ok) {
+    const responseStatus =
+      permissionResult.status && permissionResult.status >= 400
+        ? permissionResult.status
+        : 502;
+
     return NextResponse.json(
       {
         ok: false,
         guestUrl,
         dataJsonFileId,
-        error: 'publish_failed',
-        status: res.status,
-        details,
+        error: 'publish_permission_failed',
+        status: responseStatus,
+        attempts: permissionResult.attempt,
+        immediateFail: Boolean(permissionResult.immediateFail),
+        details: permissionResult.details,
+        ...(permissionResult.error ? { cause: permissionResult.error } : {}),
       },
-      { status: 502 }
+      { status: responseStatus }
     );
   }
 
