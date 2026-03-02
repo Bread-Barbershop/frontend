@@ -7,7 +7,6 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import PosterPanel from './components/PosterPanel';
 import TypePanel from './components/TypePanel';
-import UploadButton from './components/UploadButton';
 import { useComponentType } from './hooks/useComponentType';
 
 function RightPanel() {
@@ -21,9 +20,6 @@ function RightPanel() {
   const { typeArray } = useComponentType({ block, selectedId });
   return (
     <div className="w-93.75 h-203 mr-15 flex flex-col gap-5">
-      <div>
-        <UploadButton />
-      </div>
       <div className="w-93.75 min-h-0 flex-1 bg-white rounded-lg shadow-edit flex-center flex-col gap-3 px-5 ">
         <div className="w-full">
           <button

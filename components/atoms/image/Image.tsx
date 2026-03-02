@@ -1,6 +1,7 @@
 import NextImage, { ImageProps as NextImageProps } from 'next/image';
 import { useState } from 'react';
 
+import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
 import { cn } from '@/shared/utils/cn';
 
 import { imageVariants, imageWrapperVariants } from './Image.style';
@@ -42,23 +43,7 @@ export const Image = ({
             loadingClassName
           )}
         >
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 22 22"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="animate-spin text-gray-400"
-          >
-            <title>로딩 스피너</title>
-            <path
-              d="M11 1V5M11 17V21M3.93 3.93L6.76 6.76M15.24 15.24L18.07 18.07M1 11H5M17 11H21M3.93 18.07L6.76 15.24M15.24 6.76L18.07 3.93"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <LoadingSpinner className="w-5 h-5 animate-spin" />
         </div>
       )}
       <NextImage

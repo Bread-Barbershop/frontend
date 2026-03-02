@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { Button } from '@/components/atoms/button';
 import { Image } from '@/components/atoms/image';
 import Carousel from '@/features/EmblaCarousel/Carousel/Carousel';
+import Cancel from '@/shared/assets/icons/cancel.svg';
 import { cn } from '@/shared/utils/cn';
 
 interface Props {
@@ -59,22 +60,7 @@ export const PicturePopViewer = ({
         className="group absolute top-4 right-4 z-100 flex-center rounded-full bg-black/32 w-8 h-8 "
         onClick={onClose}
       >
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 14 14"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <title>닫기 버튼</title>
-          <path
-            d="M13 1L1 13M1 1L13 13"
-            className="stroke-white group-hover:stroke-black transition-colors"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        <Cancel className="w-3.5 h-3.5 text-white" />
       </Button>
       <div className={cn('w-[90%] max-h-[85%] relative', ratioClass)}>
         <Carousel
