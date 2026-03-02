@@ -20,6 +20,8 @@ function Menubar() {
   const handleExportJSON = () => {
     if (!canvas) return;
     const json = canvas.toJSON();
+
+    // eslint-disable-next-line no-console
     console.log('Fabric Canvas JSON:', JSON.stringify(json, null, 2));
   };
 
