@@ -60,7 +60,7 @@ function Cta({ initialIsLoggedIn }: CtaProps) {
           className="
           flex h-13.25 w-43.25 items-center justify-center rounded-full 
           bg-[#121212] text-2xl font-medium text-white 
-          transition-all hover:opacity-90 active:scale-95 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed
+          transition-all hover:bg-[#202020] active:scale-95 active:bg-[#0D0D0D] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed
         "
         >
           만들러 가기
