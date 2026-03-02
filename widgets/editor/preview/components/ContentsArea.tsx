@@ -49,7 +49,6 @@ function ContentsArea({ scrollContainerRef, sectionRefs }: Props) {
           key={index}
           data-type={items.english}
           ref={el => {
-            if (!el) return;
             sectionRefs.current[items.english] = el;
           }}
         >

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { Button } from '@/components/atoms/button';
 import { Label } from '@/components/atoms/label';
@@ -7,6 +7,7 @@ import { cn } from '@/shared/utils/cn';
 interface ButtonSelectorProps {
   label: string;
   selectorOption: { value: string; label: string }[];
+  selectedValue: string;
   onPointerDown: (e: React.PointerEvent<HTMLButtonElement>) => void;
   className?: string;
 }
@@ -14,12 +15,10 @@ interface ButtonSelectorProps {
 export const ButtonSelector = ({
   label,
   selectorOption,
+  selectedValue,
   onPointerDown,
   className,
 }: ButtonSelectorProps) => {
-  const [selectedValue, setSelectedValue] = useState(
-    selectorOption[0]?.value ?? ''
-  );
   return (
     <div className={cn('flex items-center', className)}>
       <Label className="font-semibold">{label}</Label>
@@ -32,10 +31,7 @@ export const ButtonSelector = ({
                 className={`font-normal ${selectedValue === item.value ? 'border-primary' : 'border-border-neutral'}`}
                 value={item.value}
                 onPointerDown={e => {
-                  if (onPointerDown) {
-                    onPointerDown(e);
-                  }
-                  setSelectedValue(item.value);
+                  onPointerDown(e);
                 }}
               >
                 {item.label}

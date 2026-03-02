@@ -72,11 +72,12 @@ function ChipCarousel({
         {canScrollPrev && (
           <div
             className={cn(
-              'w-full h-8 cursor-pointer bg-bg-base',
-              isVertical ? 'top-0' : 'left-0'
+              'cursor-pointer bg-bg-base',
+              isVertical ? 'w-full h-8' : 'w-8 h-full'
             )}
           >
             <button
+              type="button"
               className="w-full h-full flex-center"
               onClick={e => {
                 e.stopPropagation();
@@ -84,7 +85,9 @@ function ChipCarousel({
               }}
               aria-label="이전 버튼"
             >
-              <SlideArrow className="w-[9px] h-[14px]" />
+              <SlideArrow
+                className={`w-[9px] h-[14px] ${isVertical ? 'rotate-90' : 'rotate-0'}`}
+              />
             </button>
           </div>
         )}
@@ -98,11 +101,12 @@ function ChipCarousel({
         {canScrollNext && (
           <div
             className={cn(
-              'w-full h-8  cursor-pointer bg-bg-base flex-center',
-              isVertical ? 'bottom-0' : 'right-0'
+              'cursor-pointer bg-bg-base flex-center',
+              isVertical ? 'w-full h-8' : 'w-8 h-full'
             )}
           >
             <button
+              type="button"
               className="w-full h-full flex-center"
               onClick={e => {
                 e.stopPropagation();
@@ -110,7 +114,9 @@ function ChipCarousel({
               }}
               aria-label="다음 버튼"
             >
-              <SlideArrow className="w-[9px] h-[14px] rotate-180" />
+              <SlideArrow
+                className={`w-[9px] h-[14px] ${isVertical ? 'rotate-270' : 'rotate-180'}`}
+              />
             </button>
           </div>
         )}

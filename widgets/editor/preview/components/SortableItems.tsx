@@ -54,11 +54,12 @@ const SortableItems = React.memo(
     };
 
     return (
-      <li
+      <div
         ref={setNodeRef}
         style={style}
         {...attributes}
         {...listeners}
+        role="button"
         onPointerDown={handlePointerDown}
         className={cn(
           'flex items-center justify-between group py-2 cursor-pointer rounded-sm w-24 transition-colors duration-200 list-none',
@@ -70,11 +71,14 @@ const SortableItems = React.memo(
         <button
           type="button"
           className={`w-3.5 h-3.5 flex-center ${isSelected ? 'opacity-100' : 'opacity-0'}`}
-          onPointerDown={() => deleteBlock(id)}
+          onPointerDown={e => {
+            e.stopPropagation();
+            deleteBlock(id);
+          }}
         >
           <Delete className="w-3.5 h-3.5" />
         </button>
-      </li>
+      </div>
     );
   }
 );

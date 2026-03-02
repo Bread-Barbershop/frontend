@@ -81,12 +81,13 @@ function OrderPanel() {
             }}
             parentClassName="flex-col mb-2"
           >
-            <li
+            <button
+              type="button"
               className={`flex-center px-3 py-2 w-24 rounded-sm ${selectedId === 'mainPoster' ? 'bg-[#DBE8FC]' : ''}`}
               onPointerDown={() => handleSelect('mainPoster')}
             >
               포스터
-            </li>
+            </button>
             <SortableContext
               items={block.map(b => b.id)}
               strategy={verticalListSortingStrategy}

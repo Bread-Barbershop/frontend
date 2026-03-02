@@ -42,6 +42,7 @@ function ComponentsPopup({ onPopClose }: Props) {
   }, []);
 
   const handleTabClick = (english: string) => {
+    if (isManualScrolling.current) return;
     isManualScrolling.current = true;
     setActive(english);
     sectionRefs.current[english]?.scrollIntoView({
@@ -52,7 +53,7 @@ function ComponentsPopup({ onPopClose }: Props) {
     // 스크롤 이동이 끝날 때까지 감지 일시 중단
     setTimeout(() => {
       isManualScrolling.current = false;
-    }, 1000);
+    }, 800);
   };
 
   return (
