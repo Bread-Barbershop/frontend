@@ -29,13 +29,11 @@ export type GuestPayload = {
 };
 
 export type GuestMainPosterData = {
-  json: {
-    version: string;
-    objects: (
-      | SerializedTextboxProps
-      | SerializedImageProps
-      | SerializedObjectProps
-    )[];
-    background?: string;
-  };
+  version: string;
+  objects: (
+    | SerializedTextboxProps
+    | SerializedImageProps
+    | SerializedObjectProps
+  )[];
+  background?: string;
 };

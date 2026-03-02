@@ -43,8 +43,6 @@ function UploadButton() {
   const { canvas } = useFabricContext();
 
   const handleUpload = async () => {
-    if (!canvas) return;
-
     setIsLoading(true);
     const task = images.flatMap(item =>
       item.file.map(file => ({ id: item.id, file }))
@@ -59,7 +57,7 @@ function UploadButton() {
       userBgmFileId: audioFileId ?? null,
     };
 
-    const mainPoster = canvas.toJSON();
+    const mainPoster = canvas?.toJSON();
 
     await saveInvitationFlow({
       images: task,

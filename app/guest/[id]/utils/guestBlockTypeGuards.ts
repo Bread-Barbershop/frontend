@@ -62,7 +62,7 @@ function isGuestBgm(x: unknown): x is GuestBgm {
 function isGuestMainPosterData(x: unknown): x is GuestMainPosterData {
   if (!isRecord(x)) return false;
 
-  return typeof x.json === 'object' && x.json !== null;
+  return typeof x.version === 'string' && Array.isArray(x.objects);
   // 타입 검사 강화 필요함
 }
 

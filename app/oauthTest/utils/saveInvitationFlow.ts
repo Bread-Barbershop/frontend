@@ -44,15 +44,13 @@ export type BgmData = {
 };
 
 export type MainPosterData = {
-  json: {
-    version: string;
-    objects: (
-      | SerializedTextboxProps
-      | SerializedImageProps
-      | SerializedObjectProps
-    )[];
-    background?: string;
-  };
+  version: string;
+  objects: (
+    | SerializedTextboxProps
+    | SerializedImageProps
+    | SerializedObjectProps
+  )[];
+  background?: string;
 };
 
 type InvitationPayload = {
