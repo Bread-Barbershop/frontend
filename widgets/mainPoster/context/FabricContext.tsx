@@ -18,6 +18,7 @@ export const FabricProvider = ({ children }: { children: ReactNode }) => {
   const fabricValues = useFabric();
 
   const fabricTextValues = useFabricText({
+    syncActiveObjectInfo: fabricValues.syncActiveObjectInfo,
     saveHistory: fabricValues.saveHistory,
   });
 

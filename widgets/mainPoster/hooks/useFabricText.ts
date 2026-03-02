@@ -3,10 +3,11 @@ import { Canvas, Pattern, Shadow, Textbox } from 'fabric';
 import { LayoutStyle, RichStyle, RichStyleKey } from '../types/fabric';
 
 interface Props {
+  syncActiveObjectInfo?: (canvas: Canvas) => void;
   saveHistory: () => void;
 }
 
-export const useFabricText = ({ saveHistory }: Props) => {
+export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
   const createTextBox = (canvas: Canvas) => {
     const newTextbox = new Textbox('텍스트를 입력해주세요', {
       left: canvas.width / 2,
@@ -21,7 +22,9 @@ export const useFabricText = ({ saveHistory }: Props) => {
     newTextbox.set({ id: `text-${Date.now()}` });
     canvas.add(newTextbox);
     canvas.setActiveObject(newTextbox);
-
+    if (syncActiveObjectInfo) {
+      syncActiveObjectInfo(canvas);
+    }
     newTextbox.enterEditing();
     newTextbox.selectAll();
     canvas.requestRenderAll();
