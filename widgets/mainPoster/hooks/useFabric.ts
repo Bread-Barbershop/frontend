@@ -87,27 +87,56 @@ export const useFabric = () => {
 
   const paste = async () => {
     if (!clipboard || !canvas) return;
+    isUpdating.current = true;
+
     const cloned = await clipboard.clone();
     if (!cloned) return;
 
+    const dx = 10;
+    const dy = 10;
+
     canvas.discardActiveObject();
+
+    // 여러 객체일때만
+    if (cloned instanceof ActiveSelection) {
+      const pasted: FabricObject[] = [];
+
+      cloned.forEachObject(obj => {
+        obj.set({
+          left: (obj.left ?? 0) + dx,
+          top: (obj.top ?? 0) + dy,
+          evented: true,
+        });
+        canvas.add(obj);
+        pasted.push(obj);
+      });
+
+      const selection = new ActiveSelection(pasted, { canvas });
+      canvas.setActiveObject(selection);
+
+      pasted.forEach(o => {
+        canvas.bringObjectForward(o);
+      });
+
+      canvas.requestRenderAll();
+      isUpdating.current = false;
+      saveHistory();
+      return;
+    }
+
+    // 단일 객체
     cloned.set({
-      left: (cloned.left ?? 0) + 10,
-      top: (cloned.top ?? 0) + 10,
+      left: (cloned.left ?? 0) + dx,
+      top: (cloned.top ?? 0) + dy,
       evented: true,
     });
 
-    if (cloned instanceof ActiveSelection) {
-      cloned.canvas = canvas;
-      cloned.forEachObject(obj => canvas.add(obj));
-      cloned.setCoords();
-    } else {
-      canvas.add(cloned);
-    }
-
+    canvas.add(cloned);
     canvas.setActiveObject(cloned);
     canvas.bringObjectForward(cloned);
     canvas.requestRenderAll();
+    isUpdating.current = false;
+    saveHistory();
   };
 
   const syncActiveObjectInfo = (canvas: Canvas) => {
@@ -155,15 +184,15 @@ export const useFabric = () => {
 
   const saveHistory = () => {
     if (isUpdating.current || !canvas) return;
-    
+
     // 객체 상태 직렬화 시 filters 등 커스텀 속성도 포함
     const json = JSON.stringify(
       (canvas as any).toJSON(['filters', 'id', 'name'])
     );
-    
+
     const prevState = undoStack.current[undoStack.current.length - 1];
     if (prevState === json) return;
-    
+
     undoStack.current.push(json);
 
     if (undoStack.current.length > MAX_STACK_SIZE) {

@@ -44,8 +44,8 @@ export interface ImageSlice {
 export interface UISlice {
   selectedId: string | null;
   selectedBlock: (id: string) => void;
-  activeTab: 'image' | 'diagram' | null;
-  setActiveTab: (tab: 'image' | 'diagram' | null) => void;
+  activeTab: 'text' | 'image' | 'diagram' | null;
+  setActiveTab: (tab: 'text' | 'image' | 'diagram' | null) => void;
 }
 
 export type EditorState = BlockSlice & ImageSlice & UISlice;

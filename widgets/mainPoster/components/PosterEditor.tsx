@@ -10,6 +10,8 @@ import {
   Triangle,
   TPointerEventInfo,
   TPointerEvent,
+  Textbox,
+  IText,
 } from 'fabric';
 import { useEffect, useRef } from 'react';
 import { useShallow } from 'zustand/shallow';
@@ -39,7 +41,6 @@ export const PosterEditor = () => {
   const {
     canvas,
     setCanvas,
-    dragToCreateTextBox,
     handleDeleteShape,
     handleDeleteEmptyShape,
     setupEventListeners,
@@ -67,6 +68,8 @@ export const PosterEditor = () => {
     const handleSelection = () => {
       const activeObj = fabricCanvas.getActiveObject();
 
+      const isActiveText =
+        activeObj instanceof Textbox || activeObj instanceof IText;
       const isActiveImage = activeObj instanceof FabricImage;
       const isActiveDiagram =
         activeObj instanceof Rect ||
@@ -75,7 +78,9 @@ export const PosterEditor = () => {
       const isCropZone =
         (activeObj as FabricObject & { name?: string })?.name === 'crop-zone';
 
-      if (isActiveImage || isCropZone) {
+      if (isActiveText) {
+        setActiveTab('text');
+      } else if (isActiveImage || isCropZone) {
         setActiveTab('image');
       } else if (isActiveDiagram) {
         setActiveTab('diagram');
@@ -129,7 +134,6 @@ export const PosterEditor = () => {
     };
   }, [
     canvas,
-    dragToCreateTextBox,
     handleDeleteEmptyShape,
     handleDeleteShape,
     setActiveTab,

@@ -15,11 +15,7 @@ function Menubar() {
       activeTab: state.activeTab,
     }))
   );
-  const { activeInfo, canvas, applyRichStyle } = useFabricContext();
-
-  // 현재 선택된 객체가 텍스트인지 이미지인지 확인
-  const isSelectedText =
-    activeInfo.type === 'textbox' || activeInfo.type === 'itext';
+  const { canvas, applyRichStyle } = useFabricContext();
 
   const handleExportJSON = () => {
     if (!canvas) return;
@@ -59,7 +55,7 @@ function Menubar() {
       </div>
       <History canvas={canvas} />
       {/* 텍스트 */}
-      {isSelectedText && activeTab === null && (
+      {activeTab === 'text' && (
         <RichTextPanel canvas={canvas} applyRichStyle={applyRichStyle} />
       )}
 
