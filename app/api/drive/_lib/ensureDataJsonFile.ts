@@ -1,4 +1,4 @@
-import 'server-only';
+﻿import 'server-only';
 
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
@@ -18,29 +18,31 @@ export type EnsureDataJsonFileResult = {
 };
 
 const APP_IDENTIFIER = 'Bread-Barbershop';
-
 const DATA_JSON_NAME = 'data.json';
 const DATA_JSON_KIND = 'invitation_data_json';
 
-/**
- * invitationFolderId 하위에 data.json 파일을 보장한다.
- * - 있으면 재사용
- * - 없으면 생성
- *
- * 주의:
- * - Drive는 같은 이름 파일이 여러 개 있을 수 있어 appProperties.kind로 식별한다.
- * - 그래도 혹시 중복이 생기면 createdTime 오래된 것을 정본으로 취급한다(폴더 정책과 동일).
- */
+const DEFAULT_DATA_JSON_PAYLOAD = {
+  blocks: [],
+  bgm: {
+    selectedBgmId: null,
+    isLoop: false,
+    volume: 0.2,
+    userBgmTitle: null,
+    userBgmDuration: null,
+    userBgmFileId: null,
+  },
+};
+
+// "invitation 폴더 내에 단일 data.json 초대 파일이 존재하는지 확인합니다. 파일이 없는 경우, 파일을 생성하고 유효한 기본 페이로드(payload)로 초기화합니다."
 export async function ensureDataJsonFile(
   invitationFolderId: string
 ): Promise<EnsureDataJsonFileResult> {
   if (!invitationFolderId) {
-    throw new DriveHttpError('invitationFolderId가 필요합니다.', 400, {
+    throw new DriveHttpError('invitationFolderId is required', 400, {
       invitationFolderId,
     });
   }
 
-  // 1) appProperties.kind 기반으로 검색 (이름은 보조 조건)
   const q = [
     `'${escapeDriveQueryValue(invitationFolderId)}' in parents`,
     `trashed=false`,
@@ -55,7 +57,7 @@ export async function ensureDataJsonFile(
     q,
     spaces: 'drive',
     fields: 'files(id,name,createdTime,appProperties)',
-    orderBy: 'createdTime', // 가장 오래된 것을 정본으로 정함(중복 방어)
+    orderBy: 'createdTime',
     pageSize: '10',
   });
 
@@ -70,7 +72,7 @@ export async function ensureDataJsonFile(
 
   if (!searchRes.ok) {
     throw new DriveHttpError(
-      'data.json 검색 실패',
+      'data.json search failed',
       searchRes.status,
       searchData
     );
@@ -81,7 +83,6 @@ export async function ensureDataJsonFile(
     return { dataJsonFileId: found[0].id, reused: true };
   }
 
-  // 2) 없으면 생성 (빈 JSON으로 시작)
   const createRes = await googleFetch(
     'https://www.googleapis.com/drive/v3/files',
     {
@@ -105,7 +106,31 @@ export async function ensureDataJsonFile(
   };
 
   if (!createRes.ok || !created.id) {
-    throw new DriveHttpError('data.json 생성 실패', createRes.status, created);
+    throw new DriveHttpError(
+      'data.json create failed',
+      createRes.status,
+      created
+    );
+  }
+
+  const initRes = await googleFetch(
+    `https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(
+      created.id
+    )}?uploadType=media&supportsAllDrives=true`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+      body: JSON.stringify(DEFAULT_DATA_JSON_PAYLOAD),
+    }
+  );
+
+  if (!initRes.ok) {
+    const initDetails = await initRes.json().catch(() => undefined);
+    throw new DriveHttpError(
+      'data.json default payload init failed',
+      initRes.status,
+      initDetails
+    );
   }
 
   return { dataJsonFileId: created.id, reused: false };
