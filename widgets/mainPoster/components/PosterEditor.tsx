@@ -39,7 +39,6 @@ export const PosterEditor = () => {
   const {
     canvas,
     setCanvas,
-    dragToCreateTextBox,
     handleDeleteShape,
     handleDeleteEmptyShape,
     setupEventListeners,
@@ -129,7 +128,6 @@ export const PosterEditor = () => {
     };
   }, [
     canvas,
-    dragToCreateTextBox,
     handleDeleteEmptyShape,
     handleDeleteShape,
     setActiveTab,
