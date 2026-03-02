@@ -1,13 +1,16 @@
 import { Plus } from 'lucide-react';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 
 import { UtilityButton } from '@/components/atoms/button';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { TextEditor } from '@/components/molecules/text-editor';
+import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
-import Popup from '@/components/organisms/popup/Popup';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+import { debounce } from '@/shared/utils/debounce';
+
+import PopupOptions from '../popup/PopupOptions';
 
 import { GREETING_SAMPLE_MESSAGES } from './greetingSampleMessages';
 
@@ -42,17 +45,38 @@ function Greeting({ blockInfo, id }: Props) {
   const updateBlock = useEditorStore(state => state.updateBlock);
   const [isSamplePopupOpen, setIsSamplePopupOpen] = useState(false);
   const [editorResetKey, setEditorResetKey] = useState(0);
+  const debouncedUpdateMessage = useMemo(
+    () =>
+      debounce((messageJson: JSONContent) => {
+        updateBlock(id, {
+          messageJson,
+          messageHtml: tiptapJsonToHtmlInBrowser(messageJson),
+        });
+      }, 300),
+    [id, updateBlock]
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedUpdateMessage.cancel();
+    };
+  }, [debouncedUpdateMessage]);
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { title: e.target.value });
   };
 
   const handleEditorChange = (json: JSONContent) => {
-    updateBlock(id, { messageJson: json });
+    debouncedUpdateMessage(json);
   };
 
   const handleSampleSelect = (text: string) => {
-    updateBlock(id, { messageJson: createParagraphJson(text) });
+    debouncedUpdateMessage.cancel();
+    const messageJson = createParagraphJson(text);
+    updateBlock(id, {
+      messageJson,
+      messageHtml: tiptapJsonToHtmlInBrowser(messageJson),
+    });
     // 같은 문구를 다시 선택해도 에디터가 해당 문구로 초기화되도록 강제 리마운트한다.
     setEditorResetKey(prev => prev + 1);
     setIsSamplePopupOpen(false);
@@ -99,7 +123,7 @@ function Greeting({ blockInfo, id }: Props) {
       </div>
 
       {isSamplePopupOpen && (
-        <Popup
+        <PopupOptions
           popupTitle="샘플 문구"
           options={GREETING_SAMPLE_MESSAGES}
           onSelect={handleSampleSelect}

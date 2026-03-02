@@ -110,6 +110,9 @@ export default defineConfig([
         // 이를 통해 @typescript-eslint의 고급 규칙 사용 가능
         project: './tsconfig.json',
       },
+      globals: {
+        naver: 'readonly',
+      },
     },
     rules: {
       // ============================================
