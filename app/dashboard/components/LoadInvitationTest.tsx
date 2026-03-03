@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
 type InviteListItem = {
@@ -44,6 +45,7 @@ export default function LoadInvitationTest() {
   const [publishResults, setPublishResults] = useState<
     Record<string, PublishResult | null>
   >({});
+  const router = useRouter();
 
   const loadInvitations = useCallback(async () => {
     setLoading(true);
@@ -123,6 +125,10 @@ export default function LoadInvitationTest() {
     } finally {
       setPublishBusy(prev => ({ ...prev, [invitationFolderId]: false }));
     }
+  };
+
+  const handleUpdate = (folderId: string, invitationUuid: string) => {
+    router.push(`/editor/${folderId}`);
   };
 
   return (
@@ -226,6 +232,18 @@ export default function LoadInvitationTest() {
                           {publishError}
                         </div>
                       )}
+                      <button
+                        type="button"
+                        className="mt-3 w-full rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                        onClick={() =>
+                          handleUpdate(
+                            invite.folderId,
+                            invite.invitationUuid ?? ''
+                          )
+                        }
+                      >
+                        Update invitation
+                      </button>
 
                       {publishResult?.guestUrl && (
                         <div className="mt-3 rounded-md border bg-white p-3 text-xs text-neutral-700">
