@@ -31,6 +31,10 @@ const DEFAULT_DATA_JSON_PAYLOAD = {
     userBgmDuration: null,
     userBgmFileId: null,
   },
+  mainPoster: {
+    version: '7.1.0',
+    objects: [],
+  },
 };
 
 // "invitation 폴더 내에 단일 data.json 초대 파일이 존재하는지 확인합니다. 파일이 없는 경우, 파일을 생성하고 유효한 기본 페이로드(payload)로 초기화합니다."
