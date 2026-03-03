@@ -1,52 +1,33 @@
 import { Canvas, Pattern, Shadow, Textbox } from 'fabric';
-import { useRef } from 'react';
 
-import {
-  DragPoints,
-  LayoutStyle,
-  RichStyle,
-  RichStyleKey,
-} from '../types/fabric';
-import { initDragHandler } from '../utils/fabricUtils';
+import { LayoutStyle, RichStyle, RichStyleKey } from '../types/fabric';
 
 interface Props {
+  syncActiveObjectInfo?: (canvas: Canvas) => void;
   saveHistory: () => void;
 }
 
-export const useFabricText = ({ saveHistory }: Props) => {
-  const dragCleanupRef = useRef<(() => void) | null>(null);
-
-  const dragToCreateTextBox = (canvas: Canvas) => {
-    if (dragCleanupRef.current) {
-      dragCleanupRef.current();
-    }
-
-    dragCleanupRef.current = initDragHandler({
-      canvas,
-      onComplete: ({ width, height, left, top }: DragPoints) => {
-        if (width > 20 || height > 20) {
-          const newTextbox = new Textbox('텍스트를 입력해주세요', {
-            left,
-            top,
-            originX: 'left',
-            originY: 'top',
-            width,
-            fontSize: 16,
-            splitByGrapheme: true,
-          });
-
-          newTextbox.set({ id: `text-${Date.now()}` });
-          canvas.add(newTextbox);
-          canvas.setActiveObject(newTextbox);
-
-          newTextbox.enterEditing();
-          newTextbox.selectAll();
-        }
-
-        dragCleanupRef.current = null;
-        canvas.requestRenderAll();
-      },
+export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
+  const createTextBox = (canvas: Canvas) => {
+    const newTextbox = new Textbox('텍스트를 입력해주세요', {
+      left: canvas.width / 2,
+      top: canvas.height / 2,
+      originX: 'center',
+      originY: 'center',
+      width: 100,
+      fontSize: 16,
+      splitByGrapheme: true,
     });
+
+    newTextbox.set({ id: `text-${Date.now()}` });
+    canvas.add(newTextbox);
+    canvas.setActiveObject(newTextbox);
+    if (syncActiveObjectInfo) {
+      syncActiveObjectInfo(canvas);
+    }
+    newTextbox.enterEditing();
+    newTextbox.selectAll();
+    canvas.requestRenderAll();
   };
 
   const isLayoutStyle = (style: RichStyle): style is LayoutStyle => {
@@ -235,7 +216,7 @@ export const useFabricText = ({ saveHistory }: Props) => {
   };
 
   return {
-    dragToCreateTextBox,
+    createTextBox,
     applyRichStyle,
     getRichStyles,
     setPatternOffset,

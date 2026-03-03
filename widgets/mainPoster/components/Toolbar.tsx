@@ -5,7 +5,7 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 function Toolbar() {
-  const { canvas, dragToCreateTextBox } = useFabricContext();
+  const { canvas, createTextBox } = useFabricContext();
   const { activeTab, setActiveTab } = useEditorStore(
     useShallow(state => ({
       activeTab: state.activeTab,
@@ -17,7 +17,16 @@ function Toolbar() {
 
   return (
     <div className="absolute top-1/2 -translate-y-1/2 -left-3 -translate-x-full flex flex-col gap-3">
-      <Button onClick={() => dragToCreateTextBox(canvas)}>텍스트</Button>
+      <Button
+        onClick={() => {
+          setActiveTab('text');
+          createTextBox(canvas);
+        }}
+        variant="bordered"
+        active={activeTab === 'text'}
+      >
+        텍스트
+      </Button>
       <Button
         onClick={() => {
           setActiveTab('image');
