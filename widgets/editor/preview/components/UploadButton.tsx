@@ -20,6 +20,8 @@ function UploadButton() {
     }))
   );
 
+  const { exportIntersectedJSON } = useFabricContext();
+
   const {
     selectedBgmId,
     isLoop,
@@ -40,8 +42,6 @@ function UploadButton() {
     }))
   );
 
-  const { canvas } = useFabricContext();
-
   const handleUpload = async () => {
     setIsLoading(true);
     const task = images.flatMap(item =>
@@ -58,7 +58,7 @@ function UploadButton() {
     };
 
     // 포스터 아예 없는 경우 여기서 처리하면 될듯
-    const mainPoster = canvas?.toJSON() ?? {
+    const mainPoster = exportIntersectedJSON() ?? {
       version: '7.1.0',
       objects: [],
     };

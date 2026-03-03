@@ -257,6 +257,31 @@ export const useFabric = () => {
     isUpdating.current = false;
   };
 
+  const exportIntersectedJSON = () => {
+    if (!canvas) return;
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+
+    const filteredData = canvas.getObjects().filter(obj => {
+      obj.setCoords();
+
+      const boundingRect = obj.getBoundingRect();
+
+      const isVisible = !(
+        boundingRect.left > canvasWidth ||
+        boundingRect.top > canvasHeight ||
+        boundingRect.left + boundingRect.width < 0 ||
+        boundingRect.top + boundingRect.height < 0
+      );
+
+      return isVisible;
+    });
+
+    const json = canvas.toObject();
+    json.objects = filteredData.map(obj => obj.toObject());
+    return json;
+  };
+
   return {
     canvas,
     setCanvas,
@@ -270,5 +295,6 @@ export const useFabric = () => {
     redo,
     undo,
     saveHistory,
+    exportIntersectedJSON,
   };
 };
