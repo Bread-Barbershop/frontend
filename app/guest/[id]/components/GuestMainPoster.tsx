@@ -41,7 +41,7 @@ export const GuestMainPoster = ({ json }: { json: unknown }) => {
 
     canvas.clear();
 
-    canvas.loadFromJSON(json, () => {
+    canvas.loadFromJSON(json).then(() => {
       canvas.getObjects().forEach(lockObject);
       canvas.discardActiveObject();
       canvas.selection = false;

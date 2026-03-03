@@ -62,7 +62,12 @@ function isGuestBgm(x: unknown): x is GuestBgm {
 function isGuestMainPosterData(x: unknown): x is GuestMainPosterData {
   if (!isRecord(x)) return false;
 
-  return typeof x.version === 'string' && Array.isArray(x.objects);
+  return (
+    typeof x.version === 'string' &&
+    Array.isArray(x.objects) &&
+    x.objects.every(isRecord) &&
+    (x.background === undefined || typeof x.background === 'string')
+  );
   // 타입 검사 강화 필요함
 }
 

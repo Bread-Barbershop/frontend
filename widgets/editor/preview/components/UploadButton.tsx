@@ -57,7 +57,11 @@ function UploadButton() {
       userBgmFileId: audioFileId ?? null,
     };
 
-    const mainPoster = canvas?.toJSON();
+    // 포스터 아예 없는 경우 여기서 처리하면 될듯
+    const mainPoster = canvas?.toJSON() ?? {
+      version: '7.1.0',
+      objects: [],
+    };
 
     await saveInvitationFlow({
       images: task,
