@@ -1,7 +1,9 @@
 import { cookies } from 'next/headers';
 
-import { ensureDataJsonFile } from '@/app/api/drive/_lib/ensureDataJsonFile';
-import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
+// import {
+//   downloadFiles,
+//   loadInvitations,
+// } from '@/app/api/drive/_lib/invitationService';
 import LeftPanel from '@/widgets/editor/leftPanel/LeftPanel';
 import Preview from '@/widgets/editor/preview/Preview';
 import RightPanel from '@/widgets/editor/rightPanel/RightPanel';
@@ -21,21 +23,35 @@ export default async function EditorPage({
   const accessToken = cookieStore.get('access_token')?.value;
   console.log(accessToken);
 
-  const response = await fetch(
-    `https://www.googleapis.com/drive/v3/files/${id}?alt=media`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: 'application/json',
-      },
-    }
-  );
+  // const response = await fetch(
+  //   `https://www.googleapis.com/drive/v3/files/${id}`,
+  //   {
+  //     headers: {
+  //       Authorization: `Bearer ${accessToken}`,
+  //       Accept: 'application/json',
+  //     },
+  //   }
+  // );
 
-  if (response.ok) {
-    const data = await response.json();
-    console.log(data);
-  } else {
-    console.error('에러 발생:', response.status);
+  // if (response.ok) {
+  //   const data = await response.json();
+  //   console.log(data);
+  // } else {
+  //   console.error('에러 발생:', response.status);
+  // }
+  try {
+    // const result = await loadInvitations(id);
+    // if (result.files && result.files[0].id) {
+    //   result.files.map(async file => {
+    //     if (file.mimeType?.includes('floder')) {
+    //       const result = await loadInvitations(file.id!);
+    //       const jsonFile = await downloadFiles(result.id!);
+    //     }
+    //     const jsonFile = await downloadFiles(file.id!);
+    //   });
+    // }
+  } catch (err) {
+    console.error('초대장 로드 중 에러 발생:', err);
   }
   return (
     <FabricProvider>
