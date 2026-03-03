@@ -2,6 +2,8 @@
 import { Canvas, FabricObject } from 'fabric';
 import { useEffect, useRef, useState } from 'react';
 
+import '@/widgets/mainPoster/libs/customImage-filter';
+
 export const GuestMainPoster = ({ json }: { json: unknown }) => {
   const [canvas, setCanvas] = useState<Canvas | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);

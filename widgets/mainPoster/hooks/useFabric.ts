@@ -277,8 +277,9 @@ export const useFabric = () => {
       return isVisible;
     });
 
-    const json = canvas.toObject();
-    json.objects = filteredData.map(obj => obj.toObject());
+    const propertiesToInclude = ['filters', 'id', 'name'];
+    const json = canvas.toObject(propertiesToInclude);
+    json.objects = filteredData.map(obj => obj.toObject(propertiesToInclude));
     return json;
   };
 
