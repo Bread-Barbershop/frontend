@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { PicturePopViewer } from '@/components/molecules/picture/PicturePopViewer';
+import { useResolvedImageSources } from '@/shared/hooks/useResolvedImageSources';
 import { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 
@@ -25,11 +26,7 @@ function GalleryPreview({
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const preview = useMemo(() => {
-    return (blockInfo.props.images ?? []).map(file =>
-      URL.createObjectURL(file)
-    );
-  }, [blockInfo.props.images]);
+  const preview = useResolvedImageSources(blockInfo.props.images);
 
   const variant = (blockInfo.props.template ??
     'galleryType1') as GalleryVariant;
