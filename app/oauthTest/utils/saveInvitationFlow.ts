@@ -1,3 +1,9 @@
+import {
+  SerializedTextboxProps,
+  SerializedImageProps,
+  SerializedObjectProps,
+} from 'fabric';
+
 import { EditorBlock } from '@/shared/types/block';
 
 import { retryFailedOnce } from './retryFailedOnce';
@@ -37,9 +43,20 @@ export type BgmData = {
   userBgmFileId: string | null;
 };
 
+export type MainPosterData = {
+  version: string;
+  objects: (
+    | SerializedTextboxProps
+    | SerializedImageProps
+    | SerializedObjectProps
+  )[];
+  background?: string;
+};
+
 type InvitationPayload = {
   blocks: EditorBlock[];
   bgm: BgmData;
+  mainPoster: MainPosterData;
 };
 
 export async function saveInvitationFlow(params: {
@@ -48,6 +65,7 @@ export async function saveInvitationFlow(params: {
   data: EditorBlock[]; // useEditorStore의 데이터 타입.
   bgmData: BgmData;
   invitationUuid?: string; // 수정 진입이면 해당 파라미터가 존재함.
+  mainPoster: MainPosterData;
 }): Promise<{
   success: boolean;
   invitationUuid: string;
@@ -67,7 +85,8 @@ export async function saveInvitationFlow(params: {
     usedAccessToken: string;
   };
 }> {
-  const { images, audio, data, bgmData, invitationUuid } = params;
+  // 여기에 포스터 데이터 추가
+  const { images, audio, data, bgmData, invitationUuid, mainPoster } = params;
 
   // 1) 서버에서 폴더 구조 + fresh 토큰 받기
   const prepRes = await fetch('/api/drive/saveInvitation', {
@@ -188,9 +207,11 @@ export async function saveInvitationFlow(params: {
       : null,
   };
 
+  // 여기에 포스터 데이터 추가
   const payload: InvitationPayload = {
     blocks: newData,
     bgm: finalBgm,
+    mainPoster: mainPoster,
   };
 
   // 편집 데이터가 기록될 json 파일 생성.

@@ -4,6 +4,7 @@ import { useShallow } from 'zustand/shallow';
 import { saveInvitationFlow } from '@/app/oauthTest/utils/saveInvitationFlow';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import SaveModal from './SaveModal';
 
@@ -18,6 +19,8 @@ function UploadButton() {
       block: state.block,
     }))
   );
+
+  const { exportIntersectedJSON } = useFabricContext();
 
   const {
     selectedBgmId,
@@ -54,11 +57,18 @@ function UploadButton() {
       userBgmFileId: audioFileId ?? null,
     };
 
+    // 포스터 아예 없는 경우 여기서 처리하면 될듯
+    const mainPoster = exportIntersectedJSON() ?? {
+      version: '7.1.0',
+      objects: [],
+    };
+
     await saveInvitationFlow({
       images: task,
       audio: userFile,
       data: block,
       bgmData, // bgm의 data 버전.
+      mainPoster,
     });
     setIsLoading(false);
   };

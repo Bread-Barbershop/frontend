@@ -1,4 +1,9 @@
-import type { GuestBlock, GuestBgm, GuestPayload } from '../types/guestTypes';
+import type {
+  GuestBlock,
+  GuestBgm,
+  GuestMainPosterData,
+  GuestPayload,
+} from '../types/guestTypes';
 
 /**
  * data.json이 게스트 렌더링에 필요한 "최상위 payload 객체" 형식인지 검증합니다.
@@ -54,11 +59,24 @@ function isGuestBgm(x: unknown): x is GuestBgm {
   );
 }
 
+function isGuestMainPosterData(x: unknown): x is GuestMainPosterData {
+  if (!isRecord(x)) return false;
+
+  return (
+    typeof x.version === 'string' &&
+    Array.isArray(x.objects) &&
+    x.objects.every(isRecord) &&
+    (x.background === undefined || typeof x.background === 'string')
+  );
+  // 타입 검사 강화 필요함
+}
+
 export function isGuestPayload(x: unknown): x is GuestPayload {
   if (!isRecord(x)) return false;
 
   if (!Array.isArray(x.blocks)) return false;
   if (!x.blocks.every(isGuestBlock)) return false;
+  if (!isGuestMainPosterData(x.mainPoster)) return false;
 
   return isGuestBgm(x.bgm);
 }
