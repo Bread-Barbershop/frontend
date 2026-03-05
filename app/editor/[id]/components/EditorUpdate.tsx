@@ -1,14 +1,13 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useShallow } from 'zustand/shallow';
 
-import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import LeftPanel from '@/widgets/editor/leftPanel/LeftPanel';
 import Preview from '@/widgets/editor/preview/Preview';
 import RightPanel from '@/widgets/editor/rightPanel/RightPanel';
 import { FabricProvider } from '@/widgets/mainPoster/context/FabricContext';
 
+import { useInitData } from '../hooks/useInitData';
 import { useSavedData } from '../hooks/useSavedData';
 
 interface Props {
@@ -16,27 +15,19 @@ interface Props {
   uuid: string;
 }
 
-function EditorUpdate({ folderId }: Props) {
-  const { blocks } = useSavedData(folderId);
-  const { setBlock, updateImage, selectedBlock } = useEditorStore(
-    useShallow(state => ({
-      setBlock: state.setBlock,
-      updateImage: state.updateImage,
-      selectedBlock: state.selectedBlock,
-    }))
-  );
-
+function EditorUpdate({ folderId, uuid }: Props) {
+  const { savedData, loading, error } = useSavedData(folderId);
+  const { initEditStore, initBgmStore } = useInitData({ savedData, uuid });
   useEffect(() => {
-    if (blocks) {
-      setBlock(blocks);
-      blocks.forEach(block => {
-        if ('images' in block.props) {
-          updateImage(block.id, block.props.images);
-        }
-      });
-      selectedBlock('mainPoster');
+    if (savedData) {
+      initEditStore();
+      initBgmStore();
     }
-  }, [blocks, setBlock, updateImage, selectedBlock]);
+  }, [savedData]);
+
+  if (error) return <div>에러</div>;
+  if (loading) return <div>로딩중</div>;
+
   return (
     <FabricProvider>
       <div className="w-screen h-screen bg-[#E7E9EB] flex flex-col gap-13 justify-center overflow-hidden">

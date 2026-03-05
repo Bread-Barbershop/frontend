@@ -1,28 +1,16 @@
 import { NextResponse } from 'next/server';
 
+import {
+  ResponseData,
+  UpdateInvitationResponse,
+} from '@/app/editor/[id]/types/savedata';
 import { EditorBlock } from '@/shared/types/block';
 
 import {
   downloadFiles,
-  DriveListResponse,
   getFilesInFolder,
   loadInvitations,
-} from '../_lib/invitationService';
-
-export interface JsonData {
-  blocks: EditorBlock[]; // singular to match store
-}
-
-interface ResponseData {
-  config: JsonData;
-  images: DriveListResponse;
-  audios: DriveListResponse;
-}
-
-interface UpdateInvitationResponse extends ResponseData {
-  success: boolean;
-  error?: string;
-}
+} from '../_lib/getSaveDataFetch';
 
 export async function GET(
   request: Request
@@ -34,9 +22,20 @@ export async function GET(
   const responseData: ResponseData = {
     config: {
       blocks: [], // singular
+      mainPoster: '',
+      bgm: {
+        selectedBgmId: null,
+        isLoop: false,
+        volume: 0.2,
+        userBgmTitle: null,
+        userBgmDuration: null,
+        userBgmFileId: null,
+      },
     }, // data.json 내용
     images: {}, // 이미지 파일 목록 (ID, Name 등)
     audios: {}, // 오디오 파일 목록
+    imageFolderId: '',
+    audioFolderId: '',
   };
 
   try {
@@ -49,6 +48,11 @@ export async function GET(
     for (const file of result.files) {
       // 1. 폴더인 경우: 내부 파일 리스트(ID, Name)만 수집
       if (file.mimeType?.includes('folder')) {
+        if (file.name?.toLowerCase().includes('image')) {
+          responseData.imageFolderId = file.id!;
+        } else if (file.name?.toLowerCase().includes('audio')) {
+          responseData.audioFolderId = file.id!;
+        }
         const folderContent = await getFilesInFolder(file.id!);
 
         // 폴더 이름에 따라 분류 (예: 'images' 폴더, 'audio' 폴더)
@@ -64,11 +68,12 @@ export async function GET(
       // // 2. JSON 파일인 경우: 설정값(Config)으로 파싱해서 저장
       else if (file.mimeType?.includes('json')) {
         const fileContent = await downloadFiles(file.id!);
-
         // 데이터 호환성 처리 (block vs blocks)
         if (fileContent) {
           responseData.config = {
             blocks: fileContent.blocks,
+            mainPoster: fileContent.mainPoster,
+            bgm: fileContent.bgm,
           };
         }
       }
@@ -83,7 +88,18 @@ export async function GET(
       {
         success: false,
         error: (error as Error).message,
-        config: { blocks: [] as EditorBlock[] },
+        config: {
+          blocks: [] as EditorBlock[],
+          mainPoster: '',
+          bgm: {
+            selectedBgmId: null,
+            isLoop: false,
+            volume: 0.2,
+            userBgmTitle: null,
+            userBgmDuration: null,
+            userBgmFileId: null,
+          },
+        },
         images: {},
         audios: {},
       } as UpdateInvitationResponse,

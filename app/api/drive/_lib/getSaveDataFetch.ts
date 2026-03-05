@@ -2,8 +2,7 @@ import 'server-only';
 
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
-
-import { JsonData } from '../updateInvitaion/route';
+import { JsonData } from '@/app/editor/[id]/types/savedata';
 
 export type InviteListItem = {
   folderId: string;
@@ -105,52 +104,3 @@ export async function getFilesInFolder(
     return null;
   }
 }
-
-// export async function downloadBlob(fileList): Promise<any[]> {
-//   const chunkSize = 5;
-//   const results = [];
-
-//   for (let i = 0; i < fileList.length; i += chunkSize) {
-//     const chunk = fileList.slice(i, i + chunkSize);
-
-//     const chunkPromises = chunk.map(async fileInfo => {
-//       const res = await googleFetch(
-//         `https://www.googleapis.com/drive/v3/files/${fileInfo.id}?alt=media`,
-//         { cache: 'no-store' }
-//       );
-
-//       if (!res.ok) throw new Error(`Download failed: ${fileInfo.name}`);
-
-//       // 1. 응답을 ArrayBuffer로 받습니다.
-//       const arrayBuffer = await res.arrayBuffer();
-
-//       // 2. Buffer를 사용하여 Base64로 인코딩합니다.
-//       const buffer = Buffer.from(arrayBuffer);
-
-//       // 3. Sharp를 이용한 리사이즈 처리
-//       const resizedBuffer = await sharp(buffer)
-//         .resize(800) // 가로 800px로 리사이즈 (세로는 비율 맞춰 자동 조절)
-//         .jpeg({ quality: 70 }) // JPEG로 변환하며 품질 70%로 압축
-//         .toBuffer();
-
-//       // 3. 클라이언트 JSON 응답에 포함될 객체를 반환합니다.
-//       return {
-//         id: fileInfo.id,
-//         name: fileInfo.name,
-//         mimeType: fileInfo.mimeType,
-//         size: resizedBuffer.byteLength,
-//         // 클라이언트 <img> 태그의 src에서 바로 사용할 수 있는 형태
-//         dataUrl: resizedBuffer,
-//       };
-//     });
-
-//     const downloadedChunk = await Promise.all(chunkPromises);
-//     results.push(...downloadedChunk);
-
-//     console.log(
-//       `${results.length} / ${fileList.length} 완료 (Base64 변환 포함)...`
-//     );
-//   }
-
-//   return results;
-// }

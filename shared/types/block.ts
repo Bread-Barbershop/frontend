@@ -49,4 +49,13 @@ export interface UISlice {
   setActiveTab: (tab: 'text' | 'image' | 'diagram' | null) => void;
 }
 
-export type EditorState = BlockSlice & ImageSlice & UISlice;
+export interface DriveSlice {
+  invitationUuid: string;
+  audioFolderId: string;
+  imageFolderId: string;
+  setInvitationUuid: (uuid: string) => void;
+  setAudioFolderId: (id: string) => void;
+  setImageFolderId: (id: string) => void;
+}
+
+export type EditorState = BlockSlice & ImageSlice & UISlice & DriveSlice;

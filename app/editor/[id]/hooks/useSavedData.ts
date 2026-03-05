@@ -1,26 +1,79 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { BgmData } from '@/app/oauthTest/utils/saveInvitationFlow';
 import { EditorBlock } from '@/shared/types/block';
 
-import { fetchImageFiles } from '../utils/fetchFile';
+import { SavedData } from '../types/savedata';
+import { fetchAudioFiles, fetchImageFiles } from '../utils/fetchFile';
 
 interface UseSavedDataReturn {
-  blocks: EditorBlock[]; // singular
-  bgm: BgmData | null;
+  savedData: SavedData | null;
   loading: boolean;
   error: string | null;
 }
 
 export const useSavedData = (folderId: string): UseSavedDataReturn => {
-  const [blocks, setBlocks] = useState<EditorBlock[]>([]); // internal state renamed to avoid confusion
-  const [bgm, setBgm] = useState<BgmData | null>(null);
+  const [savedData, setSavedData] = useState<SavedData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // 이전 요청 취소용
   const abortRef = useRef<AbortController | null>(null);
 
+  const setImageFile = async (
+    blocks: EditorBlock[],
+    imageFile: { id: string; name: string }[] | null,
+    signal: AbortSignal
+  ) => {
+    if (imageFile && imageFile.length > 0) {
+      const imageFiles = await fetchImageFiles(imageFile, signal);
+
+      if (imageFiles.length > 0) {
+        const galleryBlock = blocks.map(block => {
+          return {
+            ...block,
+            props: {
+              ...block.props,
+              ...('images' in block.props && {
+                images: block.props.images
+                  .map(image => {
+                    return imageFiles.find(file => file.id === image)?.file;
+                  })
+                  .filter((file): file is File => file !== undefined),
+              }),
+            },
+          };
+        });
+        return galleryBlock;
+      } else {
+        const emptyImageBlock = blocks.map(block => {
+          return {
+            ...block,
+            props: {
+              ...block.props,
+              ...('images' in block.props && {
+                images: [],
+              }),
+            },
+          };
+        });
+        return emptyImageBlock;
+      }
+    } else {
+      return blocks;
+    }
+  };
+
+  const setAudioFile = async (
+    audioFile: { id: string; name: string }[],
+    signal: AbortSignal
+  ) => {
+    if (audioFile && audioFile.length > 0) {
+      const audioFiles = await fetchAudioFiles(audioFile, signal);
+      return audioFiles[0].file;
+    } else {
+      return null;
+    }
+  };
   useEffect(() => {
     if (!folderId) return;
 
@@ -42,48 +95,32 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
         if (!res.ok) throw new Error('저장된 데이터를 불러오지 못했습니다.');
 
         const data = await res.json();
-        console.log('data', data);
+
         if (!data || !data.config) return;
 
         const updatedBlocks: EditorBlock[] = data.config.blocks;
-        setBgm(
-          data.config.blocks.find(
-            (block: EditorBlock) => block.component === 'bgm'
-          )?.props as BgmData
+
+        const updatedBlocksWithImages = await setImageFile(
+          updatedBlocks,
+          data.images.files,
+          controller.signal
         );
 
-        if (data.images?.files && data.images.files.length > 0) {
-          const imageFiles = await fetchImageFiles(
-            data.images.files,
-            controller.signal
-          );
+        const audioFiles = await setAudioFile(
+          data.audios.files,
+          controller.signal
+        );
 
-          if (imageFiles.length > 0) {
-            const galleryBlock = updatedBlocks.map(block => {
-              return {
-                ...block,
-                props: {
-                  ...block.props,
-                  ...('images' in block.props && {
-                    images: block.props.images
-                      .map(image => {
-                        return imageFiles.find(file => file.id === image)?.file;
-                      })
-                      .filter((file): file is File => file !== undefined),
-                  }),
-                },
-              };
-            });
-            setBlocks(galleryBlock);
-          }
-        } else {
-          setBlocks(updatedBlocks);
-        }
-
-        // 3) 오디오 처리 (TODO)
-        if (data.audios.length > 0) {
-          console.log('audioList', data.audios);
-        }
+        setSavedData({
+          blocks: updatedBlocksWithImages,
+          mainPoster: data.mainPoster,
+          bgm: {
+            bgmInfo: data.config.bgm,
+            bgmFile: audioFiles,
+          },
+          imageFolderId: data.imageFolderId,
+          audioFolderId: data.audioFolderId,
+        });
       } catch (err) {
         if (err instanceof DOMException && err.name === 'AbortError') return;
         const message = err instanceof Error ? err.message : '알 수 없는 에러';
@@ -99,5 +136,9 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
     return () => controller.abort();
   }, [folderId]);
 
-  return { blocks, bgm, loading, error };
+  return {
+    savedData,
+    loading,
+    error,
+  };
 };
