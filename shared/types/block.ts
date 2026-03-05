@@ -20,7 +20,7 @@ export type EditorBlock<T extends BlockType = BlockType> = {
 
 export type ImageArray = {
   id: string;
-  file: File[];
+  file: (File | string)[];
 };
 
 export interface BlockSlice {
@@ -33,11 +33,12 @@ export interface BlockSlice {
   deleteBlock: (id: string) => void;
   moveBlock: (from: number, to: number) => void;
   addAllBlock: (type: InvitationType) => void;
+  setBlock: (block: EditorBlock[]) => void;
 }
 
 export interface ImageSlice {
   images: ImageArray[];
-  updateImage: (id: string, image: File[]) => void;
+  updateImage: (id: string, image: (File | string)[]) => void;
   updateImageId: (id: string, imageId: string) => void;
 }
 

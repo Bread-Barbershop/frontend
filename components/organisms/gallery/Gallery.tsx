@@ -28,7 +28,7 @@ function Gallery({ blockInfo, id }: Props) {
     updateBlock(id, { title: e.target.value });
   };
 
-  const handlePictureChange = (file: File[]) => {
+  const handlePictureChange = (file: (File | string)[]) => {
     updateBlock(id, { images: file });
     updateImage(id, file);
   };

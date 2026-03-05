@@ -8,7 +8,7 @@ export const gallerySchema = {
       required: true,
     },
     images: {
-      default: [] as File[],
+      default: [] as (File | string)[],
       required: true,
     },
     template: {

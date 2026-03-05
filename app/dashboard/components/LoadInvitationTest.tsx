@@ -127,8 +127,8 @@ export default function LoadInvitationTest() {
     }
   };
 
-  const handleUpdate = (folderId: string) => {
-    router.push(`/editor/${folderId}`);
+  const handleUpdate = (folderId: string, uuid: string) => {
+    router.push(`/editor/${folderId}?uuid=${uuid}`);
   };
 
   return (
@@ -235,7 +235,12 @@ export default function LoadInvitationTest() {
                       <button
                         type="button"
                         className="mt-3 w-full rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-                        onClick={() => handleUpdate(invite.folderId)}
+                        onClick={() =>
+                          handleUpdate(
+                            invite.folderId,
+                            invite.invitationUuid ?? ''
+                          )
+                        }
                       >
                         Update invitation
                       </button>

@@ -12,10 +12,10 @@ import { cn } from '@/shared/utils/cn';
 import { pictureVariants } from './Picture.style';
 
 interface PictureProps {
-  value?: File[];
+  value?: (File | string)[];
   label: string;
   multiple?: boolean;
-  onChange?: (files: File[]) => void;
+  onChange?: (files: (File | string)[]) => void;
   className?: string;
   previewClassName?: string;
   inputClassName?: string;
@@ -31,7 +31,7 @@ export const Picture = ({
   inputClassName,
 }: PictureProps) => {
   const [preview, setPreview] = useState<
-    { id: string; src: string; file: File }[]
+    { id: string; src: string; file: File | string }[]
   >([]);
 
   const previewRef = useRef(preview);
@@ -50,6 +50,15 @@ export const Picture = ({
       if (existing) {
         return existing;
       }
+
+      if (typeof file === 'string') {
+        return {
+          id: crypto.randomUUID(),
+          src: file,
+          file,
+        };
+      }
+
       return {
         id: crypto.randomUUID(),
         src: URL.createObjectURL(file), // 새 파일이면 URL 생성
@@ -58,10 +67,12 @@ export const Picture = ({
     });
 
     // 2. 삭제된 파일의 URL 해제 (메모리 누수 방지)
-    const newFileSet = new Set(value ?? []);
+    const newValueSet = new Set(value ?? []);
     prev.forEach(item => {
-      if (!newFileSet.has(item.file)) {
-        URL.revokeObjectURL(item.src);
+      if (!newValueSet.has(item.file)) {
+        if (typeof item.file !== 'string') {
+          URL.revokeObjectURL(item.src);
+        }
       }
     });
 
@@ -71,7 +82,11 @@ export const Picture = ({
   // 컴포넌트 언마운트 시 모든 URL 해제
   useEffect(() => {
     return () => {
-      previewRef.current.forEach(item => URL.revokeObjectURL(item.src));
+      previewRef.current.forEach(item => {
+        if (typeof item.file !== 'string') {
+          URL.revokeObjectURL(item.src);
+        }
+      });
     };
   }, []);
 
@@ -83,7 +98,9 @@ export const Picture = ({
     }
   };
 
-  const handleMove = (items: { id: string; src: string; file: File }[]) => {
+  const handleMove = (
+    items: { id: string; src: string; file: File | string }[]
+  ) => {
     setPreview(items);
     const files = items.map(item => item.file);
     if (onChange) {
