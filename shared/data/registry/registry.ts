@@ -1,3 +1,4 @@
+import { accountDefinition } from '@/components/organisms/account/Account.definition';
 import { bgmDefinition } from '@/components/organisms/bgm/Bgm.definition';
 import { galleryDefinition } from '@/components/organisms/gallery/Gallery.definition';
 import { greetingDefinition } from '@/components/organisms/greeting/Greeting.definition';
@@ -12,4 +13,5 @@ export const blockRegistry = {
   greeting: { ...blockSchema.greeting, ...greetingDefinition },
   phone: { ...blockSchema.phone, ...phoneDefinition },
   place: { ...blockSchema.place, ...placeDefinition },
+  account: { ...blockSchema.account, ...accountDefinition },
 } as const;

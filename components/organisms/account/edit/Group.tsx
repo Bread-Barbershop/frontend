@@ -1,0 +1,163 @@
+import { useState } from 'react';
+
+import { UtilityButton } from '@/components/atoms/button';
+import { ActionField } from '@/components/molecules/action-field';
+import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
+import { MultiField } from '@/components/molecules/multi-field';
+import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
+import { TextField } from '@/components/molecules/text-field';
+
+import { Popup } from '../../popup/Popup';
+
+import { GroupEdit } from './GroupEdit';
+
+interface Props {
+  groupIndex: number;
+  groupName: string;
+  accountList: {
+    name: string;
+    bank: string;
+    account: string;
+    kakao: boolean;
+  }[];
+  totalGroupList: { name: string }[];
+  totalAccountList: {
+    name: string;
+    bank: string;
+    account: string;
+    kakao: boolean;
+  }[][];
+  handleUpdateBlock: (
+    key: string,
+    value:
+      | string
+      | number
+      | boolean
+      | { name: string }[]
+      | { name: string; bank: string; account: string; kakao: boolean }[]
+      | { name: string; bank: string; account: string; kakao: boolean }[][]
+  ) => void;
+}
+
+export const Group = ({
+  handleUpdateBlock,
+  groupIndex,
+  groupName,
+  accountList,
+  totalGroupList,
+  totalAccountList,
+}: Props) => {
+  const [isGroupPopupOpen, setIsGroupPopupOpen] = useState(false);
+
+  return (
+    <div className="w-full flex flex-col gap-2">
+      <NavigationBar
+        action={
+          <UtilityButton
+            size="md"
+            variant="primary"
+            onClick={() => setIsGroupPopupOpen(true)}
+          >
+            그룹편집
+          </UtilityButton>
+        }
+        direction="right"
+        className="w-full"
+      >
+        {`${groupIndex + 1}번 그룹`}
+      </NavigationBar>
+      <ActionField
+        label="그룹명"
+        inputProps={{
+          placeholder: '그룹명',
+          value: groupName,
+          onChange: e =>
+            handleUpdateBlock(`groupList.${groupIndex}.name`, e.target.value),
+        }}
+        buttonProps={{
+          children: '계좌추가',
+          variant: 'bordered',
+          size: 'sm',
+          onClick: () => {
+            const newAccounts = [
+              ...accountList,
+              { name: '', bank: '', account: '' },
+            ];
+            handleUpdateBlock(`accountList.${groupIndex}`, newAccounts);
+          },
+        }}
+      />
+      {accountList.map((account, i) => (
+        <div key={i} className="flex flex-col gap-2">
+          <TextField
+            label="예금주명"
+            inputProps={{
+              placeholder: '예금주명',
+              value: account.name,
+              onChange: e =>
+                handleUpdateBlock(
+                  `accountList.${groupIndex}.${i}.name`,
+                  e.target.value
+                ),
+            }}
+            className="w-full"
+          />
+          <MultiField
+            label={`${i + 1}번 계좌`}
+            className="w-full"
+            subInputProps={{
+              placeholder: '은행',
+              className: 'w-[65px]',
+              value: account.bank,
+              onChange: e =>
+                handleUpdateBlock(
+                  `accountList.${groupIndex}.${i}.bank`,
+                  e.target.value
+                ),
+            }}
+            mainInputProps={{
+              placeholder: '계좌번호',
+              className: 'w-[173px]',
+              value: account.account,
+              onChange: e =>
+                handleUpdateBlock(
+                  `accountList.${groupIndex}.${i}.account`,
+                  e.target.value
+                ),
+            }}
+          />
+          <div className="flex items-center gap-4 w-full">
+            <p className="text-sm font-semibold">추가 기능</p>
+            <Checkbox
+              aria-label="간편 송금(카카오페이)"
+              direction="right"
+              checked={account.kakao || false}
+              onChange={e =>
+                handleUpdateBlock(
+                  `accountList.${groupIndex}.${i}.kakao`,
+                  e.target.checked
+                )
+              }
+            >
+              <p className="text-text-tertiary">간편 송금(카카오페이)</p>
+            </Checkbox>
+          </div>
+        </div>
+      ))}
+
+      {isGroupPopupOpen && (
+        <Popup
+          popupTitle="그룹 편집"
+          onClose={() => setIsGroupPopupOpen(false)}
+          wrapperClassName="w-[200px] pt-1 pb-2"
+        >
+          <GroupEdit
+            handleUpdateBlock={handleUpdateBlock}
+            totalAccountList={totalAccountList}
+            totalGroupList={totalGroupList}
+          />
+        </Popup>
+      )}
+    </div>
+  );
+};
