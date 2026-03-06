@@ -114,7 +114,7 @@ function CoupleIntroductionPreview({
           >
             {showProfileImage &&
               (profile.imageSrc ? (
-                <div className="relative size-40 rounded-lg overflow-hidden">
+                <div className="relative size-40 rounded-3xl overflow-hidden">
                   <Image
                     src={profile.imageSrc}
                     alt={`${profile.label} 사진`}
