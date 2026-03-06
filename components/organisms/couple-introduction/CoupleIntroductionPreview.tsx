@@ -1,26 +1,10 @@
-﻿import { HTMLAttributes, useEffect, useMemo } from 'react';
+﻿import { type HTMLAttributes } from 'react';
 
 import { Image } from '@/components/atoms/image';
 import { PreviewTitle } from '@/components/atoms/preview-title/PreviewTitle';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
+import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 import { EditorBlock } from '@/shared/types/block';
-
-function usePreviewImage(files?: File[]) {
-  const src = useMemo(() => {
-    const file = files?.[0];
-    return file ? URL.createObjectURL(file) : null;
-  }, [files]);
-
-  useEffect(() => {
-    return () => {
-      if (src) {
-        URL.revokeObjectURL(src);
-      }
-    };
-  }, [src]);
-
-  return src;
-}
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'coupleIntroduction'>;
@@ -47,8 +31,8 @@ function CoupleIntroductionPreview({
     brideFirst = false,
   } = blockInfo.props;
 
-  const groomImageSrc = usePreviewImage(groomImage);
-  const brideImageSrc = usePreviewImage(brideImage);
+  const groomImageSrc = useResolvedImageSource(groomImage?.[0]);
+  const brideImageSrc = useResolvedImageSource(brideImage?.[0]);
   const html = messageHtml ?? tiptapJsonToHtmlUniversal(messageJson);
   const profileItems = brideFirst
     ? [
