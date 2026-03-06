@@ -3,8 +3,17 @@
 import { Image } from '@/components/atoms/image';
 import { PreviewTitle } from '@/components/atoms/preview-title/PreviewTitle';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
-import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
+import {
+  useResolvedImageSource,
+  type ResolvableImageSource,
+} from '@/shared/hooks/useResolvedImageSource';
 import { EditorBlock } from '@/shared/types/block';
+
+function pickResolvableImageSource(value: unknown): ResolvableImageSource {
+  if (value instanceof File) return value;
+  if (typeof value === 'string') return value;
+  return null;
+}
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'coupleIntroduction'>;
@@ -22,6 +31,7 @@ function CoupleIntroductionPreview({
     bride = '',
     groomImage = [],
     brideImage = [],
+    images = [],
     title = '',
     messageJson = null,
     messageHtml = null,
@@ -31,8 +41,31 @@ function CoupleIntroductionPreview({
     brideFirst = false,
   } = blockInfo.props;
 
-  const groomImageSrc = useResolvedImageSource(groomImage?.[0]);
-  const brideImageSrc = useResolvedImageSource(brideImage?.[0]);
+  const hasGroomImageSlot = Array.isArray(groomImage) && groomImage.length > 0;
+  const hasBrideImageSlot = Array.isArray(brideImage) && brideImage.length > 0;
+  const transportImages = Array.isArray(images) ? images : [];
+
+  let groomTransportSource = pickResolvableImageSource(transportImages[0]);
+  let brideTransportSource = pickResolvableImageSource(transportImages[1]);
+
+  if (transportImages.length === 1) {
+    if (hasGroomImageSlot && !hasBrideImageSlot) {
+      groomTransportSource = pickResolvableImageSource(transportImages[0]);
+      brideTransportSource = null;
+    } else if (!hasGroomImageSlot && hasBrideImageSlot) {
+      groomTransportSource = null;
+      brideTransportSource = pickResolvableImageSource(transportImages[0]);
+    }
+  }
+
+  const groomFallbackSource = pickResolvableImageSource(groomImage?.[0]);
+  const brideFallbackSource = pickResolvableImageSource(brideImage?.[0]);
+  const groomImageSrc = useResolvedImageSource(
+    groomTransportSource ?? groomFallbackSource
+  );
+  const brideImageSrc = useResolvedImageSource(
+    brideTransportSource ?? brideFallbackSource
+  );
   const html = messageHtml ?? tiptapJsonToHtmlUniversal(messageJson);
   const profileItems = brideFirst
     ? [

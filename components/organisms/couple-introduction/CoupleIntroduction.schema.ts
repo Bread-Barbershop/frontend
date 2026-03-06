@@ -19,6 +19,10 @@ export const coupleIntroductionSchema = {
       default: [] as File[],
       required: false,
     },
+    images: {
+      default: [] as Array<File | string>,
+      required: false,
+    },
     title: {
       default: '',
       required: false,

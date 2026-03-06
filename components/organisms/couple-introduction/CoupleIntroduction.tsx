@@ -20,6 +20,7 @@ interface Props {
 
 function CoupleIntroduction({ blockInfo, id }: Props) {
   const updateBlock = useEditorStore(state => state.updateBlock);
+  const updateImage = useEditorStore(state => state.updateImage);
   const {
     groom = '',
     bride = '',
@@ -50,6 +51,19 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
     };
   }, [debouncedUpdateMessage]);
 
+  const syncProfileImages = (nextGroomImage: File[], nextBrideImage: File[]) => {
+    const mergedImages = [nextGroomImage[0], nextBrideImage[0]].filter(
+      (file): file is File => file instanceof File
+    );
+
+    updateBlock(id, {
+      groomImage: nextGroomImage,
+      brideImage: nextBrideImage,
+      images: mergedImages,
+    });
+    updateImage(id, mergedImages);
+  };
+
   const handleGroomChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { groom: e.target.value });
   };
@@ -59,11 +73,11 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
   };
 
   const handleGroomImageChange = (files: File[]) => {
-    updateBlock(id, { groomImage: files.slice(0, 1) });
+    syncProfileImages(files.slice(0, 1), brideImage);
   };
 
   const handleBrideImageChange = (files: File[]) => {
-    updateBlock(id, { brideImage: files.slice(0, 1) });
+    syncProfileImages(groomImage, files.slice(0, 1));
   };
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
