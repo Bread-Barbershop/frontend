@@ -1,4 +1,5 @@
 import { bgmSchema } from '@/components/organisms/bgm/Bgm.schema';
+import { calendarSchema } from '@/components/organisms/calendar/Calendar.schema';
 import { coupleIntroductionSchema } from '@/components/organisms/couple-introduction/CoupleIntroduction.schema';
 import { gallerySchema } from '@/components/organisms/gallery/Gallery.schema';
 import { greetingSchema } from '@/components/organisms/greeting/Greeting.schema';
@@ -14,4 +15,5 @@ export const blockSchema = {
   place: placeSchema,
   coupleIntroduction: coupleIntroductionSchema,
   video: videoSchema,
+  calendar: calendarSchema,
 } as const;
