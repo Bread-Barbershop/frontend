@@ -18,12 +18,13 @@ interface Props {
 function EditorUpdate({ folderId, uuid }: Props) {
   const { savedData, loading, error } = useSavedData(folderId);
   const { initEditStore, initBgmStore } = useInitData({ savedData, uuid });
+
   useEffect(() => {
     if (savedData) {
       initEditStore();
       initBgmStore();
     }
-  }, [savedData]);
+  }, [savedData, initEditStore, initBgmStore]);
 
   if (error) return <div>에러</div>;
   if (loading) return <div>로딩중</div>;

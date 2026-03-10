@@ -13,12 +13,16 @@ function UploadButton() {
   const tabRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { images, block } = useEditorStore(
-    useShallow(state => ({
-      images: state.images,
-      block: state.block,
-    }))
-  );
+  const { images, block, invitationUuid, imageFolderId, audioFolderId } =
+    useEditorStore(
+      useShallow(state => ({
+        images: state.images,
+        block: state.block,
+        invitationUuid: state.invitationUuid,
+        imageFolderId: state.imageFolderId,
+        audioFolderId: state.audioFolderId,
+      }))
+    );
 
   const { exportIntersectedJSON } = useFabricContext();
 
@@ -62,15 +66,44 @@ function UploadButton() {
       version: '7.1.0',
       objects: [],
     };
-
-    await saveInvitationFlow({
-      images: task,
-      audio: userFile,
-      data: block,
-      bgmData, // bgm의 data 버전.
-      mainPoster,
-    });
+    if (invitationUuid === '') {
+      await saveInvitationFlow({
+        images: task as { id: string; file: File }[],
+        audio: userFile,
+        data: block,
+        bgmData, // bgm의 data 버전.
+        mainPoster,
+      });
+    } else {
+      await trashFolder();
+      await saveInvitationFlow({
+        images: task as { id: string; file: File }[],
+        audio: userFile,
+        data: block,
+        bgmData, // bgm의 data 버전.
+        mainPoster,
+        invitationUuid: invitationUuid,
+      });
+    }
     setIsLoading(false);
+  };
+
+  const trashFolder = async () => {
+    try {
+      await Promise.all([
+        fetch(`/api/drive/deleteInvitation`, {
+          method: 'PATCH',
+          body: JSON.stringify({ folderId: imageFolderId }),
+        }),
+        fetch(`/api/drive/deleteInvitation`, {
+          method: 'PATCH',
+          body: JSON.stringify({ folderId: audioFolderId }),
+        }),
+      ]);
+      console.log('이미지 및 오디오 폴더 삭제 완료');
+    } catch (error) {
+      console.error('삭제 중 오류 발생:', error);
+    }
   };
 
   useEffect(() => {

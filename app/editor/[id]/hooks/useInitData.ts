@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
@@ -40,7 +41,7 @@ export const useInitData = ({
     }))
   );
 
-  const initEditStore = () => {
+  const initEditStore = useCallback(() => {
     if (blocks) {
       setBlock(blocks);
       blocks.forEach(block => {
@@ -59,9 +60,20 @@ export const useInitData = ({
       setInvitationUuid(uuid);
     }
     selectedBlock('mainPoster');
-  };
-  const initBgmStore = () => {
-    console.log(bgm);
+  }, [
+    blocks,
+    imageFolderId,
+    audioFolderId,
+    uuid,
+    setBlock,
+    updateImage,
+    setImageFolderId,
+    setAudioFolderId,
+    setInvitationUuid,
+    selectedBlock,
+  ]);
+
+  const initBgmStore = useCallback(() => {
     if (bgm) {
       if (bgm.bgmFile) {
         setUserFile(
@@ -73,7 +85,7 @@ export const useInitData = ({
       setIsLoop(bgm.bgmInfo?.isLoop || false);
       setSelectedBgmId(bgm.bgmInfo?.selectedBgmId || null);
     }
-  };
+  }, [bgm, setUserFile, setIsLoop, setSelectedBgmId]);
 
   return {
     initEditStore,

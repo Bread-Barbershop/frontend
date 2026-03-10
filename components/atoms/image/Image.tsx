@@ -29,6 +29,11 @@ export const Image = ({
   // blob: URL인 경우 서버 최적화가 불가능하므로 unoptimized 속성 자동 적용
   const isBlob = typeof src === 'string' && src.startsWith('blob:');
 
+  // Google Drive 또는 Google User Content URL인 경우 리다이렉트 이슈 방지를 위해 unoptimized 속성 자동 적용
+  const isGoogleDrive =
+    typeof src === 'string' &&
+    (src.includes('drive.google.com') || src.includes('googleusercontent.com'));
+
   // fill 속성 사용 시 기본 sizes 설정 (브라우저가 적절한 크기의 이미지를 요청하도록 유도)
   const defaultSizes = rest.fill
     ? '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
@@ -50,7 +55,7 @@ export const Image = ({
         {...rest}
         src={src}
         alt={alt}
-        unoptimized={rest.unoptimized || isBlob}
+        unoptimized={rest.unoptimized || isBlob || isGoogleDrive}
         sizes={rest.sizes || defaultSizes}
         className={cn(className, imageVariants({ loading: isLoading }))}
         onLoad={() => setIsLoading(false)}
