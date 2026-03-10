@@ -19,12 +19,31 @@ export function CalendarType3({
 
   const getEngShortTime = () => {
     if (!time) return { timeText: undefined, ampm: undefined };
-    const [hStr, mStr] = time.split(':');
-    const h = parseInt(hStr, 10);
-    const ampm = h >= 12 ? 'PM' : 'AM';
+
+    let isPM = true;
+    let timeStr = time;
+
+    // "오전 10:30" 형식 파싱
+    const parts = time.split(' ');
+    if (parts.length >= 2) {
+      isPM = parts[0] === '오후';
+      timeStr = parts[1];
+    } else {
+      // 기존 "14:30" 형식 호환
+      const [hStr] = time.split(':');
+      const h = parseInt(hStr, 10);
+      isPM = h >= 12;
+    }
+
+    const [hStr, mStr] = timeStr.split(':');
+    let h = parseInt(hStr, 10);
+    if (isNaN(h)) h = 12;
+
+    const ampm = isPM ? 'PM' : 'AM';
     const displayHour = h % 12 || 12;
+
     return {
-      timeText: `${displayHour}:${mStr}`,
+      timeText: `${displayHour}:${mStr || '00'}`,
       ampm,
     };
   };
@@ -54,7 +73,7 @@ export function CalendarType3({
             <div
               key={idx}
               className={cn(
-                'relative flex flex-col items-center justify-start text-sm font-serif z-10 h-11',
+                'relative flex flex-col items-center justify-start text-sm font-serif z-1 h-11',
                 dayObj.isCurrentMonth ? 'text-[#4A4A4A]' : 'text-[#D4D4D4]',
                 dayObj.isTargetDate ? 'text-white' : '',
                 dayObj.isTargetDate && 'bg-[#F28B82]'

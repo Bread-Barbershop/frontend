@@ -33,14 +33,14 @@ export function CalendarType1({
           >
             <div
               className={cn(
-                'flex items-center justify-center relative z-10 transition-colors w-8 h-8 text-[15px]',
+                'flex items-center justify-center relative z-1 transition-colors w-8 h-8 text-[15px]',
                 dayObj.isCurrentMonth ? 'text-[#4A4A4A]' : 'text-[#D4D4D4]',
                 dayObj.isTargetDate ? 'text-white' : ''
               )}
             >
               {dayObj.num}
               {dayObj.isTargetDate && (
-                <div className="absolute size-5.5 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 bg-[#F28B82] rounded-full" />
+                <div className="absolute size-5.5 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-1 bg-[#F28B82] rounded-full" />
               )}
             </div>
           </div>

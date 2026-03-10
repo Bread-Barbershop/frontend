@@ -1,25 +1,29 @@
+'use client';
+
+import { PreviewTitle } from '@/components/atoms/preview-title/PreviewTitle';
 import { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 
-import { CalendarTemplates } from './components';
+import { CalendarTemplates, DDayCountdown } from './components';
 import { useCalendarData } from './useCalendarData';
 
 interface Props {
   blockInfo: EditorBlock<'calendar'>;
   className: string;
-  titleClassName: string;
   language: 'ko' | 'en';
+  titleClassName?: string;
   onClick: () => void;
 }
 
 export function CalendarPreview({
   blockInfo,
   className,
-  titleClassName,
   language,
+  titleClassName,
   ...rest
 }: Props) {
-  const { date, time, showStringDate, template } = blockInfo.props;
+  const { date, time, showStringDate, template, showCalendar, showDday } =
+    blockInfo.props;
 
   const {
     currentYear,
@@ -38,23 +42,17 @@ export function CalendarPreview({
   return (
     <div
       className={cn(
-        'w-full py-8 px-5 flex flex-col items-center gap-6',
+        'w-full py-8 px-5 flex flex-col items-center gap-6 isolate',
         className
       )}
       {...rest}
     >
       {/* Title */}
-      <div className="flex flex-col items-center">
-        <p
-          className={cn(
-            'font-semibold tracking-[0.08rem] text-[#F28B82]',
-            titleClassName
-          )}
-        >
-          THE WEDDING CEREMONY
-        </p>
-        <p className="text-2xl mt-1 text-[#F28B82]">예식 일시</p>
-      </div>
+      <PreviewTitle
+        enTitle="THE WEDDING CEREMONY"
+        koTitle="예식 일시"
+        titleClassName={titleClassName}
+      />
 
       {/* String Date Display */}
       {showStringDate && (
@@ -64,16 +62,21 @@ export function CalendarPreview({
         </div>
       )}
 
-      <TemplateComponent
-        currentYear={currentYear}
-        currentMonth={currentMonth}
-        calendarDays={calendarDays}
-        monthOffset={monthOffset}
-        setMonthOffset={setMonthOffset}
-        headerDays={headerDays}
-        time={time}
-        language={language}
-      />
+      {showCalendar && (
+        <TemplateComponent
+          currentYear={currentYear}
+          currentMonth={currentMonth}
+          calendarDays={calendarDays}
+          monthOffset={monthOffset}
+          setMonthOffset={setMonthOffset}
+          headerDays={headerDays}
+          time={time}
+          language={language}
+        />
+      )}
+
+      {/* D-Day Countdown Display */}
+      {showDday && <DDayCountdown date={date} time={time} className="mt-2" />}
     </div>
   );
 }

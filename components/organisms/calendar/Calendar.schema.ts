@@ -4,7 +4,7 @@ export const calendarSchema = {
   type: calendarTemplate,
   fields: {
     date: {
-      default: () => new Date().toISOString(),
+      default: '',
       required: true,
     },
     time: {
