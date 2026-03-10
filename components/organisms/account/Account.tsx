@@ -13,6 +13,7 @@ import { EditorBlock } from '@/shared/types/block';
 import { debounce } from '@/shared/utils/debounce';
 
 import PopupOptions from '../popup/PopupOptions';
+import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
 import { ACCOUNT_SAMPLE_MESSAGES } from './accountSampleMessages';
 import { Group } from './edit/Group';
@@ -141,7 +142,7 @@ export const Account = ({ blockInfo, id }: Props) => {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center gap-1 px-5 py-3.5 w-93.75 min-h-65 max-h-200 overflow-y-scroll">
+    <LeftEditorWrapper ariaLabel="계좌번호">
       <NavigationBar>계좌번호</NavigationBar>
 
       <TextField
@@ -197,6 +198,6 @@ export const Account = ({ blockInfo, id }: Props) => {
           onClose={() => setIsSamplePopupOpen(false)}
         />
       )}
-    </div>
+    </LeftEditorWrapper>
   );
 };
