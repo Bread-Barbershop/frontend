@@ -7,6 +7,7 @@ import { Picture } from '@/components/molecules/picture';
 import { TextEditor } from '@/components/molecules/text-editor';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
+import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 import { debounce } from '@/shared/utils/debounce';
@@ -51,7 +52,10 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
     };
   }, [debouncedUpdateMessage]);
 
-  const syncProfileImages = (nextGroomImage: File[], nextBrideImage: File[]) => {
+  const syncProfileImages = (
+    nextGroomImage: File[],
+    nextBrideImage: File[]
+  ) => {
     const mergedImages = [nextGroomImage[0], nextBrideImage[0]].filter(
       (file): file is File => file instanceof File
     );
@@ -127,10 +131,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
       ];
 
   return (
-    <section
-      aria-label="신랑 신부 소개"
-      className="flex flex-col gap-1 w-93.75 rounded-lg px-5 pb-2.5"
-    >
+    <LeftEditorWrapper className="items-start" ariaLabel="신랑 신부 소개">
       <NavigationBar>신랑・신부 소개</NavigationBar>
 
       {profileFields.map(profile => (
@@ -226,7 +227,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
           </div>
         </div>
       </div>
-    </section>
+    </LeftEditorWrapper>
   );
 }
 
