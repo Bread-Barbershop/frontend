@@ -6,7 +6,7 @@ import { Label } from '@/components/atoms/label';
 import { Radio } from '@/components/atoms/radio/Radio';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
-import { LeftEditorWrapper } from '@/components/molecules/wrapper/LeftEditorWrapper';
+import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 
 import { PlayToggleButton } from './components/PlayToggleButton';
 import { BGM_LIST } from './data/bgmList';

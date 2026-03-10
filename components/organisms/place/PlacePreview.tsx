@@ -1,6 +1,6 @@
 import { HTMLAttributes } from 'react';
 
-import { MiddlePreviewWrapper } from '@/components/molecules/wrapper/MiddlePreviewWrapper';
+import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
 import type { EditorBlock } from '@/shared/types/block';
 
 import { Navigation } from './Navigation';

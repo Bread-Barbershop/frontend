@@ -2,7 +2,7 @@
 
 import { Image } from '@/components/atoms/image';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
-import { MiddlePreviewWrapper } from '@/components/molecules/wrapper/MiddlePreviewWrapper';
+import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
 import {
   useResolvedImageSource,
   type ResolvableImageSource,

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { PicturePopViewer } from '@/components/molecules/picture/PicturePopViewer';
-import { MiddlePreviewWrapper } from '@/components/molecules/wrapper/MiddlePreviewWrapper';
+import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
 import { useResolvedImageSources } from '@/shared/hooks/useResolvedImageSources';
 import { EditorBlock } from '@/shared/types/block';
 

@@ -10,7 +10,7 @@ import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { Selector } from '@/components/molecules/selector';
 import { TextField } from '@/components/molecules/text-field';
-import { LeftEditorWrapper } from '@/components/molecules/wrapper/LeftEditorWrapper';
+import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 

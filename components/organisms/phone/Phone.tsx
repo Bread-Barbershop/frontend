@@ -3,7 +3,7 @@
 import { UtilityButton } from '@/components/atoms/button';
 import { MultiField } from '@/components/molecules/multi-field';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
-import { LeftEditorWrapper } from '@/components/molecules/wrapper/LeftEditorWrapper';
+import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 

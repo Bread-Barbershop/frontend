@@ -6,7 +6,7 @@ import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationB
 import { TextEditor } from '@/components/molecules/text-editor';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
-import { LeftEditorWrapper } from '@/components/molecules/wrapper/LeftEditorWrapper';
+import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 import { debounce } from '@/shared/utils/debounce';
