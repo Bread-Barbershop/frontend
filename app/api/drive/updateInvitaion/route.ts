@@ -46,6 +46,7 @@ export async function GET(
     }
 
     for (const file of result.files) {
+      console.log('file', file);
       // 1. 폴더인 경우: 내부 파일 리스트(ID, Name)만 수집
       if (file.mimeType?.includes('folder')) {
         if (file.name?.toLowerCase().includes('image')) {
@@ -54,7 +55,7 @@ export async function GET(
           responseData.audioFolderId = file.id!;
         }
         const folderContent = await getFilesInFolder(file.id!);
-
+        // console.log('folderContent', folderContent);
         // 폴더 이름에 따라 분류 (예: 'images' 폴더, 'audio' 폴더)
         if (folderContent) {
           if (file.name?.toLowerCase().includes('image')) {

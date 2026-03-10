@@ -97,7 +97,7 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
         const data = await res.json();
 
         if (!data || !data.config) return;
-
+        console.log('data', data);
         const updatedBlocks: EditorBlock[] = data.config.blocks;
 
         const updatedBlocksWithImages = await setImageFile(
@@ -105,11 +105,12 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
           data.images.files,
           controller.signal
         );
-
+        console.log('updatedBlocksWithImages', updatedBlocksWithImages);
         const audioFiles = await setAudioFile(
           data.audios.files,
           controller.signal
         );
+        console.log('audioFiles', audioFiles);
 
         setSavedData({
           blocks: updatedBlocksWithImages,
