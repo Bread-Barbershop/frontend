@@ -5,9 +5,5 @@ interface Props {
 }
 
 export const RightEditorWrapper = ({ children }: Props) => {
-  return (
-    <div>
-      <div className="py-6">{children}</div>
-    </div>
-  );
+  return <section className="py-6">{children}</section>;
 };

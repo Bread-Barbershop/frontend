@@ -46,7 +46,7 @@ function Gallery({ blockInfo, id }: Props) {
   return (
     <LeftEditorWrapper ariaLabel="갤러리">
       <NavigationBar>갤러리</NavigationBar>
-      <div className="px-5 w-full flex flex-col gap-1">
+      <div className="w-full flex flex-col gap-1">
         <TextField
           label="제목"
           className="py-1.5"

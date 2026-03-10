@@ -1,9 +1,11 @@
+import { HTMLAttributes } from 'react';
+
 import { MiddlePreviewWrapper } from '@/components/molecules/wrapper/MiddlePreviewWrapper';
 import { EditorBlock } from '@/shared/types/block';
 
 import PhonePreviewPopup from './components/PhonePreviewPopup';
 
-interface Props {
+interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'phone'>;
   className: string;
 }

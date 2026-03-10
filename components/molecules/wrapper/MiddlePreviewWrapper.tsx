@@ -1,9 +1,9 @@
-import { ReactNode } from 'react';
+import { HTMLAttributes, ReactNode } from 'react';
 
 import { PreviewTitle } from '@/components/atoms/preview-title/PreviewTitle';
 import { cn } from '@/shared/utils/cn';
 
-interface Props {
+interface Props extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   className: string;
   noTitle?: boolean;

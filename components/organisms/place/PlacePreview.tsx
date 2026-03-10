@@ -3,8 +3,8 @@ import { HTMLAttributes } from 'react';
 import { MiddlePreviewWrapper } from '@/components/molecules/wrapper/MiddlePreviewWrapper';
 import type { EditorBlock } from '@/shared/types/block';
 
-import Map from './Map';
-import Navigation from './Navigation';
+import { Navigation } from './Navigation';
+import { PlaceMap } from './PlaceMap';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'place'>;
@@ -37,7 +37,7 @@ export const PlacePreview = ({
       <p className="font-normal text-text-tertiary pb-2.5">TEL. {placeTel}</p>
 
       {blockInfo.props.openMap && (
-        <Map
+        <PlaceMap
           lng={blockInfo.props.lng}
           lat={blockInfo.props.lat}
           category="preview"
