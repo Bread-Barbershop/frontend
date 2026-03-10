@@ -10,6 +10,8 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 import { debounce } from '@/shared/utils/debounce';
 
+import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
+
 import { Group } from './edit/Group';
 
 interface Props {
@@ -103,7 +105,7 @@ export const Account = ({ blockInfo, id }: Props) => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-1 px-5 py-3.5 w-93.75 min-h-65 max-h-200 overflow-y-auto">
+    <LeftEditorWrapper ariaLabel="계좌번호">
       <NavigationBar>계좌번호</NavigationBar>
 
       <TextField
@@ -136,6 +138,6 @@ export const Account = ({ blockInfo, id }: Props) => {
           handleUpdateBlock={handleUpdateBlock}
         />
       ))}
-    </div>
+    </LeftEditorWrapper>
   );
 };

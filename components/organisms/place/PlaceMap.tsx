@@ -6,7 +6,7 @@ type NaverMap = naver.maps.Map;
 type Lng = number;
 type Lat = number;
 
-function Map({
+export function PlaceMap({
   lng,
   lat,
   category = '',
@@ -56,4 +56,3 @@ function Map({
     </section>
   );
 }
-export default Map;

@@ -12,7 +12,7 @@ interface Props {
   name: string;
 }
 
-function Navigation({ lat, lng, name }: Props) {
+export function Navigation({ lat, lng, name }: Props) {
   const handleNavigation = (type: 'naver' | 'kakao' | 'tmap') => {
     if (
       // 추후 수정되거나 삭제될 부분
@@ -67,5 +67,3 @@ function Navigation({ lat, lng, name }: Props) {
     </div>
   );
 }
-
-export default Navigation;

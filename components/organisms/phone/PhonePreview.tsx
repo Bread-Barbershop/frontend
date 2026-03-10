@@ -1,16 +1,20 @@
+import { HTMLAttributes } from 'react';
+
+import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
 import { EditorBlock } from '@/shared/types/block';
 
 import PhonePreviewPopup from './components/PhonePreviewPopup';
 
-interface Props {
+interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'phone'>;
+  className: string;
 }
 
-function PhonePreview({ blockInfo }: Props) {
+function PhonePreview({ blockInfo, className, ...rest }: Props) {
   return (
-    <div className="flex flex-col items-center gap-2 py-8">
+    <MiddlePreviewWrapper noTitle={true} className={className} {...rest}>
       <PhonePreviewPopup contacts={blockInfo.props.contacts} />
-    </div>
+    </MiddlePreviewWrapper>
   );
 }
 export default PhonePreview;

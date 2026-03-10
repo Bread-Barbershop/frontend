@@ -7,15 +7,16 @@ import { useShallow } from 'zustand/shallow';
 import { Input } from '@/components/atoms/input';
 import { Label } from '@/components/atoms/label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
+import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { Selector } from '@/components/molecules/selector';
 import { TextField } from '@/components/molecules/text-field';
+import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 
 import { Popup } from '../popup/Popup';
 
-import Map from './Map';
-
+import { PlaceMap } from './PlaceMap';
 interface Props {
   blockInfo: EditorBlock<'place'>;
   id: string;
@@ -81,10 +82,8 @@ export function Place({ blockInfo, id }: Props) {
           setIsScriptLoaded(true);
         }}
       />
-      <div className="flex flex-col justify-center items-center gap-4 px-5 py-3.5 w-93.75 h-fit">
-        <div className="w-full flex justify-center pb-3.5">
-          <h2 className="text-text-primary font-semibold text-sm">오시는 길</h2>
-        </div>
+      <LeftEditorWrapper className="gap-4" ariaLabel="오시는 길">
+        <NavigationBar>오시는 길</NavigationBar>
         <TextField
           label="제목"
           inputProps={{
@@ -183,8 +182,8 @@ export function Place({ blockInfo, id }: Props) {
         {openMap &&
           isScriptLoaded &&
           Number.isFinite(lng) &&
-          Number.isFinite(lat) && <Map lng={lng} lat={lat} />}
-      </div>
+          Number.isFinite(lat) && <PlaceMap lng={lng} lat={lat} />}
+      </LeftEditorWrapper>
     </>
   );
 }
