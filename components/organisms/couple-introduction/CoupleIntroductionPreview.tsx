@@ -1,8 +1,8 @@
 ﻿import { type HTMLAttributes } from 'react';
 
 import { Image } from '@/components/atoms/image';
-import { PreviewTitle } from '@/components/atoms/preview-title/PreviewTitle';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
+import { MiddlePreviewWrapper } from '@/components/molecules/wrapper/MiddlePreviewWrapper';
 import {
   useResolvedImageSource,
   type ResolvableImageSource,
@@ -98,15 +98,14 @@ function CoupleIntroductionPreview({
       ];
 
   return (
-    <section className={`px-5 ${className}`} {...rest}>
-      <PreviewTitle
-        enTitle="INTRODUCTION"
-        koTitle={showTitle && title ? title : '신랑・신부 소개'}
-        className="mb-6"
-        titleClassName={titleClassName}
-      />
-
-      <div className="flex gap-4.5 justify-center">
+    <MiddlePreviewWrapper
+      className={className}
+      titleClassName={titleClassName}
+      enTitle="INTRODUCTION"
+      koTitle={showTitle && title ? title : '신랑・신부 소개'}
+      {...rest}
+    >
+      <div className="flex flex-row gap-4.5">
         {profileItems.map(profile => (
           <div
             key={profile.key}
@@ -140,7 +139,7 @@ function CoupleIntroductionPreview({
           dangerouslySetInnerHTML={{ __html: html }}
         />
       )}
-    </section>
+    </MiddlePreviewWrapper>
   );
 }
 

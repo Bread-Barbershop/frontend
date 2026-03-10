@@ -6,6 +6,7 @@ import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationB
 import { TextEditor } from '@/components/molecules/text-editor';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
+import { LeftEditorWrapper } from '@/components/molecules/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 import { debounce } from '@/shared/utils/debounce';
@@ -83,44 +84,41 @@ function Greeting({ blockInfo, id }: Props) {
   };
 
   return (
-    <section aria-label="인사말">
-      <div className="flex flex-col gap-1 w-93.75 rounded-lg px-5 pb-2.5">
-        <NavigationBar>인사말</NavigationBar>
+    <LeftEditorWrapper ariaLabel="인사말">
+      <NavigationBar>인사말</NavigationBar>
+      <TextField
+        label="제목"
+        inputProps={{
+          placeholder: '제목을 입력해 주세요',
+          value: blockInfo.props.title,
+          onChange: handleTitleChange,
+        }}
+        className="text-center"
+      />
 
-        <TextField
-          label="제목"
-          inputProps={{
-            placeholder: '제목을 입력해 주세요',
-            value: blockInfo.props.title,
-            onChange: handleTitleChange,
-          }}
-          className="text-center"
-        />
+      <NavigationBar
+        action={
+          <UtilityButton
+            size="md"
+            variant="primary"
+            onClick={() => setIsSamplePopupOpen(true)}
+          >
+            <Plus size={16} />
+            샘플문구
+          </UtilityButton>
+        }
+        direction="right"
+      >
+        내용
+      </NavigationBar>
 
-        <NavigationBar
-          action={
-            <UtilityButton
-              size="md"
-              variant="primary"
-              onClick={() => setIsSamplePopupOpen(true)}
-            >
-              <Plus size={16} />
-              샘플문구
-            </UtilityButton>
-          }
-          direction="right"
-        >
-          내용
-        </NavigationBar>
-
-        <TextEditor
-          key={`${id}-${editorResetKey}`}
-          value={blockInfo.props.messageJson}
-          defaultText="내용을 입력해 주세요"
-          defaultAlign="center"
-          onChange={handleEditorChange}
-        />
-      </div>
+      <TextEditor
+        key={`${id}-${editorResetKey}`}
+        value={blockInfo.props.messageJson}
+        defaultText="내용을 입력해 주세요"
+        defaultAlign="center"
+        onChange={handleEditorChange}
+      />
 
       {isSamplePopupOpen && (
         <PopupOptions
@@ -130,7 +128,7 @@ function Greeting({ blockInfo, id }: Props) {
           onClose={() => setIsSamplePopupOpen(false)}
         />
       )}
-    </section>
+    </LeftEditorWrapper>
   );
 }
 

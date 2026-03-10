@@ -3,6 +3,7 @@
 import { UtilityButton } from '@/components/atoms/button';
 import { MultiField } from '@/components/molecules/multi-field';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
+import { LeftEditorWrapper } from '@/components/molecules/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 
@@ -92,7 +93,7 @@ function Phone({ blockInfo, id }: Props) {
   };
 
   return (
-    <section className="flex flex-col justify-center gap-1 px-5 pb-2">
+    <LeftEditorWrapper ariaLabel="연락처">
       <NavigationBar>연락처</NavigationBar>
       {rows.map((contact, index) => (
         <MultiField
@@ -123,7 +124,7 @@ function Phone({ blockInfo, id }: Props) {
           추가 +
         </UtilityButton>
       </div>
-    </section>
+    </LeftEditorWrapper>
   );
 }
 
