@@ -1,9 +1,7 @@
 import { JSONContent } from '@tiptap/react';
-import { Plus } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useShallow } from 'zustand/shallow';
 
-import { UtilityButton } from '@/components/atoms/button';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { TextEditor } from '@/components/molecules/text-editor';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
@@ -12,9 +10,6 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 import { debounce } from '@/shared/utils/debounce';
 
-import PopupOptions from '../popup/PopupOptions';
-
-import { ACCOUNT_SAMPLE_MESSAGES } from './accountSampleMessages';
 import { Group } from './edit/Group';
 
 interface Props {
@@ -29,29 +24,7 @@ interface AccountType {
   kakao: boolean;
 }
 
-function createParagraphJson(text: string): JSONContent {
-  const lines = text.replace(/\r\n/g, '\n').split('\n');
-
-  return {
-    type: 'doc',
-    content: lines.map(line =>
-      line.length === 0
-        ? {
-            type: 'paragraph',
-            attrs: { textAlign: 'center' },
-          }
-        : {
-            type: 'paragraph',
-            attrs: { textAlign: 'center' },
-            content: [{ type: 'text', text: line }],
-          }
-    ),
-  };
-}
-
 export const Account = ({ blockInfo, id }: Props) => {
-  const [isSamplePopupOpen, setIsSamplePopupOpen] = useState(false);
-  const [editorResetKey, setEditorResetKey] = useState(0);
   const { updateBlock } = useEditorStore(
     useShallow(state => ({
       updateBlock: state.updateBlock,
@@ -129,19 +102,8 @@ export const Account = ({ blockInfo, id }: Props) => {
     debouncedUpdateMessage(json);
   };
 
-  const handleSampleSelect = (text: string) => {
-    debouncedUpdateMessage.cancel();
-    const messageJson = createParagraphJson(text);
-    updateBlock(id, {
-      messageJson,
-      messageHtml: tiptapJsonToHtmlInBrowser(messageJson),
-    });
-    setEditorResetKey(prev => prev + 1);
-    setIsSamplePopupOpen(false);
-  };
-
   return (
-    <div className="flex flex-col justify-center items-center gap-1 px-5 py-3.5 w-93.75 min-h-65 max-h-200 overflow-y-scroll">
+    <div className="flex flex-col items-center gap-1 px-5 py-3.5 w-93.75 min-h-65 max-h-200 overflow-y-auto">
       <NavigationBar>계좌번호</NavigationBar>
 
       <TextField
@@ -154,24 +116,10 @@ export const Account = ({ blockInfo, id }: Props) => {
         className="w-full text-center"
       />
 
-      <NavigationBar
-        action={
-          <UtilityButton
-            size="md"
-            variant="primary"
-            onClick={() => setIsSamplePopupOpen(true)}
-          >
-            <Plus size={16} />
-            샘플문구
-          </UtilityButton>
-        }
-        direction="right"
-      >
-        내용
-      </NavigationBar>
+      <NavigationBar>내용</NavigationBar>
 
       <TextEditor
-        key={`${id}-${editorResetKey}`}
+        key={`${id}`}
         value={blockInfo.props.messageJson}
         defaultText="내용을 입력해 주세요"
         defaultAlign="center"
@@ -188,15 +136,6 @@ export const Account = ({ blockInfo, id }: Props) => {
           handleUpdateBlock={handleUpdateBlock}
         />
       ))}
-
-      {isSamplePopupOpen && (
-        <PopupOptions
-          popupTitle="샘플 문구"
-          options={ACCOUNT_SAMPLE_MESSAGES}
-          onSelect={handleSampleSelect}
-          onClose={() => setIsSamplePopupOpen(false)}
-        />
-      )}
     </div>
   );
 };
