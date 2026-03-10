@@ -16,7 +16,7 @@ import { EditorBlock } from '@/shared/types/block';
 
 import { Popup } from '../popup/Popup';
 
-import Map from './Map';
+import { PlaceMap } from './PlaceMap';
 interface Props {
   blockInfo: EditorBlock<'place'>;
   id: string;
@@ -182,7 +182,7 @@ export function Place({ blockInfo, id }: Props) {
         {openMap &&
           isScriptLoaded &&
           Number.isFinite(lng) &&
-          Number.isFinite(lat) && <Map lng={lng} lat={lat} />}
+          Number.isFinite(lat) && <PlaceMap lng={lng} lat={lat} />}
       </LeftEditorWrapper>
     </>
   );
