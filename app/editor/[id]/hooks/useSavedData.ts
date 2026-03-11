@@ -114,7 +114,7 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
 
         setSavedData({
           blocks: updatedBlocksWithImages,
-          mainPoster: data.mainPoster,
+          mainPoster: data.config.mainPoster,
           bgm: {
             bgmInfo: data.config.bgm,
             bgmFile: audioFiles,

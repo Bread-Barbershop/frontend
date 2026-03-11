@@ -17,7 +17,10 @@ interface Props {
 
 function EditorUpdate({ folderId, uuid }: Props) {
   const { savedData, loading, error } = useSavedData(folderId);
-  const { initEditStore, initBgmStore } = useInitData({ savedData, uuid });
+  const { initEditStore, initBgmStore } = useInitData({
+    savedData,
+    uuid,
+  });
 
   useEffect(() => {
     if (savedData) {
@@ -30,7 +33,7 @@ function EditorUpdate({ folderId, uuid }: Props) {
   if (loading) return <div>로딩중</div>;
 
   return (
-    <FabricProvider>
+    <FabricProvider initialData={savedData?.mainPoster}>
       <div className="w-screen h-screen bg-[#E7E9EB] flex flex-col gap-13 justify-center overflow-hidden">
         <div className="flex justify-between items-center">
           <LeftPanel />
