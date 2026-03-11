@@ -2,8 +2,12 @@
  * @param {Object} item - 서버에서 넘어온 이미지 객체 { name, mimeType, dataUrl }
  * @returns {File} - 브라우저용 File 객체
  */
-export const blobToFile = async item => {
-  const res = await fetch(item.dataUrl);
+export const blobToFile = async (item: {
+  name: string;
+  mimeType: string;
+  dataurl: string;
+}) => {
+  const res = await fetch(item.dataurl);
   const blob = await res.blob();
 
   // 2. 변환된 Blob을 사용하여 File 객체 생성
