@@ -21,7 +21,11 @@ export const fetchImageFiles = async (
   const files = await Promise.all(
     images.map(async img => ({
       id: img.id,
-      file: await blobToFile(img),
+      file: await blobToFile({
+        name: img.name,
+        mimeType: img.mimeType,
+        dataurl: img.dataurl,
+      }),
     }))
   );
 
@@ -47,7 +51,11 @@ export const fetchAudioFiles = async (
     audios.audio.map(async audio => {
       return {
         id: audio.id,
-        file: await blobToFile(audio),
+        file: await blobToFile({
+          name: audio.name,
+          mimeType: audio.mimeType,
+          dataurl: audio.dataurl,
+        }),
       };
     })
   );
