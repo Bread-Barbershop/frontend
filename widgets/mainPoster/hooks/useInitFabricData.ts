@@ -8,8 +8,15 @@ export const useInitFabricData = () => {
   useEffect(() => {
     if (!canvas || !initialData) return;
 
-    canvas.loadFromJSON(initialData).then(() => {
-      canvas.renderAll();
-    });
+    const loadData = async () => {
+      try {
+        await canvas.loadFromJSON(initialData);
+        canvas.requestRenderAll();
+      } catch (error) {
+        console.error('Failed to load canvas data:', error);
+      }
+    };
+
+    loadData();
   }, [canvas, initialData]);
 };
