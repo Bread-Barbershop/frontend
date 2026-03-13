@@ -1,4 +1,5 @@
 import { bgmDefinition } from '@/components/organisms/bgm/Bgm.definition';
+import { coupleIntroductionDefinition } from '@/components/organisms/couple-introduction/CoupleIntroduction.definition';
 import { galleryDefinition } from '@/components/organisms/gallery/Gallery.definition';
 import { greetingDefinition } from '@/components/organisms/greeting/Greeting.definition';
 import { phoneDefinition } from '@/components/organisms/phone/Phone.definition';
@@ -12,4 +13,8 @@ export const blockRegistry = {
   greeting: { ...blockSchema.greeting, ...greetingDefinition },
   phone: { ...blockSchema.phone, ...phoneDefinition },
   place: { ...blockSchema.place, ...placeDefinition },
+  coupleIntroduction: {
+    ...blockSchema.coupleIntroduction,
+    ...coupleIntroductionDefinition,
+  },
 } as const;

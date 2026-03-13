@@ -1,17 +1,18 @@
-import { PreviewTitle } from '@/components/atoms/preview-title/PreviewTitle';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
+import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
 import { EditorBlock } from '@/shared/types/block';
 
 import type { HTMLAttributes } from 'react';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'greeting'>;
+  className: string;
   titleClassName: string;
 }
 
 function GreetingPreview({
   blockInfo,
-  className = '',
+  className,
   titleClassName,
   ...rest
 }: Props) {
@@ -20,15 +21,15 @@ function GreetingPreview({
     tiptapJsonToHtmlUniversal(blockInfo.props.messageJson);
 
   return (
-    <div className={`px-5 ${className}`} {...rest}>
-      <PreviewTitle
-        enTitle="INVITATION"
-        koTitle={blockInfo.props.title}
-        className="mb-6"
-        titleClassName={titleClassName}
-      />
+    <MiddlePreviewWrapper
+      className={className}
+      enTitle="INVITATION"
+      koTitle={blockInfo.props.title}
+      titleClassName={titleClassName}
+      {...rest}
+    >
       <div className="text-sm" dangerouslySetInnerHTML={{ __html: html }} />
-    </div>
+    </MiddlePreviewWrapper>
   );
 }
 
