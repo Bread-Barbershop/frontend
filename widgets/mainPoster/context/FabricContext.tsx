@@ -10,11 +10,19 @@ import { useFabricText } from '../hooks/useFabricText';
 type FabricContextType = ReturnType<typeof useFabric> &
   ReturnType<typeof useFabricGraphic> &
   ReturnType<typeof useFabricImage> &
-  ReturnType<typeof useFabricText>;
+  ReturnType<typeof useFabricText> & {
+    initialData?: string;
+  };
 
 const FabricContext = createContext<FabricContextType | null>(null);
 
-export const FabricProvider = ({ children }: { children: ReactNode }) => {
+export const FabricProvider = ({
+  children,
+  initialData,
+}: {
+  children: ReactNode;
+  initialData?: string;
+}) => {
   const fabricValues = useFabric();
 
   const fabricTextValues = useFabricText({
@@ -34,6 +42,7 @@ export const FabricProvider = ({ children }: { children: ReactNode }) => {
     ...fabricDiagramValues,
     ...fabricImageValues,
     ...fabricTextValues,
+    initialData,
   };
 
   return (

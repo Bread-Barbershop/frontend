@@ -53,8 +53,8 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
   }, [debouncedUpdateMessage]);
 
   const syncProfileImages = (
-    nextGroomImage: File[],
-    nextBrideImage: File[]
+    nextGroomImage: (File | string)[],
+    nextBrideImage: (File | string)[]
   ) => {
     const mergedImages = [nextGroomImage[0], nextBrideImage[0]].filter(
       (file): file is File => file instanceof File
@@ -76,11 +76,11 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
     updateBlock(id, { bride: e.target.value });
   };
 
-  const handleGroomImageChange = (files: File[]) => {
+  const handleGroomImageChange = (files: (File | string)[]) => {
     syncProfileImages(files.slice(0, 1), brideImage);
   };
 
-  const handleBrideImageChange = (files: File[]) => {
+  const handleBrideImageChange = (files: (File | string)[]) => {
     syncProfileImages(groomImage, files.slice(0, 1));
   };
 
