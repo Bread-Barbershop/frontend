@@ -29,32 +29,34 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
 
       if (imageFiles.length > 0) {
         const galleryBlock = blocks.map(block => {
-          return {
-            ...block,
-            props: {
-              ...block.props,
-              ...('images' in block.props && {
-                images: block.props.images
+          if ('images' in block.props) {
+            return {
+              ...block,
+              props: {
+                ...block.props,
+                images: (block.props.images || [])
                   .map(image => {
                     return imageFiles.find(file => file.id === image)?.file;
                   })
                   .filter((file): file is File => file !== undefined),
-              }),
-            },
-          };
+              },
+            };
+          }
+          return block;
         });
         return galleryBlock;
       } else {
         const emptyImageBlock = blocks.map(block => {
-          return {
-            ...block,
-            props: {
-              ...block.props,
-              ...('images' in block.props && {
+          if ('images' in block.props) {
+            return {
+              ...block,
+              props: {
+                ...block.props,
                 images: [],
-              }),
-            },
-          };
+              },
+            };
+          }
+          return block;
         });
         return emptyImageBlock;
       }
