@@ -1,5 +1,3 @@
-import { cookies } from 'next/headers';
-
 import LoadInvitationTest from '@/app/dashboard/components/LoadInvitationTest';
 import GoogleLoginButton from '@/app/oauthTest/components/GoogleLoginButton';
 import LoginStatusListener from '@/app/oauthTest/components/LoginStatusListener';
@@ -9,10 +7,6 @@ export const metadata = {
 };
 
 export default async function DashboardPage() {
-  const cookieStore = await cookies();
-
-  const accessToken = cookieStore.get('access_token')?.value;
-  console.log(accessToken);
   return (
     <main className="min-h-dvh px-6 py-12">
       <div className="mx-auto w-full max-w-2xl space-y-6">

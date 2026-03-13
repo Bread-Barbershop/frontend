@@ -12,6 +12,7 @@ function UploadButton() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const tabRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFail, setIsFail] = useState(false);
 
   const { images, block, invitationUuid, imageFolderId, audioFolderId } =
     useEditorStore(
@@ -75,7 +76,13 @@ function UploadButton() {
         mainPoster,
       });
     } else {
-      await trashFolder();
+      const result = await trashFolder();
+      //실패 토스트 알람 표시
+      if (!result) {
+        setIsLoading(false);
+        setIsFail(true);
+        return;
+      }
       await saveInvitationFlow({
         images: task as { id: string; file: File }[],
         audio: userFile,
@@ -92,17 +99,18 @@ function UploadButton() {
     try {
       await Promise.all([
         fetch(`/api/drive/deleteInvitation`, {
-          method: 'PATCH',
+          method: 'DELETE',
           body: JSON.stringify({ folderId: imageFolderId }),
         }),
         fetch(`/api/drive/deleteInvitation`, {
-          method: 'PATCH',
+          method: 'DELETE',
           body: JSON.stringify({ folderId: audioFolderId }),
         }),
       ]);
-      console.log('이미지 및 오디오 폴더 삭제 완료');
+      return true;
     } catch (error) {
       console.error('삭제 중 오류 발생:', error);
+      return false;
     }
   };
 
@@ -134,7 +142,7 @@ function UploadButton() {
       >
         저장하기
       </button>
-      {isModalOpen && <SaveModal isLoading={isLoading} />}
+      {isModalOpen && <SaveModal isLoading={isLoading} isFail={isFail} />}
     </div>
   );
 }

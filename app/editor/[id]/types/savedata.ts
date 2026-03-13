@@ -37,7 +37,7 @@ export interface UpdateInvitationResponse extends ResponseData {
 export interface AudioFile {
   id: string;
   name: string;
-  dataurl: string;
+  dataUrl: string;
   mimeType: string;
 }
 export interface AudioResponse {
@@ -49,7 +49,7 @@ export interface AudioResponse {
 export interface ImageFile {
   id: string;
   name: string;
-  dataurl: string;
+  dataUrl: string;
   mimeType: string;
 }
 export interface ImageResponse {

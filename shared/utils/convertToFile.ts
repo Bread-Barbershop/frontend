@@ -5,9 +5,9 @@
 export const blobToFile = async (item: {
   name: string;
   mimeType: string;
-  dataurl: string;
+  dataUrl: string;
 }) => {
-  const res = await fetch(item.dataurl);
+  const res = await fetch(item.dataUrl);
   const blob = await res.blob();
 
   // 2. 변환된 Blob을 사용하여 File 객체 생성

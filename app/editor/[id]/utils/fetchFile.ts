@@ -3,7 +3,7 @@ import { blobToFile } from '@/shared/utils/convertToFile';
 import { AudioResponse, ImageResponse } from '../types/savedata';
 
 export const fetchImageFiles = async (
-  imageList: { id: string; name: string }[],
+  imageList: { id: string; name: string; mimeType: string }[],
   signal: AbortSignal
 ): Promise<{ id: string; file: File }[]> => {
   const res = await fetch('/api/drive/getFileInfo', {
@@ -24,7 +24,7 @@ export const fetchImageFiles = async (
       file: await blobToFile({
         name: img.name,
         mimeType: img.mimeType,
-        dataurl: img.dataurl,
+        dataUrl: img.dataUrl,
       }),
     }))
   );
@@ -33,7 +33,7 @@ export const fetchImageFiles = async (
 };
 
 export const fetchAudioFiles = async (
-  audioList: { id: string; name: string }[],
+  audioList: { id: string; name: string; mimeType: string }[],
   signal: AbortSignal
 ): Promise<{ id: string; file: File }[]> => {
   const res = await fetch('/api/drive/getAudioInfo', {
@@ -54,7 +54,7 @@ export const fetchAudioFiles = async (
         file: await blobToFile({
           name: audio.name,
           mimeType: audio.mimeType,
-          dataurl: audio.dataurl,
+          dataUrl: audio.dataUrl,
         }),
       };
     })

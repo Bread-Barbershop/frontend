@@ -36,7 +36,7 @@ export default async function GuestPage({
   if (!isGuestPayload(payload)) {
     notFound();
   }
-  console.log(payload);
+
   return (
     <main className="min-h-screen bg-neutral-50">
       <div className="relative mx-auto w-full max-w-93.75 bg-white shadow-sm">

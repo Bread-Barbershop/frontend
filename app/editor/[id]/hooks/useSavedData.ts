@@ -21,7 +21,7 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
 
   const setImageFile = async (
     blocks: EditorBlock[],
-    imageFile: { id: string; name: string }[] | null,
+    imageFile: { id: string; name: string; mimeType: string }[] | null,
     signal: AbortSignal
   ) => {
     if (imageFile && imageFile.length > 0) {
@@ -64,7 +64,7 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
   };
 
   const setAudioFile = async (
-    audioFile: { id: string; name: string }[],
+    audioFile: { id: string; name: string; mimeType: string }[],
     signal: AbortSignal
   ) => {
     if (audioFile && audioFile.length > 0) {
@@ -97,7 +97,7 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
         const data = await res.json();
 
         if (!data || !data.config) return;
-        console.log('data', data);
+
         const updatedBlocks: EditorBlock[] = data.config.blocks;
 
         const updatedBlocksWithImages = await setImageFile(
@@ -105,12 +105,11 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
           data.images.files,
           controller.signal
         );
-        console.log('updatedBlocksWithImages', updatedBlocksWithImages);
+
         const audioFiles = await setAudioFile(
           data.audios.files,
           controller.signal
         );
-        console.log('audioFiles', audioFiles);
 
         setSavedData({
           blocks: updatedBlocksWithImages,

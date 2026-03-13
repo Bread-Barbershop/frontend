@@ -25,9 +25,9 @@ function GalleryPreview({
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  console.log('blockInfo', blockInfo);
+
   const preview = useResolvedImageSources(blockInfo.props.images);
-  console.log('preview', preview);
+
   const variant = (blockInfo.props.template ??
     'galleryType1') as GalleryVariant;
   const ratio = (blockInfo.props.ratio ?? '1:1') as RatioType;
