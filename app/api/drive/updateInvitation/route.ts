@@ -48,6 +48,7 @@ export async function GET(
     for (const file of result.files) {
       // 1. 폴더인 경우: 내부 파일 리스트(ID, Name)만 수집
       if (file.mimeType?.includes('folder')) {
+        if (!file.id) continue;
         if (file.name?.toLowerCase().includes('image')) {
           responseData.imageFolderId = file.id!;
         } else if (file.name?.toLowerCase().includes('audio')) {

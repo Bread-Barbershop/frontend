@@ -34,26 +34,20 @@ export interface UpdateInvitationResponse extends ResponseData {
   error?: string;
 }
 
-export interface AudioFile {
+export interface FileInfo {
   id: string;
   name: string;
   dataUrl: string;
   mimeType: string;
 }
 export interface AudioResponse {
-  audio: AudioFile[];
+  audio: FileInfo[];
   success: boolean;
   error?: string;
 }
 
-export interface ImageFile {
-  id: string;
-  name: string;
-  dataUrl: string;
-  mimeType: string;
-}
 export interface ImageResponse {
-  images: ImageFile[];
+  images: FileInfo[];
   success: boolean;
   error?: string;
 }

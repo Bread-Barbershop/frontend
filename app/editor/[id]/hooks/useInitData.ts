@@ -45,7 +45,7 @@ export const useInitData = ({
     if (blocks) {
       setBlock(blocks);
       blocks.forEach(block => {
-        if ('images' in block.props) {
+        if ('images' in block.props && block.props.images instanceof Array) {
           updateImage(block.id, block.props.images);
         }
       });

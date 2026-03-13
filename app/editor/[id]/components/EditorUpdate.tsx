@@ -30,7 +30,7 @@ function EditorUpdate({ folderId, uuid }: Props) {
   }, [savedData, initEditStore, initBgmStore]);
 
   if (error) return <div>에러</div>;
-  if (loading) return <div>로딩중</div>;
+  if (loading || !savedData) return <div>로딩중</div>;
 
   return (
     <FabricProvider initialData={savedData?.mainPoster}>

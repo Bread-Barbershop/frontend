@@ -71,7 +71,7 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
   ) => {
     if (audioFile && audioFile.length > 0) {
       const audioFiles = await fetchAudioFiles(audioFile, signal);
-      return audioFiles[0].file;
+      return audioFiles.length > 0 ? audioFiles[0].file : null;
     } else {
       return null;
     }
@@ -90,7 +90,7 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
 
       try {
         // 1) 저장된 데이터 조회
-        const res = await fetch(`/api/drive/updateInvitaion?id=${folderId}`, {
+        const res = await fetch(`/api/drive/updateInvitation?id=${folderId}`, {
           signal: controller.signal,
         });
 
@@ -98,18 +98,24 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
 
         const data = await res.json();
 
-        if (!data || !data.config) return;
+        if (
+          !data?.config ||
+          !Array.isArray(data.config.blocks) ||
+          !data.config.bgm
+        ) {
+          throw new Error('저장 데이터 형식이 올바르지 않습니다.');
+        }
 
         const updatedBlocks: EditorBlock[] = data.config.blocks;
 
         const updatedBlocksWithImages = await setImageFile(
           updatedBlocks,
-          data.images.files,
+          data.images.files ?? null,
           controller.signal
         );
 
         const audioFiles = await setAudioFile(
-          data.audios.files,
+          data.audios.files ?? null,
           controller.signal
         );
 
@@ -129,7 +135,9 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
         setError(message);
         console.error(err);
       } finally {
-        setLoading(false);
+        if (abortRef.current === controller) {
+          setLoading(false);
+        }
       }
     };
 

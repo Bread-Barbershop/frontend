@@ -6,6 +6,7 @@ export const fetchImageFiles = async (
   imageList: { id: string; name: string; mimeType: string }[],
   signal: AbortSignal
 ): Promise<{ id: string; file: File }[]> => {
+  if (imageList.length === 0) return [];
   const res = await fetch('/api/drive/getFileInfo', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -36,6 +37,7 @@ export const fetchAudioFiles = async (
   audioList: { id: string; name: string; mimeType: string }[],
   signal: AbortSignal
 ): Promise<{ id: string; file: File }[]> => {
+  if (audioList.length === 0) return [];
   const res = await fetch('/api/drive/getAudioInfo', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

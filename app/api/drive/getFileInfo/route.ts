@@ -5,7 +5,12 @@ import { googleFetch } from '../_lib/googleFetch';
 
 export async function POST(req: Request) {
   const { fileList } = await req.json(); // [{id, name}, ...]
-
+  if (!Array.isArray(fileList) || fileList.length === 0) {
+    return NextResponse.json(
+      { success: false, error: 'Invalid or empty fileList' },
+      { status: 400 }
+    );
+  }
   try {
     const resizedImages = await Promise.all(
       fileList.map(
@@ -14,6 +19,9 @@ export async function POST(req: Request) {
           const res = await googleFetch(
             `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`
           );
+          if (!res.ok) {
+            throw new Error(`Failed to fetch file ${file.id}: ${res.status}`);
+          }
 
           const buffer = Buffer.from(await res.arrayBuffer());
 
@@ -28,7 +36,7 @@ export async function POST(req: Request) {
             id: file.id,
             name: file.name,
             // JSON 전송을 위해 Base64 문자열로 변환
-            dataUrl: `data:image/jpeg;base64,${resizedBuffer.toString('base64')}`,
+            dataUrl: `data:${file.mimeType};base64,${resizedBuffer.toString('base64')}`,
             mimeType: file.mimeType,
           };
         }

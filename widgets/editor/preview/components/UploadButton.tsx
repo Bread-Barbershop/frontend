@@ -59,62 +59,69 @@ function UploadButton() {
   );
 
   const handleUpload = async () => {
-    setIsLoading(true);
-    const task = images.flatMap(item =>
-      item.file.map(file => ({ id: item.id, file }))
-    );
+    try {
+      setIsLoading(true);
+      const task = images.flatMap(item =>
+        item.file.map(file => ({ id: item.id, file }))
+      );
 
-    const bgmData = {
-      selectedBgmId: selectedBgmId ?? null,
-      isLoop,
-      volume,
-      userBgmTitle: userFileName ?? null,
-      userBgmDuration: userDuration ?? null,
-      userBgmFileId: audioFileId ?? null,
-    };
+      const bgmData = {
+        selectedBgmId: selectedBgmId ?? null,
+        isLoop,
+        volume,
+        userBgmTitle: userFileName ?? null,
+        userBgmDuration: userDuration ?? null,
+        userBgmFileId: audioFileId ?? null,
+      };
 
-    // 포스터 아예 없는 경우 여기서 처리하면 될듯
-    const mainPoster = exportIntersectedJSON() ?? {
-      version: '7.1.0',
-      objects: [],
-    };
-    if (invitationUuid === '') {
-      const saveResult = await saveInvitationFlow({
-        images: task as { id: string; file: File }[],
-        audio: userFile,
-        data: block,
-        bgmData, // bgm의 data 버전.
-        mainPoster,
-      });
-      setInvitationUuid(saveResult.invitationUuid);
-      setImageFolderId(saveResult.folders.imageFolderId);
-      setAudioFolderId(saveResult.folders.audioFolderId);
-    } else {
-      const result = await trashFolder();
-      //실패 토스트 알람 표시
-      if (!result) {
-        setIsLoading(false);
-        setIsFail(true);
-        return;
+      // 포스터 아예 없는 경우 여기서 처리하면 될듯
+      const mainPoster = exportIntersectedJSON() ?? {
+        version: '7.1.0',
+        objects: [],
+      };
+      if (invitationUuid === '') {
+        const saveResult = await saveInvitationFlow({
+          images: task as { id: string; file: File }[],
+          audio: userFile,
+          data: block,
+          bgmData, // bgm의 data 버전.
+          mainPoster,
+        });
+        setInvitationUuid(saveResult.invitationUuid);
+        setImageFolderId(saveResult.folders.imageFolderId);
+        setAudioFolderId(saveResult.folders.audioFolderId);
+      } else {
+        const result = await trashFolder();
+        //실패 토스트 알람 표시
+        if (!result) {
+          setIsLoading(false);
+          setIsFail(true);
+          return;
+        }
+        const saveResult = await saveInvitationFlow({
+          images: task as { id: string; file: File }[],
+          audio: userFile,
+          data: block,
+          bgmData, // bgm의 data 버전.
+          mainPoster,
+          invitationUuid: invitationUuid,
+        });
+        setInvitationUuid(saveResult.invitationUuid);
+        setImageFolderId(saveResult.folders.imageFolderId);
+        setAudioFolderId(saveResult.folders.audioFolderId);
       }
-      const saveResult = await saveInvitationFlow({
-        images: task as { id: string; file: File }[],
-        audio: userFile,
-        data: block,
-        bgmData, // bgm의 data 버전.
-        mainPoster,
-        invitationUuid: invitationUuid,
-      });
-      setInvitationUuid(saveResult.invitationUuid);
-      setImageFolderId(saveResult.folders.imageFolderId);
-      setAudioFolderId(saveResult.folders.audioFolderId);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('저장 중 오류 발생:', error);
+      setIsFail(true);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const trashFolder = async () => {
     try {
-      await Promise.all([
+      const responses = await Promise.all([
         fetch(`/api/drive/deleteInvitation`, {
           method: 'DELETE',
           body: JSON.stringify({ folderId: imageFolderId }),
@@ -124,7 +131,7 @@ function UploadButton() {
           body: JSON.stringify({ folderId: audioFolderId }),
         }),
       ]);
-      return true;
+      return responses.every(response => response.ok);
     } catch (error) {
       console.error('삭제 중 오류 발생:', error);
       return false;
