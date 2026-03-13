@@ -19,8 +19,8 @@ function SaveModal({ isLoading, isFail }: Props) {
           <div className="pt-5">
             <p className="font-semibold text-sm">
               {isFail
-                ? '성공적으로 저장되었습니다!'
-                : '파일 저장에 실패하였습니다.'}
+                ? '파일 저장에 실패하였습니다.'
+                : '성공적으로 저장되었습니다!'}
             </p>
           </div>
           <div>

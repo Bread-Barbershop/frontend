@@ -14,16 +14,27 @@ function UploadButton() {
   const [isLoading, setIsLoading] = useState(false);
   const [isFail, setIsFail] = useState(false);
 
-  const { images, block, invitationUuid, imageFolderId, audioFolderId } =
-    useEditorStore(
-      useShallow(state => ({
-        images: state.images,
-        block: state.block,
-        invitationUuid: state.invitationUuid,
-        imageFolderId: state.imageFolderId,
-        audioFolderId: state.audioFolderId,
-      }))
-    );
+  const {
+    images,
+    block,
+    invitationUuid,
+    imageFolderId,
+    audioFolderId,
+    setInvitationUuid,
+    setImageFolderId,
+    setAudioFolderId,
+  } = useEditorStore(
+    useShallow(state => ({
+      images: state.images,
+      block: state.block,
+      invitationUuid: state.invitationUuid,
+      imageFolderId: state.imageFolderId,
+      audioFolderId: state.audioFolderId,
+      setInvitationUuid: state.setInvitationUuid,
+      setImageFolderId: state.setImageFolderId,
+      setAudioFolderId: state.setAudioFolderId,
+    }))
+  );
 
   const { exportIntersectedJSON } = useFabricContext();
 
@@ -68,13 +79,16 @@ function UploadButton() {
       objects: [],
     };
     if (invitationUuid === '') {
-      await saveInvitationFlow({
+      const saveResult = await saveInvitationFlow({
         images: task as { id: string; file: File }[],
         audio: userFile,
         data: block,
         bgmData, // bgm의 data 버전.
         mainPoster,
       });
+      setInvitationUuid(saveResult.invitationUuid);
+      setImageFolderId(saveResult.folders.imageFolderId);
+      setAudioFolderId(saveResult.folders.audioFolderId);
     } else {
       const result = await trashFolder();
       //실패 토스트 알람 표시
@@ -83,7 +97,7 @@ function UploadButton() {
         setIsFail(true);
         return;
       }
-      await saveInvitationFlow({
+      const saveResult = await saveInvitationFlow({
         images: task as { id: string; file: File }[],
         audio: userFile,
         data: block,
@@ -91,6 +105,9 @@ function UploadButton() {
         mainPoster,
         invitationUuid: invitationUuid,
       });
+      setInvitationUuid(saveResult.invitationUuid);
+      setImageFolderId(saveResult.folders.imageFolderId);
+      setAudioFolderId(saveResult.folders.audioFolderId);
     }
     setIsLoading(false);
   };
