@@ -1,5 +1,5 @@
 export const getEmbedUrl = (url: string | undefined): string | null => {
-  if (!url) return null;
+  if (!url || url.length < 5) return null;
 
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
   const match = url.match(regExp);

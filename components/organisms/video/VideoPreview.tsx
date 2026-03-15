@@ -60,13 +60,13 @@ export const VideoPreview = ({ blockInfo, className, ...rest }: Props) => {
             type="button"
             disabled={!thumbnail || !embedUrl}
             className={cn(
-              'absolute inset-0 w-full h-full border border-text-tertiary',
-              thumbnail && embedUrl && 'cursor-pointer border-none'
+              'absolute inset-0 w-full h-full',
+              thumbnail && embedUrl && 'cursor-pointer'
             )}
             onClick={() => thumbnail && embedUrl && setIsPlaying(true)}
             title="재생하기"
           >
-            {thumbnail && (
+            {thumbnail && embedUrl && (
               <>
                 <Image
                   src={thumbnail}
@@ -78,6 +78,11 @@ export const VideoPreview = ({ blockInfo, className, ...rest }: Props) => {
                   <Play size={48} color={ThemeColor} />
                 </div>
               </>
+            )}
+            {(!thumbnail || !embedUrl) && (
+              <div className="absolute inset-0 flex items-center justify-center bg-border-neutral">
+                <p className="text-text-secondary">영상을 업로드해 주세요.</p>
+              </div>
             )}
           </button>
         )}
