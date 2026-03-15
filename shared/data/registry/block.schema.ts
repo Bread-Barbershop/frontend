@@ -4,6 +4,7 @@ import { gallerySchema } from '@/components/organisms/gallery/Gallery.schema';
 import { greetingSchema } from '@/components/organisms/greeting/Greeting.schema';
 import { phoneSchema } from '@/components/organisms/phone/Phone.schema';
 import { placeSchema } from '@/components/organisms/place/Place.schema';
+import { videoSchema } from '@/components/organisms/video/Video.schema';
 
 export const blockSchema = {
   gallery: gallerySchema,
@@ -12,4 +13,5 @@ export const blockSchema = {
   phone: phoneSchema,
   place: placeSchema,
   coupleIntroduction: coupleIntroductionSchema,
+  video: videoSchema,
 } as const;
