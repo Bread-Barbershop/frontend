@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react';
 import { ChangeEvent, useState, useMemo, useEffect } from 'react';
+import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
@@ -43,7 +44,12 @@ function createParagraphJson(text: string): JSONContent {
 }
 
 export const Notice = ({ blockInfo, id }: Props) => {
-  const updateBlock = useEditorStore(state => state.updateBlock);
+  const { updateBlock, updateImage } = useEditorStore(
+    useShallow(state => ({
+      updateBlock: state.updateBlock,
+      updateImage: state.updateImage,
+    }))
+  );
   const [isNoticeListOpen, setIsNoticeListOpen] = useState(false);
   const [editorResetKey, setEditorResetKey] = useState(0);
   const debouncedUpdateMessage = useMemo(
@@ -82,6 +88,10 @@ export const Notice = ({ blockInfo, id }: Props) => {
     setIsNoticeListOpen(false);
     // add NoticeItem
   };
+  const handlePictureChange = (file: (File | string)[]) => {
+    updateBlock(id, { image: file });
+    updateImage(id, file);
+  };
 
   return (
     <LeftEditorWrapper ariaLabel="공지사항">
@@ -114,6 +124,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
         editorResetKey={editorResetKey}
         blockInfo={blockInfo}
         handleEditorChange={handleEditorChange}
+        handlePictureChange={handlePictureChange}
       />
 
       {isNoticeListOpen && (

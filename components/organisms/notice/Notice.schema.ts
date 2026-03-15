@@ -14,5 +14,9 @@ export const noticeSchema = {
       default: null as string | null,
       required: false,
     },
+    image: {
+      default: [] as (File | string)[],
+      required: false,
+    },
   },
 } as const;
