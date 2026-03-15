@@ -1,24 +1,24 @@
 import { Plus } from 'lucide-react';
-import { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, useState, useMemo, useEffect } from 'react';
 
 import { UtilityButton } from '@/components/atoms/button';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
-import { TextEditor } from '@/components/molecules/text-editor';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
-import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
-import { EditorBlock } from '@/shared/types/block';
+import type { EditorBlock } from '@/shared/types/block';
 import { debounce } from '@/shared/utils/debounce';
 
 import PopupOptions from '../popup/PopupOptions';
+import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
-import { GREETING_SAMPLE_MESSAGES } from './greetingSampleMessages';
+import { NoticeItem } from './NoticeItem';
+import { NOTICE_LIST } from './noticeList';
 
 import type { JSONContent } from '@tiptap/react';
 
 interface Props {
-  blockInfo: EditorBlock<'greeting'>;
+  blockInfo: EditorBlock<'notice'>;
   id: string;
 }
 
@@ -42,9 +42,9 @@ function createParagraphJson(text: string): JSONContent {
   };
 }
 
-function Greeting({ blockInfo, id }: Props) {
+export const Notice = ({ blockInfo, id }: Props) => {
   const updateBlock = useEditorStore(state => state.updateBlock);
-  const [isSamplePopupOpen, setIsSamplePopupOpen] = useState(false);
+  const [isNoticeListOpen, setIsNoticeListOpen] = useState(false);
   const [editorResetKey, setEditorResetKey] = useState(0);
   const debouncedUpdateMessage = useMemo(
     () =>
@@ -71,21 +71,35 @@ function Greeting({ blockInfo, id }: Props) {
     debouncedUpdateMessage(json);
   };
 
-  const handleSampleSelect = (text: string) => {
+  const handleNoticeListSelect = (text: string) => {
     debouncedUpdateMessage.cancel();
     const messageJson = createParagraphJson(text);
     updateBlock(id, {
       messageJson,
       messageHtml: tiptapJsonToHtmlInBrowser(messageJson),
     });
-    // 같은 문구를 다시 선택해도 에디터가 해당 문구로 초기화되도록 강제 리마운트한다.
     setEditorResetKey(prev => prev + 1);
-    setIsSamplePopupOpen(false);
+    setIsNoticeListOpen(false);
+    // add NoticeItem
   };
 
   return (
-    <LeftEditorWrapper ariaLabel="인사말">
-      <NavigationBar>인사말</NavigationBar>
+    <LeftEditorWrapper ariaLabel="공지사항">
+      <NavigationBar
+        action={
+          <UtilityButton
+            size="md"
+            variant="primary"
+            onClick={() => setIsNoticeListOpen(true)}
+          >
+            <Plus size={16} />
+            항목추가
+          </UtilityButton>
+        }
+        direction="right"
+      >
+        공지사항
+      </NavigationBar>
       <TextField
         label="제목"
         inputProps={{
@@ -95,41 +109,21 @@ function Greeting({ blockInfo, id }: Props) {
         }}
         className="text-center w-full"
       />
-
-      <NavigationBar
-        action={
-          <UtilityButton
-            size="md"
-            variant="primary"
-            onClick={() => setIsSamplePopupOpen(true)}
-          >
-            <Plus size={16} />
-            샘플문구
-          </UtilityButton>
-        }
-        direction="right"
-      >
-        내용
-      </NavigationBar>
-
-      <TextEditor
-        key={`${id}-${editorResetKey}`}
-        value={blockInfo.props.messageJson}
-        defaultText="내용을 입력해 주세요"
-        defaultAlign="center"
-        onChange={handleEditorChange}
+      <NoticeItem
+        id={id}
+        editorResetKey={editorResetKey}
+        blockInfo={blockInfo}
+        handleEditorChange={handleEditorChange}
       />
 
-      {isSamplePopupOpen && (
+      {isNoticeListOpen && (
         <PopupOptions
-          popupTitle="샘플 문구"
-          options={GREETING_SAMPLE_MESSAGES}
-          onSelect={handleSampleSelect}
-          onClose={() => setIsSamplePopupOpen(false)}
+          popupTitle="항목 추가"
+          options={NOTICE_LIST}
+          onSelect={handleNoticeListSelect}
+          onClose={() => setIsNoticeListOpen(false)}
         />
       )}
     </LeftEditorWrapper>
   );
-}
-
-export default Greeting;
+};

@@ -2,6 +2,7 @@ import { bgmDefinition } from '@/components/organisms/bgm/Bgm.definition';
 import { coupleIntroductionDefinition } from '@/components/organisms/couple-introduction/CoupleIntroduction.definition';
 import { galleryDefinition } from '@/components/organisms/gallery/Gallery.definition';
 import { greetingDefinition } from '@/components/organisms/greeting/Greeting.definition';
+import { noticeDefinition } from '@/components/organisms/notice/Notice.definition';
 import { phoneDefinition } from '@/components/organisms/phone/Phone.definition';
 import { placeDefinition } from '@/components/organisms/place/Place.definition';
 
@@ -17,4 +18,5 @@ export const blockRegistry = {
     ...blockSchema.coupleIntroduction,
     ...coupleIntroductionDefinition,
   },
+  notice: { ...blockSchema.notice, ...noticeDefinition },
 } as const;
