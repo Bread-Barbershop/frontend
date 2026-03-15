@@ -53,6 +53,7 @@ export const VideoPreview = ({ blockInfo, className, ...rest }: Props) => {
             className="absolute inset-0 w-full h-full border-0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
+            title="동영상 플레이어"
           />
         )}
         {!isPlaying && (
@@ -64,13 +65,13 @@ export const VideoPreview = ({ blockInfo, className, ...rest }: Props) => {
               thumbnail && embedUrl && 'cursor-pointer'
             )}
             onClick={() => thumbnail && embedUrl && setIsPlaying(true)}
-            title="재생하기"
+            title="동영상 재생하기"
           >
             {thumbnail && embedUrl && (
               <>
                 <Image
                   src={thumbnail}
-                  alt="영상 썸네일"
+                  alt="동영상 썸네일"
                   fill
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />

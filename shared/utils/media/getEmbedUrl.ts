@@ -1,6 +1,15 @@
 export const getEmbedUrl = (url: string | undefined): string | null => {
   if (!url || url.length < 5) return null;
 
+  const parsed = (() => {
+    try {
+      return new URL(url);
+    } catch {
+      return null;
+    }
+  })();
+  if (!parsed || !['http:', 'https:'].includes(parsed.protocol)) return null;
+
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
   const match = url.match(regExp);
   const id = match && match[2].length === 11 ? match[2] : null;
