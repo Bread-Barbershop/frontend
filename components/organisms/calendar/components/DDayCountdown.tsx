@@ -5,10 +5,9 @@ import { cn } from '@/shared/utils/cn';
 interface Props {
   date: string; // ISO format
   time?: string;
-  className?: string;
 }
 
-export function DDayCountdown({ date, time, className }: Props) {
+export function DDayCountdown({ date, time }: Props) {
   const [timeLeft, setTimeLeft] = useState<{
     days: number;
     hours: number;
@@ -90,8 +89,7 @@ export function DDayCountdown({ date, time, className }: Props) {
   return (
     <div
       className={cn(
-        'w-full max-w-[340px] border-dashed border-[1.5px] border-[#8cbcf5] rounded-sm py-4 px-6 flex flex-col items-center justify-center gap-4 bg-white',
-        className
+        'w-full border-t border-border-divider py-6 px-6 flex flex-col items-center justify-center gap-4 bg-white'
       )}
     >
       <div className="flex w-full justify-between items-center text-center">

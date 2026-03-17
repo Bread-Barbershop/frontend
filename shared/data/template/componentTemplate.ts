@@ -12,4 +12,6 @@ export const calendarTemplate = [
   'calendarType1',
   'calendarType2',
   'calendarType3',
+  'calendarType4',
+  'calendarType5',
 ];

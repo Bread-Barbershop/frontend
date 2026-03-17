@@ -5,6 +5,8 @@ export * from './DDayCountdown';
 import { CalendarType1 } from './CalendarType1';
 import { CalendarType2 } from './CalendarType2';
 import { CalendarType3 } from './CalendarType3';
+import { CalendarType4 } from './CalendarType4';
+import { CalendarType5 } from './CalendarType5';
 import { CalendarTemplateProps } from './types';
 
 export const CalendarTemplates: Record<
@@ -14,4 +16,6 @@ export const CalendarTemplates: Record<
   calendarType1: CalendarType1,
   calendarType2: CalendarType2,
   calendarType3: CalendarType3,
+  calendarType4: CalendarType4,
+  calendarType5: CalendarType5,
 };
