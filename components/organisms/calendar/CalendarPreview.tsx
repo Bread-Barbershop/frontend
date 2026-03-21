@@ -76,7 +76,7 @@ export function CalendarPreview({
       )}
 
       {/* D-Day Countdown Display */}
-      {showDday && <DDayCountdown date={date} time={time} className="mt-2" />}
+      {showDday && <DDayCountdown date={date} time={time} />}
     </div>
   );
 }

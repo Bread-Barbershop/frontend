@@ -3,6 +3,15 @@ import { CalendarDayInfo } from './components/types';
 export const KOR_DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 export const ENG_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+// 숫자에 하이픈 자동 삽입 로직
+export const addHyphenToDate = (value: string) => {
+  const year = value.slice(0, 4);
+  const month = value.slice(4, 6);
+  const day = value.slice(6, 8);
+
+  return [year, month, day].filter(Boolean).join('-');
+};
+
 export const parseTargetDate = (dateStr?: string) => {
   let d = new Date(dateStr || new Date().toISOString());
   if (isNaN(d.getTime())) {
@@ -22,6 +31,7 @@ export const parseDateInfo = (dateStr?: string) => {
   };
 };
 
+// 2026.12.25 형식으로 변환
 export const getFormattedStringDate = (
   year: number,
   month: number, // 0-11
@@ -32,6 +42,7 @@ export const getFormattedStringDate = (
   return `${year}.${paddedMonth}.${paddedDay}`;
 };
 
+// 토요일 12:00 형식으로 변환
 export const getFormattedTimeStr = (
   baseDayOfWeek: number, // 0-6
   timeStr?: string

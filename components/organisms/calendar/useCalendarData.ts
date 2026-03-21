@@ -9,17 +9,15 @@ import {
   parseDateInfo,
 } from './utils';
 
-interface UseCalendarDataParams {
-  date?: string;
-  time?: string;
-  language: 'ko' | 'en';
-}
-
 export function useCalendarData({
   date,
   time,
   language,
-}: UseCalendarDataParams) {
+}: {
+  date?: string;
+  time?: string;
+  language: 'ko' | 'en';
+}) {
   const [monthOffset, setMonthOffset] = useState(0);
 
   // 1) 원본 날짜 파싱 — date 변경 시에만 재계산
@@ -29,11 +27,13 @@ export function useCalendarData({
   );
 
   // 2) 텍스트 포매팅 — date/time 변경 시에만 재계산 (스와이프와 무관)
+  // 2026.12.25 형식 반환
   const stringDateFormatted = useMemo(
     () => getFormattedStringDate(year, month, day),
     [year, month, day]
   );
 
+  // 토요일 12:00 형식 반환
   const formattedTime = useMemo(
     () => getFormattedTimeStr(dayOfWeek, time),
     [dayOfWeek, time]

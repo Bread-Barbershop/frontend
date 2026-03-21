@@ -10,6 +10,8 @@ import { TimeSelector } from '@/components/molecules/time-selector';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 
+import { addHyphenToDate } from './utils';
+
 interface Props {
   blockInfo: EditorBlock<'calendar'>;
   id: string;
@@ -34,18 +36,9 @@ export function Calendar({ blockInfo, id }: Props) {
 
   const handleDateChange = useCallback(
     ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
-      // 숫자만 추출
-      const numbersOnly = value.replace(/\D/g, '');
-      let formattedDate = '';
+      if (/[^\d-]/.test(value)) return;
 
-      // 숫자 개수에 따라 하이픈 자동 삽입 (지울 때 자연스럽게 삭제되도록 길이 기준 적용)
-      if (numbersOnly.length < 5) {
-        formattedDate = numbersOnly;
-      } else if (numbersOnly.length < 7) {
-        formattedDate = `${numbersOnly.slice(0, 4)}-${numbersOnly.slice(4)}`;
-      } else {
-        formattedDate = `${numbersOnly.slice(0, 4)}-${numbersOnly.slice(4, 6)}-${numbersOnly.slice(6, 8)}`;
-      }
+      const formattedDate = addHyphenToDate(value.replace(/\D/g, ''));
 
       // 10자리가 완성되었을 때 과거 날짜인지 체크
       if (formattedDate.length === 10) {
