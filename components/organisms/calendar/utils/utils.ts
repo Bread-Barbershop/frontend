@@ -192,20 +192,28 @@ export const getWeekdayStr = (date: Date, language: 'ko' | 'en') => {
 /**
  * 시간 포맷팅 (Type 5용) - "12:00" -> "12시" or "12 PM"
  */
-export const getFormattedTimeLabel = (
-  timeStr: string,
-  language: 'ko' | 'en'
-) => {
+export const getFormattedTimeLabel = (timeStr: string, language: 'ko' | 'en') => {
   if (!timeStr) return '';
-  const [h, m] = timeStr.split(':');
-  let hour = parseInt(h, 10);
-  const isPM = hour >= 12;
+  
+  // "오후 02:30" 또는 "14:30" 형식 모두 대응
+  const hasAMPM = timeStr.includes(' ');
+  const parts = timeStr.split(' ');
+  const ampmPart = hasAMPM ? parts[0] : '';
+  const timePart = hasAMPM ? parts[1] : parts[0];
+  
+  const [h, m] = timePart.split(':');
+  const hour = parseInt(h, 10);
+  
+  // 오전/오후 문자열에 따른 PM 판단
+  const isPM = ampmPart === '오후' || hour >= 12;
   const ampmEN = isPM ? 'PM' : 'AM';
-  hour = hour % 12 || 12;
+  
+  // 12시간제로 변환 (표시용)
+  const displayHour = hour % 12 || 12;
 
   if (language === 'ko') {
-    return m === '00' ? `${hour}시` : `${hour}시 ${m}분`;
+    return m === '00' ? `${displayHour}시` : `${displayHour}시 ${m}분`;
   } else {
-    return m === '00' ? `${hour} ${ampmEN}` : `${hour}:${m} ${ampmEN}`;
+    return m === '00' ? `${displayHour} ${ampmEN}` : `${displayHour}:${m} ${ampmEN}`;
   }
 };
