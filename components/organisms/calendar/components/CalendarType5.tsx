@@ -57,43 +57,36 @@ export function CalendarType5({
   const timeLabel = getFormatTime(time);
 
   return (
-    <div className="w-full max-w-[340px] bg-transparent flex flex-col font-serif">
-      <div className="flex flex-col items-center mb-6">
-        <span className="text-[14px] text-[#4A4A4A] mb-1 font-sans">
-          {currentYear}
-        </span>
-        <h3 className="text-[38px] font-semibold text-[#2A313A] tracking-wider leading-none">
+    <div className="w-full flex flex-col font-maruburi">
+      <div className="flex flex-col items-center">
+        <span className="h-11 text-[#1f2937] mb-1">{currentYear}</span>
+        <h3 className="h-16 text-[44px] font-bold text-[#1f2937] tracking-wider leading-none">
           {monthStr}
         </h3>
       </div>
 
-      <div className="w-full flex flex-col border-t border-[#EAEAEA]">
+      <div className="w-full flex flex-col">
         {calendarDays.map((dayObj, idx) => {
           const isTarget = dayObj.isTargetDate;
           return (
             <div
               key={idx}
               className={cn(
-                'w-full h-[72px] shrink-0 flex items-center justify-between border-b border-[#EAEAEA] px-4',
-                isTarget ? 'text-[#F28B82]' : 'text-[#2A313A]'
+                'w-full h-11 shrink-0 flex items-center justify-between py-2 border-b border-[#EAEAEA] text-[#1f2937]',
+                isTarget && 'text-text-wedding'
               )}
             >
               <div className="flex items-center gap-3">
-                <span
-                  className={cn(
-                    'text-[13px] font-semibold w-8 text-right',
-                    isTarget ? '' : 'text-[#6A7178]'
-                  )}
-                >
+                <span className={cn('w-8 text-sm font-bold')}>
                   {getDayStr(dayObj.originalDate)}
                 </span>
-                <span className="text-[42px] font-semibold leading-none">
+                <span className="w-12 text-[44px] font-bold text-center leading-none">
                   {dayObj.num}
                 </span>
               </div>
 
               {isTarget && (
-                <div className="flex flex-col items-center justify-center text-[13px] font-sans leading-tight">
+                <div className="flex flex-col flex-1 items-center justify-center text-sm font-bold leading-tight">
                   <span className="mb-0.5">{targetLabel}</span>
                   <span>{timeLabel}</span>
                 </div>

@@ -9,7 +9,7 @@ export function CalendarType1({
   headerDays,
 }: CalendarTemplateProps) {
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full font-maruburi">
       <div className="flex items-end justify-center mb-6 ">
         <h3 className="text-xl font-semibold text-text-primary tracking-wider hidden">
           {currentYear}. {currentMonth.toString().padStart(2, '0')}

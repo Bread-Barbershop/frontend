@@ -21,12 +21,10 @@ export function CalendarType4({
   ];
 
   return (
-    <div className="w-full max-w-[340px] bg-transparent flex flex-col items-center font-serif">
-      <div className="mb-10 mt-2">
-        <h3 className="text-[38px] md:text-[42px] font-normal text-[#1A202C] tracking-wide uppercase">
-          {monthNamesEN[currentMonth - 1]}
-        </h3>
-      </div>
+    <div className="w-full flex flex-col items-center font-maruburi">
+      <h3 className="h-[68px] text-[44px] text-[#111827] tracking-wide uppercase mb-1">
+        {monthNamesEN[currentMonth - 1]}
+      </h3>
 
       <div className="grid grid-cols-7 w-full gap-y-6">
         {headerDays.map((day, idx) => (

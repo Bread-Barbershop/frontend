@@ -18,11 +18,11 @@ export function CalendarType3({
         });
 
   return (
-    <div className="w-full max-w-[340px] px-4 bg-white flex flex-col shadow-[0px_4px_24px_rgba(0,0,0,0.06)]">
-      <p className="flex items-center justify-end h-11 text-sm font-semibold text-[#1C2023]">
+    <div className="w-full px-4 flex flex-col shadow-[0px_4px_24px_rgba(0,0,0,0.06)] font-maruburi">
+      <p className="flex items-center justify-end h-11 text-sm font-semibold text-[#1f2937] font-pretendard">
         {currentYear}
       </p>
-      <div className="text-6xl font-serif text-[#1C2023] leading-none tracking-tight mb-2 ml-3">
+      <div className="text-6xl  text-[#111827] leading-none tracking-tight mb-2 ml-3 ">
         {monthText}
       </div>
 
@@ -30,7 +30,7 @@ export function CalendarType3({
         {headerDays.map((day, idx) => (
           <div
             key={`${day}-${idx}`}
-            className="flex-center text-center font-medium font-serif text-[#6B7280] h-8"
+            className="flex-center text-center font-medium font-maruburi text-[#6B7280] h-8"
           >
             {day}
           </div>
@@ -41,19 +41,19 @@ export function CalendarType3({
             <div
               key={idx}
               className={cn(
-                'relative flex flex-col items-center justify-start text-sm font-serif z-1 h-11',
+                'relative flex flex-col items-center justify-start text-sm font-maruburi z-1 h-11',
                 dayObj.isCurrentMonth ? 'text-[#4A4A4A]' : 'text-[#D4D4D4]',
-                dayObj.isTargetDate ? 'text-white' : '',
-                dayObj.isTargetDate && 'bg-[#F28B82]'
+                dayObj.isTargetDate && 'text-white',
+                dayObj.isTargetDate && 'bg-text-wedding'
               )}
             >
               <span>{dayObj.num}</span>
               {dayObj.isTargetDate && (
                 <div className="bottom-1 w-full text-center flex flex-col items-center">
-                  <span className="text-[8.5px] font-sans text-white/90 leading-[1.1] block">
+                  <span className="text-[11px] font-sans text-white leading-[1.1] block">
                     {timeInfo.timeText}
                   </span>
-                  <span className="text-[8.5px] font-sans text-white/90 leading-[1.1] block">
+                  <span className="text-[11px] font-sans text-white leading-[1.1] block">
                     {timeInfo.ampm}
                   </span>
                 </div>
