@@ -20,7 +20,7 @@ export function DDayCountdown({ date, time }: Props) {
     seconds: 0,
   });
 
-  const [targetName] = useState('000 · 000'); // TODO: Replace with real data if available
+  const [targetName] = useState('000 · 000'); // TODO: 신랑 신부 이름 적용
 
   // 1. 목표 날짜(Target Date) 객체를 date와 time이 변경될 때만 한 번 계산
   const targetDate = useMemo(() => {
