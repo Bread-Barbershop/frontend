@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 export interface CalendarDayInfo {
   num: number;
@@ -11,8 +11,6 @@ export interface CalendarTemplateProps {
   currentYear: number;
   currentMonth: number;
   calendarDays: CalendarDayInfo[];
-  monthOffset: number;
-  setMonthOffset: React.Dispatch<React.SetStateAction<number>>;
   headerDays: string[];
   time?: string;
   language: 'ko' | 'en';

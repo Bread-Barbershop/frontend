@@ -68,51 +68,43 @@ export const generateCalendarGrid = (
 ): CalendarDayInfo[] => {
   const firstDayOfMonth = new Date(displayYear, displayMonth, 1);
   const startingDayOfWeek = firstDayOfMonth.getDay();
-
   const lastDayOfMonth = new Date(displayYear, displayMonth + 1, 0);
   const totalDaysInMonth = lastDayOfMonth.getDate();
 
-  const prevMonthLastDay = new Date(displayYear, displayMonth, 0).getDate();
+  // 5행(35일) 또는 6행(42일) 결정
+  const totalCells = startingDayOfWeek + totalDaysInMonth <= 35 ? 35 : 42;
 
-  const days: CalendarDayInfo[] = [];
+  return Array.from({ length: totalCells }, (_, i) => {
+    const d = new Date(displayYear, displayMonth, i - startingDayOfWeek + 1);
+    return {
+      num: d.getDate(),
+      isCurrentMonth: d.getMonth() === displayMonth,
+      isTargetDate: monthOffset === 0 && d.getMonth() === displayMonth && d.getDate() === baseDay,
+      originalDate: d,
+    };
+  });
+};
 
-  // Previous month's days
-  for (let i = startingDayOfWeek - 1; i >= 0; i--) {
-    days.push({
-      num: prevMonthLastDay - i,
-      isCurrentMonth: false,
-      isTargetDate: false,
-      originalDate: new Date(
-        displayYear,
-        displayMonth - 1,
-        prevMonthLastDay - i
-      ),
-    });
-  }
+/**
+ * 기준일로부터 특정 오프셋에서 시작하여 지정된 개수만큼의 날짜를 생성합니다.
+ */
+export const generateDateRange = (
+  targetDate: Date,
+  startOffset: number,
+  count: number,
+  displayMonth: number
+): CalendarDayInfo[] => {
+  const targetYear = targetDate.getFullYear();
+  const targetMonth = targetDate.getMonth();
+  const targetDay = targetDate.getDate();
 
-  // Current month's days
-  for (let i = 1; i <= totalDaysInMonth; i++) {
-    days.push({
-      num: i,
-      isCurrentMonth: true,
-      isTargetDate: monthOffset === 0 && i === baseDay,
-      originalDate: new Date(displayYear, displayMonth, i),
-    });
-  }
-
-  // Calculate whether we need 5 rows (35 days) or 6 rows (42 days)
-  const totalCellsNeeded = startingDayOfWeek + totalDaysInMonth <= 35 ? 35 : 42;
-
-  // Next month's days (Fill up to 35 or 42 cells grid)
-  const remainingDays = totalCellsNeeded - days.length;
-  for (let i = 1; i <= remainingDays; i++) {
-    days.push({
-      num: i,
-      isCurrentMonth: false,
-      isTargetDate: false,
-      originalDate: new Date(displayYear, displayMonth + 1, i),
-    });
-  }
-
-  return days;
+  return Array.from({ length: count }, (_, i) => {
+    const d = new Date(targetYear, targetMonth, targetDay + startOffset + i);
+    return {
+      num: d.getDate(),
+      isCurrentMonth: d.getMonth() === displayMonth,
+      isTargetDate: d.getFullYear() === targetYear && d.getMonth() === targetMonth && d.getDate() === targetDay,
+      originalDate: d,
+    };
+  });
 };

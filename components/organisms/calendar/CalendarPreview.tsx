@@ -32,9 +32,7 @@ export function CalendarPreview({
     stringDateFormatted,
     formattedTime,
     headerDays,
-    monthOffset,
-    setMonthOffset,
-  } = useCalendarData({ date, time, language });
+  } = useCalendarData({ date, time, language, template });
 
   const TemplateComponent =
     CalendarTemplates[template as string] || CalendarTemplates['calendarType1'];
@@ -67,8 +65,6 @@ export function CalendarPreview({
           currentYear={currentYear}
           currentMonth={currentMonth}
           calendarDays={calendarDays}
-          monthOffset={monthOffset}
-          setMonthOffset={setMonthOffset}
           headerDays={headerDays}
           time={time}
           language={language}

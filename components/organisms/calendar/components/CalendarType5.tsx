@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 
 import { cn } from '@/shared/utils/cn';
 
@@ -13,43 +13,6 @@ export function CalendarType5({
   time,
   language,
 }: CalendarTemplateProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const rowHeight = 72; // h-[72px]
-
-  // 타겟 날짜를 찾고, 해당 날짜 기준 -5일 ~ +5일의 배열을 만듭니다.
-  let displayDays: typeof calendarDays = [];
-  const targetIndex = calendarDays.findIndex(day => day.isTargetDate);
-
-  if (targetIndex !== -1) {
-    const targetDate = calendarDays[targetIndex].originalDate;
-    
-    for (let i = -5; i <= 5; i++) {
-      const d = new Date(targetDate);
-      d.setDate(d.getDate() + i);
-      
-      displayDays.push({
-        num: d.getDate(),
-        isCurrentMonth: d.getMonth() === currentMonth - 1,
-        isTargetDate: i === 0,
-        originalDate: d,
-      });
-    }
-  } else {
-    // 타겟일이 없는 경우 기본적으로 앞 11일을 보여줌
-    displayDays = calendarDays.slice(0, 11);
-  }
-
-  useEffect(() => {
-    // 이제 총 11개의 항목(-5 ~ +5)이 렌더링 됩니다.
-    // 타겟일(인덱스 5)이 화면의 5번째 위치(가장 아래쪽)에 보이도록 만들려면:
-    // 인덱스 0일 때: scrollTop = 0 (1~5번째 항목 노출)
-    // 타겟일 인덱스(5)가 화면 5번째 줄에 오려면, 스크롤의 첫 줄은 인덱스 1이어야 합니다.
-    // 즉, `scrollTop`은 1 * rowHeight 가 됩니다.
-    if (targetIndex !== -1 && scrollRef.current) {
-      scrollRef.current.scrollTop = 1 * rowHeight;
-    }
-  }, [displayDays, targetIndex, rowHeight]);
-
   const monthNamesEN = [
     'January',
     'February',
@@ -71,9 +34,9 @@ export function CalendarType5({
   const getDayStr = (date: Date) => {
     const dayIndex = date.getDay();
     if (language === 'ko') {
-      return KOR_DAYS[dayIndex]; // e.g., '월'
+      return KOR_DAYS[dayIndex];
     } else {
-      return ENG_DAYS[dayIndex].toUpperCase(); // e.g., 'MON'
+      return ENG_DAYS[dayIndex].toUpperCase();
     }
   };
 
@@ -106,20 +69,8 @@ export function CalendarType5({
         </h3>
       </div>
 
-      <div
-        ref={scrollRef}
-        className="w-full h-[360px] overflow-y-auto hide-scroll flex flex-col border-t border-[#EAEAEA]"
-        style={{
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-        }}
-      >
-        <style>{`
-          .hide-scroll::-webkit-scrollbar {
-            display: none;
-          }
-        `}</style>
-        {displayDays.map((dayObj, idx) => {
+      <div className="w-full flex flex-col border-t border-[#EAEAEA]">
+        {calendarDays.map((dayObj, idx) => {
           const isTarget = dayObj.isTargetDate;
           return (
             <div

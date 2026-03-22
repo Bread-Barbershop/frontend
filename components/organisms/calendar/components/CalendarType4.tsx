@@ -24,80 +24,6 @@ export function CalendarType4({
     'DECEMBER',
   ];
 
-  // Find the target date index
-  const targetIndex = calendarDays.findIndex(day => day.isTargetDate);
-  
-  let displayDays = [];
-
-  if (targetIndex !== -1) {
-    const targetDay = calendarDays[targetIndex];
-    const targetDayOfWeek = targetDay.originalDate.getDay(); // 0(Sun) ~ 6(Sat)
-    
-    // 타겟일이 속한 주의 일요일 인덱스
-    const currentWeekSundayIndex = targetIndex - targetDayOfWeek;
-    // 그 전주의 일요일 인덱스 (항상 7일 전)
-    const previousWeekSundayIndex = currentWeekSundayIndex - 7;
-    
-    if (previousWeekSundayIndex >= 0) {
-      displayDays = calendarDays.slice(previousWeekSundayIndex, targetIndex + 1);
-    } else {
-      // calendarDays 범위를 벗어난 경우 (월 초반이라 이전 달 일요일이 배열에 없는 경우)
-      // 필요한 만큼 날짜를 앞에 채워줌
-      const missingDaysCount = Math.abs(previousWeekSundayIndex);
-      const firstAvailableDay = calendarDays[0].originalDate;
-      
-      const missingDays = [];
-      for (let i = missingDaysCount; i > 0; i--) {
-        const d = new Date(firstAvailableDay);
-        d.setDate(d.getDate() - i);
-        missingDays.push({
-          num: d.getDate(),
-          isCurrentMonth: false,
-          isTargetDate: false,
-          originalDate: d,
-        });
-      }
-      
-      displayDays = [...missingDays, ...calendarDays.slice(0, targetIndex + 1)];
-    }
-
-    // 만약 타겟일까지의 배열이 14일 미만이라면, 타겟일 이후의 날짜들도 보여줘서 14일을 꽉 채움
-    if (displayDays.length < 14) {
-      const remainingDaysCount = 14 - displayDays.length;
-      const lastAvailableIndex = targetIndex + remainingDaysCount;
-      
-      if (lastAvailableIndex < calendarDays.length) {
-        // 배열 안에 여유가 있다면 배열에서 더 가져옴
-        const additionalDays = calendarDays.slice(targetIndex + 1, lastAvailableIndex + 1);
-        displayDays = [...displayDays, ...additionalDays];
-      } else {
-        // 배열 범위를 넘어설 경우 (월말 등) 직접 계산해서 채워줌
-        const availableAdditionalDays = calendarDays.slice(targetIndex + 1);
-        displayDays = [...displayDays, ...availableAdditionalDays];
-        
-        const stillMissingCount = 14 - displayDays.length;
-        if (stillMissingCount > 0) {
-          const lastDate = displayDays[displayDays.length - 1].originalDate;
-          const extraMissingDays = [];
-          for (let i = 1; i <= stillMissingCount; i++) {
-            const d = new Date(lastDate);
-            d.setDate(d.getDate() + i);
-            extraMissingDays.push({
-              num: d.getDate(),
-              isCurrentMonth: false,
-              isTargetDate: false,
-              originalDate: d,
-            });
-          }
-          displayDays = [...displayDays, ...extraMissingDays];
-        }
-      }
-    }
-  } else {
-    // 타겟일이 없는 경우 기본으로 첫 2주 보여주기
-    displayDays = calendarDays.slice(0, 14);
-  }
-
   return (
     <div className="w-full max-w-[340px] bg-transparent flex flex-col items-center font-serif">
       <div className="mb-10 mt-2">
@@ -116,7 +42,7 @@ export function CalendarType4({
           </div>
         ))}
 
-        {displayDays.map((dayObj, idx) => {
+        {calendarDays.map((dayObj, idx) => {
           const isTarget = dayObj.isTargetDate;
 
           return (
