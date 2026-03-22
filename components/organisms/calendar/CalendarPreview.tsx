@@ -32,6 +32,7 @@ export function CalendarPreview({
     stringDateFormatted,
     formattedTime,
     headerDays,
+    timeInfo,
   } = useCalendarData({ date, time, language, template });
 
   const TemplateComponent =
@@ -67,6 +68,7 @@ export function CalendarPreview({
           calendarDays={calendarDays}
           headerDays={headerDays}
           time={time}
+          timeInfo={timeInfo}
           language={language}
         />
       )}

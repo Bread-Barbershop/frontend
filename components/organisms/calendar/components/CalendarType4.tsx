@@ -1,7 +1,3 @@
-import React from 'react';
-
-
-
 import { CalendarTemplateProps } from './types';
 
 export function CalendarType4({

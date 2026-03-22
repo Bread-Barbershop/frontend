@@ -103,8 +103,31 @@ export const generateDateRange = (
     return {
       num: d.getDate(),
       isCurrentMonth: d.getMonth() === displayMonth,
-      isTargetDate: d.getFullYear() === targetYear && d.getMonth() === targetMonth && d.getDate() === targetDay,
+      isTargetDate:
+        d.getFullYear() === targetYear &&
+        d.getMonth() === targetMonth &&
+        d.getDate() === targetDay,
       originalDate: d,
     };
   });
+};
+
+/**
+ * 시간 문자열("오전 10:30" 또는 "14:30")을 파싱하여 정제된 시간 정보와 AM/PM을 반환합니다.
+ */
+export const parseTimeInfo = (timeStr?: string) => {
+  if (!timeStr) return { timeText: undefined, ampm: undefined };
+
+  const parts = timeStr.split(' ');
+  const timeOnly = parts.length >= 2 ? parts[1] : timeStr;
+  const [hStr, mStr] = timeOnly.split(':');
+  const hour = parseInt(hStr, 10);
+
+  const isPM = parts.length >= 2 ? parts[0] === '오후' : hour >= 12;
+  const displayHour = hour % 12 || 12;
+
+  return {
+    timeText: `${displayHour}:${mStr || '00'}`,
+    ampm: isPM ? 'PM' : 'AM',
+  };
 };

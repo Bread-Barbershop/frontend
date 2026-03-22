@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { cn } from '@/shared/utils/cn';
 
 import { ENG_DAYS, KOR_DAYS } from '../utils';

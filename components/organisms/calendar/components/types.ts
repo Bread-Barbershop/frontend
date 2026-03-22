@@ -1,5 +1,3 @@
-
-
 export interface CalendarDayInfo {
   num: number;
   isCurrentMonth: boolean;
@@ -13,5 +11,9 @@ export interface CalendarTemplateProps {
   calendarDays: CalendarDayInfo[];
   headerDays: string[];
   time?: string;
+  timeInfo: {
+    timeText: string | undefined;
+    ampm: string | undefined;
+  };
   language: 'ko' | 'en';
 }

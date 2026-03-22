@@ -9,6 +9,7 @@ import {
   getFormattedTimeStr,
   parseDateInfo,
   parseTargetDate,
+  parseTimeInfo,
 } from './utils';
 
 export function useCalendarData({
@@ -75,5 +76,6 @@ export function useCalendarData({
     stringDateFormatted,
     formattedTime,
     headerDays,
+    timeInfo: useMemo(() => parseTimeInfo(time), [time]),
   };
 }

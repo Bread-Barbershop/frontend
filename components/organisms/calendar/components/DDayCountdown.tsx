@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 import { cn } from '@/shared/utils/cn';
 
@@ -20,36 +20,28 @@ export function DDayCountdown({ date, time }: Props) {
     seconds: 0,
   });
 
-  const [targetName, _setTargetName] = useState('000 · 000'); // TODO: Replace with real data if available
+  const [targetName] = useState('000 · 000'); // TODO: Replace with real data if available
 
   // 1. 목표 날짜(Target Date) 객체를 date와 time이 변경될 때만 한 번 계산
   const targetDate = useMemo(() => {
     // date가 유효한 10자리 형식이 아니면 (예: 입력 중) null 반환
     if (!date || date.length !== 10) return null;
 
-    const baseDate = new Date(`${date}T00:00:00`);
+    const [year, month, day] = date.split('-').map(Number);
+    const timeMatch = time?.match(/(\d{1,2}):(\d{2})/);
+    const isPM = time?.includes('오후') || time?.toLowerCase().includes('pm');
 
-    let hours = 12; // 기본값: 오후 12시
-    let minutes = 0;
+    const { h, m } = timeMatch
+      ? (() => {
+          const rawH = parseInt(timeMatch[1], 10);
+          const rawM = parseInt(timeMatch[2], 10);
+          const adjustedH =
+            isPM && rawH < 12 ? rawH + 12 : !isPM && rawH === 12 ? 0 : rawH;
+          return { h: adjustedH, m: rawM };
+        })()
+      : { h: 12, m: 0 };
 
-    if (time) {
-      // 정규식으로 시간, 분 추출 (예: "오전 10:30", "14:00" 모두 매칭 가능)
-      const isPM = time.includes('오후') || time.toLowerCase().includes('pm');
-      const timeMatch = time.match(/(\d{1,2}):(\d{2})/);
-
-      if (timeMatch) {
-        let parsedHour = parseInt(timeMatch[1], 10);
-        minutes = parseInt(timeMatch[2], 10);
-
-        // 24시간제 변환 ("오후"이면서 12시가 아니면 +12, "오전"이면서 12시면 0)
-        if (isPM && parsedHour !== 12 && parsedHour < 12) parsedHour += 12;
-        if (!isPM && parsedHour === 12) parsedHour = 0;
-        hours = parsedHour;
-      }
-    }
-
-    baseDate.setHours(hours, minutes, 0, 0);
-    return baseDate;
+    return new Date(year, month - 1, day, h, m, 0, 0);
   }, [date, time]);
 
   // 2. 카운트다운 타이머 동작 (타겟 날짜가 있을 때만 실행)
