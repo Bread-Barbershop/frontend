@@ -10,7 +10,7 @@ import { TimeSelector } from '@/components/molecules/time-selector';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 
-import { addHyphenToDate } from './utils';
+import { addHyphenToDate } from './utils/utils';
 
 interface Props {
   blockInfo: EditorBlock<'calendar'>;

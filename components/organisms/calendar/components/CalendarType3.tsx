@@ -1,22 +1,14 @@
 import { cn } from '@/shared/utils/cn';
 
-import { CalendarTemplateProps } from './types';
+import { CalendarTemplateProps } from '../types/calendar';
 
 export function CalendarType3({
   currentYear,
-  currentMonth,
   calendarDays,
   headerDays,
-  language,
   timeInfo,
+  monthText,
 }: CalendarTemplateProps) {
-  const monthText =
-    language === 'ko'
-      ? `${currentMonth}`
-      : new Date(currentYear, currentMonth - 1).toLocaleString('en-US', {
-          month: 'short',
-        });
-
   return (
     <div className="w-full px-4 flex flex-col shadow-[0px_4px_24px_rgba(0,0,0,0.06)] font-maruburi">
       <p className="flex items-center justify-end h-11 text-sm font-semibold text-[#1f2937] font-pretendard">

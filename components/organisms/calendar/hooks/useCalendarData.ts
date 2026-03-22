@@ -1,16 +1,17 @@
 import { useMemo } from 'react';
 
+import { ENG_DAYS, KOR_DAYS } from '../constants/calendar';
 import {
-  ENG_DAYS,
-  KOR_DAYS,
   generateCalendarGrid,
   generateDateRange,
   getFormattedStringDate,
+  getFormattedTimeLabel,
   getFormattedTimeStr,
+  getMonthText,
   parseDateInfo,
   parseTargetDate,
   parseTimeInfo,
-} from './utils';
+} from '../utils/utils';
 
 export function useCalendarData({
   date,
@@ -29,7 +30,7 @@ export function useCalendarData({
     [date]
   );
 
-  // 2) 텍스트 포매팅
+  // 2) 텍스트 포매팅 (기본 표시용)
   const stringDateFormatted = useMemo(
     () => getFormattedStringDate(year, month, day),
     [year, month, day]
@@ -69,6 +70,24 @@ export function useCalendarData({
   // 4) 요일 헤더
   const headerDays = language === 'ko' ? KOR_DAYS : ENG_DAYS;
 
+  // 5) 템플릿용 확장 데이터
+  const monthText = useMemo(
+    () =>
+      getMonthText(
+        currentMonth,
+        language,
+        template === 'calendarType4' ? 'upper' : 'default'
+      ),
+    [currentMonth, language, template]
+  );
+
+  const targetLabel = language === 'ko' ? '결혼식' : 'Wedding day';
+
+  const timeLabel = useMemo(
+    () => getFormattedTimeLabel(time || '', language),
+    [time, language]
+  );
+
   return {
     currentYear,
     currentMonth,
@@ -77,5 +96,8 @@ export function useCalendarData({
     formattedTime,
     headerDays,
     timeInfo: useMemo(() => parseTimeInfo(time), [time]),
+    monthText,
+    targetLabel,
+    timeLabel,
   };
 }

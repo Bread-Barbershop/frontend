@@ -5,7 +5,7 @@ import { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 
 import { CalendarTemplates, DDayCountdown } from './components';
-import { useCalendarData } from './useCalendarData';
+import { useCalendarData } from './hooks/useCalendarData';
 
 interface Props {
   blockInfo: EditorBlock<'calendar'>;
@@ -33,6 +33,9 @@ export function CalendarPreview({
     formattedTime,
     headerDays,
     timeInfo,
+    monthText,
+    targetLabel,
+    timeLabel,
   } = useCalendarData({ date, time, language, template });
 
   const TemplateComponent =
@@ -70,6 +73,9 @@ export function CalendarPreview({
           time={time}
           timeInfo={timeInfo}
           language={language}
+          monthText={monthText}
+          targetLabel={targetLabel}
+          timeLabel={timeLabel}
         />
       )}
 

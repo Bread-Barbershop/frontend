@@ -1,6 +1,6 @@
 import { cn } from '@/shared/utils/cn';
 
-import { CalendarTemplateProps } from './types';
+import { CalendarTemplateProps } from '../types/calendar';
 
 export function CalendarType2({
   calendarDays,
