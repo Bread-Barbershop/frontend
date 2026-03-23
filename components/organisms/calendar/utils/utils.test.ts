@@ -4,7 +4,9 @@ import {
   getFormattedTimeLabel,
   getMonthText,
   getWeekdayStr,
+  getFormattedTimeStr,
 } from './utils';
+
 
 describe('Calendar Utils 단위 테스트', () => {
   /**
@@ -105,4 +107,39 @@ describe('Calendar Utils 단위 테스트', () => {
       expect(getWeekdayStr(date, 'en')).toBe('MON');
     });
   });
+
+  /**
+   * getFormattedTimeStr 함수 테스트
+   * 목적: 다양한 요일 및 시간 입력 형식을 받았을 때 "요일 오전/오후 H시 [M분]" 형태로 포맷팅되는지 확인
+   */
+  describe('getFormattedTimeStr', () => {
+    it('24시간제 형식을 올바르게 포맷팅해야 함 (오후)', () => {
+      expect(getFormattedTimeStr(1, '14:30')).toBe('월요일 오후 2시 30분');
+    });
+
+    it('24시간제 형식을 올바르게 포맷팅해야 함 (오전)', () => {
+      expect(getFormattedTimeStr(2, '09:00')).toBe('화요일 오전 9시');
+    });
+
+    it('오전/오후 HH:MM 형식을 올바르게 포맷팅해야 함 (오후)', () => {
+      expect(getFormattedTimeStr(3, '오후 12:00')).toBe('수요일 오후 12시');
+    });
+
+    it('오전/오후 HH:MM 형식을 올바르게 포맷팅해야 함 (오전)', () => {
+      expect(getFormattedTimeStr(4, '오전 09:30')).toBe('목요일 오전 9시 30분');
+    });
+
+    it('오후 01:00 형식을 올바르게 포맷팅해야 함', () => {
+      expect(getFormattedTimeStr(5, '오후 01:15')).toBe('금요일 오후 1시 15분');
+    });
+
+    it('시간이 없을 때 요일만 반환해야 함', () => {
+      expect(getFormattedTimeStr(0)).toBe('일요일');
+    });
+
+    it('00:00은 오전 12시로 표시해야 함', () => {
+      expect(getFormattedTimeStr(6, '00:00')).toBe('토요일 오전 12시');
+    });
+  });
 });
+

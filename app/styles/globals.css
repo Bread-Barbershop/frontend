@@ -1,5 +1,5 @@
-@import url('https://hangeul.pstatic.net/hangeul_static/css/maru-buri.css');
 @import './_base.css';
 @import './_variables.css';
 @import './_utilities.css';
 @import 'tailwindcss';
+@import 'https://hangeul.pstatic.net/hangeul_static/css/maru-buri.css';

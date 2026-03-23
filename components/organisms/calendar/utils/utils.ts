@@ -156,10 +156,27 @@ export const getFormattedStringDate = (
 /**
  * 시간 문자열 포맷팅
  */
-export const getFormattedTimeStr = (dayOfWeek: number, time?: string) => {
-  if (!time) return '';
-  return `${time}`;
+export const getFormattedTimeStr = (baseDayOfWeek: number, timeStr?: string) => {
+  let formattedTime = `${KOR_DAYS[baseDayOfWeek]}요일`;
+  if (timeStr) {
+    const hasAMPM = timeStr.includes(' ');
+    const parts = timeStr.split(' ');
+    const ampmPart = hasAMPM ? parts[0] : '';
+    const timePart = hasAMPM ? parts[1] : parts[0];
+
+    const [hoursStr, minutesStr] = timePart.split(':');
+    const h = parseInt(hoursStr, 10);
+
+    const isPM = ampmPart === '오후' || (ampmPart === '' && h >= 12);
+    const displayHour = h % 12 || 12;
+    const ampmText = isPM ? '오후' : '오전';
+    const minutePart = minutesStr === '00' ? '' : ` ${minutesStr}분`;
+
+    formattedTime += ` ${ampmText} ${displayHour}시${minutePart}`;
+  }
+  return formattedTime;
 };
+
 
 /**
  * 월 텍스트 가져오기 (EN/KO)
