@@ -1,4 +1,5 @@
 import { bgmDefinition } from '@/components/organisms/bgm/Bgm.definition';
+import { calendarDefinition } from '@/components/organisms/calendar/Calendar.definition';
 import { coupleIntroductionDefinition } from '@/components/organisms/couple-introduction/CoupleIntroduction.definition';
 import { galleryDefinition } from '@/components/organisms/gallery/Gallery.definition';
 import { greetingDefinition } from '@/components/organisms/greeting/Greeting.definition';
@@ -19,4 +20,5 @@ export const blockRegistry = {
     ...coupleIntroductionDefinition,
   },
   video: { ...blockSchema.video, ...videoDefinition },
+  calendar: { ...blockSchema.calendar, ...calendarDefinition },
 } as const;
