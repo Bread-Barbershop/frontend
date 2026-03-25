@@ -21,6 +21,7 @@ export const weddingComponents: ListType[] = [
   { contents: '예식장소', component: 'place', isType: false },
   { contents: '교통수단', component: null, isType: false },
   { contents: '갤러리', component: 'gallery', isType: true },
+  { contents: '달력', component: 'calendar', isType: true },
   { contents: '연락처', component: 'phone', isType: false },
   { contents: '배경음악', component: 'bgm', isType: false },
   { contents: '계좌번호', component: null, isType: false },

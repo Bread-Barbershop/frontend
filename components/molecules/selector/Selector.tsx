@@ -116,7 +116,7 @@ export const Selector = <T extends Option>({
       {isOpen && (
         <ul
           className={cn(
-            'absolute z-10 top-full left-0 w-full  rounded-b-lg overflow-hidden',
+            'absolute z-10 top-full left-0 w-full rounded-b-lg overflow-y-auto max-h-72 textarea-custom-scrollbar shadow-lg',
             selected ? 'bg-bg-base' : 'bg-border-neutral'
           )}
         >
