@@ -114,7 +114,6 @@ export const Notice = ({ blockInfo, id }: Props) => {
               </div>
             )}
             <NoticeItem
-              key={item.id}
               id={id}
               item={item}
               editorResetKey={editorResetKey}

@@ -55,7 +55,7 @@ export const NoticeItem = ({
         className="w-full"
         multiple={false}
         value={item.image}
-        onChange={file => onPictureChange(file)}
+        onChange={onPictureChange}
       />
     </div>
   );
