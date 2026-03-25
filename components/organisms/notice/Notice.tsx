@@ -116,6 +116,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
             <NoticeItem
               id={id}
               item={item}
+              noticeLength={blockInfo.props.items?.length || 0}
               editorResetKey={editorResetKey}
               onEditorChange={json => handleItemEditorChange(item.id, json)}
               onPictureChange={file => handleItemPictureChange(item.id, file)}
