@@ -4,6 +4,7 @@ import { coupleIntroductionSchema } from '@/components/organisms/couple-introduc
 import { gallerySchema } from '@/components/organisms/gallery/Gallery.schema';
 import { greetingSchema } from '@/components/organisms/greeting/Greeting.schema';
 import { noticeSchema } from '@/components/organisms/notice/Notice.schema';
+import { organizerInformationSchema } from '@/components/organisms/organizerInfo/OrganizerInformation.schema';
 import { phoneSchema } from '@/components/organisms/phone/Phone.schema';
 import { placeSchema } from '@/components/organisms/place/Place.schema';
 import { videoSchema } from '@/components/organisms/video/Video.schema';
@@ -18,4 +19,5 @@ export const blockSchema = {
   video: videoSchema,
   notice: noticeSchema,
   calendar: calendarSchema,
+  organizerInformation: organizerInformationSchema,
 } as const;
