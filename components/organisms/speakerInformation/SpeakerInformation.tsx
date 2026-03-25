@@ -1,0 +1,152 @@
+import { JSONContent } from '@tiptap/core';
+import { useMemo, useEffect, ChangeEvent } from 'react';
+import { useShallow } from 'zustand/shallow';
+
+import { UtilityButton } from '@/components/atoms/button';
+import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
+import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
+import { TextField } from '@/components/molecules/text-field';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { EditorBlock } from '@/shared/types/block';
+import { debounce } from '@/shared/utils/debounce';
+
+import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
+
+import { Information } from './Information';
+
+interface Props {
+  blockInfo: EditorBlock<'speakerInformation'>;
+  id: string;
+}
+export const SpeakerInformation = ({ blockInfo, id }: Props) => {
+  const { updateBlock, updateImage } = useEditorStore(
+    useShallow(state => ({
+      updateBlock: state.updateBlock,
+      updateImage: state.updateImage,
+    }))
+  );
+  const { speakers } = blockInfo.props;
+  const debouncedUpdateMessage = useMemo(
+    () =>
+      debounce((messageJson: JSONContent) => {
+        updateBlock(id, {
+          messageJson,
+          messageHtml: tiptapJsonToHtmlInBrowser(messageJson),
+        });
+      }, 300),
+    [id, updateBlock]
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedUpdateMessage.cancel();
+    };
+  }, [debouncedUpdateMessage]);
+
+  const handleStringChange = (
+    type: 'title' | 'name',
+    e: ChangeEvent<HTMLInputElement>,
+    speakerId?: string
+  ) => {
+    if (type === 'title') {
+      updateBlock(id, { title: e.target.value });
+    } else {
+      const newItems = (speakers || []).map(speaker =>
+        speaker.id === speakerId
+          ? { ...speaker, name: e.target.value }
+          : speaker
+      );
+      updateBlock(id, { speakers: newItems });
+    }
+  };
+
+  const handleEditorChange = (speakerId: string, json: JSONContent) => {
+    const newItems = (speakers || []).map(speaker =>
+      speaker.id === speakerId
+        ? {
+            ...speaker,
+            messageJson: json,
+            messageHtml: tiptapJsonToHtmlInBrowser(json),
+          }
+        : speaker
+    );
+    updateBlock(id, { speakers: newItems });
+  };
+
+  const handlePictureChange = (speakerId: string, file: (File | string)[]) => {
+    const newItems = (speakers || []).map(speaker =>
+      speaker.id === speakerId ? { ...speaker, image: file } : speaker
+    );
+    updateBlock(id, { speakers: newItems });
+    updateImage(id, file);
+  };
+
+  const handleAddSpeaker = () => {
+    const newSpeaker = {
+      id: crypto.randomUUID(),
+      name: '',
+      messageJson: null,
+      messageHtml: null,
+      image: [],
+    };
+    updateBlock(id, {
+      speakers: [...(speakers || []), newSpeaker],
+    });
+  };
+
+  const handleDeleteSpeaker = (speakerId: string) => {
+    const newItems = (speakers || []).filter(
+      speaker => speaker.id !== speakerId
+    );
+    updateBlock(id, { speakers: newItems });
+  };
+
+  return (
+    <LeftEditorWrapper ariaLabel="연사 정보">
+      <NavigationBar
+        action={
+          <UtilityButton size="md" variant="primary" onClick={handleAddSpeaker}>
+            추가
+          </UtilityButton>
+        }
+        direction="right"
+      >
+        연사정보
+      </NavigationBar>
+
+      <TextField
+        label="제목"
+        inputProps={{
+          placeholder: '제목을 입력해주세요.',
+          value: blockInfo.props.title,
+          onChange: e => handleStringChange('title', e),
+        }}
+        className="text-center w-full pb-3"
+      />
+      {speakers?.map((speaker, index) => (
+        <section
+          key={`${speaker.id}-${index}`}
+          className="w-full flex flex-col gap-2"
+        >
+          {index !== 0 && (
+            <div className="flex flex-col items-center gap-1">
+              <div className="w-0.5 h-1 rounded-sm bg-text-secondary" />
+              <div className="w-0.5 h-1 rounded-sm bg-text-secondary" />
+            </div>
+          )}
+          <Information
+            speakerLength={speakers?.length}
+            id={speaker.id}
+            speaker={speaker}
+            onStringChange={(type, e) =>
+              handleStringChange(type, e, speaker.id)
+            }
+            onEditorChange={json => handleEditorChange(speaker.id, json)}
+            onPictureChange={file => handlePictureChange(speaker.id, file)}
+            onDelete={() => handleDeleteSpeaker(speaker.id)}
+          />
+        </section>
+      ))}
+    </LeftEditorWrapper>
+  );
+};
