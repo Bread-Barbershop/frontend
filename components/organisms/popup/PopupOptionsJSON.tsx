@@ -164,7 +164,6 @@ export function PopupOptionsJSON({
             </UtilityButton>
           }
           direction="right"
-          className="border-b px-4 py-3 bg-slate-50"
         >
           <span className="font-bold text-lg">{popupTitle}</span>
         </NavigationBar>
