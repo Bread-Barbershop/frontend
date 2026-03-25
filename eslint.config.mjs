@@ -295,6 +295,7 @@ export default defineConfig([
     'build/**', // 일반 빌드 폴더
     'dist/**', // 배포용 빌드 폴더
     'node_modules/**', // 외부 패키지
+    'coverage/**', // 테스트 커버리지 결과
     'next-env.d.ts', // Next.js 타입 정의
     '*.config.js', // JS 설정 파일
     '*.config.ts', // TS 설정 파일
