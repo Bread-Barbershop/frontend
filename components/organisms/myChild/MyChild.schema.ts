@@ -4,8 +4,20 @@ export const myChildSchema = {
   type: null,
   fields: {
     title: {
-      default: '아기 소개',
+      default: '',
       required: true,
+    },
+    name: {
+      default: '',
+      required: true,
+    },
+    nickname: {
+      default: '',
+      required: false,
+    },
+    birthday: {
+      default: '',
+      required: false,
     },
     messageJson: {
       default: null as JSONContent | null,
@@ -13,6 +25,10 @@ export const myChildSchema = {
     },
     messageHtml: {
       default: null as string | null,
+      required: false,
+    },
+    image: {
+      default: [] as (File | string)[],
       required: false,
     },
   },

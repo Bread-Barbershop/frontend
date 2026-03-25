@@ -1,3 +1,56 @@
-export const MyChildPreview = () => {
-  return <div>MyChildPreview</div>;
+import { Image } from '@/components/atoms/image';
+import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
+import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
+import type { EditorBlock } from '@/shared/types/block';
+
+import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
+
+interface Props {
+  className: string;
+  titleClassName: string;
+  blockInfo: EditorBlock<'myChild'>;
+}
+
+export const MyChildPreview = ({
+  className,
+  titleClassName,
+  blockInfo,
+}: Props) => {
+  const { title, name, nickname, birthday, image } = blockInfo.props;
+  const html =
+    blockInfo.props.messageHtml ??
+    tiptapJsonToHtmlUniversal(blockInfo.props.messageJson);
+
+  const preview = useResolvedImageSource(
+    image && image.length > 0 ? image[0] : null
+  );
+  return (
+    <MiddlePreviewWrapper
+      className={className}
+      enTitle="MY CHILD"
+      koTitle={title}
+      titleClassName={titleClassName}
+      childClassName="w-full flex flex-col gap-6"
+    >
+      {preview && (
+        <div className="w-83.75 h-83.75 overflow-hidden rounded-3xl">
+          <Image
+            src={preview}
+            alt="아기 사진"
+            width={335}
+            height={335}
+            className="object-cover"
+          />
+        </div>
+      )}
+      <section className="grid grid-cols-[1fr_2fr_1fr] w-full items-center gap-10 text-text-primary">
+        <p className="col-start-2 text-[16px]">
+          {name}
+          {nickname && <span className="text-[16px]">({nickname})</span>}
+        </p>
+        <p className="col-start-3">{birthday}</p>
+      </section>
+      <div className="text-sm" dangerouslySetInnerHTML={{ __html: html }} />
+    </MiddlePreviewWrapper>
+  );
 };
