@@ -58,9 +58,9 @@ const OptionItem = ({
   const summaryHtml = tiptapJsonToHtmlUniversal(summaryContent);
 
   return (
-    <li className="flex flex-col gap-2 p-3 border rounded-lg bg-white hover:bg-slate-50 transition-colors">
-      <div className="flex items-start gap-3">
-        <div className="pt-1">
+    <li className="flex flex-col gap-4">
+      <div className="flex items-start gap-4">
+        <div className="pt-4">
           <Radio
             name={name}
             value={JSON.stringify(content)}
@@ -68,10 +68,13 @@ const OptionItem = ({
             onChange={onSelect}
           />
         </div>
-        <div className="flex-1 cursor-pointer" onClick={onToggle}>
+        <div
+          className="flex-1 cursor-pointer rounded-2xl bg-bg-sub p-4"
+          onClick={onToggle}
+        >
           <div
             className={cn(
-              'text-sm text-text-primary prose prose-sm max-w-none',
+              'text-start text-sm text-text-primary prose prose-sm max-w-none',
               !isExpanded && 'line-clamp-2 overflow-hidden'
             )}
             dangerouslySetInnerHTML={{
@@ -169,7 +172,7 @@ export function PopupOptionsJSON({
         <div className="flex-1 overflow-y-auto p-4">
           <ul className="space-y-3">
             {options.length === 0 ? (
-              <li className="text-center py-10 text-text-secondary italic">
+              <li className="text-start py-10 text-text-secondary italic">
                 표시할 항목이 없습니다.
               </li>
             ) : (
