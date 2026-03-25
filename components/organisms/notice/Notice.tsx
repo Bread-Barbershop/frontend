@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react';
-import { ChangeEvent, useState, useMemo, useEffect } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
@@ -8,9 +8,8 @@ import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/ut
 import { TextField } from '@/components/molecules/text-field';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
-import { debounce } from '@/shared/utils/debounce';
 
-import PopupOptions from '../popup/PopupOptions';
+import { PopupOptionsJSON } from '../popup/PopupOptionsJSON';
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
 import { NoticeItem } from './NoticeItem';
@@ -22,27 +21,6 @@ interface Props {
   blockInfo: EditorBlock<'notice'>;
   id: string;
 }
-
-function createParagraphJson(text: string): JSONContent {
-  const lines = text.replace(/\r\n/g, '\n').split('\n');
-
-  return {
-    type: 'doc',
-    content: lines.map(line =>
-      line.length === 0
-        ? {
-            type: 'paragraph',
-            attrs: { textAlign: 'center' },
-          }
-        : {
-            type: 'paragraph',
-            attrs: { textAlign: 'center' },
-            content: [{ type: 'text', text: line }],
-          }
-    ),
-  };
-}
-
 export const Notice = ({ blockInfo, id }: Props) => {
   const { updateBlock, updateImage } = useEditorStore(
     useShallow(state => ({
@@ -52,45 +30,52 @@ export const Notice = ({ blockInfo, id }: Props) => {
   );
   const [isNoticeListOpen, setIsNoticeListOpen] = useState(false);
   const [editorResetKey, setEditorResetKey] = useState(0);
-  const debouncedUpdateMessage = useMemo(
-    () =>
-      debounce((messageJson: JSONContent) => {
-        updateBlock(id, {
-          messageJson,
-          messageHtml: tiptapJsonToHtmlInBrowser(messageJson),
-        });
-      }, 300),
-    [id, updateBlock]
-  );
-
-  useEffect(() => {
-    return () => {
-      debouncedUpdateMessage.cancel();
-    };
-  }, [debouncedUpdateMessage]);
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { title: e.target.value });
   };
 
-  const handleEditorChange = (json: JSONContent) => {
-    debouncedUpdateMessage(json);
-  };
+  const handleNoticeListSelect = (content: JSONContent, _index?: number) => {
+    const newItem = {
+      id: crypto.randomUUID(),
+      messageJson: content,
+      messageHtml: tiptapJsonToHtmlInBrowser(content),
+      image: [],
+    };
 
-  const handleNoticeListSelect = (text: string) => {
-    debouncedUpdateMessage.cancel();
-    const messageJson = createParagraphJson(text);
     updateBlock(id, {
-      messageJson,
-      messageHtml: tiptapJsonToHtmlInBrowser(messageJson),
+      items: [...(blockInfo.props.items || []), newItem],
     });
     setEditorResetKey(prev => prev + 1);
     setIsNoticeListOpen(false);
-    // add NoticeItem
   };
-  const handlePictureChange = (file: (File | string)[]) => {
-    updateBlock(id, { image: file });
+
+  const handleItemEditorChange = (itemId: string, json: JSONContent) => {
+    const newItems = (blockInfo.props.items || []).map(item =>
+      item.id === itemId
+        ? {
+            ...item,
+            messageJson: json,
+            messageHtml: tiptapJsonToHtmlInBrowser(json),
+          }
+        : item
+    );
+    updateBlock(id, { items: newItems });
+  };
+
+  const handleItemPictureChange = (itemId: string, file: (File | string)[]) => {
+    const newItems = (blockInfo.props.items || []).map(item =>
+      item.id === itemId ? { ...item, image: file } : item
+    );
+    updateBlock(id, { items: newItems });
     updateImage(id, file);
+  };
+
+  const handleItemDelete = (itemId: string) => {
+    const newItems = (blockInfo.props.items || []).filter(
+      item => item.id !== itemId
+    );
+    updateBlock(id, { items: newItems });
   };
 
   return (
@@ -110,25 +95,39 @@ export const Notice = ({ blockInfo, id }: Props) => {
       >
         공지사항
       </NavigationBar>
-      <TextField
-        label="제목"
-        inputProps={{
-          placeholder: '제목을 입력해 주세요',
-          value: blockInfo.props.title,
-          onChange: handleTitleChange,
-        }}
-        className="text-center w-full"
-      />
-      <NoticeItem
-        id={id}
-        editorResetKey={editorResetKey}
-        blockInfo={blockInfo}
-        handleEditorChange={handleEditorChange}
-        handlePictureChange={handlePictureChange}
-      />
+      <div className="flex flex-col gap-6 w-full">
+        <TextField
+          label="제목"
+          inputProps={{
+            placeholder: '제목을 입력해 주세요',
+            value: blockInfo.props.title,
+            onChange: handleTitleChange,
+          }}
+          className="text-center"
+        />
+        {(blockInfo.props.items || []).map((item, index) => (
+          <div key={item.id} className="flex flex-col">
+            {index !== 0 && (
+              <div className="flex flex-col items-center gap-1">
+                <div className="w-0.5 h-1 rounded-sm bg-text-secondary" />
+                <div className="w-0.5 h-1 rounded-sm bg-text-secondary" />
+              </div>
+            )}
+            <NoticeItem
+              key={item.id}
+              id={id}
+              item={item}
+              editorResetKey={editorResetKey}
+              onEditorChange={json => handleItemEditorChange(item.id, json)}
+              onPictureChange={file => handleItemPictureChange(item.id, file)}
+              onDelete={() => handleItemDelete(item.id)}
+            />
+          </div>
+        ))}
+      </div>
 
       {isNoticeListOpen && (
-        <PopupOptions
+        <PopupOptionsJSON
           popupTitle="항목 추가"
           options={NOTICE_LIST}
           onSelect={handleNoticeListSelect}
