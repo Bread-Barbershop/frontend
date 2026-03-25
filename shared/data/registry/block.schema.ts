@@ -3,6 +3,7 @@ import { calendarSchema } from '@/components/organisms/calendar/Calendar.schema'
 import { coupleIntroductionSchema } from '@/components/organisms/couple-introduction/CoupleIntroduction.schema';
 import { gallerySchema } from '@/components/organisms/gallery/Gallery.schema';
 import { greetingSchema } from '@/components/organisms/greeting/Greeting.schema';
+import { myChildSchema } from '@/components/organisms/myChild/MyChild.schema';
 import { noticeSchema } from '@/components/organisms/notice/Notice.schema';
 import { phoneSchema } from '@/components/organisms/phone/Phone.schema';
 import { placeSchema } from '@/components/organisms/place/Place.schema';
@@ -18,4 +19,5 @@ export const blockSchema = {
   video: videoSchema,
   notice: noticeSchema,
   calendar: calendarSchema,
+  myChild: myChildSchema,
 } as const;

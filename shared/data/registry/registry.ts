@@ -3,6 +3,7 @@ import { calendarDefinition } from '@/components/organisms/calendar/Calendar.def
 import { coupleIntroductionDefinition } from '@/components/organisms/couple-introduction/CoupleIntroduction.definition';
 import { galleryDefinition } from '@/components/organisms/gallery/Gallery.definition';
 import { greetingDefinition } from '@/components/organisms/greeting/Greeting.definition';
+import { myChildDefinition } from '@/components/organisms/myChild/MyChild.definition';
 import { noticeDefinition } from '@/components/organisms/notice/Notice.definition';
 import { phoneDefinition } from '@/components/organisms/phone/Phone.definition';
 import { placeDefinition } from '@/components/organisms/place/Place.definition';
@@ -23,4 +24,5 @@ export const blockRegistry = {
   video: { ...blockSchema.video, ...videoDefinition },
   notice: { ...blockSchema.notice, ...noticeDefinition },
   calendar: { ...blockSchema.calendar, ...calendarDefinition },
+  myChild: { ...blockSchema.myChild, ...myChildDefinition },
 } as const;
