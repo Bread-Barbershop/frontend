@@ -38,7 +38,7 @@ export const AccountsPerGroupPreview = ({
               <CopyIcon />
             </Button>
             <div className="w-full">
-              <p className="text-sm font-semibold text-border-liner">
+              <p className="text-sm text-start font-semibold text-border-liner">
                 {account.name}
               </p>
               <div className="flex items-center gap-2">
