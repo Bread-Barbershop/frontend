@@ -23,19 +23,23 @@ const BULK_DATA_INITIAL_VALUE: BulkData = {
 };
 
 function TitleEdit() {
-  const { setTitleData, setEngTitle } = useEditorStore(
+  const { titleData, isEngTitle, setTitleData, setEngTitle } = useEditorStore(
     useShallow(state => ({
+      titleData: state.titleData,
+      isEngTitle: state.isEngTitle,
       setTitleData: state.setTitleData,
       setEngTitle: state.setEngTitle,
     }))
   );
   const [bulkTitleData, setBulkTitleData] = useState<BulkData>(
-    BULK_DATA_INITIAL_VALUE
+    titleData.isDefault ? BULK_DATA_INITIAL_VALUE : titleData
   );
-  const [isEngTitle, setIsEngTitle] = useState(true);
+  const [bulkIsEngTitle, setBulkIsEngTitle] = useState(
+    titleData.isDefault ? true : isEngTitle
+  );
 
   const handleEngTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    setIsEngTitle(e.target.checked);
+    setBulkIsEngTitle(e.target.checked);
   };
   const toStyle = (data: BulkData, isEng?: boolean): React.CSSProperties => ({
     fontSize: isEng ? '13px' : data.fontSize,
@@ -54,8 +58,9 @@ function TitleEdit() {
               size="md"
               variant="primary"
               onClick={() => {
+                console.log(bulkIsEngTitle);
                 setTitleData({ ...bulkTitleData, isDefault: false });
-                setEngTitle(isEngTitle);
+                setEngTitle(bulkIsEngTitle);
               }}
             >
               적용하기
@@ -69,7 +74,7 @@ function TitleEdit() {
           <div
             className={`w-full h-full flex flex-col gap-1 ${bulkTitleData.align === 'left' ? 'items-start' : bulkTitleData.align === 'center' ? 'items-center' : 'items-end'}`}
           >
-            {isEngTitle && (
+            {bulkIsEngTitle && (
               <p className="sub-title" style={toStyle(bulkTitleData, true)}>
                 ENG TITLE
               </p>
@@ -82,7 +87,7 @@ function TitleEdit() {
       </div>
       <div className="flex gap-2 py-2 w-full">
         <Label className="font-semibold shrink-0">추가기능</Label>
-        <Checkbox onChange={handleEngTitle} checked={isEngTitle}>
+        <Checkbox onChange={handleEngTitle} checked={bulkIsEngTitle}>
           영문 타이틀 추가
         </Checkbox>
       </div>

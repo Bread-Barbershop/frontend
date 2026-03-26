@@ -10,7 +10,6 @@ import SectionArrow from '@/shared/assets/icons/sectionArrow.svg';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 function BackGroundEdit() {
-  const [selectTab, setSelectTab] = useState(false);
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const colorPickerContainerRef = useRef<HTMLDivElement>(null);
 
@@ -25,23 +24,19 @@ function BackGroundEdit() {
       <NavigationBar>배경 편집</NavigationBar>
       <div
         className={`w-fit px-[14px] py-1 flex gap-2 relative ${colorPickerOpen ? 'border border-primary rounded-sm' : ''}`}
-        onClick={() => setSelectTab(!selectTab)}
+        onClick={() => {
+          setColorPickerOpen(!colorPickerOpen);
+        }}
       >
         <div className="flex items-center gap-2">
           <Radio
-            checked={selectTab}
-            onChange={() => setSelectTab(!selectTab)}
+            checked={colorPickerOpen}
+            onChange={() => setColorPickerOpen(!colorPickerOpen)}
           />
           <label className="font-semibold text-sm" htmlFor="bg">
             색상
           </label>
-          <div
-            className="flex items-center gap-2"
-            onClick={e => {
-              e.stopPropagation();
-              setColorPickerOpen(!colorPickerOpen);
-            }}
-          >
+          <div className="flex items-center gap-2">
             <div
               className="w-11 h-11 border border-[#E5E5E8]"
               style={{ backgroundColor: backgroundColor }}

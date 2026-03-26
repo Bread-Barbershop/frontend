@@ -4,7 +4,7 @@ import {
   SerializedObjectProps,
 } from 'fabric';
 
-import { EditorBlock } from '@/shared/types/block';
+import { BulkData, EditorBlock } from '@/shared/types/block';
 
 import { retryFailedOnce } from './retryFailedOnce';
 import { retryPatchFailedOnce } from './retryPatchFailedOnce';
@@ -54,12 +54,21 @@ export type MainPosterData = {
 };
 
 type InvitationPayload = {
+  bulkData: BulkJson;
   blocks: EditorBlock[];
   bgm: BgmData;
   mainPoster: MainPosterData;
 };
 
+type BulkJson = {
+  backgroundColor: string;
+  isEngTitle: boolean;
+  titleData: BulkData;
+  bodyData: BulkData;
+};
+
 export async function saveInvitationFlow(params: {
+  bulkData: BulkJson;
   images: UploadTask[];
   audio: File | null;
   data: EditorBlock[]; // useEditorStore의 데이터 타입.
@@ -86,7 +95,8 @@ export async function saveInvitationFlow(params: {
   };
 }> {
   // 여기에 포스터 데이터 추가
-  const { images, audio, data, bgmData, invitationUuid, mainPoster } = params;
+  const { bulkData, images, audio, data, bgmData, invitationUuid, mainPoster } =
+    params;
 
   // 1) 서버에서 폴더 구조 + fresh 토큰 받기
   const prepRes = await fetch('/api/drive/saveInvitation', {
@@ -209,6 +219,7 @@ export async function saveInvitationFlow(params: {
 
   // 여기에 포스터 데이터 추가
   const payload: InvitationPayload = {
+    bulkData: bulkData,
     blocks: newData,
     bgm: finalBgm,
     mainPoster: mainPoster,

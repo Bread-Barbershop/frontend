@@ -13,7 +13,8 @@ export const useInitData = ({
   savedData: SavedData | null;
   uuid: string;
 }) => {
-  const { blocks, bgm, imageFolderId, audioFolderId } = savedData || {};
+  const { bulkData, blocks, bgm, imageFolderId, audioFolderId } =
+    savedData || {};
 
   const { setSelectedBgmId, setIsLoop, setUserFile } = useBgmStore(
     useShallow(state => ({
@@ -30,6 +31,10 @@ export const useInitData = ({
     setInvitationUuid,
     setImageFolderId,
     setAudioFolderId,
+    setBodyData,
+    setTitleData,
+    setEngTitle,
+    setBackgroundColor,
   } = useEditorStore(
     useShallow(state => ({
       setBlock: state.setBlock,
@@ -38,6 +43,10 @@ export const useInitData = ({
       setInvitationUuid: state.setInvitationUuid,
       setImageFolderId: state.setImageFolderId,
       setAudioFolderId: state.setAudioFolderId,
+      setBodyData: state.setBodyData,
+      setTitleData: state.setTitleData,
+      setEngTitle: state.setEngTitle,
+      setBackgroundColor: state.setBackgroundColor,
     }))
   );
 
@@ -87,8 +96,17 @@ export const useInitData = ({
     }
   }, [bgm, setUserFile, setIsLoop, setSelectedBgmId]);
 
+  const initBulkData = useCallback(() => {
+    if (bulkData) {
+      setBodyData(bulkData.bodyData);
+      setTitleData(bulkData.titleData);
+      setEngTitle(bulkData.isEngTitle);
+      setBackgroundColor(bulkData.backgroundColor);
+    }
+  }, [bulkData, setBodyData, setTitleData, setEngTitle, setBackgroundColor]);
   return {
     initEditStore,
     initBgmStore,
+    initBulkData,
   };
 };

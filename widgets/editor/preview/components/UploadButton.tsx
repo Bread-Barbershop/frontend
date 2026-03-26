@@ -20,6 +20,10 @@ function UploadButton() {
     invitationUuid,
     imageFolderId,
     audioFolderId,
+    backgroundColor,
+    isEngTitle,
+    titleData,
+    bodyData,
     setInvitationUuid,
     setImageFolderId,
     setAudioFolderId,
@@ -30,6 +34,10 @@ function UploadButton() {
       invitationUuid: state.invitationUuid,
       imageFolderId: state.imageFolderId,
       audioFolderId: state.audioFolderId,
+      backgroundColor: state.backgroundColor,
+      isEngTitle: state.isEngTitle,
+      titleData: state.titleData,
+      bodyData: state.bodyData,
       setInvitationUuid: state.setInvitationUuid,
       setImageFolderId: state.setImageFolderId,
       setAudioFolderId: state.setAudioFolderId,
@@ -74,6 +82,12 @@ function UploadButton() {
         userBgmFileId: audioFileId ?? null,
       };
 
+      const bulkData = {
+        backgroundColor,
+        isEngTitle,
+        titleData,
+        bodyData,
+      };
       // 포스터 아예 없는 경우 여기서 처리하면 될듯
       const mainPoster = exportIntersectedJSON() ?? {
         version: '7.1.0',
@@ -81,6 +95,7 @@ function UploadButton() {
       };
       if (invitationUuid === '') {
         const saveResult = await saveInvitationFlow({
+          bulkData,
           images: task as { id: string; file: File }[],
           audio: userFile,
           data: block,
@@ -99,6 +114,7 @@ function UploadButton() {
           return;
         }
         const saveResult = await saveInvitationFlow({
+          bulkData,
           images: task as { id: string; file: File }[],
           audio: userFile,
           data: block,

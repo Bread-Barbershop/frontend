@@ -120,6 +120,7 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
         );
 
         setSavedData({
+          bulkData: data.config.bulkData,
           blocks: updatedBlocksWithImages,
           mainPoster: data.config.mainPoster,
           bgm: {

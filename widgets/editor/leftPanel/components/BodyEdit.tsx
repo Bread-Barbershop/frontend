@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
@@ -19,10 +20,15 @@ const BULK_DATA_INITIAL_VALUE: BulkData = {
 };
 
 function BodyEdit() {
-  const { setBodyData } = useEditorStore();
+  const { bodyData, setBodyData } = useEditorStore(
+    useShallow(state => ({
+      bodyData: state.bodyData,
+      setBodyData: state.setBodyData,
+    }))
+  );
 
   const [bulkBodyData, setBulkBodyData] = useState<BulkData>(
-    BULK_DATA_INITIAL_VALUE
+    bodyData.isDefault ? BULK_DATA_INITIAL_VALUE : bodyData
   );
   const toStyle = (data: BulkData, isEng?: boolean): React.CSSProperties => ({
     fontSize: isEng ? '13px' : data.fontSize,

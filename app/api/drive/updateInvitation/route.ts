@@ -21,6 +21,30 @@ export async function GET(
   // 반환할 데이터 구조 정의
   const responseData: ResponseData = {
     config: {
+      bulkData: {
+        backgroundColor: '#FFFFFF',
+        isEngTitle: true,
+        titleData: {
+          font: '',
+          fontSize: '14px',
+          color: '#000000',
+          bold: false,
+          italic: false,
+          underline: false,
+          align: 'left',
+          isDefault: true,
+        },
+        bodyData: {
+          font: '',
+          fontSize: '14px',
+          color: '#000000',
+          bold: false,
+          italic: false,
+          underline: false,
+          align: 'left',
+          isDefault: true,
+        },
+      },
       blocks: [], // singular
       mainPoster: '',
       bgm: {
@@ -72,6 +96,7 @@ export async function GET(
         // 데이터 호환성 처리 (block vs blocks)
         if (fileContent) {
           responseData.config = {
+            bulkData: fileContent.bulkData,
             blocks: fileContent.blocks,
             mainPoster: fileContent.mainPoster,
             bgm: fileContent.bgm,

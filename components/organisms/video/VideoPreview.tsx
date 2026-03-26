@@ -36,11 +36,9 @@ export const VideoPreview = ({ blockInfo, className, ...rest }: Props) => {
   const preview = useResolvedImageSources(image);
   const thumbnail = preview.length > 0 ? preview[0] : null;
   const embedUrl = getEmbedUrl(videoUrl);
-
+  console.log(title);
   return (
-    <MiddlePreviewWrapper className={className} noTitle={true} {...rest}>
-      <p className="text-[20px] text-[#FA7564] font-medium">{title}</p>
-
+    <MiddlePreviewWrapper className={className} koTitle={title} {...rest}>
       <div
         className={cn(
           'relative w-full overflow-hidden group',
