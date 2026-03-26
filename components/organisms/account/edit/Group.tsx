@@ -71,7 +71,7 @@ export const Group = ({
           onClick: () => {
             const newAccounts = [
               ...accountList,
-              { name: '', bank: '', account: '' },
+              { name: '', bank: '', account: '', kakao: false },
             ];
             handleUpdateBlock(`accountList.${groupIndex}`, newAccounts);
           },

@@ -18,16 +18,16 @@ export const AccountPreview = ({
   titleClassName,
   ...rest
 }: Props) => {
-  const html =
-    blockInfo.props.messageHtml ??
-    tiptapJsonToHtmlUniversal(blockInfo.props.messageJson);
+  const { messageHtml, messageJson, groupList, accountList, title } =
+    blockInfo.props;
+  const html = messageHtml ?? tiptapJsonToHtmlUniversal(messageJson);
 
   return (
     <MiddlePreviewWrapper
       className={`${className} relative`}
       titleClassName={titleClassName}
       enTitle="ACCOUNT"
-      koTitle={blockInfo.props.title}
+      koTitle={title}
       {...rest}
     >
       <div
@@ -36,12 +36,12 @@ export const AccountPreview = ({
       />
 
       <div className="w-64.25 flex flex-col gap-4">
-        {blockInfo.props.groupList.map((group, i) => (
-          <GroupPreview key={i} group={group} i={i}>
+        {groupList.map((group, i) => (
+          <GroupPreview key={i} group={group}>
             {isOpenAccount => (
               <AccountsPerGroupPreview
                 isOpenAccount={isOpenAccount}
-                accountList={blockInfo.props.accountList[i]}
+                accountList={accountList[i] ?? []}
               />
             )}
           </GroupPreview>

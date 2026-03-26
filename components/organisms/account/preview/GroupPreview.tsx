@@ -7,21 +7,16 @@ import { cn } from '@/shared/utils/cn';
 export const GroupPreview = ({
   children,
   group,
-  i,
 }: {
   children: (isOpenAccount: boolean) => React.ReactNode;
   group: { name: string };
-  i: number;
 }) => {
   const [isOpenAccount, setIsOpenAccount] = useState(false);
   const handleOpenAccount = () => {
     setIsOpenAccount(prev => !prev);
   };
   return (
-    <div
-      key={i}
-      className="relative flex flex-col px-1 py-2 justify-center border border-border-button rounded-md shadow-btn-drop-black"
-    >
+    <div className="relative flex flex-col px-1 py-2 justify-center border border-border-button rounded-md shadow-btn-drop-black">
       <Button
         className="text-sm text-text-secondary w-full border-none"
         type="button"

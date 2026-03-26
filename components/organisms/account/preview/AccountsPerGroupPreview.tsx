@@ -18,7 +18,11 @@ export const AccountsPerGroupPreview = ({
   accountList: Account[];
 }) => {
   const handleCopyAccount = async (bank: string, account: string) => {
-    await navigator.clipboard.writeText(`${bank} ${account}`);
+    try {
+      await navigator.clipboard.writeText(`${bank} ${account}`);
+    } catch (error) {
+      console.error('복사 실패:', error);
+    }
   };
   const handleOpenKakao = () => {
     openAccountApp();
