@@ -256,6 +256,46 @@ export async function saveInvitationFlow(params: {
     usedAccessToken: currentToken,
   };
 
+  // 5) 카카오 공유 데이터 저장 (kakaotalkUrl 블록이 있으면)
+  const kakaoBlock = newData.find(b => b.component === 'kakaotalkUrl');
+  if (kakaoBlock) {
+    try {
+      const kakaoProps = kakaoBlock.props as {
+        title: string;
+        description: string;
+        images?: (string | File)[];
+        showLocationButton: boolean;
+        showShareButton: boolean;
+      };
+
+      // 이미지 파일 ID 추출 (업로드된 Drive 파일 ID)
+      const imageFileId =
+        kakaoProps.images && kakaoProps.images.length > 0
+          ? typeof kakaoProps.images[0] === 'string'
+            ? kakaoProps.images[0]
+            : undefined
+          : undefined;
+
+      await fetch('/api/drive/kakaoShare', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invitationFolderId: prep.invitationFolderId,
+          shareData: {
+            title: kakaoProps.title,
+            description: kakaoProps.description,
+            imageFileId,
+            showLocationButton: kakaoProps.showLocationButton,
+            showShareButton: kakaoProps.showShareButton,
+          },
+        }),
+      });
+    } catch (error) {
+      // 카카오 공유 저장 실패는 전체 저장 실패로 간주하지 않음
+      console.error('카카오 공유 데이터 저장 실패:', error);
+    }
+  }
+
   const totalFailed =
     imagesStep.final.fail.length +
     audioStep.final.fail.length +

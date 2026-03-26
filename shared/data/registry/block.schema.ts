@@ -3,6 +3,7 @@ import { calendarSchema } from '@/components/organisms/calendar/Calendar.schema'
 import { coupleIntroductionSchema } from '@/components/organisms/couple-introduction/CoupleIntroduction.schema';
 import { gallerySchema } from '@/components/organisms/gallery/Gallery.schema';
 import { greetingSchema } from '@/components/organisms/greeting/Greeting.schema';
+import { kakaotalkUrlSchema } from '@/components/organisms/kakaotalk-url/KakaotalkUrl.schema';
 import { phoneSchema } from '@/components/organisms/phone/Phone.schema';
 import { placeSchema } from '@/components/organisms/place/Place.schema';
 import { videoSchema } from '@/components/organisms/video/Video.schema';
@@ -16,4 +17,5 @@ export const blockSchema = {
   coupleIntroduction: coupleIntroductionSchema,
   video: videoSchema,
   calendar: calendarSchema,
+  kakaotalkUrl: kakaotalkUrlSchema,
 } as const;

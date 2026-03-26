@@ -3,6 +3,7 @@ import { calendarDefinition } from '@/components/organisms/calendar/Calendar.def
 import { coupleIntroductionDefinition } from '@/components/organisms/couple-introduction/CoupleIntroduction.definition';
 import { galleryDefinition } from '@/components/organisms/gallery/Gallery.definition';
 import { greetingDefinition } from '@/components/organisms/greeting/Greeting.definition';
+import { kakaotalkUrlDefinition } from '@/components/organisms/kakaotalk-url/KakaotalkUrl.definition';
 import { phoneDefinition } from '@/components/organisms/phone/Phone.definition';
 import { placeDefinition } from '@/components/organisms/place/Place.definition';
 import { videoDefinition } from '@/components/organisms/video/Video.definition';
@@ -21,4 +22,5 @@ export const blockRegistry = {
   },
   video: { ...blockSchema.video, ...videoDefinition },
   calendar: { ...blockSchema.calendar, ...calendarDefinition },
+  kakaotalkUrl: { ...blockSchema.kakaotalkUrl, ...kakaotalkUrlDefinition },
 } as const;
