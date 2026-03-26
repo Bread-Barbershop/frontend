@@ -16,5 +16,9 @@ export const noticeSchema = {
       }[],
       required: false,
     },
+    images: {
+      default: [] as (File | string)[],
+      required: false,
+    },
   },
 } as const;

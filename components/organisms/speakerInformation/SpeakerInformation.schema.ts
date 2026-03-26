@@ -17,5 +17,9 @@ export const speakerInformationSchema = {
       }[],
       required: false,
     },
+    images: {
+      default: [] as (File | string)[],
+      required: false,
+    },
   },
 } as const;

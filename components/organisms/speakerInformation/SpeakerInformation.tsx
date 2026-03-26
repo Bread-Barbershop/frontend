@@ -82,11 +82,19 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
   };
 
   const handlePictureChange = (speakerId: string, file: (File | string)[]) => {
-    const newItems = (speakers || []).map(speaker =>
+    const newSpeakers = (speakers || []).map(speaker =>
       speaker.id === speakerId ? { ...speaker, image: file } : speaker
     );
-    updateBlock(id, { speakers: newItems });
-    updateImage(id, file);
+    const allImages = newSpeakers.map(s => s.image[0]);
+
+    updateBlock(id, {
+      speakers: newSpeakers,
+      images: allImages,
+    });
+    updateImage(
+      id,
+      allImages.filter((f): f is File | string => !!f)
+    );
   };
 
   const handleAddSpeaker = useCallback(() => {
@@ -97,16 +105,21 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
       messageHtml: null,
       image: [],
     };
+    const newSpeakers = [...(speakers || []), newSpeaker];
     updateBlock(id, {
-      speakers: [...(speakers || []), newSpeaker],
+      speakers: newSpeakers,
+      images: newSpeakers.map(s => s.image[0]),
     });
   }, [id, updateBlock, speakers]);
 
   const handleDeleteSpeaker = (speakerId: string) => {
-    const newItems = (speakers || []).filter(
+    const newSpeakers = (speakers || []).filter(
       speaker => speaker.id !== speakerId
     );
-    updateBlock(id, { speakers: newItems });
+    updateBlock(id, {
+      speakers: newSpeakers,
+      images: newSpeakers.map(s => s.image[0]),
+    });
   };
 
   useEffect(() => {

@@ -17,7 +17,7 @@ export const SpeakerInformationPreview = ({
   titleClassName,
   ...rest
 }: Props) => {
-  const { title, speakers } = blockInfo.props;
+  const { title, speakers, images } = blockInfo.props;
   return (
     <MiddlePreviewWrapper
       className={className}
@@ -27,7 +27,12 @@ export const SpeakerInformationPreview = ({
       {...rest}
     >
       {speakers?.map((speaker, index) => (
-        <InformationPreview key={`${speaker.id}-${index}`} speaker={speaker} />
+        <InformationPreview
+          key={`${speaker.id}-${index}`}
+          speaker={speaker}
+          images={images}
+          index={index}
+        />
       ))}
     </MiddlePreviewWrapper>
   );

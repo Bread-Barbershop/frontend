@@ -17,6 +17,7 @@ interface Props {
   onEditorChange: (json: JSONContent) => void;
   onPictureChange: (file: (File | string)[]) => void;
   onDelete: () => void;
+  itemsLength: number;
 }
 
 export const NoticeItem = ({
@@ -26,19 +27,22 @@ export const NoticeItem = ({
   onEditorChange,
   onPictureChange,
   onDelete,
+  itemsLength,
 }: Props) => {
   return (
     <div className="flex flex-col gap-4 relative group">
       <NavigationBar
         action={
-          <UtilityButton
-            size="sm"
-            variant="danger"
-            onClick={onDelete}
-            className="text-red-500 hover:text-red-700 hover:bg-red-50"
-          >
-            삭제
-          </UtilityButton>
+          itemsLength > 1 && (
+            <UtilityButton
+              size="sm"
+              variant="danger"
+              onClick={onDelete}
+              className="text-red-500 hover:text-red-700 hover:bg-red-50"
+            >
+              삭제
+            </UtilityButton>
+          )
         }
       >
         내용

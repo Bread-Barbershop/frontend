@@ -6,6 +6,8 @@ import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 
 export const InformationPreview = ({
   speaker,
+  images,
+  index,
 }: {
   speaker: {
     id: string;
@@ -14,11 +16,14 @@ export const InformationPreview = ({
     messageHtml: string | null;
     image: (File | string)[];
   };
+  images?: (File | string)[];
+  index: number;
 }) => {
   const html =
     speaker.messageHtml ?? tiptapJsonToHtmlUniversal(speaker.messageJson);
   const preview = useResolvedImageSource(
-    speaker.image && speaker.image.length > 0 ? speaker.image[0] : null
+    (images && images[index]) ||
+      (speaker.image && speaker.image.length > 0 ? speaker.image[0] : null)
   );
   return (
     <div className="flex flex-col items-center gap-6">
