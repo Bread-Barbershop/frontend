@@ -1,3 +1,4 @@
+import { accountDefinition } from '@/components/organisms/account/Account.definition';
 import { bgmDefinition } from '@/components/organisms/bgm/Bgm.definition';
 import { calendarDefinition } from '@/components/organisms/calendar/Calendar.definition';
 import { coupleIntroductionDefinition } from '@/components/organisms/couple-introduction/CoupleIntroduction.definition';
@@ -19,6 +20,7 @@ export const blockRegistry = {
   greeting: { ...blockSchema.greeting, ...greetingDefinition },
   phone: { ...blockSchema.phone, ...phoneDefinition },
   place: { ...blockSchema.place, ...placeDefinition },
+  account: { ...blockSchema.account, ...accountDefinition },
   coupleIntroduction: {
     ...blockSchema.coupleIntroduction,
     ...coupleIntroductionDefinition,
