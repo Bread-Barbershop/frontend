@@ -11,6 +11,10 @@ export const organizerInformationSchema = {
       default: '',
       required: true,
     },
+    hasUrl: {
+      default: false,
+      required: false,
+    },
     url: {
       default: '',
       required: false,

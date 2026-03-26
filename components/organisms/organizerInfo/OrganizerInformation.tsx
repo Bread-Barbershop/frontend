@@ -1,5 +1,5 @@
 import { JSONContent } from '@tiptap/core';
-import { useMemo, useEffect, ChangeEvent, useState } from 'react';
+import { useMemo, useEffect, ChangeEvent } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 import { Label } from '@/components/atoms/label/Label';
@@ -20,14 +20,13 @@ interface Props {
   id: string;
 }
 export const OrganizerInformation = ({ blockInfo, id }: Props) => {
-  const [addLink, setAddLink] = useState(false);
+  const { title, organizer, hasUrl, url, messageJson, image } = blockInfo.props;
   const { updateBlock, updateImage } = useEditorStore(
     useShallow(state => ({
       updateBlock: state.updateBlock,
       updateImage: state.updateImage,
     }))
   );
-  const { title, organizer, url, messageJson, image } = blockInfo.props;
   const debouncedUpdateMessage = useMemo(
     () =>
       debounce((messageJson: JSONContent) => {
@@ -45,21 +44,12 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
     };
   }, [debouncedUpdateMessage]);
 
-  const handleAddLink = () => {
-    setAddLink(prev => {
-      const next = !prev;
-      if (!next) {
-        updateBlock(id, { url: '' });
-      }
-      return next;
-    });
-  };
-
   const handleStringChange = (
-    key: 'title' | 'organizer' | 'url',
-    e: ChangeEvent<HTMLInputElement>
+    key: 'title' | 'organizer' | 'url' | 'hasUrl',
+    e?: ChangeEvent<HTMLInputElement>,
+    value?: boolean
   ) => {
-    updateBlock(id, { [key]: e.target.value });
+    updateBlock(id, { [key]: e?.target.value ?? value });
   };
 
   const handleEditorChange = (json: JSONContent) => {
@@ -104,17 +94,23 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
       <Picture
         label="브랜드 로고"
         className="w-full"
+        labelClassName="w-14 text-center"
         multiple={false}
         value={image}
         onChange={handlePictureChange}
       />
       <section className="flex items-center gap-2 w-full">
         <Label className="font-semibold">추가기능</Label>
-        <Checkbox checked={addLink} onChange={handleAddLink}>
-          로고 클릭 시 주최사 홈페이지 접속 가능
+        <Checkbox
+          checked={hasUrl}
+          onChange={() => handleStringChange('hasUrl', undefined, !hasUrl)}
+        >
+          <p className={hasUrl ? 'text-text-primary' : 'text-text-secondary'}>
+            로고 클릭 시 주최사 홈페이지 접속 가능
+          </p>
         </Checkbox>
       </section>
-      {addLink && (
+      {hasUrl && (
         <TextField
           label="홈페이지"
           inputProps={{
