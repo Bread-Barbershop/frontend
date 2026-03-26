@@ -1,5 +1,5 @@
 import { JSONContent } from '@tiptap/core';
-import { useMemo, useEffect, ChangeEvent } from 'react';
+import { useMemo, useEffect, ChangeEvent, useCallback } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
@@ -18,6 +18,15 @@ interface Props {
   blockInfo: EditorBlock<'speakerInformation'>;
   id: string;
 }
+
+interface Speaker {
+  id: string;
+  name: string;
+  messageJson: JSONContent | null;
+  messageHtml: string | null;
+  image: (File | string)[];
+}
+
 export const SpeakerInformation = ({ blockInfo, id }: Props) => {
   const { updateBlock, updateImage } = useEditorStore(
     useShallow(state => ({
@@ -26,12 +35,20 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
     }))
   );
   const { speakers } = blockInfo.props;
-  const debouncedUpdateMessage = useMemo(
+
+  const debouncedEditorUpdate = useMemo(
     () =>
-      debounce((messageJson: JSONContent) => {
+      debounce((speakerId: string, json: JSONContent, speakers: Speaker[]) => {
         updateBlock(id, {
-          messageJson,
-          messageHtml: tiptapJsonToHtmlInBrowser(messageJson),
+          speakers: speakers.map(speaker =>
+            speaker.id === speakerId
+              ? {
+                  ...speaker,
+                  messageJson: json,
+                  messageHtml: tiptapJsonToHtmlInBrowser(json),
+                }
+              : speaker
+          ),
         });
       }, 300),
     [id, updateBlock]
@@ -39,9 +56,13 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
 
   useEffect(() => {
     return () => {
-      debouncedUpdateMessage.cancel();
+      debouncedEditorUpdate.cancel();
     };
-  }, [debouncedUpdateMessage]);
+  }, [debouncedEditorUpdate]);
+
+  const handleEditorChange = (speakerId: string, json: JSONContent) => {
+    debouncedEditorUpdate(speakerId, json, speakers || []);
+  };
 
   const handleStringChange = (
     type: 'title' | 'name',
@@ -60,19 +81,6 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
     }
   };
 
-  const handleEditorChange = (speakerId: string, json: JSONContent) => {
-    const newItems = (speakers || []).map(speaker =>
-      speaker.id === speakerId
-        ? {
-            ...speaker,
-            messageJson: json,
-            messageHtml: tiptapJsonToHtmlInBrowser(json),
-          }
-        : speaker
-    );
-    updateBlock(id, { speakers: newItems });
-  };
-
   const handlePictureChange = (speakerId: string, file: (File | string)[]) => {
     const newItems = (speakers || []).map(speaker =>
       speaker.id === speakerId ? { ...speaker, image: file } : speaker
@@ -81,7 +89,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
     updateImage(id, file);
   };
 
-  const handleAddSpeaker = () => {
+  const handleAddSpeaker = useCallback(() => {
     const newSpeaker = {
       id: crypto.randomUUID(),
       name: '',
@@ -92,7 +100,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
     updateBlock(id, {
       speakers: [...(speakers || []), newSpeaker],
     });
-  };
+  }, [id, updateBlock, speakers]);
 
   const handleDeleteSpeaker = (speakerId: string) => {
     const newItems = (speakers || []).filter(
@@ -100,6 +108,12 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
     );
     updateBlock(id, { speakers: newItems });
   };
+
+  useEffect(() => {
+    if (!speakers || speakers.length === 0) {
+      handleAddSpeaker();
+    }
+  }, [handleAddSpeaker, speakers]);
 
   return (
     <LeftEditorWrapper ariaLabel="연사 정보">

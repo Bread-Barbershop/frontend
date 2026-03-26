@@ -8,15 +8,7 @@ export const speakerInformationSchema = {
       required: true,
     },
     speakers: {
-      default: [
-        {
-          id: crypto.randomUUID(),
-          name: '',
-          messageJson: null,
-          messageHtml: null,
-          image: [],
-        },
-      ] as {
+      default: [] as {
         id: string;
         name: string;
         messageJson: JSONContent | null;
