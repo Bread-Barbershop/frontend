@@ -5,6 +5,7 @@ import { galleryDefinition } from '@/components/organisms/gallery/Gallery.defini
 import { greetingDefinition } from '@/components/organisms/greeting/Greeting.definition';
 import { myChildDefinition } from '@/components/organisms/myChild/MyChild.definition';
 import { noticeDefinition } from '@/components/organisms/notice/Notice.definition';
+import { organizerInformationDefinition } from '@/components/organisms/organizerInfo/OrganizerInformation.definition';
 import { phoneDefinition } from '@/components/organisms/phone/Phone.definition';
 import { placeDefinition } from '@/components/organisms/place/Place.definition';
 import { speakerInformationDefinition } from '@/components/organisms/speakerInformation/SpeakerInformation.definition';
@@ -25,6 +26,10 @@ export const blockRegistry = {
   video: { ...blockSchema.video, ...videoDefinition },
   notice: { ...blockSchema.notice, ...noticeDefinition },
   calendar: { ...blockSchema.calendar, ...calendarDefinition },
+  organizerInformation: {
+    ...blockSchema.organizerInformation,
+    ...organizerInformationDefinition,
+  },
   speakerInformation: {
     ...blockSchema.speakerInformation,
     ...speakerInformationDefinition,
