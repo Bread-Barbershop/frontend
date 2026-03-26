@@ -117,6 +117,7 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
             placeholder: 'https://example.com',
             value: url,
             onChange: e => handleStringChange('url', e),
+            title: 'http, https로 시작하는 url을 입력해주세요',
           }}
           className="text-center w-full"
         />

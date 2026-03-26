@@ -3,6 +3,7 @@ import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/ut
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 import { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
+import { isValidUrl } from '@/shared/utils/media/isValidUrl';
 
 import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
 
@@ -25,6 +26,14 @@ export const OrganizerInformationPreview = ({
   const preview = useResolvedImageSource(
     image && image.length > 0 ? image[0] : null
   );
+
+  const handleClick = () => {
+    if (url && isValidUrl(url)) {
+      window.open(url, '_blank');
+    } else if (!isValidUrl(url)) {
+      alert('유효하지 않은 URL입니다.');
+    }
+  };
   return (
     <MiddlePreviewWrapper
       className={className}
@@ -36,7 +45,7 @@ export const OrganizerInformationPreview = ({
     >
       {preview && (
         <div
-          onClick={() => url && window.open(url, '_blank')}
+          onClick={handleClick}
           className={cn(
             'w-83.75 h-83.75 overflow-hidden rounded-3xl',
             url && 'cursor-pointer hover:opacity-80 transition-opacity'
