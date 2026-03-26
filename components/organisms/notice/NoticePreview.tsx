@@ -19,13 +19,13 @@ export const NoticePreview = ({
   titleClassName,
   ...rest
 }: Props) => {
-  const items = blockInfo.props.items || [];
+  const { items, title, images } = blockInfo.props;
 
   return (
     <MiddlePreviewWrapper
       className={className}
       enTitle="NOTICE"
-      koTitle={blockInfo.props.title}
+      koTitle={title}
       titleClassName={titleClassName}
       {...rest}
     >
@@ -37,7 +37,7 @@ export const NoticePreview = ({
           className="h-full w-full"
           carouselClassName="gap-3"
         >
-          {items.map((item, index) => (
+          {items?.map((item, index) => (
             <div
               key={`preview-${item.id}`}
               className={cn(
@@ -45,7 +45,7 @@ export const NoticePreview = ({
                 index === 0 ? 'ml-3' : ''
               )}
             >
-              <NoticePreviewItem item={item} />
+              <NoticePreviewItem item={item} images={images} index={index} />
             </div>
           ))}
         </Carousel>

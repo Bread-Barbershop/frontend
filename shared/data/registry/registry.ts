@@ -3,10 +3,12 @@ import { calendarDefinition } from '@/components/organisms/calendar/Calendar.def
 import { coupleIntroductionDefinition } from '@/components/organisms/couple-introduction/CoupleIntroduction.definition';
 import { galleryDefinition } from '@/components/organisms/gallery/Gallery.definition';
 import { greetingDefinition } from '@/components/organisms/greeting/Greeting.definition';
+import { myChildDefinition } from '@/components/organisms/myChild/MyChild.definition';
 import { noticeDefinition } from '@/components/organisms/notice/Notice.definition';
 import { organizerInformationDefinition } from '@/components/organisms/organizerInfo/OrganizerInformation.definition';
 import { phoneDefinition } from '@/components/organisms/phone/Phone.definition';
 import { placeDefinition } from '@/components/organisms/place/Place.definition';
+import { speakerInformationDefinition } from '@/components/organisms/speakerInformation/SpeakerInformation.definition';
 import { videoDefinition } from '@/components/organisms/video/Video.definition';
 
 import { blockSchema } from './block.schema';
@@ -28,4 +30,9 @@ export const blockRegistry = {
     ...blockSchema.organizerInformation,
     ...organizerInformationDefinition,
   },
+  speakerInformation: {
+    ...blockSchema.speakerInformation,
+    ...speakerInformationDefinition,
+  },
+  myChild: { ...blockSchema.myChild, ...myChildDefinition },
 } as const;
