@@ -23,17 +23,6 @@ export const GroupEdit = ({
     kakao: boolean;
   }[][];
 }) => {
-  const handleAddGroup = () => {
-    const nextGroupList = [...totalGroupList, { name: '' }];
-    const nextAccountList = [
-      ...totalAccountList,
-      [{ name: '', bank: '', account: '', kakao: false }],
-    ];
-
-    handleUpdateBlock('groupList', nextGroupList);
-    handleUpdateBlock('accountList', nextAccountList);
-  };
-
   const handleDeleteGroup = (groupIndex: number) => {
     if (totalGroupList.length <= 1) return;
 
@@ -75,7 +64,7 @@ export const GroupEdit = ({
                 type="button"
                 className="text-btn-close"
               >
-                그룹 삭제
+                삭제
               </Button>
             )}
           </div>
@@ -99,14 +88,6 @@ export const GroupEdit = ({
           </div>
         </div>
       ))}
-      <Button
-        size="md"
-        variant="borderless"
-        onClick={handleAddGroup}
-        className="text-primary font-semibold"
-      >
-        + 그룹 추가
-      </Button>
     </div>
   );
 };

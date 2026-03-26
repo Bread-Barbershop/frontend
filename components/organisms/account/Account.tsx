@@ -1,7 +1,8 @@
 import { JSONContent } from '@tiptap/react';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import { Button } from '@/components/atoms/button/Button';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { TextEditor } from '@/components/molecules/text-editor';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
@@ -10,9 +11,11 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 import { debounce } from '@/shared/utils/debounce';
 
+import { Popup } from '../popup/Popup';
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
 import { Group } from './edit/Group';
+import { GroupEdit } from './edit/GroupEdit';
 
 interface Props {
   blockInfo: EditorBlock<'account'>;
@@ -32,6 +35,7 @@ export const Account = ({ blockInfo, id }: Props) => {
       updateBlock: state.updateBlock,
     }))
   );
+  const [isGroupPopupOpen, setIsGroupPopupOpen] = useState(false);
 
   const debouncedUpdateMessage = useMemo(
     () =>
@@ -104,6 +108,17 @@ export const Account = ({ blockInfo, id }: Props) => {
     debouncedUpdateMessage(json);
   };
 
+  const handleAddGroup = () => {
+    const nextGroupList = [...blockInfo.props.groupList, { name: '' }];
+    const nextAccountList = [
+      ...blockInfo.props.accountList,
+      [{ name: '', bank: '', account: '', kakao: false }],
+    ];
+
+    handleUpdateBlock('groupList', nextGroupList);
+    handleUpdateBlock('accountList', nextAccountList);
+  };
+
   return (
     <LeftEditorWrapper ariaLabel="계좌번호">
       <NavigationBar>계좌번호</NavigationBar>
@@ -133,11 +148,31 @@ export const Account = ({ blockInfo, id }: Props) => {
           groupIndex={i}
           groupName={blockInfo.props.groupList[i].name}
           accountList={blockInfo.props.accountList[i]}
-          totalGroupList={blockInfo.props.groupList}
-          totalAccountList={blockInfo.props.accountList}
           handleUpdateBlock={handleUpdateBlock}
+          onOpenGroupPopup={() => setIsGroupPopupOpen(true)}
         />
       ))}
+      <Button
+        size="md"
+        variant="borderless"
+        onClick={handleAddGroup}
+        className="text-primary font-semibold"
+      >
+        + 그룹 추가
+      </Button>
+      {isGroupPopupOpen && (
+        <Popup
+          popupTitle="그룹 편집"
+          onClose={() => setIsGroupPopupOpen(false)}
+          wrapperClassName="w-[200px] pt-1 pb-4"
+        >
+          <GroupEdit
+            handleUpdateBlock={handleUpdateBlock}
+            totalAccountList={blockInfo.props.accountList}
+            totalGroupList={blockInfo.props.groupList}
+          />
+        </Popup>
+      )}
     </LeftEditorWrapper>
   );
 };

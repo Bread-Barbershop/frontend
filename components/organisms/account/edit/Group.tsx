@@ -1,15 +1,9 @@
-import { useState } from 'react';
-
 import { UtilityButton } from '@/components/atoms/button';
 import { ActionField } from '@/components/molecules/action-field';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { MultiField } from '@/components/molecules/multi-field';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { TextField } from '@/components/molecules/text-field';
-
-import { Popup } from '../../popup/Popup';
-
-import { GroupEdit } from './GroupEdit';
 
 interface Props {
   groupIndex: number;
@@ -20,13 +14,6 @@ interface Props {
     account: string;
     kakao: boolean;
   }[];
-  totalGroupList: { name: string }[];
-  totalAccountList: {
-    name: string;
-    bank: string;
-    account: string;
-    kakao: boolean;
-  }[][];
   handleUpdateBlock: (
     key: string,
     value:
@@ -37,6 +24,7 @@ interface Props {
       | { name: string; bank: string; account: string; kakao: boolean }[]
       | { name: string; bank: string; account: string; kakao: boolean }[][]
   ) => void;
+  onOpenGroupPopup: () => void;
 }
 
 export const Group = ({
@@ -44,28 +32,30 @@ export const Group = ({
   groupIndex,
   groupName,
   accountList,
-  totalGroupList,
-  totalAccountList,
+  onOpenGroupPopup,
 }: Props) => {
-  const [isGroupPopupOpen, setIsGroupPopupOpen] = useState(false);
-
   return (
     <div className="w-full flex flex-col gap-2">
-      <NavigationBar
-        action={
-          <UtilityButton
-            size="md"
-            variant="primary"
-            onClick={() => setIsGroupPopupOpen(true)}
-          >
-            그룹편집
-          </UtilityButton>
-        }
-        direction="right"
-        className="w-full"
-      >
-        {`${groupIndex + 1}번 그룹`}
-      </NavigationBar>
+      {groupIndex === 0 ? (
+        <NavigationBar
+          action={
+            <UtilityButton
+              size="md"
+              variant="primary"
+              onClick={onOpenGroupPopup}
+            >
+              그룹편집
+            </UtilityButton>
+          }
+          direction="right"
+          className="w-full"
+        >
+          {`${groupIndex + 1}번 그룹`}
+        </NavigationBar>
+      ) : (
+        <NavigationBar>{`${groupIndex + 1}번 그룹`}</NavigationBar>
+      )}
+
       <ActionField
         label="그룹명"
         inputProps={{
@@ -144,20 +134,6 @@ export const Group = ({
           </div>
         </div>
       ))}
-
-      {isGroupPopupOpen && (
-        <Popup
-          popupTitle="그룹 편집"
-          onClose={() => setIsGroupPopupOpen(false)}
-          wrapperClassName="w-[200px] pt-1 pb-2"
-        >
-          <GroupEdit
-            handleUpdateBlock={handleUpdateBlock}
-            totalAccountList={totalAccountList}
-            totalGroupList={totalGroupList}
-          />
-        </Popup>
-      )}
     </div>
   );
 };
