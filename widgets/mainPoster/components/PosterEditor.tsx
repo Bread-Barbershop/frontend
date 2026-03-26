@@ -20,6 +20,7 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { cn } from '@/shared/utils/cn';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
+import { useInitFabricData } from '../hooks/useInitFabricData';
 import { useSetFabricControls } from '../hooks/useSetFabricControls';
 import { initAligningGuidelines } from '../libs/aligning-guidelines';
 
@@ -51,6 +52,7 @@ export const PosterEditor = () => {
   } = useFabricContext();
 
   useSetFabricControls();
+  useInitFabricData();
 
   useEffect(() => {
     if (!canvasRef.current) return;

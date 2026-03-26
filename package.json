@@ -49,12 +49,13 @@
     "react": "^19.2.1",
     "react-daum-postcode": "^3.2.0",
     "react-dom": "^19.2.1",
+    "sharp": "^0.34.5",
     "tailwind-merge": "^3.4.0",
     "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@storybook/addon-docs": "^10.0.7",
-    "@storybook/nextjs-vite": "^10.0.7",
+    "@storybook/nextjs": "^10.2.19",
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4.1.18",
     "@testing-library/jest-dom": "^6.9.1",

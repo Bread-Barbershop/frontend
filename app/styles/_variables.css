@@ -1,6 +1,9 @@
 @theme {
   /* font-sans을 pretendard로 변경 */
   --font-sans: var(--font-pretendard), ui-sans-serif, system-ui, sans-serif;
+  --font-pretendard: var(--pretendard), sans-serif;
+  --font-maruburi: 'MaruBuri', serif;
+  --font-serif: 'MaruBuri', serif;
   /* text-base의 기본 크기를 13px로 변경 */
   --font-size-base: 13px;
   --font-size-base-line-height: 1.25rem; /* text-base의 기본 line-height를 1.25rem로 변경 */
