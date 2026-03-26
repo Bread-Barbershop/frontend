@@ -1,39 +1,41 @@
-import { UtilityButton } from '@/components/atoms/button';
+import { ChangeEvent } from 'react';
+
+import { UtilityButton } from '@/components/atoms/button/UtilityButton';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { Picture } from '@/components/molecules/picture/Picture';
-import { TextEditor } from '@/components/molecules/text-editor';
+import { TextEditor } from '@/components/molecules/text-editor/TextEditor';
+import { TextField } from '@/components/molecules/text-field';
 
 import type { JSONContent } from '@tiptap/react';
 
 interface Props {
   id: string;
-  item: {
+  speaker: {
     id: string;
+    name: string;
     messageJson: JSONContent | null;
     messageHtml: string | null;
     image: (File | string)[];
   };
-  editorResetKey: number;
+  onStringChange: (type: 'name', e: ChangeEvent<HTMLInputElement>) => void;
   onEditorChange: (json: JSONContent) => void;
   onPictureChange: (file: (File | string)[]) => void;
   onDelete: () => void;
-  itemsLength: number;
+  speakerLength: number;
 }
-
-export const NoticeItem = ({
-  id,
-  item,
-  editorResetKey,
+export const Information = ({
+  speaker,
+  speakerLength,
+  onStringChange,
   onEditorChange,
   onPictureChange,
   onDelete,
-  itemsLength,
 }: Props) => {
   return (
-    <div className="flex flex-col gap-4 relative group">
+    <section className="flex flex-col gap-1">
       <NavigationBar
         action={
-          itemsLength > 1 && (
+          speakerLength > 1 && (
             <UtilityButton
               size="sm"
               variant="danger"
@@ -47,20 +49,30 @@ export const NoticeItem = ({
       >
         내용
       </NavigationBar>
+      <TextField
+        label="이름"
+        inputProps={{
+          placeholder: '연사자 성함',
+          value: speaker.name,
+          onChange: e => onStringChange('name', e),
+        }}
+        className="text-center w-full"
+      />
+
       <TextEditor
-        key={`${id}-${item.id}-${editorResetKey}`}
-        value={item.messageJson}
+        value={speaker.messageJson}
         defaultText="내용을 입력해 주세요"
         defaultAlign="center"
         onChange={onEditorChange}
       />
+
       <Picture
-        label="썸네일"
+        label="연사자 사진"
         className="w-full"
         multiple={false}
-        value={item.image}
+        value={speaker.image}
         onChange={onPictureChange}
       />
-    </div>
+    </section>
   );
 };

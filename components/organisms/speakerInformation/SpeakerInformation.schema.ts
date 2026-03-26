@@ -1,15 +1,16 @@
 import type { JSONContent } from '@tiptap/react';
 
-export const noticeSchema = {
+export const speakerInformationSchema = {
   type: null,
   fields: {
     title: {
       default: '',
       required: true,
     },
-    items: {
+    speakers: {
       default: [] as {
         id: string;
+        name: string;
         messageJson: JSONContent | null;
         messageHtml: string | null;
         image: (File | string)[];

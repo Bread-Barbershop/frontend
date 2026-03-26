@@ -7,6 +7,7 @@ import { myChildSchema } from '@/components/organisms/myChild/MyChild.schema';
 import { noticeSchema } from '@/components/organisms/notice/Notice.schema';
 import { phoneSchema } from '@/components/organisms/phone/Phone.schema';
 import { placeSchema } from '@/components/organisms/place/Place.schema';
+import { speakerInformationSchema } from '@/components/organisms/speakerInformation/SpeakerInformation.schema';
 import { videoSchema } from '@/components/organisms/video/Video.schema';
 
 export const blockSchema = {
@@ -19,5 +20,6 @@ export const blockSchema = {
   video: videoSchema,
   notice: noticeSchema,
   calendar: calendarSchema,
+  speakerInformation: speakerInformationSchema,
   myChild: myChildSchema,
 } as const;
