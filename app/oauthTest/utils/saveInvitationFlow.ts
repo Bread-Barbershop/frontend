@@ -178,28 +178,32 @@ export async function saveInvitationFlow(params: {
     concurrency: 5, // 이미지는 5장씩만 끊어서 전송.
   });
 
-  const img = imagesStep.final.ok.reduce<Record<string, string[]>>(
-    (acc, cur) => {
-      if (!cur.id) return acc;
-      acc[cur.id] ??= [];
-      acc[cur.id].push(cur.fileId);
-      return acc;
-    },
-    {}
-  );
-
-  const newData = data.map(item => {
-    if (item.id in img) {
-      return {
-        ...item,
-        props: {
-          ...item.props,
-          images: img[item.id],
-        },
-      };
-    }
-    return item;
+  const fileToIdMap = new Map<File, string>();
+  imagesStep.final.ok.forEach(result => {
+    fileToIdMap.set(result.file, result.fileId);
   });
+
+  const replaceFiles = (obj: unknown): unknown => {
+    if (obj instanceof File) {
+      return fileToIdMap.get(obj) || obj;
+    }
+    if (Array.isArray(obj)) {
+      return obj.map(replaceFiles);
+    }
+    if (obj !== null && typeof obj === 'object') {
+      const newObj: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(obj)) {
+        newObj[key] = replaceFiles(value);
+      }
+      return newObj;
+    }
+    return obj;
+  };
+
+  const newData = data.map(item => ({
+    ...item,
+    props: replaceFiles(item.props) as typeof item.props,
+  }));
 
   // 3) 오디오 업로드(있으면)
   const audioStep = await runUploadStep({

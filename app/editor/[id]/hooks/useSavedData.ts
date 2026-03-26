@@ -24,45 +24,33 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
     imageFile: { id: string; name: string; mimeType: string }[] | null,
     signal: AbortSignal
   ) => {
-    if (imageFile && imageFile.length > 0) {
-      const imageFiles = await fetchImageFiles(imageFile, signal);
+    if (!imageFile || imageFile.length === 0) return blocks;
 
-      if (imageFiles.length > 0) {
-        const galleryBlock = blocks.map(block => {
-          if ('images' in block.props) {
-            return {
-              ...block,
-              props: {
-                ...block.props,
-                images: (block.props.images || [])
-                  .map(image => {
-                    return imageFiles.find(file => file.id === image)?.file;
-                  })
-                  .filter((file): file is File => file !== undefined),
-              },
-            };
-          }
-          return block;
-        });
-        return galleryBlock;
-      } else {
-        const emptyImageBlock = blocks.map(block => {
-          if ('images' in block.props) {
-            return {
-              ...block,
-              props: {
-                ...block.props,
-                images: [],
-              },
-            };
-          }
-          return block;
-        });
-        return emptyImageBlock;
+    const imageFiles = await fetchImageFiles(imageFile, signal);
+    const idToFileMap = new Map<string, File>();
+    imageFiles.forEach(item => idToFileMap.set(item.id, item.file));
+
+    const mapIdsToFiles = (obj: unknown): unknown => {
+      if (typeof obj === 'string') {
+        return idToFileMap.get(obj) || obj;
       }
-    } else {
-      return blocks;
-    }
+      if (Array.isArray(obj)) {
+        return obj.map(mapIdsToFiles);
+      }
+      if (obj !== null && typeof obj === 'object') {
+        const newObj: Record<string, unknown> = {};
+        for (const [key, value] of Object.entries(obj)) {
+          newObj[key] = mapIdsToFiles(value);
+        }
+        return newObj;
+      }
+      return obj;
+    };
+
+    return blocks.map(block => ({
+      ...block,
+      props: mapIdsToFiles(block.props) as typeof block.props,
+    }));
   };
 
   const setAudioFile = async (

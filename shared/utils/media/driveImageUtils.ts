@@ -8,8 +8,11 @@
  * @returns Public original file URL that can be used as an image src.
  */
 export function publicDriveFileUrl(fileId: string, v?: string) {
-  return `https://drive.google.com/uc?export=download&id=${encodeURIComponent(fileId)}${
-    v ? `&v=${encodeURIComponent(v)}` : ''
+  // return `https://drive.google.com/uc?export=download&id=${encodeURIComponent(fileId)}${
+  //   v ? `&v=${encodeURIComponent(v)}` : ''
+  // }`;
+  return `https://lh3.googleusercontent.com/d/${encodeURIComponent(fileId)}${
+    v ? `?v=${encodeURIComponent(v)}` : ''
   }`;
 }
 
