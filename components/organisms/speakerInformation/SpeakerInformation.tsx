@@ -1,5 +1,5 @@
 import { JSONContent } from '@tiptap/core';
-import { useMemo, useEffect, ChangeEvent, useCallback } from 'react';
+import { useMemo, useEffect, ChangeEvent } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
@@ -36,7 +36,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
   );
   const { speakers } = blockInfo.props;
 
-  const debouncedEditorUpdate = useMemo(
+  const handleEditorChange = useMemo(
     () =>
       debounce((speakerId: string, json: JSONContent, speakers: Speaker[]) => {
         updateBlock(id, {
@@ -56,13 +56,9 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
 
   useEffect(() => {
     return () => {
-      debouncedEditorUpdate.cancel();
+      handleEditorChange.cancel();
     };
-  }, [debouncedEditorUpdate]);
-
-  const handleEditorChange = (speakerId: string, json: JSONContent) => {
-    debouncedEditorUpdate(speakerId, json, speakers || []);
-  };
+  }, [handleEditorChange]);
 
   const handleStringChange = (
     type: 'title' | 'name',
@@ -97,7 +93,8 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
     );
   };
 
-  const handleAddSpeaker = useCallback(() => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleAddSpeaker = () => {
     const newSpeaker = {
       id: crypto.randomUUID(),
       name: '',
@@ -110,16 +107,22 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
       speakers: newSpeakers,
       images: newSpeakers.map(s => s.image[0]),
     });
-  }, [id, updateBlock, speakers]);
+  };
 
   const handleDeleteSpeaker = (speakerId: string) => {
     const newSpeakers = (speakers || []).filter(
       speaker => speaker.id !== speakerId
     );
+    const newImages = newSpeakers.map(s => s.image[0]);
+
     updateBlock(id, {
       speakers: newSpeakers,
-      images: newSpeakers.map(s => s.image[0]),
+      images: newImages,
     });
+    updateImage(
+      id,
+      newImages.filter((f): f is File | string => !!f)
+    );
   };
 
   useEffect(() => {
@@ -168,7 +171,9 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
             onStringChange={(type, e) =>
               handleStringChange(type, e, speaker.id)
             }
-            onEditorChange={json => handleEditorChange(speaker.id, json)}
+            onEditorChange={json =>
+              handleEditorChange(speaker.id, json, speakers || [])
+            }
             onPictureChange={file => handlePictureChange(speaker.id, file)}
             onDelete={() => handleDeleteSpeaker(speaker.id)}
           />
