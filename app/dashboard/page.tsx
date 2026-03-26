@@ -6,7 +6,7 @@ export const metadata = {
   title: '대시보드',
 };
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
   return (
     <main className="min-h-dvh px-6 py-12">
       <div className="mx-auto w-full max-w-2xl space-y-6">

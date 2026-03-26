@@ -62,4 +62,5 @@ export const createBlockSlice: StateCreator<EditorState, [], [], BlockSlice> = (
       }
     });
   },
+  setBlock: block => set({ block }),
 });

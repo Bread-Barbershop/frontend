@@ -19,8 +19,9 @@ interface Props {
 }
 
 function Gallery({ blockInfo, id }: Props) {
-  const { updateBlock, updateImage } = useEditorStore(
+  const { block, updateBlock, updateImage } = useEditorStore(
     useShallow(state => ({
+      block: state.block,
       updateBlock: state.updateBlock,
       updateImage: state.updateImage,
     }))
@@ -30,9 +31,11 @@ function Gallery({ blockInfo, id }: Props) {
     updateBlock(id, { title: e.target.value });
   };
 
-  const handlePictureChange = (file: File[]) => {
-    updateBlock(id, { images: file });
-    updateImage(id, file);
+  const handlePictureChange = (file: (File | string)[]) => {
+    const currentBlock = block as EditorBlock<'gallery'>[];
+    const image = currentBlock.find(b => b.id === id)?.props.images;
+    updateBlock(id, { images: [...(image ?? []), ...file] });
+    updateImage(id, [...(image ?? []), ...file]);
   };
 
   const handlePopViewChange = (e: ChangeEvent<HTMLInputElement>) => {

@@ -7,3 +7,11 @@ export const galleryTemplate = [
   'galleryType6',
   'galleryType7',
 ];
+
+export const calendarTemplate = [
+  'calendarType1',
+  'calendarType2',
+  'calendarType3',
+  'calendarType4',
+  'calendarType5',
+];

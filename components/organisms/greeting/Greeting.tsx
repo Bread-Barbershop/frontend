@@ -93,7 +93,7 @@ function Greeting({ blockInfo, id }: Props) {
           value: blockInfo.props.title,
           onChange: handleTitleChange,
         }}
-        className="text-center"
+        className="text-center w-full"
       />
 
       <NavigationBar

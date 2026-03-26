@@ -13,7 +13,7 @@ interface RadioProps
 export const Radio = forwardRef<HTMLInputElement, RadioProps>(
   ({ className, size, ...props }, ref) => {
     return (
-      <label className="relative flex-center" aria-hidden="true">
+      <label className="relative flex-center">
         <input ref={ref} type="radio" className="peer sr-only" {...props} />
         <div className={cn(radioVariants({ size }), className)} />
         <div className={cn(indicatorVariants({ size }))} />
