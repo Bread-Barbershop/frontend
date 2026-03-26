@@ -19,7 +19,7 @@ export const OrganizerInformationPreview = ({
   titleClassName,
   ...rest
 }: Props) => {
-  const { title, organizer, url, messageHtml, messageJson, image } =
+  const { title, organizer, url, messageHtml, messageJson, image, hasUrl } =
     blockInfo.props;
   const html = messageHtml ?? tiptapJsonToHtmlUniversal(messageJson);
 
@@ -28,9 +28,9 @@ export const OrganizerInformationPreview = ({
   );
 
   const handleClick = () => {
-    if (url && isValidUrl(url)) {
-      window.open(url, '_blank');
-    } else if (!isValidUrl(url)) {
+    if (hasUrl && url && isValidUrl(url)) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } else if (hasUrl && url && !isValidUrl(url)) {
       alert('유효하지 않은 URL입니다.');
     }
   };
@@ -44,11 +44,14 @@ export const OrganizerInformationPreview = ({
       {...rest}
     >
       {preview && (
-        <div
+        <button
+          type="button"
           onClick={handleClick}
           className={cn(
             'w-83.75 h-83.75 overflow-hidden rounded-3xl',
-            url && 'cursor-pointer hover:opacity-80 transition-opacity'
+            hasUrl &&
+              url &&
+              'cursor-pointer hover:opacity-80 transition-opacity'
           )}
           aria-label={url && `${organizer} 홈페이지로 이동`}
           title={url && `${organizer} 홈페이지로 이동`}
@@ -59,7 +62,7 @@ export const OrganizerInformationPreview = ({
             fill
             className="object-cover"
           />
-        </div>
+        </button>
       )}
       <p className="text-center text-[16px] font-semibold">{organizer}</p>
       <div
