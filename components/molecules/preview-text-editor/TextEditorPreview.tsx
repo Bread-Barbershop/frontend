@@ -10,25 +10,17 @@ import BoldIcon from '@/shared/assets/icons/bold.svg';
 import FontColorIcon from '@/shared/assets/icons/color.svg';
 import ItalicIcon from '@/shared/assets/icons/italic.svg';
 import UnderlineIcon from '@/shared/assets/icons/underline.svg';
+import { BulkData, FontOption, TextAlignOption } from '@/shared/types/block';
 
 import { Selector } from '../selector';
 
 import ColorPicker from './components/ColorPicker';
-
-interface FontOption {
-  label: string;
-  value: string;
-}
+import { useBulkEditor } from './hooks/useBulkEditor';
 
 interface TextEditorPreviewProps {
   children: ReactNode;
-}
-
-type TextAlignValue = 'left' | 'center' | 'right';
-
-interface TextAlignOption {
-  label: ReactNode;
-  value: TextAlignValue;
+  value: BulkData;
+  onChange: (bulkData: BulkData) => void;
 }
 
 const FONT_SIZE_OPTIONS: FontOption[] = [
@@ -52,43 +44,30 @@ const TEXT_ALIGN_OPTIONS: TextAlignOption[] = [
   { label: <AlignRightIcon />, value: 'right' },
 ];
 
-const DEFAULT_FONT_SIZE_OPTION: FontOption = FONT_SIZE_OPTIONS[0];
-const DEFAULT_FONT_FAMILY_OPTION: FontOption = FONT_FAMILY_OPTIONS[0];
-const DEFAULT_TEXT_ALIGN_OPTION: TextAlignOption = TEXT_ALIGN_OPTIONS[1];
-
-export function TextEditorPreview({ children }: TextEditorPreviewProps) {
-  const [fontSizeSelected, setFontSizeSelected] = useState<FontOption>(
-    DEFAULT_FONT_SIZE_OPTION
-  );
-  const [fontFamilySelected, setFontFamilySelected] = useState<FontOption>(
-    DEFAULT_FONT_FAMILY_OPTION
-  );
-  const [textAlignSelected, setTextAlignSelected] = useState<TextAlignOption>(
-    DEFAULT_TEXT_ALIGN_OPTION
-  );
+export function TextEditorPreview({
+  children,
+  value,
+  onChange,
+}: TextEditorPreviewProps) {
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const colorPickerContainerRef = useRef<HTMLDivElement>(null);
 
-  const handleFontSizeSelect = (
-    option: FontOption | { label: string; value: string }
-  ) => {
-    const selected = option as FontOption;
-    setFontSizeSelected(selected);
-  };
-  const handleFontFamilySelect = (
-    option: FontOption | { label: string; value: string }
-  ) => {
-    const selected = option as FontOption;
-    setFontFamilySelected(selected);
-  };
+  const fontSizeSelected =
+    FONT_SIZE_OPTIONS.find(option => option.value === value.fontSize) ??
+    FONT_SIZE_OPTIONS[0];
+  const fontFamilySelected =
+    FONT_FAMILY_OPTIONS.find(option => option.value === value.font) ??
+    FONT_FAMILY_OPTIONS[0];
+  const textAlignSelected =
+    TEXT_ALIGN_OPTIONS.find(option => option.value === value.align) ??
+    TEXT_ALIGN_OPTIONS[1];
 
-  const handleTextAlignSelect = (
-    option: TextAlignOption | { label: string; value: string }
-  ) => {
-    const selected = option as TextAlignOption;
-    setTextAlignSelected(selected);
-  };
-
+  const {
+    handleFontSizeSelect,
+    handleFontFamilySelect,
+    handleTextAlignSelect,
+    handleTextColorSelect,
+  } = useBulkEditor(value, onChange);
   const handleColorPickerToggle = () => {
     setColorPickerOpen(prev => !prev);
   };
@@ -120,25 +99,36 @@ export function TextEditorPreview({ children }: TextEditorPreviewProps) {
           {colorPickerOpen && (
             <div className="absolute z-50">
               <ColorPicker
-                editor={null}
+                initialHex={value.color}
                 onClose={() => setColorPickerOpen(false)}
                 containerRef={colorPickerContainerRef}
+                onChange={handleTextColorSelect}
               />
             </div>
           )}
         </div>
-        <TextEditorButton icon={<BoldIcon />} label="굵게" onClick={() => {}} />
+        <TextEditorButton
+          icon={<BoldIcon />}
+          label="굵게"
+          onClick={() => {
+            onChange({ ...value, bold: !value.bold });
+          }}
+        />
 
         <TextEditorButton
           icon={<ItalicIcon />}
           label="기울임"
-          onClick={() => {}}
+          onClick={() => {
+            onChange({ ...value, italic: !value.italic });
+          }}
         />
 
         <TextEditorButton
           icon={<UnderlineIcon />}
           label="밑줄"
-          onClick={() => {}}
+          onClick={() => {
+            onChange({ ...value, underline: !value.underline });
+          }}
         />
 
         <Selector<TextAlignOption>

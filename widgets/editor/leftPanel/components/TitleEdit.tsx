@@ -1,0 +1,93 @@
+'use client';
+
+import React, { ChangeEvent, useState } from 'react';
+import { useShallow } from 'zustand/shallow';
+
+import { UtilityButton } from '@/components/atoms/button';
+import { Label } from '@/components/atoms/label';
+import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
+import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
+import { TextEditorPreview } from '@/components/molecules/preview-text-editor';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { BulkData } from '@/shared/types/block';
+
+const BULK_DATA_INITIAL_VALUE: BulkData = {
+  font: '',
+  fontSize: '20px',
+  color: '#000000',
+  bold: false,
+  italic: false,
+  underline: false,
+  align: 'center',
+  isDefault: true,
+};
+
+function TitleEdit() {
+  const { setTitleData, setEngTitle } = useEditorStore(
+    useShallow(state => ({
+      setTitleData: state.setTitleData,
+      setEngTitle: state.setEngTitle,
+    }))
+  );
+  const [bulkTitleData, setBulkTitleData] = useState<BulkData>(
+    BULK_DATA_INITIAL_VALUE
+  );
+  const [isEngTitle, setIsEngTitle] = useState(true);
+
+  const handleEngTitle = (e: ChangeEvent<HTMLInputElement>) => {
+    setIsEngTitle(e.target.checked);
+  };
+  const toStyle = (data: BulkData, isEng?: boolean): React.CSSProperties => ({
+    fontSize: isEng ? '13px' : data.fontSize,
+    // fontFamily: data.fontFamily === 'default' ? undefined : data.fontFamily,
+    fontWeight: data.bold ? '700' : '500',
+    fontStyle: data.italic ? 'italic' : 'normal',
+    textDecoration: data.underline ? 'underline' : 'none',
+    color: data.color,
+  });
+  return (
+    <div>
+      <div className="w-full">
+        <NavigationBar
+          action={
+            <UtilityButton
+              size="md"
+              variant="primary"
+              onClick={() => {
+                setTitleData({ ...bulkTitleData, isDefault: false });
+                setEngTitle(isEngTitle);
+              }}
+            >
+              적용하기
+            </UtilityButton>
+          }
+          direction="right"
+        >
+          제목 편집
+        </NavigationBar>
+        <TextEditorPreview value={bulkTitleData} onChange={setBulkTitleData}>
+          <div
+            className={`w-full h-full flex flex-col gap-1 ${bulkTitleData.align === 'left' ? 'items-start' : bulkTitleData.align === 'center' ? 'items-center' : 'items-end'}`}
+          >
+            {isEngTitle && (
+              <p className="sub-title" style={toStyle(bulkTitleData, true)}>
+                ENG TITLE
+              </p>
+            )}
+            <p className="main-title" style={toStyle(bulkTitleData)}>
+              제목입니다.
+            </p>
+          </div>
+        </TextEditorPreview>
+      </div>
+      <div className="flex gap-2 py-2 w-full">
+        <Label className="font-semibold shrink-0">추가기능</Label>
+        <Checkbox onChange={handleEngTitle} checked={isEngTitle}>
+          영문 타이틀 추가
+        </Checkbox>
+      </div>
+    </div>
+  );
+}
+
+export default TitleEdit;

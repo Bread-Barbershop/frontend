@@ -1,12 +1,16 @@
 'use client';
-import { useState } from 'react';
+
+import { useShallow } from 'zustand/shallow';
 
 import SectionArrow from '@/shared/assets/icons/sectionArrow.svg';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import BulkEdit from './components/BulkEdit';
 import Edit from './components/Edit';
 function LeftPanel() {
-  const [isEdit, setIsEdit] = useState(false);
+  const { isEdit, setIsEdit } = useEditorStore(
+    useShallow(state => ({ isEdit: state.isEdit, setIsEdit: state.setIsEdit }))
+  );
   return (
     <div className="w-93.75 ml-15 flex flex-col gap-4">
       <div className="w-full">

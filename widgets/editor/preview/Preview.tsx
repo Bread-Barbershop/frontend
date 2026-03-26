@@ -16,13 +16,16 @@ function Preview() {
   const [isTab, setIsTab] = useState(false);
   const tabRef = useRef<HTMLDivElement>(null);
   const blockRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const { block, selectedId, selectedBlock } = useEditorStore(
-    useShallow(state => ({
-      block: state.block,
-      selectedId: state.selectedId,
-      selectedBlock: state.selectedBlock,
-    }))
-  );
+  const { block, selectedId, selectedBlock, setIsEdit, backgroundColor } =
+    useEditorStore(
+      useShallow(state => ({
+        block: state.block,
+        selectedId: state.selectedId,
+        selectedBlock: state.selectedBlock,
+        setIsEdit: state.setIsEdit,
+        backgroundColor: state.backgroundColor,
+      }))
+    );
 
   useEffect(() => {
     if (!selectedId) return;
@@ -60,7 +63,7 @@ function Preview() {
       id="preview-container"
       className="w-93.75 h-218 flex flex-col  gap-4 relative"
     >
-      <div className="h-203 bg-white">
+      <div className="h-203 bg-white" style={{ backgroundColor }}>
         <div className="overflow-y-auto h-full w-93.75 box-border textarea-custom-scrollbar">
           <div className="flex flex-col justify-center min-h-full">
             <PosterEditor />
@@ -88,6 +91,7 @@ function Preview() {
                     })}
                     onClick={() => {
                       selectedBlock(comp.id);
+                      setIsEdit(false);
                     }}
                   />
                 </div>

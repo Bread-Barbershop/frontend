@@ -22,11 +22,12 @@ interface Props {
 }
 
 function ContentsArea({ scrollContainerRef, sectionRefs }: Props) {
-  const { addBlock, selectedBlock, addAllBlock } = useEditorStore(
+  const { addBlock, selectedBlock, addAllBlock, setIsEdit } = useEditorStore(
     useShallow(state => ({
       addBlock: state.addBlock,
       selectedBlock: state.selectedBlock,
       addAllBlock: state.addAllBlock,
+      setIsEdit: state.setIsEdit,
     }))
   );
 
@@ -38,6 +39,7 @@ function ContentsArea({ scrollContainerRef, sectionRefs }: Props) {
     const id = crypto.randomUUID();
     addBlock(type, component, id);
     selectedBlock(id);
+    setIsEdit(false);
   };
   return (
     <div

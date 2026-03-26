@@ -5,31 +5,25 @@ import ShadeSlider from '@uiw/react-color-shade-slider';
 import Wheel from '@uiw/react-color-wheel';
 import { type RefObject, useEffect, useRef, useState } from 'react';
 
-import type { Editor } from '@tiptap/react';
-
 interface Props {
-  editor: Editor | null;
   initialHex?: string;
   onClose?: () => void;
+  onChange: (hex: string) => void;
   containerRef?: RefObject<HTMLElement | null>;
 }
 
 export default function SimpleWheelColorPicker({
-  editor,
   initialHex = '#FF4D6D',
   onClose,
+  onChange,
   containerRef,
 }: Props) {
   // HEX → HSVA 변환
   const [hsva, setHsva] = useState(() => hexToHsva(initialHex));
+
   const pickerRef = useRef<HTMLDivElement>(null);
 
   const hex = hsvaToHex(hsva).toUpperCase();
-
-  const applyColor = (nextHsva: typeof hsva) => {
-    const nextHex = hsvaToHex(nextHsva).toUpperCase();
-    editor?.chain().focus().setColor(nextHex).run();
-  };
 
   useEffect(() => {
     if (!onClose) return;
@@ -71,7 +65,7 @@ export default function SimpleWheelColorPicker({
         onChange={color => {
           const next = { ...hsva, ...color.hsva };
           setHsva(next);
-          applyColor(next);
+          onChange(hex);
         }}
       />
 
@@ -85,7 +79,7 @@ export default function SimpleWheelColorPicker({
         onChange={shade => {
           const next = { ...hsva, ...shade };
           setHsva(next);
-          applyColor(next);
+          onChange(hex);
         }}
       />
 
@@ -106,7 +100,7 @@ export default function SimpleWheelColorPicker({
             if (validHex(value)) {
               const nextHsva = hexToHsva(value);
               setHsva(nextHsva);
-              editor?.chain().focus().setColor(value).run();
+              onChange(hex);
             }
           }}
           className="min-w-0 flex-1 border-2 border-border-neutral rounded px-2 py-1 text-sm focus:outline-none focus:border-pink-300"

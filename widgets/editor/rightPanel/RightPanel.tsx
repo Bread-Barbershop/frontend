@@ -16,8 +16,9 @@ function RightPanel() {
       selectedId: state.selectedId,
     }))
   );
-  const [tab, setTab] = useState('poster');
   const { typeArray } = useComponentType({ block, selectedId });
+  const [tab, setTab] = useState(typeArray?.length === 0 ? 'poster' : 'type');
+
   return (
     <div className="w-93.75 h-203 mr-15 flex flex-col gap-5">
       <div className="w-93.75 min-h-0 flex-1 bg-white rounded-lg shadow-edit flex-center flex-col gap-3 px-5 ">
