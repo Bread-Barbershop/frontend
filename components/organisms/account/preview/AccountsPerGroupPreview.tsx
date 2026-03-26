@@ -20,8 +20,10 @@ export const AccountsPerGroupPreview = ({
   const handleCopyAccount = async (bank: string, account: string) => {
     try {
       await navigator.clipboard.writeText(`${bank} ${account}`);
+      return true;
     } catch (error) {
       console.error('복사 실패:', error);
+      return false;
     }
   };
   const handleOpenKakao = () => {
@@ -60,12 +62,11 @@ export const AccountsPerGroupPreview = ({
                 variant="borderless"
                 className="w-10"
                 onClick={async () => {
-                  try {
-                    await handleCopyAccount(account.bank, account.account);
-                    handleOpenKakao();
-                  } catch (error) {
-                    console.error('복사 실패:', error);
-                  }
+                  const success = await handleCopyAccount(
+                    account.bank,
+                    account.account
+                  );
+                  if (success) handleOpenKakao();
                 }}
               >
                 <KakaoIcon />

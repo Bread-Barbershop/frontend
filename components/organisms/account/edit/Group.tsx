@@ -78,7 +78,7 @@ export const Group = ({
         }}
       />
       {accountList.map((account, i) => (
-        <div key={i} className="flex flex-col gap-2">
+        <div key={`${account.account}-${i}`} className="flex flex-col gap-2">
           <TextField
             label="예금주명"
             inputProps={{
