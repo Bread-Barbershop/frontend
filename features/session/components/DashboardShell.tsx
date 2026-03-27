@@ -21,7 +21,7 @@ export default async function DashboardShell({
     >
       <header className="h-15.5 bg-white flex items-center justify-between px-10">
         <Link href="/" className="font-semibold text-xl text-black">
-          INVIA
+          Invia
         </Link>
 
         <div className="flex items-center h-full">

@@ -4,15 +4,26 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
 import {
+  DeleteInvitationResponse,
   InviteListItem,
   LoadInvitationResponse,
   PublishResult,
 } from '@/app/dashboard/types';
 
+type DeleteStateMap = Record<string, boolean>;
+type DeleteErrorMap = Record<string, string | null>;
 type PublishStateMap = Record<string, boolean>;
 type PublishErrorMap = Record<string, string | null>;
 type PublishResultMap = Record<string, PublishResult | null>;
 type LoadInvitationErrorPayload = { message?: string };
+
+function shouldRedirectToHome(status: number, message: string | null) {
+  return (
+    status === 401 ||
+    message === '재로그인이 필요합니다.' ||
+    message === '유효한 요청이 아닙니다.'
+  );
+}
 
 function resolvePublishedUrl(result: PublishResult | null, origin: string) {
   if (!result?.guestUrl) return null;
@@ -35,6 +46,8 @@ function useDashboardInvitations() {
   const [error, setError] = useState<string | null>(null);
   const [invites, setInvites] = useState<InviteListItem[]>([]);
   const [origin, setOrigin] = useState('');
+  const [deleteBusy, setDeleteBusy] = useState<DeleteStateMap>({});
+  const [deleteErrors, setDeleteErrors] = useState<DeleteErrorMap>({});
   const [publishBusy, setPublishBusy] = useState<PublishStateMap>({});
   const [publishErrors, setPublishErrors] = useState<PublishErrorMap>({});
   const [publishResults, setPublishResults] = useState<PublishResultMap>({});
@@ -43,6 +56,34 @@ function useDashboardInvitations() {
     setPublishBusy({});
     setPublishErrors({});
     setPublishResults({});
+  }, []);
+
+  const clearInvitationTransientState = useCallback((folderId: string) => {
+    setDeleteBusy(prev => {
+      const next = { ...prev };
+      delete next[folderId];
+      return next;
+    });
+    setDeleteErrors(prev => {
+      const next = { ...prev };
+      delete next[folderId];
+      return next;
+    });
+    setPublishBusy(prev => {
+      const next = { ...prev };
+      delete next[folderId];
+      return next;
+    });
+    setPublishErrors(prev => {
+      const next = { ...prev };
+      delete next[folderId];
+      return next;
+    });
+    setPublishResults(prev => {
+      const next = { ...prev };
+      delete next[folderId];
+      return next;
+    });
   }, []);
 
   const loadInvitations = useCallback(async () => {
@@ -59,14 +100,23 @@ function useDashboardInvitations() {
         | LoadInvitationResponse
         | LoadInvitationErrorPayload
         | null;
+      const payloadMessage = getPayloadMessage(payload);
+
+      if (shouldRedirectToHome(res.status, payloadMessage)) {
+        setInvites([]);
+        setError(null);
+        router.replace('/');
+        router.refresh();
+        return;
+      }
 
       if (!res.ok) {
-        throw new Error(
-          getPayloadMessage(payload) ?? '초대장 목록을 불러오지 못했습니다.'
-        );
+        throw new Error(payloadMessage ?? '초대장 목록을 불러오지 못했습니다.');
       }
 
       setInvites((payload as LoadInvitationResponse).invites ?? []);
+      setDeleteBusy({});
+      setDeleteErrors({});
       resetPublishState();
     } catch (err) {
       console.error(err);
@@ -75,7 +125,7 @@ function useDashboardInvitations() {
     } finally {
       setLoading(false);
     }
-  }, [resetPublishState]);
+  }, [resetPublishState, router]);
 
   useEffect(() => {
     void loadInvitations();
@@ -124,6 +174,57 @@ function useDashboardInvitations() {
     }
   }, []);
 
+  const handleDelete = useCallback(
+    async (folderId: string) => {
+      if (!folderId) return;
+
+      const shouldDelete = window.confirm('초대장을 삭제하시겠습니까?');
+      if (!shouldDelete) return;
+
+      let isDeleted = false;
+      setDeleteErrors(prev => ({ ...prev, [folderId]: null }));
+      setDeleteBusy(prev => ({ ...prev, [folderId]: true }));
+
+      try {
+        const res = await fetch('/api/drive/deleteInvitation', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ folderId }),
+        });
+
+        const payload = (await res.json().catch(() => null)) as
+          | DeleteInvitationResponse
+          | null;
+
+        if (!res.ok || payload?.success === false) {
+          throw new Error(payload?.message ?? '초대장 삭제에 실패했습니다.');
+        }
+
+        setInvites(prev => prev.filter(invite => invite.folderId !== folderId));
+        isDeleted = true;
+        clearInvitationTransientState(folderId);
+      } catch (err) {
+        console.error(err);
+        setDeleteErrors(prev => ({
+          ...prev,
+          [folderId]:
+            err instanceof Error ? err.message : '초대장 삭제에 실패했습니다.',
+        }));
+      } finally {
+        setDeleteBusy(prev => {
+          if (!isDeleted) {
+            return { ...prev, [folderId]: false };
+          }
+
+          const next = { ...prev };
+          delete next[folderId];
+          return next;
+        });
+      }
+    },
+    [clearInvitationTransientState]
+  );
+
   const handleUpdate = useCallback(
     (folderId: string, uuid?: string) => {
       if (!uuid) {
@@ -161,6 +262,16 @@ function useDashboardInvitations() {
     [publishBusy]
   );
 
+  const isDeleting = useCallback(
+    (folderId: string) => Boolean(deleteBusy[folderId]),
+    [deleteBusy]
+  );
+
+  const getDeleteError = useCallback(
+    (folderId: string) => deleteErrors[folderId] ?? null,
+    [deleteErrors]
+  );
+
   const getPublishError = useCallback(
     (folderId: string) => publishErrors[folderId] ?? null,
     [publishErrors]
@@ -171,10 +282,13 @@ function useDashboardInvitations() {
     loading,
     error,
     loadInvitations,
+    handleDelete,
     handlePublish,
     handleUpdate,
     handleCopyPublishedUrl,
     getPublishedUrl,
+    isDeleting,
+    getDeleteError,
     isPublishing,
     getPublishError,
   };

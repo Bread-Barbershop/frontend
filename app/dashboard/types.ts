@@ -20,3 +20,9 @@ export type PublishResult = {
   status?: number;
   details?: unknown;
 };
+
+export type DeleteInvitationResponse = {
+  success: boolean;
+  message?: string;
+  error?: unknown;
+};

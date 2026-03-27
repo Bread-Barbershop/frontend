@@ -21,20 +21,31 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
     login,
     closeLogin,
     loginWithGoogle,
+    logout,
     runAfterAuth,
   } = useAuthGate({ initialIsLoggedIn });
 
   if (isLoggedIn) {
     return (
-      <button
-        type="button"
-        onClick={() => runAfterAuth(() => router.push('/dashboard'))}
-        disabled={isBusy}
-        aria-label="Go to dashboard"
-        className="ml-4 flex h-10 w-10 items-center justify-center bg-transparent cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-50"
-      >
-        <CircleUserRound size={40} strokeWidth={1.2} color="#838383" />
-      </button>
+      <>
+        <button
+          type="button"
+          onClick={logout}
+          disabled={isBusy}
+          className="text-text-secondary h-full px-8 flex items-center text-[14px] font-semibold hover:text-black transition-colors disabled:opacity-50 cursor-pointer"
+        >
+          LOGOUT
+        </button>
+        <button
+          type="button"
+          onClick={() => runAfterAuth(() => router.push('/dashboard'))}
+          disabled={isBusy}
+          aria-label="Go to dashboard"
+          className="ml-4 flex h-10 w-10 items-center justify-center bg-transparent cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-50"
+        >
+          <CircleUserRound size={40} strokeWidth={1.2} color="#838383" />
+        </button>
+      </>
     );
   }
 

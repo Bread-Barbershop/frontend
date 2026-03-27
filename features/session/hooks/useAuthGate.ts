@@ -148,6 +148,7 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
       }
 
       setIsLoggedIn(false);
+      router.replace('/');
       router.refresh();
     } catch (err) {
       console.error(err);

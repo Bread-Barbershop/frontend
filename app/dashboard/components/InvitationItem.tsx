@@ -2,12 +2,12 @@ import { motion, type Transition } from 'framer-motion';
 import Image from 'next/image';
 import { Ref } from 'react';
 
-import { showcaseItems } from '@/app/(home)/components/showcaseItems';
 import DeleteInvitationButton from '@/app/dashboard/components/DeleteInvitationButton';
 import EditInvitationButton from '@/app/dashboard/components/EditInvitationButton';
 import PublishedUrlActions from '@/app/dashboard/components/PublishedUrlActions';
 import PublishInvitationButton from '@/app/dashboard/components/PublishInvitationButton';
 import { InviteListItem } from '@/app/dashboard/types';
+import { getInvitationShowcaseItem } from '@/app/dashboard/utils/getInvitationShowcaseItem';
 
 const CARD_LIFT_TRANSITION: Transition = {
   type: 'spring',
@@ -18,11 +18,12 @@ const LIFT_OFFSET = 4;
 
 type InvitationItemProps = {
   invite: InviteListItem;
-  imageIndex: number;
   isHovered: boolean;
+  deleteError: string | null;
+  publishError: string | null;
+  isDeleting: boolean;
   liftDistance: number;
-  onHoverStart: () => void;
-  onHoverEnd: () => void;
+  onDelete: () => void;
   onPublish: () => void;
   onEdit: () => void;
   onCopyUrl: () => void;
@@ -33,11 +34,12 @@ type InvitationItemProps = {
 
 function InvitationItem({
   invite,
-  imageIndex,
   isHovered,
+  deleteError,
+  publishError,
+  isDeleting,
   liftDistance,
-  onHoverStart,
-  onHoverEnd,
+  onDelete,
   onPublish,
   onEdit,
   onCopyUrl,
@@ -45,14 +47,12 @@ function InvitationItem({
   isPublishing,
   measureRef,
 }: InvitationItemProps) {
-  const showcaseItem = showcaseItems[(imageIndex - 1) % showcaseItems.length];
+  const showcaseItem = getInvitationShowcaseItem(invite.folderId);
   const translateY = isHovered ? -Math.max(liftDistance - LIFT_OFFSET, 0) : 0;
 
   return (
     <div
       dir="ltr"
-      onPointerEnter={onHoverStart}
-      onPointerLeave={onHoverEnd}
       className={`relative flex w-[19.5rem] shrink-0 justify-start overflow-visible pt-10 ${
         isHovered ? 'z-10' : ''
       }`}
@@ -63,7 +63,7 @@ function InvitationItem({
           transition={CARD_LIFT_TRANSITION}
           className="absolute right-2 z-20"
         >
-          <DeleteInvitationButton />
+          <DeleteInvitationButton disabled={isDeleting} onClick={onDelete} />
         </motion.div>
       )}
 
@@ -107,6 +107,11 @@ function InvitationItem({
             disabled={!invite.invitationUuid}
             onClick={onEdit}
           />
+          {(deleteError || publishError) && (
+            <div className="w-55 rounded-lg border border-red-200 bg-white px-3 py-2 text-center text-xs font-medium text-red-600">
+              {deleteError || publishError}
+            </div>
+          )}
         </div>
       </motion.div>
     </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { debounce } from '@/shared/utils/debounce';
 
@@ -9,7 +9,8 @@ const HOVER_LEAVE_DELAY_MS = 150;
 
 function useInvitationHoverState(itemCount: number) {
   const sectionRef = useRef<HTMLElement | null>(null);
-  const sampleItemRef = useRef<HTMLDivElement | null>(null);
+  const [sampleItemElement, setSampleItemElement] =
+    useState<HTMLDivElement | null>(null);
 
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [liftDistance, setLiftDistance] = useState(0);
@@ -24,17 +25,22 @@ function useInvitationHoverState(itemCount: number) {
     }, HOVER_LEAVE_DELAY_MS)
   );
 
-  useEffect(() => {
+  const sampleItemRef = useCallback((node: HTMLDivElement | null) => {
+    setSampleItemElement(node);
+  }, []);
+
+  useLayoutEffect(() => {
     const updateLiftDistance = () => {
       const sectionHeight =
         sectionRef.current?.getBoundingClientRect().height ?? 0;
-      const itemHeight =
-        sampleItemRef.current?.getBoundingClientRect().height ?? 0;
+      const itemHeight = sampleItemElement?.getBoundingClientRect().height ?? 0;
+
+      if (sectionHeight <= 0 || itemHeight <= 0) return;
 
       setLiftDistance(Math.max(sectionHeight - itemHeight, 0));
     };
 
-    updateLiftDistance();
+    const frameId = window.requestAnimationFrame(updateLiftDistance);
 
     const resizeObserver = new ResizeObserver(() => {
       updateLiftDistance();
@@ -44,17 +50,18 @@ function useInvitationHoverState(itemCount: number) {
       resizeObserver.observe(sectionRef.current);
     }
 
-    if (sampleItemRef.current) {
-      resizeObserver.observe(sampleItemRef.current);
+    if (sampleItemElement) {
+      resizeObserver.observe(sampleItemElement);
     }
 
     window.addEventListener('resize', updateLiftDistance);
 
     return () => {
+      window.cancelAnimationFrame(frameId);
       resizeObserver.disconnect();
       window.removeEventListener('resize', updateLiftDistance);
     };
-  }, [itemCount]);
+  }, [itemCount, sampleItemElement]);
 
   useEffect(() => {
     const hoverEnterDebounced = hoverEnterDebouncedRef.current;
@@ -76,6 +83,12 @@ function useInvitationHoverState(itemCount: number) {
     hoverLeaveDebouncedRef.current();
   };
 
+  const resetHover = () => {
+    hoverEnterDebouncedRef.current.cancel();
+    hoverLeaveDebouncedRef.current.cancel();
+    setHoveredIndex(null);
+  };
+
   return {
     sectionRef,
     sampleItemRef,
@@ -83,6 +96,7 @@ function useInvitationHoverState(itemCount: number) {
     liftDistance,
     handleHoverStart,
     handleHoverEnd,
+    resetHover,
   };
 }
 

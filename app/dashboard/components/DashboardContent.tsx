@@ -1,6 +1,7 @@
 'use client';
 
 import useEmblaCarousel from 'embla-carousel-react';
+import { useEffect } from 'react';
 
 import useDashboardInvitations from '../hooks/useDashboardInvitations';
 
@@ -19,12 +20,22 @@ function DashboardContent() {
     invites,
     loading,
     error,
+    handleDelete,
     handlePublish,
     handleUpdate,
     handleCopyPublishedUrl,
+    getDeleteError,
     getPublishedUrl,
+    getPublishError,
+    isDeleting,
     isPublishing,
   } = useDashboardInvitations();
+
+  useEffect(() => {
+    if (!emblaApi) return;
+
+    emblaApi.reInit();
+  }, [emblaApi, invites.length]);
 
   return (
     <section className="relative flex h-full min-h-0 flex-col justify-end overflow-y-hidden">
@@ -34,6 +45,10 @@ function DashboardContent() {
         invites={invites}
         loading={loading}
         error={error}
+        getDeleteError={getDeleteError}
+        getPublishError={getPublishError}
+        isDeleting={isDeleting}
+        onDelete={handleDelete}
         onPublish={handlePublish}
         onEdit={handleUpdate}
         onCopyUrl={handleCopyPublishedUrl}

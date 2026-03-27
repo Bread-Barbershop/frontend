@@ -11,6 +11,10 @@ type InvitationSectionProps = {
   invites: InviteListItem[];
   loading: boolean;
   error: string | null;
+  getDeleteError: (folderId: string) => string | null;
+  getPublishError: (folderId: string) => string | null;
+  isDeleting: (folderId: string) => boolean;
+  onDelete: (folderId: string) => void;
   onPublish: (folderId: string) => void;
   onEdit: (folderId: string, uuid?: string) => void;
   onCopyUrl: (folderId: string) => void;
@@ -23,6 +27,10 @@ function InvitationSection({
   invites,
   loading,
   error,
+  getDeleteError,
+  getPublishError,
+  isDeleting,
+  onDelete,
   onPublish,
   onEdit,
   onCopyUrl,
@@ -36,6 +44,7 @@ function InvitationSection({
     liftDistance,
     handleHoverStart,
     handleHoverEnd,
+    resetHover,
   } = useInvitationHoverState(invites.length);
 
   const hasInvites = invites.length > 0;
@@ -57,14 +66,20 @@ function InvitationSection({
               <div
                 key={invite.folderId}
                 className="flex h-full min-w-0 shrink-0 basis-[19.5rem] items-end"
+                onPointerEnter={() => handleHoverStart(index)}
+                onPointerLeave={handleHoverEnd}
               >
                 <InvitationItem
                   invite={invite}
-                  imageIndex={index + 1}
                   isHovered={hoveredIndex === index}
+                  deleteError={getDeleteError(invite.folderId)}
+                  publishError={getPublishError(invite.folderId)}
+                  isDeleting={isDeleting(invite.folderId)}
                   liftDistance={liftDistance}
-                  onHoverStart={() => handleHoverStart(index)}
-                  onHoverEnd={handleHoverEnd}
+                  onDelete={() => {
+                    resetHover();
+                    onDelete(invite.folderId);
+                  }}
                   onPublish={() => onPublish(invite.folderId)}
                   onEdit={() =>
                     onEdit(invite.folderId, invite.invitationUuid ?? undefined)
