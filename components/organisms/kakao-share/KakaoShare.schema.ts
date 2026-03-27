@@ -1,7 +1,7 @@
-import { kakaotalkUrlTemplate } from '@/shared/data/template/componentTemplate';
+import { kakaoShareTemplate } from '@/shared/data/template/componentTemplate';
 
-export const kakaotalkUrlSchema = {
-  type: kakaotalkUrlTemplate,
+export const kakaoShareSchema = {
+  type: kakaoShareTemplate,
   fields: {
     title: {
       default: '',

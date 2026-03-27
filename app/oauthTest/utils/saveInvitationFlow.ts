@@ -256,8 +256,8 @@ export async function saveInvitationFlow(params: {
     usedAccessToken: currentToken,
   };
 
-  // 5) 카카오 공유 데이터 저장 (kakaotalkUrl 블록이 있으면)
-  const kakaoBlock = newData.find(b => b.component === 'kakaotalkUrl');
+  // 5) 카카오 공유 데이터 저장 (kakaoShare 블록이 있으면)
+  const kakaoBlock = newData.find(b => b.component === 'kakaoShare');
   if (kakaoBlock) {
     try {
       const kakaoProps = kakaoBlock.props as {

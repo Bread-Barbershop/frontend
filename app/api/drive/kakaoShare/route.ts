@@ -35,8 +35,7 @@ export async function POST(req: Request) {
     }
 
     // 1) 파일 확보 (고정 파일명 kakao-share.json)
-    const { kakaoShareFileId } =
-      await ensureKakaoShareFile(invitationFolderId);
+    const { kakaoShareFileId } = await ensureKakaoShareFile(invitationFolderId);
 
     // 2) 내용 업데이트
     const uploadRes = await googleFetch(
@@ -102,56 +101,49 @@ export async function POST(req: Request) {
  * 1. ensureKakaoShareFile로 파일 ID 확보
  * 2. 파일 내용 다운로드
  */
-export async function GET(req: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(req.url);
-    const invitationFolderId = searchParams.get('invitationFolderId');
+    //  드라이브 전체에서 이름이 kakao-share.json인 파일을 직접 검색 (가장 최근 수정된 1개)
+    const query = [
+      `trashed=false`,
+      `appProperties has { key='app_id' and value='Bread-Barbershop' }`,
+      `appProperties has { key='kind' and value='kakao_share_json' }`,
+      `name='kakao-share.json'`,
+    ].join(' and ');
 
-    let kakaoShareFileId = '';
+    const searchParams = new URLSearchParams({
+      q: query,
+      spaces: 'drive',
+      fields: 'files(id)',
+      orderBy: 'modifiedTime desc',
+      pageSize: '1',
+    });
 
-    if (invitationFolderId) {
-      // 1) 특정 폴더 내에서 파일 확보
-      const result = await ensureKakaoShareFile(invitationFolderId);
-      kakaoShareFileId = result.kakaoShareFileId;
-    } else {
-      // 2) 폴더 지정 없이, 드라이브 전체에서 이름이 kakao-share.json인 파일을 직접 검색 (가장 최근 수정된 1개)
-      const q = [
-        `trashed=false`,
-        `appProperties has { key='app_id' and value='Bread-Barbershop' }`,
-        `appProperties has { key='kind' and value='kakao_share_json' }`,
-        `name='kakao-share.json'`
-      ].join(' and ');
+    const searchResponse = await googleFetch(
+      `https://www.googleapis.com/drive/v3/files?${searchParams.toString()}`,
+      { cache: 'no-store' }
+    );
 
-      const searchParams = new URLSearchParams({
-        q,
-        spaces: 'drive',
-        fields: 'files(id)',
-        orderBy: 'modifiedTime desc',
-        pageSize: '1',
-      });
-
-      const searchRes = await googleFetch(
-        `https://www.googleapis.com/drive/v3/files?${searchParams.toString()}`,
-        { cache: 'no-store' }
+    if (!searchResponse.ok) {
+      return NextResponse.json(
+        { ok: false, error: 'kakao-share.json 전역 검색 실패' },
+        { status: searchResponse.status }
       );
-
-      if (!searchRes.ok) {
-        return NextResponse.json(
-          { ok: false, error: 'kakao-share.json 전역 검색 실패' },
-          { status: searchRes.status }
-        );
-      }
-
-      const searchData = await searchRes.json();
-      if (!searchData.files || searchData.files.length === 0) {
-        return NextResponse.json(
-          { ok: false, error: '드라이브 내에 kakao-share.json 파일이 존재하지 않습니다. 먼저 저장해주세요.' },
-          { status: 404 }
-        );
-      }
-
-      kakaoShareFileId = searchData.files[0].id;
     }
+
+    const searchData = await searchResponse.json();
+    if (!searchData.files || searchData.files.length === 0) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            '드라이브 내에 kakao-share.json 파일이 존재하지 않습니다. 먼저 저장해주세요.',
+        },
+        { status: 404 }
+      );
+    }
+
+    const kakaoShareFileId = searchData.files[0].id;
 
     // 3) 내용 다운로드
     const res = await googleFetch(

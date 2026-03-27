@@ -13,7 +13,7 @@ function GuestRenderer({ blocks }: { blocks: GuestBlock[] }) {
         const registryItem =
           blockRegistry[block.component as keyof typeof blockRegistry];
 
-        if (!registryItem) return null;
+        if (!registryItem || !registryItem.viewComponent) return null;
 
         const View = registryItem.viewComponent as React.ComponentType<{
           blockInfo: GuestBlock;

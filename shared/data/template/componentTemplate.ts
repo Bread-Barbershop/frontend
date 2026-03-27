@@ -16,4 +16,4 @@ export const calendarTemplate = [
   'calendarType5',
 ];
 
-export const kakaotalkUrlTemplate = ['kakaotalkUrlType1'];
+export const kakaoShareTemplate = ['kakaoShareType1'];

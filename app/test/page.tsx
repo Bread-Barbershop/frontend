@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-import { KakaoShareButton } from '@/components/organisms/kakaotalk-url/KakaoShareButton';
+import { KakaoShareButton } from '@/components/organisms/kakao-share/KakaoShareButton';
 
 type KakaoShareData = {
   title: string;

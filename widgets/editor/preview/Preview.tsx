@@ -67,6 +67,8 @@ function Preview() {
             {block.map(comp => {
               const registryItem = blockRegistry[comp.component];
 
+              if (!registryItem.viewComponent) return null;
+
               const View = registryItem.viewComponent as React.ComponentType<{
                 blockInfo: typeof comp;
                 className: string;

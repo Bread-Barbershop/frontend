@@ -11,11 +11,11 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 
 interface Props {
-  blockInfo: EditorBlock<'kakaotalkUrl'>;
+  blockInfo: EditorBlock<'kakaoShare'>;
   id: string;
 }
 
-function KakaotalkUrl({ blockInfo, id }: Props) {
+function KakaoShare({ blockInfo, id }: Props) {
   const { block, updateBlock, updateImage } = useEditorStore(
     useShallow(state => ({
       block: state.block,
@@ -33,7 +33,7 @@ function KakaotalkUrl({ blockInfo, id }: Props) {
   };
 
   const handlePictureChange = (file: (File | string)[]) => {
-    const currentBlock = block as EditorBlock<'kakaotalkUrl'>[];
+    const currentBlock = block as EditorBlock<'kakaoShare'>[];
     const existingImages = currentBlock.find(b => b.id === id)?.props.images;
     updateBlock(id, { images: [...(existingImages ?? []), ...file] });
     updateImage(id, [...(existingImages ?? []), ...file]);
@@ -108,4 +108,4 @@ function KakaotalkUrl({ blockInfo, id }: Props) {
   );
 }
 
-export default KakaotalkUrl;
+export default KakaoShare;
