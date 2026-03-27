@@ -2,8 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 
-import LoginModal from '@/app/(home)/components/LoginModal';
-import { useAuthGate } from '@/app/(home)/components/useAuthGate';
+import { useAuthGate } from '@/features/session/hooks/useAuthGate';
+
+import LoginModal from './LoginModal';
 
 type HeaderAuthControlProps = {
   initialIsLoggedIn: boolean;

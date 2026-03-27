@@ -21,7 +21,7 @@
 
 import { act, renderHook, waitFor } from '@testing-library/react';
 
-import { useAuthGate } from '@/app/(home)/components/useAuthGate';
+import { useAuthGate } from '@/features/session/hooks/useAuthGate';
 
 // ------------------------------
 // next/navigation 의 useRouter mock
