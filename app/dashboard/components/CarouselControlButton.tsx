@@ -11,10 +11,12 @@ type CarouselControlButtonProps = ComponentProps<typeof Button> & {
 function CarouselControlButton({
   direction,
   className,
+  type = 'button',
   ...props
 }: CarouselControlButtonProps) {
   return (
     <Button
+      type={type}
       {...props}
       aria-label={
         direction === 'left' ? '이전 버튼' : '다음 버튼'
