@@ -9,9 +9,11 @@ import { SavedData } from '../types/savedata';
 export const useInitData = ({
   savedData,
   uuid,
+  invitationFolderId,
 }: {
   savedData: SavedData | null;
   uuid: string;
+  invitationFolderId: string;
 }) => {
   const { bulkData, blocks, bgm, imageFolderId, audioFolderId } =
     savedData || {};
@@ -28,6 +30,7 @@ export const useInitData = ({
     setBlock,
     updateImage,
     selectedBlock,
+    setInvitationFolderId,
     setInvitationUuid,
     setImageFolderId,
     setAudioFolderId,
@@ -40,6 +43,7 @@ export const useInitData = ({
       setBlock: state.setBlock,
       updateImage: state.updateImage,
       selectedBlock: state.selectedBlock,
+      setInvitationFolderId: state.setInvitationFolderId,
       setInvitationUuid: state.setInvitationUuid,
       setImageFolderId: state.setImageFolderId,
       setAudioFolderId: state.setAudioFolderId,
@@ -68,18 +72,23 @@ export const useInitData = ({
     if (uuid) {
       setInvitationUuid(uuid);
     }
+    if (invitationFolderId) {
+      setInvitationFolderId(invitationFolderId);
+    }
     selectedBlock('mainPoster');
   }, [
     blocks,
     imageFolderId,
     audioFolderId,
     uuid,
+    invitationFolderId,
     setBlock,
     updateImage,
     setImageFolderId,
     setAudioFolderId,
     setInvitationUuid,
     selectedBlock,
+    setInvitationFolderId,
   ]);
 
   const initBgmStore = useCallback(() => {

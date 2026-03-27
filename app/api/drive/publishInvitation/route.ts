@@ -5,6 +5,8 @@ import { NextResponse } from 'next/server';
 import { ensureDataJsonFile } from '@/app/api/drive/_lib/ensureDataJsonFile';
 import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissionWithRetry';
 
+import { ensurePublishedJsonFile } from '../_lib/ensurePublishedJsonFile';
+
 // publish API 요청 본문
 type Body = { invitationFolderId: string };
 
@@ -188,11 +190,11 @@ export async function POST(req: Request) {
 
   const { dataJsonFileId } = await ensureDataJsonFile(invitationFolderId);
   const guestUrl = guestPath(dataJsonFileId);
-
   const permissionResult = await publishPermissionWithRetry(invitationFolderId);
 
   if (permissionResult.ok && permissionResult.ignored === 'already_public') {
     // 409는 "이미 공개 상태"이므로 발행 성공 흐름을 유지한다.
+    await ensurePublishedJsonFile(invitationFolderId, guestUrl);
     return buildPublishSuccessResponse({
       guestUrl,
       dataJsonFileId,
@@ -221,6 +223,8 @@ export async function POST(req: Request) {
       { status: responseStatus }
     );
   }
+
+  await ensurePublishedJsonFile(invitationFolderId, guestUrl);
 
   return buildPublishSuccessResponse({ guestUrl, dataJsonFileId });
 }

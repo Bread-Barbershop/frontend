@@ -74,9 +74,11 @@ export interface UISlice {
 }
 
 export interface DriveSlice {
+  invitationFolderId: string;
   invitationUuid: string;
   audioFolderId: string;
   imageFolderId: string;
+  setInvitationFolderId: (id: string) => void;
   setInvitationUuid: (uuid: string) => void;
   setAudioFolderId: (id: string) => void;
   setImageFolderId: (id: string) => void;

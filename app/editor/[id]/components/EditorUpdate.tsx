@@ -1,7 +1,9 @@
 'use client';
 
+import { notFound } from 'next/navigation';
 import { useEffect } from 'react';
 
+import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
 import LeftPanel from '@/widgets/editor/leftPanel/LeftPanel';
 import Preview from '@/widgets/editor/preview/Preview';
 import RightPanel from '@/widgets/editor/rightPanel/RightPanel';
@@ -20,6 +22,7 @@ function EditorUpdate({ folderId, uuid }: Props) {
   const { initEditStore, initBgmStore, initBulkData } = useInitData({
     savedData,
     uuid,
+    invitationFolderId: folderId,
   });
 
   useEffect(() => {
@@ -30,8 +33,14 @@ function EditorUpdate({ folderId, uuid }: Props) {
     }
   }, [savedData, initEditStore, initBgmStore, initBulkData]);
 
-  if (error) return <div>에러</div>;
-  if (loading || !savedData) return <div>로딩중</div>;
+  if (error) notFound();
+  if (loading || !savedData) {
+    return (
+      <div className="w-screen h-screen flex justify-center items-center bg-[#E7E9EB]">
+        <LoadingSpinner className="w-20 h-20 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <FabricProvider initialData={savedData?.mainPoster}>
