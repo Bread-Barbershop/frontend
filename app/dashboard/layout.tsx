@@ -11,7 +11,7 @@ const NAV_MENU = [
   { title: 'FAQ', href: '#' },
 ];
 
-export default async function HomeLayout({
+export default async function DashboardLayout({
   children,
 }: Readonly<{
   children: ReactNode;
@@ -51,7 +51,7 @@ export default async function HomeLayout({
         </Link>
 
         <div className="text-text-secondary">
-          © {new Date().getFullYear()}{' '}
+          @ {new Date().getFullYear()}{' '}
           <span className="font-semibold">Invia</span>. All rights reserved.
         </div>
       </footer>

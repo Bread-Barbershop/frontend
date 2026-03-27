@@ -1,0 +1,40 @@
+'use client';
+
+import useEmblaCarousel from 'embla-carousel-react';
+
+import CarouselControlButton from './CarouselControlButton';
+import DashboardTitle from './DashboardTitle';
+import InvitationSection from './InvitationSection';
+
+function DashboardContent() {
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: 'start',
+    direction: 'rtl',
+    loop: true,
+    slidesToScroll: 1,
+  });
+
+  return (
+    <section className="relative flex h-full min-h-0 flex-col justify-end overflow-y-hidden">
+      <DashboardTitle />
+      <InvitationSection emblaRef={emblaRef} />
+
+      <div className="absolute bottom-0 left-1/2 z-20 flex h-[68px] w-screen -translate-x-1/2 items-center justify-center border-t border-white/30 bg-white/10 px-6 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur-md supports-backdrop-filter:bg-white/10">
+        <div className="flex items-center gap-3">
+          <CarouselControlButton
+            direction="left"
+            onClick={() => emblaApi?.scrollPrev()}
+            className="cursor-pointer bg-[#eeeef2] hover:bg-white hover:text-black"
+          />
+          <CarouselControlButton
+            direction="right"
+            onClick={() => emblaApi?.scrollNext()}
+            className="cursor-pointer bg-[#eeeef2] hover:bg-white hover:text-black"
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default DashboardContent;
