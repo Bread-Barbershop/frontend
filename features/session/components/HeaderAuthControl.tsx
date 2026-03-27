@@ -1,5 +1,6 @@
 'use client';
 
+import { CircleUserRound } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { useAuthGate } from '@/features/session/hooks/useAuthGate';
@@ -30,8 +31,10 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
         onClick={() => runAfterAuth(() => router.push('/dashboard'))}
         disabled={isBusy}
         aria-label="Go to dashboard"
-        className="ml-4 w-10 h-10 bg-transparent rounded-full border border-[#d9d9d9] cursor-pointer hover:bg-neutral-50 transition-colors disabled:opacity-50"
-      />
+        className="ml-4 flex h-10 w-10 items-center justify-center bg-transparent cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-50"
+      >
+        <CircleUserRound size={40} strokeWidth={1.2} color="#838383" />
+      </button>
     );
   }
 
