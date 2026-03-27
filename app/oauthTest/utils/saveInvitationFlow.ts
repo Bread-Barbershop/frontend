@@ -178,17 +178,44 @@ export async function saveInvitationFlow(params: {
     {}
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const placeBlock = data.find(b => b.component === 'place') as any;
+  const locationInfo =
+    placeBlock &&
+    placeBlock.props.lat !== undefined &&
+    placeBlock.props.lng !== undefined &&
+    placeBlock.props.placeName
+      ? {
+          lat: Number(placeBlock.props.lat),
+          lng: Number(placeBlock.props.lng),
+          placeName: String(placeBlock.props.placeName),
+        }
+      : undefined;
+
+  const invitationUrl = `${window.location.origin}/guest/${prep.invitationUuid}`;
+
   const newData = data.map(item => {
+    let updatedProps = { ...item.props };
+
     if (item.id in img) {
-      return {
-        ...item,
-        props: {
-          ...item.props,
-          images: img[item.id],
-        },
+      updatedProps = {
+        ...updatedProps,
+        images: img[item.id],
       };
     }
-    return item;
+
+    if (item.component === 'kakaoShare') {
+      updatedProps = {
+        ...updatedProps,
+        locationInfo,
+        invitationUrl,
+      };
+    }
+
+    return {
+      ...item,
+      props: updatedProps,
+    };
   });
 
   // 3) 오디오 업로드(있으면)
@@ -287,6 +314,8 @@ export async function saveInvitationFlow(params: {
             imageFileId,
             showLocationButton: kakaoProps.showLocationButton,
             showShareButton: kakaoProps.showShareButton,
+            invitationUrl,
+            locationInfo,
           },
         }),
       });

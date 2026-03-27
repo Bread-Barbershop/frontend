@@ -1,6 +1,7 @@
 import { ChangeEvent } from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import { MultiRowInput } from '@/components/atoms/input/MultiRowInput';
 import { Label } from '@/components/atoms/label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
@@ -24,12 +25,25 @@ function KakaoShare({ blockInfo, id }: Props) {
     }))
   );
 
-  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { title: e.target.value });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const placeBlock = block.find((b: any) => b.component === 'place') as any;
+  const hasValidLocation = Boolean(
+    placeBlock &&
+      placeBlock.props.lat !== undefined &&
+      placeBlock.props.lng !== undefined &&
+      placeBlock.props.placeName
+  );
+
+  const handleTitleChange = ({
+    target: { value },
+  }: ChangeEvent<HTMLInputElement>) => {
+    updateBlock(id, { title: value });
   };
 
-  const handleDescriptionChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    updateBlock(id, { description: e.target.value });
+  const handleDescriptionChange = ({
+    target: { value },
+  }: ChangeEvent<HTMLTextAreaElement>) => {
+    updateBlock(id, { description: value });
   };
 
   const handlePictureChange = (file: (File | string)[]) => {
@@ -40,6 +54,7 @@ function KakaoShare({ blockInfo, id }: Props) {
   };
 
   const handleLocationButtonChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!hasValidLocation) return;
     updateBlock(id, { showLocationButton: e.target.checked });
   };
 
@@ -52,33 +67,27 @@ function KakaoShare({ blockInfo, id }: Props) {
       <NavigationBar>카카오 초대장 썸네일</NavigationBar>
       <div className="w-full flex flex-col gap-1">
         <Picture
-          label="썸네일 이미지"
+          label="사진"
           className="py-1"
           multiple={false}
           value={blockInfo.props.images}
-          onChange={file => handlePictureChange(file)}
+          onChange={handlePictureChange}
         />
-        <ul className="list-disc pl-5 marker:text-text-secondary py-1">
-          <li className="text-text-secondary font-semibold text-[13px]">
-            1.91:1 비율 이미지를 권장합니다.
-          </li>
-        </ul>
         <TextField
           label="제목"
           className="py-1.5"
           inputProps={{
-            placeholder: '카카오톡에 표시될 제목을 입력해주세요.',
-            onChange: e => handleTitleChange(e),
+            placeholder: '제목을 입력해 주세요.',
+            onChange: handleTitleChange,
             value: blockInfo.props.title,
           }}
         />
         <div className="flex flex-col gap-1.5 py-1.5">
-          <Label className="font-semibold">본문</Label>
-          <textarea
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 outline-none"
-            placeholder="카카오톡에 표시될 본문을 입력해주세요."
-            rows={3}
-            onChange={e => handleDescriptionChange(e)}
+          <Label className="font-semibold text-center">내용</Label>
+          <MultiRowInput
+            size="full"
+            placeholder="내용을 입력해 주세요."
+            onChange={handleDescriptionChange}
             value={blockInfo.props.description}
           />
         </div>
@@ -87,18 +96,24 @@ function KakaoShare({ blockInfo, id }: Props) {
           <div className="flex flex-col gap-1">
             <Checkbox
               onChange={handleLocationButtonChange}
-              checked={blockInfo.props.showLocationButton}
+              checked={hasValidLocation && blockInfo.props.showLocationButton}
+              disabled={!hasValidLocation}
             >
               <p className="font-normal text-text-secondary text-[13px]">
                 위치보기 버튼 (오시는 길 컴포넌트 연동)
               </p>
             </Checkbox>
+            {!hasValidLocation && (
+              <p className="text-xs text-red-500 mt-1 ml-6 break-keep">
+                * 오시는 길 블록의 예식장명과 주소가 모두 설정되어야 켤 수 있습니다.
+              </p>
+            )}
             <Checkbox
               onChange={handleShareButtonChange}
               checked={blockInfo.props.showShareButton}
             >
               <p className="font-normal text-text-secondary text-[13px]">
-                카카오톡 공유하기 버튼 노출
+                청첩장 내 카카오톡 공유하기 버튼 노출
               </p>
             </Checkbox>
           </div>

@@ -8,10 +8,17 @@ interface KakaoShareButtonProps {
   imageUrl?: string;
   linkUrl: string;
   buttonText?: string;
+  showLocationButton?: boolean;
+  locationInfo?: {
+    lat: number;
+    lng: number;
+    placeName: string;
+  };
 }
 
 declare global {
   interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Kakao: any;
   }
 }
@@ -21,7 +28,9 @@ export const KakaoShareButton = ({
   description,
   imageUrl,
   linkUrl,
-  buttonText = '초대장 보기',
+  buttonText = '청첩장 보기',
+  showLocationButton = false,
+  locationInfo,
 }: KakaoShareButtonProps) => {
   const [isLoaded, setIsLoaded] = useState(() => 
     typeof window !== 'undefined' && !!window.Kakao
@@ -55,54 +64,76 @@ export const KakaoShareButton = ({
   };
 
   const handleShare = () => {
-    if (!window.Kakao) {
-      alert('카카오 SDK가 아직 로드되지 않았습니다. 잠시 후 다시 시도해주세요.');
+    if (typeof window === 'undefined' || !window.Kakao) {
+      alert('카카오 SDK 스크립트가 아직 로드되지 않았습니다.');
       return;
     }
 
     initKakao();
 
+    // 동적 버튼 구성부 (카카오 예제 형태 차용)
+    // 카카오 SDK는 웹링크가 빈 값이면 버튼 자체를 날려버립니다.
+    const safeLinkUrl = linkUrl || window.location.href;
+
+    const messageButtons = [
+      {
+        title: buttonText || '청첩장 보기', // 빈 문자열("")일 경우에도 기본값을 사용하도록 폴백
+        link: {
+          mobileWebUrl: safeLinkUrl,
+          webUrl: safeLinkUrl,
+        },
+      },
+    ];
+
+    if (showLocationButton && locationInfo) {
+      const kakaoMapUrl = `https://map.kakao.com/link/map/${encodeURIComponent(
+        locationInfo.placeName
+      )},${locationInfo.lat},${locationInfo.lng}`;
+
+      const bypassUrl = `${window.location.origin}/api/map-redirect?url=${encodeURIComponent(kakaoMapUrl)}`;
+
+      messageButtons.push({
+        title: '위치 보기',
+        link: {
+          mobileWebUrl: bypassUrl,
+          webUrl: bypassUrl,
+        },
+      });
+    }
+
+    // 카카오 제공 예시와 동일한 API 스펙
     window.Kakao.Share.sendDefault({
       objectType: 'feed',
       content: {
-        title: title,
-        description: description,
+        title: title || '초대장',
+        description: description || '소중한 분들을 초대합니다.',
         imageUrl:
           imageUrl ||
           'https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png',
         link: {
-          mobileWebUrl: linkUrl,
-          webUrl: linkUrl,
+          mobileWebUrl: safeLinkUrl,
+          webUrl: safeLinkUrl,
         },
       },
-      buttons: [
-        {
-          title: buttonText,
-          link: {
-            mobileWebUrl: linkUrl,
-            webUrl: linkUrl,
-          },
-        },
-      ],
+      buttons: messageButtons,
     });
   };
 
   return (
     <button
-      onClick={handleShare}
-      disabled={!isLoaded}
-      className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-colors shadow-sm ${
-        isLoaded
-          ? 'bg-[#FAE100] text-[#3C1E1E] hover:bg-[#F7E600]'
-          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-      }`}
+      id="kakaotalk-sharing-btn"
+      onClick={(e) => {
+        e.preventDefault();
+        handleShare();
+      }}
+      className="inline-block hover:opacity-80 transition-opacity"
     >
-      <div className="w-5 h-5">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12,2C6.48,2,2,5.48,2,9.75c0,2.6,1.7,4.88,4.28,6.23c-0.12,0.44-0.44,1.61-0.5,1.85c-0.08,0.31,0.1,0.31,0.22,0.24 c0.12-0.07,1.96-1.33,2.75-1.89c0.41,0.06,0.83,0.09,1.25,0.09c5.52,0,10-3.48,10-7.75S17.52,2,12,2z" />
-        </svg>
-      </div>
-      {isLoaded ? '카카오톡 공유하기' : '카카오 SDK 로드 중...'}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png"
+        alt="카카오톡 공유 보내기 버튼"
+        className="w-full max-w-[200px] object-contain"
+      />
     </button>
   );
 };

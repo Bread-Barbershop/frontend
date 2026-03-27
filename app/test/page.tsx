@@ -10,6 +10,12 @@ type KakaoShareData = {
   imageFileId?: string;
   showLocationButton: boolean;
   showShareButton: boolean;
+  invitationUrl?: string; // 추가됨
+  locationInfo?: {        // 추가됨
+    lat: number;
+    lng: number;
+    placeName: string;
+  };
 };
 
 export default function TestPage() {
@@ -62,6 +68,7 @@ export default function TestPage() {
         imageUrl: shareData.imageFileId
           ? `https://lh3.googleusercontent.com/d/${shareData.imageFileId}`
           : prev.imageUrl,
+        linkUrl: shareData.invitationUrl || prev.linkUrl,
       }));
     }
   }, [shareData]);
@@ -97,6 +104,10 @@ export default function TestPage() {
         {shareData && !loading && (
           <div className="mt-4 p-3 bg-green-50 rounded-lg text-sm text-green-800 w-full text-center">
             ✅ 데이터 자동 로드 완료
+            <div className="mt-2 text-xs text-green-600">
+              위치보기 옵션: {shareData.showLocationButton ? 'ON' : 'OFF'} <br/>
+              저장된 지도 정보: {shareData.locationInfo ? `${shareData.locationInfo.placeName} (저장됨)` : '없음'}
+            </div>
           </div>
         )}
         <h2 className="text-xl font-semibold my-10">카카오톡 공유</h2>
@@ -106,6 +117,8 @@ export default function TestPage() {
           imageUrl={manualData.imageUrl || undefined}
           linkUrl={manualData.linkUrl}
           buttonText={manualData.buttonText}
+          showLocationButton={shareData?.showLocationButton}
+          locationInfo={shareData?.locationInfo}
         />
       </section>
     </div>

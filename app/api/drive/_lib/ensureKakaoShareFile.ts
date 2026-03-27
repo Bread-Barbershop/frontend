@@ -15,6 +15,12 @@ export type KakaoSharePayload = {
   imageFileId?: string;
   showLocationButton: boolean;
   showShareButton: boolean;
+  invitationUrl?: string;
+  locationInfo?: {
+    lat: number;
+    lng: number;
+    placeName: string;
+  };
 };
 
 const DEFAULT_KAKAO_SHARE_PAYLOAD: KakaoSharePayload = {
