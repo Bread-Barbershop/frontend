@@ -1,5 +1,3 @@
-import { DASHBOARD_COPY } from '@/app/dashboard/dashboardConfig';
-
 import InvitationActionButton from './InvitationActionButton';
 
 type PublishInvitationButtonProps = {
@@ -15,9 +13,7 @@ function PublishInvitationButton({
 }: PublishInvitationButtonProps) {
   return (
     <InvitationActionButton disabled={disabled} onClick={onClick} tone="accent">
-      {isPublishing
-        ? DASHBOARD_COPY.publishingLabel
-        : DASHBOARD_COPY.publishInvitationLabel}
+      {isPublishing ? '초대장 생성중...' : 'URL 링크 확인하기'}
     </InvitationActionButton>
   );
 }

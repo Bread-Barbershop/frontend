@@ -1,6 +1,5 @@
 import { ComponentProps } from 'react';
 
-import { DASHBOARD_COPY } from '@/app/dashboard/dashboardConfig';
 import { Button } from '@/components/atoms/button';
 import SlideArrow from '@/shared/assets/icons/slideArrow.svg';
 import { cn } from '@/shared/utils/cn';
@@ -18,9 +17,7 @@ function CarouselControlButton({
     <Button
       {...props}
       aria-label={
-        direction === 'left'
-          ? DASHBOARD_COPY.previousSlideAriaLabel
-          : DASHBOARD_COPY.nextSlideAriaLabel
+        direction === 'left' ? '이전 버튼' : '다음 버튼'
       }
       className={cn(
         'group flex-center h-11 w-11 rounded-full bg-black/48 cursor-pointer',

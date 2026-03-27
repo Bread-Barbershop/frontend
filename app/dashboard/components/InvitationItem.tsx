@@ -7,12 +7,6 @@ import DeleteInvitationButton from '@/app/dashboard/components/DeleteInvitationB
 import EditInvitationButton from '@/app/dashboard/components/EditInvitationButton';
 import PublishedUrlActions from '@/app/dashboard/components/PublishedUrlActions';
 import PublishInvitationButton from '@/app/dashboard/components/PublishInvitationButton';
-import {
-  INVITATION_CARD_CLASS,
-  INVITATION_DELETE_BUTTON_POSITION_CLASS,
-  INVITATION_ITEM_IMAGE_SIZES,
-  INVITATION_ITEM_WRAPPER_CLASS,
-} from '@/app/dashboard/dashboardConfig';
 import { InviteListItem } from '@/app/dashboard/types';
 
 const CARD_LIFT_TRANSITION: Transition = {
@@ -59,7 +53,7 @@ function InvitationItem({
       dir="ltr"
       onPointerEnter={onHoverStart}
       onPointerLeave={onHoverEnd}
-      className={`${INVITATION_ITEM_WRAPPER_CLASS} ${
+      className={`relative flex w-[19.5rem] shrink-0 justify-start overflow-visible pt-10 ${
         isHovered ? 'z-10' : ''
       }`}
     >
@@ -67,7 +61,7 @@ function InvitationItem({
         <motion.div
           animate={{ y: translateY }}
           transition={CARD_LIFT_TRANSITION}
-          className={INVITATION_DELETE_BUTTON_POSITION_CLASS}
+          className="absolute right-2 z-20"
         >
           <DeleteInvitationButton />
         </motion.div>
@@ -77,13 +71,13 @@ function InvitationItem({
         ref={measureRef}
         animate={{ y: translateY }}
         transition={CARD_LIFT_TRANSITION}
-        className={INVITATION_CARD_CLASS}
+        className="relative flex h-118.75 w-65 items-end overflow-hidden rounded-2xl p-1"
       >
         <Image
           src={showcaseItem.image}
           alt={showcaseItem.alt}
           fill
-          sizes={INVITATION_ITEM_IMAGE_SIZES}
+          sizes="260px"
           className="object-cover"
         />
 

@@ -1,5 +1,3 @@
-import { DASHBOARD_COPY } from '@/app/dashboard/dashboardConfig';
-
 import InvitationActionButton from './InvitationActionButton';
 
 type EditInvitationButtonProps = {
@@ -13,7 +11,7 @@ function EditInvitationButton({
 }: EditInvitationButtonProps) {
   return (
     <InvitationActionButton disabled={disabled} onClick={onClick}>
-      {DASHBOARD_COPY.editInvitationLabel}
+      재편집하기
     </InvitationActionButton>
   );
 }

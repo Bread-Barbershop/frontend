@@ -1,10 +1,5 @@
 import { Trash2 } from 'lucide-react';
 
-import {
-  DASHBOARD_COPY,
-  DELETE_INVITATION_BUTTON_CLASS,
-} from '@/app/dashboard/dashboardConfig';
-
 type DeleteInvitationButtonProps = {
   onClick?: () => void;
 };
@@ -14,8 +9,8 @@ function DeleteInvitationButton({ onClick }: DeleteInvitationButtonProps) {
     <button
       type="button"
       onClick={onClick}
-      className={DELETE_INVITATION_BUTTON_CLASS}
-      aria-label={DASHBOARD_COPY.deleteInvitationAriaLabel}
+      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg bg-white text-[#F32E2E] shadow-[0_6px_14px_rgba(0,0,0,0.16)]"
+      aria-label="초대장 삭제"
     >
       <Trash2 size={16} strokeWidth={2.2} />
     </button>

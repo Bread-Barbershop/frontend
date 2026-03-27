@@ -2,8 +2,6 @@
 
 import useEmblaCarousel from 'embla-carousel-react';
 
-import { DASHBOARD_CAROUSEL_START_GUTTER_PX } from '@/app/dashboard/dashboardConfig';
-
 import useDashboardInvitations from '../hooks/useDashboardInvitations';
 
 import DashboardCarouselControls from './DashboardCarouselControls';
@@ -12,7 +10,7 @@ import InvitationSection from './InvitationSection';
 
 function DashboardContent() {
   const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: () => DASHBOARD_CAROUSEL_START_GUTTER_PX,
+    align: () => -20,
     direction: 'rtl',
     loop: true,
     slidesToScroll: 1,

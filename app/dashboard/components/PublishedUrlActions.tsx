@@ -1,8 +1,3 @@
-import {
-  DASHBOARD_COPY,
-  PUBLISHED_URL_ACTIONS_CLASS,
-} from '@/app/dashboard/dashboardConfig';
-
 type PublishedUrlActionsProps = {
   url: string;
   onCopy: () => void;
@@ -10,7 +5,10 @@ type PublishedUrlActionsProps = {
 
 function PublishedUrlActions({ url, onCopy }: PublishedUrlActionsProps) {
   return (
-    <div dir="ltr" className={PUBLISHED_URL_ACTIONS_CLASS}>
+    <div
+      dir="ltr"
+      className="flex w-55 items-center overflow-hidden rounded-lg border border-border-neutral bg-white px-2"
+    >
       <a
         href={url}
         target="_blank"
@@ -25,7 +23,7 @@ function PublishedUrlActions({ url, onCopy }: PublishedUrlActionsProps) {
         onClick={onCopy}
         className="shrink-0 cursor-pointer border-border-neutral px-1 py-2 text-sm text-[#1F72EF]"
       >
-        {DASHBOARD_COPY.copyUrlLabel}
+        복사하기
       </button>
     </div>
   );

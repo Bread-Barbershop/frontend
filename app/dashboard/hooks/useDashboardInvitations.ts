@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
-import { DASHBOARD_COPY } from '@/app/dashboard/dashboardConfig';
 import {
   InviteListItem,
   LoadInvitationResponse,
@@ -63,7 +62,7 @@ function useDashboardInvitations() {
 
       if (!res.ok) {
         throw new Error(
-          getPayloadMessage(payload) ?? DASHBOARD_COPY.loadInvitationsFailedMessage
+          getPayloadMessage(payload) ?? '초대장 목록을 불러오지 못했습니다.'
         );
       }
 
@@ -72,9 +71,7 @@ function useDashboardInvitations() {
     } catch (err) {
       console.error(err);
       setInvites([]);
-      setError(
-        err instanceof Error ? err.message : DASHBOARD_COPY.unknownErrorMessage
-      );
+      setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }
@@ -117,13 +114,11 @@ function useDashboardInvitations() {
 
       setPublishResults(prev => ({ ...prev, [invitationFolderId]: json }));
     } catch (err) {
-      setPublishErrors(prev => ({
-        ...prev,
-        [invitationFolderId]:
-          err instanceof Error
-            ? err.message
-            : DASHBOARD_COPY.publishRequestFailedMessage,
-      }));
+        setPublishErrors(prev => ({
+          ...prev,
+          [invitationFolderId]:
+            err instanceof Error ? err.message : 'Publish request failed.',
+        }));
     } finally {
       setPublishBusy(prev => ({ ...prev, [invitationFolderId]: false }));
     }

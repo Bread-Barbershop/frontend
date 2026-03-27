@@ -1,12 +1,5 @@
 'use client';
 
-import {
-  DASHBOARD_COPY,
-  INVITATION_SECTION_CLASS,
-  INVITATION_SLIDE_CLASS,
-  INVITATION_TRACK_CLASS,
-  INVITATION_VIEWPORT_CLASS,
-} from '@/app/dashboard/dashboardConfig';
 import useInvitationHoverState from '@/app/dashboard/hooks/useInvitationHoverState';
 import { InviteListItem } from '@/app/dashboard/types';
 
@@ -47,18 +40,24 @@ function InvitationSection({
 
   const hasInvites = invites.length > 0;
   const statusMessage = loading
-    ? DASHBOARD_COPY.invitationLoadingMessage
-    : error || DASHBOARD_COPY.invitationEmptyMessage;
+    ? '초대장을 불러오는 중입니다.'
+    : error || '만들어진 초대장이 없습니다.';
 
   return (
-    <section ref={sectionRef} className={INVITATION_SECTION_CLASS}>
+    <section
+      ref={sectionRef}
+      className="relative h-186.75 w-[56.82%] translate-y-20.5 overflow-x-hidden overflow-y-hidden"
+    >
       {!hasInvites ? (
         <InvitationEmptyState message={statusMessage} />
       ) : (
-        <div ref={emblaRef} className={INVITATION_VIEWPORT_CLASS} dir="rtl">
-          <div className={INVITATION_TRACK_CLASS}>
+        <div ref={emblaRef} className="h-full overflow-hidden pr-5" dir="rtl">
+          <div className="flex h-full touch-pan-y touch-pinch-zoom items-end">
             {invites.map((invite, index) => (
-              <div key={invite.folderId} className={INVITATION_SLIDE_CLASS}>
+              <div
+                key={invite.folderId}
+                className="flex h-full min-w-0 shrink-0 basis-[19.5rem] items-end"
+              >
                 <InvitationItem
                   invite={invite}
                   imageIndex={index + 1}
