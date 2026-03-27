@@ -36,7 +36,7 @@ export const VideoPreview = ({ blockInfo, className, ...rest }: Props) => {
   const preview = useResolvedImageSources(image);
   const thumbnail = preview.length > 0 ? preview[0] : null;
   const embedUrl = getEmbedUrl(videoUrl);
-  console.log(title);
+
   return (
     <MiddlePreviewWrapper className={className} koTitle={title} {...rest}>
       <div

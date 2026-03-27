@@ -4,6 +4,7 @@ import {
   ResponseData,
   UpdateInvitationResponse,
 } from '@/app/editor/[id]/types/savedata';
+import { BODY_BULK_DATA, TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
 import { EditorBlock } from '@/shared/types/block';
 
 import {
@@ -24,26 +25,8 @@ export async function GET(
       bulkData: {
         backgroundColor: '#FFFFFF',
         isEngTitle: true,
-        titleData: {
-          font: '',
-          fontSize: '14px',
-          color: '#000000',
-          bold: false,
-          italic: false,
-          underline: false,
-          align: 'left',
-          isDefault: true,
-        },
-        bodyData: {
-          font: '',
-          fontSize: '14px',
-          color: '#000000',
-          bold: false,
-          italic: false,
-          underline: false,
-          align: 'left',
-          isDefault: true,
-        },
+        titleData: TITLE_BULK_DATA,
+        bodyData: BODY_BULK_DATA,
       },
       blocks: [], // singular
       mainPoster: '',
@@ -115,6 +98,12 @@ export async function GET(
         success: false,
         error: (error as Error).message,
         config: {
+          bulkData: {
+            backgroundColor: '#FFFFFF',
+            isEngTitle: true,
+            titleData: TITLE_BULK_DATA,
+            bodyData: BODY_BULK_DATA,
+          },
           blocks: [] as EditorBlock[],
           mainPoster: '',
           bgm: {

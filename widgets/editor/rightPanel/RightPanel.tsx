@@ -17,7 +17,9 @@ function RightPanel() {
     }))
   );
   const { typeArray } = useComponentType({ block, selectedId });
-  const [tab, setTab] = useState(typeArray?.length === 0 ? 'poster' : 'type');
+  const [tab, setTab] = useState(
+    !typeArray || typeArray.length === 0 ? 'poster' : 'type'
+  );
 
   return (
     <div className="w-93.75 h-203 mr-15 flex flex-col gap-5">

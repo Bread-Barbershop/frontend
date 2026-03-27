@@ -5,19 +5,10 @@ import { useShallow } from 'zustand/shallow';
 import { UtilityButton } from '@/components/atoms/button';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { TextEditorPreview } from '@/components/molecules/preview-text-editor';
+import { BODY_BULK_DATA } from '@/shared/data/sample/bulkData';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { BulkData } from '@/shared/types/block';
-
-const BULK_DATA_INITIAL_VALUE: BulkData = {
-  font: '',
-  fontSize: '14px',
-  color: '#000000',
-  bold: false,
-  italic: false,
-  underline: false,
-  align: 'center',
-  isDefault: true,
-};
+import { toStyle } from '@/shared/utils/toStyle';
 
 function BodyEdit() {
   const { bodyData, setBodyData } = useEditorStore(
@@ -28,16 +19,9 @@ function BodyEdit() {
   );
 
   const [bulkBodyData, setBulkBodyData] = useState<BulkData>(
-    bodyData.isDefault ? BULK_DATA_INITIAL_VALUE : bodyData
+    bodyData.isDefault ? BODY_BULK_DATA : bodyData
   );
-  const toStyle = (data: BulkData, isEng?: boolean): React.CSSProperties => ({
-    fontSize: isEng ? '13px' : data.fontSize,
-    // fontFamily: data.fontFamily === 'default' ? undefined : data.fontFamily,
-    fontWeight: data.bold ? '700' : '400',
-    fontStyle: data.italic ? 'italic' : 'normal',
-    textDecoration: data.underline ? 'underline' : 'none',
-    color: data.color,
-  });
+
   return (
     <div className="w-full">
       <NavigationBar
@@ -60,7 +44,10 @@ function BodyEdit() {
         <div
           className={`w-full h-full flex flex-col gap-1 ${bulkBodyData.align === 'left' ? 'items-start' : bulkBodyData.align === 'center' ? 'items-center' : 'items-end'}`}
         >
-          <p className="font-base text-base" style={toStyle(bulkBodyData)}>
+          <p
+            className="font-base text-base"
+            style={toStyle(bulkBodyData, false)}
+          >
             본문입니다.
           </p>
         </div>

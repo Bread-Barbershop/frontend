@@ -29,7 +29,11 @@ export async function ensurePublishedJsonFile(
       invitationFolderId,
     });
   }
-
+  if (!guestUrl) {
+    throw new DriveHttpError('guestUrl is required', 400, {
+      guestUrl,
+    });
+  }
   const payload = { guestUrl };
 
   // 1. 기존 published.json 검색

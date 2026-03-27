@@ -5,8 +5,8 @@ import React from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
-import { BulkData } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
+import { toStyle } from '@/shared/utils/toStyle';
 
 import { previewTitleVariants } from './PreviewTitle.style';
 
@@ -32,24 +32,17 @@ export const PreviewTitle = ({
     }))
   );
 
-  const toStyle = (data: BulkData, isEng?: boolean): React.CSSProperties => ({
-    fontSize: isEng ? '13px' : data.fontSize,
-    // fontFamily: data.fontFamily === 'default' ? undefined : data.fontFamily,
-    fontWeight: data.bold ? '700' : '400',
-    fontStyle: data.italic ? 'italic' : 'normal',
-    textDecoration: data.underline ? 'underline' : 'none',
-    color: data.color,
-  });
-
   return (
     <div className={cn('flex flex-col gap-1 w-full', className)}>
-      {isEngTitle && enText !== '' && (
+      {isEngTitle && enText && enText !== '' && (
         <p
           className={cn(
             previewTitleVariants({ language: 'en' }),
             titleClassName
           )}
-          style={!titleData.isDefault ? toStyle(titleData, true) : undefined}
+          style={
+            !titleData.isDefault ? toStyle(titleData, true, true) : undefined
+          }
         >
           {enText}
         </p>
@@ -57,7 +50,7 @@ export const PreviewTitle = ({
 
       <p
         className={cn(previewTitleVariants({ language: 'ko' }), titleClassName)}
-        style={!titleData.isDefault ? toStyle(titleData) : undefined}
+        style={!titleData.isDefault ? toStyle(titleData, true) : undefined}
       >
         {koText}
       </p>

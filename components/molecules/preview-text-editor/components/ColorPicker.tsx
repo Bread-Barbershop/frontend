@@ -65,7 +65,7 @@ export default function SimpleWheelColorPicker({
         onChange={color => {
           const next = { ...hsva, ...color.hsva };
           setHsva(next);
-          onChange(hex);
+          onChange(hsvaToHex(next).toUpperCase());
         }}
       />
 
@@ -79,7 +79,7 @@ export default function SimpleWheelColorPicker({
         onChange={shade => {
           const next = { ...hsva, ...shade };
           setHsva(next);
-          onChange(hex);
+          onChange(hsvaToHex(next).toUpperCase());
         }}
       />
 
@@ -100,7 +100,7 @@ export default function SimpleWheelColorPicker({
             if (validHex(value)) {
               const nextHsva = hexToHsva(value);
               setHsva(nextHsva);
-              onChange(hex);
+              onChange(value);
             }
           }}
           className="min-w-0 flex-1 border-2 border-border-neutral rounded px-2 py-1 text-sm focus:outline-none focus:border-pink-300"

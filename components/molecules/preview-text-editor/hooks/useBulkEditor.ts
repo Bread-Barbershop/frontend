@@ -7,7 +7,7 @@ export function useBulkEditor(
   const handleFontSizeSelect = (
     option: FontOption | { label: string; value: string }
   ) => {
-    const selected = option as FontOption;
+    const selected = option;
     onBulkChange({
       ...bulkData,
       fontSize: selected.value,
@@ -16,7 +16,7 @@ export function useBulkEditor(
   const handleFontFamilySelect = (
     option: FontOption | { label: string; value: string }
   ) => {
-    const selected = option as FontOption;
+    const selected = option;
     onBulkChange({
       ...bulkData,
       font: selected.value,

@@ -25,9 +25,8 @@ export const useInvitationPublish = ({
   >({});
 
   const handlePublish = async () => {
-    setIsPublish(true);
-
     if (!invitationFolderId) return;
+    setIsPublish(true);
 
     setPublishErrors(prev => ({ ...prev, [invitationFolderId]: null }));
     setPublishResults(prev => ({ ...prev, [invitationFolderId]: null }));

@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
-import { useInvitationPublish } from '../hooks/useInvitaionPublish';
+import { useInvitationPublish } from '../hooks/useInvitationPublish';
 
 interface Props {
   isLoading: boolean;
@@ -82,7 +82,7 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
                   ) : (
                     <div className="px-2 font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[295px] h-[44px]">
                       {!finalGuestUrl || error ? (
-                        <p>error</p>
+                        <p>{error ?? '발행에 실패하였습니다.'}</p>
                       ) : (
                         <a
                           className="text-white truncate w-[215px]"
@@ -98,7 +98,7 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
                           type="button"
                           className="text-[#38BDF8] text-[13px] font-semibold"
                           onClick={() => {
-                            navigator.clipboard.writeText(finalGuestUrl ?? '');
+                            navigator.clipboard.writeText(finalGuestUrl);
                           }}
                         >
                           복사하기

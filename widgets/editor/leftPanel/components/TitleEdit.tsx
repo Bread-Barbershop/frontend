@@ -8,19 +8,10 @@ import { Label } from '@/components/atoms/label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { TextEditorPreview } from '@/components/molecules/preview-text-editor';
+import { TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { BulkData } from '@/shared/types/block';
-
-const BULK_DATA_INITIAL_VALUE: BulkData = {
-  font: '',
-  fontSize: '20px',
-  color: '#000000',
-  bold: false,
-  italic: false,
-  underline: false,
-  align: 'center',
-  isDefault: true,
-};
+import { toStyle } from '@/shared/utils/toStyle';
 
 function TitleEdit() {
   const { titleData, isEngTitle, setTitleData, setEngTitle } = useEditorStore(
@@ -32,7 +23,7 @@ function TitleEdit() {
     }))
   );
   const [bulkTitleData, setBulkTitleData] = useState<BulkData>(
-    titleData.isDefault ? BULK_DATA_INITIAL_VALUE : titleData
+    titleData.isDefault ? TITLE_BULK_DATA : titleData
   );
   const [bulkIsEngTitle, setBulkIsEngTitle] = useState(
     titleData.isDefault ? true : isEngTitle
@@ -41,14 +32,7 @@ function TitleEdit() {
   const handleEngTitle = (e: ChangeEvent<HTMLInputElement>) => {
     setBulkIsEngTitle(e.target.checked);
   };
-  const toStyle = (data: BulkData, isEng?: boolean): React.CSSProperties => ({
-    fontSize: isEng ? '13px' : data.fontSize,
-    // fontFamily: data.fontFamily === 'default' ? undefined : data.fontFamily,
-    fontWeight: data.bold ? '700' : '500',
-    fontStyle: data.italic ? 'italic' : 'normal',
-    textDecoration: data.underline ? 'underline' : 'none',
-    color: data.color,
-  });
+
   return (
     <div>
       <div className="w-full">
@@ -58,7 +42,6 @@ function TitleEdit() {
               size="md"
               variant="primary"
               onClick={() => {
-                console.log(bulkIsEngTitle);
                 setTitleData({ ...bulkTitleData, isDefault: false });
                 setEngTitle(bulkIsEngTitle);
               }}
@@ -75,11 +58,14 @@ function TitleEdit() {
             className={`w-full h-full flex flex-col gap-1 ${bulkTitleData.align === 'left' ? 'items-start' : bulkTitleData.align === 'center' ? 'items-center' : 'items-end'}`}
           >
             {bulkIsEngTitle && (
-              <p className="sub-title" style={toStyle(bulkTitleData, true)}>
+              <p
+                className="sub-title"
+                style={toStyle(bulkTitleData, true, true)}
+              >
                 ENG TITLE
               </p>
             )}
-            <p className="main-title" style={toStyle(bulkTitleData)}>
+            <p className="main-title" style={toStyle(bulkTitleData, true)}>
               제목입니다.
             </p>
           </div>

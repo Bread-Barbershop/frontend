@@ -31,11 +31,12 @@ function BackGroundEdit() {
         <div className="flex items-center gap-2">
           <Radio
             checked={colorPickerOpen}
-            onChange={() => setColorPickerOpen(!colorPickerOpen)}
+            onChange={e => {
+              e.stopPropagation();
+              setColorPickerOpen(!colorPickerOpen);
+            }}
           />
-          <label className="font-semibold text-sm" htmlFor="bg">
-            색상
-          </label>
+          <p className="font-semibold text-sm">색상</p>
           <div className="flex items-center gap-2">
             <div
               className="w-11 h-11 border border-[#E5E5E8]"

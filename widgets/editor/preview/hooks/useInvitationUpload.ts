@@ -76,7 +76,6 @@ export const useInvitationUpload = () => {
         editorData.setInvitationUuid(saveResult.invitationUuid);
         editorData.setImageFolderId(saveResult.folders.imageFolderId);
         editorData.setAudioFolderId(saveResult.folders.audioFolderId);
-
         editorData.setInvitationFolderId(saveResult.folders.invitationFolderId);
       } else {
         const result = await trashFolder();
@@ -98,8 +97,8 @@ export const useInvitationUpload = () => {
         editorData.setInvitationUuid(saveResult.invitationUuid);
         editorData.setImageFolderId(saveResult.folders.imageFolderId);
         editorData.setAudioFolderId(saveResult.folders.audioFolderId);
+        editorData.setInvitationFolderId(saveResult.folders.invitationFolderId);
       }
-      setIsLoading(false);
     } catch (error) {
       console.error('저장 중 오류 발생:', error);
       setIsFail(true);
@@ -113,10 +112,12 @@ export const useInvitationUpload = () => {
       const responses = await Promise.all([
         fetch(`/api/drive/deleteInvitation`, {
           method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ folderId: editorData.imageFolderId }),
         }),
         fetch(`/api/drive/deleteInvitation`, {
           method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ folderId: editorData.audioFolderId }),
         }),
       ]);

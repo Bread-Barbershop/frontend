@@ -1,8 +1,11 @@
+import type { BulkData } from '@/shared/types/block';
+
 import type {
   GuestBlock,
   GuestBgm,
   GuestMainPosterData,
   GuestPayload,
+  BulkJson,
 } from '../types/guestTypes';
 
 /**
@@ -68,7 +71,32 @@ function isGuestMainPosterData(x: unknown): x is GuestMainPosterData {
     x.objects.every(isRecord) &&
     (x.background === undefined || typeof x.background === 'string')
   );
-  // 타입 검사 강화 필요함
+}
+
+function isBulkData(x: unknown): x is BulkData {
+  if (!isRecord(x)) return false;
+
+  return (
+    typeof x.font === 'string' &&
+    typeof x.fontSize === 'string' &&
+    typeof x.color === 'string' &&
+    typeof x.bold === 'boolean' &&
+    typeof x.italic === 'boolean' &&
+    typeof x.underline === 'boolean' &&
+    (x.align === 'left' || x.align === 'center' || x.align === 'right') &&
+    typeof x.isDefault === 'boolean'
+  );
+}
+
+function isBulkJson(x: unknown): x is BulkJson {
+  if (!isRecord(x)) return false;
+
+  return (
+    typeof x.backgroundColor === 'string' &&
+    typeof x.isEngTitle === 'boolean' &&
+    isBulkData(x.titleData) &&
+    isBulkData(x.bodyData)
+  );
 }
 
 export function isGuestPayload(x: unknown): x is GuestPayload {
@@ -77,6 +105,7 @@ export function isGuestPayload(x: unknown): x is GuestPayload {
   if (!Array.isArray(x.blocks)) return false;
   if (!x.blocks.every(isGuestBlock)) return false;
   if (!isGuestMainPosterData(x.mainPoster)) return false;
+  if (!isGuestBgm(x.bgm)) return false;
 
-  return isGuestBgm(x.bgm);
+  return isBulkJson(x.bulkData);
 }

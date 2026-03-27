@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { BODY_BULK_DATA, TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
 import { EditorBlock } from '@/shared/types/block';
 
 import { SavedData } from '../types/savedata';
@@ -95,7 +96,12 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
         }
 
         const updatedBlocks: EditorBlock[] = data.config.blocks;
-
+        const updatedBulkData = data.config.bulkData ?? {
+          backgroundColor: '#FFFFFF',
+          isEngTitle: true,
+          titleData: TITLE_BULK_DATA,
+          bodyData: BODY_BULK_DATA,
+        };
         const updatedBlocksWithImages = await setImageFile(
           updatedBlocks,
           data.images.files ?? null,
@@ -108,7 +114,7 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
         );
 
         setSavedData({
-          bulkData: data.config.bulkData,
+          bulkData: updatedBulkData,
           blocks: updatedBlocksWithImages,
           mainPoster: data.config.mainPoster,
           bgm: {

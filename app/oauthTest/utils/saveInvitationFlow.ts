@@ -185,7 +185,12 @@ export async function saveInvitationFlow(params: {
 
   const replaceFiles = (obj: unknown): unknown => {
     if (obj instanceof File) {
-      return fileToIdMap.get(obj) || obj;
+      const fileId = fileToIdMap.get(obj);
+      if (!fileId) {
+        console.warn('File not uploaded, skipping:', obj.name);
+        throw new Error(`not Found Image FileId: ${obj.name}`);
+      }
+      return fileId;
     }
     if (Array.isArray(obj)) {
       return obj.map(replaceFiles);

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import { useInvitationUpload } from '../hooks/useInvitionUpload';
+import { useInvitationUpload } from '../hooks/useInvitationUpload';
 
 import { SaveModal } from './SaveModal';
 
