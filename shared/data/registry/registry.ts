@@ -6,6 +6,7 @@ import { galleryDefinition } from '@/components/organisms/gallery/Gallery.defini
 import { greetingDefinition } from '@/components/organisms/greeting/Greeting.definition';
 import { interviewDefinition } from '@/components/organisms/interview/Interview.definition';
 import { myChildDefinition } from '@/components/organisms/myChild/MyChild.definition';
+import { myFamilyDefinition } from '@/components/organisms/myFamily/MyFamily.definition';
 import { noticeDefinition } from '@/components/organisms/notice/Notice.definition';
 import { organizerInformationDefinition } from '@/components/organisms/organizerInfo/OrganizerInformation.definition';
 import { phoneDefinition } from '@/components/organisms/phone/Phone.definition';
@@ -40,6 +41,7 @@ export const blockRegistry = {
     ...speakerInformationDefinition,
   },
   myChild: { ...blockSchema.myChild, ...myChildDefinition },
+  myFamily: { ...blockSchema.myFamily, ...myFamilyDefinition },
   sponsorshipInfomation: {
     ...blockSchema.sponsorshipInfomation,
     ...sponsorshipInfomationDefinition,

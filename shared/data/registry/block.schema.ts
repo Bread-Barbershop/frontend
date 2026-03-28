@@ -6,6 +6,7 @@ import { gallerySchema } from '@/components/organisms/gallery/Gallery.schema';
 import { greetingSchema } from '@/components/organisms/greeting/Greeting.schema';
 import { interviewSchema } from '@/components/organisms/interview/Interview.schema';
 import { myChildSchema } from '@/components/organisms/myChild/MyChild.schema';
+import { myFamilySchema } from '@/components/organisms/myFamily/MyFamily.schema';
 import { noticeSchema } from '@/components/organisms/notice/Notice.schema';
 import { organizerInformationSchema } from '@/components/organisms/organizerInfo/OrganizerInformation.schema';
 import { phoneSchema } from '@/components/organisms/phone/Phone.schema';
@@ -29,5 +30,6 @@ export const blockSchema = {
   organizerInformation: organizerInformationSchema,
   speakerInformation: speakerInformationSchema,
   myChild: myChildSchema,
+  myFamily: myFamilySchema,
   sponsorshipInfomation: sponsorshipInfomationSchema,
 } as const;
