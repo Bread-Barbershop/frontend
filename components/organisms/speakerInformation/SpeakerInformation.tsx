@@ -92,6 +92,21 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
       allImages.filter((f): f is File | string => !!f)
     );
   };
+  const handlePictureDelete = (speakerId: string) => {
+    const newSpeakers = (speakers || []).map(speaker =>
+      speaker.id === speakerId ? { ...speaker, image: [] } : speaker
+    );
+    const allImages = newSpeakers.map(s => s.image[0]);
+
+    updateBlock(id, {
+      speakers: newSpeakers,
+      images: allImages,
+    });
+    updateImage(
+      id,
+      allImages.filter((f): f is File | string => !!f)
+    );
+  };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleAddSpeaker = () => {
@@ -175,6 +190,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
               handleEditorChange(speaker.id, json, speakers || [])
             }
             onPictureChange={file => handlePictureChange(speaker.id, file)}
+            onPictureDelete={() => handlePictureDelete(speaker.id)}
             onDelete={() => handleDeleteSpeaker(speaker.id)}
           />
         </section>

@@ -60,6 +60,10 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
     updateBlock(id, { image: file });
     updateImage(id, file);
   };
+  const handlePictureDelete = () => {
+    updateBlock(id, { image: [] });
+    updateImage(id, []);
+  };
 
   return (
     <LeftEditorWrapper className="gap-3">
@@ -98,6 +102,7 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
         multiple={false}
         value={image}
         onChange={handlePictureChange}
+        onDelete={handlePictureDelete}
       />
       <section className="flex items-center gap-2 w-full">
         <Label className="font-semibold">추가기능</Label>
