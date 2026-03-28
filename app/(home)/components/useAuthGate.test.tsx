@@ -21,7 +21,7 @@
 
 import { act, renderHook, waitFor } from '@testing-library/react';
 
-import { useAuthGate } from '@/app/(home)/components/useAuthGate';
+import { useAuthGate } from '@/features/session/hooks/useAuthGate';
 
 // ------------------------------
 // next/navigation 의 useRouter mock
@@ -194,7 +194,7 @@ describe('useAuthGate 테스트', () => {
     expect(refreshMock).toHaveBeenCalled();
   });
 
-  it('logout() 호출 시 로그아웃 API 성공 후 로그인 상태가 false가 된다', async () => {
+  it('logout() 호출 시 로그아웃 API 성공 후 홈으로 이동하고 로그인 상태가 false가 된다', async () => {
     /**
      * 목적:
      * logout API가 성공하면
@@ -221,6 +221,7 @@ describe('useAuthGate 테스트', () => {
     });
 
     expect(result.current.isLoggedIn).toBe(false);
+    expect(replaceMock).toHaveBeenCalledWith('/');
 
     /**
      * 로그아웃 후 UI 갱신을 위해 refresh가 호출된다.

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Image from 'next/image';
 
@@ -29,7 +29,7 @@ function LoginModal({
         onClick={e => e.stopPropagation()}
       >
         <div className="h-24.25 w-36 flex items-center justify-center">
-          브랜드 로고
+          <p className='text-5xl'>Invia</p>
         </div>
 
         <button

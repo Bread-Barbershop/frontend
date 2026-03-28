@@ -24,14 +24,16 @@ max-h넘어가면 아래 방향 추가
 */
 
 function OrderPanel() {
-  const { block, moveBlock, selectedBlock, selectedId } = useEditorStore(
-    useShallow(state => ({
-      block: state.block,
-      moveBlock: state.moveBlock,
-      selectedBlock: state.selectedBlock,
-      selectedId: state.selectedId,
-    }))
-  );
+  const { block, moveBlock, selectedBlock, selectedId, setIsEdit } =
+    useEditorStore(
+      useShallow(state => ({
+        block: state.block,
+        moveBlock: state.moveBlock,
+        selectedBlock: state.selectedBlock,
+        selectedId: state.selectedId,
+        setIsEdit: state.setIsEdit,
+      }))
+    );
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -54,13 +56,15 @@ function OrderPanel() {
     const active = event.active;
     const id = active.id as string;
     selectedBlock(id);
+    setIsEdit(false);
   };
 
   const handleSelect = useCallback(
     (id: string) => {
       selectedBlock(id);
+      setIsEdit(false);
     },
-    [selectedBlock]
+    [selectedBlock, setIsEdit]
   );
 
   return (

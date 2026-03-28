@@ -1,6 +1,7 @@
 ﻿import { type HTMLAttributes } from 'react';
 
 import { Image } from '@/components/atoms/image';
+import { PreviewBody } from '@/components/atoms/preview-body/PreviewBody';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
 import {
@@ -133,12 +134,7 @@ function CoupleIntroductionPreview({
         ))}
       </div>
 
-      {showContent && (
-        <div
-          className="text-sm mt-6"
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
-      )}
+      {showContent && <PreviewBody html={html} />}
     </MiddlePreviewWrapper>
   );
 }

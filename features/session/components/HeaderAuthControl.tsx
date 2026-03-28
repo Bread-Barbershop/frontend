@@ -1,9 +1,11 @@
 'use client';
 
+import { CircleUserRound } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import LoginModal from '@/app/(home)/components/LoginModal';
-import { useAuthGate } from '@/app/(home)/components/useAuthGate';
+import { useAuthGate } from '@/features/session/hooks/useAuthGate';
+
+import LoginModal from './LoginModal';
 
 type HeaderAuthControlProps = {
   initialIsLoggedIn: boolean;
@@ -19,18 +21,31 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
     login,
     closeLogin,
     loginWithGoogle,
+    logout,
     runAfterAuth,
   } = useAuthGate({ initialIsLoggedIn });
 
   if (isLoggedIn) {
     return (
-      <button
-        type="button"
-        onClick={() => runAfterAuth(() => router.push('/dashboard'))}
-        disabled={isBusy}
-        aria-label="Go to dashboard"
-        className="ml-4 w-10 h-10 bg-transparent rounded-full border border-[#d9d9d9] cursor-pointer hover:bg-neutral-50 transition-colors disabled:opacity-50"
-      />
+      <>
+        <button
+          type="button"
+          onClick={logout}
+          disabled={isBusy}
+          className="text-text-secondary h-full px-8 flex items-center text-[14px] font-semibold hover:text-black transition-colors disabled:opacity-50 cursor-pointer"
+        >
+          LOGOUT
+        </button>
+        <button
+          type="button"
+          onClick={() => runAfterAuth(() => router.push('/dashboard'))}
+          disabled={isBusy}
+          aria-label="Go to dashboard"
+          className="ml-4 flex h-10 w-10 items-center justify-center bg-transparent cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-50"
+        >
+          <CircleUserRound size={40} strokeWidth={1.2} color="#838383" />
+        </button>
+      </>
     );
   }
 

@@ -1,3 +1,4 @@
+import { PreviewBody } from '@/components/atoms/preview-body/PreviewBody';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
 import { EditorBlock } from '@/shared/types/block';
@@ -28,7 +29,7 @@ function GreetingPreview({
       titleClassName={titleClassName}
       {...rest}
     >
-      <div className="text-sm" dangerouslySetInnerHTML={{ __html: html }} />
+      <PreviewBody html={html} />
     </MiddlePreviewWrapper>
   );
 }

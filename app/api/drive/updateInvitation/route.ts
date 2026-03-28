@@ -4,6 +4,7 @@ import {
   ResponseData,
   UpdateInvitationResponse,
 } from '@/app/editor/[id]/types/savedata';
+import { BODY_BULK_DATA, TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
 import { EditorBlock } from '@/shared/types/block';
 
 import {
@@ -21,6 +22,12 @@ export async function GET(
   // 반환할 데이터 구조 정의
   const responseData: ResponseData = {
     config: {
+      bulkData: {
+        backgroundColor: '#FFFFFF',
+        isEngTitle: true,
+        titleData: TITLE_BULK_DATA,
+        bodyData: BODY_BULK_DATA,
+      },
       blocks: [], // singular
       mainPoster: '',
       bgm: {
@@ -72,6 +79,7 @@ export async function GET(
         // 데이터 호환성 처리 (block vs blocks)
         if (fileContent) {
           responseData.config = {
+            bulkData: fileContent.bulkData,
             blocks: fileContent.blocks,
             mainPoster: fileContent.mainPoster,
             bgm: fileContent.bgm,
@@ -90,6 +98,12 @@ export async function GET(
         success: false,
         error: (error as Error).message,
         config: {
+          bulkData: {
+            backgroundColor: '#FFFFFF',
+            isEngTitle: true,
+            titleData: TITLE_BULK_DATA,
+            bodyData: BODY_BULK_DATA,
+          },
           blocks: [] as EditorBlock[],
           mainPoster: '',
           bgm: {

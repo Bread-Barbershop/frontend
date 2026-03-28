@@ -4,6 +4,9 @@ import { NextResponse } from 'next/server';
 
 import { ensureDataJsonFile } from '@/app/api/drive/_lib/ensureDataJsonFile';
 import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissionWithRetry';
+import { isGuestPayload } from '@/app/guest/[id]/utils/guestBlockTypeGuards';
+
+import { ensurePublishedJsonFile } from '../_lib/ensurePublishedJsonFile';
 
 // publish API 요청 본문
 type Body = { invitationFolderId: string };
@@ -53,31 +56,6 @@ function revalidateGuestCaches(dataJsonFileId: string) {
   revalidatePath(guestPath(dataJsonFileId));
 }
 
-function isRecord(x: unknown): x is Record<string, unknown> {
-  return typeof x === 'object' && x !== null;
-}
-
-function isNullableString(x: unknown): x is string | null {
-  return x === null || typeof x === 'string';
-}
-
-// guest 페이지에서 요구하는 최소 JSON 형태 검사
-function isGuestPayloadShape(x: unknown): boolean {
-  if (!isRecord(x)) return false;
-  if (!Array.isArray(x.blocks)) return false;
-  if (!isRecord(x.bgm)) return false;
-
-  const bgm = x.bgm;
-  return (
-    isNullableString(bgm.selectedBgmId) &&
-    typeof bgm.isLoop === 'boolean' &&
-    typeof bgm.volume === 'number' &&
-    isNullableString(bgm.userBgmTitle) &&
-    isNullableString(bgm.userBgmDuration) &&
-    isNullableString(bgm.userBgmFileId)
-  );
-}
-
 // 공개 data.json URL을 1회 조회하고 파싱/스키마까지 검증
 async function probeGuestData(dataJsonFileId: string): Promise<ProbeResult> {
   const res = await fetch(guestDataUrl(dataJsonFileId), { cache: 'no-store' });
@@ -101,7 +79,7 @@ async function probeGuestData(dataJsonFileId: string): Promise<ProbeResult> {
     };
   }
 
-  if (!isGuestPayloadShape(parsed)) {
+  if (!isGuestPayload(parsed)) {
     return { ok: false, status: res.status, reason: 'invalid_schema' };
   }
 
@@ -188,11 +166,11 @@ export async function POST(req: Request) {
 
   const { dataJsonFileId } = await ensureDataJsonFile(invitationFolderId);
   const guestUrl = guestPath(dataJsonFileId);
-
   const permissionResult = await publishPermissionWithRetry(invitationFolderId);
 
   if (permissionResult.ok && permissionResult.ignored === 'already_public') {
     // 409는 "이미 공개 상태"이므로 발행 성공 흐름을 유지한다.
+    await ensurePublishedJsonFile(invitationFolderId, guestUrl);
     return buildPublishSuccessResponse({
       guestUrl,
       dataJsonFileId,
@@ -221,6 +199,8 @@ export async function POST(req: Request) {
       { status: responseStatus }
     );
   }
+
+  await ensurePublishedJsonFile(invitationFolderId, guestUrl);
 
   return buildPublishSuccessResponse({ guestUrl, dataJsonFileId });
 }
