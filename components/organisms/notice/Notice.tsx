@@ -192,7 +192,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
             <NoticeItem
               id={id}
               item={item}
-              itemsLength={(items || []).length}
+              noticeLength={blockInfo.props.items?.length || 0}
               editorResetKey={editorResetKey}
               onEditorChange={json =>
                 handleItemEditorChange(item.id, json, items || [])

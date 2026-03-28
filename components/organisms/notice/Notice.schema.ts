@@ -8,7 +8,14 @@ export const noticeSchema = {
       required: true,
     },
     items: {
-      default: [] as {
+      default: [
+        {
+          id: crypto.randomUUID(),
+          messageJson: null,
+          messageHtml: null,
+          image: [],
+        },
+      ] as {
         id: string;
         messageJson: JSONContent | null;
         messageHtml: string | null;
