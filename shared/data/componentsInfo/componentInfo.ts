@@ -33,7 +33,7 @@ export const weddingComponents: ListType[] = [
   { contents: '사진', component: null, isType: false },
   { contents: '세례명', component: null, isType: false },
   { contents: 'URL공유 썸네일', component: null, isType: false },
-  { contents: '카카오초대장 썸네일', component: 'kakaoShare', isType: false },
+  { contents: '카카오초대장 썸네일', component: 'shareUrl', isType: false },
 ];
 export const firstBirthdayComponents: ListType[] = [
   { contents: '인사말', component: 'greeting', isType: false },
@@ -52,7 +52,7 @@ export const firstBirthdayComponents: ListType[] = [
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: null, isType: false },
   { contents: 'URL공유 썸네일', component: null, isType: false },
-  { contents: '카카오초대장 썸네일', component: 'kakaoShare', isType: false },
+  { contents: '카카오초대장 썸네일', component: 'shareUrl', isType: false },
 ];
 export const birthdayComponents: ListType[] = [
   { contents: '인사말', component: 'greeting', isType: false },
@@ -66,7 +66,7 @@ export const birthdayComponents: ListType[] = [
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: null, isType: false },
   { contents: 'URL공유 썸네일', component: null, isType: false },
-  { contents: '카카오초대장 썸네일', component: 'kakaoShare', isType: false },
+  { contents: '카카오초대장 썸네일', component: 'shareUrl', isType: false },
 ];
 export const conferenceComponents: ListType[] = [
   { contents: '인사말', component: 'greeting', isType: false },
@@ -81,7 +81,7 @@ export const conferenceComponents: ListType[] = [
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: null, isType: false },
   { contents: 'URL공유 썸네일', component: null, isType: false },
-  { contents: '카카오초대장 썸네일', component: 'kakaoShare', isType: false },
+  { contents: '카카오초대장 썸네일', component: 'shareUrl', isType: false },
 ];
 export const etcComponents: ListType[] = [
   { contents: '인사말', component: 'greeting', isType: false },
@@ -92,7 +92,7 @@ export const etcComponents: ListType[] = [
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: null, isType: false },
   { contents: 'URL공유 썸네일', component: null, isType: false },
-  { contents: '카카오초대장 썸네일', component: 'kakaoShare', isType: false },
+  { contents: '카카오초대장 썸네일', component: 'shareUrl', isType: false },
 ];
 
 export const componentCls: SampleDataType[] = [

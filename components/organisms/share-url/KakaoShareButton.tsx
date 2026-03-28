@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
-interface KakaoShareButtonProps {
+interface Props {
   title: string;
   description: string;
   imageUrl?: string;
   linkUrl: string;
-  buttonText?: string;
   showLocationButton?: boolean;
   locationInfo?: {
     lat: number;
@@ -16,30 +15,23 @@ interface KakaoShareButtonProps {
   };
 }
 
-declare global {
-  interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Kakao: any;
-  }
-}
-
 export const KakaoShareButton = ({
   title,
   description,
   imageUrl,
   linkUrl,
-  buttonText = '청첩장 보기',
   showLocationButton = false,
   locationInfo,
-}: KakaoShareButtonProps) => {
-  const [isLoaded, setIsLoaded] = useState(() => 
-    typeof window !== 'undefined' && !!window.Kakao
+}: Props) => {
+  const [isLoaded, setIsLoaded] = useState(
+    () => typeof window !== 'undefined' && !!window.Kakao
   );
 
+  // 카카오 SDK가 window 객체에 정상적으로 로드되는지 파악하는 로직
+  // 100ms 마다 확인하고, 5초 동안 로드되지 않으면 멈춤 (폴링)
   useEffect(() => {
     if (isLoaded) return;
 
-    // 로드 대기 (최대 5초)
     const interval = setInterval(() => {
       if (window.Kakao) {
         setIsLoaded(true);
@@ -57,27 +49,22 @@ export const KakaoShareButton = ({
     };
   }, [isLoaded]);
 
-  const initKakao = () => {
-    if (window.Kakao && !window.Kakao.isInitialized()) {
-      window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_JS_KEY);
-    }
-  };
-
   const handleShare = () => {
     if (typeof window === 'undefined' || !window.Kakao) {
       alert('카카오 SDK 스크립트가 아직 로드되지 않았습니다.');
       return;
     }
 
-    initKakao();
+    // 카카오 SDK 초기화
+    if (window.Kakao && !window.Kakao.isInitialized()) {
+      window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_JS_KEY);
+    }
 
-    // 동적 버튼 구성부 (카카오 예제 형태 차용)
-    // 카카오 SDK는 웹링크가 빈 값이면 버튼 자체를 날려버립니다.
     const safeLinkUrl = linkUrl || window.location.href;
 
     const messageButtons = [
       {
-        title: buttonText || '청첩장 보기', // 빈 문자열("")일 경우에도 기본값을 사용하도록 폴백
+        title: '보러가기',
         link: {
           mobileWebUrl: safeLinkUrl,
           webUrl: safeLinkUrl,
@@ -93,7 +80,7 @@ export const KakaoShareButton = ({
       const bypassUrl = `${window.location.origin}/api/map-redirect?url=${encodeURIComponent(kakaoMapUrl)}`;
 
       messageButtons.push({
-        title: '위치 보기',
+        title: '위치보기',
         link: {
           mobileWebUrl: bypassUrl,
           webUrl: bypassUrl,
@@ -101,12 +88,12 @@ export const KakaoShareButton = ({
       });
     }
 
-    // 카카오 제공 예시와 동일한 API 스펙
     window.Kakao.Share.sendDefault({
       objectType: 'feed',
       content: {
-        title: title || '초대장',
-        description: description || '소중한 분들을 초대합니다.',
+        title: title || '소중한 분들을 초대합니다.',
+        description:
+          description || '뜻 깊은 날, 귀한 걸음으로 저희와 함게해 주세요.',
         imageUrl:
           imageUrl ||
           'https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png',
@@ -121,19 +108,16 @@ export const KakaoShareButton = ({
 
   return (
     <button
-      id="kakaotalk-sharing-btn"
-      onClick={(e) => {
+      onClick={e => {
         e.preventDefault();
         handleShare();
       }}
-      className="inline-block hover:opacity-80 transition-opacity"
+      className="w-full flex items-center justify-center gap-2 bg-[#FEE500] text-black/85 font-semibold py-3.5 px-4 rounded-xl hover:bg-[#FADA0A] transition-colors cursor-pointer"
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png"
-        alt="카카오톡 공유 보내기 버튼"
-        className="w-full max-w-[200px] object-contain"
-      />
+      <svg viewBox="0 0 24 24" width="20" height="20" className="fill-black/85">
+        <path d="M12 3c-5.523 0-10 3.513-10 7.846 0 2.768 1.764 5.187 4.417 6.517-.215.7-.783 2.65-.898 3.12 0 0-.018.083.037.118.056.036.126.022.126.022 1.01-.143 3.32-1.077 4.608-1.745 1.144.17 2.336.257 3.553.257 5.522 0 10-3.514 10-7.843S17.522 3 12 3z" />
+      </svg>
+      카카오톡 공유하기
     </button>
   );
 };

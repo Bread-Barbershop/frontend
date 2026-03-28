@@ -3,9 +3,9 @@ import 'server-only';
 import { NextResponse } from 'next/server';
 
 import {
-  ensureKakaoShareFile,
-  KakaoSharePayload,
-} from '@/app/api/drive/_lib/ensureKakaoShareFile';
+  ensureShareUrlFile,
+  ShareUrlPayload,
+} from '@/app/api/drive/_lib/ensureShareUrlFile';
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
 import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissionWithRetry';
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   try {
     const { invitationFolderId, shareData } = (await req.json()) as {
       invitationFolderId: string;
-      shareData: KakaoSharePayload;
+      shareData: ShareUrlPayload;
     };
 
     if (!invitationFolderId) {
@@ -35,12 +35,12 @@ export async function POST(req: Request) {
     }
 
     // 1) 파일 확보 (고정 파일명 kakao-share.json)
-    const { kakaoShareFileId } = await ensureKakaoShareFile(invitationFolderId);
+    const { shareUrlFileId } = await ensureShareUrlFile(invitationFolderId);
 
     // 2) 내용 업데이트
     const uploadRes = await googleFetch(
       `https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(
-        kakaoShareFileId
+        shareUrlFileId
       )}?uploadType=media&supportsAllDrives=true`,
       {
         method: 'PATCH',
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
     }
 
     // 3) kakao-share.json 공개 권한 설정
-    await publishPermissionWithRetry(kakaoShareFileId);
+    await publishPermissionWithRetry(shareUrlFileId);
 
     // 4) 이미지 파일 공개 권한 설정 (카카오톡이 인증 없이 접근 가능해야 함)
     let imagePublicUrl: string | undefined;
@@ -67,11 +67,11 @@ export async function POST(req: Request) {
       imagePublicUrl = `https://lh3.googleusercontent.com/d/${shareData.imageFileId}`;
     }
 
-    const publicUrl = `https://drive.google.com/uc?export=download&id=${kakaoShareFileId}`;
+    const publicUrl = `https://drive.google.com/uc?export=download&id=${shareUrlFileId}`;
 
     return NextResponse.json({
       ok: true,
-      kakaoShareFileId,
+      shareUrlFileId,
       publicUrl,
       imagePublicUrl,
     });
@@ -143,12 +143,12 @@ export async function GET() {
       );
     }
 
-    const kakaoShareFileId = searchData.files[0].id;
+    const shareUrlFileId = searchData.files[0].id;
 
     // 3) 내용 다운로드
     const res = await googleFetch(
       `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(
-        kakaoShareFileId
+        shareUrlFileId
       )}?alt=media`,
       { cache: 'no-store' }
     );
@@ -162,7 +162,7 @@ export async function GET() {
 
     const data = await res.json();
 
-    return NextResponse.json({ ok: true, kakaoShareFileId, data });
+    return NextResponse.json({ ok: true, shareUrlFileId, data });
   } catch (err) {
     if (err instanceof DriveHttpError) {
       return NextResponse.json(

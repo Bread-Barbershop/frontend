@@ -168,16 +168,6 @@ export async function saveInvitationFlow(params: {
     concurrency: 5, // 이미지는 5장씩만 끊어서 전송.
   });
 
-  const img = imagesStep.final.ok.reduce<Record<string, string[]>>(
-    (acc, cur) => {
-      if (!cur.id) return acc;
-      acc[cur.id] ??= [];
-      acc[cur.id].push(cur.fileId);
-      return acc;
-    },
-    {}
-  );
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const placeBlock = data.find(b => b.component === 'place') as any;
   const locationInfo =
@@ -192,19 +182,34 @@ export async function saveInvitationFlow(params: {
         }
       : undefined;
 
+  // 매핑용 Map: File 객체 참조 -> 업로드된 fileId
+  const fileToId = new Map<File, string>();
+  imagesStep.final.ok.forEach(ok => {
+    fileToId.set(ok.file, ok.fileId);
+  });
+
   const invitationUrl = `${window.location.origin}/guest/${prep.invitationUuid}`;
 
   const newData = data.map(item => {
     let updatedProps = { ...item.props };
 
-    if (item.id in img) {
-      updatedProps = {
-        ...updatedProps,
-        images: img[item.id],
-      };
+    // File 객체를 찾아서 업로드된 fileId 로 치환
+    for (const key of Object.keys(updatedProps)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const val = (updatedProps as any)[key];
+      if (Array.isArray(val)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (updatedProps as any)[key] = val.map(v => {
+          if (v instanceof File && fileToId.has(v)) {
+            return fileToId.get(v);
+          }
+          // 수정 시 남아있을 수 있는 File 객체(업로드 실패 등) 삭제를 원한다면 여기서 걸러낼 수 있습니다.
+          return v;
+        });
+      }
     }
 
-    if (item.component === 'kakaoShare') {
+    if (item.component === 'shareUrl') {
       updatedProps = {
         ...updatedProps,
         locationInfo,
@@ -283,11 +288,11 @@ export async function saveInvitationFlow(params: {
     usedAccessToken: currentToken,
   };
 
-  // 5) 카카오 공유 데이터 저장 (kakaoShare 블록이 있으면)
-  const kakaoBlock = newData.find(b => b.component === 'kakaoShare');
-  if (kakaoBlock) {
+  // 5) 공유 데이터 저장 (shareUrl 블록이 있으면)
+  const shareBlock = newData.find(b => b.component === 'shareUrl');
+  if (shareBlock) {
     try {
-      const kakaoProps = kakaoBlock.props as {
+      const shareProps = shareBlock.props as {
         title: string;
         description: string;
         images?: (string | File)[];
@@ -297,31 +302,31 @@ export async function saveInvitationFlow(params: {
 
       // 이미지 파일 ID 추출 (업로드된 Drive 파일 ID)
       const imageFileId =
-        kakaoProps.images && kakaoProps.images.length > 0
-          ? typeof kakaoProps.images[0] === 'string'
-            ? kakaoProps.images[0]
+        shareProps.images && shareProps.images.length > 0
+          ? typeof shareProps.images[0] === 'string'
+            ? shareProps.images[0]
             : undefined
           : undefined;
 
-      await fetch('/api/drive/kakaoShare', {
+      await fetch('/api/drive/shareUrl', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           invitationFolderId: prep.invitationFolderId,
           shareData: {
-            title: kakaoProps.title,
-            description: kakaoProps.description,
+            title: shareProps.title,
+            description: shareProps.description,
             imageFileId,
-            showLocationButton: kakaoProps.showLocationButton,
-            showShareButton: kakaoProps.showShareButton,
+            showLocationButton: shareProps.showLocationButton,
+            showShareButton: shareProps.showShareButton,
             invitationUrl,
             locationInfo,
           },
         }),
       });
     } catch (error) {
-      // 카카오 공유 저장 실패는 전체 저장 실패로 간주하지 않음
-      console.error('카카오 공유 데이터 저장 실패:', error);
+      // 공유 데이터 저장 실패는 전체 저장 실패로 간주하지 않음
+      console.error('공유 데이터 저장 실패:', error);
     }
   }
 

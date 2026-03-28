@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-import { KakaoShareButton } from '@/components/organisms/kakao-share/KakaoShareButton';
+import { KakaoShareButton } from '@/components/organisms/share-url/KakaoShareButton';
 
 type KakaoShareData = {
   title: string;
@@ -10,8 +10,8 @@ type KakaoShareData = {
   imageFileId?: string;
   showLocationButton: boolean;
   showShareButton: boolean;
-  invitationUrl?: string; // 추가됨
-  locationInfo?: {        // 추가됨
+  invitationUrl?: string;
+  locationInfo?: {
     lat: number;
     lng: number;
     placeName: string;
@@ -29,7 +29,6 @@ export default function TestPage() {
     description: '',
     imageUrl: '',
     linkUrl: '',
-    buttonText: '',
   });
 
   // 마운트 시 드라이브 전역에서 최신 kakao-share.json을 자동으로 탐색하여 데이터를 불러옴
@@ -42,7 +41,7 @@ export default function TestPage() {
     setError('');
 
     try {
-      const res = await fetch(`/api/drive/kakaoShare`);
+      const res = await fetch(`/api/drive/shareUrl`);
       const result = await res.json();
 
       if (!result.ok) {
@@ -105,8 +104,12 @@ export default function TestPage() {
           <div className="mt-4 p-3 bg-green-50 rounded-lg text-sm text-green-800 w-full text-center">
             ✅ 데이터 자동 로드 완료
             <div className="mt-2 text-xs text-green-600">
-              위치보기 옵션: {shareData.showLocationButton ? 'ON' : 'OFF'} <br/>
-              저장된 지도 정보: {shareData.locationInfo ? `${shareData.locationInfo.placeName} (저장됨)` : '없음'}
+              위치보기 옵션: {shareData.showLocationButton ? 'ON' : 'OFF'}{' '}
+              <br />
+              저장된 지도 정보:{' '}
+              {shareData.locationInfo
+                ? `${shareData.locationInfo.placeName} (저장됨)`
+                : '없음'}
             </div>
           </div>
         )}
@@ -116,7 +119,6 @@ export default function TestPage() {
           description={manualData.description}
           imageUrl={manualData.imageUrl || undefined}
           linkUrl={manualData.linkUrl}
-          buttonText={manualData.buttonText}
           showLocationButton={shareData?.showLocationButton}
           locationInfo={shareData?.locationInfo}
         />

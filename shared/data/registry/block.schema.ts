@@ -3,9 +3,9 @@ import { calendarSchema } from '@/components/organisms/calendar/Calendar.schema'
 import { coupleIntroductionSchema } from '@/components/organisms/couple-introduction/CoupleIntroduction.schema';
 import { gallerySchema } from '@/components/organisms/gallery/Gallery.schema';
 import { greetingSchema } from '@/components/organisms/greeting/Greeting.schema';
-import { kakaoShareSchema } from '@/components/organisms/kakao-share/KakaoShare.schema';
 import { phoneSchema } from '@/components/organisms/phone/Phone.schema';
 import { placeSchema } from '@/components/organisms/place/Place.schema';
+import { shareUrlSchema } from '@/components/organisms/share-url/ShareUrl.schema';
 import { videoSchema } from '@/components/organisms/video/Video.schema';
 
 export const blockSchema = {
@@ -17,5 +17,5 @@ export const blockSchema = {
   coupleIntroduction: coupleIntroductionSchema,
   video: videoSchema,
   calendar: calendarSchema,
-  kakaoShare: kakaoShareSchema,
+  shareUrl: shareUrlSchema,
 } as const;

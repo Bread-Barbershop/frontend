@@ -3,9 +3,9 @@ import { calendarDefinition } from '@/components/organisms/calendar/Calendar.def
 import { coupleIntroductionDefinition } from '@/components/organisms/couple-introduction/CoupleIntroduction.definition';
 import { galleryDefinition } from '@/components/organisms/gallery/Gallery.definition';
 import { greetingDefinition } from '@/components/organisms/greeting/Greeting.definition';
-import { kakaoShareDefinition } from '@/components/organisms/kakao-share/KakaoShare.definition';
 import { phoneDefinition } from '@/components/organisms/phone/Phone.definition';
 import { placeDefinition } from '@/components/organisms/place/Place.definition';
+import { shareUrlDefinition } from '@/components/organisms/share-url/ShareUrl.definition';
 import { videoDefinition } from '@/components/organisms/video/Video.definition';
 
 import { blockSchema } from './block.schema';
@@ -22,5 +22,5 @@ export const blockRegistry = {
   },
   video: { ...blockSchema.video, ...videoDefinition },
   calendar: { ...blockSchema.calendar, ...calendarDefinition },
-  kakaoShare: { ...blockSchema.kakaoShare, ...kakaoShareDefinition },
+  shareUrl: { ...blockSchema.shareUrl, ...shareUrlDefinition },
 } as const;

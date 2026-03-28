@@ -6,10 +6,10 @@ import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
 import { escapeDriveQueryValue } from './escapeQueryValue';
 
 const APP_IDENTIFIER = 'Bread-Barbershop';
-const KAKAO_SHARE_NAME = 'kakao-share.json';
-const KAKAO_SHARE_KIND = 'kakao_share_json';
+const SHARE_URL_NAME = 'kakao-share.json';
+const SHARE_URL_KIND = 'kakao_share_json';
 
-export type KakaoSharePayload = {
+export type ShareUrlPayload = {
   title: string;
   description: string;
   imageFileId?: string;
@@ -23,7 +23,7 @@ export type KakaoSharePayload = {
   };
 };
 
-const DEFAULT_KAKAO_SHARE_PAYLOAD: KakaoSharePayload = {
+const DEFAULT_SHARE_URL_PAYLOAD: ShareUrlPayload = {
   title: '',
   description: '',
   imageFileId: undefined,
@@ -31,8 +31,8 @@ const DEFAULT_KAKAO_SHARE_PAYLOAD: KakaoSharePayload = {
   showShareButton: true,
 };
 
-export type EnsureKakaoShareFileResult = {
-  kakaoShareFileId: string;
+export type EnsureShareUrlFileResult = {
+  shareUrlFileId: string;
   reused: boolean;
 };
 
@@ -42,9 +42,9 @@ export type EnsureKakaoShareFileResult = {
  *
  * 기존 ensureDataJsonFile 패턴과 동일한 방식으로 동작합니다.
  */
-export async function ensureKakaoShareFile(
+export async function ensureShareUrlFile(
   invitationFolderId: string
-): Promise<EnsureKakaoShareFileResult> {
+): Promise<EnsureShareUrlFileResult> {
   if (!invitationFolderId) {
     throw new DriveHttpError('invitationFolderId is required', 400, {
       invitationFolderId,
@@ -56,8 +56,8 @@ export async function ensureKakaoShareFile(
     `'${escapeDriveQueryValue(invitationFolderId)}' in parents`,
     `trashed=false`,
     `appProperties has { key='app_id' and value='${escapeDriveQueryValue(APP_IDENTIFIER)}' }`,
-    `appProperties has { key='kind' and value='${KAKAO_SHARE_KIND}' }`,
-    `name='${escapeDriveQueryValue(KAKAO_SHARE_NAME)}'`,
+    `appProperties has { key='kind' and value='${SHARE_URL_KIND}' }`,
+    `name='${escapeDriveQueryValue(SHARE_URL_NAME)}'`,
   ].join(' and ');
 
   const searchParams = new URLSearchParams({
@@ -87,7 +87,7 @@ export async function ensureKakaoShareFile(
 
   const found = searchData.files ?? [];
   if (found.length > 0) {
-    return { kakaoShareFileId: found[0].id, reused: true };
+    return { shareUrlFileId: found[0].id, reused: true };
   }
 
   // 2) 파일 메타데이터 생성
@@ -97,12 +97,12 @@ export async function ensureKakaoShareFile(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: KAKAO_SHARE_NAME,
+        name: SHARE_URL_NAME,
         mimeType: 'application/json',
         parents: [invitationFolderId],
         appProperties: {
           app_id: APP_IDENTIFIER,
-          kind: KAKAO_SHARE_KIND,
+          kind: SHARE_URL_KIND,
         },
       }),
     }
@@ -129,7 +129,7 @@ export async function ensureKakaoShareFile(
     {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json; charset=UTF-8' },
-      body: JSON.stringify(DEFAULT_KAKAO_SHARE_PAYLOAD),
+      body: JSON.stringify(DEFAULT_SHARE_URL_PAYLOAD),
     }
   );
 
@@ -142,5 +142,5 @@ export async function ensureKakaoShareFile(
     );
   }
 
-  return { kakaoShareFileId: created.id, reused: false };
+  return { shareUrlFileId: created.id, reused: false };
 }
