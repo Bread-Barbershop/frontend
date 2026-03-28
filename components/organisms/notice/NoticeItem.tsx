@@ -18,7 +18,6 @@ interface Props {
   onEditorChange: (json: JSONContent) => void;
   onPictureChange: (file: (File | string)[]) => void;
   onDelete: () => void;
-  itemsLength: number;
 }
 
 export const NoticeItem = ({
@@ -29,7 +28,6 @@ export const NoticeItem = ({
   onEditorChange,
   onPictureChange,
   onDelete,
-  itemsLength,
 }: Props) => {
   return (
     <div className="flex flex-col gap-4 relative group">
