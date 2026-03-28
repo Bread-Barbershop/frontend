@@ -1,5 +1,5 @@
 import { JSONContent } from '@tiptap/core';
-import { useState, ChangeEvent } from 'react';
+import { useState, ChangeEvent, useEffect } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
@@ -10,7 +10,7 @@ import { TextField } from '@/components/molecules/text-field';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
 
-import { PopupOptionsJSON } from '../popup/PopupOptionsJSON';
+import PopupOptions from '../popup/PopupOptions';
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
 import { InterviewItem } from './InterviewItem';
@@ -35,11 +35,29 @@ export const Interview = ({ blockInfo, id }: Props) => {
     updateBlock(id, { title: e.target.value });
   };
 
-  const handleQuestionListSelect = (content: JSONContent, _index?: number) => {
+  const handleQuestionChange = (
+    question: string | null,
+    questionId: string
+  ) => {
+    const newQuestions = (questions || []).map(q =>
+      q.questionId === questionId
+        ? {
+            ...q,
+            question,
+          }
+        : q
+    );
+    updateBlock(id, { questions: newQuestions });
+  };
+
+  const handleQuestionListSelect = (content: string, _index?: number) => {
     const newQuestion = {
-      id: crypto.randomUUID(),
-      messageJson: content,
-      messageHtml: tiptapJsonToHtmlInBrowser(content),
+      questionId: crypto.randomUUID(),
+      question: content,
+      answer: {
+        messageJson: null,
+        messageHtml: null,
+      },
     };
 
     updateBlock(id, {
@@ -49,16 +67,15 @@ export const Interview = ({ blockInfo, id }: Props) => {
     setIsQuestionListOpen(false);
   };
 
-  const handleQuestionEditorChange = (
-    questionId: string,
-    json: JSONContent
-  ) => {
+  const handleAnswerEditorChange = (questionId: string, json: JSONContent) => {
     const newQuestions = (questions || []).map(question =>
-      question.id === questionId
+      question.questionId === questionId
         ? {
             ...question,
-            messageJson: json,
-            messageHtml: tiptapJsonToHtmlInBrowser(json),
+            answer: {
+              messageJson: json,
+              messageHtml: tiptapJsonToHtmlInBrowser(json),
+            },
           }
         : question
     );
@@ -72,10 +89,25 @@ export const Interview = ({ blockInfo, id }: Props) => {
 
   const handleQuestionDelete = (questionId: string) => {
     const newQuestions = (questions || []).filter(
-      question => question.id !== questionId
+      question => question.questionId !== questionId
     );
     updateBlock(id, { questions: newQuestions });
   };
+
+  useEffect(() => {
+    if ((questions || []).length === 0) {
+      const initQuestions = {
+        questionId: crypto.randomUUID(),
+        question: '',
+        answer: {
+          messageJson: null,
+          messageHtml: null,
+        },
+      };
+      updateBlock(id, { questions: [initQuestions] });
+    }
+  }, [id]);
+
   return (
     <LeftEditorWrapper ariaLabel="인터뷰" className="gap-3">
       <NavigationBar
@@ -108,9 +140,10 @@ export const Interview = ({ blockInfo, id }: Props) => {
         value={image}
         onChange={handlePictureChange}
       />
+
       <div className="flex flex-col gap-6 w-full">
         {(questions || []).map((question, index) => (
-          <div key={question.id} className="flex flex-col">
+          <div key={question.questionId} className="flex flex-col">
             {index !== 0 && (
               <div className="flex flex-col items-center gap-1">
                 <div className="w-0.5 h-1 rounded-sm bg-text-secondary" />
@@ -119,24 +152,30 @@ export const Interview = ({ blockInfo, id }: Props) => {
             )}
             <InterviewItem
               id={id}
+              index={index}
               questionsLength={questions?.length || 0}
               question={question}
               editorResetKey={editorResetKey}
-              onEditorChange={json =>
-                handleQuestionEditorChange(question.id, json)
+              onQuestionChange={e =>
+                handleQuestionChange(e.target.value, question.questionId)
               }
-              onDelete={() => handleQuestionDelete(question.id)}
+              onEditorChange={json =>
+                handleAnswerEditorChange(question.questionId, json)
+              }
+              onDelete={() => handleQuestionDelete(question.questionId)}
             />
           </div>
         ))}
       </div>
 
       {isQuestionListOpen && (
-        <PopupOptionsJSON
+        <PopupOptions
           popupTitle="항목 추가"
           options={QUESTION_LIST}
           onSelect={handleQuestionListSelect}
           onClose={() => setIsQuestionListOpen(false)}
+          listClassName="justify-center items-center"
+          textClassName="bg-bg-sub rounded-xl flex items-center px-4 h-13"
         />
       )}
     </LeftEditorWrapper>
