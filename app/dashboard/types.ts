@@ -3,6 +3,7 @@ export type InviteListItem = {
   name: string;
   createdTime?: string;
   invitationUuid?: string;
+  publishedUrl?: string | null;
 };
 
 export type LoadInvitationResponse = {

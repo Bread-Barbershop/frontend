@@ -39,6 +39,18 @@ function getPayloadMessage(
     : null;
 }
 
+function createInitialPublishResults(invites: InviteListItem[]): PublishResultMap {
+  return invites.reduce<PublishResultMap>((acc, invite) => {
+    if (!invite.publishedUrl) return acc;
+
+    acc[invite.folderId] = {
+      ok: true,
+      guestUrl: invite.publishedUrl,
+    };
+    return acc;
+  }, {});
+}
+
 function useDashboardInvitations() {
   const router = useRouter();
 
@@ -105,6 +117,9 @@ function useDashboardInvitations() {
       if (shouldRedirectToHome(res.status, payloadMessage)) {
         setInvites([]);
         setError(null);
+        setDeleteBusy({});
+        setDeleteErrors({});
+        resetPublishState();
         router.replace('/');
         router.refresh();
         return;
@@ -114,14 +129,25 @@ function useDashboardInvitations() {
         throw new Error(payloadMessage ?? '초대장 목록을 불러오지 못했습니다.');
       }
 
-      setInvites((payload as LoadInvitationResponse).invites ?? []);
+      const loadedInvites = (payload as LoadInvitationResponse).invites ?? [];
+
+      setInvites(loadedInvites);
       setDeleteBusy({});
       setDeleteErrors({});
-      resetPublishState();
+      setPublishBusy({});
+      setPublishErrors({});
+      setPublishResults(createInitialPublishResults(loadedInvites));
     } catch (err) {
       console.error(err);
       setInvites([]);
-      setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
+      setDeleteBusy({});
+      setDeleteErrors({});
+      resetPublishState();
+      setError(
+        err instanceof Error
+          ? err.message
+          : '알 수 없는 오류가 발생했습니다.'
+      );
     } finally {
       setLoading(false);
     }
@@ -164,11 +190,11 @@ function useDashboardInvitations() {
 
       setPublishResults(prev => ({ ...prev, [invitationFolderId]: json }));
     } catch (err) {
-        setPublishErrors(prev => ({
-          ...prev,
-          [invitationFolderId]:
-            err instanceof Error ? err.message : 'Publish request failed.',
-        }));
+      setPublishErrors(prev => ({
+        ...prev,
+        [invitationFolderId]:
+          err instanceof Error ? err.message : 'Publish request failed.',
+      }));
     } finally {
       setPublishBusy(prev => ({ ...prev, [invitationFolderId]: false }));
     }
@@ -239,7 +265,10 @@ function useDashboardInvitations() {
 
   const handleCopyPublishedUrl = useCallback(
     async (folderId: string) => {
-      const finalUrl = resolvePublishedUrl(publishResults[folderId] ?? null, origin);
+      const finalUrl = resolvePublishedUrl(
+        publishResults[folderId] ?? null,
+        origin
+      );
       if (!finalUrl) return;
 
       try {
