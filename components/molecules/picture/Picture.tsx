@@ -14,6 +14,7 @@ import { pictureVariants } from './Picture.style';
 interface PictureProps {
   value?: (File | string)[];
   label: string;
+  labelClassName?: string;
   multiple?: boolean;
   onChange?: (files: (File | string)[]) => void;
   className?: string;
@@ -24,6 +25,7 @@ interface PictureProps {
 export const Picture = ({
   value,
   label = '사진',
+  labelClassName,
   multiple,
   onChange,
   className,
@@ -118,7 +120,9 @@ export const Picture = ({
   };
   return (
     <div className={cn(pictureVariants(), className)}>
-      <Label className="font-semibold shrink-0">{label}</Label>
+      <Label className={cn('font-semibold shrink-0', labelClassName)}>
+        {label}
+      </Label>
       <SortableWrapper
         items={preview}
         onChange={items => handleMove(items)}

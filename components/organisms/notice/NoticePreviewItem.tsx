@@ -6,6 +6,8 @@ import type { JSONContent } from '@tiptap/react';
 
 export const NoticePreviewItem = ({
   item,
+  images,
+  index,
 }: {
   item: {
     id: string;
@@ -13,10 +15,13 @@ export const NoticePreviewItem = ({
     messageHtml: string | null;
     image: (File | string)[];
   };
+  images?: (File | string)[];
+  index: number;
 }) => {
   const html = item.messageHtml ?? tiptapJsonToHtmlUniversal(item.messageJson);
   const preview = useResolvedImageSource(
-    item.image && item.image.length > 0 ? item.image[0] : null
+    (images && images[index]) ||
+      (item.image && item.image.length > 0 ? item.image[0] : null)
   );
 
   return (

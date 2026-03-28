@@ -8,9 +8,11 @@ export const createDriveSlice: StateCreator<
   [],
   DriveSlice
 > = set => ({
+  invitationFolderId: '',
   invitationUuid: '',
   audioFolderId: '',
   imageFolderId: '',
+  setInvitationFolderId: (id: string) => set({ invitationFolderId: id }),
   setInvitationUuid: (uuid: string) => set({ invitationUuid: uuid }),
   setAudioFolderId: (id: string) => set({ audioFolderId: id }),
   setImageFolderId: (id: string) => set({ imageFolderId: id }),
