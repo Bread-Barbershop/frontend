@@ -31,11 +31,12 @@ export const PosterEditor = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isMouseInCanvasRef = useRef(false);
 
-  const { selectedId, selectedBlock, setActiveTab } = useEditorStore(
+  const { selectedId, selectedBlock, setActiveTab, setIsEdit } = useEditorStore(
     useShallow(state => ({
       selectedId: state.selectedId,
       selectedBlock: state.selectedBlock,
       setActiveTab: state.setActiveTab,
+      setIsEdit: state.setIsEdit,
     }))
   );
 
@@ -202,7 +203,10 @@ export const PosterEditor = () => {
   return (
     <>
       <div
-        onClick={() => selectedBlock('mainPoster')}
+        onClick={() => {
+          setIsEdit(false);
+          selectedBlock('mainPoster');
+        }}
         className={cn(
           'relative',
           selectedId === 'mainPoster' && 'border border-primary rounded-lg'

@@ -25,7 +25,7 @@ export const weddingComponents: ListType[] = [
   { contents: '배경음악', component: 'bgm', isType: false },
   { contents: '계좌번호', component: 'account', isType: false },
   { contents: '방명록', component: null, isType: false },
-  { contents: '인터뷰', component: null, isType: false },
+  { contents: '인터뷰', component: 'interview', isType: false },
   { contents: '모청스냅', component: null, isType: false },
   { contents: '공지사항', component: 'notice', isType: false },
   { contents: '동영상', component: 'video', isType: false },
@@ -70,7 +70,7 @@ export const birthdayComponents: ListType[] = [
 export const conferenceComponents: ListType[] = [
   { contents: '인사말', component: 'greeting', isType: false },
   { contents: '주최정보', component: 'organizerInformation', isType: false },
-  { contents: '후원정보', component: null, isType: false },
+  { contents: '후원정보', component: 'sponsorshipInfomation', isType: false },
   { contents: '연사정보', component: 'speakerInformation', isType: false },
   { contents: '행사일시', component: null, isType: false },
   { contents: '행사장소', component: 'place', isType: false },

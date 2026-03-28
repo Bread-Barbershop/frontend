@@ -13,27 +13,29 @@ interface Props {
     messageHtml: string | null;
     image: (File | string)[];
   };
+  noticeLength: number;
   editorResetKey: number;
   onEditorChange: (json: JSONContent) => void;
   onPictureChange: (file: (File | string)[]) => void;
+  onPictureDelete: () => void;
   onDelete: () => void;
-  itemsLength: number;
 }
 
 export const NoticeItem = ({
   id,
   item,
+  noticeLength,
   editorResetKey,
   onEditorChange,
   onPictureChange,
+  onPictureDelete,
   onDelete,
-  itemsLength,
 }: Props) => {
   return (
     <div className="flex flex-col gap-4 relative group">
       <NavigationBar
         action={
-          itemsLength > 1 && (
+          noticeLength > 1 && (
             <UtilityButton
               size="sm"
               variant="danger"
@@ -55,11 +57,12 @@ export const NoticeItem = ({
         onChange={onEditorChange}
       />
       <Picture
-        label="썸네일"
-        className="w-full"
+        label="사진"
+        className="w-full text-center"
         multiple={false}
         value={item.image}
         onChange={onPictureChange}
+        onDelete={onPictureDelete}
       />
     </div>
   );

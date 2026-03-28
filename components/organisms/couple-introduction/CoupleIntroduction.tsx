@@ -91,7 +91,12 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
   const handleEditorChange = (json: JSONContent) => {
     debouncedUpdateMessage(json);
   };
-
+  const handleGroomDelete = () => {
+    syncProfileImages([], brideImage);
+  };
+  const handleBrideDelete = () => {
+    syncProfileImages(groomImage, []);
+  };
   const profileFields = brideFirst
     ? [
         {
@@ -100,6 +105,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
           value: bride,
           imageValue: brideImage,
           onChange: handleBrideChange,
+          onDelete: handleBrideDelete,
           onImageChange: handleBrideImageChange,
         },
         {
@@ -108,6 +114,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
           value: groom,
           imageValue: groomImage,
           onChange: handleGroomChange,
+          onDelete: handleGroomDelete,
           onImageChange: handleGroomImageChange,
         },
       ]
@@ -118,6 +125,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
           value: groom,
           imageValue: groomImage,
           onChange: handleGroomChange,
+          onDelete: handleGroomDelete,
           onImageChange: handleGroomImageChange,
         },
         {
@@ -126,6 +134,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
           value: bride,
           imageValue: brideImage,
           onChange: handleBrideChange,
+          onDelete: handleBrideDelete,
           onImageChange: handleBrideImageChange,
         },
       ];
@@ -152,6 +161,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
               label="사진"
               value={profile.imageValue}
               onChange={profile.onImageChange}
+              onDelete={profile.onDelete}
               className="text-center"
             />
           )}

@@ -39,9 +39,14 @@ export default async function GuestPage({
 
   return (
     <main className="min-h-screen bg-neutral-50">
-      <div className="relative mx-auto w-full max-w-93.75 bg-white shadow-sm">
+      <div
+        className="relative mx-auto w-full max-w-93.75 bg-white shadow-sm"
+        style={{
+          backgroundColor: payload.bulkData.backgroundColor,
+        }}
+      >
         <GuestMainPoster json={payload.mainPoster} />
-        <GuestRenderer blocks={payload.blocks} />
+        <GuestRenderer blocks={payload.blocks} bulkData={payload.bulkData} />
         <GuestBgm bgm={payload.bgm} />
       </div>
     </main>

@@ -13,6 +13,7 @@ import { UtilityButton } from '@/components/atoms/button';
 import { Radio } from '@/components/atoms/radio';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { PopupText } from '@/components/molecules/popup-text';
+import { cn } from '@/shared/utils/cn';
 
 interface PopupProps {
   popupTitle?: string;
@@ -22,6 +23,9 @@ interface PopupProps {
   name?: string;
   selectedText?: string;
   defaultSelectedText?: string;
+  listClassName?: string;
+  radioClassName?: string;
+  textClassName?: string;
 }
 
 function PopupOptions({
@@ -32,6 +36,9 @@ function PopupOptions({
   name,
   selectedText,
   defaultSelectedText,
+  listClassName,
+  radioClassName,
+  textClassName,
 }: PopupProps) {
   const autoName = useId();
   const radioName = name ?? `popup-${autoName}`;
@@ -122,8 +129,11 @@ function PopupOptions({
           )}
 
           {options.map((text, index) => (
-            <li key={`${text}-${index}`} className="flex items-start gap-3 p-1">
-              <div className="pt-3">
+            <li
+              key={`${text}-${index}`}
+              className={cn('flex items-start gap-3 p-1', listClassName)}
+            >
+              <div className={cn('pt-3', radioClassName)}>
                 <Radio
                   name={radioName}
                   value={text}
@@ -132,7 +142,7 @@ function PopupOptions({
                 />
               </div>
 
-              <PopupText text={text} className="flex-1" />
+              <PopupText text={text} className={cn('flex-1', textClassName)} />
             </li>
           ))}
         </ul>

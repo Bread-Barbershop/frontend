@@ -38,6 +38,11 @@ function Gallery({ blockInfo, id }: Props) {
     updateImage(id, [...(image ?? []), ...file]);
   };
 
+  const handlePictureDelete = (files: (File | string)[]) => {
+    updateBlock(id, { images: files });
+    updateImage(id, files);
+  };
+
   const handlePopViewChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { isPopupViewer: e.target.checked });
   };
@@ -73,6 +78,7 @@ function Gallery({ blockInfo, id }: Props) {
           multiple={true}
           value={blockInfo.props.images}
           onChange={file => handlePictureChange(file)}
+          onDelete={file => handlePictureDelete(file)}
         />
         {blockInfo.props.images && blockInfo.props.images?.length > 0 && (
           <ButtonSelector
