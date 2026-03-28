@@ -49,6 +49,30 @@ const validPayload = {
     userBgmDuration: null,
     userBgmFileId: null,
   },
+  bulkData: {
+    backgroundColor: '#ffffff',
+    isEngTitle: false,
+    titleData: {
+      font: 'Inter',
+      fontSize: '24px',
+      color: '#000000',
+      bold: false,
+      italic: false,
+      underline: false,
+      align: 'center',
+      isDefault: true,
+    },
+    bodyData: {
+      font: 'Inter',
+      fontSize: '16px',
+      color: '#000000',
+      bold: false,
+      italic: false,
+      underline: false,
+      align: 'center',
+      isDefault: true,
+    },
+  },
 };
 
 describe('isGuestPayload 테스트', () => {
@@ -141,6 +165,44 @@ describe('isGuestPayload 테스트', () => {
           props: {},
         },
       ],
+    };
+
+    expect(isGuestPayload(invalidPayload)).toBe(false);
+  });
+
+  it('bulkData 구조가 잘못되면 false를 반환한다', () => {
+    /**
+     * 목적:
+     * bulkData는 backgroundColor, isEngTitle, titleData, bodyData를 가져야 한다.
+     * 여기서는 isEngTitle을 string으로 바꿔 invalid payload를 만든다.
+     */
+
+    const invalidPayload = {
+      ...validPayload,
+      bulkData: {
+        ...validPayload.bulkData,
+        isEngTitle: 'false',
+      },
+    };
+
+    expect(isGuestPayload(invalidPayload)).toBe(false);
+  });
+
+  it('bulkData.titleData 내의 align이 올바르지 않으면 false를 반환한다', () => {
+    /**
+     * 목적:
+     * align은 'left' | 'center' | 'right' 중 하나여야 한다.
+     */
+
+    const invalidPayload = {
+      ...validPayload,
+      bulkData: {
+        ...validPayload.bulkData,
+        titleData: {
+          ...validPayload.bulkData.titleData,
+          align: 'justify',
+        },
+      },
     };
 
     expect(isGuestPayload(invalidPayload)).toBe(false);

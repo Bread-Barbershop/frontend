@@ -4,7 +4,7 @@ import {
   SerializedObjectProps,
 } from 'fabric';
 
-import { EditorBlock } from '@/shared/types/block';
+import { BulkData, EditorBlock } from '@/shared/types/block';
 
 import { retryFailedOnce } from './retryFailedOnce';
 import { retryPatchFailedOnce } from './retryPatchFailedOnce';
@@ -54,12 +54,21 @@ export type MainPosterData = {
 };
 
 type InvitationPayload = {
+  bulkData: BulkJson;
   blocks: EditorBlock[];
   bgm: BgmData;
   mainPoster: MainPosterData;
 };
 
+type BulkJson = {
+  backgroundColor: string;
+  isEngTitle: boolean;
+  titleData: BulkData;
+  bodyData: BulkData;
+};
+
 export async function saveInvitationFlow(params: {
+  bulkData: BulkJson;
   images: UploadTask[];
   audio: File | null;
   data: EditorBlock[]; // useEditorStore의 데이터 타입.
@@ -86,7 +95,8 @@ export async function saveInvitationFlow(params: {
   };
 }> {
   // 여기에 포스터 데이터 추가
-  const { images, audio, data, bgmData, invitationUuid, mainPoster } = params;
+  const { bulkData, images, audio, data, bgmData, invitationUuid, mainPoster } =
+    params;
 
   // 1) 서버에서 폴더 구조 + fresh 토큰 받기
   const prepRes = await fetch('/api/drive/saveInvitation', {
@@ -168,28 +178,37 @@ export async function saveInvitationFlow(params: {
     concurrency: 5, // 이미지는 5장씩만 끊어서 전송.
   });
 
-  const img = imagesStep.final.ok.reduce<Record<string, string[]>>(
-    (acc, cur) => {
-      if (!cur.id) return acc;
-      acc[cur.id] ??= [];
-      acc[cur.id].push(cur.fileId);
-      return acc;
-    },
-    {}
-  );
-
-  const newData = data.map(item => {
-    if (item.id in img) {
-      return {
-        ...item,
-        props: {
-          ...item.props,
-          images: img[item.id],
-        },
-      };
-    }
-    return item;
+  const fileToIdMap = new Map<File, string>();
+  imagesStep.final.ok.forEach(result => {
+    fileToIdMap.set(result.file, result.fileId);
   });
+
+  const replaceFiles = (obj: unknown): unknown => {
+    if (obj instanceof File) {
+      const fileId = fileToIdMap.get(obj);
+      if (!fileId) {
+        console.warn('File not uploaded, skipping:', obj.name);
+        throw new Error(`not Found Image FileId: ${obj.name}`);
+      }
+      return fileId;
+    }
+    if (Array.isArray(obj)) {
+      return obj.map(replaceFiles);
+    }
+    if (obj !== null && typeof obj === 'object') {
+      const newObj: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(obj)) {
+        newObj[key] = replaceFiles(value);
+      }
+      return newObj;
+    }
+    return obj;
+  };
+
+  const newData = data.map(item => ({
+    ...item,
+    props: replaceFiles(item.props) as typeof item.props,
+  }));
 
   // 3) 오디오 업로드(있으면)
   const audioStep = await runUploadStep({
@@ -209,6 +228,7 @@ export async function saveInvitationFlow(params: {
 
   // 여기에 포스터 데이터 추가
   const payload: InvitationPayload = {
+    bulkData: bulkData,
     blocks: newData,
     bgm: finalBgm,
     mainPoster: mainPoster,

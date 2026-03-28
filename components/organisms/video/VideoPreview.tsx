@@ -38,9 +38,7 @@ export const VideoPreview = ({ blockInfo, className, ...rest }: Props) => {
   const embedUrl = getEmbedUrl(videoUrl);
 
   return (
-    <MiddlePreviewWrapper className={className} noTitle={true} {...rest}>
-      <p className="text-[20px] text-[#FA7564] font-medium">{title}</p>
-
+    <MiddlePreviewWrapper className={className} koTitle={title} {...rest}>
       <div
         className={cn(
           'relative w-full overflow-hidden group',
