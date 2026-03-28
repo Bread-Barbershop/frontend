@@ -11,7 +11,7 @@ import { CalendarDayInfo } from '../types/calendar';
  * 2026-03-09 -> { year: 2026, month: 3, day: 9 }
  */
 export const parseDateInfo = (dateStr?: string) => {
-  if (!dateStr) {
+  if (!dateStr || dateStr.length < 10) {
     const now = new Date();
     return {
       year: now.getFullYear(),
@@ -27,7 +27,7 @@ export const parseDateInfo = (dateStr?: string) => {
     year,
     month,
     day,
-    dayOfWeek: dateObj.getDay(),
+    dayOfWeek: isNaN(dateObj.getTime()) ? 0 : dateObj.getDay(),
   };
 };
 
@@ -35,9 +35,10 @@ export const parseDateInfo = (dateStr?: string) => {
  * date string -> Date 객체
  */
 export const parseTargetDate = (dateStr?: string) => {
-  if (!dateStr) return new Date();
+  if (!dateStr || dateStr.length < 10) return new Date();
   const [y, m, d] = dateStr.split('-').map(Number);
-  return new Date(y, m - 1, d);
+  const dateObj = new Date(y, m - 1, d);
+  return isNaN(dateObj.getTime()) ? new Date() : dateObj;
 };
 
 /**

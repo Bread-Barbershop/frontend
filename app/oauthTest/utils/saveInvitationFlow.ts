@@ -168,61 +168,47 @@ export async function saveInvitationFlow(params: {
     concurrency: 5, // 이미지는 5장씩만 끊어서 전송.
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const placeBlock = data.find(b => b.component === 'place') as any;
-  const locationInfo =
-    placeBlock &&
-    placeBlock.props.lat !== undefined &&
-    placeBlock.props.lng !== undefined &&
-    placeBlock.props.placeName
-      ? {
-          lat: Number(placeBlock.props.lat),
-          lng: Number(placeBlock.props.lng),
-          placeName: String(placeBlock.props.placeName),
-        }
-      : undefined;
-
   // 매핑용 Map: File 객체 참조 -> 업로드된 fileId
   const fileToId = new Map<File, string>();
   imagesStep.final.ok.forEach(ok => {
     fileToId.set(ok.file, ok.fileId);
   });
 
-  const invitationUrl = `${window.location.origin}/guest/${prep.invitationUuid}`;
+  const invitationUrl = `${window.location.origin}/guest/${prep.dataJsonFileId}`;
+
+  const replaceFiles = (obj: unknown): unknown => {
+    if (obj instanceof File) {
+      const fileId = fileToId.get(obj); // 기존 변수명 fileToId 사용
+      if (!fileId) {
+        console.warn('File not uploaded, skipping:', obj.name);
+        throw new Error(`not Found Image FileId: ${obj.name}`);
+      }
+      return fileId;
+    }
+    if (Array.isArray(obj)) {
+      return obj.map(replaceFiles);
+    }
+    if (obj !== null && typeof obj === 'object') {
+      const newObj: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(obj)) {
+        newObj[key] = replaceFiles(value);
+      }
+      return newObj;
+    }
+    return obj;
+  };
 
   const newData = data.map(item => {
-    let updatedProps = { ...item.props };
-
-    // File 객체를 찾아서 업로드된 fileId 로 치환
-    for (const key of Object.keys(updatedProps)) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const val = (updatedProps as any)[key];
-      if (Array.isArray(val)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (updatedProps as any)[key] = val.map(v => {
-          if (v instanceof File && fileToId.has(v)) {
-            return fileToId.get(v);
-          }
-          // 수정 시 남아있을 수 있는 File 객체(업로드 실패 등) 삭제를 원한다면 여기서 걸러낼 수 있습니다.
-          return v;
-        });
-      }
-    }
-
-    if (item.component === 'shareUrl') {
-      updatedProps = {
-        ...updatedProps,
-        locationInfo,
-        invitationUrl,
-      };
-    }
+    const updatedProps = replaceFiles(item.props) as typeof item.props;
 
     return {
       ...item,
-      props: updatedProps,
+      props:
+        item.component === 'shareUrl'
+          ? { ...updatedProps, invitationUrl }
+          : updatedProps,
     };
   });
-
   // 3) 오디오 업로드(있으면)
   const audioStep = await runUploadStep({
     originFile: audio ? [{ id: 'bgm', file: audio }] : [],
@@ -320,7 +306,6 @@ export async function saveInvitationFlow(params: {
             showLocationButton: shareProps.showLocationButton,
             showShareButton: shareProps.showShareButton,
             invitationUrl,
-            locationInfo,
           },
         }),
       });

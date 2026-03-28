@@ -34,8 +34,7 @@ function ShareUrl({ blockInfo, id }: Props) {
   const hasValidLocation = Boolean(
     placeBlock &&
     placeBlock.props.lat !== undefined &&
-    placeBlock.props.lng !== undefined &&
-    placeBlock.props.placeName
+    placeBlock.props.lng !== undefined
   );
 
   const handleChange = ({
@@ -50,19 +49,36 @@ function ShareUrl({ blockInfo, id }: Props) {
     if (name === 'showLocationButton') {
       if (!hasValidLocation) return;
       updateBlock(id, { showLocationButton: checked });
+      updateBlock(id, {
+        locationInfo: { lat: placeBlock.props.lat, lng: placeBlock.props.lng },
+      });
     } else if (name === 'showShareButton') {
       updateBlock(id, { showShareButton: checked });
     }
   };
 
-  const handlePictureChange = (file: (File | string)[]) => {
-    const currentBlock = block as EditorBlock<'shareUrl'>[];
-    const targetField = activeTab === 'kakao' ? 'images' : 'urlImage';
-    const existingImages = currentBlock.find(b => b.id === id)?.props[
-      targetField
-    ];
-    updateBlock(id, { [targetField]: [...(existingImages ?? []), ...file] });
-    updateImage(id, [...(existingImages ?? []), ...file]);
+  const handlePictureChange = (newFiles: (File | string)[]) => {
+    const props = (block as EditorBlock<'shareUrl'>[]).find(
+      b => b.id === id
+    )?.props;
+    const isKakaoTab = activeTab === 'kakao';
+
+    // 각 탭의 이미지 리스트 결정 (현재 탭인 경우 새 파일 합산)
+    const kakaoImages = isKakaoTab ? newFiles : (props?.images ?? []);
+    const urlImages = !isKakaoTab ? newFiles : (props?.urlImage ?? []);
+
+    // 1. 블록 데이터 업데이트 (현재 탭의 필드만 업데이트)
+    updateBlock(
+      id,
+      isKakaoTab ? { images: kakaoImages } : { urlImage: urlImages }
+    );
+
+    // 2. 업로드 큐에는 양쪽 탭의 모든 File 객체를 합산해서 전달
+    const allFilesToUpload = [...kakaoImages, ...urlImages].filter(
+      f => f instanceof File
+    ) as File[];
+
+    updateImage(id, allFilesToUpload);
   };
 
   return (

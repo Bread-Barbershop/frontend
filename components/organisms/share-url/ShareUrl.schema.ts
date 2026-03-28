@@ -35,5 +35,12 @@ export const shareUrlSchema = {
       default: true,
       required: true,
     },
+    locationInfo: {
+      default: {
+        lat: 0,
+        lng: 0,
+      },
+      required: false,
+    },
   },
 } as const;

@@ -1,6 +1,7 @@
 'use client';
 
 import { PreviewTitle } from '@/components/atoms/preview-title/PreviewTitle';
+import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
 import { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 
@@ -38,6 +39,8 @@ export function CalendarPreview({
     timeLabel,
   } = useCalendarData({ date, time, language, template });
 
+  const isDateIncomplete = !date || date.length < 10;
+
   const TemplateComponent =
     CalendarTemplates[template as string] || CalendarTemplates['calendarType1'];
 
@@ -58,9 +61,20 @@ export function CalendarPreview({
 
       {/* String Date Display */}
       {showStringDate && (
-        <div className="flex flex-col items-center tracking-[-0.01rem] leading-[1.2] text-base font-semibold text-text-primary">
-          <p>{stringDateFormatted}</p>
-          <p>{formattedTime}</p>
+        <div className="flex flex-col items-center tracking-[-0.01rem] leading-[1.2] text-base font-semibold text-text-primary min-h-[40px] justify-center">
+          {isDateIncomplete ? (
+            <div className="flex items-center gap-2">
+              <LoadingSpinner className="w-5 h-5 animate-spin text-gray-300" />
+              <span className="text-sm text-gray-400 font-normal">
+                날짜 입력 중...
+              </span>
+            </div>
+          ) : (
+            <>
+              <p>{stringDateFormatted}</p>
+              <p>{formattedTime}</p>
+            </>
+          )}
         </div>
       )}
 
