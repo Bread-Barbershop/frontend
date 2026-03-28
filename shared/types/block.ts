@@ -38,6 +38,8 @@ export interface BulkData {
   underline: boolean;
   align: TextAlignValue;
   isDefault: boolean;
+  charSpacing: number;
+  lineHeight: number;
 }
 
 export interface TextAlignOption {

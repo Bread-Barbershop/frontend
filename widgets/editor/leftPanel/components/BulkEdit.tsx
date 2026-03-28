@@ -7,7 +7,7 @@ import TitleEdit from './TitleEdit';
 function BulkEdit() {
   return (
     <div className="w-full bg-white rounded-b-lg shadow-edit border border-t-0 border-black/5 transition-all duration-300 ease-in-out">
-      <LeftEditorWrapper className="w-full">
+      <LeftEditorWrapper className="overflow-x-hidden">
         <TitleEdit />
         <BodyEdit />
         <BackGroundEdit />

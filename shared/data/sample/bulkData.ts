@@ -7,8 +7,10 @@ export const TITLE_BULK_DATA: BulkData = {
   bold: false,
   italic: false,
   underline: false,
-  align: 'left',
+  align: 'center',
   isDefault: true,
+  charSpacing: 0,
+  lineHeight: 0,
 };
 export const BODY_BULK_DATA: BulkData = {
   font: '',
@@ -17,6 +19,8 @@ export const BODY_BULK_DATA: BulkData = {
   bold: false,
   italic: false,
   underline: false,
-  align: 'left',
+  align: 'center',
   isDefault: true,
+  charSpacing: 0,
+  lineHeight: 0,
 };

@@ -39,10 +39,24 @@ export function useBulkEditor(
       color: hex,
     });
   };
+  const handleTextCharSpacing = (charSpacing: number) => {
+    onBulkChange({
+      ...bulkData,
+      charSpacing,
+    });
+  };
+  const handleTextLineHeight = (lineHeight: number) => {
+    onBulkChange({
+      ...bulkData,
+      lineHeight,
+    });
+  };
   return {
     handleFontSizeSelect,
     handleFontFamilySelect,
     handleTextAlignSelect,
     handleTextColorSelect,
+    handleTextCharSpacing,
+    handleTextLineHeight,
   };
 }

@@ -41,9 +41,7 @@ function BodyEdit() {
         본문 편집
       </NavigationBar>
       <TextEditorPreview value={bulkBodyData} onChange={setBulkBodyData}>
-        <div
-          className={`w-full h-full flex flex-col gap-1 ${bulkBodyData.align === 'left' ? 'items-start' : bulkBodyData.align === 'center' ? 'items-center' : 'items-end'}`}
-        >
+        <div className="w-full h-full flex flex-col gap-1 ">
           <p
             className="font-base text-base"
             style={toStyle(bulkBodyData, false)}

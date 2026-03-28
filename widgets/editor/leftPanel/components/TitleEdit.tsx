@@ -34,7 +34,7 @@ function TitleEdit() {
   };
 
   return (
-    <div>
+    <div className="w-full">
       <div className="w-full">
         <NavigationBar
           action={
@@ -54,9 +54,7 @@ function TitleEdit() {
           제목 편집
         </NavigationBar>
         <TextEditorPreview value={bulkTitleData} onChange={setBulkTitleData}>
-          <div
-            className={`w-full h-full flex flex-col gap-1 ${bulkTitleData.align === 'left' ? 'items-start' : bulkTitleData.align === 'center' ? 'items-center' : 'items-end'}`}
-          >
+          <div className="w-full h-full flex flex-col gap-1">
             {bulkIsEngTitle && (
               <p
                 className="sub-title"
