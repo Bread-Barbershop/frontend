@@ -17,6 +17,7 @@ interface PictureProps {
   labelClassName?: string;
   multiple?: boolean;
   onChange?: (files: (File | string)[]) => void;
+  onDelete?: (files: (File | string)[]) => void;
   className?: string;
   previewClassName?: string;
   inputClassName?: string;
@@ -28,6 +29,7 @@ export const Picture = ({
   labelClassName,
   multiple,
   onChange,
+  onDelete,
   className,
   previewClassName,
   inputClassName,
@@ -111,12 +113,12 @@ export const Picture = ({
   };
 
   const handleRemove = (src: string) => {
-    if (!value || !onChange) return;
+    if (!value || !onDelete) return;
     const target = preview.find(p => p.src === src);
     if (!target) return;
 
     const updatedFiles = value.filter(file => file !== target.file);
-    onChange(updatedFiles);
+    onDelete(updatedFiles);
   };
   return (
     <div className={cn(pictureVariants(), className)}>

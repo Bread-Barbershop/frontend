@@ -103,6 +103,22 @@ export const Notice = ({ blockInfo, id }: Props) => {
     );
   };
 
+  const handleItemPictureDelete = (itemId: string) => {
+    const newItems = (items || []).map(item =>
+      item.id === itemId ? { ...item, image: [] } : item
+    );
+    const allImages = newItems.map(s => s.image[0]);
+
+    updateBlock(id, {
+      items: newItems,
+      images: allImages,
+    });
+    updateImage(
+      id,
+      allImages.filter((f): f is File | string => !!f)
+    );
+  };
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleAddItem = () => {
     const newItem = {
@@ -182,6 +198,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
                 handleItemEditorChange(item.id, json, items || [])
               }
               onPictureChange={file => handleItemPictureChange(item.id, file)}
+              onPictureDelete={() => handleItemPictureDelete(item.id)}
               onDelete={() => handleItemDelete(item.id)}
             />
           </div>

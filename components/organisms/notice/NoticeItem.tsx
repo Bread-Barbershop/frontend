@@ -16,6 +16,7 @@ interface Props {
   editorResetKey: number;
   onEditorChange: (json: JSONContent) => void;
   onPictureChange: (file: (File | string)[]) => void;
+  onPictureDelete: () => void;
   onDelete: () => void;
   itemsLength: number;
 }
@@ -26,6 +27,7 @@ export const NoticeItem = ({
   editorResetKey,
   onEditorChange,
   onPictureChange,
+  onPictureDelete,
   onDelete,
   itemsLength,
 }: Props) => {
@@ -60,6 +62,7 @@ export const NoticeItem = ({
         multiple={false}
         value={item.image}
         onChange={onPictureChange}
+        onDelete={onPictureDelete}
       />
     </div>
   );

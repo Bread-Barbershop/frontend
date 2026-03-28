@@ -20,6 +20,7 @@ interface Props {
   onStringChange: (type: 'name', e: ChangeEvent<HTMLInputElement>) => void;
   onEditorChange: (json: JSONContent) => void;
   onPictureChange: (file: (File | string)[]) => void;
+  onPictureDelete: () => void;
   onDelete: () => void;
   speakerLength: number;
 }
@@ -29,6 +30,7 @@ export const Information = ({
   onStringChange,
   onEditorChange,
   onPictureChange,
+  onPictureDelete,
   onDelete,
 }: Props) => {
   return (
@@ -72,6 +74,7 @@ export const Information = ({
         multiple={false}
         value={speaker.image}
         onChange={onPictureChange}
+        onDelete={onPictureDelete}
       />
     </section>
   );

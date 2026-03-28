@@ -91,6 +91,9 @@ export const MyChild = ({ blockInfo, id }: Props) => {
   const handlePictureChange = (file: (File | string)[]) => {
     updateBlock(id, { image: file });
   };
+  const handlePictureDelete = () => {
+    updateBlock(id, { image: [] });
+  };
 
   return (
     <LeftEditorWrapper ariaLabel="아기 소개">
@@ -169,6 +172,7 @@ export const MyChild = ({ blockInfo, id }: Props) => {
         multiple={false}
         value={blockInfo.props.image}
         onChange={handlePictureChange}
+        onDelete={handlePictureDelete}
       />
 
       {isSamplePopupOpen && (

@@ -35,6 +35,10 @@ export const Video = ({ blockInfo, id }: Props) => {
     updateBlock(id, { image: file });
     updateImage(id, file);
   };
+  const handlePictureDelete = () => {
+    updateBlock(id, { image: [] });
+    updateImage(id, []);
+  };
 
   const { title, videoUrl } = blockInfo.props;
   return (
@@ -89,6 +93,7 @@ export const Video = ({ blockInfo, id }: Props) => {
           multiple={false}
           value={blockInfo.props.image}
           onChange={file => handlePictureChange(file)}
+          onDelete={handlePictureDelete}
         />
       )}
     </LeftEditorWrapper>
