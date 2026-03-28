@@ -49,6 +49,10 @@ jest.mock('@/app/api/drive/_lib/publishPermissionWithRetry', () => ({
   publishPermissionWithRetry: jest.fn(),
 }));
 
+jest.mock('@/app/api/drive/_lib/ensurePublishedJsonFile', () => ({
+  ensurePublishedJsonFile: jest.fn().mockResolvedValue({ fileId: 'published-file-1' }),
+}));
+
 import { ensureDataJsonFile } from '@/app/api/drive/_lib/ensureDataJsonFile';
 import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissionWithRetry';
 
@@ -57,6 +61,30 @@ import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissi
 // route 내부의 최소 guest payload 조건을 만족하도록 구성
 // ------------------------------
 const validGuestPayload = {
+  bulkData: {
+    backgroundColor: '#ffffff',
+    isEngTitle: true,
+    titleData: {
+      font: 'Pretendard',
+      fontSize: '16px',
+      color: '#111111',
+      bold: false,
+      italic: false,
+      underline: false,
+      align: 'center',
+      isDefault: true,
+    },
+    bodyData: {
+      font: 'Pretendard',
+      fontSize: '14px',
+      color: '#222222',
+      bold: false,
+      italic: false,
+      underline: false,
+      align: 'left',
+      isDefault: true,
+    },
+  },
   blocks: [],
   bgm: {
     selectedBgmId: null,
@@ -65,6 +93,10 @@ const validGuestPayload = {
     userBgmTitle: null,
     userBgmDuration: null,
     userBgmFileId: null,
+  },
+  mainPoster: {
+    version: '7.1.0',
+    objects: [],
   },
 };
 

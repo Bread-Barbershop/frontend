@@ -14,7 +14,19 @@ const CARD_LIFT_TRANSITION: Transition = {
   stiffness: 220,
   damping: 24,
 };
+
 const LIFT_OFFSET = 4;
+
+function formatInvitationDate(createdTime?: string) {
+  if (!createdTime) return '날짜 없음';
+
+  const isoDate = createdTime.slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) {
+    return '날짜 없음';
+  }
+
+  return isoDate.replace(/-/g, '.');
+}
 
 type InvitationItemProps = {
   invite: InviteListItem;
@@ -49,6 +61,12 @@ function InvitationItem({
 }: InvitationItemProps) {
   const showcaseItem = getInvitationShowcaseItem(invite.folderId);
   const translateY = isHovered ? -Math.max(liftDistance - LIFT_OFFSET, 0) : 0;
+  const invitationDate = formatInvitationDate(invite.createdTime);
+  const isPublished = Boolean(publishedUrl);
+  const publishStatus = isPublished ? 'URL 발행됨' : 'URL 발행안됨';
+  const publishStatusTone = isPublished
+    ? 'font-semibold text-blue-600'
+    : 'font-semibold text-red-500';
 
   return (
     <div
@@ -61,7 +79,7 @@ function InvitationItem({
         <motion.div
           animate={{ y: translateY }}
           transition={CARD_LIFT_TRANSITION}
-          className="absolute right-2 z-20"
+          className="absolute right-2 top-10 z-20"
         >
           <DeleteInvitationButton disabled={isDeleting} onClick={onDelete} />
         </motion.div>
@@ -71,47 +89,72 @@ function InvitationItem({
         ref={measureRef}
         animate={{ y: translateY }}
         transition={CARD_LIFT_TRANSITION}
-        className="relative flex h-118.75 w-65 items-end overflow-hidden rounded-2xl p-1"
+        className="relative flex w-65 flex-col overflow-visible"
       >
-        <Image
-          src={showcaseItem.image}
-          alt={showcaseItem.alt}
-          fill
-          sizes="260px"
-          className="object-cover"
-        />
-
         <div
-          className={`absolute inset-0 bg-black/8 transition-opacity duration-200 ${
-            isHovered ? 'opacity-100' : 'opacity-0'
-          }`}
-        />
-
-        <div
-          className={`absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 transition-all duration-200 ${
-            isHovered
-              ? 'pointer-events-auto opacity-100'
-              : 'pointer-events-none opacity-0'
+          className={`h-8 transition-all duration-200 ${
+            isHovered ? 'opacity-100' : 'pointer-events-none opacity-0'
           }`}
         >
-          {publishedUrl ? (
-            <PublishedUrlActions url={publishedUrl} onCopy={onCopyUrl} />
-          ) : (
-            <PublishInvitationButton
-              disabled={isPublishing}
-              isPublishing={isPublishing}
-              onClick={onPublish}
-            />
-          )}
-          <EditInvitationButton
-            disabled={!invite.invitationUuid}
-            onClick={onEdit}
+          <div className="flex h-full items-center justify-between rounded-t-lg border border-white/20 bg-white/[0.05] px-2 text-[13px] tracking-[0.08em] shadow-[0_16px_36px_rgba(15,23,42,0.18)] backdrop-blur-sm">
+            <span className="font-semibold text-black">{invitationDate}</span>
+            <span className={publishStatusTone}>{publishStatus}</span>
+          </div>
+        </div>
+
+        <div
+          className={`relative flex h-118.75 items-end overflow-hidden p-1 ${
+            isHovered ? 'rounded-b-2xl rounded-t-none' : 'rounded-2xl'
+          }`}
+        >
+          <Image
+            src={showcaseItem.image}
+            alt={showcaseItem.alt}
+            fill
+            sizes="260px"
+            className="object-cover"
           />
-          {(deleteError || publishError) && (
-            <div className="w-55 rounded-lg border border-red-200 bg-white px-3 py-2 text-center text-xs font-medium text-red-600">
-              {deleteError || publishError}
-            </div>
-          )}
+
+          <div
+            className={`absolute inset-0 bg-black/8 transition-opacity duration-200 ${
+              isHovered ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+
+          <div
+            className={`absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 transition-all duration-200 ${
+              isHovered
+                ? 'pointer-events-auto opacity-100'
+                : 'pointer-events-none opacity-0'
+            }`}
+          >
+            {publishedUrl ? (
+              <>
+                <PublishedUrlActions url={publishedUrl} onCopy={onCopyUrl} />
+                <PublishInvitationButton
+                  disabled={isPublishing}
+                  isPublishing={isPublishing}
+                  onClick={onPublish}
+                  label="초대장 재발행하기"
+                />
+              </>
+            ) : (
+              <PublishInvitationButton
+                disabled={isPublishing}
+                isPublishing={isPublishing}
+                onClick={onPublish}
+              />
+            )}
+            <EditInvitationButton
+              disabled={!invite.invitationUuid}
+              onClick={onEdit}
+            />
+            {(deleteError || publishError) && (
+              <div className="w-55 rounded-lg border border-red-200 bg-white px-3 py-2 text-center text-xs font-medium text-red-600">
+                {deleteError || publishError}
+              </div>
+            )}
+          </div>
         </div>
       </motion.div>
     </div>
