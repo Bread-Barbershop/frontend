@@ -87,6 +87,11 @@ export const Interview = ({ blockInfo, id }: Props) => {
     updateImage(id, file);
   };
 
+  const handlePictureDelete = () => {
+    updateBlock(id, { image: [] });
+    updateImage(id, []);
+  };
+
   const handleQuestionDelete = (questionId: string) => {
     const newQuestions = (questions || []).filter(
       question => question.questionId !== questionId
@@ -139,6 +144,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
         multiple={false}
         value={image}
         onChange={handlePictureChange}
+        onDelete={handlePictureDelete}
       />
 
       <div className="flex flex-col gap-6 w-full">
