@@ -37,6 +37,7 @@ export const InterviewItem = ({
   return (
     <div className="flex flex-col gap-4 relative group">
       <NavigationBar
+        className="min-h-auto h-8"
         action={
           questionsLength > 1 && (
             <UtilityButton
@@ -61,7 +62,7 @@ export const InterviewItem = ({
         }}
         className="w-full text-center"
       />
-      <NavigationBar>내용</NavigationBar>
+      <NavigationBar className="min-h-auto h-8">내용</NavigationBar>
       <TextEditor
         key={`${id}-${question.questionId}-${editorResetKey}`}
         value={question.answer.messageJson}
