@@ -17,7 +17,7 @@ export const MemberPreview = ({ member }: Props) => {
   return (
     <>
       {preview && (
-        <div className="w-[158.5px] h-[158.5px] rounded-6 overflow-hidden">
+        <div className="w-[158.5px] h-[158.5px] rounded-3xl overflow-hidden">
           <Image src={preview} alt="가족 사진" fill className="object-cover" />
         </div>
       )}
