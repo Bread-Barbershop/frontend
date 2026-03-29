@@ -1,5 +1,4 @@
 'use client';
-import Script from 'next/script';
 import { useState } from 'react';
 import DaumPostcode from 'react-daum-postcode';
 import { useShallow } from 'zustand/shallow';
@@ -16,6 +15,7 @@ import { EditorBlock } from '@/shared/types/block';
 
 import { Popup } from '../popup/Popup';
 
+import { NaverMapScript } from './NaverMapScript';
 import { PlaceMap } from './PlaceMap';
 interface Props {
   blockInfo: EditorBlock<'place'>;
@@ -75,13 +75,7 @@ export function Place({ blockInfo, id }: Props) {
 
   return (
     <>
-      <Script
-        strategy="afterInteractive"
-        src={`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${process.env.NEXT_PUBLIC_MAP_KEY}&submodules=geocoder`}
-        onReady={() => {
-          setIsScriptLoaded(true);
-        }}
-      />
+      <NaverMapScript onReady={() => setIsScriptLoaded(true)} />
       <LeftEditorWrapper className="gap-4" ariaLabel="오시는 길">
         <NavigationBar>오시는 길</NavigationBar>
         <TextField
