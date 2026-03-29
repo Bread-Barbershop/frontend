@@ -20,11 +20,13 @@ export const MyFamilyPreview = ({
     blockInfo.props;
   const html =
     messageHtml ?? tiptapJsonToHtmlUniversal(messageJson ?? undefined);
+
   return (
     <MiddlePreviewWrapper
       className={className}
       enTitle="MY FAMILY"
-      koTitle={checkedTitle ? title : ''}
+      noTitle={!checkedTitle}
+      koTitle={title}
       titleClassName={titleClassName}
       childClassName="w-full flex flex-col gap-6"
     >

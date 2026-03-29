@@ -17,6 +17,7 @@ interface Props {
   onRelationChange: (index: number, value: string) => void;
   onNameChange: (index: number, e: ChangeEvent<HTMLInputElement>) => void;
   onImageChange: (index: number, value: (File | string)[]) => void;
+  onDelete: (index: number) => void;
 }
 
 export const Member = ({
@@ -26,6 +27,7 @@ export const Member = ({
   onRelationChange,
   onNameChange,
   onImageChange,
+  onDelete,
 }: Props) => {
   return (
     <div className="flex flex-col gap-2">
@@ -68,6 +70,7 @@ export const Member = ({
           multiple={false}
           value={member.image}
           onChange={value => onImageChange(index, value)}
+          onDelete={() => onDelete(index)}
         />
       )}
     </div>

@@ -1,6 +1,5 @@
 import { JSONContent } from '@tiptap/core';
-import { Plus } from 'lucide-react';
-import { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import { UtilityButton } from '@/components/atoms/button';
 import { Label } from '@/components/atoms/label/Label';
@@ -13,31 +12,9 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 import { debounce } from '@/shared/utils/debounce';
 
-import PopupOptions from '../popup/PopupOptions';
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
 import { Member } from './Member';
-import { MYFAMILY_SAMPLE_MESSAGES } from './myFamilySampleMessages';
-
-function createParagraphJson(text: string): JSONContent {
-  const lines = text.replace(/\r\n/g, '\n').split('\n');
-
-  return {
-    type: 'doc',
-    content: lines.map(line =>
-      line.length === 0
-        ? {
-            type: 'paragraph',
-            attrs: { textAlign: 'center' },
-          }
-        : {
-            type: 'paragraph',
-            attrs: { textAlign: 'center' },
-            content: [{ type: 'text', text: line }],
-          }
-    ),
-  };
-}
 
 interface Props {
   blockInfo: EditorBlock<'myFamily'>;
@@ -54,8 +31,7 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
     messageJson,
   } = blockInfo.props;
   const updateBlock = useEditorStore(state => state.updateBlock);
-  const [isSamplePopupOpen, setIsSamplePopupOpen] = useState(false);
-  const [editorResetKey, setEditorResetKey] = useState(0);
+
   const debouncedUpdateMessage = useMemo(
     () =>
       debounce((messageJson: JSONContent) => {
@@ -100,17 +76,6 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
     debouncedUpdateMessage(json);
   };
 
-  const handleSampleSelect = (text: string) => {
-    debouncedUpdateMessage.cancel();
-    const messageJson = createParagraphJson(text);
-    updateBlock(id, {
-      messageJson,
-      messageHtml: tiptapJsonToHtmlInBrowser(messageJson),
-    });
-    setEditorResetKey(prev => prev + 1);
-    setIsSamplePopupOpen(false);
-  };
-
   const handleAddFamily = () => {
     const newFamily = [...(family || []), { relation: '', name: '' }];
     updateBlock(id, { family: newFamily });
@@ -127,6 +92,14 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
     updateBlock(id, {
       family: family?.map((member, i) =>
         i === index ? { ...member, image: value } : member
+      ),
+    });
+  };
+
+  const handleImageDelete = (index: number) => {
+    updateBlock(id, {
+      family: family?.map((member, i) =>
+        i === index ? { ...member, image: [] } : member
       ),
     });
   };
@@ -169,6 +142,7 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
               onRelationChange={handleRelationChange}
               onNameChange={handleNameChange}
               onImageChange={handleImageChange}
+              onDelete={handleImageDelete}
             />
           </div>
         ))}
@@ -186,23 +160,8 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
       )}
       {checkedMessage && (
         <>
-          <NavigationBar
-            action={
-              <UtilityButton
-                size="md"
-                variant="primary"
-                onClick={() => setIsSamplePopupOpen(true)}
-              >
-                샘플문구
-                <Plus size={16} />
-              </UtilityButton>
-            }
-            direction="right"
-          >
-            내용
-          </NavigationBar>
+          <NavigationBar className="h-8">내용</NavigationBar>
           <TextEditor
-            key={`${id}-${editorResetKey}`}
             value={messageJson}
             defaultText="내용을 입력해 주세요"
             defaultAlign="center"
@@ -234,14 +193,6 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
           내용 추가
         </Checkbox>
       </section>
-      {isSamplePopupOpen && (
-        <PopupOptions
-          popupTitle="샘플 문구"
-          options={MYFAMILY_SAMPLE_MESSAGES}
-          onSelect={handleSampleSelect}
-          onClose={() => setIsSamplePopupOpen(false)}
-        />
-      )}
     </LeftEditorWrapper>
   );
 };
