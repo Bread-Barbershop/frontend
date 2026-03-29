@@ -17,5 +17,9 @@ export const videoSchema = {
       default: [] as (File | string)[],
       required: true,
     },
+    checkThumbnail: {
+      default: false,
+      required: true,
+    },
   },
 } as const;

@@ -118,7 +118,7 @@ export const MyChild = ({ blockInfo, id }: Props) => {
           className="text-center w-full"
         />
         <TextField
-          label="태명"
+          label="애칭"
           inputProps={{
             placeholder: '콩이',
             value: blockInfo.props.nickname,
