@@ -15,3 +15,5 @@ export const calendarTemplate = [
   'calendarType4',
   'calendarType5',
 ];
+
+export const shareUrlTemplate = ['shareUrlType1'];

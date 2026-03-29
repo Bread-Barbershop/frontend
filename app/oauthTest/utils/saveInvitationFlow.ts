@@ -178,14 +178,17 @@ export async function saveInvitationFlow(params: {
     concurrency: 5, // 이미지는 5장씩만 끊어서 전송.
   });
 
-  const fileToIdMap = new Map<File, string>();
-  imagesStep.final.ok.forEach(result => {
-    fileToIdMap.set(result.file, result.fileId);
+  // 매핑용 Map: File 객체 참조 -> 업로드된 fileId
+  const fileToId = new Map<File, string>();
+  imagesStep.final.ok.forEach(ok => {
+    fileToId.set(ok.file, ok.fileId);
   });
+
+  const invitationUrl = `${window.location.origin}/guest/${prep.dataJsonFileId}`;
 
   const replaceFiles = (obj: unknown): unknown => {
     if (obj instanceof File) {
-      const fileId = fileToIdMap.get(obj);
+      const fileId = fileToId.get(obj); // 기존 변수명 fileToId 사용
       if (!fileId) {
         console.warn('File not uploaded, skipping:', obj.name);
         throw new Error(`not Found Image FileId: ${obj.name}`);
@@ -205,11 +208,17 @@ export async function saveInvitationFlow(params: {
     return obj;
   };
 
-  const newData = data.map(item => ({
-    ...item,
-    props: replaceFiles(item.props) as typeof item.props,
-  }));
+  const newData = data.map(item => {
+    const updatedProps = replaceFiles(item.props) as typeof item.props;
 
+    return {
+      ...item,
+      props:
+        item.component === 'shareUrl'
+          ? { ...updatedProps, invitationUrl }
+          : updatedProps,
+    };
+  });
   // 3) 오디오 업로드(있으면)
   const audioStep = await runUploadStep({
     originFile: audio ? [{ id: 'bgm', file: audio }] : [],
@@ -275,6 +284,47 @@ export async function saveInvitationFlow(params: {
     },
     usedAccessToken: currentToken,
   };
+
+  // 5) 공유 데이터 저장 (shareUrl 블록이 있으면)
+  const shareBlock = newData.find(b => b.component === 'shareUrl');
+  if (shareBlock) {
+    try {
+      const shareProps = shareBlock.props as {
+        title: string;
+        description: string;
+        images?: (string | File)[];
+        showLocationButton: boolean;
+        showShareButton: boolean;
+      };
+
+      // 이미지 파일 ID 추출 (업로드된 Drive 파일 ID)
+      const imageFileId =
+        shareProps.images && shareProps.images.length > 0
+          ? typeof shareProps.images[0] === 'string'
+            ? shareProps.images[0]
+            : undefined
+          : undefined;
+
+      await fetch('/api/drive/shareUrl', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invitationFolderId: prep.invitationFolderId,
+          shareData: {
+            title: shareProps.title,
+            description: shareProps.description,
+            imageFileId,
+            showLocationButton: shareProps.showLocationButton,
+            showShareButton: shareProps.showShareButton,
+            invitationUrl,
+          },
+        }),
+      });
+    } catch (error) {
+      // 공유 데이터 저장 실패는 전체 저장 실패로 간주하지 않음
+      console.error('공유 데이터 저장 실패:', error);
+    }
+  }
 
   const totalFailed =
     imagesStep.final.fail.length +
