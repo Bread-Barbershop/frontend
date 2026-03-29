@@ -1,56 +1,61 @@
-import { HTMLAttributes } from 'react';
+'use client';
 
-import { PreviewTitle } from '@/components/atoms/preview-title/PreviewTitle';
+import { HTMLAttributes, useState } from 'react';
+
+import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
 import type { EditorBlock } from '@/shared/types/block';
 
-import Map from './Map';
-import Navigation from './Navigation';
+import { NaverMapScript } from './NaverMapScript';
+import { Navigation } from './Navigation';
+import { PlaceMap } from './PlaceMap';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'place'>;
+  className: string;
   titleClassName?: string;
 }
 
 export const PlacePreview = ({
   blockInfo,
-  titleClassName = '',
+  className,
+  titleClassName,
   ...rest
 }: Props) => {
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const { placeName, placeDetail, placeAddress, placeTel } = blockInfo.props;
 
   return (
-    <div {...rest}>
-      <PreviewTitle
-        enTitle="LOCATION"
-        koTitle={blockInfo.props.title}
-        className="py-6"
-        titleClassName={titleClassName}
-      />
-      <div className="px-5 flex flex-col items-center justify-center text-center gap-3.5 pb-6">
-        <section className="flex flex-col justify-center items-center text-text-primary">
-          <p className="font-semibold text-[16px]">
-            {placeName} {placeDetail}
-          </p>
-          <p className="font-semibold pb-2.5 text-sm">{placeAddress}</p>
-        </section>
-        <p className="font-normal text-text-tertiary pb-2.5">TEL. {placeTel}</p>
+    <MiddlePreviewWrapper
+      className={className}
+      titleClassName={titleClassName}
+      enTitle="LOCATION"
+      koTitle={blockInfo.props.title}
+      {...rest}
+    >
+      <NaverMapScript onReady={() => setIsScriptLoaded(true)} />
+      <section className="flex flex-col justify-center items-center text-text-primary">
+        <p className="font-semibold text-[16px]">
+          {placeName} {placeDetail}
+        </p>
+        <p className="font-semibold pb-2.5 text-sm">{placeAddress}</p>
+      </section>
+      <p className="font-normal text-text-tertiary pb-2.5">TEL. {placeTel}</p>
 
-        {blockInfo.props.openMap && (
-          <Map
-            lng={blockInfo.props.lng}
-            lat={blockInfo.props.lat}
-            category="preview"
-          />
-        )}
+      {blockInfo.props.openMap && isScriptLoaded && (
+        <PlaceMap
+          lng={blockInfo.props.lng}
+          lat={blockInfo.props.lat}
+          category="preview"
+        />
+      )}
 
-        {blockInfo.props.openNavi && (
-          <Navigation
-            lat={blockInfo.props.lat}
-            lng={blockInfo.props.lng}
-            name={blockInfo.props.placeAddress}
-          />
-        )}
-      </div>
-    </div>
+      {blockInfo.props.openNavi && (
+        <Navigation
+          lat={blockInfo.props.lat}
+          lng={blockInfo.props.lng}
+          name={blockInfo.props.placeAddress}
+        />
+      )}
+    </MiddlePreviewWrapper>
   );
 };

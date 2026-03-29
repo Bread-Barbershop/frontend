@@ -4,8 +4,10 @@ import { useShallow } from 'zustand/shallow';
 import { Label } from '@/components/atoms/label';
 import { ButtonSelector } from '@/components/molecules/button-selector/ButtonSelector';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
+import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { Picture } from '@/components/molecules/picture/Picture';
 import { TextField } from '@/components/molecules/text-field';
+import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 
@@ -17,8 +19,9 @@ interface Props {
 }
 
 function Gallery({ blockInfo, id }: Props) {
-  const { updateBlock, updateImage } = useEditorStore(
+  const { block, updateBlock, updateImage } = useEditorStore(
     useShallow(state => ({
+      block: state.block,
       updateBlock: state.updateBlock,
       updateImage: state.updateImage,
     }))
@@ -29,8 +32,15 @@ function Gallery({ blockInfo, id }: Props) {
   };
 
   const handlePictureChange = (file: (File | string)[]) => {
-    updateBlock(id, { images: file });
-    updateImage(id, file);
+    const currentBlock = block as EditorBlock<'gallery'>[];
+    const image = currentBlock.find(b => b.id === id)?.props.images;
+    updateBlock(id, { images: [...(image ?? []), ...file] });
+    updateImage(id, [...(image ?? []), ...file]);
+  };
+
+  const handlePictureDelete = (files: (File | string)[]) => {
+    updateBlock(id, { images: files });
+    updateImage(id, files);
   };
 
   const handlePopViewChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -42,11 +52,9 @@ function Gallery({ blockInfo, id }: Props) {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center gap-1 w-93.75 min-h-65">
-      <div className="px-5 py-[13.5px] w-full flex justify-center">
-        <h2 className="text-text-primary font-semibold text-sm">갤러리</h2>
-      </div>
-      <div className="px-5 w-full flex flex-col gap-1">
+    <LeftEditorWrapper ariaLabel="갤러리">
+      <NavigationBar>갤러리</NavigationBar>
+      <div className="w-full flex flex-col gap-1">
         <TextField
           label="제목"
           className="py-1.5"
@@ -70,6 +78,7 @@ function Gallery({ blockInfo, id }: Props) {
           multiple={true}
           value={blockInfo.props.images}
           onChange={file => handlePictureChange(file)}
+          onDelete={file => handlePictureDelete(file)}
         />
         {blockInfo.props.images && blockInfo.props.images?.length > 0 && (
           <ButtonSelector
@@ -86,7 +95,7 @@ function Gallery({ blockInfo, id }: Props) {
           </li>
         </ul>
       </div>
-    </div>
+    </LeftEditorWrapper>
   );
 }
 export default Gallery;

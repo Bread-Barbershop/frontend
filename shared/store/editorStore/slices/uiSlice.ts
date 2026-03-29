@@ -8,6 +8,8 @@ export const createUISlice: StateCreator<
   [],
   UISlice
 > = set => ({
+  isEdit: false,
+  setIsEdit: (isEdit: boolean) => set({ isEdit }),
   selectedId: null,
   selectedBlock: id =>
     set({

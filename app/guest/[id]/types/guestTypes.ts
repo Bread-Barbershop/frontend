@@ -1,3 +1,5 @@
+import { BulkData } from '@/shared/types/block';
+
 import type {
   SerializedImageProps,
   SerializedObjectProps,
@@ -23,9 +25,17 @@ export type GuestBgm = {
 };
 
 export type GuestPayload = {
+  bulkData: BulkJson;
   blocks: GuestBlock[];
   bgm: GuestBgm;
   mainPoster: GuestMainPosterData;
+};
+
+export type BulkJson = {
+  backgroundColor: string;
+  isEngTitle: boolean;
+  titleData: BulkData;
+  bodyData: BulkData;
 };
 
 export type GuestMainPosterData = {

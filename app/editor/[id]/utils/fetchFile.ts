@@ -3,9 +3,10 @@ import { blobToFile } from '@/shared/utils/convertToFile';
 import { AudioResponse, ImageResponse } from '../types/savedata';
 
 export const fetchImageFiles = async (
-  imageList: { id: string; name: string }[],
+  imageList: { id: string; name: string; mimeType: string }[],
   signal: AbortSignal
 ): Promise<{ id: string; file: File }[]> => {
+  if (imageList.length === 0) return [];
   const res = await fetch('/api/drive/getFileInfo', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -21,7 +22,11 @@ export const fetchImageFiles = async (
   const files = await Promise.all(
     images.map(async img => ({
       id: img.id,
-      file: await blobToFile(img),
+      file: await blobToFile({
+        name: img.name,
+        mimeType: img.mimeType,
+        dataUrl: img.dataUrl,
+      }),
     }))
   );
 
@@ -29,9 +34,10 @@ export const fetchImageFiles = async (
 };
 
 export const fetchAudioFiles = async (
-  audioList: { id: string; name: string }[],
+  audioList: { id: string; name: string; mimeType: string }[],
   signal: AbortSignal
 ): Promise<{ id: string; file: File }[]> => {
+  if (audioList.length === 0) return [];
   const res = await fetch('/api/drive/getAudioInfo', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -47,7 +53,11 @@ export const fetchAudioFiles = async (
     audios.audio.map(async audio => {
       return {
         id: audio.id,
-        file: await blobToFile(audio),
+        file: await blobToFile({
+          name: audio.name,
+          mimeType: audio.mimeType,
+          dataUrl: audio.dataUrl,
+        }),
       };
     })
   );

@@ -2,8 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 
-import LoginModal from '@/app/(home)/components/LoginModal';
-import { useAuthGate } from '@/app/(home)/components/useAuthGate';
+import LoginModal from '@/features/session/components/LoginModal';
+import { useAuthGate } from '@/features/session/hooks/useAuthGate';
 import { cn } from '@/shared/utils/cn';
 
 type CtaProps = {

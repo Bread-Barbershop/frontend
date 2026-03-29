@@ -1,9 +1,10 @@
+import { ReactNode } from 'react';
+
 import { blockRegistry } from '@/shared/data/registry/registry';
 
 import { blockSchema } from '../data/registry/block.schema';
 
 import { BlockType, PropsFromFields } from './editor';
-
 export type InvitationType =
   | 'wedding'
   | 'firstBirthday'
@@ -22,6 +23,29 @@ export type ImageArray = {
   id: string;
   file: (File | string)[];
 };
+
+export interface FontOption {
+  label: string;
+  value: string;
+}
+type TextAlignValue = 'left' | 'center' | 'right';
+export interface BulkData {
+  font: string;
+  fontSize: string;
+  color: string;
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  align: TextAlignValue;
+  isDefault: boolean;
+  charSpacing: number;
+  lineHeight: number;
+}
+
+export interface TextAlignOption {
+  label: ReactNode;
+  value: TextAlignValue;
+}
 
 export interface BlockSlice {
   block: EditorBlock[];
@@ -43,6 +67,8 @@ export interface ImageSlice {
 }
 
 export interface UISlice {
+  isEdit: boolean;
+  setIsEdit: (isEdit: boolean) => void;
   selectedId: string | null;
   selectedBlock: (id: string) => void;
   activeTab: 'text' | 'image' | 'diagram' | null;
@@ -50,12 +76,28 @@ export interface UISlice {
 }
 
 export interface DriveSlice {
+  invitationFolderId: string;
   invitationUuid: string;
   audioFolderId: string;
   imageFolderId: string;
+  setInvitationFolderId: (id: string) => void;
   setInvitationUuid: (uuid: string) => void;
   setAudioFolderId: (id: string) => void;
   setImageFolderId: (id: string) => void;
 }
+export interface BulkSlice {
+  isEngTitle: boolean;
+  titleData: BulkData;
+  bodyData: BulkData;
+  backgroundColor: string;
+  setBackgroundColor: (color: string) => void;
+  setEngTitle: (isEngTitle: boolean) => void;
+  setTitleData: (data: BulkData) => void;
+  setBodyData: (data: BulkData) => void;
+}
 
-export type EditorState = BlockSlice & ImageSlice & UISlice & DriveSlice;
+export type EditorState = BlockSlice &
+  ImageSlice &
+  UISlice &
+  DriveSlice &
+  BulkSlice;

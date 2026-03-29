@@ -17,7 +17,7 @@ export const PicturePreview = ({ src, alt, className, onDelete }: Props) => {
     <div className={cn(picturePreviewVariants(), className)}>
       <button
         type="button"
-        className="absolute top-0 right-0 z-100 flex-center rounded-full bg-black/50 w-6 h-6"
+        className="absolute top-0 right-0 z-10 flex-center rounded-full bg-black/50 w-6 h-6"
         aria-label="이미지 삭제"
         onPointerDown={e => e.stopPropagation()}
         onClick={e => {

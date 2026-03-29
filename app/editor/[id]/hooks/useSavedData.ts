@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { BODY_BULK_DATA, TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
 import { EditorBlock } from '@/shared/types/block';
 
 import { SavedData } from '../types/savedata';
@@ -21,55 +22,45 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
 
   const setImageFile = async (
     blocks: EditorBlock[],
-    imageFile: { id: string; name: string }[] | null,
+    imageFile: { id: string; name: string; mimeType: string }[] | null,
     signal: AbortSignal
   ) => {
-    if (imageFile && imageFile.length > 0) {
-      const imageFiles = await fetchImageFiles(imageFile, signal);
+    if (!imageFile || imageFile.length === 0) return blocks;
 
-      if (imageFiles.length > 0) {
-        const galleryBlock = blocks.map(block => {
-          return {
-            ...block,
-            props: {
-              ...block.props,
-              ...('images' in block.props && {
-                images: block.props.images
-                  .map(image => {
-                    return imageFiles.find(file => file.id === image)?.file;
-                  })
-                  .filter((file): file is File => file !== undefined),
-              }),
-            },
-          };
-        });
-        return galleryBlock;
-      } else {
-        const emptyImageBlock = blocks.map(block => {
-          return {
-            ...block,
-            props: {
-              ...block.props,
-              ...('images' in block.props && {
-                images: [],
-              }),
-            },
-          };
-        });
-        return emptyImageBlock;
+    const imageFiles = await fetchImageFiles(imageFile, signal);
+    const idToFileMap = new Map<string, File>();
+    imageFiles.forEach(item => idToFileMap.set(item.id, item.file));
+
+    const mapIdsToFiles = (obj: unknown): unknown => {
+      if (typeof obj === 'string') {
+        return idToFileMap.get(obj) || obj;
       }
-    } else {
-      return blocks;
-    }
+      if (Array.isArray(obj)) {
+        return obj.map(mapIdsToFiles);
+      }
+      if (obj !== null && typeof obj === 'object') {
+        const newObj: Record<string, unknown> = {};
+        for (const [key, value] of Object.entries(obj)) {
+          newObj[key] = mapIdsToFiles(value);
+        }
+        return newObj;
+      }
+      return obj;
+    };
+
+    return blocks.map(block => ({
+      ...block,
+      props: mapIdsToFiles(block.props) as typeof block.props,
+    }));
   };
 
   const setAudioFile = async (
-    audioFile: { id: string; name: string }[],
+    audioFile: { id: string; name: string; mimeType: string }[],
     signal: AbortSignal
   ) => {
     if (audioFile && audioFile.length > 0) {
       const audioFiles = await fetchAudioFiles(audioFile, signal);
-      return audioFiles[0].file;
+      return audioFiles.length > 0 ? audioFiles[0].file : null;
     } else {
       return null;
     }
@@ -88,7 +79,7 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
 
       try {
         // 1) 저장된 데이터 조회
-        const res = await fetch(`/api/drive/updateInvitaion?id=${folderId}`, {
+        const res = await fetch(`/api/drive/updateInvitation?id=${folderId}`, {
           signal: controller.signal,
         });
 
@@ -96,25 +87,36 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
 
         const data = await res.json();
 
-        if (!data || !data.config) return;
-        console.log('data', data);
-        const updatedBlocks: EditorBlock[] = data.config.blocks;
+        if (
+          !data?.config ||
+          !Array.isArray(data.config.blocks) ||
+          !data.config.bgm
+        ) {
+          throw new Error('저장 데이터 형식이 올바르지 않습니다.');
+        }
 
+        const updatedBlocks: EditorBlock[] = data.config.blocks;
+        const updatedBulkData = data.config.bulkData ?? {
+          backgroundColor: '#FFFFFF',
+          isEngTitle: true,
+          titleData: TITLE_BULK_DATA,
+          bodyData: BODY_BULK_DATA,
+        };
         const updatedBlocksWithImages = await setImageFile(
           updatedBlocks,
-          data.images.files,
+          data.images.files ?? null,
           controller.signal
         );
-        console.log('updatedBlocksWithImages', updatedBlocksWithImages);
+
         const audioFiles = await setAudioFile(
-          data.audios.files,
+          data.audios.files ?? null,
           controller.signal
         );
-        console.log('audioFiles', audioFiles);
 
         setSavedData({
+          bulkData: updatedBulkData,
           blocks: updatedBlocksWithImages,
-          mainPoster: data.mainPoster,
+          mainPoster: data.config.mainPoster,
           bgm: {
             bgmInfo: data.config.bgm,
             bgmFile: audioFiles,
@@ -128,7 +130,9 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
         setError(message);
         console.error(err);
       } finally {
-        setLoading(false);
+        if (abortRef.current === controller) {
+          setLoading(false);
+        }
       }
     };
 

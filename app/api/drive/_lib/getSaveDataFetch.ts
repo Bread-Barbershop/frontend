@@ -65,7 +65,7 @@ export async function downloadFiles(id: string): Promise<JsonData | null> {
 
     if (!listRes.ok) {
       throw new DriveHttpError(
-        '초대장 목록 조회 실패',
+        '초대장 파일 다운로드 실패',
         listRes.status,
         listData
       );
@@ -95,8 +95,14 @@ export async function getFilesInFolder(
     const url = `https://www.googleapis.com/drive/v3/files?q=${query}&fields=${fields}`;
 
     const listRes = await googleFetch(url, { cache: 'no-store' });
-
     const data = (await listRes.json()) as DriveListResponse;
+    if (!listRes.ok) {
+      throw new DriveHttpError(
+        '폴더 내 파일 목록 조회 실패',
+        listRes.status,
+        data
+      );
+    }
 
     return data; // { files: [...] }
   } catch (error) {

@@ -1,124 +1,33 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useShallow } from 'zustand/shallow';
 
-import { saveInvitationFlow } from '@/app/oauthTest/utils/saveInvitationFlow';
-import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
-import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
-import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
+import { useInvitationUpload } from '../hooks/useInvitationUpload';
 
-import SaveModal from './SaveModal';
+import { SaveModal } from './SaveModal';
 
 function UploadButton() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const tabRef = useRef<HTMLDivElement>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const { images, block, invitationUuid, imageFolderId, audioFolderId } =
-    useEditorStore(
-      useShallow(state => ({
-        images: state.images,
-        block: state.block,
-        invitationUuid: state.invitationUuid,
-        imageFolderId: state.imageFolderId,
-        audioFolderId: state.audioFolderId,
-      }))
-    );
-
-  const { exportIntersectedJSON } = useFabricContext();
-
-  const {
-    selectedBgmId,
-    isLoop,
-    volume,
-    userFile,
-    userFileName,
-    userDuration,
-    audioFileId,
-  } = useBgmStore(
-    useShallow(state => ({
-      selectedBgmId: state.selectedBgmId,
-      isLoop: state.isLoop,
-      volume: state.volume,
-      userFile: state.userFile,
-      userFileName: state.userFileName,
-      userDuration: state.userDuration,
-      audioFileId: state.audioFileId,
-    }))
-  );
-
-  const handleUpload = async () => {
-    setIsLoading(true);
-    const task = images.flatMap(item =>
-      item.file.map(file => ({ id: item.id, file }))
-    );
-
-    const bgmData = {
-      selectedBgmId: selectedBgmId ?? null,
-      isLoop,
-      volume,
-      userBgmTitle: userFileName ?? null,
-      userBgmDuration: userDuration ?? null,
-      userBgmFileId: audioFileId ?? null,
-    };
-
-    // 포스터 아예 없는 경우 여기서 처리하면 될듯
-    const mainPoster = exportIntersectedJSON() ?? {
-      version: '7.1.0',
-      objects: [],
-    };
-    if (invitationUuid === '') {
-      await saveInvitationFlow({
-        images: task as { id: string; file: File }[],
-        audio: userFile,
-        data: block,
-        bgmData, // bgm의 data 버전.
-        mainPoster,
-      });
-    } else {
-      await trashFolder();
-      await saveInvitationFlow({
-        images: task as { id: string; file: File }[],
-        audio: userFile,
-        data: block,
-        bgmData, // bgm의 data 버전.
-        mainPoster,
-        invitationUuid: invitationUuid,
-      });
-    }
-    setIsLoading(false);
-  };
-
-  const trashFolder = async () => {
-    try {
-      await Promise.all([
-        fetch(`/api/drive/deleteInvitation`, {
-          method: 'PATCH',
-          body: JSON.stringify({ folderId: imageFolderId }),
-        }),
-        fetch(`/api/drive/deleteInvitation`, {
-          method: 'PATCH',
-          body: JSON.stringify({ folderId: audioFolderId }),
-        }),
-      ]);
-      console.log('이미지 및 오디오 폴더 삭제 완료');
-    } catch (error) {
-      console.error('삭제 중 오류 발생:', error);
-    }
-  };
+  const modalRef = useRef<HTMLDivElement>(null);
+  const { handleUpload, isLoading, isFail } = useInvitationUpload();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (tabRef.current && !tabRef.current.contains(event.target as Node)) {
+      if (
+        tabRef.current &&
+        !tabRef.current.contains(event.target as Node) &&
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
         setIsModalOpen(false);
       }
     };
 
     if (isModalOpen) {
-      document.addEventListener('click', handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isModalOpen]);
 
@@ -134,7 +43,9 @@ function UploadButton() {
       >
         저장하기
       </button>
-      {isModalOpen && <SaveModal isLoading={isLoading} />}
+      {isModalOpen && (
+        <SaveModal ref={modalRef} isLoading={isLoading} isFail={isFail} />
+      )}
     </div>
   );
 }

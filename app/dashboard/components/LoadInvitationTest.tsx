@@ -128,6 +128,10 @@ export default function LoadInvitationTest() {
   };
 
   const handleUpdate = (folderId: string, uuid: string) => {
+    if (!uuid) {
+      console.warn('invitationUuid is missing');
+      return;
+    }
     router.push(`/editor/${folderId}?uuid=${uuid}`);
   };
 
@@ -235,6 +239,7 @@ export default function LoadInvitationTest() {
                       <button
                         type="button"
                         className="mt-3 w-full rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                        disabled={!invite.invitationUuid}
                         onClick={() =>
                           handleUpdate(
                             invite.folderId,

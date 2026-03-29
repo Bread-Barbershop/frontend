@@ -1,9 +1,9 @@
 import { useState } from 'react';
 
 import { PicturePopViewer } from '@/components/molecules/picture/PicturePopViewer';
+import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
 import { useResolvedImageSources } from '@/shared/hooks/useResolvedImageSources';
 import { EditorBlock } from '@/shared/types/block';
-import { cn } from '@/shared/utils/cn';
 
 import ImageCarousel from './components/ImageCarousel';
 import ImageDefault from './components/ImageDefault';
@@ -25,9 +25,9 @@ function GalleryPreview({
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  console.log('blockInfo', blockInfo);
+
   const preview = useResolvedImageSources(blockInfo.props.images);
-  console.log('preview', preview);
+
   const variant = (blockInfo.props.template ??
     'galleryType1') as GalleryVariant;
   const ratio = (blockInfo.props.ratio ?? '1:1') as RatioType;
@@ -40,40 +40,35 @@ function GalleryPreview({
   };
 
   return (
-    <div className={cn('w-full relative', className)} {...rest}>
-      <div className="flex flex-col gap-6 py-8 px-5">
-        <div className="flex-center flex-col gap-1">
-          <p className={cn(`text-text-wedding sub-title`, titleClassName)}>
-            GALLERY
-          </p>
-          <p className={cn(`text-text-wedding main-title`, titleClassName)}>
-            {blockInfo.props.title}
-          </p>
-        </div>
-        <div className="w-full ">
-          {preview.length === 0 && <ImageDefault />}
-          {preview.length !== 0 &&
-            (variant === 'galleryType1' ||
-            variant === 'galleryType2' ||
-            variant === 'galleryType3' ||
-            variant === 'galleryType4' ||
-            variant === 'galleryType5' ? (
-              <ImageCarousel
-                preview={preview}
-                variant={variant}
-                ratio={ratio}
-                imageClick={handleImageClick}
-              />
-            ) : (
-              <ImageGrid
-                variant={variant}
-                preview={preview}
-                ratio={ratio}
-                imageClick={handleImageClick}
-              />
-            ))}
-        </div>
-      </div>
+    <MiddlePreviewWrapper
+      className={className}
+      enTitle="GALLERY"
+      koTitle={blockInfo.props.title}
+      titleClassName={titleClassName}
+      {...rest}
+    >
+      {preview.length === 0 && <ImageDefault />}
+      {preview.length !== 0 &&
+        (variant === 'galleryType1' ||
+        variant === 'galleryType2' ||
+        variant === 'galleryType3' ||
+        variant === 'galleryType4' ||
+        variant === 'galleryType5' ? (
+          <ImageCarousel
+            preview={preview}
+            variant={variant}
+            ratio={ratio}
+            imageClick={handleImageClick}
+          />
+        ) : (
+          <ImageGrid
+            variant={variant}
+            preview={preview}
+            ratio={ratio}
+            imageClick={handleImageClick}
+          />
+        ))}
+
       {blockInfo.props.isPopupViewer && (
         <PicturePopViewer
           isOpen={isOpen}
@@ -85,7 +80,7 @@ function GalleryPreview({
           }}
         />
       )}
-    </div>
+    </MiddlePreviewWrapper>
   );
 }
 export default GalleryPreview;

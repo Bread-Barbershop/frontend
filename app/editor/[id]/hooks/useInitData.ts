@@ -9,11 +9,14 @@ import { SavedData } from '../types/savedata';
 export const useInitData = ({
   savedData,
   uuid,
+  invitationFolderId,
 }: {
   savedData: SavedData | null;
   uuid: string;
+  invitationFolderId: string;
 }) => {
-  const { blocks, bgm, imageFolderId, audioFolderId } = savedData || {};
+  const { bulkData, blocks, bgm, imageFolderId, audioFolderId } =
+    savedData || {};
 
   const { setSelectedBgmId, setIsLoop, setUserFile } = useBgmStore(
     useShallow(state => ({
@@ -27,17 +30,27 @@ export const useInitData = ({
     setBlock,
     updateImage,
     selectedBlock,
+    setInvitationFolderId,
     setInvitationUuid,
     setImageFolderId,
     setAudioFolderId,
+    setBodyData,
+    setTitleData,
+    setEngTitle,
+    setBackgroundColor,
   } = useEditorStore(
     useShallow(state => ({
       setBlock: state.setBlock,
       updateImage: state.updateImage,
       selectedBlock: state.selectedBlock,
+      setInvitationFolderId: state.setInvitationFolderId,
       setInvitationUuid: state.setInvitationUuid,
       setImageFolderId: state.setImageFolderId,
       setAudioFolderId: state.setAudioFolderId,
+      setBodyData: state.setBodyData,
+      setTitleData: state.setTitleData,
+      setEngTitle: state.setEngTitle,
+      setBackgroundColor: state.setBackgroundColor,
     }))
   );
 
@@ -45,7 +58,7 @@ export const useInitData = ({
     if (blocks) {
       setBlock(blocks);
       blocks.forEach(block => {
-        if ('images' in block.props) {
+        if ('images' in block.props && block.props.images instanceof Array) {
           updateImage(block.id, block.props.images);
         }
       });
@@ -59,18 +72,23 @@ export const useInitData = ({
     if (uuid) {
       setInvitationUuid(uuid);
     }
+    if (invitationFolderId) {
+      setInvitationFolderId(invitationFolderId);
+    }
     selectedBlock('mainPoster');
   }, [
     blocks,
     imageFolderId,
     audioFolderId,
     uuid,
+    invitationFolderId,
     setBlock,
     updateImage,
     setImageFolderId,
     setAudioFolderId,
     setInvitationUuid,
     selectedBlock,
+    setInvitationFolderId,
   ]);
 
   const initBgmStore = useCallback(() => {
@@ -87,8 +105,17 @@ export const useInitData = ({
     }
   }, [bgm, setUserFile, setIsLoop, setSelectedBgmId]);
 
+  const initBulkData = useCallback(() => {
+    if (bulkData) {
+      setBodyData(bulkData.bodyData);
+      setTitleData(bulkData.titleData);
+      setEngTitle(bulkData.isEngTitle);
+      setBackgroundColor(bulkData.backgroundColor);
+    }
+  }, [bulkData, setBodyData, setTitleData, setEngTitle, setBackgroundColor]);
   return {
     initEditStore,
     initBgmStore,
+    initBulkData,
   };
 };

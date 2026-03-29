@@ -14,8 +14,10 @@ import { pictureVariants } from './Picture.style';
 interface PictureProps {
   value?: (File | string)[];
   label: string;
+  labelClassName?: string;
   multiple?: boolean;
   onChange?: (files: (File | string)[]) => void;
+  onDelete?: (files: (File | string)[]) => void;
   className?: string;
   previewClassName?: string;
   inputClassName?: string;
@@ -24,8 +26,10 @@ interface PictureProps {
 export const Picture = ({
   value,
   label = '사진',
+  labelClassName,
   multiple,
   onChange,
+  onDelete,
   className,
   previewClassName,
   inputClassName,
@@ -109,16 +113,18 @@ export const Picture = ({
   };
 
   const handleRemove = (src: string) => {
-    if (!value || !onChange) return;
+    if (!value || !onDelete) return;
     const target = preview.find(p => p.src === src);
     if (!target) return;
 
     const updatedFiles = value.filter(file => file !== target.file);
-    onChange(updatedFiles);
+    onDelete(updatedFiles);
   };
   return (
     <div className={cn(pictureVariants(), className)}>
-      <Label className="font-semibold shrink-0">{label}</Label>
+      <Label className={cn('font-semibold shrink-0', labelClassName)}>
+        {label}
+      </Label>
       <SortableWrapper
         items={preview}
         onChange={items => handleMove(items)}

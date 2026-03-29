@@ -57,7 +57,7 @@ function ComponentsPopup({ onPopClose }: Props) {
   };
 
   return (
-    <div className="absolute bottom-15 -left-35 w-164 h-99.5 shadow-edit bg-white rounded-md flex flex-col gap-3">
+    <div className="absolute z-20 bottom-15 -left-35 w-164 h-99.5 shadow-edit bg-white rounded-md flex flex-col gap-3">
       <div>
         <TabArea
           active={active}

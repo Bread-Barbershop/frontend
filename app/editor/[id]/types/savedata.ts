@@ -1,6 +1,6 @@
 import { DriveListResponse } from '@/app/api/drive/_lib/getSaveDataFetch';
 import { BgmData } from '@/app/oauthTest/utils/saveInvitationFlow';
-import { EditorBlock } from '@/shared/types/block';
+import { BulkData, EditorBlock } from '@/shared/types/block';
 
 export interface BgmFile {
   bgmInfo: BgmData | null;
@@ -8,6 +8,12 @@ export interface BgmFile {
 }
 
 export interface SavedData {
+  bulkData: {
+    backgroundColor: string;
+    isEngTitle: boolean;
+    titleData: BulkData;
+    bodyData: BulkData;
+  };
   blocks: EditorBlock[];
   mainPoster: string;
   bgm: BgmFile;
@@ -16,6 +22,12 @@ export interface SavedData {
 }
 
 export interface JsonData {
+  bulkData: {
+    backgroundColor: string;
+    isEngTitle: boolean;
+    titleData: BulkData;
+    bodyData: BulkData;
+  };
   blocks: EditorBlock[]; // singular to match store
   mainPoster: string;
   bgm: BgmData;
@@ -34,26 +46,20 @@ export interface UpdateInvitationResponse extends ResponseData {
   error?: string;
 }
 
-export interface AudioFile {
+export interface FileInfo {
   id: string;
   name: string;
-  dataurl: string;
+  dataUrl: string;
   mimeType: string;
 }
 export interface AudioResponse {
-  audio: AudioFile[];
+  audio: FileInfo[];
   success: boolean;
   error?: string;
 }
 
-export interface ImageFile {
-  id: string;
-  name: string;
-  dataurl: string;
-  mimeType: string;
-}
 export interface ImageResponse {
-  images: ImageFile[];
+  images: FileInfo[];
   success: boolean;
   error?: string;
 }
