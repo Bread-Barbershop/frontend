@@ -1,8 +1,11 @@
-import { HTMLAttributes } from 'react';
+'use client';
+
+import { HTMLAttributes, useState } from 'react';
 
 import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
 import type { EditorBlock } from '@/shared/types/block';
 
+import { NaverMapScript } from './NaverMapScript';
 import { Navigation } from './Navigation';
 import { PlaceMap } from './PlaceMap';
 
@@ -18,6 +21,7 @@ export const PlacePreview = ({
   titleClassName,
   ...rest
 }: Props) => {
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const { placeName, placeDetail, placeAddress, placeTel } = blockInfo.props;
 
   return (
@@ -28,6 +32,7 @@ export const PlacePreview = ({
       koTitle={blockInfo.props.title}
       {...rest}
     >
+      <NaverMapScript onReady={() => setIsScriptLoaded(true)} />
       <section className="flex flex-col justify-center items-center text-text-primary">
         <p className="font-semibold text-[16px]">
           {placeName} {placeDetail}
@@ -36,7 +41,7 @@ export const PlacePreview = ({
       </section>
       <p className="font-normal text-text-tertiary pb-2.5">TEL. {placeTel}</p>
 
-      {blockInfo.props.openMap && (
+      {blockInfo.props.openMap && isScriptLoaded && (
         <PlaceMap
           lng={blockInfo.props.lng}
           lat={blockInfo.props.lat}
