@@ -3,7 +3,10 @@ import 'server-only';
 import { NextResponse } from 'next/server';
 
 import {
+  APP_IDENTIFIER,
   ensureShareUrlFile,
+  SHARE_URL_KIND,
+  SHARE_URL_NAME,
   ShareUrlPayload,
 } from '@/app/api/drive/_lib/ensureShareUrlFile';
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
@@ -34,44 +37,29 @@ export async function POST(req: Request) {
       );
     }
 
-    // 1) 파일 확보 (고정 파일명 kakao-share.json)
+    // 1) 파일 확보 시도 (검색만 수행)
     const { shareUrlFileId } = await ensureShareUrlFile(invitationFolderId);
 
-    // 2) 내용 업데이트
-    const uploadRes = await googleFetch(
-      `https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(
-        shareUrlFileId
-      )}?uploadType=media&supportsAllDrives=true`,
-      {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
-        body: JSON.stringify(shareData),
-      }
-    );
-
-    if (!uploadRes.ok) {
-      return NextResponse.json(
-        { ok: false, error: 'JSON 업데이트 실패' },
-        { status: 500 }
-      );
-    }
+    // 2) 파일이 없으면 새로 생성, 있으면 업데이트
+    const finalFileId = shareUrlFileId
+      ? await updateShareUrlFile(shareUrlFileId, shareData)
+      : await createShareUrlFile(invitationFolderId, shareData);
 
     // 3) kakao-share.json 공개 권한 설정
-    await publishPermissionWithRetry(shareUrlFileId);
+    await publishPermissionWithRetry(finalFileId);
 
-    // 4) 이미지 파일 공개 권한 설정 (카카오톡이 인증 없이 접근 가능해야 함)
+    // 4) 이미지 파일 공개 권한 설정
     let imagePublicUrl: string | undefined;
     if (shareData.imageFileId) {
       await publishPermissionWithRetry(shareData.imageFileId);
-      // lh3 URL은 인증 없이 바로 이미지를 응답하므로 카카오톡 호환이 가장 좋음
       imagePublicUrl = `https://lh3.googleusercontent.com/d/${shareData.imageFileId}`;
     }
 
-    const publicUrl = `https://drive.google.com/uc?export=download&id=${shareUrlFileId}`;
+    const publicUrl = `https://drive.google.com/uc?export=download&id=${finalFileId}`;
 
     return NextResponse.json({
       ok: true,
-      shareUrlFileId,
+      shareUrlFileId: finalFileId,
       publicUrl,
       imagePublicUrl,
     });
@@ -178,4 +166,73 @@ export async function GET() {
       { status: 500 }
     );
   }
+}
+
+/**
+ * 전용 헬퍼: kakao-share.json 파일 생성 (메타데이터 + 초기 데이터)
+ */
+async function createShareUrlFile(
+  invitationFolderId: string,
+  shareData: ShareUrlPayload
+): Promise<string> {
+  // 1) 파일 메타데이터 생성 (POST)
+  const metaRes = await googleFetch(
+    'https://www.googleapis.com/drive/v3/files',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: SHARE_URL_NAME,
+        mimeType: 'application/json',
+        parents: [invitationFolderId],
+        appProperties: {
+          app_id: APP_IDENTIFIER,
+          kind: SHARE_URL_KIND,
+        },
+      }),
+    }
+  );
+
+  const created = (await metaRes.json()) as { id: string };
+  if (!metaRes.ok || !created.id) {
+    throw new DriveHttpError(
+      '파일 메타데이터 생성 실패',
+      metaRes.status,
+      created
+    );
+  }
+
+  // 2) 생성된 ID에 실제 데이터 쓰기 (PATCH)
+  await updateShareUrlFile(created.id, shareData);
+  return created.id;
+}
+
+/**
+ * 전용 헬퍼: 기존 kakao-share.json 내용 업데이트
+ */
+async function updateShareUrlFile(
+  fileId: string,
+  shareData: ShareUrlPayload
+): Promise<string> {
+  const uploadRes = await googleFetch(
+    `https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(
+      fileId
+    )}?uploadType=media&supportsAllDrives=true`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+      body: JSON.stringify(shareData),
+    }
+  );
+
+  if (!uploadRes.ok) {
+    const errorData = await uploadRes.json().catch(() => ({}));
+    throw new DriveHttpError(
+      '파일 내용 업데이트 실패',
+      uploadRes.status,
+      errorData
+    );
+  }
+
+  return fileId;
 }

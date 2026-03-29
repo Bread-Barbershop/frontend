@@ -5,9 +5,9 @@ import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
 
 import { escapeDriveQueryValue } from './escapeQueryValue';
 
-const APP_IDENTIFIER = 'Bread-Barbershop';
-const SHARE_URL_NAME = 'kakao-share.json';
-const SHARE_URL_KIND = 'kakao_share_json';
+export const APP_IDENTIFIER = 'Bread-Barbershop';
+export const SHARE_URL_NAME = 'kakao-share.json';
+export const SHARE_URL_KIND = 'kakao_share_json';
 
 export type ShareUrlPayload = {
   title: string;
@@ -23,16 +23,8 @@ export type ShareUrlPayload = {
   };
 };
 
-const DEFAULT_SHARE_URL_PAYLOAD: ShareUrlPayload = {
-  title: '',
-  description: '',
-  imageFileId: undefined,
-  showLocationButton: false,
-  showShareButton: true,
-};
-
 export type EnsureShareUrlFileResult = {
-  shareUrlFileId: string;
+  shareUrlFileId: string | null;
   reused: boolean;
 };
 
@@ -90,57 +82,6 @@ export async function ensureShareUrlFile(
     return { shareUrlFileId: found[0].id, reused: true };
   }
 
-  // 2) 파일 메타데이터 생성
-  const createRes = await googleFetch(
-    'https://www.googleapis.com/drive/v3/files',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: SHARE_URL_NAME,
-        mimeType: 'application/json',
-        parents: [invitationFolderId],
-        appProperties: {
-          app_id: APP_IDENTIFIER,
-          kind: SHARE_URL_KIND,
-        },
-      }),
-    }
-  );
-
-  const created = (await createRes.json().catch(() => ({}))) as {
-    id?: string;
-    error?: unknown;
-  };
-
-  if (!createRes.ok || !created.id) {
-    throw new DriveHttpError(
-      'kakao-share.json create failed',
-      createRes.status,
-      created
-    );
-  }
-
-  // 3) 기본 페이로드 초기화
-  const initRes = await googleFetch(
-    `https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(
-      created.id
-    )}?uploadType=media&supportsAllDrives=true`,
-    {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json; charset=UTF-8' },
-      body: JSON.stringify(DEFAULT_SHARE_URL_PAYLOAD),
-    }
-  );
-
-  if (!initRes.ok) {
-    const initDetails = await initRes.json().catch(() => undefined);
-    throw new DriveHttpError(
-      'kakao-share.json default payload init failed',
-      initRes.status,
-      initDetails
-    );
-  }
-
-  return { shareUrlFileId: created.id, reused: false };
+  // 2) 파일이 없는 경우 null 반환 (생성은 호출자에게 위임)
+  return { shareUrlFileId: null, reused: false };
 }
