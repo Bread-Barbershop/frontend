@@ -42,14 +42,7 @@ export const Member = ({
             { value: '부', label: '부' },
             { value: '모', label: '모' },
           ]}
-          selected={
-            member.relation
-              ? {
-                  value: member.relation,
-                  label: member.relation,
-                }
-              : null
-          }
+          selected={{ value: member.relation, label: member.relation }}
           onSelect={option => onRelationChange(index, option.value)}
           onInputChange={value => onRelationChange(index, value)}
         />

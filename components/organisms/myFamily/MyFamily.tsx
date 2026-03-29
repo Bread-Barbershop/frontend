@@ -107,8 +107,8 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
   useEffect(() => {
     if (family && family.length > 0) return;
     const newFamily = [
-      { relation: '', name: '' },
-      { relation: '', name: '' },
+      { relation: null, name: '' },
+      { relation: null, name: '' },
     ];
     updateBlock(id, { family: newFamily });
   }, [id, family, updateBlock]);
