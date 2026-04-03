@@ -5,7 +5,7 @@ import { useShallow } from 'zustand/shallow';
 import Add from '@/shared/assets/icons/add.svg';
 import { blockRegistry } from '@/shared/data/registry/registry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
-import { PosterEditor } from '@/widgets/mainPoster/components/PosterEditor';
+import { MainPosterPreview } from '@/widgets/mainPoster/components/MainPosterPreview';
 
 import ComponentsPopup from './components/ComponentsPopup';
 import OrderPanel from './components/OrderPanel';
@@ -66,7 +66,7 @@ function Preview() {
       <div className="h-203 bg-white" style={{ backgroundColor }}>
         <div className="overflow-y-auto h-full w-93.75 box-border textarea-custom-scrollbar">
           <div className="flex flex-col justify-center min-h-full">
-            <PosterEditor />
+            <MainPosterPreview />
             {block.map(comp => {
               const registryItem = blockRegistry[comp.component];
 

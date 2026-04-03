@@ -69,7 +69,6 @@ function FontSize({ canvas, applyRichStyle, debouncedApplyStyle }: Props) {
     <Selector
       placeholder="16px"
       options={fontSize}
-      className="bg-bg-base border border-border-neutral rounded-sm w-17"
       onSelect={option => {
         const safeSize = handleNumberChange(option.value);
         const isListItem = fontSize.some(f => f.value === option.value);
@@ -88,6 +87,7 @@ function FontSize({ canvas, applyRichStyle, debouncedApplyStyle }: Props) {
         debouncedApplyStyle({ fontSize: numValue }, canvas);
       }}
       selected={selectedFontSize}
+      showCheckbox={false}
     />
   );
 }

@@ -4,7 +4,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { blockRegistry } from '@/shared/data/registry/registry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
-import Menubar from '@/widgets/mainPoster/components/Menubar';
+import { MainPoster } from '@/widgets/mainPoster/components/MainPoster';
 
 function Edit() {
   const { block, selectedId } = useEditorStore(
@@ -13,7 +13,7 @@ function Edit() {
       selectedId: state.selectedId,
     }))
   );
-  if (selectedId === 'mainPoster') return <Menubar />;
+  if (selectedId === 'mainPoster') return <MainPoster />;
 
   if (!block || !selectedId)
     return (

@@ -7,6 +7,7 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import BulkEdit from './components/BulkEdit';
 import Edit from './components/Edit';
+
 function LeftPanel() {
   const { isEdit, setIsEdit } = useEditorStore(
     useShallow(state => ({ isEdit: state.isEdit, setIsEdit: state.setIsEdit }))

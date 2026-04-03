@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import {
@@ -27,7 +26,7 @@ import { initAligningGuidelines } from '../libs/aligning-guidelines';
 import { ContextMenu } from './context-menu/ContextMenu';
 import Toolbar from './Toolbar';
 
-export const PosterEditor = () => {
+export const MainPosterPreview = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isMouseInCanvasRef = useRef(false);
 

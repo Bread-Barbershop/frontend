@@ -1,7 +1,8 @@
 import { Canvas } from 'fabric';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
+import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import BoldIcon from '@/shared/assets/icons/bold.svg';
 import CharspacingIcon from '@/shared/assets/icons/charspacing.svg';
 import ItalicIcon from '@/shared/assets/icons/italic.svg';
@@ -28,7 +29,6 @@ interface Props {
 
 function RichTextPanel({ canvas, applyRichStyle }: Props) {
   const { activeInfo } = useFabricContext();
-  const [isOpen, setIsOpen] = useState<boolean>(false);
   const debouncedApplyStyle = useMemo(
     () =>
       debounce((style: RichStyle, canvas: Canvas) => {
@@ -43,7 +43,7 @@ function RichTextPanel({ canvas, applyRichStyle }: Props) {
 
   if (!canvas) return null;
 
-  const buttons = [
+  const BUTTONS = [
     {
       id: 'bold',
       style: { fontWeight: 'bold' },
@@ -62,28 +62,15 @@ function RichTextPanel({ canvas, applyRichStyle }: Props) {
   ];
 
   return (
-    <div className="flex flex-col items-center gap-1.5 w-full p-2">
-      <NavigationBar>텍스트</NavigationBar>
+    <LeftEditorWrapper ariaLabel="폰트 편집">
+      <NavigationBar>폰트 편집</NavigationBar>
       <div className="flex w-full justify-between">
-        <FontFamily canvas={canvas} applyRichStyle={applyRichStyle} />
         <FontSize
           canvas={canvas}
           applyRichStyle={applyRichStyle}
           debouncedApplyStyle={debouncedApplyStyle}
         />
-        <FontColor canvas={canvas} applyRichStyle={applyRichStyle} />
-
-        {/* <Highlight canvas={canvas} applyRichStyle={applyRichStyle} />
-      <Stroke
-        canvas={canvas}
-        activeObject={activeObject}
-        applyRichStyle={applyRichStyle}
-        debouncedApplyStyle={debouncedApplyStyle}
-      />
-      <Shadow canvas={canvas} debouncedApplyStyle={debouncedApplyStyle} /> */}
-      </div>
-      <div className="flex flex-row w-full justify-between">
-        {buttons.map(btn => {
+        {BUTTONS.map(btn => {
           const { id, style, component } = btn;
           return (
             <button
@@ -98,30 +85,30 @@ function RichTextPanel({ canvas, applyRichStyle }: Props) {
         })}
         <button
           type="button"
-          onClick={() => setIsOpen(prev => !prev)}
           className="w-9 h-8 flex p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
         >
           <CharspacingIcon className="w-4.25 h-3.5" />
         </button>
         <TextAlign canvas={canvas} applyRichStyle={applyRichStyle} />
+
+        {/* <Highlight canvas={canvas} applyRichStyle={applyRichStyle} />
+      <Stroke
+        canvas={canvas}
+        activeObject={activeObject}
+        applyRichStyle={applyRichStyle}
+        debouncedApplyStyle={debouncedApplyStyle}
+      />
+      <Shadow canvas={canvas} debouncedApplyStyle={debouncedApplyStyle} /> */}
+      </div>
+      <div className="flex flex-row w-full justify-evenly">
+        <FontFamily canvas={canvas} applyRichStyle={applyRichStyle} />
+
+        <FontColor canvas={canvas} applyRichStyle={applyRichStyle} />
       </div>
       {/* <TextBackground canvas={canvas} applyRichStyle={applyRichStyle} /> */}
-
-      <div className="flex flex-col justify-center w-full">
-        {isOpen && (
-          <>
-            <CharSpacing
-              canvas={canvas}
-              debouncedApplyStyle={debouncedApplyStyle}
-            />
-            <LineHeight
-              canvas={canvas}
-              debouncedApplyStyle={debouncedApplyStyle}
-            />
-          </>
-        )}
-      </div>
-    </div>
+      <CharSpacing canvas={canvas} debouncedApplyStyle={debouncedApplyStyle} />
+      <LineHeight canvas={canvas} debouncedApplyStyle={debouncedApplyStyle} />
+    </LeftEditorWrapper>
   );
 }
 export default RichTextPanel;

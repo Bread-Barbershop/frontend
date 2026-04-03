@@ -15,6 +15,8 @@ interface SelectorProps<T> {
   onInputChange?: (value: string) => void;
   onSelect: (option: T | { label: string; value: string }) => void;
   selected: T | { label: string; value: string } | null;
+  /** 옵션 목록에서 체크박스(체크 아이콘) 표시 여부 */
+  showCheckbox?: boolean;
 }
 
 export const Selector = <T extends Option>({
@@ -24,6 +26,7 @@ export const Selector = <T extends Option>({
   onSelect,
   onInputChange,
   selected,
+  showCheckbox = true,
 }: SelectorProps<T>) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCustomInput, setIsCustomInput] = useState(false);
@@ -134,18 +137,23 @@ export const Selector = <T extends Option>({
             <li
               key={option.value}
               onClick={() => handleSelect(option)}
-              className="flex items-center py-1 pr-2 text-sm text-text-primary cursor-pointer hover:bg-bg-sub transition-colors"
+              className={cn(
+                'flex items-center py-1 text-sm text-text-primary cursor-pointer hover:bg-bg-sub transition-colors',
+                showCheckbox ? 'pr-2' : 'px-2'
+              )}
               role="option"
               aria-selected={selected?.value === option.value}
             >
-              <div
-                className={cn(
-                  'flex-center w-7 shrink-0 text-primary',
-                  selected?.value !== option.value && 'invisible'
-                )}
-              >
-                <Check size={12} />
-              </div>
+              {showCheckbox && (
+                <div
+                  className={cn(
+                    'flex-center w-7 shrink-0 text-primary',
+                    selected?.value !== option.value && 'invisible'
+                  )}
+                >
+                  <Check size={12} />
+                </div>
+              )}
               <span className="h-7 leading-7 text-center flex-1 truncate min-w-0 flex-center">
                 {option.label}
               </span>
