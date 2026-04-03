@@ -65,7 +65,7 @@ function Preview() {
     >
       <div className="h-203 bg-white" style={{ backgroundColor }}>
         <div className="overflow-y-auto h-full w-93.75 box-border textarea-custom-scrollbar">
-          <div className="flex flex-col justify-center min-h-full">
+          <div className="flex flex-col min-h-full">
             <MainPosterPreview />
             {block.map(comp => {
               const registryItem = blockRegistry[comp.component];

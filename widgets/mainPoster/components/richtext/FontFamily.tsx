@@ -142,6 +142,7 @@ function FontFamily({ canvas, applyRichStyle }: Props) {
           applyRichStyle({ fontFamily: option.value }, canvas);
         }}
         selected={selectedFont}
+        showCheckbox={false}
       />
     </div>
   );

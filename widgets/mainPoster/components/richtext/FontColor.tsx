@@ -1,6 +1,6 @@
 import { Canvas, Textbox } from 'fabric';
 import { ChevronDown } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 
 import { cn } from '@/shared/utils/cn';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
@@ -32,21 +32,35 @@ function FontColor({ canvas, applyRichStyle }: Props) {
   const { getRichStyles } = useFabricContext();
   const [pickerColor, setPickerColor] = useState<string | null>('black');
   const [openFontColor, setOpenFontColor] = useState<boolean>(false);
+  const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
   const activeObject = canvas?.getActiveObject() as Textbox;
+  const baseId = useId();
+  const popoverId = `color-picker-${baseId}`;
+
+  const updatePopoverPosition = () => {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      setPopoverPos({
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX,
+      });
+    }
+  };
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
-        setOpenFontColor(false);
-      }
+    const el = popoverRef.current;
+    if (!el) return;
+
+    const handleToggleEvent = (e: Event) => {
+      const toggleEvent = e as ToggleEvent;
+      setOpenFontColor(toggleEvent.newState === 'open');
+      if (toggleEvent.newState === 'open') updatePopoverPosition();
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    el.addEventListener('toggle', handleToggleEvent);
+    return () => el.removeEventListener('toggle', handleToggleEvent);
   }, []);
 
   useEffect(() => {
@@ -67,13 +81,23 @@ function FontColor({ canvas, applyRichStyle }: Props) {
     };
   }, [activeObject, getRichStyles]);
 
+  const handleToggle = () => {
+    if (openFontColor) {
+      popoverRef.current?.hidePopover();
+    } else {
+      updatePopoverPosition();
+      popoverRef.current?.showPopover();
+    }
+  };
+
   if (!canvas) return null;
+
   return (
     <section className="relative" ref={containerRef}>
       <button
         type="button"
-        className="h-8 flex justify-center items-center border border-border-neutral pl-2 bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
-        onClick={() => setOpenFontColor(prev => !prev)}
+        className="h-8 flex justify-center items-center pl-2 bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
+        onClick={handleToggle}
       >
         <ColorIcon color={pickerColor || 'black'} />
         <div
@@ -85,17 +109,27 @@ function FontColor({ canvas, applyRichStyle }: Props) {
           <ChevronDown size={12} />
         </div>
       </button>
-      {openFontColor && (
-        <div className="absolute z-9999">
-          <ColorPicker
-            onColorSelect={color => {
-              setPickerColor(color);
-              applyRichStyle({ fill: color }, canvas);
-            }}
-            selectedColor={pickerColor}
-          />
-        </div>
-      )}
+
+      <div
+        id={popoverId}
+        ref={popoverRef}
+        popover="auto"
+        className="z-9999 border-none p-0 m-0 fixed bg-transparent overflow-visible"
+        style={{
+          top: `${popoverPos.top + 4}px`,
+          left: `${popoverPos.left}px`,
+          inset: 'auto',
+        }}
+      >
+        <ColorPicker
+          onColorSelect={color => {
+            setPickerColor(color);
+            applyRichStyle({ fill: color }, canvas);
+            popoverRef.current?.hidePopover();
+          }}
+          selectedColor={pickerColor}
+        />
+      </div>
     </section>
   );
 }

@@ -68,7 +68,7 @@ function RichTextPanel({ canvas, applyRichStyle }: Props) {
         <FontSize
           canvas={canvas}
           applyRichStyle={applyRichStyle}
-          debouncedApplyStyle={debouncedApplyStyle}
+          // debouncedApplyStyle={debouncedApplyStyle}
         />
         {BUTTONS.map(btn => {
           const { id, style, component } = btn;

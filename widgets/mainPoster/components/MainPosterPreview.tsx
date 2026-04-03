@@ -58,7 +58,7 @@ export const MainPosterPreview = () => {
     if (!canvasRef.current) return;
 
     const fabricCanvas = new Canvas(canvasRef.current, {
-      width: 375,
+      width: 365,
       height: 600,
       fireRightClick: true,
       stopContextMenu: true,
@@ -206,14 +206,19 @@ export const MainPosterPreview = () => {
           setIsEdit(false);
           selectedBlock('mainPoster');
         }}
-        className={cn(
-          'relative',
-          selectedId === 'mainPoster' && 'border border-primary rounded-lg'
-        )}
+        className={cn('relative w-[365px] h-[600px] shrink-0')}
       >
+        {selectedId === 'mainPoster' && (
+          <div
+            className={cn(
+              'absolute top-0 left-0 w-full h-full border border-primary rounded-lg pointer-events-none'
+            )}
+          />
+        )}
+
         {canvas && <ContextMenu />}
-        <div className="rounded-lg overflow-hidden">
-          <canvas ref={canvasRef} className="w-full" />
+        <div className="overflow-hidden">
+          <canvas ref={canvasRef} className="w-full h-full" />
         </div>
       </div>
       {selectedId === 'mainPoster' && <Toolbar />}
