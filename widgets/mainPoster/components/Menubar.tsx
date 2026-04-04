@@ -38,7 +38,7 @@ function Menubar() {
   if (!canvas) return null;
 
   return (
-    <div className="flex flex-col pb-3.5 px-5 items-center">
+    <div className="flex flex-col pb-3.5 px-5 items-center" data-canvas="true">
       <div className="flex gap-2 pb-2.5 justify-center">
         <button
           type="button"

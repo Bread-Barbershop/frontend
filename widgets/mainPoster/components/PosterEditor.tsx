@@ -163,6 +163,22 @@ export const PosterEditor = () => {
   useEffect(() => {
     if (!canvas) return;
 
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+
+      if (!target.closest('[data-canvas="true"]')) {
+        canvas.discardActiveObject();
+        canvas.renderAll();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [canvas]);
+
+  useEffect(() => {
+    if (!canvas) return;
+
     const handleKeyboard = (e: KeyboardEvent) => {
       // 캔버스 내부에 마우스가 있거나 현재 선택된 객체가 있을 경우에만 실행
       const hasActiveObj = canvas.getActiveObjects().length > 0;
@@ -194,6 +210,11 @@ export const PosterEditor = () => {
       if (e.key === 'Delete') {
         handleDeleteShape(canvas, e);
       }
+
+      if (e.key === 'Escape') {
+        canvas.discardActiveObject();
+        canvas.renderAll();
+      }
     };
 
     window.addEventListener('keydown', handleKeyboard);
@@ -207,6 +228,7 @@ export const PosterEditor = () => {
           setIsEdit(false);
           selectedBlock('mainPoster');
         }}
+        data-canvas-safe="true"
         className={cn(
           'relative',
           selectedId === 'mainPoster' && 'border border-primary rounded-lg'
