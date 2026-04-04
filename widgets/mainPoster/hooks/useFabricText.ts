@@ -1,4 +1,7 @@
 import { Canvas, Pattern, Shadow, Textbox } from 'fabric';
+import { useCallback, useMemo } from 'react';
+
+import { debounce } from '@/shared/utils/debounce';
 
 import { LayoutStyle, RichStyle, RichStyleKey } from '../types/fabric';
 
@@ -6,6 +9,48 @@ interface Props {
   syncActiveObjectInfo?: (canvas: Canvas) => void;
   saveHistory: () => void;
 }
+
+const isLayoutStyle = (style: RichStyle): style is LayoutStyle => {
+  return (
+    'textAlign' in style ||
+    'lineHeight' in style ||
+    'charSpacing' in style ||
+    'shadow' in style
+  );
+};
+
+const getFallbackValue = (key: string) => {
+  switch (key) {
+    case 'fontWeight':
+      return 'normal';
+    case 'fontStyle':
+      return 'normal';
+    case 'underline':
+      return false;
+    case 'linethrough':
+      return false;
+    case 'stroke':
+      return null;
+    case 'strokeWidth':
+      return 0;
+    case 'textAlign':
+      return 'left';
+    case 'fill':
+      return 'black';
+    case 'textBackgroundColor':
+      return null;
+    case 'shadow':
+      return null;
+    case 'lineHeight':
+      return 1.1;
+    case 'fontSize':
+      return 16;
+    case 'charSpacing':
+      return 100;
+    default:
+      return '';
+  }
+};
 
 export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
   const createTextBox = (canvas: Canvas) => {
@@ -28,15 +73,6 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
     newTextbox.enterEditing();
     newTextbox.selectAll();
     canvas.requestRenderAll();
-  };
-
-  const isLayoutStyle = (style: RichStyle): style is LayoutStyle => {
-    return (
-      'textAlign' in style ||
-      'lineHeight' in style ||
-      'charSpacing' in style ||
-      'shadow' in style
-    );
   };
 
   const handleNumberInValidity = (styleObj: RichStyle) => {
@@ -62,96 +98,66 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
     return false;
   };
 
-  const applyRichStyle = (styleObj: RichStyle, canvas: Canvas) => {
-    const activeObject = canvas.getActiveObject() as Textbox;
-    if (!activeObject) return;
+  const applyRichStyle = useCallback(
+    (styleObj: RichStyle, canvas: Canvas) => {
+      const activeObject = canvas.getActiveObject() as Textbox;
+      if (!activeObject) return;
 
-    if (handleNumberInValidity(styleObj)) return;
+      if (handleNumberInValidity(styleObj)) return;
 
-    const isLayout = isLayoutStyle(styleObj);
-    const isSelectionPresent =
-      activeObject.selectionStart !== undefined &&
-      activeObject.selectionEnd !== undefined &&
-      activeObject.selectionStart !== activeObject.selectionEnd;
+      const isLayout = isLayoutStyle(styleObj);
+      const isSelectionPresent =
+        activeObject.selectionStart !== undefined &&
+        activeObject.selectionEnd !== undefined &&
+        activeObject.selectionStart !== activeObject.selectionEnd;
 
-    const finalStyle: RichStyle = {};
-    (Object.keys(styleObj) as Array<keyof RichStyle>).forEach(key => {
-      const nextValue = styleObj[key];
+      const finalStyle: RichStyle = {};
+      (Object.keys(styleObj) as Array<keyof RichStyle>).forEach(key => {
+        const nextValue = styleObj[key];
 
-      const currentStyle = isSelectionPresent
-        ? activeObject.getSelectionStyles(
-            activeObject.selectionStart,
-            activeObject.selectionStart + 1
-          )[0]?.[key]
-        : activeObject.get(key as keyof Textbox);
+        const currentStyle = isSelectionPresent
+          ? activeObject.getSelectionStyles(
+              activeObject.selectionStart,
+              activeObject.selectionStart + 1
+            )[0]?.[key]
+          : activeObject.get(key as keyof Textbox);
 
-      if (key === 'fontSize' || key === 'fontFamily' || isLayout) {
-        finalStyle[key] = nextValue as never;
-      } else if (currentStyle === nextValue) {
-        finalStyle[key] = getFallbackValue(key) as never;
+        if (key === 'fontSize' || key === 'fontFamily' || isLayout) {
+          finalStyle[key] = nextValue as never;
+        } else if (currentStyle === nextValue) {
+          finalStyle[key] = getFallbackValue(key) as never;
+        } else {
+          finalStyle[key] = nextValue as never;
+        }
+      });
+
+      if (isLayout) {
+        if (styleObj.shadow) {
+          activeObject.set({
+            shadow: new Shadow({
+              ...activeObject.shadow,
+              ...styleObj.shadow,
+            }),
+          });
+        } else {
+          activeObject.set(finalStyle);
+        }
       } else {
-        finalStyle[key] = nextValue as never;
+        if (isSelectionPresent) {
+          activeObject.setSelectionStyles(finalStyle);
+        } else {
+          activeObject.set(finalStyle);
+        }
       }
-    });
 
-    if (isLayout) {
-      if (styleObj.shadow) {
-        activeObject.set({
-          shadow: new Shadow({
-            ...activeObject.shadow,
-            ...styleObj.shadow,
-          }),
-        });
-      } else {
-        activeObject.set(finalStyle);
-      }
-    } else {
-      if (isSelectionPresent) {
-        activeObject.setSelectionStyles(finalStyle);
-      } else {
-        activeObject.set(finalStyle);
-      }
-    }
-
-    activeObject.dirty = true;
-    activeObject.initDimensions();
-    saveHistory();
-    canvas.requestRenderAll();
-  };
-
-  const getFallbackValue = (key: string) => {
-    switch (key) {
-      case 'fontWeight':
-        return 'normal';
-      case 'fontStyle':
-        return 'normal';
-      case 'underline':
-        return false;
-      case 'linethrough':
-        return false;
-      case 'stroke':
-        return null;
-      case 'strokeWidth':
-        return 0;
-      case 'textAlign':
-        return 'left';
-      case 'fill':
-        return 'black';
-      case 'textBackgroundColor':
-        return null;
-      case 'shadow':
-        return null;
-      case 'lineHeight':
-        return 1.1;
-      case 'fontSize':
-        return 16;
-      case 'charSpacing':
-        return 100;
-      //shadow 추가
-      default:
-        return '';
-    }
-  };
+      activeObject.dirty = true;
+      activeObject.initDimensions();
+      saveHistory();
+      canvas.requestRenderAll();
+      syncActiveObjectInfo?.(canvas);
+    },
+    [saveHistory, syncActiveObjectInfo]
+  );
 
   const getRichStyles = <T extends RichStyleKey>(
     activeObject: Textbox,
@@ -215,9 +221,18 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
     }
   };
 
+  const debouncedApplyStyle = useMemo(
+    () =>
+      debounce((style: RichStyle, canvas: Canvas) => {
+        applyRichStyle(style, canvas);
+      }, 300),
+    [applyRichStyle]
+  );
+
   return {
     createTextBox,
     applyRichStyle,
+    debouncedApplyStyle,
     getRichStyles,
     setPatternOffset,
   };

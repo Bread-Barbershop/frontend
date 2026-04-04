@@ -1,19 +1,18 @@
-import { Canvas, Textbox } from 'fabric';
+import { Textbox } from 'fabric';
 import { useEffect, useState } from 'react';
 
 import { Selector } from '@/components/molecules/selector';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 import { selectorOptions } from '@/widgets/mainPoster/types/editor';
-import { RichStyle } from '@/widgets/mainPoster/types/fabric';
 
-interface Props {
-  canvas: Canvas | null;
-  applyRichStyle: (styleObj: object, canvas: Canvas) => void;
-  debouncedApplyStyle: (style: RichStyle, canvas: Canvas) => void;
-}
-
-function FontSize({ canvas, applyRichStyle, debouncedApplyStyle }: Props) {
-  const { activeInfo, getRichStyles } = useFabricContext();
+function FontSize() {
+  const {
+    canvas,
+    activeInfo,
+    getRichStyles,
+    applyRichStyle,
+    debouncedApplyStyle,
+  } = useFabricContext();
   const activeObject = canvas?.getActiveObject() as Textbox;
   const currentFontSize =
     (activeInfo?.styles?.fontSize as string | number) || '16';

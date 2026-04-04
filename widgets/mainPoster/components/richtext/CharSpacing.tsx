@@ -1,16 +1,13 @@
-import { Canvas, Textbox } from 'fabric';
+import { Textbox } from 'fabric';
 import { useEffect, useState } from 'react';
 
 import { clamp } from '@/shared/utils/calculationUtils';
 import { parseValue } from '@/shared/utils/stringUtils';
-import { RichStyle } from '@/widgets/mainPoster/types/fabric';
 
-interface Props {
-  canvas: Canvas | null;
-  debouncedApplyStyle: (style: RichStyle, canvas: Canvas) => void;
-}
+import { useFabricContext } from '../../context/FabricContext';
 
-function CharSpacing({ canvas, debouncedApplyStyle }: Props) {
+function CharSpacing() {
+  const { canvas, debouncedApplyStyle } = useFabricContext();
   const activeObject = canvas?.getActiveObject() as Textbox | null;
 
   const [value, setValue] = useState<number>(0);

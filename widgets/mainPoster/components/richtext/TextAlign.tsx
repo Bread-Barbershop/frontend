@@ -1,4 +1,3 @@
-import { Canvas } from 'fabric';
 import { ReactNode } from 'react';
 
 import AlignCenterIcon from '@/shared/assets/icons/alignCenter.svg';
@@ -11,11 +10,10 @@ type alignOptionMobile = {
   style: { textAlign: 'left' | 'center' | 'right' };
 };
 
-interface Props {
-  canvas: Canvas | null;
-  applyRichStyle: (styleObj: object, canvas: Canvas) => void;
-}
-function TextAlign({ canvas, applyRichStyle }: Props) {
+import { useFabricContext } from '../../context/FabricContext';
+
+function TextAlign() {
+  const { canvas, applyRichStyle } = useFabricContext();
   const alignOptionsMobile: alignOptionMobile[] = [
     {
       child: <AlignLeftIcon className="w-4.25 h-3.5" />,

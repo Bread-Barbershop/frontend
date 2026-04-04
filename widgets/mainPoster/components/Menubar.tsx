@@ -15,7 +15,7 @@ function Menubar() {
       activeTab: state.activeTab,
     }))
   );
-  const { canvas, applyRichStyle } = useFabricContext();
+  const { canvas } = useFabricContext();
 
   const handleExportJSON = () => {
     if (!canvas) return;
@@ -55,11 +55,9 @@ function Menubar() {
           Import JSON
         </button>
       </div>
-      <History canvas={canvas} />
+      <History />
       {/* 텍스트 */}
-      {activeTab === 'text' && (
-        <RichTextPanel canvas={canvas} applyRichStyle={applyRichStyle} />
-      )}
+      {activeTab === 'text' && <RichTextPanel />}
 
       {/* 이미지 */}
       {activeTab === 'image' && <ImagePanel />}
