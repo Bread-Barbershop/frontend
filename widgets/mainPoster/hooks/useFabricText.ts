@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react';
 
 import { debounce } from '@/shared/utils/debounce';
 
-import { LayoutStyle, RichStyle, RichStyleKey } from '../types/fabric';
+import { LayoutStyle, RichStyle, RichStyleKey, TextboxWithLock } from '../types/fabric';
 
 interface Props {
   syncActiveObjectInfo?: (canvas: Canvas) => void;
@@ -100,9 +100,8 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
 
   const applyRichStyle = useCallback(
     (styleObj: RichStyle, canvas: Canvas) => {
-      const activeObject = canvas.getActiveObject() as Textbox;
-      if (!activeObject) return;
-
+      const activeObject = canvas.getActiveObject() as TextboxWithLock;
+      if (!activeObject || activeObject.isLocked) return;
       if (handleNumberInValidity(styleObj)) return;
 
       const isLayout = isLayoutStyle(styleObj);
