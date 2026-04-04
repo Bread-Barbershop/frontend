@@ -166,14 +166,14 @@ export const PosterEditor = () => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
 
-      if (!target.closest('[data-canvas="true"]')) {
-        canvas.discardActiveObject();
-        canvas.renderAll();
-      }
+      if (target.closest('[data-canvas="true"]')) return;
+
+      canvas.discardActiveObject();
+      canvas.renderAll();
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
   }, [canvas]);
 
   useEffect(() => {
