@@ -30,7 +30,7 @@ const ratioVariants = cva('', {
 });
 
 export const VideoPreview = ({ blockInfo, className, ...rest }: Props) => {
-  const { image, videoUrl, title, ratio } = blockInfo.props;
+  const { image, videoUrl, title, ratio, checkThumbnail } = blockInfo.props;
   const [isPlaying, setIsPlaying] = useState(false);
 
   const preview = useResolvedImageSources(image);
@@ -45,7 +45,15 @@ export const VideoPreview = ({ blockInfo, className, ...rest }: Props) => {
           ratioVariants({ ratio: ratio as RatioType })
         )}
       >
-        {isPlaying && (
+        {!embedUrl ? (
+          /* 1. 영상 URL이 없는 경우 */
+          <div className="absolute inset-0 flex items-center justify-center bg-border-neutral">
+            <p className="text-text-secondary text-sm">
+              영상을 업로드해 주세요.
+            </p>
+          </div>
+        ) : !checkThumbnail ? (
+          /* 2. 썸네일 사용 안 함 -> 바로 영상 노출 */
           <iframe
             src={embedUrl as string}
             className="absolute inset-0 w-full h-full border-0"
@@ -53,36 +61,39 @@ export const VideoPreview = ({ blockInfo, className, ...rest }: Props) => {
             allowFullScreen
             title="동영상 플레이어"
           />
-        )}
-        {!isPlaying && (
+        ) : !thumbnail ? (
+          /* 3. 썸네일 사용함 + 썸네일 이미지 없음 */
+          <div className="absolute inset-0 flex items-center justify-center bg-border-neutral border border-dashed border-border-divider rounded-lg">
+            <p className="text-text-secondary text-sm">
+              썸네일을 업로드해 주세요.
+            </p>
+          </div>
+        ) : isPlaying ? (
+          /* 4. 썸네일 사용함 + 재생 중 */
+          <iframe
+            src={embedUrl as string}
+            className="absolute inset-0 w-full h-full border-0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            title="동영상 플레이어"
+          />
+        ) : (
+          /* 5. 썸네일 사용함 + 재생 전 (썸네일 노출) */
           <button
             type="button"
-            disabled={!thumbnail || !embedUrl}
-            className={cn(
-              'absolute inset-0 w-full h-full',
-              thumbnail && embedUrl && 'cursor-pointer'
-            )}
-            onClick={() => thumbnail && embedUrl && setIsPlaying(true)}
+            className="absolute inset-0 w-full h-full cursor-pointer group"
+            onClick={() => setIsPlaying(true)}
             title="동영상 재생하기"
           >
-            {thumbnail && embedUrl && (
-              <>
-                <Image
-                  src={thumbnail}
-                  alt="동영상 썸네일"
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors">
-                  <Play size={48} color={ThemeColor} />
-                </div>
-              </>
-            )}
-            {(!thumbnail || !embedUrl) && (
-              <div className="absolute inset-0 flex items-center justify-center bg-border-neutral">
-                <p className="text-text-secondary">영상을 업로드해 주세요.</p>
-              </div>
-            )}
+            <Image
+              src={thumbnail}
+              alt="동영상 썸네일"
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors">
+              <Play size={48} color={ThemeColor} />
+            </div>
           </button>
         )}
       </div>

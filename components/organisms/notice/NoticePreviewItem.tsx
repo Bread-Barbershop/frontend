@@ -26,6 +26,13 @@ export const NoticePreviewItem = ({
 
   return (
     <div className="w-65 flex flex-col gap-4 overflow-hidden">
+      {!preview && (
+        <div className="h-25 overflow-hidden rounded-3xl flex flex-col justify-center items-center bg-border-neutral">
+          <p className="text-sm text-center select-none">
+            사진을 추가해 주세요.
+          </p>
+        </div>
+      )}
       {preview && (
         <div className="h-25 overflow-hidden rounded-3xl">
           <Image

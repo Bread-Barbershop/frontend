@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 import { Button } from '@/components/atoms/button';
@@ -21,7 +20,7 @@ interface Props {
 const ratioOptions = ['1:1', '3:4', '4:3', '9:16', '16:9'];
 
 export const Video = ({ blockInfo, id }: Props) => {
-  const [openThumbnail, setOpenThumbnail] = useState(false);
+  const { title, videoUrl, checkThumbnail } = blockInfo.props;
   const { updateBlock, updateImage } = useEditorStore(
     useShallow(state => ({
       updateBlock: state.updateBlock,
@@ -39,8 +38,6 @@ export const Video = ({ blockInfo, id }: Props) => {
     updateBlock(id, { image: [] });
     updateImage(id, []);
   };
-
-  const { title, videoUrl } = blockInfo.props;
   return (
     <LeftEditorWrapper className="gap-4" ariaLabel="동영상">
       <NavigationBar>동영상</NavigationBar>
@@ -71,7 +68,8 @@ export const Video = ({ blockInfo, id }: Props) => {
               variant="bordered"
               type="button"
               className={cn(
-                ratio === blockInfo.props.ratio && 'border-primary'
+                ratio === blockInfo.props.ratio && 'border-primary',
+                'w-12'
               )}
               onClick={() => handleUpdateBlock('ratio', ratio)}
             >
@@ -82,11 +80,17 @@ export const Video = ({ blockInfo, id }: Props) => {
       </section>
       <section className="flex gap-2 w-full">
         <Label className="text-center font-semibold">추가기능</Label>
-        <Checkbox onClick={() => setOpenThumbnail(prev => !prev)}>
+        <Checkbox
+          checked={checkThumbnail}
+          onChange={e => {
+            const checked = e.target.checked;
+            handleUpdateBlock('checkThumbnail', checked);
+          }}
+        >
           썸네일 이미지 추가
         </Checkbox>
       </section>
-      {openThumbnail && (
+      {checkThumbnail && (
         <Picture
           label="썸네일"
           className="w-full"

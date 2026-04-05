@@ -3,7 +3,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { cn } from '@/shared/utils/cn';
 
 interface Props {
-  date: string; // ISO format
+  date: string;
   time?: string;
 }
 
@@ -19,8 +19,6 @@ export function DDayCountdown({ date, time }: Props) {
     minutes: 0,
     seconds: 0,
   });
-
-  const [targetName] = useState('000 · 000'); // TODO: 신랑 신부 이름 적용
 
   // 1. 목표 날짜(Target Date) 객체를 date와 time이 변경될 때만 한 번 계산
   const targetDate = useMemo(() => {
@@ -119,7 +117,7 @@ export function DDayCountdown({ date, time }: Props) {
         </div>
       </div>
       <div className="text-[#8e8e8e] text-sm tracking-tight font-medium w-full text-center">
-        {targetName}의 결혼식이 {timeLeft.days}일 남았습니다.
+        {timeLeft.days}일 남았습니다.
       </div>
     </div>
   );

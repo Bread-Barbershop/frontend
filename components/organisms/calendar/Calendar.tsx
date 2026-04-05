@@ -10,6 +10,8 @@ import { TimeSelector } from '@/components/molecules/time-selector';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 
+import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
+
 import { addHyphenToDate } from './utils/utils';
 
 interface Props {
@@ -69,9 +71,9 @@ export function Calendar({ blockInfo, id }: Props) {
   );
 
   return (
-    <div className="flex flex-col justify-center items-center gap-1">
+    <LeftEditorWrapper ariaLabel="행사 일시">
       <NavigationBar>행사 일시</NavigationBar>
-      <div className="px-5 w-full flex flex-col gap-3">
+      <div className="w-full flex flex-col gap-3">
         <TextField
           label="예식일"
           inputProps={{
@@ -85,7 +87,7 @@ export function Calendar({ blockInfo, id }: Props) {
           <Label>예식시간</Label>
           <div className="flex-1">
             <TimeSelector
-              value={blockInfo.props.time || '오후 12:00'}
+              value={blockInfo.props.time}
               onChange={handleTimeChange}
             />
           </div>
@@ -107,6 +109,6 @@ export function Calendar({ blockInfo, id }: Props) {
           </Checkbox>
         </div>
       </div>
-    </div>
+    </LeftEditorWrapper>
   );
 }

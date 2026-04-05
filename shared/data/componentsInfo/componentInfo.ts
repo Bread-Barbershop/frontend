@@ -20,7 +20,6 @@ export const weddingComponents: ListType[] = [
   { contents: '예식일시', component: 'calendar', isType: false },
   { contents: '예식장소', component: 'place', isType: false },
   { contents: '갤러리', component: 'gallery', isType: true },
-  // { contents: '달력', component: 'calendar', isType: true },
   { contents: '연락처', component: 'phone', isType: false },
   { contents: '배경음악', component: 'bgm', isType: false },
   { contents: '계좌번호', component: 'account', isType: false },
@@ -31,14 +30,13 @@ export const weddingComponents: ListType[] = [
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: null, isType: false },
   { contents: '세례명', component: null, isType: false },
-  { contents: 'URL공유 썸네일', component: null, isType: false },
-  { contents: '카카오초대장 썸네일', component: null, isType: false },
+  { contents: '공유 썸네일', component: 'shareUrl', isType: false },
 ];
 export const firstBirthdayComponents: ListType[] = [
   { contents: '인사말', component: 'greeting', isType: false },
+  { contents: '행사일시', component: 'calendar', isType: false },
   { contents: '아기소개', component: 'myChild', isType: false },
   { contents: '가족소개', component: 'myFamily', isType: false },
-  { contents: '행사일시', component: 'calendar', isType: false },
   { contents: '행사장소', component: 'place', isType: false },
   { contents: '갤러리', component: 'gallery', isType: true },
   { contents: '연락처', component: 'phone', isType: false },
@@ -50,8 +48,7 @@ export const firstBirthdayComponents: ListType[] = [
   { contents: '공지사항', component: 'notice', isType: false },
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: null, isType: false },
-  { contents: 'URL공유 썸네일', component: null, isType: false },
-  { contents: '카카오초대장 썸네일', component: null, isType: false },
+  { contents: '공유 썸네일', component: 'shareUrl', isType: false },
 ];
 export const birthdayComponents: ListType[] = [
   { contents: '인사말', component: 'greeting', isType: false },
@@ -64,8 +61,7 @@ export const birthdayComponents: ListType[] = [
   { contents: '공지사항', component: 'notice', isType: false },
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: null, isType: false },
-  { contents: 'URL공유 썸네일', component: null, isType: false },
-  { contents: '카카오초대장 썸네일', component: null, isType: false },
+  { contents: '공유 썸네일', component: 'shareUrl', isType: false },
 ];
 export const conferenceComponents: ListType[] = [
   { contents: '인사말', component: 'greeting', isType: false },
@@ -79,8 +75,7 @@ export const conferenceComponents: ListType[] = [
   { contents: '연락처', component: 'phone', isType: false },
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: null, isType: false },
-  { contents: 'URL공유 썸네일', component: null, isType: false },
-  { contents: '카카오초대장 썸네일', component: null, isType: false },
+  { contents: '공유 썸네일', component: 'shareUrl', isType: false },
 ];
 export const etcComponents: ListType[] = [
   { contents: '인사말', component: 'greeting', isType: false },
@@ -90,8 +85,7 @@ export const etcComponents: ListType[] = [
   { contents: '연락처', component: 'phone', isType: false },
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: null, isType: false },
-  { contents: 'URL공유 썸네일', component: null, isType: false },
-  { contents: '카카오초대장 썸네일', component: null, isType: false },
+  { contents: '공유 썸네일', component: 'shareUrl', isType: false },
 ];
 
 export const componentCls: SampleDataType[] = [

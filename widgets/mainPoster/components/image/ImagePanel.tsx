@@ -12,8 +12,14 @@ import { AspectRatioSelector } from './AspectRatioSelector';
 import { ImageFilterSelector } from './ImageFilterSelector';
 
 export const ImagePanel = () => {
-  const { canvas, applyImageFilter, addImage, startCrop, activeInfo } =
-    useFabricContext();
+  const {
+    canvas,
+    applyImageFilter,
+    addImage,
+    startCrop,
+    activeInfo,
+    compressImage,
+  } = useFabricContext();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [imageSrc, setImageSrc] = useState('');
@@ -101,9 +107,12 @@ export const ImagePanel = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = e => {
-      const url = e.target?.result as string;
-      if (canvas) addImage(url, canvas);
+    reader.onload = async e => {
+      const base64 = e.target?.result as string;
+
+      const compressed = await compressImage(base64);
+
+      if (canvas) addImage(compressed, canvas);
     };
     reader.readAsDataURL(file);
   };

@@ -1,4 +1,4 @@
-﻿import { ChevronDown, Check } from 'lucide-react';
+import { ChevronDown, Check } from 'lucide-react';
 import React, { useState, useRef, useEffect, ChangeEvent } from 'react';
 
 import { cn } from '@/shared/utils/cn';
@@ -30,6 +30,9 @@ export const Selector = <T extends Option>({
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // 실제 값이 있는지 확인 (객체 내부의 value나 label 체크)
+  const hasValue = !!(selected?.value || selected?.label);
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     onInputChange?.(e.target.value);
     onSelect({ label: e.target.value, value: e.target.value });
@@ -48,6 +51,13 @@ export const Selector = <T extends Option>({
     setIsOpen(false);
     onSelect({ label: '', value: '' });
   };
+
+  const currentSelectedValue = selected?.value;
+  const isOptionValue = options.some(opt => opt.value === currentSelectedValue);
+
+  if (isCustomInput && currentSelectedValue && isOptionValue) {
+    setIsCustomInput(false);
+  }
 
   useEffect(() => {
     if (isCustomInput) {
@@ -74,16 +84,16 @@ export const Selector = <T extends Option>({
       <div
         className={cn(
           'flex items-center justify-between w-full text-sm transition-all overflow-hidden',
-          selected ? 'bg-bg-base' : 'bg-border-neutral',
+          hasValue || isCustomInput ? 'bg-bg-base' : 'bg-border-neutral',
           isOpen ? 'rounded-t-lg border-b-transparent' : 'rounded-lg'
         )}
       >
-        {isCustomInput && typeof selected?.label === 'string' ? (
+        {isCustomInput ? (
           <input
             ref={inputRef}
             type="text"
             className="w-full h-9 px-2 bg-transparent outline-none text-text-primary text-sm"
-            value={selected?.label || ''}
+            value={typeof selected?.label === 'string' ? selected.label : ''}
             onChange={handleInputChange}
             onBlur={() => {
               if (!selected?.label) setIsCustomInput(false);
@@ -99,7 +109,7 @@ export const Selector = <T extends Option>({
             aria-expanded={isOpen}
           >
             <span className="h-7 leading-7 text-center text-text-primary truncate flex-1 flex-center min-w-0">
-              {selected ? selected.label : placeholder}
+              {hasValue ? selected?.label : placeholder}
             </span>
 
             <div
