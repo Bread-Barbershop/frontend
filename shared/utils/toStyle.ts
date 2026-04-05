@@ -8,7 +8,7 @@ export const toStyle = (
   isEng?: boolean
 ): React.CSSProperties => ({
   fontSize: isEng ? '13px' : data.fontSize,
-  // fontFamily: data.fontFamily === 'default' ? undefined : data.fontFamily,
+  fontFamily: data.font.startsWith('font-') ? `var(--${data.font})` : undefined,
   fontWeight: data.bold ? '700' : isTitle ? '500' : '400',
   fontStyle: data.italic ? 'italic' : 'normal',
   textDecoration: data.underline ? 'underline' : 'none',

@@ -32,7 +32,7 @@ function TitleEdit() {
   const handleEngTitle = (e: ChangeEvent<HTMLInputElement>) => {
     setBulkIsEngTitle(e.target.checked);
   };
-
+  console.log(bulkTitleData);
   return (
     <div className="w-full">
       <div className="w-full">
@@ -54,7 +54,9 @@ function TitleEdit() {
           제목 편집
         </NavigationBar>
         <TextEditorPreview value={bulkTitleData} onChange={setBulkTitleData}>
-          <div className="w-full h-full flex flex-col gap-1">
+          <div
+            className={`w-full h-full flex flex-col gap-1 ${bulkTitleData.font}`}
+          >
             {bulkIsEngTitle && (
               <p
                 className="sub-title"

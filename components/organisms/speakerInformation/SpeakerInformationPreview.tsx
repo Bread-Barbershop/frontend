@@ -9,7 +9,7 @@ import { InformationPreview } from './InformationPreview';
 interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'speakerInformation'>;
   className: string;
-  titleClassName: string;
+  titleClassName?: string;
 }
 export const SpeakerInformationPreview = ({
   blockInfo,

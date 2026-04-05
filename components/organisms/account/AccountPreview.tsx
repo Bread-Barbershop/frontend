@@ -8,7 +8,7 @@ import { GroupPreview } from './preview/GroupPreview';
 
 interface Props {
   blockInfo: EditorBlock<'account'>;
-  titleClassName: string;
+  titleClassName?: string;
   className?: string;
 }
 

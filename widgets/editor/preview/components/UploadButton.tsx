@@ -13,6 +13,7 @@ function UploadButton() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
+        !isLoading &&
         tabRef.current &&
         !tabRef.current.contains(event.target as Node) &&
         modalRef.current &&
@@ -29,7 +30,7 @@ function UploadButton() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isModalOpen]);
+  }, [isModalOpen, isLoading]);
 
   return (
     <div ref={tabRef}>

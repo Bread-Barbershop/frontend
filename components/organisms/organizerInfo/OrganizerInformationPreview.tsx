@@ -10,7 +10,7 @@ import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
 interface Props {
   blockInfo: EditorBlock<'organizerInformation'>;
   className: string;
-  titleClassName: string;
+  titleClassName?: string;
 }
 
 export const OrganizerInformationPreview = ({
