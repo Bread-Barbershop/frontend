@@ -13,6 +13,7 @@
 - 1.  **definition** 파일을 만듭니다. (컴포넌트 연결)
   - **예시**: [Gallery.definition.ts](file:///c:/Users/tampl/Desktop/frontend/components/organisms/gallery/Gallery.definition.ts)
 - 2.  **schema** 파일을 만듭니다. (데이터 구조 및 기본값)
+  - schema는 타입추론에 사용되고 required를 false로 설정하면 타입추론 시 옵셔널로 사용할 수 있게 됩니다.
   - **예시**: [Gallery.schema.ts](file:///c:/Users/tampl/Desktop/frontend/components/organisms/gallery/Gallery.schema.ts)
   - 타입(Template)이 필요한 경우 [shared/data/template/componentTemplate.ts](file:///c:/Users/tampl/Desktop/frontend/shared/data/template/componentTemplate.ts)에 먼저 정의합니다.
   - **주의**: scheme에 값을 넣을 때, 필수로 값이 필요한 경우 `required: true`로 설정하고, 기본값을 설정하지 않으면 `required: false`로 설정해야 합니다. 이 값은 타입 추론 시 옵셔널로 사용할 수 있게하는 역할을 합니다.
@@ -27,8 +28,11 @@
 
 **Store 수정 시 주의 사항**
 
-- `useEditorStore.ts`에서 `blockSlice`, `imageSlice`, `uiSlice`를 분리했습니다.
-- 각각 block컴포넌트의 CRUD, image컴포넌트의 데이터 관리, ui의 상태 관리를 담당합니다.
+- `useEditorStore.ts`에서 `blockSlice`, `imageSlice`, `uiSlice`, `bulkSlice`, `driveSlice`를 분리했습니다.
+- 각각 block컴포넌트의 CRUD, image컴포넌트의 데이터 관리, ui의 상태 관리, 일괄편집 상태관리, GoogleDrive 상태관리를 담당합니다.
+- 이미지 파일은 blockSlice와 imageSlice에 각각 데이터를 관리합니다. => 모두 넣지 않으면 업로드시 에러가 납니다.
+  - blockSlice: block의 데이터 관리
+  - imageSlice: 초대장 전체 이미지 관리(컴포넌트 id와 매핑)
 - **주요 타입 정의**: 전체 스토어 상태(`EditorState`) 및 각 슬라이스의 인터페이스는 [shared/types/block.ts](file:///c:/Users/tampl/Desktop/frontend/shared/types/block.ts)에서 관리합니다. 새로운 기능을 추가할 때 해당 파일의 타입을 먼저 업데이트해 주세요.
 
 **Preview와 Edit 컴포넌트 데이터 동기화 가이드**
@@ -38,6 +42,8 @@
   - `className`: 컴포넌트의 가변적인 스타일을 정의합니다.
   - `titleClassName`: 컴포넌트 제목의 색상 등을 정의합니다.
   - `onClick`: 에디터에서 컴포넌트를 클릭했을 때 선택 상태로 만들기 위한 함수입니다. 컴포넌트 최상단 div에 적용해 주세요.
+  - MiddlePreviewWrapper를 사용하여 초기 템플릿 간격과 제목을 설정할 수 있습니다.
 - **Edit**의 경우 `blockInfo`, `id`를 Props로 받아야 합니다.
   - `blockInfo`: 현재 선택된 블록의 데이터를 정의합니다.
   - `id`: 데이터를 업데이트할 때 식별자로 사용합니다.
+  - LeftEditorWrapper를 사용하여 초기 템플릿 간격을 설정할 수 있습니다.

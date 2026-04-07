@@ -1,7 +1,7 @@
 import { BulkData } from '@/shared/types/block';
 
 export const TITLE_BULK_DATA: BulkData = {
-  font: '',
+  font: 'font-pretendard',
   fontSize: '14px',
   color: '#000000',
   bold: false,
@@ -13,7 +13,7 @@ export const TITLE_BULK_DATA: BulkData = {
   lineHeight: 0,
 };
 export const BODY_BULK_DATA: BulkData = {
-  font: '',
+  font: 'font-pretendard',
   fontSize: '14px',
   color: '#000000',
   bold: false,

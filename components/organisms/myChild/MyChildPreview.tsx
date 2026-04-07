@@ -7,7 +7,7 @@ import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
 
 interface Props {
   className: string;
-  titleClassName: string;
+  titleClassName?: string;
   blockInfo: EditorBlock<'myChild'>;
 }
 
@@ -15,6 +15,7 @@ export const MyChildPreview = ({
   className,
   titleClassName,
   blockInfo,
+  ...rest
 }: Props) => {
   const { title, name, nickname, birthday, image } = blockInfo.props;
   const html =
@@ -31,6 +32,7 @@ export const MyChildPreview = ({
       koTitle={title}
       titleClassName={titleClassName}
       childClassName="w-full flex flex-col gap-6"
+      {...rest}
     >
       {preview && (
         <div className="w-83.75 h-83.75 overflow-hidden rounded-3xl">

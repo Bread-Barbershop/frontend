@@ -10,7 +10,7 @@ import { PosterEditor } from '@/widgets/mainPoster/components/PosterEditor';
 import ComponentsPopup from './components/ComponentsPopup';
 import OrderPanel from './components/OrderPanel';
 import UploadButton from './components/UploadButton';
-import { previewTitleVariants } from './previewTitle.style';
+// import { previewTitleVariants } from './previewTitle.style';
 
 function Preview() {
   const [isTab, setIsTab] = useState(false);
@@ -75,7 +75,7 @@ function Preview() {
               const View = registryItem.viewComponent as React.ComponentType<{
                 blockInfo: typeof comp;
                 className: string;
-                titleClassName: string;
+                // titleClassName: string;
                 onClick: () => void;
               }>;
               return (
@@ -88,9 +88,9 @@ function Preview() {
                   <View
                     blockInfo={comp}
                     className={`${selectedId === comp.id ? 'border border-primary rounded-lg' : ''}`}
-                    titleClassName={previewTitleVariants({
-                      variant: comp.type,
-                    })}
+                    // titleClassName={previewTitleVariants({
+                    //   variant: comp.type,
+                    // })}
                     onClick={() => {
                       selectedBlock(comp.id);
                       setIsEdit(false);

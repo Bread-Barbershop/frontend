@@ -35,9 +35,10 @@ const FONT_SIZE_OPTIONS: FontOption[] = [
 ];
 const FONT_FAMILY_OPTIONS: FontOption[] = [
   { label: '폰트변경', value: 'default' },
-  { label: 'Pretendard', value: 'Pretendard' },
-  { label: 'Noto Sans', value: 'Noto Sans' },
-  { label: 'Inter', value: 'Inter' },
+  { label: 'Pretendard', value: 'font-pretendard' },
+  { label: 'Noto Sans', value: 'font-noto-kr' },
+  { label: 'Inter', value: 'font-inter' },
+  { label: '마루부리', value: 'font-maruburi' },
 ];
 
 const TEXT_ALIGN_OPTIONS: TextAlignOption[] = [

@@ -10,7 +10,7 @@ import type { HTMLAttributes } from 'react';
 interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'notice'>;
   className: string;
-  titleClassName: string;
+  titleClassName?: string;
 }
 
 export const NoticePreview = ({

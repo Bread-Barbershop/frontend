@@ -10,7 +10,7 @@ import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
 interface Props {
   blockInfo: EditorBlock<'sponsorshipInfomation'>;
   className: string;
-  titleClassName: string;
+  titleClassName?: string;
   onClick: () => void;
 }
 

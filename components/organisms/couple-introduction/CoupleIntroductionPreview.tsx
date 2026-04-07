@@ -18,7 +18,7 @@ function pickResolvableImageSource(value: unknown): ResolvableImageSource {
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'coupleIntroduction'>;
-  titleClassName: string;
+  titleClassName?: string;
 }
 
 function CoupleIntroductionPreview({

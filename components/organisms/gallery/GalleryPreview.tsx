@@ -13,7 +13,7 @@ import { GalleryVariant, RatioType } from './types/galleryType';
 interface Props {
   blockInfo: EditorBlock<'gallery'>;
   className: string;
-  titleClassName: string;
+  titleClassName?: string;
   onClick: () => void;
 }
 
