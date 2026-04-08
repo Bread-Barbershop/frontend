@@ -1,1 +1,3 @@
-export type selectorOptions = { label: string; value: string };
+import { ReactNode } from 'react';
+
+export type selectorOptions = { label: string | ReactNode; value: string };

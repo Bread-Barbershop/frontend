@@ -1,12 +1,14 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect } from 'react';
 
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
+import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import BoldIcon from '@/shared/assets/icons/bold.svg';
 import CharspacingIcon from '@/shared/assets/icons/charspacing.svg';
 import ItalicIcon from '@/shared/assets/icons/italic.svg';
 import UnderlineIcon from '@/shared/assets/icons/underline.svg';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
-import { RichStyle } from '@/widgets/mainPoster/types/fabric';
+
+import { RichStyle } from '../../types/fabric';
 
 import CharSpacing from './CharSpacing';
 import FontColor from './FontColor';
@@ -19,9 +21,14 @@ import TextAlign from './TextAlign';
 // import Stroke from './Stroke';
 // import Highlight from './Highlight';
 
-function RichTextPanel() {
+interface ButtonsType {
+  id: string;
+  style: RichStyle;
+  component: ReactNode;
+}
+
+export const RichTextPanel = () => {
   const { activeInfo, canvas, applyRichStyle } = useFabricContext();
-  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   useEffect(() => {
     // 선택 변경 시 필요한 작업을 여기에 추가할 수 있습니다.
@@ -29,7 +36,7 @@ function RichTextPanel() {
 
   if (!canvas) return null;
 
-  const buttons: { id: string; style: RichStyle; component: ReactNode }[] = [
+  const BUTTONS: ButtonsType[] = [
     {
       id: 'bold',
       style: { fontWeight: 'bold' },
@@ -48,19 +55,11 @@ function RichTextPanel() {
   ];
 
   return (
-    <div className="flex flex-col items-center gap-1.5 w-full p-2">
-      <NavigationBar>텍스트</NavigationBar>
+    <LeftEditorWrapper ariaLabel="폰트 편집">
+      <NavigationBar>폰트 편집</NavigationBar>
       <div className="flex w-full justify-between">
-        <FontFamily />
         <FontSize />
-        <FontColor />
-
-        {/* <Highlight />
-      <Stroke />
-      <Shadow /> */}
-      </div>
-      <div className="flex flex-row w-full justify-between">
-        {buttons.map(btn => {
+        {BUTTONS.map(btn => {
           const { id, style, component } = btn;
           return (
             <button
@@ -75,24 +74,29 @@ function RichTextPanel() {
         })}
         <button
           type="button"
-          onClick={() => setIsOpen(prev => !prev)}
           className="w-9 h-8 flex p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
         >
           <CharspacingIcon className="w-4.25 h-3.5" />
         </button>
         <TextAlign />
+
+        {/* <Highlight canvas={canvas} applyRichStyle={applyRichStyle} />
+      <Stroke
+        canvas={canvas}
+        activeObject={activeObject}
+        applyRichStyle={applyRichStyle}
+        debouncedApplyStyle={debouncedApplyStyle}
+      />
+      <Shadow canvas={canvas} debouncedApplyStyle={debouncedApplyStyle} /> */}
+      </div>
+      <div className="flex flex-row w-full justify-evenly">
+        <FontFamily />
+
+        <FontColor />
       </div>
       {/* <TextBackground canvas={canvas} applyRichStyle={applyRichStyle} /> */}
-
-      <div className="flex flex-col justify-center w-full">
-        {isOpen && (
-          <>
-            <CharSpacing />
-            <LineHeight />
-          </>
-        )}
-      </div>
-    </div>
+      <CharSpacing />
+      <LineHeight />
+    </LeftEditorWrapper>
   );
-}
-export default RichTextPanel;
+};

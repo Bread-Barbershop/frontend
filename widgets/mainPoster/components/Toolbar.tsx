@@ -1,6 +1,9 @@
 import { useShallow } from 'zustand/shallow';
 
 import { Button } from '@/components/atoms/button';
+import AddDrawing from '@/shared/assets/icons/add-drawing.svg';
+import AddImage from '@/shared/assets/icons/add-image.svg';
+import AddText from '@/shared/assets/icons/add-text.svg';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
@@ -15,48 +18,54 @@ function Toolbar() {
 
   if (!canvas) return null;
 
+  const TOOLBAR_ITEMS = [
+    {
+      icon: <AddText width={14} height={14} />,
+      onClick: () => {
+        setActiveTab('text');
+        createTextBox(canvas);
+      },
+      active: activeTab === 'text',
+    },
+    {
+      icon: <AddImage width={14} height={14} />,
+      onClick: () => {
+        setActiveTab('image');
+      },
+      active: activeTab === 'image',
+    },
+    {
+      icon: <AddDrawing width={14} height={14} />,
+      onClick: () => {
+        setActiveTab('diagram');
+      },
+      active: activeTab === 'diagram',
+    },
+    {
+      icon: <AddDrawing width={14} height={14} />,
+      onClick: () => {
+        setActiveTab('background');
+      },
+      active: activeTab === 'background',
+    },
+  ];
+
   return (
     <div
-      className="absolute top-1/2 -translate-y-1/2 -left-3 -translate-x-full flex flex-col gap-3"
+      className="absolute top-1/2 -translate-y-1/2 -left-6 -translate-x-full flex flex-col gap-3"
       data-canvas="true"
     >
-      <Button
-        onClick={() => {
-          setActiveTab('text');
-          createTextBox(canvas);
-        }}
-        variant="bordered"
-        active={activeTab === 'text'}
-      >
-        텍스트
-      </Button>
-      <Button
-        onClick={() => {
-          setActiveTab('image');
-        }}
-        variant="bordered"
-        active={activeTab === 'image'}
-      >
-        사진
-      </Button>
-      <Button
-        onClick={() => {
-          setActiveTab('diagram');
-        }}
-        variant="bordered"
-        active={activeTab === 'diagram'}
-      >
-        기타
-      </Button>
-      <Button
-        onClick={() => {
-          setActiveTab('background');
-        }}
-        variant="bordered"
-        active={activeTab === 'background'}
-      >
-        배경
-      </Button>
+      {TOOLBAR_ITEMS.map((item, index) => (
+        <Button
+          key={index}
+          className="size-8"
+          onClick={item.onClick}
+          variant="bordered"
+          active={item.active}
+        >
+          {item.icon}
+        </Button>
+      ))}
     </div>
   );
 }

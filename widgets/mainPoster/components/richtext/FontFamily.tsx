@@ -134,11 +134,11 @@ function FontFamily() {
       <Selector
         placeholder="16px"
         options={fontOption}
-        className="bg-bg-base max-w-30 border border-border-neutral rounded-sm w-21.5"
         onSelect={option => {
           applyRichStyle({ fontFamily: option.value }, canvas);
         }}
         selected={selectedFont}
+        showCheckbox={false}
       />
     </div>
   );
