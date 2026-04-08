@@ -1,4 +1,4 @@
-import { Canvas, Textbox } from 'fabric';
+import { Textbox } from 'fabric';
 import { ChevronDown } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -6,11 +6,6 @@ import { cn } from '@/shared/utils/cn';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import ColorPicker from './ColorPicker';
-
-interface Props {
-  canvas: Canvas | null;
-  applyRichStyle: (styleObj: object, canvas: Canvas) => void;
-}
 
 const ColorIcon = ({ color }: { color: string }) => (
   <svg
@@ -28,8 +23,8 @@ const ColorIcon = ({ color }: { color: string }) => (
   </svg>
 );
 
-function FontColor({ canvas, applyRichStyle }: Props) {
-  const { getRichStyles } = useFabricContext();
+function FontColor() {
+  const { canvas, applyRichStyle, getRichStyles } = useFabricContext();
   const [pickerColor, setPickerColor] = useState<string | null>('black');
   const [openFontColor, setOpenFontColor] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);

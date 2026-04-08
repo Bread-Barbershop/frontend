@@ -16,7 +16,10 @@ function Toolbar() {
   if (!canvas) return null;
 
   return (
-    <div className="absolute top-1/2 -translate-y-1/2 -left-3 -translate-x-full flex flex-col gap-3">
+    <div
+      className="absolute top-1/2 -translate-y-1/2 -left-3 -translate-x-full flex flex-col gap-3"
+      data-canvas="true"
+    >
       <Button
         onClick={() => {
           setActiveTab('text');
@@ -44,6 +47,15 @@ function Toolbar() {
         active={activeTab === 'diagram'}
       >
         기타
+      </Button>
+      <Button
+        onClick={() => {
+          setActiveTab('background');
+        }}
+        variant="bordered"
+        active={activeTab === 'background'}
+      >
+        배경
       </Button>
     </div>
   );

@@ -187,7 +187,7 @@ export const useFabric = () => {
 
     // 객체 상태 직렬화 시 filters 등 커스텀 속성도 포함
     const json = JSON.stringify(
-      (canvas as any).toJSON(['filters', 'id', 'name'])
+      canvas.toObject(['filters', 'id', 'name', 'isLocked'])
     );
 
     const prevState = undoStack.current[undoStack.current.length - 1];

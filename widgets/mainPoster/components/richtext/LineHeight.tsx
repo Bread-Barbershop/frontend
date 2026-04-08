@@ -1,18 +1,15 @@
-import { Canvas, Textbox } from 'fabric';
+import { Textbox } from 'fabric';
 import { useEffect, useState } from 'react';
 
 import { clamp } from '@/shared/utils/calculationUtils';
 import { parseValue } from '@/shared/utils/stringUtils';
-import { RichStyle } from '@/widgets/mainPoster/types/fabric';
 
-interface Props {
-  canvas: Canvas | null;
-  debouncedApplyStyle: (style: RichStyle, canvas: Canvas) => void;
-}
+import { useFabricContext } from '../../context/FabricContext';
 
 const BASE_LINE_HEIGHT = 1.16;
 
-function LineHeight({ canvas, debouncedApplyStyle }: Props) {
+function LineHeight() {
+  const { canvas, debouncedApplyStyle } = useFabricContext();
   const activeObject = canvas?.getActiveObject() as Textbox | null;
   const [value, setValue] = useState<number>(0);
   const [showValue, setShowValue] = useState<string>('0');

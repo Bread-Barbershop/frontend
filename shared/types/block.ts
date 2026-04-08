@@ -71,8 +71,10 @@ export interface UISlice {
   setIsEdit: (isEdit: boolean) => void;
   selectedId: string | null;
   selectedBlock: (id: string) => void;
-  activeTab: 'text' | 'image' | 'diagram' | null;
-  setActiveTab: (tab: 'text' | 'image' | 'diagram' | null) => void;
+  activeTab: 'text' | 'image' | 'diagram' | 'background' | null;
+  setActiveTab: (
+    tab: 'text' | 'image' | 'diagram' | 'background' | null
+  ) => void;
 }
 
 export interface DriveSlice {

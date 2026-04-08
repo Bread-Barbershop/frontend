@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/shallow';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
+import { BackgroundPanel } from './background/BackgroundPanel';
 import { GraphicPanel } from './graphic/GraphicPanel';
 import History from './History';
 import { ImagePanel } from './image/ImagePanel';
@@ -15,7 +16,7 @@ function Menubar() {
       activeTab: state.activeTab,
     }))
   );
-  const { canvas, applyRichStyle } = useFabricContext();
+  const { canvas } = useFabricContext();
 
   const handleExportJSON = () => {
     if (!canvas) return;
@@ -38,7 +39,7 @@ function Menubar() {
   if (!canvas) return null;
 
   return (
-    <div className="flex flex-col pb-3.5 px-5 items-center">
+    <div className="flex flex-col pb-3.5 px-5 items-center" data-canvas="true">
       <div className="flex gap-2 pb-2.5 justify-center">
         <button
           type="button"
@@ -55,17 +56,18 @@ function Menubar() {
           Import JSON
         </button>
       </div>
-      <History canvas={canvas} />
+      <History />
       {/* 텍스트 */}
-      {activeTab === 'text' && (
-        <RichTextPanel canvas={canvas} applyRichStyle={applyRichStyle} />
-      )}
+      {activeTab === 'text' && <RichTextPanel />}
 
       {/* 이미지 */}
       {activeTab === 'image' && <ImagePanel />}
 
       {/* 도형 */}
       {activeTab === 'diagram' && <GraphicPanel />}
+
+      {/* 배경 */}
+      {activeTab === 'background' && <BackgroundPanel />}
     </div>
   );
 }

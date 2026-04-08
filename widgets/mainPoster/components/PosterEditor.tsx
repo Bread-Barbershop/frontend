@@ -23,6 +23,7 @@ import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 import { useInitFabricData } from '../hooks/useInitFabricData';
 import { useSetFabricControls } from '../hooks/useSetFabricControls';
 import { initAligningGuidelines } from '../libs/aligning-guidelines';
+import { FabricObjectWithLock } from '../types/fabric';
 
 import { ContextMenu } from './context-menu/ContextMenu';
 import Toolbar from './Toolbar';
@@ -70,7 +71,12 @@ export const PosterEditor = () => {
 
     const handleSelection = () => {
       const activeObj = fabricCanvas.getActiveObject();
+      if (!activeObj) {
+        setActiveTab(null);
+        return;
+      }
 
+      // 탭 전환 등의 기존 로직 수행
       const isActiveText =
         activeObj instanceof Textbox || activeObj instanceof IText;
       const isActiveImage = activeObj instanceof FabricImage;
@@ -122,18 +128,38 @@ export const PosterEditor = () => {
     const handleMouseDown = (options: TPointerEventInfo<TPointerEvent>) => {
       const e = options.e as MouseEvent;
       if (e.button === 2) return; // 우클릭(Right Click)은 무시
+
+      // 배경 클릭(드래그 선택 시작) 시 잠긴 객체의 selectable 해제
       if (!options.target) {
+        canvas.getObjects().forEach(obj => {
+          const target = obj as FabricObjectWithLock;
+          if (target.isLocked) {
+            target.set({ selectable: false });
+          }
+        });
         setActiveTab(null);
       }
     };
 
+    const handleMouseUp = () => {
+      // 드래그 종료 시 (또는 클릭 종료 시) 잠긴 객체의 selectable 다시 복구
+      canvas.getObjects().forEach(obj => {
+        const target = obj as FabricObjectWithLock;
+        if (target.isLocked) {
+          target.set({ selectable: true });
+        }
+      });
+    };
+
     canvas.on('mouse:dblclick', handleDoubleClick);
     canvas.on('mouse:down', handleMouseDown);
+    canvas.on('mouse:up', handleMouseUp);
 
     return () => {
       cleanupEmpty();
       canvas.off('mouse:dblclick', handleDoubleClick);
       canvas.off('mouse:down', handleMouseDown);
+      canvas.off('mouse:up', handleMouseUp);
     };
   }, [
     canvas,
@@ -163,8 +189,28 @@ export const PosterEditor = () => {
   useEffect(() => {
     if (!canvas) return;
 
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+
+      if (
+        target.classList.contains('upper-canvas') ||
+        target.closest('[data-canvas="true"]')
+      ) {
+        return;
+      }
+
+      canvas.discardActiveObject();
+      canvas.renderAll();
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [canvas]);
+
+  useEffect(() => {
+    if (!canvas) return;
+
     const handleKeyboard = (e: KeyboardEvent) => {
-      // 캔버스 내부에 마우스가 있거나 현재 선택된 객체가 있을 경우에만 실행
       const hasActiveObj = canvas.getActiveObjects().length > 0;
       if (!isMouseInCanvasRef.current && !hasActiveObj) return;
 
@@ -190,9 +236,13 @@ export const PosterEditor = () => {
         }
       }
 
-      // 딜리트 및 백스페이스 (기존 로직 수행)
       if (e.key === 'Delete') {
         handleDeleteShape(canvas, e);
+      }
+
+      if (e.key === 'Escape') {
+        canvas.discardActiveObject();
+        canvas.renderAll();
       }
     };
 
@@ -207,6 +257,7 @@ export const PosterEditor = () => {
           setIsEdit(false);
           selectedBlock('mainPoster');
         }}
+        data-canvas="true"
         className={cn(
           'relative',
           selectedId === 'mainPoster' && 'border border-primary rounded-lg'
