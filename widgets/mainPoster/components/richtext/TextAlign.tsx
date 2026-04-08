@@ -61,7 +61,10 @@ function TextAlign() {
       options={ALIGN_OPTIONS}
       selected={selectedAlign}
       onSelect={option => {
-        applyRichStyle({ textAlign: option.value }, canvas);
+        applyRichStyle(
+          { textAlign: option.value as 'left' | 'right' | 'center' },
+          canvas
+        );
       }}
       showCheckbox={false}
     />

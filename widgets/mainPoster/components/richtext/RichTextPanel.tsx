@@ -27,7 +27,7 @@ interface ButtonsType {
   component: ReactNode;
 }
 
-function RichTextPanel() {
+export const RichTextPanel = () => {
   const { activeInfo, canvas, applyRichStyle } = useFabricContext();
 
   useEffect(() => {
@@ -99,5 +99,4 @@ function RichTextPanel() {
       <LineHeight />
     </LeftEditorWrapper>
   );
-}
-export default RichTextPanel;
+};
