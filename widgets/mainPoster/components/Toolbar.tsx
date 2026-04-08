@@ -48,6 +48,15 @@ function Toolbar() {
       >
         기타
       </Button>
+      <Button
+        onClick={() => {
+          setActiveTab('background');
+        }}
+        variant="bordered"
+        active={activeTab === 'background'}
+      >
+        배경
+      </Button>
     </div>
   );
 }

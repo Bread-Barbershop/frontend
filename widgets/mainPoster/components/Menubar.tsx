@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/shallow';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
+import { BackgroundPanel } from './background/BackgroundPanel';
 import { GraphicPanel } from './graphic/GraphicPanel';
 import History from './History';
 import { ImagePanel } from './image/ImagePanel';
@@ -64,6 +65,9 @@ function Menubar() {
 
       {/* 도형 */}
       {activeTab === 'diagram' && <GraphicPanel />}
+
+      {/* 배경 */}
+      {activeTab === 'background' && <BackgroundPanel />}
     </div>
   );
 }
