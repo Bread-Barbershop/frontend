@@ -8,7 +8,7 @@ on:
     types: [opened, reopened]
     # PR의 base(대상) 브랜치가 아래일 때만 실행
     branches:
-      - feat/mainPoster/base
+      - feat/component/main-poster-base
 
 # 최소 권한 원칙(필요한 읽기 권한만 부여)
 permissions:
