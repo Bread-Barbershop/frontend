@@ -1,17 +1,13 @@
-import { Canvas, Textbox } from 'fabric';
+import { Textbox } from 'fabric';
 import { useEffect, useState } from 'react';
 
 import { Selector } from '@/components/molecules/selector';
 import AlignCenterIcon from '@/shared/assets/icons/alignCenter.svg';
 import AlignLeftIcon from '@/shared/assets/icons/alignLeft.svg';
 import AlignRightIcon from '@/shared/assets/icons/alignRight.svg';
-import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
-import { selectorOptions } from '@/widgets/mainPoster/types/editor';
 
-interface Props {
-  canvas: Canvas | null;
-  applyRichStyle: (styleObj: object, canvas: Canvas) => void;
-}
+import { useFabricContext } from '../../context/FabricContext';
+import { selectorOptions } from '../../types/editor';
 
 const ALIGN_OPTIONS: selectorOptions[] = [
   {
@@ -28,8 +24,8 @@ const ALIGN_OPTIONS: selectorOptions[] = [
   },
 ];
 
-function TextAlign({ canvas, applyRichStyle }: Props) {
-  const { getRichStyles } = useFabricContext();
+function TextAlign() {
+  const { getRichStyles, canvas, applyRichStyle } = useFabricContext();
   const activeObject = canvas?.getActiveObject() as Textbox;
 
   const [selectedAlign, setSelectedAlign] = useState<selectorOptions>(

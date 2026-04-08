@@ -5,6 +5,7 @@ import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import ControlZindex from './ControlZindex';
 import CopyAndPaste from './CopyAndPaste';
+import { LockObject } from './LockObject';
 
 export function ContextMenu() {
   const { canvas, handleDeleteShape } = useFabricContext();
@@ -79,6 +80,7 @@ export function ContextMenu() {
       >
         삭제하기
       </button>
+      <LockObject onClick={() => setOpen(false)} />
     </div>
   );
 }

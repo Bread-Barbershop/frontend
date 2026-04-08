@@ -41,10 +41,20 @@ function Toolbar() {
       },
       active: activeTab === 'diagram',
     },
+    {
+      icon: <AddDrawing width={14} height={14} />,
+      onClick: () => {
+        setActiveTab('background');
+      },
+      active: activeTab === 'background',
+    },
   ];
 
   return (
-    <div className="absolute top-1/2 -translate-y-1/2 -left-6 -translate-x-full flex flex-col gap-3">
+    <div
+      className="absolute top-1/2 -translate-y-1/2 -left-6 -translate-x-full flex flex-col gap-3"
+      data-canvas="true"
+    >
       {TOOLBAR_ITEMS.map((item, index) => (
         <Button
           key={index}

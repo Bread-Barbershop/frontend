@@ -1,4 +1,4 @@
-import { Canvas, Textbox } from 'fabric';
+import { Textbox } from 'fabric';
 import { useEffect, useState } from 'react';
 
 import { Selector } from '@/components/molecules/selector';
@@ -15,13 +15,9 @@ type CustomFontOption = {
   url: string;
 };
 
-interface Props {
-  canvas: Canvas | null;
-  applyRichStyle: (styleObj: object, canvas: Canvas) => void;
-}
-
-function FontFamily({ canvas, applyRichStyle }: Props) {
-  const { activeInfo, getRichStyles } = useFabricContext();
+function FontFamily() {
+  const { canvas, activeInfo, getRichStyles, applyRichStyle } =
+    useFabricContext();
   const activeObject = canvas?.getActiveObject() as Textbox;
 
   const currentFontFamily =

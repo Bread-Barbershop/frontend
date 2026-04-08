@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { FilterType } from '@/components/molecules/image-editor';
 
 import { PhotoPreset } from '../libs/customImage-filter';
-import { PhotoPresetOptions } from '../types/fabric';
+import { PhotoPresetOptions, FabricImageWithLock } from '../types/fabric';
 import { updateCropRatio } from '../utils/fabricUtils';
 
 interface Props {
@@ -30,6 +30,9 @@ export const useFabricImage = ({
     canvas: Canvas,
     type: FilterType
   ) => {
+    const activeObject = canvas.getActiveObject() as FabricImageWithLock;
+    if (!activeObject || activeObject.isLocked) return;
+
     const targetImage = isCropping
       ? (canvas
           .getObjects()
@@ -86,9 +89,9 @@ export const useFabricImage = ({
       return;
     }
 
-    const activeObject = canvas.getActiveObject();
-    if (!activeObject || !(activeObject instanceof FabricImage)) return;
-
+    const activeObject = canvas.getActiveObject() as FabricImageWithLock;
+    if (!activeObject || !activeObject.isType('image')) return;
+    if (activeObject.isLocked) return;
     setIsCropping(true);
 
     const img = activeObject;
