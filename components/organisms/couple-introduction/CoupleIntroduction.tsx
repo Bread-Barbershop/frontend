@@ -29,7 +29,6 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
     brideImage = [],
     title = '',
     messageJson = null,
-    showProfileImage = false,
     showTitle = false,
     showContent = false,
     brideFirst = false,
@@ -143,19 +142,25 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
     <LeftEditorWrapper className="items-start" ariaLabel="신랑 신부 소개">
       <NavigationBar>신랑・신부 소개</NavigationBar>
 
-      {profileFields.map(profile => (
+      {profileFields.map((profile, index) => (
         <Fragment key={profile.key}>
-          <TextField
-            label={profile.label}
-            inputProps={{
-              placeholder: '성함',
-              value: profile.value,
-              onChange: profile.onChange,
-            }}
-            className="text-center py-1.5"
-          />
+          <div className="flex flex-col gap-2 w-full">
+            {index !== 0 && (
+              <div className="flex flex-col items-center gap-1">
+                <div className="w-0.5 h-1 rounded-sm bg-text-secondary" />
+                <div className="w-0.5 h-1 rounded-sm bg-text-secondary" />
+              </div>
+            )}
+            <TextField
+              label={profile.label}
+              inputProps={{
+                placeholder: '성함',
+                value: profile.value,
+                onChange: profile.onChange,
+              }}
+              className="w-full text-center py-1.5"
+            />
 
-          {showProfileImage && (
             <Picture
               key={`${profile.key}-${brideFirst ? 'first' : 'last'}`}
               label="사진"
@@ -164,7 +169,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
               onDelete={profile.onDelete}
               className="text-center"
             />
-          )}
+          </div>
         </Fragment>
       ))}
 
@@ -177,7 +182,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
             value: title,
             onChange: handleTitleChange,
           }}
-          className="text-center py-1.5"
+          className="w-full text-center py-1.5"
         />
       )}
 
@@ -202,23 +207,12 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
           <div className="flex gap-2">
             <Checkbox
               className="gap-1 pl-1 font-medium text-text-secondary"
-              checked={showProfileImage}
-              onChange={e =>
-                updateBlock(id, { showProfileImage: e.target.checked })
-              }
-            >
-              프로필 사진 추가
-            </Checkbox>
-
-            <Checkbox
-              className="gap-1 pl-1 font-medium text-text-secondary"
               checked={showTitle}
               onChange={e => updateBlock(id, { showTitle: e.target.checked })}
             >
               제목 추가
             </Checkbox>
-          </div>
-          <div className="flex gap-2">
+            
             <Checkbox
               className="gap-1 pl-1 font-medium text-text-secondary"
               checked={showContent}
@@ -226,7 +220,8 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
             >
               내용 추가
             </Checkbox>
-
+          </div>
+          <div className="flex gap-2">
             <Checkbox
               className="gap-1 pl-1 font-medium text-text-secondary"
               checked={brideFirst}

@@ -36,7 +36,7 @@ export const coupleIntroductionSchema = {
       required: false,
     },
     showProfileImage: {
-      default: false,
+      default: true,
       required: false,
     },
     showTitle: {
