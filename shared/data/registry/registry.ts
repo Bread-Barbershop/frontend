@@ -10,6 +10,7 @@ import { myFamilyDefinition } from '@/components/organisms/myFamily/MyFamily.def
 import { noticeDefinition } from '@/components/organisms/notice/Notice.definition';
 import { organizerInformationDefinition } from '@/components/organisms/organizerInfo/OrganizerInformation.definition';
 import { phoneDefinition } from '@/components/organisms/phone/Phone.definition';
+import { pictureDefinition } from '@/components/organisms/picture/Picture.definition';
 import { placeDefinition } from '@/components/organisms/place/Place.definition';
 import { shareUrlDefinition } from '@/components/organisms/share-url/ShareUrl.definition';
 import { speakerInformationDefinition } from '@/components/organisms/speakerInformation/SpeakerInformation.definition';
@@ -48,4 +49,5 @@ export const blockRegistry = {
     ...blockSchema.sponsorshipInfomation,
     ...sponsorshipInfomationDefinition,
   },
+  picture: { ...blockSchema.picture, ...pictureDefinition },
 } as const;

@@ -17,7 +17,8 @@ interface PictureProps {
   labelClassName?: string;
   multiple?: boolean;
   onChange?: (files: (File | string)[]) => void;
-  onDelete?: (files: (File | string)[]) => void;
+  onReorder?: (files: (File | string)[]) => void;
+  onDelete?: (files?: (File | string)[]) => void;
   className?: string;
   previewClassName?: string;
   inputClassName?: string;
@@ -29,6 +30,7 @@ export const Picture = ({
   labelClassName,
   multiple,
   onChange,
+  onReorder,
   onDelete,
   className,
   previewClassName,
@@ -95,11 +97,15 @@ export const Picture = ({
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     const files = Array.from(e.target.files ?? []);
-    if (!files) return;
+    if (files.length === 0) return;
     if (onChange) {
       onChange(files);
     }
+    // 인풋값을 초기화하여 의도치 않은 중복 트리거를 방지하고,
+    // 동일한 파일을 다시 선택했을 때도 이벤트가 발생하도록 합니다.
+    e.target.value = '';
   };
 
   const handleMove = (
@@ -107,7 +113,9 @@ export const Picture = ({
   ) => {
     setPreview(items);
     const files = items.map(item => item.file);
-    if (onChange) {
+    if (onReorder) {
+      onReorder(files);
+    } else if (onChange) {
       onChange(files);
     }
   };
@@ -127,7 +135,10 @@ export const Picture = ({
       </Label>
       <SortableWrapper
         items={preview}
-        onChange={items => handleMove(items)}
+        onChange={(items, e) => {
+          e?.stopPropagation();
+          handleMove(items);
+        }}
         className="flex-row flex-wrap gap-2"
         suffix={
           (multiple || preview.length === 0) && (

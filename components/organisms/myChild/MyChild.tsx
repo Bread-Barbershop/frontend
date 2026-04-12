@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react';
 import { useState, useMemo, useEffect, ChangeEvent } from 'react';
+import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
 import { Input } from '@/components/atoms/input/Input';
@@ -46,7 +47,12 @@ function createParagraphJson(text: string): JSONContent {
 }
 
 export const MyChild = ({ blockInfo, id }: Props) => {
-  const updateBlock = useEditorStore(state => state.updateBlock);
+  const { updateBlock, updateImage } = useEditorStore(
+    useShallow(state => ({
+      updateBlock: state.updateBlock,
+      updateImage: state.updateImage,
+    }))
+  );
   const [isSamplePopupOpen, setIsSamplePopupOpen] = useState(false);
   const [editorResetKey, setEditorResetKey] = useState(0);
   const debouncedUpdateMessage = useMemo(
@@ -90,9 +96,11 @@ export const MyChild = ({ blockInfo, id }: Props) => {
 
   const handlePictureChange = (file: (File | string)[]) => {
     updateBlock(id, { image: file });
+    updateImage(id, file);
   };
   const handlePictureDelete = () => {
     updateBlock(id, { image: [] });
+    updateImage(id, []);
   };
 
   return (

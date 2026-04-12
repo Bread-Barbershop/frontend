@@ -1,5 +1,6 @@
 import { JSONContent } from '@tiptap/core';
 import { ChangeEvent, useEffect, useMemo } from 'react';
+import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
 import { Label } from '@/components/atoms/label/Label';
@@ -30,7 +31,12 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
     checkedMessage,
     messageJson,
   } = blockInfo.props;
-  const updateBlock = useEditorStore(state => state.updateBlock);
+  const { updateBlock, updateImage } = useEditorStore(
+    useShallow(state => ({
+      updateBlock: state.updateBlock,
+      updateImage: state.updateImage,
+    }))
+  );
 
   const debouncedUpdateMessage = useMemo(
     () =>
@@ -77,7 +83,10 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
   };
 
   const handleAddFamily = () => {
-    const newFamily = [...(family || []), { relation: '', name: '' }];
+    const newFamily = [
+      ...(family || []),
+      { relation: '', name: '', id: crypto.randomUUID() },
+    ];
     updateBlock(id, { family: newFamily });
   };
 
@@ -94,6 +103,9 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
         i === index ? { ...member, image: value } : member
       ),
     });
+    family?.map((member, i) => {
+      if (i === index) updateImage(member.id, value);
+    });
   };
 
   const handleImageDelete = (index: number) => {
@@ -102,13 +114,16 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
         i === index ? { ...member, image: [] } : member
       ),
     });
+    family?.map((member, i) => {
+      if (i === index) updateImage(member.id, []);
+    });
   };
 
   useEffect(() => {
     if (family && family.length > 0) return;
     const newFamily = [
-      { relation: null, name: '' },
-      { relation: null, name: '' },
+      { relation: null, name: '', id: crypto.randomUUID() },
+      { relation: null, name: '', id: crypto.randomUUID() },
     ];
     updateBlock(id, { family: newFamily });
   }, [id, family, updateBlock]);
