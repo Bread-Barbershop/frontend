@@ -1,6 +1,5 @@
 import { JSONContent } from '@tiptap/core';
 import { ChangeEvent, useEffect, useMemo } from 'react';
-import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
 import { Label } from '@/components/atoms/label/Label';
