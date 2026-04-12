@@ -56,6 +56,10 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
           className="py-1"
           multiple={true}
           value={blockInfo.props.images}
+          onReorder={file => {
+            updateBlock(id, { images: file });
+            updateImage(id, file);
+          }}
           onChange={handlePictureChange}
           onDelete={handlePictureDelete}
         />

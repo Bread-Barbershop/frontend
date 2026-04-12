@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Image } from '@/components/atoms/image';
-import Carousel from '@/features/EmblaCarousel/Carousel/Carousel';
+import AutoScrollCarousel from '@/features/EmblaCarousel/AutoScrollCarousel/AutoScrollCarousel';
 import { useResolvedImageSources } from '@/shared/hooks/useResolvedImageSources';
 import { EditorBlock } from '@/shared/types/block';
 
@@ -21,6 +21,10 @@ function SponsorshipInfomationPreview({
   ...rest
 }: Props) {
   const preview = useResolvedImageSources(blockInfo.props.images);
+  const displayPreview =
+    preview.length <= 4 && preview.length >= 2
+      ? [...preview, ...preview]
+      : preview;
 
   return (
     <MiddlePreviewWrapper
@@ -29,16 +33,11 @@ function SponsorshipInfomationPreview({
       titleClassName={titleClassName}
       {...rest}
     >
-      <Carousel
-        options={{ align: 'center', containScroll: false, loop: true }}
-        isButtonShow={false}
-        className="h-21 w-full"
-        carouselClassName="gap-3"
-      >
-        {preview.map((item, index) => (
+      <AutoScrollCarousel className="h-21 w-full" carouselClassName="gap-10">
+        {displayPreview.map((item, index) => (
           <div
             key={index}
-            className={`min-w-0 w-21 h-21 flex-[0_0_30%] rounded-lg ${index === 0 ? 'ml-3' : ''}`}
+            className={`min-w-0 flex-[0_0_26%] rounded-lg ${index === 0 ? 'ml-10' : ''}`}
           >
             <Image
               src={item}
@@ -48,7 +47,7 @@ function SponsorshipInfomationPreview({
             />
           </div>
         ))}
-      </Carousel>
+      </AutoScrollCarousel>
     </MiddlePreviewWrapper>
   );
 }

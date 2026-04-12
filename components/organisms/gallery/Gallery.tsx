@@ -78,6 +78,10 @@ function Gallery({ blockInfo, id }: Props) {
           multiple={true}
           value={blockInfo.props.images}
           onChange={file => handlePictureChange(file)}
+          onReorder={file => {
+            updateBlock(id, { images: file });
+            updateImage(id, file);
+          }}
           onDelete={file => handlePictureDelete(file)}
         />
         {blockInfo.props.images && blockInfo.props.images?.length > 0 && (
