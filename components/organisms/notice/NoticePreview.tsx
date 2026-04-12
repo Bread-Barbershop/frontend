@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
 import Carousel from '@/features/EmblaCarousel/Carousel/Carousel';
 import { EditorBlock } from '@/shared/types/block';
@@ -21,35 +23,59 @@ export const NoticePreview = ({
 }: Props) => {
   const { items, title, images } = blockInfo.props;
 
+  const displayItems = useMemo(() => {
+    if (items && items.length === 2) {
+      return [...items, ...items, ...items, ...items];
+    }
+    return items;
+  }, [items]);
+
+  const isAutoScrollActive = (items?.length ?? 0) > 1;
+
   return (
     <MiddlePreviewWrapper
-      className={className}
+      className={cn('px-0', className)}
       enTitle="NOTICE"
       koTitle={title}
       titleClassName={titleClassName}
       {...rest}
     >
-      <div className="w-full flex-center relative overflow-hidden">
-        <div className="absolute left-0 top-0 bottom-0 w-10 z-10 pointer-events-none bg-linear-to-r from-white/90 to-transparent" />
+      <div className="w-full flex justify-center relative overflow-hidden">
         <Carousel
-          options={{ align: 'center', containScroll: false, loop: true }}
+          options={{
+            align: 'center',
+            containScroll: false,
+            loop: isAutoScrollActive,
+          }}
           isButtonShow={false}
           className="h-full w-full"
           carouselClassName="gap-3"
+          autoscroll={isAutoScrollActive}
+          autoscrollOptions={{
+            speed: 1,
+            stopOnInteraction: false,
+            stopOnMouseEnter: false,
+            stopOnFocusIn: false,
+          }}
+          loop={isAutoScrollActive}
         >
-          {items?.map((item, index) => (
+          {displayItems?.map((item, index) => (
             <div
-              key={`preview-${item.id}`}
+              key={`preview-${item.id}-${index}`}
               className={cn(
-                'min-w-0 flex-[0_0_82%]',
-                index === 0 ? 'ml-3' : ''
+                'w-full',
+                displayItems.length > 1 && index === 0 ? 'ml-3' : '',
+                displayItems.length === 1 && 'flex-center'
               )}
             >
-              <NoticePreviewItem item={item} images={images} index={index} />
+              <NoticePreviewItem
+                item={item}
+                images={images}
+                index={index % (items?.length || 1)}
+              />
             </div>
           ))}
         </Carousel>
-        <div className="absolute right-0 top-0 bottom-0 w-10 z-10 pointer-events-none bg-linear-to-l from-white/90 to-transparent" />
       </div>
     </MiddlePreviewWrapper>
   );
