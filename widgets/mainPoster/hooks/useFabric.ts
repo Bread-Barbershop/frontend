@@ -185,8 +185,9 @@ export const useFabric = () => {
       if (!activeObject || !canvas) return;
       canvas.bringObjectForward(activeObject);
       canvas.requestRenderAll();
+      saveHistory();
     },
-    [canvas]
+    [canvas, saveHistory]
   );
 
   const moveDown = useCallback(
@@ -194,8 +195,9 @@ export const useFabric = () => {
       if (!activeObject || !canvas) return;
       canvas.sendObjectBackwards(activeObject);
       canvas.requestRenderAll();
+      saveHistory();
     },
-    [canvas]
+    [canvas, saveHistory]
   );
 
   const moveTop = useCallback(
@@ -203,8 +205,9 @@ export const useFabric = () => {
       if (!activeObject || !canvas) return;
       canvas.bringObjectToFront(activeObject);
       canvas.requestRenderAll();
+      saveHistory();
     },
-    [canvas]
+    [canvas, saveHistory]
   );
 
   const moveBottom = useCallback(
@@ -212,8 +215,9 @@ export const useFabric = () => {
       if (!activeObject || !canvas) return;
       canvas.sendObjectToBack(activeObject);
       canvas.requestRenderAll();
+      saveHistory();
     },
-    [canvas]
+    [canvas, saveHistory]
   );
 
   const lock = useCallback(

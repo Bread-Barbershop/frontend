@@ -53,7 +53,7 @@ export const useKeyboardEvents = (
       }
 
       // 잠그기 ctrl + l
-      if (mod && e.code === 'KeyL') {
+      if (mod && !e.shiftKey && e.code === 'KeyL') {
         const activeObj = canvas.getActiveObject();
         const isEditingText =
           activeObj && 'isEditing' in activeObj && activeObj.isEditing;
@@ -97,7 +97,7 @@ export const useKeyboardEvents = (
       }
 
       // 위로 보내기 ctrl + [
-      if (mod && e.code === 'BracketLeft') {
+      if (mod && !e.shiftKey && e.code === 'BracketLeft') {
         const activeObj = canvas.getActiveObject();
         const isEditingText =
           activeObj && 'isEditing' in activeObj && activeObj.isEditing;
@@ -108,7 +108,7 @@ export const useKeyboardEvents = (
       }
 
       // 아래로 보내기 ctrl + ]
-      if (mod && e.code === 'BracketRight') {
+      if (mod && !e.shiftKey && e.code === 'BracketRight') {
         const activeObj = canvas.getActiveObject();
         const isEditingText =
           activeObj && 'isEditing' in activeObj && activeObj.isEditing;
