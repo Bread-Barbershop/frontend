@@ -32,7 +32,7 @@ function ControlZindex({ onClick }: Props) {
         <p className={cn(!hasActiveObject && 'text-gray-400')}>
           맨 위로 보내기
         </p>
-        <p className={cn(!hasActiveObject && 'text-gray-400')}>
+        <p className={cn(!hasActiveObject && 'text-gray-400 font-[12px]')}>
           Ctrl + Shift + [
         </p>
       </button>
@@ -53,7 +53,7 @@ function ControlZindex({ onClick }: Props) {
         <p className={cn(!hasActiveObject && 'text-gray-400')}>
           맨 아래로 보내기
         </p>
-        <p className={cn(!hasActiveObject && 'text-gray-400')}>
+        <p className={cn(!hasActiveObject && 'text-gray-400 font-[12px]')}>
           Ctrl + Shift + ]
         </p>
       </button>
@@ -72,7 +72,9 @@ function ControlZindex({ onClick }: Props) {
         }}
       >
         <p className={cn(!hasActiveObject && 'text-gray-400')}>위로 보내기</p>
-        <p className={cn(!hasActiveObject && 'text-gray-400')}>Ctrl + [</p>
+        <p className={cn(!hasActiveObject && 'text-gray-400 font-[12px]')}>
+          Ctrl + [
+        </p>
       </button>
       <button
         type="button"
@@ -89,7 +91,9 @@ function ControlZindex({ onClick }: Props) {
         }}
       >
         <p className={cn(!hasActiveObject && 'text-gray-400')}>아래로 보내기</p>
-        <p className={cn(!hasActiveObject && 'text-gray-400')}>Ctrl + ]</p>
+        <p className={cn(!hasActiveObject && 'text-gray-400 font-[12px]')}>
+          Ctrl + ]
+        </p>
       </button>
     </>
   );

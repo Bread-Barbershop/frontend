@@ -25,7 +25,7 @@ export const UndoRedo = ({ onClick }: Props) => {
         }}
       >
         <p className={cn(!canUndo && 'text-gray-400')}>되돌리기</p>
-        <p className={cn(!canUndo && 'text-gray-400')}>Ctrl + Z</p>
+        <p className={cn(!canUndo && 'text-gray-400 font-[12px]')}>Ctrl + Z</p>
       </button>
       <button
         type="button"
@@ -42,7 +42,9 @@ export const UndoRedo = ({ onClick }: Props) => {
         }}
       >
         <p className={cn(!canRedo && 'text-gray-400')}>다시하기</p>
-        <p className={cn(!canRedo && 'text-gray-400')}>Ctrl + Shift + Z</p>
+        <p className={cn(!canRedo && 'text-gray-400 font-[12px]')}>
+          Ctrl + Shift + Z
+        </p>
       </button>
     </>
   );

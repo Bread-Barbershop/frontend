@@ -86,7 +86,9 @@ export function ContextMenu() {
         }}
       >
         <p className={cn(!hasActiveObject && 'text-gray-400')}>삭제하기</p>
-        <p className={cn(!hasActiveObject && 'text-gray-400')}>Delete</p>
+        <p className={cn(!hasActiveObject && 'text-gray-400 font-[12px]')}>
+          Delete
+        </p>
       </button>
       <LockObject onClick={() => setOpen(false)} />
     </div>

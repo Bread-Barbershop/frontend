@@ -34,7 +34,7 @@ export const LockObject = ({ onClick }: Props) => {
         }}
       >
         <p className={cn(!canLock && 'text-gray-400')}>잠그기</p>
-        <p className={cn(!canLock && 'text-gray-400')}>Ctrl + L</p>
+        <p className={cn(!canLock && 'text-gray-400 font-[12px]')}>Ctrl + L</p>
       </button>
       <button
         type="button"
@@ -51,7 +51,7 @@ export const LockObject = ({ onClick }: Props) => {
         }}
       >
         <p className={cn(!canUnlock && 'text-gray-400')}>잠금 해제하기</p>
-        <p className={cn(!canUnlock && 'text-gray-400')}>
+        <p className={cn(!canUnlock && 'text-gray-400 font-[12px]')}>
           Ctrl + Shift + L
         </p>
       </button>

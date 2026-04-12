@@ -27,7 +27,9 @@ function CopyAndPaste({ onClick }: Props) {
         }}
       >
         <p className={cn(!hasActiveObject && 'text-gray-400')}>복사</p>
-        <p className={cn(!hasActiveObject && 'text-gray-400')}>Ctrl + C</p>
+        <p className={cn(!hasActiveObject && 'text-gray-400 font-[12px]')}>
+          Ctrl + C
+        </p>
       </button>
       <button
         type="button"
@@ -44,7 +46,9 @@ function CopyAndPaste({ onClick }: Props) {
         }}
       >
         <p className={cn(!hasClipboard && 'text-gray-400')}>붙여넣기</p>
-        <p className={cn(!hasClipboard && 'text-gray-400')}>Ctrl + V</p>
+        <p className={cn(!hasClipboard && 'text-gray-400 font-[12px]')}>
+          Ctrl + V
+        </p>
       </button>
     </>
   );
