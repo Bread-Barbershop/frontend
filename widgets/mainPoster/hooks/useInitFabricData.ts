@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 export const useInitFabricData = () => {
-  const { canvas, initialData } = useFabricContext();
+  const { canvas, initialData, saveHistory } = useFabricContext();
 
   useEffect(() => {
     if (!canvas || !initialData) return;
@@ -12,6 +12,7 @@ export const useInitFabricData = () => {
       try {
         await canvas.loadFromJSON(initialData);
         canvas.requestRenderAll();
+        saveHistory();
       } catch (error) {
         console.error('Failed to load canvas data:', error);
       }

@@ -1,57 +1,98 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Canvas, FabricObject, Textbox, IText, ActiveSelection } from 'fabric';
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import { ActiveObject } from '../types/fabric';
 export const useFabric = () => {
   const [canvas, setCanvas] = useState<Canvas | null>(null);
   const [activeInfo, setActiveInfo] = useState<ActiveObject>({
     type: null,
+    isLocked: false,
     filters: [],
     styles: {},
   });
   const [clipboard, setClipboard] = useState<FabricObject | null>(null);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
   const undoStack = useRef<string[]>([]);
   const redoStack = useRef<string[]>([]);
   const isUpdating = useRef<boolean>(false);
   const MAX_STACK_SIZE = 30;
 
-  const handleDeleteShape = (
-    canvas: Canvas,
-    e?: KeyboardEvent,
-    flag?: boolean
-  ) => {
-    // 페이지 내의 포스터 캔버스가 아닌곳에서 키보드 이벤트 발생시 작동 중지
-    const activeObjects = canvas.getActiveObjects();
-    const isHoveringCanvas = canvas.elements.container.matches(':hover');
-    if (!isHoveringCanvas && activeObjects.length === 0) return;
-    const exist = activeObjects.length > 0 ? true : false;
+  const saveHistory = useCallback(() => {
+    if (isUpdating.current || !canvas) return;
 
-    if (exist) {
-      const isEditing = activeObjects.some(
-        obj => obj instanceof Textbox && obj.isEditing
-      );
+    // 객체 상태 직렬화 시 filters 등 커스텀 속성 및 잠금 관련 속성 포함
+    const json = JSON.stringify(
+      canvas.toObject([
+        'filters',
+        'id',
+        'name',
+        'isLocked',
+        'lockMovementX',
+        'lockMovementY',
+        'lockScalingX',
+        'lockScalingY',
+        'lockRotation',
+        'hasControls',
+        'editable',
+        'selectable',
+        'evented',
+      ])
+    );
 
-      if (isEditing) return;
-      if (e?.key === 'Delete' || flag === true) {
-        e?.preventDefault();
+    const prevState = undoStack.current[undoStack.current.length - 1];
+    if (prevState === json) return;
 
-        canvas.remove(...activeObjects);
+    undoStack.current.push(json);
 
-        canvas.discardActiveObject();
-        canvas.requestRenderAll();
-      }
-    } else if (!exist && e?.key === 'Backspace') {
-      const checkGoToBack = confirm(
-        '정말 뒤돌아가시겠습니까? 저장되지 않은 내역은 모두 사라집니다'
-      );
-      if (!checkGoToBack) {
-        e.preventDefault();
-      }
+    if (undoStack.current.length > MAX_STACK_SIZE) {
+      undoStack.current.shift();
     }
-  };
 
-  const handleDeleteEmptyShape = (canvas: Canvas) => {
+    if (redoStack.current.length > 0) {
+      redoStack.current.length = 0;
+    }
+
+    setCanUndo(undoStack.current.length > 1);
+    setCanRedo(redoStack.current.length > 0);
+  }, [canvas]);
+
+  const handleDeleteShape = useCallback(
+    (canvas: Canvas, e?: KeyboardEvent, flag?: boolean) => {
+      // 페이지 내의 포스터 캔버스가 아닌곳에서 키보드 이벤트 발생시 작동 중지
+      const activeObjects = canvas.getActiveObjects();
+      const isHoveringCanvas = canvas.elements.container.matches(':hover');
+      if (!isHoveringCanvas && activeObjects.length === 0) return;
+      const exist = activeObjects.length > 0 ? true : false;
+
+      if (exist) {
+        const isEditing = activeObjects.some(
+          obj => obj instanceof Textbox && obj.isEditing
+        );
+
+        if (isEditing) return;
+        if (e?.key === 'Delete' || flag === true) {
+          e?.preventDefault();
+
+          canvas.remove(...activeObjects);
+
+          canvas.discardActiveObject();
+          canvas.requestRenderAll();
+        }
+      } else if (!exist && e?.key === 'Backspace') {
+        const checkGoToBack = confirm(
+          '정말 뒤돌아가시겠습니까? 저장되지 않은 내역은 모두 사라집니다'
+        );
+        if (!checkGoToBack) {
+          e?.preventDefault();
+        }
+      }
+    },
+    []
+  );
+
+  const handleDeleteEmptyShape = useCallback((canvas: Canvas) => {
     const deleteEmptyShape = (opt: { target: IText }) => {
       const textObject = opt.target;
 
@@ -75,17 +116,17 @@ export const useFabric = () => {
     return () => {
       canvas.off('text:editing:exited', deleteEmptyShape);
     };
-  };
+  }, []);
 
-  const copy = async () => {
+  const copy = useCallback(async () => {
     if (!canvas) return;
     const activeObject = canvas.getActiveObject();
     if (!activeObject) return;
     const cloned = await activeObject.clone();
     setClipboard(cloned);
-  };
+  }, [canvas]);
 
-  const paste = async () => {
+  const paste = useCallback(async () => {
     if (!clipboard || !canvas) return;
     isUpdating.current = true;
 
@@ -137,67 +178,87 @@ export const useFabric = () => {
     canvas.requestRenderAll();
     isUpdating.current = false;
     saveHistory();
-  };
+  }, [canvas, clipboard, saveHistory]);
 
-  const moveUp = (activeObject: FabricObject) => {
-    if (!activeObject || !canvas) return;
-    canvas.bringObjectForward(activeObject);
-    canvas.requestRenderAll();
-  };
+  const moveUp = useCallback(
+    (activeObject: FabricObject) => {
+      if (!activeObject || !canvas) return;
+      canvas.bringObjectForward(activeObject);
+      canvas.requestRenderAll();
+    },
+    [canvas]
+  );
 
-  const moveDown = (activeObject: FabricObject) => {
-    if (!activeObject || !canvas) return;
-    canvas.sendObjectBackwards(activeObject);
-    canvas.requestRenderAll();
-  };
+  const moveDown = useCallback(
+    (activeObject: FabricObject) => {
+      if (!activeObject || !canvas) return;
+      canvas.sendObjectBackwards(activeObject);
+      canvas.requestRenderAll();
+    },
+    [canvas]
+  );
 
-  const moveTop = (activeObject: FabricObject) => {
-    if (!activeObject || !canvas) return;
-    canvas.bringObjectToFront(activeObject);
-    canvas.requestRenderAll();
-  };
+  const moveTop = useCallback(
+    (activeObject: FabricObject) => {
+      if (!activeObject || !canvas) return;
+      canvas.bringObjectToFront(activeObject);
+      canvas.requestRenderAll();
+    },
+    [canvas]
+  );
 
-  const moveBottom = (activeObject: FabricObject) => {
-    if (!activeObject || !canvas) return;
-    canvas.sendObjectToBack(activeObject);
-    canvas.requestRenderAll();
-  };
+  const moveBottom = useCallback(
+    (activeObject: FabricObject) => {
+      if (!activeObject || !canvas) return;
+      canvas.sendObjectToBack(activeObject);
+      canvas.requestRenderAll();
+    },
+    [canvas]
+  );
 
-  const lock = (activeObject: FabricObject) => {
-    if (!activeObject || !canvas) return;
-    activeObject.set({
-      lockMovementX: true,
-      lockMovementY: true,
-      lockScalingX: true,
-      lockScalingY: true,
-      lockRotation: true,
-      hasControls: false,
-      editable: false,
-      isLocked: true,
-    });
-    canvas?.requestRenderAll();
-  };
+  const lock = useCallback(
+    (activeObject: FabricObject) => {
+      if (!activeObject || !canvas) return;
+      activeObject.set({
+        lockMovementX: true,
+        lockMovementY: true,
+        lockScalingX: true,
+        lockScalingY: true,
+        lockRotation: true,
+        hasControls: false,
+        editable: false,
+        isLocked: true,
+      });
+      canvas?.requestRenderAll();
+      saveHistory();
+    },
+    [canvas, saveHistory]
+  );
 
-  const unLock = (activeObject: FabricObject) => {
-    if (!activeObject || !canvas) return;
-    activeObject.set({
-      lockMovementX: false,
-      lockMovementY: false,
-      lockScalingX: false,
-      lockScalingY: false,
-      lockRotation: false,
-      hasControls: true,
-      editable: true,
-      isLocked: false,
-    });
-    canvas?.requestRenderAll();
-  };
+  const unLock = useCallback(
+    (activeObject: FabricObject) => {
+      if (!activeObject || !canvas) return;
+      activeObject.set({
+        lockMovementX: false,
+        lockMovementY: false,
+        lockScalingX: false,
+        lockScalingY: false,
+        lockRotation: false,
+        isLocked: false,
+        hasControls: true,
+        editable: true,
+      });
+      canvas?.requestRenderAll();
+      saveHistory();
+    },
+    [canvas, saveHistory]
+  );
 
-  const syncActiveObjectInfo = (canvas: Canvas) => {
+  const syncActiveObjectInfo = useCallback((canvas: Canvas) => {
     const activeObjects = canvas.getActiveObjects();
 
     if (activeObjects.length === 0) {
-      setActiveInfo({ type: null, filters: [], styles: {} });
+      setActiveInfo({ type: null, isLocked: false, filters: [], styles: {} });
       return;
     }
 
@@ -206,6 +267,7 @@ export const useFabric = () => {
     // UI 버튼 활성화를 위해 필요한 정보만 추출
     setActiveInfo({
       type: primaryObject.type,
+      isLocked: (primaryObject as any).isLocked || false,
       filters: (primaryObject as any).filters || [],
       styles: {
         fontWeight: (primaryObject as any).fontWeight,
@@ -219,46 +281,44 @@ export const useFabric = () => {
         strokeWidth: primaryObject.strokeWidth,
       },
     });
-  };
+  }, []);
 
   // 캔버스 초기화 시 이벤트 리스너 등록
-  const setupEventListeners = (canvas: Canvas) => {
-    const events = [
-      'selection:created',
-      'selection:updated',
-      'selection:cleared',
-      'object:modified',
-      'text:selection:changed', // 텍스트 내부 드래그 시 스타일 대응
-    ];
+  const setupEventListeners = useCallback(
+    (canvas: Canvas) => {
+      // 1. 객체 선택 상태 동기화 (UI 업데이트용)
+      const selectionEvents = [
+        'selection:created',
+        'selection:updated',
+        'selection:cleared',
+        'text:selection:changed',
+      ];
 
-    events.forEach(event => {
-      canvas.on(event as any, () => syncActiveObjectInfo(canvas));
-    });
-  };
+      const handleSelection = () => syncActiveObjectInfo(canvas);
 
-  const saveHistory = () => {
-    if (isUpdating.current || !canvas) return;
+      selectionEvents.forEach(event => {
+        canvas.off(event as any, handleSelection);
+        canvas.on(event as any, handleSelection);
+      });
 
-    // 객체 상태 직렬화 시 filters 등 커스텀 속성도 포함
-    const json = JSON.stringify(
-      canvas.toObject(['filters', 'id', 'name', 'isLocked'])
-    );
+      // 2. 조작 내역 저장 (Undo/Redo용)
+      const historyEvents = [
+        'object:modified',
+        'object:added',
+        'object:removed',
+      ];
 
-    const prevState = undoStack.current[undoStack.current.length - 1];
-    if (prevState === json) return;
+      const handleHistory = () => saveHistory();
 
-    undoStack.current.push(json);
+      historyEvents.forEach(event => {
+        canvas.off(event as any, handleHistory);
+        canvas.on(event as any, handleHistory);
+      });
+    },
+    [syncActiveObjectInfo, saveHistory]
+  );
 
-    if (undoStack.current.length > MAX_STACK_SIZE) {
-      undoStack.current.shift();
-    }
-
-    if (redoStack.current.length > 0) {
-      redoStack.current.length = 0;
-    }
-  };
-
-  const undo = async () => {
+  const undo = useCallback(async () => {
     if (undoStack.current.length <= 1 || isUpdating.current || !canvas) return;
 
     isUpdating.current = true;
@@ -283,9 +343,12 @@ export const useFabric = () => {
 
     canvas.requestRenderAll();
     isUpdating.current = false;
-  };
+    syncActiveObjectInfo(canvas);
+    setCanUndo(undoStack.current.length > 1);
+    setCanRedo(redoStack.current.length > 0);
+  }, [canvas, syncActiveObjectInfo]);
 
-  const redo = async () => {
+  const redo = useCallback(async () => {
     if (redoStack.current.length === 0 || isUpdating.current || !canvas) return;
 
     isUpdating.current = true;
@@ -309,9 +372,12 @@ export const useFabric = () => {
       canvas.requestRenderAll();
     }
     isUpdating.current = false;
-  };
+    syncActiveObjectInfo(canvas);
+    setCanUndo(undoStack.current.length > 1);
+    setCanRedo(redoStack.current.length > 0);
+  }, [canvas, syncActiveObjectInfo]);
 
-  const exportIntersectedJSON = () => {
+  const exportIntersectedJSON = useCallback(() => {
     if (!canvas) return;
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
@@ -335,7 +401,7 @@ export const useFabric = () => {
     const json = canvas.toObject(propertiesToInclude);
     json.objects = filteredData.map(obj => obj.toObject(propertiesToInclude));
     return json;
-  };
+  }, [canvas]);
 
   return {
     canvas,
@@ -357,5 +423,8 @@ export const useFabric = () => {
     unLock,
     saveHistory,
     exportIntersectedJSON,
+    clipboard,
+    canUndo,
+    canRedo,
   };
 };

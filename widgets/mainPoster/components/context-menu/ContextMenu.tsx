@@ -1,6 +1,7 @@
 import { TPointerEvent, TPointerEventInfo } from 'fabric';
 import { useEffect, useRef, useState } from 'react';
 
+import { cn } from '@/shared/utils/cn';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import ControlZindex from './ControlZindex';
@@ -9,7 +10,8 @@ import { LockObject } from './LockObject';
 import { UndoRedo } from './UndoRedo';
 
 export function ContextMenu() {
-  const { canvas, handleDeleteShape } = useFabricContext();
+  const { canvas, handleDeleteShape, activeInfo } = useFabricContext();
+  const hasActiveObject = activeInfo.type !== null;
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
@@ -71,16 +73,20 @@ export function ContextMenu() {
       <UndoRedo onClick={() => setOpen(false)} />
       <button
         type="button"
-        className="hover:bg-gray-100 active:bg-gray-200 flex justify-between"
+        disabled={!hasActiveObject}
+        className={cn(
+          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
+          !hasActiveObject && 'opacity-50 cursor-not-allowed grayscale'
+        )}
         onClick={() => {
-          if (canvas) {
+          if (canvas && hasActiveObject) {
             handleDeleteShape(canvas, undefined, true);
           }
           setOpen(false);
         }}
       >
-        <p>삭제하기</p>
-        <p>Delete</p>
+        <p className={cn(!hasActiveObject && 'text-gray-400')}>삭제하기</p>
+        <p className={cn(!hasActiveObject && 'text-gray-400')}>Delete</p>
       </button>
       <LockObject onClick={() => setOpen(false)} />
     </div>

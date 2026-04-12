@@ -1,3 +1,4 @@
+import { cn } from '@/shared/utils/cn';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import { FabricObjectWithLock } from '../../types/fabric';
@@ -7,54 +8,88 @@ interface Props {
 }
 
 function ControlZindex({ onClick }: Props) {
-  const { canvas, moveUp, moveDown, moveTop, moveBottom } = useFabricContext();
+  const { canvas, moveUp, moveDown, moveTop, moveBottom, activeInfo } =
+    useFabricContext();
+  const hasActiveObject = activeInfo.type !== null;
   const activeObject = canvas?.getActiveObject() as FabricObjectWithLock;
 
   return (
     <>
       <button
         type="button"
-        className="hover:bg-gray-100 active:bg-gray-200 flex justify-between"
+        disabled={!hasActiveObject}
+        className={cn(
+          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
+          !hasActiveObject && 'opacity-50 cursor-not-allowed grayscale'
+        )}
         onClick={() => {
-          moveTop(activeObject);
-          onClick();
+          if (hasActiveObject && activeObject) {
+            moveTop(activeObject);
+            onClick();
+          }
         }}
       >
-        <p>맨 위로 보내기</p>
-        <p>Ctrl + Shift + [</p>
+        <p className={cn(!hasActiveObject && 'text-gray-400')}>
+          맨 위로 보내기
+        </p>
+        <p className={cn(!hasActiveObject && 'text-gray-400')}>
+          Ctrl + Shift + [
+        </p>
       </button>
       <button
         type="button"
-        className="hover:bg-gray-100 active:bg-gray-200 flex justify-between"
+        disabled={!hasActiveObject}
+        className={cn(
+          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
+          !hasActiveObject && 'opacity-50 cursor-not-allowed grayscale'
+        )}
         onClick={() => {
-          moveBottom(activeObject);
-          onClick();
+          if (hasActiveObject && activeObject) {
+            moveBottom(activeObject);
+            onClick();
+          }
         }}
       >
-        <p>맨 아래로 보내기</p>
-        <p>Ctrl + Shift + ]</p>
+        <p className={cn(!hasActiveObject && 'text-gray-400')}>
+          맨 아래로 보내기
+        </p>
+        <p className={cn(!hasActiveObject && 'text-gray-400')}>
+          Ctrl + Shift + ]
+        </p>
       </button>
       <button
         type="button"
-        className="hover:bg-gray-100 active:bg-gray-200 flex justify-between"
+        disabled={!hasActiveObject}
+        className={cn(
+          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
+          !hasActiveObject && 'opacity-50 cursor-not-allowed grayscale'
+        )}
         onClick={() => {
-          moveUp(activeObject);
-          onClick();
+          if (hasActiveObject && activeObject) {
+            moveUp(activeObject);
+            onClick();
+          }
         }}
       >
-        <p>위로 보내기</p>
-        <p>Ctrl + [</p>
+        <p className={cn(!hasActiveObject && 'text-gray-400')}>위로 보내기</p>
+        <p className={cn(!hasActiveObject && 'text-gray-400')}>Ctrl + [</p>
       </button>
       <button
         type="button"
-        className="hover:bg-gray-100 active:bg-gray-200 flex justify-between"
+        disabled={!hasActiveObject}
+        className={cn(
+          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
+          !hasActiveObject && 'opacity-50 cursor-not-allowed grayscale'
+        )}
         onClick={() => {
-          moveDown(activeObject);
-          onClick();
+          if (hasActiveObject && activeObject) {
+            moveDown(activeObject);
+            onClick();
+          }
         }}
       >
-        <p>아래로 보내기</p>
-        <p>Ctrl + ]</p>
+        <p className={cn(!hasActiveObject && 'text-gray-400')}>아래로 보내기</p>
+        <p className={cn(!hasActiveObject && 'text-gray-400')}>Ctrl + ]</p>
       </button>
     </>
   );

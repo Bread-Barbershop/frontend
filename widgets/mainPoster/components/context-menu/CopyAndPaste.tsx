@@ -1,3 +1,4 @@
+import { cn } from '@/shared/utils/cn';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 interface Props {
@@ -5,31 +6,45 @@ interface Props {
 }
 
 function CopyAndPaste({ onClick }: Props) {
-  const { copy, paste } = useFabricContext();
+  const { copy, paste, activeInfo, clipboard } = useFabricContext();
+  const hasActiveObject = activeInfo.type !== null;
+  const hasClipboard = clipboard !== null;
 
   return (
     <>
       <button
         type="button"
-        className="hover:bg-gray-100 active:bg-gray-200 flex justify-between"
+        disabled={!hasActiveObject}
+        className={cn(
+          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
+          !hasActiveObject && 'opacity-50 cursor-not-allowed grayscale'
+        )}
         onClick={async () => {
-          await copy();
-          onClick();
+          if (hasActiveObject) {
+            await copy();
+            onClick();
+          }
         }}
       >
-        <p>복사</p>
-        <p>Ctrl + C</p>
+        <p className={cn(!hasActiveObject && 'text-gray-400')}>복사</p>
+        <p className={cn(!hasActiveObject && 'text-gray-400')}>Ctrl + C</p>
       </button>
       <button
         type="button"
-        className="hover:bg-gray-100 active:bg-gray-200 flex justify-between"
+        disabled={!hasClipboard}
+        className={cn(
+          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
+          !hasClipboard && 'opacity-50 cursor-not-allowed grayscale'
+        )}
         onClick={async () => {
-          await paste();
-          onClick();
+          if (hasClipboard) {
+            await paste();
+            onClick();
+          }
         }}
       >
-        <p>붙여넣기</p>
-        <p>Ctrl + V</p>
+        <p className={cn(!hasClipboard && 'text-gray-400')}>붙여넣기</p>
+        <p className={cn(!hasClipboard && 'text-gray-400')}>Ctrl + V</p>
       </button>
     </>
   );
