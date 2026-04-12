@@ -22,7 +22,12 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
       updateImage: state.updateImage,
     }))
   );
-  const handlePictureDelete = (files: (File | string)[]) => {
+  const handlePictureDelete = (files?: (File | string)[]) => {
+    if (!files) {
+      updateBlock(id, { images: [] });
+      updateImage(id, []);
+      return;
+    }
     updateBlock(id, { images: files });
     updateImage(id, files);
   };
@@ -56,6 +61,10 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
           className="py-1"
           multiple={true}
           value={blockInfo.props.images}
+          onReorder={file => {
+            updateBlock(id, { images: file });
+            updateImage(id, file);
+          }}
           onChange={handlePictureChange}
           onDelete={handlePictureDelete}
         />
