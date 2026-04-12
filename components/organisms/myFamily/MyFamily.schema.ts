@@ -25,6 +25,7 @@ export const myFamilySchema = {
         relation: string;
         name: string;
         image: (File | string)[];
+        flower: boolean;
       }[],
       required: false,
     },

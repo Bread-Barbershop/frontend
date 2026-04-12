@@ -72,13 +72,30 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
     });
   };
 
+  const handleFlowerChange = (index: number, value: boolean) => {
+    updateBlock(id, {
+      family: family?.map((member, i) =>
+        i === index ? { ...member, flower: value } : member
+      ),
+    });
+  };
+
   const handleEditorChange = (json: JSONContent) => {
     debouncedUpdateMessage(json);
   };
 
   const handleAddFamily = () => {
-    const newFamily = [...(family || []), { relation: '', name: '' }];
+    const newFamily = [
+      ...(family || []),
+      { relation: '', name: '', flower: false },
+    ];
     updateBlock(id, { family: newFamily });
+  };
+
+  const handleDeleteFamily = (index: number) => {
+    updateBlock(id, {
+      family: family?.filter((_, i) => i !== index),
+    });
   };
 
   const handleCheckedChange = (
@@ -114,7 +131,7 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
   }, [id, family, updateBlock]);
 
   return (
-    <LeftEditorWrapper ariaLabel="가족 소개" className="gap-3">
+    <LeftEditorWrapper ariaLabel="가족 소개" className="gap-3 min-h-60">
       <NavigationBar
         action={
           <UtilityButton size="md" variant="primary" onClick={handleAddFamily}>
@@ -142,7 +159,9 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
               onRelationChange={handleRelationChange}
               onNameChange={handleNameChange}
               onImageChange={handleImageChange}
-              onDelete={handleImageDelete}
+              onImageDelete={handleImageDelete}
+              onDelete={handleDeleteFamily}
+              onFlowerChange={handleFlowerChange}
             />
           </div>
         ))}
@@ -169,7 +188,7 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
           />
         </>
       )}
-      <section className="flex items-center justify-center -mx-2 gap-1">
+      <section className="flex items-center justify-center -mx-2 gap-1 pt-1.5">
         <Label className="font-semibold">추가기능</Label>
         <Checkbox
           className="text-[13px]"
