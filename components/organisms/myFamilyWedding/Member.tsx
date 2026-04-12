@@ -1,8 +1,6 @@
 import { ChangeEvent, useState } from 'react';
 
 import { Input } from '@/components/atoms/input';
-import { Label } from '@/components/atoms/label';
-import { Picture } from '@/components/molecules/picture';
 import { Selector } from '@/components/molecules/selector';
 import Flower from '@/shared/assets/icons/flower.svg';
 import Hide from '@/shared/assets/icons/hide.svg';
@@ -12,30 +10,37 @@ import Show from '@/shared/assets/icons/show.svg';
 import { cn } from '@/shared/utils/cn';
 
 interface Props {
+  type: 'bride' | 'groom';
   index: number;
   member: {
     relation: string;
     name: string;
-    image: (File | string)[];
     flower: boolean;
   };
-  checkedImage: boolean | undefined;
-  onRelationChange: (index: number, value: string) => void;
-  onNameChange: (index: number, e: ChangeEvent<HTMLInputElement>) => void;
-  onImageChange: (index: number, value: (File | string)[]) => void;
-  onImageDelete: (index: number) => void;
-  onDelete: (index: number) => void;
-  onFlowerChange: (index: number, value: boolean) => void;
+  onRelationChange: (
+    type: 'bride' | 'groom',
+    index: number,
+    value: string
+  ) => void;
+  onNameChange: (
+    type: 'bride' | 'groom',
+    index: number,
+    e: ChangeEvent<HTMLInputElement>
+  ) => void;
+  onDelete: (type: 'bride' | 'groom', index: number) => void;
+  onFlowerChange: (
+    type: 'bride' | 'groom',
+    index: number,
+    value: boolean
+  ) => void;
 }
 
 export const Member = ({
+  type,
   index,
   member,
-  checkedImage,
   onRelationChange,
   onNameChange,
-  onImageChange,
-  onImageDelete,
   onDelete,
   onFlowerChange,
 }: Props) => {
@@ -43,9 +48,6 @@ export const Member = ({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-row gap-2">
-        <Label id={`family${index}`} className="text-center font-semibold">
-          소개{index + 1}
-        </Label>
         <Selector
           className="w-21.5"
           placeholder="관계"
@@ -54,8 +56,8 @@ export const Member = ({
             { value: '모', label: '모' },
           ]}
           selected={{ value: member.relation, label: member.relation }}
-          onSelect={option => onRelationChange(index, option.value)}
-          onInputChange={value => onRelationChange(index, value)}
+          onSelect={option => onRelationChange(type, index, option.value)}
+          onInputChange={value => onRelationChange(type, index, value)}
         />
         <div className="relative">
           {member.flower && (
@@ -66,7 +68,7 @@ export const Member = ({
           <Input
             placeholder="이름"
             value={member.name}
-            onChange={e => onNameChange(index, e)}
+            onChange={e => onNameChange(type, index, e)}
             className={cn('w-34', member.flower && 'pl-8')}
           />
         </div>
@@ -82,7 +84,7 @@ export const Member = ({
                 type="button"
                 className="w-full flex items-center gap-1"
                 onClick={() => {
-                  onFlowerChange(index, !member.flower);
+                  onFlowerChange(type, index, !member.flower);
                   setIsMenuOpen(false);
                 }}
               >
@@ -94,7 +96,7 @@ export const Member = ({
                 type="button"
                 className="w-full flex items-center gap-5"
                 onClick={() => {
-                  onDelete(index);
+                  onDelete(type, index);
                   setIsMenuOpen(false);
                 }}
               >
@@ -105,16 +107,6 @@ export const Member = ({
           )}
         </button>
       </div>
-      {checkedImage && (
-        <Picture
-          label="사진"
-          className="w-full text-center"
-          multiple={false}
-          value={member.image}
-          onChange={value => onImageChange(index, value)}
-          onDelete={() => onImageDelete(index)}
-        />
-      )}
     </div>
   );
 };

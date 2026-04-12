@@ -16,7 +16,7 @@ export type ListType = {
 export const weddingComponents: ListType[] = [
   { contents: '인사말', component: 'greeting', isType: false },
   { contents: '신랑신부소개', component: 'coupleIntroduction', isType: false },
-  { contents: '가족소개', component: 'myFamily', isType: false },
+  { contents: '가족소개', component: 'myFamilyWedding', isType: false },
   { contents: '예식일시', component: 'calendar', isType: false },
   { contents: '예식장소', component: 'place', isType: false },
   { contents: '갤러리', component: 'gallery', isType: true },
