@@ -1,78 +1,60 @@
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
+import { FabricObjectWithLock } from '../../types/fabric';
+
 interface Props {
   onClick: () => void;
 }
 
 function ControlZindex({ onClick }: Props) {
-  const { canvas } = useFabricContext();
-  const activeObject = canvas?.getActiveObject();
-
-  const moveUp = () => {
-    if (!activeObject || !canvas) return;
-    canvas.bringObjectForward(activeObject);
-    canvas.requestRenderAll();
-  };
-
-  const moveDown = () => {
-    if (!activeObject || !canvas) return;
-    canvas.sendObjectBackwards(activeObject);
-    canvas.requestRenderAll();
-  };
-
-  const moveTop = () => {
-    if (!activeObject || !canvas) return;
-    canvas.bringObjectToFront(activeObject);
-    canvas.requestRenderAll();
-  };
-
-  const moveBottom = () => {
-    if (!activeObject || !canvas) return;
-    canvas.sendObjectToBack(activeObject);
-    canvas.requestRenderAll();
-  };
+  const { canvas, moveUp, moveDown, moveTop, moveBottom } = useFabricContext();
+  const activeObject = canvas?.getActiveObject() as FabricObjectWithLock;
 
   return (
     <>
       <button
         type="button"
-        className="hover:bg-gray-100 active:bg-gray-200"
+        className="hover:bg-gray-100 active:bg-gray-200 flex justify-between"
         onClick={() => {
-          moveTop();
+          moveTop(activeObject);
           onClick();
         }}
       >
-        맨 위로 보내기
+        <p>맨 위로 보내기</p>
+        <p>Ctrl + Shift + [</p>
       </button>
       <button
         type="button"
-        className="hover:bg-gray-100 active:bg-gray-200"
+        className="hover:bg-gray-100 active:bg-gray-200 flex justify-between"
         onClick={() => {
-          moveBottom();
+          moveBottom(activeObject);
           onClick();
         }}
       >
-        맨 아래로 보내기
+        <p>맨 아래로 보내기</p>
+        <p>Ctrl + Shift + ]</p>
       </button>
       <button
         type="button"
-        className="hover:bg-gray-100 active:bg-gray-200"
+        className="hover:bg-gray-100 active:bg-gray-200 flex justify-between"
         onClick={() => {
-          moveUp();
+          moveUp(activeObject);
           onClick();
         }}
       >
-        위로 보내기
+        <p>위로 보내기</p>
+        <p>Ctrl + [</p>
       </button>
       <button
         type="button"
-        className="hover:bg-gray-100 active:bg-gray-200"
+        className="hover:bg-gray-100 active:bg-gray-200 flex justify-between"
         onClick={() => {
-          moveDown();
+          moveDown(activeObject);
           onClick();
         }}
       >
-        아래로 보내기
+        <p>아래로 보내기</p>
+        <p>Ctrl + ]</p>
       </button>
     </>
   );

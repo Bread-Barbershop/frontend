@@ -1,38 +1,33 @@
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
-
 interface Props {
   onClick: () => void;
 }
-
-function CopyAndPaste({ onClick }: Props) {
-  const { copy, paste } = useFabricContext();
-
+export const UndoRedo = ({ onClick }: Props) => {
+  const { undo, redo } = useFabricContext();
   return (
     <>
       <button
         type="button"
         className="hover:bg-gray-100 active:bg-gray-200 flex justify-between"
-        onClick={async () => {
-          await copy();
+        onClick={() => {
+          undo();
           onClick();
         }}
       >
-        <p>복사</p>
-        <p>Ctrl + C</p>
+        <p>되돌리기</p>
+        <p>Ctrl + Z</p>
       </button>
       <button
         type="button"
         className="hover:bg-gray-100 active:bg-gray-200 flex justify-between"
-        onClick={async () => {
-          await paste();
+        onClick={() => {
+          redo();
           onClick();
         }}
       >
-        <p>붙여넣기</p>
-        <p>Ctrl + V</p>
+        <p>다시하기</p>
+        <p>Ctrl + Shift + Z</p>
       </button>
     </>
   );
-}
-
-export default CopyAndPaste;
+};

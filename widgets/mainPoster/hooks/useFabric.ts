@@ -139,6 +139,60 @@ export const useFabric = () => {
     saveHistory();
   };
 
+  const moveUp = (activeObject: FabricObject) => {
+    if (!activeObject || !canvas) return;
+    canvas.bringObjectForward(activeObject);
+    canvas.requestRenderAll();
+  };
+
+  const moveDown = (activeObject: FabricObject) => {
+    if (!activeObject || !canvas) return;
+    canvas.sendObjectBackwards(activeObject);
+    canvas.requestRenderAll();
+  };
+
+  const moveTop = (activeObject: FabricObject) => {
+    if (!activeObject || !canvas) return;
+    canvas.bringObjectToFront(activeObject);
+    canvas.requestRenderAll();
+  };
+
+  const moveBottom = (activeObject: FabricObject) => {
+    if (!activeObject || !canvas) return;
+    canvas.sendObjectToBack(activeObject);
+    canvas.requestRenderAll();
+  };
+
+  const lock = (activeObject: FabricObject) => {
+    if (!activeObject || !canvas) return;
+    activeObject.set({
+      lockMovementX: true,
+      lockMovementY: true,
+      lockScalingX: true,
+      lockScalingY: true,
+      lockRotation: true,
+      hasControls: false,
+      editable: false,
+      isLocked: true,
+    });
+    canvas?.requestRenderAll();
+  };
+
+  const unLock = (activeObject: FabricObject) => {
+    if (!activeObject || !canvas) return;
+    activeObject.set({
+      lockMovementX: false,
+      lockMovementY: false,
+      lockScalingX: false,
+      lockScalingY: false,
+      lockRotation: false,
+      hasControls: true,
+      editable: true,
+      isLocked: false,
+    });
+    canvas?.requestRenderAll();
+  };
+
   const syncActiveObjectInfo = (canvas: Canvas) => {
     const activeObjects = canvas.getActiveObjects();
 
@@ -295,6 +349,12 @@ export const useFabric = () => {
     paste,
     redo,
     undo,
+    moveUp,
+    moveDown,
+    moveTop,
+    moveBottom,
+    lock,
+    unLock,
     saveHistory,
     exportIntersectedJSON,
   };

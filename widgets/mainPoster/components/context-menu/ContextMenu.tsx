@@ -6,6 +6,7 @@ import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 import ControlZindex from './ControlZindex';
 import CopyAndPaste from './CopyAndPaste';
 import { LockObject } from './LockObject';
+import { UndoRedo } from './UndoRedo';
 
 export function ContextMenu() {
   const { canvas, handleDeleteShape } = useFabricContext();
@@ -61,16 +62,16 @@ export function ContextMenu() {
   return (
     <div
       ref={menuRef}
-      className="fixed z-9999 flex flex-col gap-3 p-3 bg-white border border-gray-200 rounded-md shadow-lg"
+      className="fixed z-9999 w-55 flex flex-col gap-3 p-3 bg-white border border-gray-200 rounded-md shadow-lg"
       style={{ top: pos.y, left: pos.x }}
-      // onMouseDown={e => e.stopPropagation()}
       onContextMenu={e => e.preventDefault()}
     >
       <CopyAndPaste onClick={() => setOpen(false)} />
       <ControlZindex onClick={() => setOpen(false)} />
+      <UndoRedo onClick={() => setOpen(false)} />
       <button
         type="button"
-        className="hover:bg-gray-100 active:bg-gray-200"
+        className="hover:bg-gray-100 active:bg-gray-200 flex justify-between"
         onClick={() => {
           if (canvas) {
             handleDeleteShape(canvas, undefined, true);
@@ -78,7 +79,8 @@ export function ContextMenu() {
           setOpen(false);
         }}
       >
-        삭제하기
+        <p>삭제하기</p>
+        <p>Delete</p>
       </button>
       <LockObject onClick={() => setOpen(false)} />
     </div>
