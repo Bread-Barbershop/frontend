@@ -96,6 +96,7 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
       if (type === 'checkedTitle') {
         updateData.title = '';
       } else if (type === 'checkedMessage') {
+        debouncedUpdateMessage.cancel();
         updateData.messageJson = null;
         updateData.messageHtml = null;
       } else if (type === 'checkedImage') {
@@ -141,8 +142,8 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
   useEffect(() => {
     if (family && family.length > 0) return;
     const newFamily = [
-      { relation: null, name: '', image: [] },
-      { relation: null, name: '', image: [] },
+      { relation: '', name: '', image: [] },
+      { relation: '', name: '', image: [] },
     ];
     updateBlock(id, { family: newFamily });
   }, [id, family, updateBlock]);

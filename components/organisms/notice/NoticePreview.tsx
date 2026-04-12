@@ -1,3 +1,4 @@
+import { EmblaOptionsType } from 'embla-carousel';
 import { useMemo } from 'react';
 
 import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
@@ -32,6 +33,25 @@ export const NoticePreview = ({
 
   const isAutoScrollActive = (items?.length ?? 0) > 1;
 
+  const carouselOptions: EmblaOptionsType = useMemo(
+    () => ({
+      align: 'center',
+      containScroll: false,
+      loop: isAutoScrollActive,
+    }),
+    [isAutoScrollActive]
+  );
+
+  const autoscrollOptions = useMemo(
+    () => ({
+      speed: 1,
+      stopOnInteraction: false,
+      stopOnMouseEnter: false,
+      stopOnFocusIn: false,
+    }),
+    []
+  );
+
   return (
     <MiddlePreviewWrapper
       className={cn('px-0', className)}
@@ -42,21 +62,12 @@ export const NoticePreview = ({
     >
       <div className="w-full flex justify-center relative overflow-hidden">
         <Carousel
-          options={{
-            align: 'center',
-            containScroll: false,
-            loop: isAutoScrollActive,
-          }}
+          options={carouselOptions}
           isButtonShow={false}
           className="h-full w-full"
           carouselClassName="gap-3"
           autoscroll={isAutoScrollActive}
-          autoscrollOptions={{
-            speed: 1,
-            stopOnInteraction: false,
-            stopOnMouseEnter: false,
-            stopOnFocusIn: false,
-          }}
+          autoscrollOptions={autoscrollOptions}
           loop={isAutoScrollActive}
         >
           {displayItems?.map((item, index) => (
