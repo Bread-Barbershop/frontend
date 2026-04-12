@@ -1,5 +1,3 @@
-// import LoadInvitationTest from '@/app/dashboard/components/LoadInvitationTest';
-
 import DashboardContent from './components/DashboardContent';
 
 export const metadata = {
