@@ -16,7 +16,7 @@ type FabricContextType = ReturnType<typeof useFabric> &
     initialData?: string;
     canUndo: boolean;
     canRedo: boolean;
-    clipboard: any; // FabricObject | null
+    clipboard: any;
   };
 
 const FabricContext = createContext<FabricContextType | null>(null);

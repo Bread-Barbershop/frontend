@@ -397,7 +397,21 @@ export const useFabric = () => {
       return isVisible;
     });
 
-    const propertiesToInclude = ['filters', 'id', 'name'];
+    const propertiesToInclude = [
+      'filters',
+      'id',
+      'name',
+      'isLocked',
+      'lockMovementX',
+      'lockMovementY',
+      'lockScalingX',
+      'lockScalingY',
+      'lockRotation',
+      'hasControls',
+      'editable',
+      'selectable',
+      'evented',
+    ];
     const json = canvas.toObject(propertiesToInclude);
     json.objects = filteredData.map(obj => obj.toObject(propertiesToInclude));
     return json;

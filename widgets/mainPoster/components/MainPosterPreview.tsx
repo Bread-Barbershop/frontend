@@ -47,10 +47,45 @@ export const MainPosterPreview = () => {
     setupEventListeners,
     startCrop,
     isCropping,
+    initialData,
   } = useFabricContext();
 
   useSetFabricControls();
   useKeyboardEvents(canvas, isMouseInCanvasRef);
+
+  useEffect(() => {
+    if (!canvas || !initialData) return;
+
+    const loadData = async () => {
+      try {
+        const jsonData =
+          typeof initialData === 'string'
+            ? JSON.parse(initialData)
+            : initialData;
+        await canvas.loadFromJSON(jsonData);
+
+        canvas.getObjects().forEach(obj => {
+          if ((obj as any).isLocked) {
+            obj.set({
+              lockMovementX: true,
+              lockMovementY: true,
+              lockScalingX: true,
+              lockScalingY: true,
+              lockRotation: true,
+              hasControls: false,
+              editable: false,
+            });
+          }
+        });
+
+        canvas.requestRenderAll();
+      } catch (error) {
+        console.error('Fabric load Error:', error);
+      }
+    };
+
+    loadData();
+  }, [canvas, initialData]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
