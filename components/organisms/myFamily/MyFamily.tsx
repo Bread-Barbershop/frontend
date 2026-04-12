@@ -31,6 +31,7 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
     messageJson,
   } = blockInfo.props;
   const updateBlock = useEditorStore(state => state.updateBlock);
+  const updateImage = useEditorStore(state => state.updateImage);
 
   const debouncedUpdateMessage = useMemo(
     () =>
@@ -77,7 +78,10 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
   };
 
   const handleAddFamily = () => {
-    const newFamily = [...(family || []), { relation: '', name: '' }];
+    const newFamily = [
+      ...(family || []),
+      { relation: '', name: '', image: [] },
+    ];
     updateBlock(id, { family: newFamily });
   };
 
@@ -85,30 +89,60 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
     e: ChangeEvent<HTMLInputElement>,
     type: 'checkedImage' | 'checkedTitle' | 'checkedMessage'
   ) => {
-    updateBlock(id, { [type]: e.target.checked });
+    const isChecked = e.target.checked;
+    const updateData: Record<string, unknown> = { [type]: isChecked };
+
+    if (!isChecked) {
+      if (type === 'checkedTitle') {
+        updateData.title = '';
+      } else if (type === 'checkedMessage') {
+        updateData.messageJson = null;
+        updateData.messageHtml = null;
+      } else if (type === 'checkedImage') {
+        const newFamily = (family || []).map(member => ({
+          ...member,
+          image: [],
+        }));
+        updateData.family = newFamily;
+        updateData.image = [];
+        updateImage(id, []);
+      }
+    }
+
+    updateBlock(id, updateData);
   };
 
   const handleImageChange = (index: number, value: (File | string)[]) => {
+    const newFamily = (family || []).map((member, i) =>
+      i === index ? { ...member, image: value } : member
+    );
+    const allImages = newFamily.flatMap(member => member.image || []);
+
     updateBlock(id, {
-      family: family?.map((member, i) =>
-        i === index ? { ...member, image: value } : member
-      ),
+      family: newFamily,
+      image: allImages,
     });
+    updateImage(id, allImages);
   };
 
   const handleImageDelete = (index: number) => {
+    const newFamily = (family || []).map((member, i) =>
+      i === index ? { ...member, image: [] } : member
+    );
+    const allImages = newFamily.flatMap(member => member.image || []);
+
     updateBlock(id, {
-      family: family?.map((member, i) =>
-        i === index ? { ...member, image: [] } : member
-      ),
+      family: newFamily,
+      image: allImages,
     });
+    updateImage(id, allImages);
   };
 
   useEffect(() => {
     if (family && family.length > 0) return;
     const newFamily = [
-      { relation: null, name: '' },
-      { relation: null, name: '' },
+      { relation: null, name: '', image: [] },
+      { relation: null, name: '', image: [] },
     ];
     updateBlock(id, { family: newFamily });
   }, [id, family, updateBlock]);
