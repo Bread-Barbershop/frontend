@@ -28,7 +28,7 @@ export const weddingComponents: ListType[] = [
   // { contents: '모청스냅', component: null, isType: false },
   { contents: '공지사항', component: 'notice', isType: false },
   { contents: '동영상', component: 'video', isType: false },
-  { contents: '사진', component: null, isType: false },
+  { contents: '사진', component: 'picture', isType: false },
   { contents: '세례명', component: null, isType: false },
   { contents: '공유 썸네일', component: 'shareUrl', isType: false },
 ];
@@ -47,7 +47,7 @@ export const firstBirthdayComponents: ListType[] = [
   // { contents: '방명록', component: null, isType: false },
   { contents: '공지사항', component: 'notice', isType: false },
   { contents: '동영상', component: 'video', isType: false },
-  { contents: '사진', component: null, isType: false },
+  { contents: '사진', component: 'picture', isType: false },
   { contents: '공유 썸네일', component: 'shareUrl', isType: false },
 ];
 export const birthdayComponents: ListType[] = [
@@ -60,7 +60,7 @@ export const birthdayComponents: ListType[] = [
   // { contents: '방명록', component: null, isType: false },
   { contents: '공지사항', component: 'notice', isType: false },
   { contents: '동영상', component: 'video', isType: false },
-  { contents: '사진', component: null, isType: false },
+  { contents: '사진', component: 'picture', isType: false },
   { contents: '공유 썸네일', component: 'shareUrl', isType: false },
 ];
 export const conferenceComponents: ListType[] = [
@@ -74,7 +74,7 @@ export const conferenceComponents: ListType[] = [
   { contents: '공지사항', component: 'notice', isType: false },
   { contents: '연락처', component: 'phone', isType: false },
   { contents: '동영상', component: 'video', isType: false },
-  { contents: '사진', component: null, isType: false },
+  { contents: '사진', component: 'picture', isType: false },
   { contents: '공유 썸네일', component: 'shareUrl', isType: false },
 ];
 export const etcComponents: ListType[] = [
@@ -84,7 +84,7 @@ export const etcComponents: ListType[] = [
   { contents: '공지사항', component: 'notice', isType: false },
   { contents: '연락처', component: 'phone', isType: false },
   { contents: '동영상', component: 'video', isType: false },
-  { contents: '사진', component: null, isType: false },
+  { contents: '사진', component: 'picture', isType: false },
   { contents: '공유 썸네일', component: 'shareUrl', isType: false },
 ];
 

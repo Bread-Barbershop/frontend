@@ -4,7 +4,6 @@ import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
-import { Picture } from '@/components/molecules/picture/Picture';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
@@ -29,7 +28,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
   );
   const [isQuestionListOpen, setIsQuestionListOpen] = useState(false);
   const [editorResetKey, setEditorResetKey] = useState(0);
-  const { title, questions, image } = blockInfo.props;
+  const { title, questions } = blockInfo.props;
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { title: e.target.value });
@@ -58,6 +57,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
         messageJson: null,
         messageHtml: null,
       },
+      image: [] as (File | string)[],
     };
 
     updateBlock(id, {
@@ -82,21 +82,46 @@ export const Interview = ({ blockInfo, id }: Props) => {
     updateBlock(id, { questions: newQuestions });
   };
 
-  const handlePictureChange = (file: (File | string)[]) => {
-    updateBlock(id, { image: file });
-    updateImage(id, file);
+  const handleQuestionImageChange = (
+    questionId: string,
+    file: (File | string)[]
+  ) => {
+    const newQuestions = (questions || []).map(question =>
+      question.questionId === questionId
+        ? {
+            ...question,
+            image: file,
+          }
+        : question
+    );
+
+    const allImages = newQuestions.flatMap(s => s.image);
+    updateBlock(id, { questions: newQuestions, image: allImages });
+    updateImage(id, allImages);
   };
 
-  const handlePictureDelete = () => {
-    updateBlock(id, { image: [] });
-    updateImage(id, []);
+  const handleQuestionImageDelete = (questionId: string) => {
+    const newQuestions = (questions || []).map(question =>
+      question.questionId === questionId
+        ? {
+            ...question,
+            image: [],
+          }
+        : question
+    );
+
+    const allImages = newQuestions.flatMap(s => s.image);
+    updateBlock(id, { questions: newQuestions, image: allImages });
+    updateImage(id, allImages);
   };
 
   const handleQuestionDelete = (questionId: string) => {
     const newQuestions = (questions || []).filter(
       question => question.questionId !== questionId
     );
-    updateBlock(id, { questions: newQuestions });
+    const newImages = newQuestions.flatMap(s => s.image);
+    updateBlock(id, { questions: newQuestions, image: newImages });
+    updateImage(id, newImages);
   };
 
   useEffect(() => {
@@ -108,6 +133,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
           messageJson: null,
           messageHtml: null,
         },
+        image: [] as (File | string)[],
       };
       updateBlock(id, { questions: [initQuestions] });
     }
@@ -138,14 +164,6 @@ export const Interview = ({ blockInfo, id }: Props) => {
         }}
         className="w-full text-center"
       />
-      <Picture
-        label="사진"
-        className="w-full text-center"
-        multiple={false}
-        value={image}
-        onChange={handlePictureChange}
-        onDelete={handlePictureDelete}
-      />
 
       <div className="flex flex-col gap-6 w-full">
         {(questions || []).map((question, index) => (
@@ -167,6 +185,12 @@ export const Interview = ({ blockInfo, id }: Props) => {
               }
               onEditorChange={json =>
                 handleAnswerEditorChange(question.questionId, json)
+              }
+              onPictureChange={file =>
+                handleQuestionImageChange(question.questionId, file)
+              }
+              onPictureDelete={() =>
+                handleQuestionImageDelete(question.questionId)
               }
               onDelete={() => handleQuestionDelete(question.questionId)}
             />

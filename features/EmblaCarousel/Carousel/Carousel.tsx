@@ -1,6 +1,7 @@
 import { EmblaCarouselType, EmblaOptionsType } from 'embla-carousel';
+import AutoScroll, { AutoScrollOptionsType } from 'embla-carousel-auto-scroll';
 import useEmblaCarousel from 'embla-carousel-react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import { cn } from '@/shared/utils/cn';
 
@@ -15,6 +16,9 @@ interface Props {
   isButtonShow?: boolean;
   buttonClassName?: string;
   onScroll?: (emblaApi: EmblaCarouselType) => void;
+  loop?: boolean;
+  autoscroll?: boolean;
+  autoscrollOptions?: AutoScrollOptionsType;
 }
 
 function Carousel({
@@ -25,8 +29,19 @@ function Carousel({
   isButtonShow,
   buttonClassName,
   onScroll,
+  loop = false,
+  autoscroll = false,
+  autoscrollOptions,
 }: Props) {
-  const [emblaRef, emblaApi] = useEmblaCarousel(options);
+  const plugins = useMemo(() => {
+    const list = [];
+    if (autoscroll) {
+      list.push(AutoScroll(autoscrollOptions));
+    }
+    return list;
+  }, [autoscroll, autoscrollOptions]);
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({ ...options, loop }, plugins);
 
   useEffect(() => {
     if (emblaApi) emblaApi.reInit();
