@@ -18,7 +18,7 @@ interface PictureProps {
   multiple?: boolean;
   onChange?: (files: (File | string)[]) => void;
   onReorder?: (files: (File | string)[]) => void;
-  onDelete?: (files: (File | string)[]) => void;
+  onDelete?: (files?: (File | string)[]) => void;
   className?: string;
   previewClassName?: string;
   inputClassName?: string;

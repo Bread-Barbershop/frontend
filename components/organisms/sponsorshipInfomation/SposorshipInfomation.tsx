@@ -22,7 +22,12 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
       updateImage: state.updateImage,
     }))
   );
-  const handlePictureDelete = (files: (File | string)[]) => {
+  const handlePictureDelete = (files?: (File | string)[]) => {
+    if (!files) {
+      updateBlock(id, { images: [] });
+      updateImage(id, []);
+      return;
+    }
     updateBlock(id, { images: files });
     updateImage(id, files);
   };

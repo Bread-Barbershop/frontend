@@ -38,7 +38,12 @@ function Gallery({ blockInfo, id }: Props) {
     updateImage(id, [...(image ?? []), ...file]);
   };
 
-  const handlePictureDelete = (files: (File | string)[]) => {
+  const handlePictureDelete = (files?: (File | string)[]) => {
+    if (!files) {
+      updateBlock(id, { images: [] });
+      updateImage(id, []);
+      return;
+    }
     updateBlock(id, { images: files });
     updateImage(id, files);
   };

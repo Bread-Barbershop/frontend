@@ -45,7 +45,7 @@ function PictureBlockPreview({ blockInfo, className, ...rest }: Props) {
           <div className="relative w-[335px] h-[335px]">
             <Image
               src={preview}
-              alt="갤러리 이미지"
+              alt="사진 컴포넌트 이미지"
               fill
               className="object-cover rounded-3xl"
             />
