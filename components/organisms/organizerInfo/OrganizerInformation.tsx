@@ -117,7 +117,7 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
       </section>
       {hasUrl && (
         <TextField
-          label="홈페이지"
+          label="url"
           inputProps={{
             placeholder: 'https://example.com',
             value: url,
