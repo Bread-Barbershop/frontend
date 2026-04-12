@@ -8,9 +8,11 @@ export const InterviewPreviewItem = ({
 }: {
   question: string;
   answerHtml: string;
-  image?: File | string | null;
+  image?: (File | string)[];
 }) => {
-  const preview = useResolvedImageSource(image ?? null);
+  const preview = useResolvedImageSource(
+    image && image.length > 0 ? image[0] : null
+  );
 
   return (
     <div className="w-65 flex flex-col gap-4 overflow-hidden">

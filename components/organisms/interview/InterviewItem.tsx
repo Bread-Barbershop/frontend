@@ -3,6 +3,7 @@ import { ChangeEvent } from 'react';
 
 import { UtilityButton } from '@/components/atoms/button';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
+import { Picture } from '@/components/molecules/picture/Picture';
 import { TextEditor } from '@/components/molecules/text-editor';
 import { TextField } from '@/components/molecules/text-field/TextField';
 
@@ -17,10 +18,13 @@ interface Props {
       messageJson: JSONContent | null;
       messageHtml: string | null;
     };
+    image: (File | string)[];
   };
   editorResetKey: number;
   onQuestionChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onEditorChange: (json: JSONContent) => void;
+  onPictureChange: (file: (File | string)[]) => void;
+  onPictureDelete: () => void;
   onDelete: () => void;
 }
 
@@ -32,6 +36,8 @@ export const InterviewItem = ({
   editorResetKey,
   onQuestionChange,
   onEditorChange,
+  onPictureChange,
+  onPictureDelete,
   onDelete,
 }: Props) => {
   return (
@@ -69,6 +75,14 @@ export const InterviewItem = ({
         defaultText="내용을 입력해 주세요"
         defaultAlign="center"
         onChange={onEditorChange}
+      />
+      <Picture
+        label="사진"
+        className="w-full text-center"
+        multiple={false}
+        value={question.image}
+        onChange={onPictureChange}
+        onDelete={onPictureDelete}
       />
     </div>
   );

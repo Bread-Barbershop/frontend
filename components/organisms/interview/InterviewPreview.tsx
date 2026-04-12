@@ -19,7 +19,7 @@ export const InterviewPreview = ({
   titleClassName,
   ...rest
 }: Props) => {
-  const { title, questions, image } = blockInfo.props;
+  const { title, questions } = blockInfo.props;
 
   const displayItems = useMemo(() => {
     if (questions && questions.length === 2) {
@@ -69,7 +69,7 @@ export const InterviewPreview = ({
               <InterviewPreviewItem
                 question={question.question}
                 answerHtml={question.answer.messageHtml || ''}
-                image={image?.[index % (questions?.length || 1)]}
+                image={question.image}
               />
             </div>
           ))}
