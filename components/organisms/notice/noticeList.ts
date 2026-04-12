@@ -7,7 +7,9 @@ export const NOTICE_LIST: JSONContent[] = [
       {
         type: 'paragraph',
         attrs: { textAlign: 'center' },
-        content: [{ type: 'text', text: '연회 & 식사 안내.' }],
+        content: [
+          { type: 'text', text: '연회 & 식사 안내', marks: [{ type: 'bold' }] },
+        ],
       },
       { type: 'paragraph', attrs: { textAlign: 'center' } },
       {
