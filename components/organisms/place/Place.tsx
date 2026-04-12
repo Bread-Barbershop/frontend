@@ -104,7 +104,11 @@ export function Place({ blockInfo, id }: Props) {
             selected={country ? { label: country, value: country } : null}
           />
           {openAddress && (
-            <Popup onClose={() => setOpenAddress(false)} popupTitle="주소 검색">
+            <Popup
+              onClose={() => setOpenAddress(false)}
+              popupTitle="주소 검색"
+              wrapperClassName="max-w-[600px]"
+            >
               <DaumPostcode
                 onComplete={data => {
                   searchAddress(data.address);
