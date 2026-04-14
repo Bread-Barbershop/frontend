@@ -1,10 +1,8 @@
 import Image from 'next/image';
 import { KeyboardEvent, MouseEvent, useState } from 'react';
 
-import { InviteListItem } from '@/app/dashboard/types';
-import { getInvitationShowcaseItem } from '@/app/dashboard/utils/getInvitationShowcaseItem';
-
 import { dashboardCarouselLayout } from '../carouselLayout';
+import { CarouselCardItem } from '../carouselTypes';
 
 import DeleteButton from './actions/DeleteButton';
 import PublishButton from './actions/PublishButton';
@@ -14,21 +12,27 @@ import ShareButton from './actions/ShareButton';
 import ItemHeader from './ItemHeader';
 
 type CarouselItemProps = {
-  invite: InviteListItem;
+  item: CarouselCardItem;
   index: number;
   isSelected: boolean;
+  showHeader?: boolean;
+  showSideActions?: boolean;
+  showCenterActions?: boolean;
   onSelect: (index: number) => void;
-  onUpdate: (folderId: string, uuid?: string) => void;
-  onPublish: (folderId: string) => void;
-  onCopyUrl: (folderId: string) => void;
+  onUpdate?: (folderId: string, uuid?: string) => void;
+  onPublish?: (folderId: string) => void;
+  onCopyUrl?: (folderId: string) => void;
   publishedUrl: string | null;
   isPublishing: boolean;
 };
 
 function CarouselItem({
-  invite,
+  item,
   index,
   isSelected,
+  showHeader = false,
+  showSideActions = false,
+  showCenterActions = false,
   onSelect,
   onUpdate,
   onPublish,
@@ -36,9 +40,12 @@ function CarouselItem({
   publishedUrl,
   isPublishing,
 }: CarouselItemProps) {
-  const showcaseItem = getInvitationShowcaseItem(invite.folderId);
   const [isHovered, setIsHovered] = useState(false);
-  const hoverLift = `calc(${dashboardCarouselLayout.selectedLift} - ${dashboardCarouselLayout.headerHeight})`;
+  const invite = item.invite;
+  const showSelectedOverlay = showHeader || showSideActions || showCenterActions;
+  const hoverLift = showHeader
+    ? `calc(${dashboardCarouselLayout.selectedLift} - ${dashboardCarouselLayout.headerHeight})`
+    : dashboardCarouselLayout.selectedLift;
   const translateY = isSelected
     ? dashboardCarouselLayout.selectedLift
     : isHovered
@@ -64,7 +71,7 @@ function CarouselItem({
       onKeyDown={handleKeyDown}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      aria-label={invite.name}
+      aria-label={item.invite?.name ?? item.alt}
       aria-pressed={isSelected}
       className={`group relative shrink-0 overflow-visible cursor-pointer text-left ${
         isSelected ? 'z-10' : 'hover:z-10'
@@ -73,18 +80,19 @@ function CarouselItem({
         width: dashboardCarouselLayout.cardWidth,
         height: dashboardCarouselLayout.cardHeight,
       }}
-      >
-        <div
-          className="relative overflow-visible transition-transform"
-          style={{
-            transitionDuration: `${dashboardCarouselLayout.cardLiftDurationMs}ms`,
-            transform: translateY ? `translateY(calc(-1 * ${translateY}))` : undefined,
-            height: isSelected
+    >
+      <div
+        className="relative overflow-visible transition-transform"
+        style={{
+          transitionDuration: `${dashboardCarouselLayout.cardLiftDurationMs}ms`,
+          transform: translateY ? `translateY(calc(-1 * ${translateY}))` : undefined,
+          height:
+            isSelected && showHeader
               ? dashboardCarouselLayout.selectedVisualHeight
               : dashboardCarouselLayout.cardHeight,
-          }}
+        }}
       >
-        {isSelected && (
+        {isSelected && showSideActions && invite && (
           <div
             className="absolute z-20 flex translate-x-1/2 -translate-y-1/2 flex-col"
             style={{
@@ -114,17 +122,18 @@ function CarouselItem({
           className="absolute bottom-0 left-0 z-10 rounded-xl"
           style={{
             width: dashboardCarouselLayout.cardWidth,
-            height: isSelected
-              ? dashboardCarouselLayout.selectedVisualHeight
-              : dashboardCarouselLayout.cardHeight,
+            height:
+              isSelected && showHeader
+                ? dashboardCarouselLayout.selectedVisualHeight
+                : dashboardCarouselLayout.cardHeight,
             boxShadow:
               '0 8px 24px rgba(0, 0, 0, 0.06), 0 2px 10px rgba(0, 0, 0, 0.08)',
           }}
         >
-          {isSelected && (
+          {isSelected && showHeader && (
             <div className="absolute top-0 left-0 z-10">
               <ItemHeader
-                createdTime={invite.createdTime}
+                createdTime={invite?.createdTime}
                 isPublished={Boolean(publishedUrl)}
               />
             </div>
@@ -132,7 +141,7 @@ function CarouselItem({
 
           <div
             className={`absolute bottom-0 left-0 overflow-hidden ${
-              isSelected ? 'rounded-b-xl' : 'rounded-xl'
+              isSelected && showHeader ? 'rounded-b-xl' : 'rounded-xl'
             }`}
             style={{
               width: dashboardCarouselLayout.cardWidth,
@@ -140,18 +149,18 @@ function CarouselItem({
             }}
           >
             <Image
-              src={showcaseItem.image}
-              alt={showcaseItem.alt}
+              src={item.image}
+              alt={item.alt}
               fill
               sizes="260px"
               className="object-cover"
             />
             <div
               className={`absolute inset-0 bg-black/8 transition-opacity duration-300 ${
-                isSelected ? 'opacity-100' : 'opacity-0'
+                isSelected && showSelectedOverlay ? 'opacity-100' : 'opacity-0'
               }`}
             />
-            {isSelected && (
+            {isSelected && showCenterActions && invite && (
               <div
                 className="absolute inset-0 z-10 flex flex-col items-center justify-center"
                 style={{ gap: dashboardCarouselLayout.centerActionGap }}
@@ -159,19 +168,19 @@ function CarouselItem({
                 {publishedUrl && (
                   <PublishedUrlActions
                     publishedUrl={publishedUrl}
-                    onCopy={() => onCopyUrl(invite.folderId)}
+                    onCopy={() => onCopyUrl?.(invite.folderId)}
                   />
                 )}
                 <PublishButton
                   isPublished={Boolean(publishedUrl)}
                   isPublishing={isPublishing}
-                  onPublish={() => onPublish(invite.folderId)}
+                  onPublish={() => onPublish?.(invite.folderId)}
                 />
                 <button
                   type="button"
                   onClick={event => {
                     handleActionClick(event);
-                    onUpdate(invite.folderId, invite.invitationUuid);
+                    onUpdate?.(invite.folderId, invite.invitationUuid);
                   }}
                   className="cursor-pointer"
                 >

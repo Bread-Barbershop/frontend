@@ -1,24 +1,29 @@
-import { InviteListItem } from '@/app/dashboard/types';
-
 import { dashboardCarouselLayout, dashboardCarouselVars } from './carouselLayout';
+import { CarouselCardItem } from './carouselTypes';
 import CarouselItem from './item/CarouselItem';
 
 type CarouselTrackProps = {
   emblaRef: (instance: HTMLDivElement | null) => void;
-  invites: InviteListItem[];
+  items: CarouselCardItem[];
   selectedIndex: number;
+  showHeader?: boolean;
+  showSideActions?: boolean;
+  showCenterActions?: boolean;
   onSelect: (index: number) => void;
-  onUpdate: (folderId: string, uuid?: string) => void;
-  onPublish: (folderId: string) => void;
-  onCopyUrl: (folderId: string) => void;
-  getPublishedUrl: (folderId: string) => string | null;
-  isPublishing: (folderId: string) => boolean;
+  onUpdate?: (folderId: string, uuid?: string) => void;
+  onPublish?: (folderId: string) => void;
+  onCopyUrl?: (folderId: string) => void;
+  getPublishedUrl?: (folderId: string) => string | null;
+  isPublishing?: (folderId: string) => boolean;
 };
 
 function CarouselTrack({
   emblaRef,
-  invites,
+  items,
   selectedIndex,
+  showHeader = false,
+  showSideActions = false,
+  showCenterActions = false,
   onSelect,
   onUpdate,
   onPublish,
@@ -43,18 +48,29 @@ function CarouselTrack({
           top: 'calc(var(--carousel-base-offset) - var(--carousel-safe-top))',
         }}
       >
-        {invites.map((invite, index) => (
+        {items.map((item, index) => (
           <CarouselItem
-            key={invite.folderId}
-            invite={invite}
+            key={item.id}
+            item={item}
             index={index}
             isSelected={selectedIndex === index}
+            showHeader={showHeader}
+            showSideActions={showSideActions}
+            showCenterActions={showCenterActions}
             onSelect={onSelect}
             onUpdate={onUpdate}
             onPublish={onPublish}
             onCopyUrl={onCopyUrl}
-            publishedUrl={getPublishedUrl(invite.folderId)}
-            isPublishing={isPublishing(invite.folderId)}
+            publishedUrl={
+              item.invite && getPublishedUrl
+                ? getPublishedUrl(item.invite.folderId)
+                : null
+            }
+            isPublishing={
+              item.invite && isPublishing
+                ? isPublishing(item.invite.folderId)
+                : false
+            }
           />
         ))}
       </div>
