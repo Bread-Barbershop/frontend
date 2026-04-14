@@ -51,18 +51,20 @@ function createInitialPublishResults(invites: InviteListItem[]): PublishResultMa
   }, {});
 }
 
-function useDashboardInvitations() {
+function useDashboardInvitations(initialInvites: InviteListItem[] = []) {
   const router = useRouter();
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(initialInvites.length === 0);
   const [error, setError] = useState<string | null>(null);
-  const [invites, setInvites] = useState<InviteListItem[]>([]);
+  const [invites, setInvites] = useState<InviteListItem[]>(initialInvites);
   const [origin, setOrigin] = useState('');
   const [deleteBusy, setDeleteBusy] = useState<DeleteStateMap>({});
   const [deleteErrors, setDeleteErrors] = useState<DeleteErrorMap>({});
   const [publishBusy, setPublishBusy] = useState<PublishStateMap>({});
   const [publishErrors, setPublishErrors] = useState<PublishErrorMap>({});
-  const [publishResults, setPublishResults] = useState<PublishResultMap>({});
+  const [publishResults, setPublishResults] = useState<PublishResultMap>(
+    createInitialPublishResults(initialInvites)
+  );
 
   const resetPublishState = useCallback(() => {
     setPublishBusy({});
@@ -154,8 +156,12 @@ function useDashboardInvitations() {
   }, [resetPublishState, router]);
 
   useEffect(() => {
+    if (initialInvites.length > 0) {
+      return;
+    }
+
     void loadInvitations();
-  }, [loadInvitations]);
+  }, [initialInvites.length, loadInvitations]);
 
   useEffect(() => {
     setOrigin(window.location.origin);

@@ -1,0 +1,188 @@
+import Image from 'next/image';
+import { KeyboardEvent, MouseEvent, useState } from 'react';
+
+import { InviteListItem } from '@/app/dashboard/types';
+import { getInvitationShowcaseItem } from '@/app/dashboard/utils/getInvitationShowcaseItem';
+
+import { dashboardCarouselLayout } from '../carouselLayout';
+
+import DeleteButton from './actions/DeleteButton';
+import PublishButton from './actions/PublishButton';
+import PublishedUrlActions from './actions/PublishedUrlActions';
+import ReEditButton from './actions/ReEditButton';
+import ShareButton from './actions/ShareButton';
+import ItemHeader from './ItemHeader';
+
+type CarouselItemProps = {
+  invite: InviteListItem;
+  index: number;
+  isSelected: boolean;
+  onSelect: (index: number) => void;
+  onUpdate: (folderId: string, uuid?: string) => void;
+  onPublish: (folderId: string) => void;
+  onCopyUrl: (folderId: string) => void;
+  publishedUrl: string | null;
+  isPublishing: boolean;
+};
+
+function CarouselItem({
+  invite,
+  index,
+  isSelected,
+  onSelect,
+  onUpdate,
+  onPublish,
+  onCopyUrl,
+  publishedUrl,
+  isPublishing,
+}: CarouselItemProps) {
+  const showcaseItem = getInvitationShowcaseItem(invite.folderId);
+  const [isHovered, setIsHovered] = useState(false);
+  const hoverLift = `calc(${dashboardCarouselLayout.selectedLift} - ${dashboardCarouselLayout.headerHeight})`;
+  const translateY = isSelected
+    ? dashboardCarouselLayout.selectedLift
+    : isHovered
+      ? hoverLift
+      : null;
+
+  const handleActionClick = (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onSelect(index);
+    }
+  };
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onSelect(index)}
+      onKeyDown={handleKeyDown}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      aria-label={invite.name}
+      aria-pressed={isSelected}
+      className={`group relative shrink-0 overflow-visible cursor-pointer text-left ${
+        isSelected ? 'z-10' : 'hover:z-10'
+      }`}
+      style={{
+        width: dashboardCarouselLayout.cardWidth,
+        height: dashboardCarouselLayout.cardHeight,
+      }}
+      >
+        <div
+          className="relative overflow-visible transition-transform"
+          style={{
+            transitionDuration: `${dashboardCarouselLayout.cardLiftDurationMs}ms`,
+            transform: translateY ? `translateY(calc(-1 * ${translateY}))` : undefined,
+            height: isSelected
+              ? dashboardCarouselLayout.selectedVisualHeight
+              : dashboardCarouselLayout.cardHeight,
+          }}
+      >
+        {isSelected && (
+          <div
+            className="absolute z-20 flex translate-x-1/2 -translate-y-1/2 flex-col"
+            style={{
+              top: dashboardCarouselLayout.actionTop,
+              right: dashboardCarouselLayout.actionRight,
+              gap: dashboardCarouselLayout.sideActionGap,
+            }}
+          >
+            <button
+              type="button"
+              onClick={handleActionClick}
+              className="cursor-pointer"
+            >
+              <DeleteButton />
+            </button>
+            <button
+              type="button"
+              onClick={handleActionClick}
+              className="cursor-pointer"
+            >
+              <ShareButton />
+            </button>
+          </div>
+        )}
+
+        <div
+          className="absolute bottom-0 left-0 z-10 rounded-xl"
+          style={{
+            width: dashboardCarouselLayout.cardWidth,
+            height: isSelected
+              ? dashboardCarouselLayout.selectedVisualHeight
+              : dashboardCarouselLayout.cardHeight,
+            boxShadow:
+              '0 8px 24px rgba(0, 0, 0, 0.06), 0 2px 10px rgba(0, 0, 0, 0.08)',
+          }}
+        >
+          {isSelected && (
+            <div className="absolute top-0 left-0 z-10">
+              <ItemHeader
+                createdTime={invite.createdTime}
+                isPublished={Boolean(publishedUrl)}
+              />
+            </div>
+          )}
+
+          <div
+            className={`absolute bottom-0 left-0 overflow-hidden ${
+              isSelected ? 'rounded-b-xl' : 'rounded-xl'
+            }`}
+            style={{
+              width: dashboardCarouselLayout.cardWidth,
+              height: dashboardCarouselLayout.cardHeight,
+            }}
+          >
+            <Image
+              src={showcaseItem.image}
+              alt={showcaseItem.alt}
+              fill
+              sizes="260px"
+              className="object-cover"
+            />
+            <div
+              className={`absolute inset-0 bg-black/8 transition-opacity duration-300 ${
+                isSelected ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+            {isSelected && (
+              <div
+                className="absolute inset-0 z-10 flex flex-col items-center justify-center"
+                style={{ gap: dashboardCarouselLayout.centerActionGap }}
+              >
+                {publishedUrl && (
+                  <PublishedUrlActions
+                    publishedUrl={publishedUrl}
+                    onCopy={() => onCopyUrl(invite.folderId)}
+                  />
+                )}
+                <PublishButton
+                  isPublished={Boolean(publishedUrl)}
+                  isPublishing={isPublishing}
+                  onPublish={() => onPublish(invite.folderId)}
+                />
+                <button
+                  type="button"
+                  onClick={event => {
+                    handleActionClick(event);
+                    onUpdate(invite.folderId, invite.invitationUuid);
+                  }}
+                  className="cursor-pointer"
+                >
+                  <ReEditButton />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+export default CarouselItem;
