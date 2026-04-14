@@ -1,7 +1,6 @@
 import { useShallow } from 'zustand/shallow';
 
 import { Button } from '@/components/atoms/button';
-import AddBackground from '@/shared/assets/icons/add-background.svg';
 import AddDrawing from '@/shared/assets/icons/add-drawing.svg';
 import AddImage from '@/shared/assets/icons/add-image.svg';
 import AddText from '@/shared/assets/icons/add-text.svg';
@@ -41,13 +40,6 @@ function Toolbar() {
         setActiveTab('diagram');
       },
       active: activeTab === 'diagram',
-    },
-    {
-      icon: <AddBackground />,
-      onClick: () => {
-        setActiveTab('background');
-      },
-      active: activeTab === 'background',
     },
   ];
 

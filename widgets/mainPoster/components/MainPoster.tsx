@@ -30,7 +30,7 @@ export const MainPoster = () => {
       {activeTab === 'diagram' && <GraphicPanel />}
 
       {/* 배경 */}
-      {activeTab === 'background' && <BackgroundPanel />}
+      {(!activeTab || activeTab === 'background') && <BackgroundPanel />}
     </div>
   );
 };
