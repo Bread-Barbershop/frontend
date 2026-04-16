@@ -88,17 +88,18 @@ function CarouselBase({
 
   const handleMove = useCallback(
     (direction: 'left' | 'right') => {
-      if (items.length === 0) return;
+      if (!emblaApi || items.length === 0) return;
 
+      const currentIndex = emblaApi.selectedScrollSnap();
       const delta = direction === 'left' ? -1 : 1;
       const nextIndex = Math.max(
         0,
-        Math.min(selectedIndex + delta, items.length - 1)
+        Math.min(currentIndex + delta, items.length - 1)
       );
 
       emblaApi?.scrollTo(nextIndex);
     },
-    [emblaApi, items.length, selectedIndex]
+    [emblaApi, items.length]
   );
 
   return (
