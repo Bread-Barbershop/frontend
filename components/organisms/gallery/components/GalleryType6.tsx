@@ -33,6 +33,8 @@ function GalleryType6({ imageClick, preview, ratio }: GalleryTemplateProps) {
       >
         {preview.map((file, index) => (
           <div
+            role="button"
+            tabIndex={0}
             key={index}
             className={cn(
               'relative w-full overflow-hidden rounded-lg cursor-pointer',
@@ -62,6 +64,7 @@ function GalleryType6({ imageClick, preview, ratio }: GalleryTemplateProps) {
         <button
           type="button"
           disabled={isFullyExpanded}
+          aria-label="갤러리 더 보기"
           className={cn(
             'flex-center rounded-full border border-[#EAEAEA] backdrop-blur-[6px] bg-white/10 w-8 h-8',
             isFullyExpanded

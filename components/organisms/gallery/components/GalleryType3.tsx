@@ -57,6 +57,8 @@ function GalleryType3({ imageClick, preview, ratio }: GalleryTemplateProps) {
             <div key={i} className="flex-[0_0_auto] flex">
               <div
                 data-card
+                role="button"
+                tabIndex={0}
                 onClick={() => imageClick(i)}
                 className="h-full overflow-hidden rounded-lg bg-white shadow-md relative transition-[width] duration-300"
                 style={{ width: `${MIN_WIDTH}px` }}

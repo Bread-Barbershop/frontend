@@ -27,6 +27,9 @@ function GalleryType1({ ratio, preview, imageClick }: GalleryTemplateProps) {
 
     onSelect();
     emblaApi.on('select', onSelect).on('reInit', onSelect);
+    return () => {
+      emblaApi.off('select', onSelect).off('reInit', onSelect);
+    };
   }, [emblaApi]);
 
   return (
@@ -36,6 +39,8 @@ function GalleryType1({ ratio, preview, imageClick }: GalleryTemplateProps) {
           {preview.map((src, i) => (
             <div key={i} className="flex-[0_0_70%]">
               <div
+                role="button"
+                tabIndex={0}
                 className={cn(
                   'relative overflow-hidden rounded-lg min-h-[120px] shadow-gallery-image',
                   GalleryItemVariants({

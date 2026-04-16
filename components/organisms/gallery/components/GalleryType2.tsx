@@ -21,6 +21,8 @@ function GalleryType2({ preview, ratio, imageClick }: GalleryTemplateProps) {
           {preview.map((src, i) => (
             <div key={i} className="embla__slide flex-[0_0_60%] -mx-6">
               <div
+                role="button"
+                tabIndex={0}
                 className={cn(
                   'relative overflow-hidden rounded-lg min-h-[120px] shadow-gallery-image',
                   GalleryItemVariants({

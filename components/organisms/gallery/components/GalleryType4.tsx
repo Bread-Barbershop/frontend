@@ -20,6 +20,8 @@ function GalleryType4({ imageClick, preview, ratio }: GalleryTemplateProps) {
           {preview.map((src, i) => (
             <div key={i} className="flex-[0_0_70%]">
               <div
+                role="button"
+                tabIndex={0}
                 className={cn(
                   'relative overflow-hidden rounded-lg min-h-[120px] shadow-gallery-image',
                   GalleryItemVariants({

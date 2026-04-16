@@ -30,10 +30,10 @@ function GalleryType5({ imageClick, preview, ratio }: GalleryTemplateProps) {
   useEffect(() => {
     if (!emblaApi) return;
     const handler = () => onScroll(emblaApi);
-    emblaApi.on('scroll', handler).on('reInit', handler);
+    emblaApi.on('reInit', handler);
     onScroll(emblaApi);
     return () => {
-      emblaApi.off('scroll', handler).off('reInit', handler);
+      emblaApi.off('reInit', handler);
     };
   }, [emblaApi, onScroll]);
 
@@ -47,6 +47,8 @@ function GalleryType5({ imageClick, preview, ratio }: GalleryTemplateProps) {
             <div key={i} className="flex-[0_0_70%] min-w-0">
               <div
                 data-rotate-target
+                role="button"
+                tabIndex={0}
                 style={{ margin: '0 -4px' }}
                 className={cn(
                   'relative overflow-hidden p-2 pb-8 bg-bg-base rounded-sm min-h-[120px] shadow-[0_1px_2px_0_rgba(0,0,0,0.04),0_1px_4px_0_rgba(0,0,0,0.08),0_8px_24px_0_rgba(0,0,0,0.1)]',

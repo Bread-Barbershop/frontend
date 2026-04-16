@@ -33,7 +33,10 @@ function GalleryType7({ imageClick, preview, ratio }: GalleryTemplateProps) {
       >
         {preview.map((file, index) => (
           <div
+            role="button"
+            tabIndex={0}
             key={index}
+            aria-label="갤러리 더 보기"
             className={cn(
               'relative w-full overflow-hidden rounded-lg cursor-pointer',
               GalleryItemVariants({ ratio })
