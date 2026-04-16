@@ -1,5 +1,7 @@
 'use client';
 
+import { useMemo } from 'react';
+
 import useDashboardInvitations from '@/app/dashboard/hooks/useDashboardInvitations';
 import { InviteListItem } from '@/app/dashboard/types';
 import { getInvitationShowcaseItem } from '@/app/dashboard/utils/getInvitationShowcaseItem';
@@ -22,16 +24,20 @@ function CarouselWrapper({ initialInvites = [] }: CarouselWrapperProps) {
     isSharing,
     isPublishing,
   } = useDashboardInvitations(initialInvites);
-  const items: CarouselCardItem[] = invites.map(invite => {
-    const showcaseItem = getInvitationShowcaseItem(invite.folderId);
+  const items: CarouselCardItem[] = useMemo(
+    () =>
+      invites.map(invite => {
+        const showcaseItem = getInvitationShowcaseItem(invite.folderId);
 
-    return {
-      id: invite.folderId,
-      image: showcaseItem.image,
-      alt: showcaseItem.alt,
-      invite,
-    };
-  });
+        return {
+          id: invite.folderId,
+          image: showcaseItem.image,
+          alt: showcaseItem.alt,
+          invite,
+        };
+      }),
+    [invites]
+  );
 
   return (
     <CarouselBase

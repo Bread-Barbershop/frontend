@@ -93,7 +93,7 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
         console.error(err);
       }
 
-      if (popupRef.current) {
+      if (popupRef.current?.closed) {
         popupRef.current = null;
         setIsLoginPending(false);
         setIsLoginOpen(false);

@@ -298,7 +298,7 @@ export async function saveInvitationFlow(params: {
         locationInfo?: {
           lat: number;
           lng: number;
-          placeName?: string;
+          placeName: string;
         };
       };
 

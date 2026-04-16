@@ -7,6 +7,12 @@ import { loadDashboardInvitations } from '@/app/dashboard/server/loadDashboardIn
 
 export const dynamic = 'force-dynamic';
 
+const INVALID_REQUEST_MESSAGE = '유효한 요청이 아닙니다.';
+const LOGIN_REQUIRED_MESSAGE = '로그인이 필요합니다.';
+const RELOGIN_REQUIRED_MESSAGE = '재로그인이 필요합니다.';
+const LOAD_INVITATIONS_ERROR_MESSAGE =
+  '초대장 목록을 불러오는 중 오류가 발생했습니다.';
+
 export async function GET() {
   try {
     const payload = await loadDashboardInvitations();
@@ -22,31 +28,27 @@ export async function GET() {
       );
     }
 
-    if (
-      err instanceof Error &&
-      (err.message === '유효한 요청이 아닙니다.' ||
-        err.message === '?좏슚???붿껌???꾨떃?덈떎.')
-    ) {
+    if (err instanceof Error && err.message === INVALID_REQUEST_MESSAGE) {
       return NextResponse.json(
-        { message: '?좏슚???붿껌???꾨떃?덈떎.' },
+        { message: INVALID_REQUEST_MESSAGE },
         { status: 400 }
       );
     }
 
     if (
       err instanceof Error &&
-      (err.message === '로그인이 필요합니다.' ||
-        err.message === '?щ줈洹몄씤???꾩슂?⑸땲??')
+      (err.message === LOGIN_REQUIRED_MESSAGE ||
+        err.message === RELOGIN_REQUIRED_MESSAGE)
     ) {
       return NextResponse.json(
-        { message: '?щ줈洹몄씤???꾩슂?⑸땲??' },
+        { message: RELOGIN_REQUIRED_MESSAGE },
         { status: 401 }
       );
     }
 
     return NextResponse.json(
       {
-        message: '초대장 목록을 불러오는 중 오류가 발생했습니다.',
+        message: LOAD_INVITATIONS_ERROR_MESSAGE,
         error: err instanceof Error ? err.message : String(err),
       },
       { status: 500 }
