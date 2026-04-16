@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   DeleteInvitationResponse,
   InviteListItem,
+  KakaoShareData,
   LoadInvitationResponse,
   PublishResult,
 } from '@/app/dashboard/types';
@@ -15,7 +16,90 @@ type DeleteErrorMap = Record<string, string | null>;
 type PublishStateMap = Record<string, boolean>;
 type PublishErrorMap = Record<string, string | null>;
 type PublishResultMap = Record<string, PublishResult | null>;
+type ShareStateMap = Record<string, boolean>;
 type LoadInvitationErrorPayload = { message?: string };
+type ShareUrlResponse = {
+  ok: boolean;
+  data?: KakaoShareData;
+  error?: string;
+};
+
+function resolveShareImageUrl(imageFileId?: string) {
+  return imageFileId
+    ? `https://lh3.googleusercontent.com/d/${imageFileId}`
+    : 'https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png';
+}
+
+function shareInvitationWithKakao(
+  shareData: KakaoShareData,
+  origin: string
+) {
+  if (typeof window === 'undefined' || !window.Kakao) {
+    throw new Error('카카오 SDK 스크립트가 아직 로드되지 않았습니다.');
+  }
+
+  const kakaoJsKey = process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
+  if (!kakaoJsKey) {
+    throw new Error('NEXT_PUBLIC_KAKAO_JS_KEY가 설정되지 않았습니다.');
+  }
+
+  if (!shareData.showShareButton) {
+    throw new Error('이 초대장은 카카오톡 공유가 비활성화되어 있습니다.');
+  }
+
+  const safeLinkUrl = shareData.invitationUrl || window.location.href;
+  if (!safeLinkUrl) {
+    throw new Error('공유할 초대장 링크가 없습니다.');
+  }
+
+  if (!window.Kakao.isInitialized()) {
+    window.Kakao.init(kakaoJsKey);
+  }
+
+  const messageButtons = [
+    {
+      title: '보러가기',
+      link: {
+        mobileWebUrl: safeLinkUrl,
+        webUrl: safeLinkUrl,
+      },
+    },
+  ];
+
+  if (shareData.showLocationButton && shareData.locationInfo) {
+    const kakaoMapUrl = `https://map.kakao.com/link/map/${encodeURIComponent(
+      shareData.locationInfo.placeName
+    )},${shareData.locationInfo.lat},${shareData.locationInfo.lng}`;
+
+    const baseOrigin = origin || window.location.origin;
+    const bypassUrl = `${baseOrigin}/api/map-redirect?url=${encodeURIComponent(
+      kakaoMapUrl
+    )}`;
+
+    messageButtons.push({
+      title: '위치보기',
+      link: {
+        mobileWebUrl: bypassUrl,
+        webUrl: bypassUrl,
+      },
+    });
+  }
+
+  window.Kakao.Share.sendDefault({
+    objectType: 'feed',
+    content: {
+      title: shareData.title || '소중한 분들을 초대합니다.',
+      description:
+        shareData.description || '함께해 주시면 더없이 기쁘겠습니다.',
+      imageUrl: resolveShareImageUrl(shareData.imageFileId),
+      link: {
+        mobileWebUrl: safeLinkUrl,
+        webUrl: safeLinkUrl,
+      },
+    },
+    buttons: messageButtons,
+  });
+}
 
 function shouldRedirectToHome(status: number, message: string | null) {
   return (
@@ -51,18 +135,21 @@ function createInitialPublishResults(invites: InviteListItem[]): PublishResultMa
   }, {});
 }
 
-function useDashboardInvitations() {
+function useDashboardInvitations(initialInvites: InviteListItem[] = []) {
   const router = useRouter();
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(initialInvites.length === 0);
   const [error, setError] = useState<string | null>(null);
-  const [invites, setInvites] = useState<InviteListItem[]>([]);
+  const [invites, setInvites] = useState<InviteListItem[]>(initialInvites);
   const [origin, setOrigin] = useState('');
   const [deleteBusy, setDeleteBusy] = useState<DeleteStateMap>({});
   const [deleteErrors, setDeleteErrors] = useState<DeleteErrorMap>({});
   const [publishBusy, setPublishBusy] = useState<PublishStateMap>({});
   const [publishErrors, setPublishErrors] = useState<PublishErrorMap>({});
-  const [publishResults, setPublishResults] = useState<PublishResultMap>({});
+  const [shareBusy, setShareBusy] = useState<ShareStateMap>({});
+  const [publishResults, setPublishResults] = useState<PublishResultMap>(
+    createInitialPublishResults(initialInvites)
+  );
 
   const resetPublishState = useCallback(() => {
     setPublishBusy({});
@@ -87,6 +174,11 @@ function useDashboardInvitations() {
       return next;
     });
     setPublishErrors(prev => {
+      const next = { ...prev };
+      delete next[folderId];
+      return next;
+    });
+    setShareBusy(prev => {
       const next = { ...prev };
       delete next[folderId];
       return next;
@@ -154,8 +246,12 @@ function useDashboardInvitations() {
   }, [resetPublishState, router]);
 
   useEffect(() => {
+    if (initialInvites.length > 0) {
+      return;
+    }
+
     void loadInvitations();
-  }, [loadInvitations]);
+  }, [initialInvites.length, loadInvitations]);
 
   useEffect(() => {
     setOrigin(window.location.origin);
@@ -280,6 +376,47 @@ function useDashboardInvitations() {
     [origin, publishResults]
   );
 
+  const loadShareData = useCallback(async (folderId: string) => {
+    const res = await fetch(
+      `/api/drive/shareUrl?invitationFolderId=${encodeURIComponent(folderId)}`,
+      {
+        method: 'GET',
+        cache: 'no-store',
+      }
+    );
+
+    const payload = (await res.json().catch(() => null)) as ShareUrlResponse | null;
+
+    if (!res.ok || payload?.ok === false || !payload?.data) {
+      throw new Error(payload?.error ?? '공유 데이터를 불러오지 못했습니다.');
+    }
+
+    return payload.data;
+  }, []);
+
+  const handleShare = useCallback(
+    async (folderId: string) => {
+      if (!folderId) return;
+      if (shareBusy[folderId]) return;
+
+      setShareBusy(prev => ({ ...prev, [folderId]: true }));
+      try {
+        const shareData = await loadShareData(folderId);
+        shareInvitationWithKakao(shareData, origin);
+      } catch (err) {
+        console.error(err);
+        window.alert(
+          err instanceof Error
+            ? err.message
+            : '카카오톡 공유 중 오류가 발생했습니다.'
+        );
+      } finally {
+        setShareBusy(prev => ({ ...prev, [folderId]: false }));
+      }
+    },
+    [loadShareData, origin, shareBusy]
+  );
+
   const getPublishedUrl = useCallback(
     (folderId: string) =>
       resolvePublishedUrl(publishResults[folderId] ?? null, origin),
@@ -289,6 +426,11 @@ function useDashboardInvitations() {
   const isPublishing = useCallback(
     (folderId: string) => Boolean(publishBusy[folderId]),
     [publishBusy]
+  );
+
+  const isSharing = useCallback(
+    (folderId: string) => Boolean(shareBusy[folderId]),
+    [shareBusy]
   );
 
   const isDeleting = useCallback(
@@ -315,8 +457,11 @@ function useDashboardInvitations() {
     handlePublish,
     handleUpdate,
     handleCopyPublishedUrl,
+    handleShare,
+    loadShareData,
     getPublishedUrl,
     isDeleting,
+    isSharing,
     getDeleteError,
     isPublishing,
     getPublishError,

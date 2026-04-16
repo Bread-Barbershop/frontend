@@ -39,6 +39,7 @@ export const shareUrlSchema = {
       default: {
         lat: 0,
         lng: 0,
+        placeName: '',
       },
       required: false,
     },

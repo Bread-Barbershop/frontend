@@ -39,7 +39,9 @@ export default async function DashboardShell({
         </div>
       </header>
 
-      <main className="max-w-480 w-full mx-auto min-h-0">{children}</main>
+      <main className="relative max-w-480 w-full mx-auto min-h-0 flex flex-col justify-end">
+        {children}
+      </main>
 
       <footer className="h-10 bg-transparent flex items-center justify-between px-10">
         <Link href="/empty" className="text-text-secondary">

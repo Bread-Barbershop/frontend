@@ -52,7 +52,6 @@ describe('loadInvitation route', () => {
       workspaceFolderId: null,
       invites: [],
       nextPageToken: null,
-      emptyReason: 'WORKSPACE_NOT_FOUND',
     });
     expect(googleFetch).not.toHaveBeenCalled();
     expect(res.headers.get('Cache-Control')).toBe('no-store');

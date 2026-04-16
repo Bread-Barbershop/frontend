@@ -50,7 +50,11 @@ function ShareUrl({ blockInfo, id }: Props) {
       if (!hasValidLocation) return;
       updateBlock(id, { showLocationButton: checked });
       updateBlock(id, {
-        locationInfo: { lat: placeBlock.props.lat, lng: placeBlock.props.lng },
+        locationInfo: {
+          lat: placeBlock.props.lat,
+          lng: placeBlock.props.lng,
+          placeName: placeBlock.props.placeName,
+        },
       });
     } else if (name === 'showShareButton') {
       updateBlock(id, { showShareButton: checked });

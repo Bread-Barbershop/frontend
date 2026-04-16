@@ -33,6 +33,23 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
   const popupRef = useRef<Window | null>(null);
   const pendingActionRef = useRef<(() => void | Promise<void>) | null>(null);
 
+  const completeLoginSuccess = () => {
+    popupRef.current = null;
+    setIsLoginPending(false);
+    setIsLoginOpen(false);
+    setIsLoggedIn(true);
+
+    const pendingAction = pendingActionRef.current;
+    pendingActionRef.current = null;
+
+    if (pendingAction) {
+      void Promise.resolve(pendingAction()).catch(console.error);
+      return;
+    }
+
+    router.refresh();
+  };
+
   useEffect(() => {
     setIsLoggedIn(initialIsLoggedIn);
   }, [initialIsLoggedIn]);
@@ -42,26 +59,14 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
       if (event.origin !== window.location.origin) return;
 
       if (event.data?.type === 'GOOGLE_OAUTH_SUCCESS') {
-        popupRef.current = null;
-        setIsLoginPending(false);
-        setIsLoginOpen(false);
-        setIsLoggedIn(true);
-
-        const pendingAction = pendingActionRef.current;
-        pendingActionRef.current = null;
-
-        if (pendingAction) {
-          void Promise.resolve(pendingAction()).catch(console.error);
-          return;
-        }
-
-        router.refresh();
+        completeLoginSuccess();
         return;
       }
 
       if (event.data?.type === 'GOOGLE_OAUTH_ERROR') {
         popupRef.current = null;
         setIsLoginPending(false);
+        setIsLoginOpen(false);
         pendingActionRef.current = null;
       }
     };
@@ -73,16 +78,31 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
   useEffect(() => {
     if (!isLoginPending) return;
 
-    const intervalId = window.setInterval(() => {
-      const popup = popupRef.current;
-      if (!popup || popup.closed) {
+    const handleFocus = async () => {
+      try {
+        const res = await fetch('/api/auth/session', {
+          method: 'GET',
+          cache: 'no-store',
+        });
+
+        if (res.ok) {
+          completeLoginSuccess();
+          return;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+
+      if (popupRef.current?.closed) {
         popupRef.current = null;
         setIsLoginPending(false);
+        setIsLoginOpen(false);
         pendingActionRef.current = null;
       }
-    }, 300);
+    };
 
-    return () => window.clearInterval(intervalId);
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, [isLoginPending]);
 
   const login = () => {
@@ -93,11 +113,12 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
     if (isLoginPending) return;
 
     setIsLoginOpen(false);
+    popupRef.current = null;
     pendingActionRef.current = null;
   };
 
   const loginWithGoogle = () => {
-    if (popupRef.current && !popupRef.current.closed) {
+    if (popupRef.current) {
       popupRef.current.focus();
       return;
     }
