@@ -13,3 +13,9 @@ export type GalleryVariant =
   | 'galleryType7';
 
 export type RatioType = '1:1' | '4:3' | '3:4' | '16:9' | '9:16';
+
+export interface GalleryTemplateProps {
+  preview: string[];
+  ratio: RatioType;
+  imageClick: (index: number) => void;
+}
