@@ -22,7 +22,9 @@ type CarouselItemProps = {
   onUpdate?: (folderId: string, uuid?: string) => void;
   onPublish?: (folderId: string) => void;
   onCopyUrl?: (folderId: string) => void;
+  onShare?: (folderId: string) => Promise<void>;
   publishedUrl: string | null;
+  isSharing: boolean;
   isPublishing: boolean;
 };
 
@@ -37,7 +39,9 @@ function CarouselItem({
   onUpdate,
   onPublish,
   onCopyUrl,
+  onShare,
   publishedUrl,
+  isSharing,
   isPublishing,
 }: CarouselItemProps) {
   const [isHovered, setIsHovered] = useState(false);
@@ -110,10 +114,16 @@ function CarouselItem({
             </button>
             <button
               type="button"
-              onClick={handleActionClick}
-              className="cursor-pointer"
+              disabled={isSharing}
+              onClick={event => {
+                handleActionClick(event);
+                if (isSharing) return;
+                void onShare?.(invite.folderId);
+              }}
+              className={isSharing ? 'cursor-not-allowed' : 'cursor-pointer'}
+              aria-disabled={isSharing}
             >
-              <ShareButton />
+              <ShareButton disabled={isSharing} />
             </button>
           </div>
         )}

@@ -13,7 +13,9 @@ type CarouselTrackProps = {
   onUpdate?: (folderId: string, uuid?: string) => void;
   onPublish?: (folderId: string) => void;
   onCopyUrl?: (folderId: string) => void;
+  onShare?: (folderId: string) => Promise<void>;
   getPublishedUrl?: (folderId: string) => string | null;
+  isSharing?: (folderId: string) => boolean;
   isPublishing?: (folderId: string) => boolean;
 };
 
@@ -28,7 +30,9 @@ function CarouselTrack({
   onUpdate,
   onPublish,
   onCopyUrl,
+  onShare,
   getPublishedUrl,
+  isSharing,
   isPublishing,
 }: CarouselTrackProps) {
   return (
@@ -61,10 +65,14 @@ function CarouselTrack({
             onUpdate={onUpdate}
             onPublish={onPublish}
             onCopyUrl={onCopyUrl}
+            onShare={onShare}
             publishedUrl={
               item.invite && getPublishedUrl
                 ? getPublishedUrl(item.invite.folderId)
                 : null
+            }
+            isSharing={
+              item.invite && isSharing ? isSharing(item.invite.folderId) : false
             }
             isPublishing={
               item.invite && isPublishing

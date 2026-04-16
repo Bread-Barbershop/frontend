@@ -17,7 +17,9 @@ function CarouselWrapper({ initialInvites = [] }: CarouselWrapperProps) {
     handleUpdate,
     handlePublish,
     handleCopyPublishedUrl,
+    handleShare,
     getPublishedUrl,
+    isSharing,
     isPublishing,
   } = useDashboardInvitations(initialInvites);
   const items: CarouselCardItem[] = invites.map(invite => {
@@ -41,7 +43,9 @@ function CarouselWrapper({ initialInvites = [] }: CarouselWrapperProps) {
       onUpdate={handleUpdate}
       onPublish={handlePublish}
       onCopyUrl={handleCopyPublishedUrl}
+      onShare={handleShare}
       getPublishedUrl={getPublishedUrl}
+      isSharing={isSharing}
       isPublishing={isPublishing}
     />
   );

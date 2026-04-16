@@ -2,10 +2,16 @@ import KakaoIcon from '@/shared/assets/icons/kakao2.svg';
 
 import { dashboardCarouselLayout } from '../../carouselLayout';
 
-function ShareButton() {
+type ShareButtonProps = {
+  disabled?: boolean;
+};
+
+function ShareButton({ disabled = false }: ShareButtonProps) {
   return (
     <div
-      className="flex items-center justify-center rounded-lg bg-[#FEE500] transition-colors hover:bg-[#e0ca00]"
+      className={`flex items-center justify-center rounded-lg bg-[#FEE500] transition-colors ${
+        disabled ? 'opacity-60' : 'hover:bg-[#e0ca00]'
+      }`}
       style={{
         width: dashboardCarouselLayout.sideActionSize,
         height: dashboardCarouselLayout.sideActionSize,

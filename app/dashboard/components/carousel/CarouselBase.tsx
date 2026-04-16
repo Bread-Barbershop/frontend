@@ -17,7 +17,9 @@ type CarouselBaseProps = {
   onUpdate?: (folderId: string, uuid?: string) => void;
   onPublish?: (folderId: string) => void;
   onCopyUrl?: (folderId: string) => void;
+  onShare?: (folderId: string) => Promise<void>;
   getPublishedUrl?: (folderId: string) => string | null;
+  isSharing?: (folderId: string) => boolean;
   isPublishing?: (folderId: string) => boolean;
 };
 
@@ -30,7 +32,9 @@ function CarouselBase({
   onUpdate,
   onPublish,
   onCopyUrl,
+  onShare,
   getPublishedUrl,
+  isSharing,
   isPublishing,
 }: CarouselBaseProps) {
   const [selectedIndex, setSelectedIndex] = useState(startIndex);
@@ -113,7 +117,9 @@ function CarouselBase({
         onUpdate={onUpdate}
         onPublish={onPublish}
         onCopyUrl={onCopyUrl}
+        onShare={onShare}
         getPublishedUrl={getPublishedUrl}
+        isSharing={isSharing}
         isPublishing={isPublishing}
       />
       <div className="absolute inset-x-0 bottom-0 z-10">
