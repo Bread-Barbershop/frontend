@@ -114,6 +114,7 @@ export type DragPoints = {
 
 export interface ActiveObject {
   type: string | null;
+  isLocked: boolean;
   filters?: any;
   styles: Record<string, any>;
 }

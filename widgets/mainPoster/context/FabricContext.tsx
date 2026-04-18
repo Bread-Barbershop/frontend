@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, ReactNode } from 'react';
+import { createContext, useContext, ReactNode, useMemo } from 'react';
 
 import { useFabric } from '../hooks/useFabric';
 import { useFabricBackground } from '../hooks/useFabricBackground';
@@ -14,6 +14,9 @@ type FabricContextType = ReturnType<typeof useFabric> &
   ReturnType<typeof useFabricBackground> &
   ReturnType<typeof useFabricText> & {
     initialData?: string;
+    canUndo: boolean;
+    canRedo: boolean;
+    clipboard: any;
   };
 
 const FabricContext = createContext<FabricContextType | null>(null);
@@ -44,14 +47,24 @@ export const FabricProvider = ({
     saveHistory: fabricValues.saveHistory,
   });
 
-  const value = {
-    ...fabricValues,
-    ...fabricDiagramValues,
-    ...fabricImageValues,
-    ...fabricTextValues,
-    ...fabricBackgroundValues,
-    initialData,
-  };
+  const value = useMemo(
+    () => ({
+      ...fabricValues,
+      ...fabricDiagramValues,
+      ...fabricImageValues,
+      ...fabricTextValues,
+      ...fabricBackgroundValues,
+      initialData,
+    }),
+    [
+      fabricValues,
+      fabricDiagramValues,
+      fabricImageValues,
+      fabricTextValues,
+      fabricBackgroundValues,
+      initialData,
+    ]
+  );
 
   return (
     <FabricContext.Provider value={value}>{children}</FabricContext.Provider>
