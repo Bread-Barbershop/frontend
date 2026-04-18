@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
+import NewColorPicker from '@/components/molecules/color-picker/NewColorPicker';
 import { KakaoShareButton } from '@/components/organisms/share-url/KakaoShareButton';
 
 type KakaoShareData = {
@@ -122,6 +123,13 @@ export default function TestPage() {
           showLocationButton={shareData?.showLocationButton}
           locationInfo={shareData?.locationInfo}
         />
+      </section>
+
+      <section className="max-w-xl w-full bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          New Color Picker Test
+        </h2>
+        <NewColorPicker />
       </section>
     </div>
   );
