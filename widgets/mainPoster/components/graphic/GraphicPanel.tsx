@@ -1,104 +1,93 @@
 'use client';
 
-import { Pencil, Square, Circle, Triangle } from 'lucide-react';
-import React, { useState } from 'react';
+import { useEffect } from 'react';
+import { useShallow } from 'zustand/shallow';
 
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
+import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
+import ColorPicker from '../richtext/ColorPicker';
+
 export function GraphicPanel() {
-  const { canvas, toggleDrawingMode, addDiagram } = useFabricContext();
+  const { canvas, toggleDrawingMode } = useFabricContext();
+  const { drawingConfig, setDrawingConfig } = useEditorStore(
+    useShallow(state => ({
+      drawingConfig: state.drawingConfig,
+      setDrawingConfig: state.setDrawingConfig,
+    }))
+  );
 
-  // const [brushColor, setBrushColor] = useState('#000000');
-  // const [brushWidth, setBrushWidth] = useState(5);
-  const [isDrawing, setIsDrawing] = useState(false);
-
-  const handleToggleDrawing = () => {
+  // 설정 변경 시 브러시 업데이트
+  useEffect(() => {
     if (!canvas) return;
-    const nextState = !isDrawing;
-    setIsDrawing(nextState);
-    toggleDrawingMode(canvas, nextState, () => setIsDrawing(false));
-  };
 
-  // const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const color = e.target.value;
-  //   setBrushColor(color);
-  //   if (canvas) {
-  //     setBrushProperties(canvas, color, brushWidth);
-  //   }
-  // };
+    if (canvas.isDrawingMode) {
+      toggleDrawingMode(canvas, {
+        enable: true,
+        ...drawingConfig,
+      });
+    }
+  }, [canvas, drawingConfig, toggleDrawingMode]);
 
-  // const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const width = parseInt(e.target.value, 10);
-  //   setBrushWidth(width);
-  //   if (canvas) {
-  //     setBrushProperties(canvas, brushColor, width);
-  //   }
-  // };
+  // 패널 진입 시 그리기 모드 강제 활성화 (사용자 편의)
+  useEffect(() => {
+    if (!canvas) return;
+    toggleDrawingMode(canvas, {
+      enable: true,
+      ...drawingConfig,
+    });
+
+    return () => {
+      // 패널 나갈 때 그리기 모드 해제
+      toggleDrawingMode(canvas, { enable: false });
+    };
+  }, [canvas, toggleDrawingMode]);
 
   if (!canvas) return null;
 
   return (
-    <div className="flex flex-col items-center gap-1.5 w-full p-2">
-      <NavigationBar>도형</NavigationBar>
+    <LeftEditorWrapper ariaLabel="그리기 설정">
+      <NavigationBar>그리기</NavigationBar>
 
-      <div className="grid grid-cols-3 gap-2">
-        <button onClick={() => addDiagram(canvas, 'rect')} title="사각형">
-          <Square size={20} />
-          <span className="text-xs mt-1">사각형</span>
-        </button>
-        <button onClick={() => addDiagram(canvas, 'circle')} title="원">
-          <Circle size={20} />
-          <span className="text-xs mt-1">원</span>
-        </button>
-        <button onClick={() => addDiagram(canvas, 'triangle')} title="삼각형">
-          <Triangle size={20} />
-          <span className="text-xs mt-1">삼각형</span>
-        </button>
-        <button
-          onClick={handleToggleDrawing}
-          className={`flex flex-col items-center justify-center p-2 rounded-md transition-colors ${
-            isDrawing ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100'
-          }`}
-          title="그리기"
-        >
-          <Pencil size={20} />
-          <span className="text-xs mt-1">그리기</span>
-        </button>
-      </div>
-
-      {/* {isDrawing && (
-        <>
-          <div className="border-t border-gray-200 my-2"></div>
-          <div className="flex flex-col gap-2 p-2 bg-gray-50 rounded-md">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-medium text-gray-600">색상</label>
-              <input
-                type="color"
-                value={brushColor}
-                onChange={handleColorChange}
-                className="w-6 h-6 rounded-full overflow-hidden cursor-pointer"
-              />
+      <div className="flex flex-col gap-6 w-full py-2">
+        <section className="relative w-full">
+          <div className="bg-bg-base">
+            <div className="mb-2 text-center text-[13px] font-semibold text-text-primary">
+              굵기
             </div>
-            <div className="flex flex-col gap-1">
-              <div className="flex justify-between">
-                <label className="text-xs font-medium text-gray-600">
-                  두께
-                </label>
-                <span className="text-xs text-gray-500">{brushWidth}px</span>
-              </div>
+            <div className="flex items-center gap-1.5 w-full">
               <input
-                type="range"
-                min="1"
-                max="50"
-                value={brushWidth}
-                onChange={handleWidthChange}
-                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                type="text"
+                readOnly
+                value={drawingConfig.width}
+                className="flex items-center justify-center text-center w-[47px] h-[32px] text-xs bg-bg-base border border-border-neutral rounded-lg focus:outline-none"
               />
+              <div className="flex-1 px-1">
+                <input
+                  type="range"
+                  min="1"
+                  max="20"
+                  step="1"
+                  value={drawingConfig.width}
+                  onChange={e =>
+                    setDrawingConfig({ width: parseInt(e.target.value, 10) })
+                  }
+                  className="h-1 w-full cursor-pointer appearance-none rounded-full bg-[#E5E7EB] accent-[#3B82F6] 
+                    [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:size-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#3B82F6]
+                    [&::-moz-range-thumb]:size-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#3B82F6] [&::-moz-range-thumb]:border-none"
+                />
+              </div>
             </div>
           </div>
-        </>
-      )} */}
-    </div>
+        </section>
+
+        <ColorPicker
+          onColorSelect={color => setDrawingConfig({ color })}
+          selectedColor={drawingConfig.color}
+        />
+      </div>
+    </LeftEditorWrapper>
   );
 }
