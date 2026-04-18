@@ -74,9 +74,22 @@ export const useFabricGraphic = () => {
 
   const toggleDrawingMode = (
     canvas: Canvas,
-    enable: boolean,
-    onFinish?: () => void
+    options: {
+      enable: boolean;
+      color?: string;
+      width?: number;
+      onFinish?: () => void;
+      autoDisable?: boolean;
+    }
   ) => {
+    const {
+      enable,
+      color = '#000000',
+      width = 5,
+      onFinish,
+      autoDisable = false,
+    } = options;
+
     canvas.isDrawingMode = enable;
 
     // 기존 리스너 제거
@@ -86,30 +99,30 @@ export const useFabricGraphic = () => {
     }
 
     if (enable) {
-      // 그리기 모드 활성화 시 기본 브러시 설정
-      if (!canvas.freeDrawingBrush) {
+      // 기본 브러시 설정
+      if (!(canvas.freeDrawingBrush instanceof PencilBrush)) {
         canvas.freeDrawingBrush = new PencilBrush(canvas);
       }
-      const currentBrushWidth = canvas.freeDrawingBrush.width || 5;
-      const currentBrushColor = canvas.freeDrawingBrush.color || '#000000';
 
-      canvas.freeDrawingBrush.width = currentBrushWidth;
-      canvas.freeDrawingBrush.color = currentBrushColor;
+      if (canvas.freeDrawingBrush) {
+        canvas.freeDrawingBrush.width = width;
+        canvas.freeDrawingBrush.color = color;
+      }
 
-      // 한 번 그리고 나면 그리기 모드 해제
-      const disableDrawingAfterPath = () => {
-        canvas.isDrawingMode = false;
-        if (onFinish) {
-          onFinish();
-        }
-        canvas.requestRenderAll();
-        // 실행 후 자기 자신 제거
-        canvas.off('path:created', disableDrawingAfterPath);
-        drawingListenerRef.current = null;
-      };
+      if (autoDisable) {
+        const disableDrawingAfterPath = () => {
+          canvas.isDrawingMode = false;
+          if (onFinish) {
+            onFinish();
+          }
+          canvas.requestRenderAll();
+          canvas.off('path:created', disableDrawingAfterPath);
+          drawingListenerRef.current = null;
+        };
 
-      drawingListenerRef.current = disableDrawingAfterPath;
-      canvas.on('path:created', disableDrawingAfterPath);
+        drawingListenerRef.current = disableDrawingAfterPath;
+        canvas.on('path:created', disableDrawingAfterPath);
+      }
     }
 
     canvas.requestRenderAll();

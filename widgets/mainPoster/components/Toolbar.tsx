@@ -20,6 +20,7 @@ function Toolbar() {
 
   const TOOLBAR_ITEMS = [
     {
+      id: 'text',
       icon: <AddText width={14} height={14} />,
       onClick: () => {
         setActiveTab('text');
@@ -28,6 +29,7 @@ function Toolbar() {
       active: activeTab === 'text',
     },
     {
+      id: 'image',
       icon: <AddImage width={14} height={14} />,
       onClick: () => {
         setActiveTab('image');
@@ -35,6 +37,7 @@ function Toolbar() {
       active: activeTab === 'image',
     },
     {
+      id: 'diagram',
       icon: <AddDrawing width={14} height={14} />,
       onClick: () => {
         setActiveTab('diagram');
@@ -45,12 +48,12 @@ function Toolbar() {
 
   return (
     <div
-      className="absolute top-1/2 -translate-y-1/2 -left-6 -translate-x-full flex flex-col gap-3"
+      className="absolute top-1/2 -translate-y-1/2 -left-6 -translate-x-full flex flex-col gap-3 items-center"
       data-canvas="true"
     >
-      {TOOLBAR_ITEMS.map((item, index) => (
+      {TOOLBAR_ITEMS.map(item => (
         <Button
-          key={index}
+          key={item.id}
           className="size-8"
           onClick={item.onClick}
           variant="bordered"
