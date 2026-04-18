@@ -41,13 +41,13 @@ function Toolbar() {
       },
       active: activeTab === 'diagram',
     },
-    {
-      icon: <AddDrawing width={14} height={14} />,
-      onClick: () => {
-        setActiveTab('background');
-      },
-      active: activeTab === 'background',
-    },
+    // {
+    //   icon: <AddDrawing width={14} height={14} />,
+    //   onClick: () => {
+    //     setActiveTab('background');
+    //   },
+    //   active: activeTab === 'background',
+    // },
   ];
 
   return (

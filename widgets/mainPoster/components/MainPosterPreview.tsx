@@ -103,7 +103,7 @@ export const MainPosterPreview = () => {
     const handleSelection = () => {
       const activeObj = fabricCanvas.getActiveObject();
       if (!activeObj) {
-        setActiveTab(null);
+        setActiveTab('background');
         return;
       }
 
@@ -125,14 +125,14 @@ export const MainPosterPreview = () => {
       } else if (isActiveDiagram) {
         setActiveTab('diagram');
       } else {
-        setActiveTab(null);
+        setActiveTab('background');
       }
     };
 
     fabricCanvas.on('selection:created', handleSelection);
     fabricCanvas.on('selection:updated', handleSelection);
     fabricCanvas.on('selection:cleared', () => {
-      setActiveTab(null);
+      setActiveTab('background');
     });
 
     return () => {
@@ -169,7 +169,7 @@ export const MainPosterPreview = () => {
             target.set({ selectable: false });
           }
         });
-        setActiveTab(null);
+        setActiveTab('background');
       }
     };
 
