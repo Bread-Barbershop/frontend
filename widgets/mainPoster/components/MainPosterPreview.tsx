@@ -50,6 +50,7 @@ export const MainPosterPreview = () => {
     paste,
     startCrop,
     isCropping,
+    toggleDrawingMode,
   } = useFabricContext();
 
   useSetFabricControls();
@@ -71,7 +72,9 @@ export const MainPosterPreview = () => {
     const handleSelection = () => {
       const activeObj = fabricCanvas.getActiveObject();
       if (!activeObj) {
-        setActiveTab(null);
+        if (!fabricCanvas.isDrawingMode) {
+          setActiveTab(null);
+        }
         return;
       }
 
@@ -100,7 +103,9 @@ export const MainPosterPreview = () => {
     fabricCanvas.on('selection:created', handleSelection);
     fabricCanvas.on('selection:updated', handleSelection);
     fabricCanvas.on('selection:cleared', () => {
-      setActiveTab(null);
+      if (!fabricCanvas.isDrawingMode) {
+        setActiveTab(null);
+      }
     });
 
     return () => {
@@ -136,7 +141,9 @@ export const MainPosterPreview = () => {
             target.set({ selectable: false });
           }
         });
-        setActiveTab(null);
+        if (!canvas.isDrawingMode) {
+          setActiveTab(null);
+        }
       }
     };
 
@@ -241,6 +248,10 @@ export const MainPosterPreview = () => {
 
       if (e.key === 'Escape') {
         canvas.discardActiveObject();
+        if (canvas.isDrawingMode) {
+          toggleDrawingMode(canvas, { enable: false });
+          setActiveTab(null);
+        }
         canvas.renderAll();
       }
     };
