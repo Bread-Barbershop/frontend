@@ -62,7 +62,7 @@ export const GroupEdit = ({
                 variant="borderless"
                 onClick={() => handleDeleteGroup(i)}
                 type="button"
-                className="text-btn-close"
+                className="text-btn-close flex items-center px-2 justify-end w-fit"
               >
                 삭제
               </Button>
@@ -70,7 +70,7 @@ export const GroupEdit = ({
           </div>
           <div className="border-l border-text-secondary pl-2 ml-0.5 w-full">
             {group.map((account, j) => (
-              <div key={j} className="flex items-center justify-between ">
+              <div key={j} className="flex items-center justify-between h-8">
                 <p className="text-text-secondary font-semibold text-xs">
                   {account.name || '예금주'} {j + 1}번
                 </p>
@@ -79,7 +79,7 @@ export const GroupEdit = ({
                   variant="borderless"
                   onClick={() => handleDeleteAccount(i, j)}
                   type="button"
-                  className={`${j + 1 === 1 ? 'hidden' : 'block text-btn-close'}`}
+                  className={`${j + 1 === 1 ? 'hidden' : ' text-btn-close flex items-center px-2 justify-end w-fit'}`}
                 >
                   삭제
                 </Button>

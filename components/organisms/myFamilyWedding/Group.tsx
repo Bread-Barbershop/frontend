@@ -12,6 +12,8 @@ export const Group = ({
   onDelete,
   onFlowerChange,
   handleAddFamily,
+  openMenuKey,
+  onMenuToggle,
 }: {
   family: {
     id: string;
@@ -37,6 +39,8 @@ export const Group = ({
     value: boolean
   ) => void;
   handleAddFamily: (type: 'bride' | 'groom') => void;
+  openMenuKey: string | null;
+  onMenuToggle: (type: 'bride' | 'groom', index: number) => void;
 }) => {
   return (
     <section className="flex flex-col gap-3 w-full justify-center items-center">
@@ -55,6 +59,8 @@ export const Group = ({
                 onNameChange={onNameChange}
                 onDelete={onDelete}
                 onFlowerChange={onFlowerChange}
+                isOpen={openMenuKey === `${type}-${index}`}
+                onToggle={onMenuToggle}
               />
             </div>
           ))}

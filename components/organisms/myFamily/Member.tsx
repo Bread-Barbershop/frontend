@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent } from 'react';
 
 import { Input } from '@/components/atoms/input';
 import { Label } from '@/components/atoms/label';
@@ -26,6 +26,8 @@ interface Props {
   onImageDelete: (index: number) => void;
   onDelete: (index: number) => void;
   onFlowerChange: (index: number, value: boolean) => void;
+  isOpen: boolean;
+  onToggle: (index: number) => void;
 }
 
 export const Member = ({
@@ -38,8 +40,9 @@ export const Member = ({
   onImageDelete,
   onDelete,
   onFlowerChange,
+  isOpen,
+  onToggle,
 }: Props) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-row gap-2">
@@ -70,20 +73,22 @@ export const Member = ({
             className={cn('w-34', member.flower && 'pl-8')}
           />
         </div>
-        <button
-          type="button"
-          className="w-8 flex items-center justify-center relative"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          <Menu />
-          {isMenuOpen && (
+        <div className="relative w-8 flex items-center justify-center">
+          <button
+            type="button"
+            className="w-full h-full flex items-center justify-center"
+            onClick={() => onToggle(index)}
+          >
+            <Menu />
+          </button>
+          {isOpen && (
             <section className="absolute flex flex-col items-center justify-center gap-2.5 px-2 right-0 top-9 z-10 bg-bg-base w-21.5 h-16.5 rounded-lg shadow-custom">
               <button
                 type="button"
-                className="w-full flex items-center gap-1"
+                className="w-full flex items-center gap-1 text-xs"
                 onClick={() => {
                   onFlowerChange(index, !member.flower);
-                  setIsMenuOpen(false);
+                  onToggle(index);
                 }}
               >
                 {member.flower ? <Hide /> : <Show />}
@@ -92,10 +97,10 @@ export const Member = ({
               </button>
               <button
                 type="button"
-                className="w-full flex items-center gap-5"
+                className="w-full flex items-center gap-5 text-xs"
                 onClick={() => {
                   onDelete(index);
-                  setIsMenuOpen(false);
+                  onToggle(index);
                 }}
               >
                 <Remove />
@@ -103,7 +108,7 @@ export const Member = ({
               </button>
             </section>
           )}
-        </button>
+        </div>
       </div>
       {checkedImage && (
         <Picture

@@ -107,13 +107,14 @@ export function Place({ blockInfo, id }: Props) {
             <Popup
               onClose={() => setOpenAddress(false)}
               popupTitle="주소 검색"
-              wrapperClassName="max-w-[600px]"
+              wrapperClassName="max-w-[480px] h-[640px]"
             >
               <DaumPostcode
                 onComplete={data => {
                   searchAddress(data.address);
                 }}
                 autoClose={false}
+                style={{ height: '560px' }}
               />
             </Popup>
           )}

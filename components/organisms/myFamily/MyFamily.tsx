@@ -1,5 +1,5 @@
 import { JSONContent } from '@tiptap/core';
-import { ChangeEvent, useEffect, useMemo } from 'react';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 
 import { UtilityButton } from '@/components/atoms/button';
 import { Label } from '@/components/atoms/label/Label';
@@ -32,6 +32,11 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
   } = blockInfo.props;
   const updateBlock = useEditorStore(state => state.updateBlock);
   const updateImage = useEditorStore(state => state.updateImage);
+  const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
+
+  const handleMenuToggle = (index: number) => {
+    setOpenMenuIndex(prev => (prev === index ? null : index));
+  };
 
   const debouncedUpdateMessage = useMemo(
     () =>
@@ -194,6 +199,8 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
               onImageDelete={handleImageDelete}
               onDelete={handleDeleteFamily}
               onFlowerChange={handleFlowerChange}
+              isOpen={openMenuIndex === index}
+              onToggle={handleMenuToggle}
             />
           </div>
         ))}
@@ -220,7 +227,7 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
           />
         </>
       )}
-      <section className="flex items-center justify-center -mx-2 gap-1 pt-1.5">
+      <section className="flex items-center justify-center -mx-2 gap-1 py-1.5">
         <Label className="font-semibold">추가기능</Label>
         <Checkbox
           className="text-[13px]"

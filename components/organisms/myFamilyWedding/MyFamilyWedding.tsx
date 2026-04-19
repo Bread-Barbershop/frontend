@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
@@ -16,6 +16,12 @@ interface Props {
 export const MyFamilyWedding = ({ blockInfo, id }: Props) => {
   const { brideFamily, groomFamily } = blockInfo.props;
   const updateBlock = useEditorStore(state => state.updateBlock);
+  const [openMenuKey, setOpenMenuKey] = useState<string | null>(null);
+
+  const handleMenuToggle = (type: 'bride' | 'groom', index: number) => {
+    const key = `${type}-${index}`;
+    setOpenMenuKey(prev => (prev === key ? null : key));
+  };
 
   const handleRelationChange = (
     type: 'bride' | 'groom',
@@ -106,6 +112,8 @@ export const MyFamilyWedding = ({ blockInfo, id }: Props) => {
         onDelete={handleDeleteFamily}
         onFlowerChange={handleFlowerChange}
         handleAddFamily={handleAddFamily}
+        openMenuKey={openMenuKey}
+        onMenuToggle={handleMenuToggle}
       />
       <Group
         family={brideFamily || []}
@@ -115,6 +123,8 @@ export const MyFamilyWedding = ({ blockInfo, id }: Props) => {
         onDelete={handleDeleteFamily}
         onFlowerChange={handleFlowerChange}
         handleAddFamily={handleAddFamily}
+        openMenuKey={openMenuKey}
+        onMenuToggle={handleMenuToggle}
       />
     </LeftEditorWrapper>
   );
