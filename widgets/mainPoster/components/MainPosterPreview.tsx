@@ -107,6 +107,12 @@ export const MainPosterPreview = () => {
         return;
       }
 
+      // 배경 레이어인 경우 배경 탭 유지
+      if (activeObj.get('id') === 'background-layer') {
+        setActiveTab('background');
+        return;
+      }
+
       // 탭 전환 등의 기존 로직 수행
       const isActiveText =
         activeObj instanceof Textbox || activeObj instanceof IText;

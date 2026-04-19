@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
@@ -12,13 +12,34 @@ const INACTIVE_TAB_CLASS =
 
 export const BackgroundPanel = () => {
   const [type, setType] = useState<'color' | 'image'>('color');
+
+  // 실제 상태 변화 감시용 (비동기 로그 문제 해결)
+  useEffect(() => {
+    console.log('[BackgroundPanel] 현재 타입:', type);
+  }, [type]);
+
+  // 리마운트 확인용
+  useEffect(() => {
+    console.log('[BackgroundPanel] 컴포넌트 마운트됨');
+  }, []);
+
+  const handleToggleTab = (newType: 'color' | 'image') => {
+    if (newType === 'image' && type === 'image') {
+      // 이미 이미지 탭인 경우 파일 선택창 호출
+      console.log('[BackgroundPanel] 이미지 탭 재클릭 - 파일 선택창 호출');
+    } else {
+      console.log('[BackgroundPanel] 탭 전환 요청:', newType);
+      setType(newType);
+    }
+  };
+
   return (
     <LeftEditorWrapper>
       <NavigationBar>배경</NavigationBar>
       <div className="w-full flex items-center justify-center gap-2 pb-1.5">
         <button
           onClick={() => {
-            setType('color');
+            handleToggleTab('color');
           }}
           type="button"
           className={type === 'color' ? ACTIVE_TAB_CLASS : INACTIVE_TAB_CLASS}
@@ -27,7 +48,7 @@ export const BackgroundPanel = () => {
         </button>
         <button
           onClick={() => {
-            setType('image');
+            handleToggleTab('image');
           }}
           type="button"
           className={type === 'image' ? ACTIVE_TAB_CLASS : INACTIVE_TAB_CLASS}

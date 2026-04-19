@@ -19,5 +19,5 @@ export const useInitFabricData = () => {
     };
 
     loadData();
-  }, [canvas, initialData]);
+  }, [initialData]);
 };
