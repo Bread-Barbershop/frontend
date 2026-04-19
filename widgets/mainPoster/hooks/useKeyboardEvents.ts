@@ -1,6 +1,8 @@
 import { Canvas } from 'fabric';
 import { useEffect, RefObject } from 'react';
+import { useShallow } from 'zustand/shallow';
 
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 export const useKeyboardEvents = (
@@ -19,7 +21,14 @@ export const useKeyboardEvents = (
     undo,
     redo,
     handleDeleteShape,
+    toggleDrawingMode,
   } = useFabricContext();
+
+  const { setActiveTab } = useEditorStore(
+    useShallow(state => ({
+      setActiveTab: state.setActiveTab,
+    }))
+  );
 
   useEffect(() => {
     if (!canvas) return;
@@ -149,6 +158,10 @@ export const useKeyboardEvents = (
 
       if (e.key === 'Escape') {
         canvas.discardActiveObject();
+        if (canvas.isDrawingMode) {
+          toggleDrawingMode(canvas, { enable: false });
+          setActiveTab(null);
+        }
         canvas.renderAll();
       }
     };
@@ -169,5 +182,7 @@ export const useKeyboardEvents = (
     unLock,
     undo,
     redo,
+    toggleDrawingMode,
+    setActiveTab,
   ]);
 };

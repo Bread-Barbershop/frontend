@@ -66,15 +66,20 @@ export interface ImageSlice {
   updateImageId: (id: string, imageId: string) => void;
 }
 
+export interface DrawingConfig {
+  width: number;
+  color: string;
+}
+
 export interface UISlice {
   isEdit: boolean;
   setIsEdit: (isEdit: boolean) => void;
   selectedId: string | null;
   selectedBlock: (id: string) => void;
   activeTab: 'text' | 'image' | 'diagram' | 'background' | null;
-  setActiveTab: (
-    tab: 'text' | 'image' | 'diagram' | 'background' | null
-  ) => void;
+  setActiveTab: (tab: 'text' | 'image' | 'diagram' | 'background' | null) => void;
+  drawingConfig: DrawingConfig;
+  setDrawingConfig: (config: Partial<DrawingConfig>) => void;
 }
 
 export interface DriveSlice {

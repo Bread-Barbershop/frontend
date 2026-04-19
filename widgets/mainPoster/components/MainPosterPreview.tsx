@@ -48,6 +48,10 @@ export const MainPosterPreview = () => {
     startCrop,
     isCropping,
     initialData,
+    copy,
+    paste,
+    handleDeleteShape,
+    toggleDrawingMode,
   } = useFabricContext();
 
   useSetFabricControls();
@@ -92,7 +96,7 @@ export const MainPosterPreview = () => {
 
     const fabricCanvas = new Canvas(canvasRef.current, {
       width: 365,
-      height: 600,
+      height: 812,
       fireRightClick: true,
       stopContextMenu: true,
     });
@@ -103,7 +107,9 @@ export const MainPosterPreview = () => {
     const handleSelection = () => {
       const activeObj = fabricCanvas.getActiveObject();
       if (!activeObj) {
-        setActiveTab(null);
+        if (!fabricCanvas.isDrawingMode) {
+          setActiveTab(null);
+        }
         return;
       }
 
@@ -132,7 +138,9 @@ export const MainPosterPreview = () => {
     fabricCanvas.on('selection:created', handleSelection);
     fabricCanvas.on('selection:updated', handleSelection);
     fabricCanvas.on('selection:cleared', () => {
-      setActiveTab(null);
+      if (!fabricCanvas.isDrawingMode) {
+        setActiveTab(null);
+      }
     });
 
     return () => {
@@ -169,7 +177,9 @@ export const MainPosterPreview = () => {
             target.set({ selectable: false });
           }
         });
-        setActiveTab(null);
+        if (!canvas.isDrawingMode) {
+          setActiveTab(null);
+        }
       }
     };
 
@@ -240,6 +250,53 @@ export const MainPosterPreview = () => {
     return () => document.removeEventListener('click', handleClickOutside);
   }, [canvas]);
 
+  useEffect(() => {
+    if (!canvas) return;
+
+    const handleKeyboard = (e: KeyboardEvent) => {
+      const hasActiveObj = canvas.getActiveObjects().length > 0;
+      if (!isMouseInCanvasRef.current && !hasActiveObj) return;
+
+      const mod = e.ctrlKey || e.metaKey;
+
+      if (mod && e.code === 'KeyC') {
+        const activeObj = canvas.getActiveObject();
+        const isEditingText =
+          activeObj && 'isEditing' in activeObj && (activeObj as any).isEditing;
+        if (activeObj && !isEditingText) {
+          e.preventDefault();
+          copy();
+        }
+      }
+
+      if (mod && e.code === 'KeyV') {
+        const activeObj = canvas.getActiveObject();
+        const isEditingText =
+          activeObj && 'isEditing' in activeObj && (activeObj as any).isEditing;
+        if (!isEditingText) {
+          e.preventDefault();
+          paste();
+        }
+      }
+
+      if (e.key === 'Delete') {
+        handleDeleteShape(canvas, e);
+      }
+
+      if (e.key === 'Escape') {
+        canvas.discardActiveObject();
+        if (canvas.isDrawingMode) {
+          toggleDrawingMode(canvas, { enable: false });
+          setActiveTab(null);
+        }
+        canvas.renderAll();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyboard);
+    return () => window.removeEventListener('keydown', handleKeyboard);
+  }, [canvas, copy, paste, handleDeleteShape]);
+
   return (
     <>
       <div
@@ -247,13 +304,13 @@ export const MainPosterPreview = () => {
           setIsEdit(false);
           selectedBlock('mainPoster');
         }}
-        className={cn('relative w-[365px] h-[600px] shrink-0')}
+        className={cn('relative w-[365px] h-[812px] shrink-0')}
       >
         {selectedId === 'mainPoster' && (
           <div
             data-canvas="true"
             className={cn(
-              'absolute top-0 left-0 w-full h-full border border-primary rounded-lg pointer-events-none'
+              'absolute inset-0 w-full h-full ring-1 ring-inset ring-primary rounded-lg pointer-events-none'
             )}
           />
         )}

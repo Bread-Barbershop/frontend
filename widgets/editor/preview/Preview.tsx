@@ -87,7 +87,7 @@ function Preview() {
                 >
                   <View
                     blockInfo={comp}
-                    className={`${selectedId === comp.id ? 'border border-primary rounded-lg' : ''}`}
+                    className={`${selectedId === comp.id ? 'ring-1 ring-inset ring-primary rounded-lg' : ''}`}
                     titleClassName={previewTitleVariants({
                       variant: comp.type,
                     })}
