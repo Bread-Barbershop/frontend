@@ -1,3 +1,5 @@
+import { cn } from '@/shared/utils/cn';
+
 import { useFabricContext } from '../../context/FabricContext';
 import { FabricObjectWithLock } from '../../types/fabric';
 
@@ -6,60 +8,52 @@ interface Props {
 }
 
 export const LockObject = ({ onClick }: Props) => {
-  const { canvas } = useFabricContext();
+  const { canvas, lock, unLock, activeInfo } = useFabricContext();
+  const hasActiveObject = activeInfo.type !== null;
   const activeObject = canvas?.getActiveObject() as FabricObjectWithLock;
 
-  const lock = () => {
-    if (!activeObject) return;
-    activeObject.set({
-      lockMovementX: true,
-      lockMovementY: true,
-      lockScalingX: true,
-      lockScalingY: true,
-      lockRotation: true,
-      hasControls: false,
-      editable: false,
-      isLocked: true,
-    });
-    canvas?.requestRenderAll();
-  };
+  const isLocked = activeInfo.isLocked;
 
-  const unLock = () => {
-    if (!activeObject) return;
-    activeObject.set({
-      lockMovementX: false,
-      lockMovementY: false,
-      lockScalingX: false,
-      lockScalingY: false,
-      lockRotation: false,
-      hasControls: true,
-      editable: true,
-      isLocked: false,
-    });
-    canvas?.requestRenderAll();
-  };
+  const canLock = hasActiveObject && !isLocked;
+  const canUnlock = hasActiveObject && isLocked;
 
   return (
     <>
       <button
         type="button"
-        className="hover:bg-gray-100 active:bg-gray-200"
+        disabled={!canLock}
+        className={cn(
+          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
+          !canLock && 'opacity-50 cursor-not-allowed grayscale'
+        )}
         onClick={() => {
-          lock();
-          onClick();
+          if (canLock && activeObject) {
+            lock(activeObject);
+            onClick();
+          }
         }}
       >
-        잠그기
+        <p className={cn(!canLock && 'text-gray-400')}>잠그기</p>
+        <p className={cn(!canLock && 'text-gray-400 font-[12px]')}>Ctrl + L</p>
       </button>
       <button
         type="button"
-        className="hover:bg-gray-100 active:bg-gray-200"
+        disabled={!canUnlock}
+        className={cn(
+          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
+          !canUnlock && 'opacity-50 cursor-not-allowed grayscale'
+        )}
         onClick={() => {
-          unLock();
-          onClick();
+          if (canUnlock && activeObject) {
+            unLock(activeObject);
+            onClick();
+          }
         }}
       >
-        잠금 해제하기
+        <p className={cn(!canUnlock && 'text-gray-400')}>잠금 해제하기</p>
+        <p className={cn(!canUnlock && 'text-gray-400 font-[12px]')}>
+          Ctrl + Shift + L
+        </p>
       </button>
     </>
   );

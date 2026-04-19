@@ -19,7 +19,7 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { cn } from '@/shared/utils/cn';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
-import { useInitFabricData } from '../hooks/useInitFabricData';
+import { useKeyboardEvents } from '../hooks/useKeyboardEvents';
 import { useSetFabricControls } from '../hooks/useSetFabricControls';
 import { initAligningGuidelines } from '../libs/aligning-guidelines';
 import { FabricObjectWithLock } from '../types/fabric';
@@ -43,18 +43,53 @@ export const MainPosterPreview = () => {
   const {
     canvas,
     setCanvas,
-    handleDeleteShape,
     handleDeleteEmptyShape,
     setupEventListeners,
-    copy,
-    paste,
     startCrop,
     isCropping,
+    initialData,
+    copy,
+    paste,
+    handleDeleteShape,
     toggleDrawingMode,
   } = useFabricContext();
 
   useSetFabricControls();
-  useInitFabricData();
+  useKeyboardEvents(canvas, isMouseInCanvasRef);
+
+  useEffect(() => {
+    if (!canvas || !initialData) return;
+
+    const loadData = async () => {
+      try {
+        const jsonData =
+          typeof initialData === 'string'
+            ? JSON.parse(initialData)
+            : initialData;
+        await canvas.loadFromJSON(jsonData);
+
+        canvas.getObjects().forEach(obj => {
+          if ((obj as any).isLocked) {
+            obj.set({
+              lockMovementX: true,
+              lockMovementY: true,
+              lockScalingX: true,
+              lockScalingY: true,
+              lockRotation: true,
+              hasControls: false,
+              editable: false,
+            });
+          }
+        });
+
+        canvas.requestRenderAll();
+      } catch (error) {
+        console.error('Fabric load Error:', error);
+      }
+    };
+
+    loadData();
+  }, [canvas, initialData]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -129,6 +164,7 @@ export const MainPosterPreview = () => {
       }
     };
 
+    // 마우스 드래그해 그룹으로 영역 선택시 잠금 객체 제외하고 선택될수있게
     const handleMouseDown = (options: TPointerEventInfo<TPointerEvent>) => {
       const e = options.e as MouseEvent;
       if (e.button === 2) return; // 우클릭(Right Click)은 무시
@@ -170,13 +206,13 @@ export const MainPosterPreview = () => {
   }, [
     canvas,
     handleDeleteEmptyShape,
-    handleDeleteShape,
     setActiveTab,
     setupEventListeners,
     startCrop,
     isCropping,
   ]);
 
+  // 마우스가 캔버스에 들어왔는지 나갔는지 확인
   useEffect(() => {
     if (!canvas) return;
     const el = canvas.upperCanvasEl;
@@ -192,6 +228,7 @@ export const MainPosterPreview = () => {
     };
   }, [canvas]);
 
+  // 외부클릭시 액티브 해제
   useEffect(() => {
     if (!canvas) return;
 

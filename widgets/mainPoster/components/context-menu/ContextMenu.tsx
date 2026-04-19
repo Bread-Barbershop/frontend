@@ -1,14 +1,17 @@
 import { TPointerEvent, TPointerEventInfo } from 'fabric';
 import { useEffect, useRef, useState } from 'react';
 
+import { cn } from '@/shared/utils/cn';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import ControlZindex from './ControlZindex';
 import CopyAndPaste from './CopyAndPaste';
 import { LockObject } from './LockObject';
+import { UndoRedo } from './UndoRedo';
 
 export function ContextMenu() {
-  const { canvas, handleDeleteShape } = useFabricContext();
+  const { canvas, handleDeleteShape, activeInfo } = useFabricContext();
+  const hasActiveObject = activeInfo.type !== null;
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
@@ -61,24 +64,31 @@ export function ContextMenu() {
   return (
     <div
       ref={menuRef}
-      className="fixed z-9999 flex flex-col gap-3 p-3 bg-white border border-gray-200 rounded-md shadow-lg"
+      className="fixed z-9999 w-55 flex flex-col gap-3 p-3 bg-white border border-gray-200 rounded-md shadow-lg"
       style={{ top: pos.y, left: pos.x }}
-      // onMouseDown={e => e.stopPropagation()}
       onContextMenu={e => e.preventDefault()}
     >
       <CopyAndPaste onClick={() => setOpen(false)} />
       <ControlZindex onClick={() => setOpen(false)} />
+      <UndoRedo onClick={() => setOpen(false)} />
       <button
         type="button"
-        className="hover:bg-gray-100 active:bg-gray-200"
+        disabled={!hasActiveObject}
+        className={cn(
+          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
+          !hasActiveObject && 'opacity-50 cursor-not-allowed grayscale'
+        )}
         onClick={() => {
-          if (canvas) {
+          if (canvas && hasActiveObject) {
             handleDeleteShape(canvas, undefined, true);
           }
           setOpen(false);
         }}
       >
-        삭제하기
+        <p className={cn(!hasActiveObject && 'text-gray-400')}>삭제하기</p>
+        <p className={cn(!hasActiveObject && 'text-gray-400 font-[12px]')}>
+          Delete
+        </p>
       </button>
       <LockObject onClick={() => setOpen(false)} />
     </div>
