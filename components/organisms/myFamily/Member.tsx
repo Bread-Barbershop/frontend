@@ -5,11 +5,10 @@ import { Label } from '@/components/atoms/label';
 import { Picture } from '@/components/molecules/picture';
 import { Selector } from '@/components/molecules/selector';
 import Flower from '@/shared/assets/icons/flower.svg';
-import Hide from '@/shared/assets/icons/hide.svg';
 import Menu from '@/shared/assets/icons/menu.svg';
-import Remove from '@/shared/assets/icons/remove.svg';
-import Show from '@/shared/assets/icons/show.svg';
 import { cn } from '@/shared/utils/cn';
+
+import { EditMenu } from './EditMenu';
 
 interface Props {
   index: number;
@@ -80,31 +79,12 @@ export const Member = ({
             <Menu />
           </button>
           {isOpen && (
-            <section className="absolute flex flex-col items-center justify-center gap-2.5 px-2 right-0 top-9 z-10 bg-bg-base w-21.5 h-16.5 rounded-lg shadow-custom">
-              <button
-                type="button"
-                className="w-full flex items-center gap-1 text-xs"
-                onClick={() => {
-                  onFlowerChange(index, !member.flower);
-                  onToggle(index);
-                }}
-              >
-                {member.flower ? <Hide /> : <Show />}
-                <Flower />
-                <p>{member.flower ? '삭제' : '표시'}</p>
-              </button>
-              <button
-                type="button"
-                className="w-full flex items-center gap-5 text-xs"
-                onClick={() => {
-                  onDelete(index);
-                  onToggle(index);
-                }}
-              >
-                <Remove />
-                <p>삭제</p>
-              </button>
-            </section>
+            <EditMenu
+              onFlowerChange={value => onFlowerChange(index, value)}
+              onDelete={() => onDelete(index)}
+              onToggle={() => onToggle(index)}
+              member={member}
+            />
           )}
         </div>
       </div>
