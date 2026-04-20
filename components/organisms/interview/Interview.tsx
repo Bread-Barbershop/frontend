@@ -198,6 +198,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
             <InterviewItem
               id={id}
               question={question}
+              questionLength={(questions || []).length}
               editorResetKey={editorResetKey}
               onQuestionChange={e =>
                 handleQuestionChange(e.target.value, question.questionId)

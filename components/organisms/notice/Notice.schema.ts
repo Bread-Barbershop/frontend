@@ -7,16 +7,26 @@ export const noticeSchema = {
       default: '',
       required: true,
     },
-    items: {
+    checkedEnglishTitle: {
+      default: false,
+      required: true,
+    },
+    englishTitle: {
+      default: '',
+      required: false,
+    },
+    noticeList: {
       default: [
         {
           id: crypto.randomUUID(),
+          notice: '',
           messageJson: null,
           messageHtml: null,
           image: [],
         },
       ] as {
         id: string;
+        notice: string;
         messageJson: JSONContent | null;
         messageHtml: string | null;
         image: (File | string)[];

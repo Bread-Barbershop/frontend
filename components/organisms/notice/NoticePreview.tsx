@@ -22,16 +22,16 @@ export const NoticePreview = ({
   titleClassName,
   ...rest
 }: Props) => {
-  const { items, title, images } = blockInfo.props;
+  const { noticeList, title, images } = blockInfo.props;
 
-  const displayItems = useMemo(() => {
-    if (items && items.length === 2) {
-      return [...items, ...items, ...items, ...items];
+  const displayNoticeList = useMemo(() => {
+    if (noticeList && noticeList.length === 2) {
+      return [...noticeList, ...noticeList, ...noticeList, ...noticeList];
     }
-    return items;
-  }, [items]);
+    return noticeList;
+  }, [noticeList]);
 
-  const isAutoScrollActive = (items?.length ?? 0) > 1;
+  const isAutoScrollActive = (noticeList?.length ?? 0) > 1;
 
   const carouselOptions: EmblaOptionsType = useMemo(
     () => ({
@@ -70,19 +70,19 @@ export const NoticePreview = ({
           autoscrollOptions={autoscrollOptions}
           loop={isAutoScrollActive}
         >
-          {displayItems?.map((item, index) => (
+          {displayNoticeList?.map((notice, index) => (
             <div
-              key={`preview-${item.id}-${index}`}
+              key={`preview-${notice.id}-${index}`}
               className={cn(
                 'w-full',
-                displayItems.length > 1 && index === 0 ? 'ml-3' : '',
-                displayItems.length === 1 && 'flex-center'
+                displayNoticeList.length > 1 && index === 0 ? 'ml-3' : '',
+                displayNoticeList.length === 1 && 'flex-center'
               )}
             >
               <NoticePreviewItem
-                item={item}
+                notice={notice}
                 images={images}
-                index={index % (items?.length || 1)}
+                index={index % (noticeList?.length || 1)}
               />
             </div>
           ))}

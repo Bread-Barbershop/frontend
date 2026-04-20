@@ -5,6 +5,7 @@ import { ActionField } from '@/components/molecules/action-field';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { Picture } from '@/components/molecules/picture/Picture';
 import { TextEditor } from '@/components/molecules/text-editor';
+import { cn } from '@/shared/utils/cn';
 
 interface Props {
   id: string;
@@ -17,6 +18,7 @@ interface Props {
     };
     image: (File | string)[];
   };
+  questionLength: number;
   editorResetKey: number;
   onQuestionChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onEditorChange: (json: JSONContent) => void;
@@ -28,6 +30,7 @@ interface Props {
 export const InterviewItem = ({
   id,
   question,
+  questionLength,
   editorResetKey,
   onQuestionChange,
   onEditorChange,
@@ -48,6 +51,7 @@ export const InterviewItem = ({
         buttonProps={{
           onClick: onDelete,
           children: <p className="text-red-500">삭제</p>,
+          className: cn(questionLength > 1 ? 'block' : 'hidden'),
         }}
       />
       <div className="flex flex-col gap-2">

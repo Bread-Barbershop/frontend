@@ -5,12 +5,13 @@ import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 import type { JSONContent } from '@tiptap/react';
 
 export const NoticePreviewItem = ({
-  item,
+  notice,
   images,
   index,
 }: {
-  item: {
+  notice: {
     id: string;
+    notice: string;
     messageJson: JSONContent | null;
     messageHtml: string | null;
     image: (File | string)[];
@@ -18,10 +19,11 @@ export const NoticePreviewItem = ({
   images?: (File | string)[];
   index: number;
 }) => {
-  const html = item.messageHtml ?? tiptapJsonToHtmlUniversal(item.messageJson);
+  const html =
+    notice.messageHtml ?? tiptapJsonToHtmlUniversal(notice.messageJson);
   const preview = useResolvedImageSource(
     (images && images[index]) ||
-      (item.image && item.image.length > 0 ? item.image[0] : null)
+      (notice.image && notice.image.length > 0 ? notice.image[0] : null)
   );
 
   return (
@@ -44,10 +46,15 @@ export const NoticePreviewItem = ({
           />
         </div>
       )}
-      <div
-        className="text-sm text-center select-none"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      <div className="flex flex-col gap-4">
+        <p className="text-sm text-center font-semibold select-none">
+          {notice.notice}
+        </p>
+        <div
+          className="text-sm text-center select-none"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      </div>
     </div>
   );
 };
