@@ -3,12 +3,15 @@ import React, { useState, useRef, useEffect, ChangeEvent } from 'react';
 
 import { cn } from '@/shared/utils/cn';
 
+import { selectorVariants } from './Selector.style';
+
 interface Option {
   label: string | React.ReactNode;
   value: string;
 }
 
 interface SelectorProps<T> {
+  type?: 'normal' | 'editor';
   options: T[];
   placeholder?: string;
   className?: string;
@@ -18,6 +21,7 @@ interface SelectorProps<T> {
 }
 
 export const Selector = <T extends Option>({
+  type = 'editor',
   options,
   placeholder = '선택',
   className,
@@ -81,13 +85,7 @@ export const Selector = <T extends Option>({
 
   return (
     <div ref={containerRef} className={cn('relative', className)}>
-      <div
-        className={cn(
-          'flex items-center justify-between w-full text-sm transition-all overflow-hidden',
-          hasValue || isCustomInput ? 'bg-bg-base' : 'bg-border-neutral',
-          isOpen ? 'rounded-t-lg border-b-transparent' : 'rounded-lg'
-        )}
-      >
+      <div className={cn(selectorVariants({ type, isOpen, hasValue }))}>
         {isCustomInput ? (
           <input
             ref={inputRef}
