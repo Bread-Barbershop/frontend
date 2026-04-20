@@ -1,5 +1,7 @@
 import { EmblaCarouselType, EmblaOptionsType } from 'embla-carousel';
 import useEmblaCarousel from 'embla-carousel-react';
+import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures';
+import { AnimatePresence, motion } from 'framer-motion';
 import React, { useCallback, useEffect, useState } from 'react';
 
 import SlideArrow from '@/shared/assets/icons/slideArrow.svg';
@@ -8,6 +10,7 @@ import { cn } from '@/shared/utils/cn';
 interface Props {
   options?: EmblaOptionsType;
   setEmblaApi?: (api: EmblaCarouselType) => void;
+  onReset?: () => void;
   className?: string;
   parentClassName?: string;
   children: React.ReactNode;
@@ -19,8 +22,11 @@ function ChipCarousel({
   className,
   parentClassName,
   children,
+  onReset,
 }: Props) {
-  const [emblaRef, emblaApi] = useEmblaCarousel(options);
+  const [emblaRef, emblaApi] = useEmblaCarousel(options, [
+    WheelGesturesPlugin(),
+  ]);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
 
@@ -69,28 +75,47 @@ function ChipCarousel({
           isVertical ? 'flex-col items-center h-full' : 'items-center'
         )}
       >
-        {canScrollPrev && (
-          <div
-            className={cn(
-              'cursor-pointer bg-bg-base',
-              isVertical ? 'w-full h-8' : 'w-8 h-full'
-            )}
-          >
-            <button
-              type="button"
-              className="w-full h-full flex-center"
-              onClick={e => {
-                e.stopPropagation();
-                scrollPrev();
-              }}
-              aria-label="이전 버튼"
+        <AnimatePresence>
+          {canScrollPrev && (
+            <motion.div
+              initial={
+                isVertical
+                  ? { height: 0, opacity: 0 }
+                  : { width: 0, opacity: 0 }
+              }
+              animate={
+                isVertical
+                  ? { height: 32, opacity: 1 }
+                  : { width: 32, opacity: 1 }
+              }
+              exit={
+                isVertical
+                  ? { height: 0, opacity: 0 }
+                  : { width: 0, opacity: 0 }
+              }
+              transition={{ duration: 0.1, ease: 'easeInOut' }}
+              className={cn(
+                'cursor-pointer bg-bg-base overflow-hidden shrink-0',
+                isVertical ? 'w-full' : 'h-full'
+              )}
             >
-              <SlideArrow
-                className={`w-[9px] h-[14px] ${isVertical ? 'rotate-90' : 'rotate-0'}`}
-              />
-            </button>
-          </div>
-        )}
+              <button
+                type="button"
+                className="w-full h-full flex-center"
+                onClick={e => {
+                  e.stopPropagation();
+                  if (onReset) onReset();
+                  scrollPrev();
+                }}
+                aria-label="이전 버튼"
+              >
+                <SlideArrow
+                  className={`w-[9px] h-[14px] ${isVertical ? 'rotate-90' : 'rotate-0'}`}
+                />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
         <div className="flex-1  w-full">
           <div ref={emblaRef} className="overflow-hidden">
             <div className={cn('flex gap-1.5 max-h-94', parentClassName)}>
@@ -98,28 +123,47 @@ function ChipCarousel({
             </div>
           </div>
         </div>
-        {canScrollNext && (
-          <div
-            className={cn(
-              'cursor-pointer bg-bg-base flex-center',
-              isVertical ? 'w-full h-8' : 'w-8 h-full'
-            )}
-          >
-            <button
-              type="button"
-              className="w-full h-full flex-center"
-              onClick={e => {
-                e.stopPropagation();
-                scrollNext();
-              }}
-              aria-label="다음 버튼"
+        <AnimatePresence>
+          {canScrollNext && (
+            <motion.div
+              initial={
+                isVertical
+                  ? { height: 0, opacity: 0 }
+                  : { width: 0, opacity: 0 }
+              }
+              animate={
+                isVertical
+                  ? { height: 32, opacity: 1 }
+                  : { width: 32, opacity: 1 }
+              }
+              exit={
+                isVertical
+                  ? { height: 0, opacity: 0 }
+                  : { width: 0, opacity: 0 }
+              }
+              transition={{ duration: 0.1, ease: 'easeInOut' }}
+              className={cn(
+                'cursor-pointer bg-bg-base flex-center overflow-hidden shrink-0',
+                isVertical ? 'w-full' : 'h-full'
+              )}
             >
-              <SlideArrow
-                className={`w-[9px] h-[14px] ${isVertical ? 'rotate-270' : 'rotate-180'}`}
-              />
-            </button>
-          </div>
-        )}
+              <button
+                type="button"
+                className="w-full h-full flex-center"
+                onClick={e => {
+                  e.stopPropagation();
+                  if (onReset) onReset();
+                  scrollNext();
+                }}
+                aria-label="다음 버튼"
+              >
+                <SlideArrow
+                  className={`w-[9px] h-[14px] ${isVertical ? 'rotate-270' : 'rotate-180'}`}
+                />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
