@@ -49,8 +49,12 @@ export const NoticeItem = ({
         className="w-full text-center"
         buttonProps={{
           onClick: onDelete,
-          children: <p className="text-red-500">삭제</p>,
-          className: cn(noticeLength > 1 ? 'block' : 'hidden'),
+          children: <p className="text-red-500 ">삭제</p>,
+          className: cn(
+            noticeLength > 1
+              ? 'block flex items-center justify-center'
+              : 'hidden'
+          ),
         }}
       />
       <NavigationBar>내용</NavigationBar>
