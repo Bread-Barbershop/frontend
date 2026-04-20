@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { Button } from '@/components/atoms/button/Button';
+import { Label } from '@/components/atoms/label/Label';
+import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { TextEditor } from '@/components/molecules/text-editor';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
@@ -36,6 +38,7 @@ export const Account = ({ blockInfo, id }: Props) => {
     }))
   );
   const [isGroupPopupOpen, setIsGroupPopupOpen] = useState(false);
+  const { title, checkedEnglishTitle, englishTitle } = blockInfo.props;
 
   const debouncedUpdateMessage = useMemo(
     () =>
@@ -126,12 +129,23 @@ export const Account = ({ blockInfo, id }: Props) => {
       <TextField
         label="제목"
         inputProps={{
-          placeholder: '제목을 입력해 주세요',
-          value: blockInfo.props.title,
+          placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+          value: title,
           onChange: e => handleUpdateBlock('title', e.target.value),
         }}
         className="w-full text-center"
       />
+      {checkedEnglishTitle && (
+        <TextField
+          label="영문제목"
+          inputProps={{
+            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+            value: englishTitle,
+            onChange: e => handleUpdateBlock('englishTitle', e.target.value),
+          }}
+          className="text-center w-full pt-3"
+        />
+      )}
 
       <NavigationBar>내용</NavigationBar>
 
@@ -142,6 +156,18 @@ export const Account = ({ blockInfo, id }: Props) => {
         defaultAlign="center"
         onChange={handleEditorChange}
       />
+      <section className="flex flex-row gap-2 items-center w-full">
+        <Label className="font-semibold">추가기능</Label>
+        <Checkbox
+          onChange={e =>
+            handleUpdateBlock('checkedEnglishTitle', e.target.checked)
+          }
+          checked={checkedEnglishTitle}
+        >
+          영문 제목 추가
+        </Checkbox>
+      </section>
+
       {Array.from({ length: blockInfo.props.groupList.length }).map((_, i) => (
         <Group
           key={i}

@@ -57,6 +57,7 @@ export const Group = ({
       )}
 
       <ActionField
+        className="mb-2 text-center"
         label="그룹명"
         inputProps={{
           placeholder: '그룹명',
@@ -78,9 +79,9 @@ export const Group = ({
         }}
       />
       {accountList.map((account, i) => (
-        <div key={`${i}`} className="flex flex-col gap-2">
+        <div key={`${i}`} className="flex flex-col gap-3.5">
           <TextField
-            label="예금주명"
+            label="예금주"
             inputProps={{
               placeholder: '예금주명',
               value: account.name,
@@ -90,7 +91,7 @@ export const Group = ({
                   e.target.value
                 ),
             }}
-            className="w-full"
+            className="w-full text-center"
           />
           <MultiField
             label={`${i + 1}번 계좌`}
@@ -116,8 +117,8 @@ export const Group = ({
                 ),
             }}
           />
-          <div className="flex items-center gap-4 w-full">
-            <p className="text-sm font-semibold">추가 기능</p>
+          <div className="flex items-center gap-2 w-full">
+            <p className="text-sm font-semibold px-1">추가기능</p>
             <Checkbox
               aria-label="간편 송금(카카오페이)"
               direction="right"
@@ -129,7 +130,7 @@ export const Group = ({
                 )
               }
             >
-              <p className="text-text-tertiary">간편 송금(카카오페이)</p>
+              간편 송금(카카오페이)
             </Checkbox>
           </div>
         </div>

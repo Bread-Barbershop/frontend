@@ -18,16 +18,26 @@ export const AccountPreview = ({
   titleClassName,
   ...rest
 }: Props) => {
-  const { messageHtml, messageJson, groupList, accountList, title } =
-    blockInfo.props;
+  const {
+    messageHtml,
+    messageJson,
+    groupList,
+    accountList,
+    title,
+    checkedEnglishTitle,
+    englishTitle,
+  } = blockInfo.props;
   const html = messageHtml ?? tiptapJsonToHtmlUniversal(messageJson);
 
   return (
     <MiddlePreviewWrapper
       className={`${className} relative`}
       titleClassName={titleClassName}
-      enTitle="ACCOUNT"
+      checkedEnglishTitle={checkedEnglishTitle}
+      enTitle={englishTitle}
+      enTitleDefault="ACCOUNT"
       koTitle={title}
+      koTitleDefault="마음 보내실 곳"
       {...rest}
     >
       <div
