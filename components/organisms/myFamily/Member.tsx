@@ -19,7 +19,6 @@ interface Props {
     image: (File | string)[];
     flower: boolean;
   };
-  checkedImage: boolean | undefined;
   onRelationChange: (index: number, value: string) => void;
   onNameChange: (index: number, e: ChangeEvent<HTMLInputElement>) => void;
   onImageChange: (index: number, value: (File | string)[]) => void;
@@ -33,7 +32,6 @@ interface Props {
 export const Member = ({
   index,
   member,
-  checkedImage,
   onRelationChange,
   onNameChange,
   onImageChange,
@@ -110,16 +108,14 @@ export const Member = ({
           )}
         </div>
       </div>
-      {checkedImage && (
-        <Picture
-          label="사진"
-          className="w-full text-center"
-          multiple={false}
-          value={member.image}
-          onChange={value => onImageChange(index, value)}
-          onDelete={() => onImageDelete(index)}
-        />
-      )}
+      <Picture
+        label="사진"
+        className="w-full text-center"
+        multiple={false}
+        value={member.image}
+        onChange={value => onImageChange(index, value)}
+        onDelete={() => onImageDelete(index)}
+      />
     </div>
   );
 };

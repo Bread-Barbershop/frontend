@@ -47,7 +47,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         <Label
           htmlFor={checkboxId}
           className={cn(
-            'select-none',
+            'pl-0 select-none',
             (direction === 'top' || direction === 'bottom') &&
               'min-h-0 py-0 px-0'
           )}
