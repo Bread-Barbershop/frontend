@@ -22,14 +22,15 @@ export const PlacePreview = ({
   ...rest
 }: Props) => {
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
-  const { placeName, placeDetail, placeAddress, placeTel } = blockInfo.props;
+  const { title, placeName, placeDetail, placeAddress, placeTel } =
+    blockInfo.props;
 
   return (
     <MiddlePreviewWrapper
       className={className}
       titleClassName={titleClassName}
       enTitle="LOCATION"
-      koTitle={blockInfo.props.title}
+      koTitle={title && title.length > 1 ? title : '오시는 길'}
       {...rest}
     >
       <NaverMapScript onReady={() => setIsScriptLoaded(true)} />
