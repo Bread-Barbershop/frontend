@@ -20,7 +20,8 @@ export const InterviewPreview = ({
   titleClassName,
   ...rest
 }: Props) => {
-  const { title, questions } = blockInfo.props;
+  const { title, questions, checkedEnglishTitle, englishTitle } =
+    blockInfo.props;
 
   const displayItems = useMemo(() => {
     if (questions && questions.length === 2) {
@@ -53,8 +54,11 @@ export const InterviewPreview = ({
   return (
     <MiddlePreviewWrapper
       className={cn('px-0', className)}
-      enTitle="INTERVIEW"
+      checkedEnglishTitle={checkedEnglishTitle}
+      enTitle={englishTitle}
+      enTitleDefault="INTERVIEW"
       koTitle={title}
+      koTitleDefault="우리 둘의 이야기"
       titleClassName={titleClassName}
       {...rest}
     >
