@@ -2,6 +2,7 @@ import { JSONContent } from '@tiptap/core';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 
 import { UtilityButton } from '@/components/atoms/button';
+import { Divider } from '@/components/atoms/divider/Divider';
 import { Label } from '@/components/atoms/label/Label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
@@ -12,7 +13,6 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 import { debounce } from '@/shared/utils/debounce';
 
-import { Divider } from '../../atoms/divider';
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
 import { Member } from './Member';

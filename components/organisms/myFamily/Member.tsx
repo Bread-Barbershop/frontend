@@ -42,7 +42,7 @@ export const Member = ({
   onToggle,
 }: Props) => {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       <div className="flex flex-row gap-2">
         <Label id={`family${index}`} className="text-center font-semibold">
           소개{index + 1}
