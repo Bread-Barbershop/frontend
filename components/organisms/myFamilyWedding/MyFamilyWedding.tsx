@@ -102,7 +102,7 @@ export const MyFamilyWedding = ({ blockInfo, id }: Props) => {
   }, [id, brideFamily, groomFamily, updateBlock]);
 
   return (
-    <LeftEditorWrapper ariaLabel="가족 소개" className="gap-3 min-h-86">
+    <LeftEditorWrapper ariaLabel="가족 소개" className="gap-3">
       <NavigationBar>가족 소개</NavigationBar>
       <Group
         family={groomFamily || []}

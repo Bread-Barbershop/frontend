@@ -4,7 +4,6 @@ import { cn } from '@/shared/utils/cn';
 
 import { actionVariants } from './NavigationBar.style';
 
-
 interface NavigationBarProps {
   children: ReactNode;
   action?: ReactNode;
@@ -20,7 +19,7 @@ export const NavigationBar = ({
   return (
     <div
       className={cn(
-        'relative flex-center w-full min-h-11 bg-transparent',
+        'relative flex-center w-full h-11 bg-transparent',
         className
       )}
     >

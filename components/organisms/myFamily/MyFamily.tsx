@@ -2,6 +2,7 @@ import { JSONContent } from '@tiptap/core';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 
 import { UtilityButton } from '@/components/atoms/button';
+import { Divider } from '@/components/atoms/divider/Divider';
 import { Label } from '@/components/atoms/label/Label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
@@ -25,8 +26,8 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
   const {
     family,
     title,
-    checkedImage,
-    checkedTitle,
+    englishTitle,
+    checkedEnglishTitle,
     checkedMessage,
     messageJson,
   } = blockInfo.props;
@@ -57,6 +58,10 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { title: e.target.value });
+  };
+
+  const handleEnglishTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    updateBlock(id, { englishTitle: e.target.value });
   };
 
   const handleRelationChange = (index: number, value: string) => {
@@ -106,26 +111,18 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
 
   const handleCheckedChange = (
     e: ChangeEvent<HTMLInputElement>,
-    type: 'checkedImage' | 'checkedTitle' | 'checkedMessage'
+    type: 'checkedEnglishTitle' | 'checkedMessage'
   ) => {
     const isChecked = e.target.checked;
     const updateData: Record<string, unknown> = { [type]: isChecked };
 
     if (!isChecked) {
-      if (type === 'checkedTitle') {
-        updateData.title = '';
+      if (type === 'checkedEnglishTitle') {
+        updateData.englishTitle = '';
       } else if (type === 'checkedMessage') {
         debouncedUpdateMessage.cancel();
         updateData.messageJson = null;
         updateData.messageHtml = null;
-      } else if (type === 'checkedImage') {
-        const newFamily = (family || []).map(member => ({
-          ...member,
-          image: [],
-        }));
-        updateData.family = newFamily;
-        updateData.image = [];
-        updateImage(id, []);
       }
     }
 
@@ -179,20 +176,33 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
       >
         가족 소개
       </NavigationBar>
+      <TextField
+        label="제목"
+        inputProps={{
+          placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+          value: title,
+          onChange: handleTitleChange,
+        }}
+        className="text-center w-full"
+      />
+      {checkedEnglishTitle && (
+        <TextField
+          label="영문제목"
+          inputProps={{
+            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+            value: englishTitle,
+            onChange: handleEnglishTitleChange,
+          }}
+          className="text-center w-full"
+        />
+      )}
       <section className="flex flex-col gap-3 w-full">
         {(family || []).map((member, index) => (
           <div key={index} className="flex flex-col gap-2 w-full">
-            {index !== 0 && (
-              <div className="flex flex-col items-center gap-1">
-                <div className="w-0.5 h-1 rounded-sm bg-text-secondary" />
-                <div className="w-0.5 h-1 rounded-sm bg-text-secondary" />
-                <div className="w-0.5 h-1 rounded-sm bg-text-secondary" />
-              </div>
-            )}
+            {index !== 0 && <Divider />}
             <Member
               index={index}
               member={member}
-              checkedImage={checkedImage}
               onRelationChange={handleRelationChange}
               onNameChange={handleNameChange}
               onImageChange={handleImageChange}
@@ -205,17 +215,6 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
           </div>
         ))}
       </section>
-      {checkedTitle && (
-        <TextField
-          label="제목"
-          inputProps={{
-            placeholder: '제목을 입력해주세요.',
-            value: title,
-            onChange: handleTitleChange,
-          }}
-          className="text-center w-full"
-        />
-      )}
       {checkedMessage && (
         <>
           <NavigationBar className="h-8">내용</NavigationBar>
@@ -227,21 +226,14 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
           />
         </>
       )}
-      <section className="flex items-center justify-center -mx-2 gap-1 py-1.5">
+      <section className="flex w-full -mx-2 gap-1 py-1.5">
         <Label className="font-semibold">추가기능</Label>
         <Checkbox
           className="text-[13px]"
-          checked={checkedImage}
-          onChange={e => handleCheckedChange(e, 'checkedImage')}
+          checked={checkedEnglishTitle}
+          onChange={e => handleCheckedChange(e, 'checkedEnglishTitle')}
         >
-          프로필 사진 추가
-        </Checkbox>
-        <Checkbox
-          className="text-[13px]"
-          checked={checkedTitle}
-          onChange={e => handleCheckedChange(e, 'checkedTitle')}
-        >
-          제목 추가
+          영문 제목 추가
         </Checkbox>
         <Checkbox
           className="text-[13px]"

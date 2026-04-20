@@ -50,7 +50,7 @@ export const Group = ({
         </p>
         <div className="flex flex-col gap-2">
           {(family || []).map((member, index) => (
-            <div key={index} className="flex flex-col gap-2 w-full">
+            <div key={index} className="flex flex-col gap-3 w-full">
               <Member
                 type={type}
                 index={index}

@@ -1,5 +1,4 @@
 import Flower from '@/shared/assets/icons/flower.svg';
-import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 
@@ -18,13 +17,6 @@ export const MyFamilyWeddingPreview = ({
   ...rest
 }: Props) => {
   const { brideFamily, groomFamily } = blockInfo.props;
-  const blocks = useEditorStore(state => state.block);
-
-  const coupleBlock = blocks.find(b => b.component === 'coupleIntroduction') as
-    | EditorBlock<'coupleIntroduction'>
-    | undefined;
-  const groomName = coupleBlock?.props?.groom || '';
-  const brideName = coupleBlock?.props?.bride || '';
 
   return (
     <MiddlePreviewWrapper
@@ -43,7 +35,7 @@ export const MyFamilyWeddingPreview = ({
             {member.name}
           </p>
         ))}
-        <span>의 딸 {brideName}</span>
+        <span>의 딸</span>
       </div>
       <div className="flex flex-row items-center gap-1">
         {groomFamily?.map((member, index) => (
@@ -53,7 +45,7 @@ export const MyFamilyWeddingPreview = ({
             {member.name}
           </p>
         ))}
-        <span>의 아들 {groomName}</span>
+        <span>의 아들</span>
       </div>
     </MiddlePreviewWrapper>
   );

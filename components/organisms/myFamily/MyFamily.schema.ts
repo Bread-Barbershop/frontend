@@ -7,11 +7,11 @@ export const myFamilySchema = {
       default: '',
       required: false,
     },
-    checkedImage: {
-      default: false,
+    englishTitle: {
+      default: '',
       required: false,
     },
-    checkedTitle: {
+    checkedEnglishTitle: {
       default: false,
       required: false,
     },

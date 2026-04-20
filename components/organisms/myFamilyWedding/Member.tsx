@@ -3,11 +3,10 @@ import { ChangeEvent } from 'react';
 import { Input } from '@/components/atoms/input';
 import { Selector } from '@/components/molecules/selector';
 import Flower from '@/shared/assets/icons/flower.svg';
-import Hide from '@/shared/assets/icons/hide.svg';
 import Menu from '@/shared/assets/icons/menu.svg';
-import Remove from '@/shared/assets/icons/remove.svg';
-import Show from '@/shared/assets/icons/show.svg';
 import { cn } from '@/shared/utils/cn';
+
+import { EditMenu } from './EditMenu';
 
 interface Props {
   type: 'bride' | 'groom';
@@ -69,7 +68,7 @@ export const Member = ({
             </div>
           )}
           <Input
-            placeholder="이름"
+            placeholder="성함"
             value={member.name}
             onChange={e => onNameChange(type, index, e)}
             className={cn('w-34', member.flower && 'pl-8')}
@@ -84,31 +83,14 @@ export const Member = ({
             <Menu />
           </button>
           {isOpen && (
-            <section className="absolute flex flex-col items-center justify-center gap-2.5 px-2 right-0 top-9 z-10 bg-bg-base w-21.5 h-16.5 rounded-lg shadow-custom">
-              <button
-                type="button"
-                className="w-full flex items-center gap-1 text-xs"
-                onClick={() => {
-                  onFlowerChange(type, index, !member.flower);
-                  onToggle(type, index);
-                }}
-              >
-                {member.flower ? <Hide /> : <Show />}
-                <Flower />
-                <p>{member.flower ? '삭제' : '표시'}</p>
-              </button>
-              <button
-                type="button"
-                className="w-full flex items-center gap-5 text-xs"
-                onClick={() => {
-                  onDelete(type, index);
-                  onToggle(type, index);
-                }}
-              >
-                <Remove />
-                <p>삭제</p>
-              </button>
-            </section>
+            <EditMenu
+              type={type}
+              index={index}
+              member={member}
+              onFlowerChange={onFlowerChange}
+              onDelete={onDelete}
+              onToggle={onToggle}
+            />
           )}
         </div>
       </div>
