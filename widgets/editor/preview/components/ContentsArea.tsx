@@ -22,16 +22,14 @@ interface Props {
 }
 
 function ContentsArea({ scrollContainerRef, sectionRefs }: Props) {
-  const { blocks, addBlock, selectedBlock, addAllBlock, setIsEdit } =
-    useEditorStore(
-      useShallow(state => ({
-        blocks: state.block,
-        addBlock: state.addBlock,
-        selectedBlock: state.selectedBlock,
-        addAllBlock: state.addAllBlock,
-        setIsEdit: state.setIsEdit,
-      }))
-    );
+  const { addBlock, selectedBlock, addAllBlock, setIsEdit } = useEditorStore(
+    useShallow(state => ({
+      addBlock: state.addBlock,
+      selectedBlock: state.selectedBlock,
+      addAllBlock: state.addAllBlock,
+      setIsEdit: state.setIsEdit,
+    }))
+  );
 
   const handleAddComponent = (
     type: InvitationType,
@@ -40,16 +38,6 @@ function ContentsArea({ scrollContainerRef, sectionRefs }: Props) {
     if (!component) return;
     const id = crypto.randomUUID();
     addBlock(type, component, id);
-
-    // 인사말 추가 시 가족소개 자동 추가 (결혼식 타입인 경우)
-    if (type === 'wedding' && component === 'greeting') {
-      const hasFamilyWedding = blocks.some(
-        b => b.component === 'myFamilyWedding'
-      );
-      if (!hasFamilyWedding) {
-        addBlock('wedding', 'myFamilyWedding', crypto.randomUUID());
-      }
-    }
 
     selectedBlock(id);
     setIsEdit(false);
