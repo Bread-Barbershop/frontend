@@ -248,7 +248,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
             <NoticeItem
               id={id}
               notice={notice}
-              noticeLength={blockInfo.props.noticeList?.length || 0}
+              noticeLength={noticeList?.length || 0}
               editorResetKey={editorResetKey}
               onNoticeChange={e =>
                 handleNoticeChange(notice.id, e.target.value)
