@@ -17,9 +17,16 @@ function RightPanel() {
     }))
   );
   const { typeArray } = useComponentType({ block, selectedId });
+
+  const [prevTypeArray, setPrevTypeArray] = useState(typeArray);
   const [tab, setTab] = useState(
-    !typeArray || typeArray.length === 0 ? 'poster' : 'type'
+    typeArray && typeArray.length > 0 ? 'type' : 'poster'
   );
+
+  if (typeArray !== prevTypeArray) {
+    setPrevTypeArray(typeArray);
+    setTab(typeArray && typeArray.length > 0 ? 'type' : 'poster');
+  }
 
   return (
     <div

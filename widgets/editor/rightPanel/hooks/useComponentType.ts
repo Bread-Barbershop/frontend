@@ -3,6 +3,8 @@ import { useMemo } from 'react';
 import { blockRegistry } from '@/shared/data/registry/registry';
 import { EditorBlock } from '@/shared/types/block';
 
+const EMPTY_ARRAY: string[] = [];
+
 export const useComponentType = ({
   block,
   selectedId,
@@ -14,9 +16,12 @@ export const useComponentType = ({
     () => block.find(b => b.id === selectedId),
     [block, selectedId]
   );
-  if (!selectedBlock) return { typeArray: [] };
-  const registryEntry = blockRegistry[selectedBlock.component];
-  const typeArray = registryEntry?.type;
+
+  const typeArray = useMemo(() => {
+    if (!selectedBlock) return EMPTY_ARRAY;
+    const registryEntry = blockRegistry[selectedBlock.component];
+    return registryEntry?.type || EMPTY_ARRAY;
+  }, [selectedBlock]);
 
   return { typeArray };
 };
