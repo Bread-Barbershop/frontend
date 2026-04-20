@@ -113,26 +113,18 @@ export const BackgroundImage = () => {
     const bgObj = objects.find(obj => obj.get('id') === 'background-layer');
 
     if (isActive) {
-      // 배경 모드: 배경 선택 가능, 다른 객체 비활성화
-      objects.forEach(obj => {
-        if (obj === bgObj) {
-          obj.set({ selectable: true, evented: true });
-          canvas.setActiveObject(obj);
-        } else {
-          obj.set({ selectable: false });
-        }
-      });
+      // 배경 모드: 배경 선택 가능
+      if (bgObj) {
+        bgObj.set({ selectable: true, evented: true });
+        canvas.setActiveObject(bgObj);
+        canvas.sendObjectToBack(bgObj);
+      }
     } else {
-      // 일반 모드: 배경 비활성화, 다른 객체 복구
-      objects.forEach(obj => {
-        if (obj === bgObj) {
-          obj.set({ selectable: false, evented: false });
-        } else {
-          if (!(obj as any).isLocked) {
-            obj.set({ selectable: true });
-          }
-        }
-      });
+      // 일반 모드: 배경 비활성화
+      if (bgObj) {
+        bgObj.set({ selectable: false, evented: false });
+      }
+      
       // 혹시 배경이 선택되어 있었다면 해제
       const currentActive = canvas.getActiveObject();
       if (currentActive === bgObj) {

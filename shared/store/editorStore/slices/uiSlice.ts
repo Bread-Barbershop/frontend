@@ -15,7 +15,7 @@ export const createUISlice: StateCreator<
     set({
       selectedId: id,
     }),
-  activeTab: 'background',
-  setActiveTab: (tab: 'text' | 'image' | 'diagram' | 'background') =>
+  activeTab: null,
+  setActiveTab: (tab: 'text' | 'image' | 'diagram' | 'background' | null) =>
     set({ activeTab: tab }),
 });
