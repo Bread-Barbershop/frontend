@@ -51,19 +51,15 @@ export const Notice = ({ blockInfo, id }: Props) => {
   };
 
   const handleNoticeListSelect = (content: JSONContent, _index?: number) => {
-    // JSONContent를 복사하여 가공합니다.
     const contentCopy = JSON.parse(JSON.stringify(content)) as JSONContent;
     let firstText = '';
 
     if (contentCopy.content && contentCopy.content.length > 0) {
       const firstNode = contentCopy.content[0];
-      // 첫 번째 문단의 텍스트를 추출합니다.
       firstText = firstNode.content?.[0]?.text || '';
 
-      // 첫 번째 문단을 본문에서 제거합니다.
       contentCopy.content.shift();
 
-      // 제목 뒤에 따라오는 빈 문단들을 제거하여 여백을 정리합니다.
       while (
         contentCopy.content.length > 0 &&
         contentCopy.content[0].type === 'paragraph' &&
@@ -160,6 +156,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
     );
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleAddNotice = () => {
     const newNotice = {
       id: crypto.randomUUID(),
