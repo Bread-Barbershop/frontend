@@ -49,7 +49,8 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           className={cn(
             'pl-0 select-none',
             (direction === 'top' || direction === 'bottom') &&
-              'min-h-0 py-0 px-0'
+              'min-h-0 py-0 px-0',
+            props.checked ? 'text-text-primary' : 'text-text-tertiary'
           )}
         >
           {children}
