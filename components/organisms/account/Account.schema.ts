@@ -13,7 +13,7 @@ export const accountSchema = {
     },
     englishTitle: {
       default: '',
-      required: true,
+      required: false,
     },
     messageJson: {
       default: null as JSONContent | null,
