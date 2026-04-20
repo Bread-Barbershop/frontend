@@ -1,16 +1,13 @@
 import { JSONContent } from '@tiptap/core';
 import { ChangeEvent } from 'react';
 
-import { UtilityButton } from '@/components/atoms/button';
+import { ActionField } from '@/components/molecules/action-field';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { Picture } from '@/components/molecules/picture/Picture';
 import { TextEditor } from '@/components/molecules/text-editor';
-import { TextField } from '@/components/molecules/text-field/TextField';
 
 interface Props {
   id: string;
-  index: number;
-  questionsLength: number;
   question: {
     questionId: string;
     question: string;
@@ -30,8 +27,6 @@ interface Props {
 
 export const InterviewItem = ({
   id,
-  index,
-  questionsLength,
   question,
   editorResetKey,
   onQuestionChange,
@@ -42,24 +37,7 @@ export const InterviewItem = ({
 }: Props) => {
   return (
     <div className="flex flex-col gap-4 relative group">
-      <NavigationBar
-        className="min-h-auto h-8"
-        action={
-          questionsLength > 1 && (
-            <UtilityButton
-              size="sm"
-              variant="danger"
-              onClick={onDelete}
-              className="text-red-500 hover:text-red-700 hover:bg-red-50"
-            >
-              삭제
-            </UtilityButton>
-          )
-        }
-      >
-        인터뷰 {index + 1}번
-      </NavigationBar>
-      <TextField
+      <ActionField
         label="인터뷰"
         inputProps={{
           placeholder: '질문을 입력해 주세요',
@@ -67,23 +45,29 @@ export const InterviewItem = ({
           onChange: onQuestionChange,
         }}
         className="w-full text-center"
+        buttonProps={{
+          onClick: onDelete,
+          children: <p className="text-red-500">삭제</p>,
+        }}
       />
-      <NavigationBar className="min-h-auto h-8">내용</NavigationBar>
-      <TextEditor
-        key={`${id}-${question.questionId}-${editorResetKey}`}
-        value={question.answer.messageJson}
-        defaultText="내용을 입력해 주세요"
-        defaultAlign="center"
-        onChange={onEditorChange}
-      />
-      <Picture
-        label="사진"
-        className="w-full text-center"
-        multiple={false}
-        value={question.image}
-        onChange={onPictureChange}
-        onDelete={onPictureDelete}
-      />
+      <div className="flex flex-col gap-2">
+        <NavigationBar className="min-h-auto h-8">내용</NavigationBar>
+        <TextEditor
+          key={`${id}-${question.questionId}-${editorResetKey}`}
+          value={question.answer.messageJson}
+          defaultText="내용을 입력해 주세요"
+          defaultAlign="center"
+          onChange={onEditorChange}
+        />
+        <Picture
+          label="사진"
+          className="w-full text-center"
+          multiple={false}
+          value={question.image}
+          onChange={onPictureChange}
+          onDelete={onPictureDelete}
+        />
+      </div>
     </div>
   );
 };

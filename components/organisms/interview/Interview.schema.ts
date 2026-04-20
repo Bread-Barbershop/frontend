@@ -7,6 +7,14 @@ export const interviewSchema = {
       default: '',
       required: true,
     },
+    checkedEnglishTitle: {
+      default: false,
+      required: true,
+    },
+    englishTitle: {
+      default: '',
+      required: false,
+    },
     questions: {
       default: [
         {

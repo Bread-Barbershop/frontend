@@ -1,8 +1,11 @@
 import { JSONContent } from '@tiptap/core';
-import { useState, ChangeEvent, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
+import { Divider } from '@/components/atoms/divider/Divider';
+import { Label } from '@/components/atoms/label/Label';
+import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
@@ -28,10 +31,11 @@ export const Interview = ({ blockInfo, id }: Props) => {
   );
   const [isQuestionListOpen, setIsQuestionListOpen] = useState(false);
   const [editorResetKey, setEditorResetKey] = useState(0);
-  const { title, questions } = blockInfo.props;
+  const { title, questions, checkedEnglishTitle, englishTitle } =
+    blockInfo.props;
 
-  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { title: e.target.value });
+  const handleUpdateBlock = (key: string, value: string | boolean) => {
+    updateBlock(id, { [key]: value });
   };
 
   const handleQuestionChange = (
@@ -140,7 +144,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
   }, [id]);
 
   return (
-    <LeftEditorWrapper ariaLabel="인터뷰" className="gap-3">
+    <LeftEditorWrapper ariaLabel="인터뷰" className="gap-3 pb-3">
       <NavigationBar
         action={
           <UtilityButton
@@ -158,26 +162,41 @@ export const Interview = ({ blockInfo, id }: Props) => {
       <TextField
         label="제목"
         inputProps={{
-          placeholder: '제목을 입력해 주세요',
+          placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
           value: title,
-          onChange: handleTitleChange,
+          onChange: e => handleUpdateBlock('title', e.target.value),
         }}
         className="w-full text-center"
       />
+      {checkedEnglishTitle && (
+        <TextField
+          label="영문제목"
+          inputProps={{
+            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+            value: englishTitle,
+            onChange: e => handleUpdateBlock('englishTitle', e.target.value),
+          }}
+          className="text-center w-full pt-1"
+        />
+      )}
+      <section className="flex flex-row gap-2 items-center w-full">
+        <Label className="font-semibold">추가기능</Label>
+        <Checkbox
+          onChange={e =>
+            handleUpdateBlock('checkedEnglishTitle', e.target.checked)
+          }
+          checked={checkedEnglishTitle}
+        >
+          영문 제목 추가
+        </Checkbox>
+      </section>
 
-      <div className="flex flex-col gap-6 w-full">
+      <div className="flex flex-col gap-2 w-full">
         {(questions || []).map((question, index) => (
-          <div key={question.questionId} className="flex flex-col">
-            {index !== 0 && (
-              <div className="flex flex-col items-center gap-1">
-                <div className="w-0.5 h-1 rounded-sm bg-text-secondary" />
-                <div className="w-0.5 h-1 rounded-sm bg-text-secondary" />
-              </div>
-            )}
+          <div key={question.questionId} className="flex flex-col gap-1">
+            {index !== 0 && <Divider />}
             <InterviewItem
               id={id}
-              index={index}
-              questionsLength={questions?.length || 0}
               question={question}
               editorResetKey={editorResetKey}
               onQuestionChange={e =>
