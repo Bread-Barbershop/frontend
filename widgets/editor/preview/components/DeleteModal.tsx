@@ -12,6 +12,12 @@ const DeleteModal = forwardRef<HTMLDivElement, DeleteModalProps>(
       <div className="fixed inset-0 z-50 flex items-center justify-center">
         <div
           ref={ref}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-modal-title"
+          onKeyDown={e => {
+            if (e.key === 'Escape') setIsDeleteModal(false);
+          }}
           className="flex flex-col gap-5 px-5 w-57 box-border border border-white/22 rounded-xl 
       shadow-[0_24px_60px_-20px_rgba(0,0,0,0.12),0_8px_24px_-8px_rgba(0,0,0,0.18),0_1px_8px_-2px_rgba(255,255,255,0.35)] backdrop-blur-2xl
       bg-[linear-gradient(rgba(255,255,255,0.18)_0%,transparent_30%),rgba(255,255,255,0.12)]

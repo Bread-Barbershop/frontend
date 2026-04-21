@@ -159,6 +159,7 @@ function OrderPanel() {
         </div>
         {contextMenu && (
           <ul
+            role="menu"
             style={{
               position: 'absolute',
               top: contextMenu.y,
@@ -167,6 +168,7 @@ function OrderPanel() {
             className="w-35 h-12 bg-bg-base flex-center z-10 rounded-sm shadow-edit"
           >
             <li
+              role="button"
               onClick={e => {
                 e.stopPropagation();
                 setDeleteTargetId(contextMenu.tabId);
