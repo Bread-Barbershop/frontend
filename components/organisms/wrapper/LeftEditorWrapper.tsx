@@ -16,7 +16,7 @@ export const LeftEditorWrapper = ({
   return (
     <section
       className={cn(
-        'flex flex-col items-center gap-1 px-5 pb-1.5 w-93.75 h-fit max-h-203 overflow-y-auto',
+        'flex flex-col items-center gap-1 px-5 pb-1.5 w-93.75 h-fit max-h-203 overflow-y-auto edit-custom-scrollbar',
         className
       )}
       aria-label={ariaLabel}

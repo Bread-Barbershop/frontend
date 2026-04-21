@@ -75,7 +75,6 @@ function Preview() {
               const View = registryItem.viewComponent as React.ComponentType<{
                 blockInfo: typeof comp;
                 className: string;
-                // titleClassName: string;
                 onClick: () => void;
               }>;
               return (
@@ -88,9 +87,6 @@ function Preview() {
                   <View
                     blockInfo={comp}
                     className={`${selectedId === comp.id ? 'border border-primary rounded-lg' : ''}`}
-                    // titleClassName={previewTitleVariants({
-                    //   variant: comp.type,
-                    // })}
                     onClick={() => {
                       selectedBlock(comp.id);
                       setIsEdit(false);

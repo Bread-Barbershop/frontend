@@ -55,7 +55,6 @@ export const useInvitationUpload = () => {
 
       const bulkData = {
         backgroundColor: editorData.backgroundColor,
-        isEngTitle: editorData.isEngTitle,
         titleData: editorData.titleData,
         bodyData: editorData.bodyData,
       };

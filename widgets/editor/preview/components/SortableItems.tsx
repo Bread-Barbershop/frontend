@@ -2,10 +2,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import React from 'react';
 
-import ComponentOrder from '@/shared/assets/icons/componentOrder.svg';
-import Delete from '@/shared/assets/icons/delete.svg';
 import { componentCls } from '@/shared/data/componentsInfo/componentInfo';
-import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 
@@ -14,6 +11,7 @@ interface Props {
   blockInfo: EditorBlock;
   isSelected?: boolean;
   onSelect: (id: string) => void;
+  onContextMenu: (e: React.MouseEvent, tabId: string) => void;
 }
 
 const ItemContent = React.memo(
@@ -24,7 +22,7 @@ const ItemContent = React.memo(
 ItemContent.displayName = 'ItemContent';
 
 const SortableItems = React.memo(
-  ({ id, blockInfo, isSelected, onSelect }: Props) => {
+  ({ id, blockInfo, isSelected, onSelect, onContextMenu }: Props) => {
     const {
       setNodeRef,
       attributes,
@@ -33,8 +31,6 @@ const SortableItems = React.memo(
       transition,
       isDragging,
     } = useSortable({ id });
-
-    const deleteBlock = useEditorStore(state => state.deleteBlock);
 
     const array = componentCls.find(items => items.english === blockInfo.type);
     const componentName = array?.list.find(
@@ -54,30 +50,22 @@ const SortableItems = React.memo(
     };
 
     return (
-      <div
-        ref={setNodeRef}
-        style={style}
-        {...attributes}
-        {...listeners}
-        role="button"
-        onPointerDown={handlePointerDown}
-        className={cn(
-          'flex items-center justify-between group py-2 cursor-pointer rounded-sm w-24 transition-colors duration-200 list-none',
-          isSelected ? 'bg-[#DBE8FC]' : ''
-        )}
-      >
-        <ComponentOrder className="w-[13px] h-3.5 group-hover:opacity-100 opacity-0" />
-        <ItemContent contents={componentName?.contents} />
-        <button
-          type="button"
-          className={`w-3.5 h-3.5 flex-center ${isSelected ? 'opacity-100' : 'opacity-0'}`}
-          onPointerDown={e => {
-            e.stopPropagation();
-            deleteBlock(id);
-          }}
+      <div className="relative">
+        <div
+          ref={setNodeRef}
+          style={style}
+          {...attributes}
+          {...listeners}
+          role="button"
+          onContextMenu={e => onContextMenu(e, id)}
+          onPointerDown={handlePointerDown}
+          className={cn(
+            'flex-center py-2 cursor-pointer rounded-sm w-24 transition-colors duration-200 ',
+            isSelected ? 'bg-[#DBE8FC]' : ''
+          )}
         >
-          <Delete className="w-3.5 h-3.5" />
-        </button>
+          <ItemContent contents={componentName?.contents} />
+        </div>
       </div>
     );
   }

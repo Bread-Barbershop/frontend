@@ -10,7 +10,6 @@ export interface BgmFile {
 export interface SavedData {
   bulkData: {
     backgroundColor: string;
-    isEngTitle: boolean;
     titleData: BulkData;
     bodyData: BulkData;
   };
@@ -24,7 +23,6 @@ export interface SavedData {
 export interface JsonData {
   bulkData: {
     backgroundColor: string;
-    isEngTitle: boolean;
     titleData: BulkData;
     bodyData: BulkData;
   };

@@ -93,7 +93,6 @@ function isBulkJson(x: unknown): x is BulkJson {
 
   return (
     typeof x.backgroundColor === 'string' &&
-    typeof x.isEngTitle === 'boolean' &&
     isBulkData(x.titleData) &&
     isBulkData(x.bodyData)
   );

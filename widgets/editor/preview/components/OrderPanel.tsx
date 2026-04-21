@@ -10,12 +10,13 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import ChipCarousel from '@/widgets/editor/preview/components/ChipCarousel';
 
+import DeleteModal from './DeleteModal';
 import SortableItems from './SortableItems';
 
 /*todo : 
@@ -24,17 +25,26 @@ max-h넘어가면 아래 방향 추가
 */
 
 function OrderPanel() {
-  const { block, moveBlock, selectedBlock, selectedId, setIsEdit } =
-    useEditorStore(
-      useShallow(state => ({
-        block: state.block,
-        moveBlock: state.moveBlock,
-        selectedBlock: state.selectedBlock,
-        selectedId: state.selectedId,
-        setIsEdit: state.setIsEdit,
-      }))
-    );
+  const {
+    block,
+    moveBlock,
+    selectedBlock,
+    selectedId,
+    setIsEdit,
+    deleteBlock,
+  } = useEditorStore(
+    useShallow(state => ({
+      block: state.block,
+      moveBlock: state.moveBlock,
+      selectedBlock: state.selectedBlock,
+      selectedId: state.selectedId,
+      setIsEdit: state.setIsEdit,
+      deleteBlock: state.deleteBlock,
+    }))
+  );
 
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -42,6 +52,37 @@ function OrderPanel() {
       },
     })
   );
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    tabId: string;
+  } | null>(null);
+
+  // 각 탭 아이템에 연결
+  const handleContextMenu = (e: React.MouseEvent, tabId: string) => {
+    e.preventDefault(); // 기본 브라우저 메뉴 차단
+    const containerRect = containerRef.current?.getBoundingClientRect();
+    if (containerRect) {
+      setContextMenu({
+        x: e.clientX - containerRect.left,
+        y: e.clientY - containerRect.top,
+        tabId,
+      });
+    }
+  };
+
+  // 메뉴 닫기 (바깥 클릭 시)
+  useEffect(() => {
+    const close = () => setContextMenu(null);
+    if (contextMenu) {
+      window.addEventListener('click', close);
+      window.addEventListener('wheel', close);
+      return () => {
+        window.removeEventListener('click', close);
+        window.removeEventListener('wheel', close);
+      };
+    }
+  }, [contextMenu]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -73,7 +114,10 @@ function OrderPanel() {
       onDragEnd={handleDragEnd}
       onDragStart={handlePageSelect}
     >
-      <div className="w-full bg-bg-base flex flex-col items-center rounded-lg shadow-edit  ">
+      <div
+        ref={containerRef}
+        className="relative flex flex-col items-center w-full rounded-lg bg-bg-base shadow-edit"
+      >
         <p className="font-semibold text-sm px-9 py-3.5">순서</p>
         <div className="w-full px-2 relative">
           <ChipCarousel
@@ -81,9 +125,13 @@ function OrderPanel() {
               align: 'start',
               axis: 'y',
               containScroll: 'trimSnaps',
-              watchDrag: false,
+              dragFree: true,
+              // watchDrag: false,
             }}
             parentClassName="flex-col mb-2"
+            onReset={() => {
+              setContextMenu(null);
+            }}
           >
             <button
               type="button"
@@ -102,13 +150,46 @@ function OrderPanel() {
                   id={items.id}
                   blockInfo={items}
                   isSelected={selectedId === items.id}
+                  onContextMenu={handleContextMenu}
                   onSelect={handleSelect}
                 />
               ))}
             </SortableContext>
           </ChipCarousel>
         </div>
+        {contextMenu && (
+          <ul
+            role="menu"
+            style={{
+              position: 'absolute',
+              top: contextMenu.y,
+              left: contextMenu.x,
+            }}
+            className="w-35 h-12 bg-bg-base flex-center z-10 rounded-sm shadow-edit"
+          >
+            <li
+              role="button"
+              onClick={e => {
+                e.stopPropagation();
+                setDeleteTargetId(contextMenu.tabId);
+                setContextMenu(null);
+              }}
+              className="w-31 text-[13px] text-text-primary p-1 rounded-sm hover:bg-[#FFE8E8]"
+            >
+              삭제하기
+            </li>
+          </ul>
+        )}
       </div>
+      {deleteTargetId && (
+        <DeleteModal
+          onDelete={() => {
+            deleteBlock(deleteTargetId);
+            setDeleteTargetId(null);
+          }}
+          setIsDeleteModal={value => !value && setDeleteTargetId(null)}
+        />
+      )}
     </DndContext>
   );
 }

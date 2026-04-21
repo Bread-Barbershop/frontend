@@ -15,19 +15,17 @@ function GuestRenderer({
   blocks: GuestBlock[];
   bulkData: BulkJson;
 }) {
-  const { titleData, bodyData, isEngTitle } = bulkData;
-  const { setTitleData, setBodyData, setEngTitle } = useEditorStore(
+  const { titleData, bodyData } = bulkData;
+  const { setTitleData, setBodyData } = useEditorStore(
     useShallow(state => ({
       setTitleData: state.setTitleData,
       setBodyData: state.setBodyData,
-      setEngTitle: state.setEngTitle,
     }))
   );
   useEffect(() => {
     setTitleData(titleData);
     setBodyData(bodyData);
-    setEngTitle(isEngTitle);
-  }, [setTitleData, setBodyData, setEngTitle, titleData, bodyData, isEngTitle]);
+  }, [setTitleData, setBodyData, titleData, bodyData]);
   return (
     <div className="flex flex-col">
       {blocks.map(block => {
