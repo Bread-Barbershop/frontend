@@ -8,11 +8,9 @@ export const createBulkSlice: StateCreator<EditorState, [], [], BulkSlice> = (
   _
 ) => ({
   backgroundColor: '#FFFFFF',
-  isEngTitle: true,
   titleData: TITLE_BULK_DATA,
   bodyData: BODY_BULK_DATA,
   setBackgroundColor: (color: string) => set({ backgroundColor: color }),
-  setEngTitle: (isEngTitle: boolean) => set({ isEngTitle }),
   setTitleData: (data: BulkData) => set({ titleData: data }),
   setBodyData: (data: BulkData) => set({ bodyData: data }),
 });

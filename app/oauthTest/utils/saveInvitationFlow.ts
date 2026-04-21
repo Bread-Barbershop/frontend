@@ -62,7 +62,6 @@ type InvitationPayload = {
 
 type BulkJson = {
   backgroundColor: string;
-  isEngTitle: boolean;
   titleData: BulkData;
   bodyData: BulkData;
 };

@@ -89,10 +89,7 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
                   ) : (
                     <div className="px-2 font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[295px] h-[44px] gap-1">
                       {!finalGuestUrl || error ? (
-                        <button
-                          className="text-white truncate w-[215px] hover:bg-white/30 rounded-lg p-1"
-                          onClick={handlePublish}
-                        >
+                        <button className="text-white truncate w-[215px] hover:bg-white/30 rounded-lg p-1">
                           초대장 URL 다시 발행하기
                         </button>
                       ) : (

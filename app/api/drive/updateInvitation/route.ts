@@ -24,7 +24,6 @@ export async function GET(
     config: {
       bulkData: {
         backgroundColor: '#FFFFFF',
-        isEngTitle: true,
         titleData: TITLE_BULK_DATA,
         bodyData: BODY_BULK_DATA,
       },
@@ -100,7 +99,6 @@ export async function GET(
         config: {
           bulkData: {
             backgroundColor: '#FFFFFF',
-            isEngTitle: true,
             titleData: TITLE_BULK_DATA,
             bodyData: BODY_BULK_DATA,
           },

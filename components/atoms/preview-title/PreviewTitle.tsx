@@ -25,16 +25,15 @@ export const PreviewTitle = ({
 }: PreviewTitleProps) => {
   const koText = koTitle?.trim() || '제목을 입력해주세요';
   const enText = enTitle?.trim();
-  const { titleData, isEngTitle } = useEditorStore(
+  const { titleData } = useEditorStore(
     useShallow(state => ({
       titleData: state.titleData,
-      isEngTitle: state.isEngTitle,
     }))
   );
 
   return (
     <div className={cn('flex flex-col gap-1 w-full', className)}>
-      {isEngTitle && enText && enText !== '' && (
+      {enText && enText !== '' && (
         <p
           className={cn(
             previewTitleVariants({ language: 'en' }),

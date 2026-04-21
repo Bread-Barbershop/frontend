@@ -50,7 +50,9 @@ jest.mock('@/app/api/drive/_lib/publishPermissionWithRetry', () => ({
 }));
 
 jest.mock('@/app/api/drive/_lib/ensurePublishedJsonFile', () => ({
-  ensurePublishedJsonFile: jest.fn().mockResolvedValue({ fileId: 'published-file-1' }),
+  ensurePublishedJsonFile: jest
+    .fn()
+    .mockResolvedValue({ fileId: 'published-file-1' }),
 }));
 
 import { ensureDataJsonFile } from '@/app/api/drive/_lib/ensureDataJsonFile';
@@ -63,7 +65,6 @@ import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissi
 const validGuestPayload = {
   bulkData: {
     backgroundColor: '#ffffff',
-    isEngTitle: true,
     titleData: {
       font: 'Pretendard',
       fontSize: '16px',

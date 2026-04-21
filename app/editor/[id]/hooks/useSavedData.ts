@@ -98,7 +98,6 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
         const updatedBlocks: EditorBlock[] = data.config.blocks;
         const updatedBulkData = data.config.bulkData ?? {
           backgroundColor: '#FFFFFF',
-          isEngTitle: true,
           titleData: TITLE_BULK_DATA,
           bodyData: BODY_BULK_DATA,
         };
