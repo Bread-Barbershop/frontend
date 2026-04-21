@@ -54,6 +54,13 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
                 <div>
                   {busy ? (
                     <LoadingSpinner className="w-25 h-25 animate-spin" />
+                  ) : error ? (
+                    <Image
+                      src="/images/saveFail.png"
+                      alt="저장 실패 이미지"
+                      width={100}
+                      height={100}
+                    />
                   ) : (
                     <Image
                       src="/images/saveSuccess.png"
@@ -80,12 +87,17 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
                       </span>
                     </div>
                   ) : (
-                    <div className="px-2 font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[295px] h-[44px]">
+                    <div className="px-2 font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[295px] h-[44px] gap-1">
                       {!finalGuestUrl || error ? (
-                        <p>{error ?? '발행에 실패하였습니다.'}</p>
+                        <button
+                          className="text-white truncate w-[215px] hover:bg-white/30 rounded-lg p-1"
+                          onClick={handlePublish}
+                        >
+                          초대장 URL 다시 발행하기
+                        </button>
                       ) : (
                         <a
-                          className="text-white truncate w-[215px]"
+                          className="text-white truncate w-[215px] hover:bg-white/30 rounded-lg p-1"
                           href={finalGuestUrl}
                           target="_blank"
                           rel="noreferrer"
@@ -96,9 +108,11 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
                       {finalGuestUrl && (
                         <button
                           type="button"
-                          className="text-[#38BDF8] text-[13px] font-semibold"
-                          onClick={() => {
+                          className="text-[#38BDF8] text-[13px] font-semibold px-1 py-2 hover:bg-white/30 rounded-lg"
+                          onClick={e => {
+                            e.stopPropagation();
                             navigator.clipboard.writeText(finalGuestUrl);
+                            alert('복사되었습니다!');
                           }}
                         >
                           복사하기
@@ -111,20 +125,32 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
             ) : (
               <>
                 <div className="pt-5">
-                  <p className="font-semibold text-sm">
+                  <p className="font-semibold text-base">
                     {isFail
                       ? '파일 저장에 실패하였습니다.'
                       : '성공적으로 저장되었습니다!'}
                   </p>
                 </div>
-                <div>
-                  <Image
-                    src="/images/saveSuccess.png"
-                    alt="저장 성공 이미지"
-                    width={100}
-                    height={100}
-                  />
-                </div>
+                {isFail ? (
+                  <div>
+                    <Image
+                      src="/images/saveFail.png"
+                      alt="저장 실패 이미지"
+                      width={100}
+                      height={100}
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <Image
+                      src="/images/saveSuccess.png"
+                      alt="저장 성공 이미지"
+                      width={100}
+                      height={100}
+                    />
+                  </div>
+                )}
+
                 <div>
                   <button
                     type="button"

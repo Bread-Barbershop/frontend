@@ -16,6 +16,7 @@ import { useShallow } from 'zustand/shallow';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import ChipCarousel from '@/widgets/editor/preview/components/ChipCarousel';
 
+import DeleteModal from './DeleteModal';
 import SortableItems from './SortableItems';
 
 /*todo : 
@@ -42,6 +43,7 @@ function OrderPanel() {
     }))
   );
 
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -51,6 +53,7 @@ function OrderPanel() {
     })
   );
   const [contextMenu, setContextMenu] = useState<{
+    x: number;
     y: number;
     tabId: string;
   } | null>(null);
@@ -58,12 +61,11 @@ function OrderPanel() {
   // 각 탭 아이템에 연결
   const handleContextMenu = (e: React.MouseEvent, tabId: string) => {
     e.preventDefault(); // 기본 브라우저 메뉴 차단
-    const rect = e.currentTarget.getBoundingClientRect();
     const containerRect = containerRef.current?.getBoundingClientRect();
-
     if (containerRect) {
       setContextMenu({
-        y: rect.bottom - containerRect.top - 40,
+        x: e.clientX - containerRect.left,
+        y: e.clientY - containerRect.top,
         tabId,
       });
     }
@@ -160,12 +162,16 @@ function OrderPanel() {
             style={{
               position: 'absolute',
               top: contextMenu.y,
-              left: '112px',
+              left: contextMenu.x,
             }}
             className="w-35 h-12 bg-bg-base flex-center z-10 rounded-sm shadow-edit"
           >
             <li
-              onClick={() => deleteBlock(contextMenu.tabId)}
+              onClick={e => {
+                e.stopPropagation();
+                setDeleteTargetId(contextMenu.tabId);
+                setContextMenu(null);
+              }}
               className="w-31 text-[13px] text-text-primary p-1 rounded-sm hover:bg-[#FFE8E8]"
             >
               삭제하기
@@ -173,6 +179,15 @@ function OrderPanel() {
           </ul>
         )}
       </div>
+      {deleteTargetId && (
+        <DeleteModal
+          onDelete={() => {
+            deleteBlock(deleteTargetId);
+            setDeleteTargetId(null);
+          }}
+          setIsDeleteModal={value => !value && setDeleteTargetId(null)}
+        />
+      )}
     </DndContext>
   );
 }
