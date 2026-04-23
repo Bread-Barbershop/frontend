@@ -47,6 +47,7 @@ export const Member = ({
           소개{index + 1}
         </Label>
         <Selector
+          type="normal"
           className="w-21.5"
           placeholder="관계"
           options={[
