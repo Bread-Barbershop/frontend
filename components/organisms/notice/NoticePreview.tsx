@@ -22,7 +22,8 @@ export const NoticePreview = ({
   titleClassName,
   ...rest
 }: Props) => {
-  const { noticeList, title, images } = blockInfo.props;
+  const { noticeList, title, checkedEnglishTitle, englishTitle } =
+    blockInfo.props;
 
   const displayNoticeList = useMemo(() => {
     if (noticeList && noticeList.length === 2) {
@@ -55,8 +56,11 @@ export const NoticePreview = ({
   return (
     <MiddlePreviewWrapper
       className={cn('px-0', className)}
-      enTitle="NOTICE"
+      checkedEnglishTitle={checkedEnglishTitle}
+      enTitle={englishTitle}
+      enTitleDefault="NOTICE"
       koTitle={title}
+      koTitleDefault="공지사항"
       titleClassName={titleClassName}
       {...rest}
     >
@@ -72,7 +76,7 @@ export const NoticePreview = ({
         >
           {displayNoticeList?.map((notice, index) => (
             <div
-              key={`preview-${notice.id}-${index}`}
+              key={`preview-${notice.noticeId}-${index}`}
               className={cn(
                 'w-full',
                 displayNoticeList.length > 1 && index === 0 ? 'ml-3' : '',
@@ -81,7 +85,7 @@ export const NoticePreview = ({
             >
               <NoticePreviewItem
                 notice={notice}
-                images={images}
+                images={notice.image}
                 index={index % (noticeList?.length || 1)}
               />
             </div>

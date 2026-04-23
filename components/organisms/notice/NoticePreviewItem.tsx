@@ -10,17 +10,20 @@ export const NoticePreviewItem = ({
   index,
 }: {
   notice: {
-    id: string;
+    noticeId: string;
     notice: string;
-    messageJson: JSONContent | null;
-    messageHtml: string | null;
+    content: {
+      messageJson: JSONContent | null;
+      messageHtml: string | null;
+    };
     image: (File | string)[];
   };
   images?: (File | string)[];
   index: number;
 }) => {
   const html =
-    notice.messageHtml ?? tiptapJsonToHtmlUniversal(notice.messageJson);
+    notice.content.messageHtml ??
+    tiptapJsonToHtmlUniversal(notice.content.messageJson);
   const preview = useResolvedImageSource(
     (images && images[index]) ||
       (notice.image && notice.image.length > 0 ? notice.image[0] : null)

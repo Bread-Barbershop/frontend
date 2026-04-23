@@ -18,23 +18,23 @@ export const noticeSchema = {
     noticeList: {
       default: [
         {
-          id: crypto.randomUUID(),
+          noticeId: crypto.randomUUID(),
           notice: '',
-          messageJson: null,
-          messageHtml: null,
-          image: [],
+          content: {
+            messageJson: null,
+            messageHtml: null,
+          },
+          image: [] as (File | string)[],
         },
       ] as {
-        id: string;
+        noticeId: string;
         notice: string;
-        messageJson: JSONContent | null;
-        messageHtml: string | null;
+        content: {
+          messageJson: JSONContent | null;
+          messageHtml: string | null;
+        };
         image: (File | string)[];
       }[],
-      required: false,
-    },
-    images: {
-      default: [] as (File | string)[],
       required: false,
     },
   },

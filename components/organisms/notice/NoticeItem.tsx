@@ -11,10 +11,12 @@ import type { JSONContent } from '@tiptap/react';
 interface Props {
   id: string;
   notice: {
-    id: string;
+    noticeId: string;
     notice: string;
-    messageJson: JSONContent | null;
-    messageHtml: string | null;
+    content: {
+      messageJson: JSONContent | null;
+      messageHtml: string | null;
+    };
     image: (File | string)[];
   };
   noticeLength: number;
@@ -38,41 +40,41 @@ export const NoticeItem = ({
   onDelete,
 }: Props) => {
   return (
-    <div className="flex flex-col gap-2 relative group">
+    <div className="flex flex-col gap-4 relative group">
       <ActionField
-        label="공지사항"
+        label="공지제목"
         inputProps={{
-          placeholder: '공지사항을 입력해 주세요',
+          placeholder: '제목을 입력해 주세요',
           value: notice.notice,
           onChange: onNoticeChange,
         }}
         className="w-full text-center"
         buttonProps={{
           onClick: onDelete,
-          children: <p className="text-red-500 ">삭제</p>,
+          children: <p className="text-red-500">삭제</p>,
           className: cn(
-            noticeLength > 1
-              ? 'block flex items-center justify-center'
-              : 'hidden'
+            noticeLength > 1 ? 'block border-none w-[32px]' : 'hidden'
           ),
         }}
       />
-      <NavigationBar>내용</NavigationBar>
-      <TextEditor
-        key={`${id}-${notice.id}-${editorResetKey}`}
-        value={notice.messageJson}
-        defaultText="내용을 입력해 주세요"
-        defaultAlign="center"
-        onChange={onEditorChange}
-      />
-      <Picture
-        label="사진"
-        className="w-full text-center"
-        multiple={false}
-        value={notice.image}
-        onChange={onPictureChange}
-        onDelete={onPictureDelete}
-      />
+      <div className="flex flex-col gap-2">
+        <NavigationBar className="min-h-auto h-8">내용</NavigationBar>
+        <TextEditor
+          key={`${id}-${notice.noticeId}-${editorResetKey}`}
+          value={notice.content.messageJson}
+          defaultText="내용을 입력해 주세요"
+          defaultAlign="center"
+          onChange={onEditorChange}
+        />
+        <Picture
+          label="배너사진"
+          className="w-full text-center"
+          multiple={false}
+          value={notice.image}
+          onChange={onPictureChange}
+          onDelete={onPictureDelete}
+        />
+      </div>
     </div>
   );
 };
