@@ -19,8 +19,17 @@ export const OrganizerInformationPreview = ({
   titleClassName,
   ...rest
 }: Props) => {
-  const { title, organizer, url, messageHtml, messageJson, image, hasUrl } =
-    blockInfo.props;
+  const {
+    title,
+    organizer,
+    url,
+    messageHtml,
+    messageJson,
+    image,
+    hasUrl,
+    englishTitle,
+    checkedEnglishTitle,
+  } = blockInfo.props;
   const html = messageHtml ?? tiptapJsonToHtmlUniversal(messageJson);
 
   const preview = useResolvedImageSource(
@@ -37,8 +46,11 @@ export const OrganizerInformationPreview = ({
   return (
     <MiddlePreviewWrapper
       className={className}
-      enTitle="ORGANIZER INFORMATION"
+      checkedEnglishTitle={checkedEnglishTitle}
+      enTitle={englishTitle}
+      enTitleDefault="ORGANIZER INFORMATION"
       koTitle={title}
+      koTitleDefault="주최정보"
       titleClassName={titleClassName}
       childClassName="gap-6"
       {...rest}
