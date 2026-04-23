@@ -16,17 +16,7 @@ export const noticeSchema = {
       required: false,
     },
     noticeList: {
-      default: [
-        {
-          noticeId: crypto.randomUUID(),
-          notice: '',
-          content: {
-            messageJson: null,
-            messageHtml: null,
-          },
-          image: [] as (File | string)[],
-        },
-      ] as {
+      default: [] as {
         noticeId: string;
         notice: string;
         content: {

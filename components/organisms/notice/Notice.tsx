@@ -100,7 +100,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
     );
 
     const allImages = newNoticeList.flatMap(s => s.image);
-    updateBlock(id, { noticeList: newNoticeList, image: allImages });
+    updateBlock(id, { noticeList: newNoticeList });
     updateImage(id, allImages);
   };
 
@@ -115,7 +115,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
     );
 
     const allImages = newNoticeList.flatMap(s => s.image);
-    updateBlock(id, { noticeList: newNoticeList, image: allImages });
+    updateBlock(id, { noticeList: newNoticeList });
     updateImage(id, allImages);
   };
 
@@ -124,7 +124,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
       notice => notice.noticeId !== noticeId
     );
     const newImages = newNoticeList.flatMap(s => s.image);
-    updateBlock(id, { noticeList: newNoticeList, image: newImages });
+    updateBlock(id, { noticeList: newNoticeList });
     updateImage(id, newImages);
   };
 

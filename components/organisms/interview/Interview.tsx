@@ -100,7 +100,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
     );
 
     const allImages = newQuestions.flatMap(s => s.image);
-    updateBlock(id, { questions: newQuestions, image: allImages });
+    updateBlock(id, { questions: newQuestions });
     updateImage(id, allImages);
   };
 
@@ -115,7 +115,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
     );
 
     const allImages = newQuestions.flatMap(s => s.image);
-    updateBlock(id, { questions: newQuestions, image: allImages });
+    updateBlock(id, { questions: newQuestions });
     updateImage(id, allImages);
   };
 
@@ -124,7 +124,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
       question => question.questionId !== questionId
     );
     const newImages = newQuestions.flatMap(s => s.image);
-    updateBlock(id, { questions: newQuestions, image: newImages });
+    updateBlock(id, { questions: newQuestions });
     updateImage(id, newImages);
   };
 

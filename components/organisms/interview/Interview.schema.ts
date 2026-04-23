@@ -16,17 +16,7 @@ export const interviewSchema = {
       required: false,
     },
     questions: {
-      default: [
-        {
-          questionId: crypto.randomUUID(),
-          question: '',
-          answer: {
-            messageJson: null,
-            messageHtml: null,
-          },
-          image: [] as (File | string)[],
-        },
-      ] as {
+      default: [] as {
         questionId: string;
         question: string;
         answer: {
