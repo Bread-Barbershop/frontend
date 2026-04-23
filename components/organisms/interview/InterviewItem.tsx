@@ -5,6 +5,7 @@ import { ActionField } from '@/components/molecules/action-field';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { Picture } from '@/components/molecules/picture/Picture';
 import { TextEditor } from '@/components/molecules/text-editor';
+import { cn } from '@/shared/utils/cn';
 
 interface Props {
   id: string;
@@ -17,6 +18,7 @@ interface Props {
     };
     image: (File | string)[];
   };
+  questionLength: number;
   editorResetKey: number;
   onQuestionChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onEditorChange: (json: JSONContent) => void;
@@ -28,6 +30,7 @@ interface Props {
 export const InterviewItem = ({
   id,
   question,
+  questionLength,
   editorResetKey,
   onQuestionChange,
   onEditorChange,
@@ -40,7 +43,7 @@ export const InterviewItem = ({
       <ActionField
         label="인터뷰"
         inputProps={{
-          placeholder: '질문을 입력해 주세요',
+          placeholder: '제목을 입력해 주세요',
           value: question.question,
           onChange: onQuestionChange,
         }}
@@ -48,6 +51,9 @@ export const InterviewItem = ({
         buttonProps={{
           onClick: onDelete,
           children: <p className="text-red-500">삭제</p>,
+          className: cn(
+            questionLength > 1 ? 'block border-none w-[32px]' : 'hidden'
+          ),
         }}
       />
       <div className="flex flex-col gap-2">
@@ -60,7 +66,7 @@ export const InterviewItem = ({
           onChange={onEditorChange}
         />
         <Picture
-          label="사진"
+          label="배너사진"
           className="w-full text-center"
           multiple={false}
           value={question.image}

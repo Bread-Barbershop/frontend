@@ -7,24 +7,24 @@ export const noticeSchema = {
       default: '',
       required: true,
     },
-    items: {
-      default: [
-        {
-          id: crypto.randomUUID(),
-          messageJson: null,
-          messageHtml: null,
-          image: [],
-        },
-      ] as {
-        id: string;
-        messageJson: JSONContent | null;
-        messageHtml: string | null;
-        image: (File | string)[];
-      }[],
+    checkedEnglishTitle: {
+      default: false,
+      required: true,
+    },
+    englishTitle: {
+      default: '',
       required: false,
     },
-    images: {
-      default: [] as (File | string)[],
+    noticeList: {
+      default: [] as {
+        noticeId: string;
+        notice: string;
+        content: {
+          messageJson: JSONContent | null;
+          messageHtml: string | null;
+        };
+        image: (File | string)[];
+      }[],
       required: false,
     },
   },

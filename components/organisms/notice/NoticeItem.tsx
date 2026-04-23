@@ -1,20 +1,27 @@
-import { UtilityButton } from '@/components/atoms/button';
+import { ChangeEvent } from 'react';
+
+import { ActionField } from '@/components/molecules/action-field/ActionField';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { Picture } from '@/components/molecules/picture/Picture';
 import { TextEditor } from '@/components/molecules/text-editor';
+import { cn } from '@/shared/utils/cn';
 
 import type { JSONContent } from '@tiptap/react';
 
 interface Props {
   id: string;
-  item: {
-    id: string;
-    messageJson: JSONContent | null;
-    messageHtml: string | null;
+  notice: {
+    noticeId: string;
+    notice: string;
+    content: {
+      messageJson: JSONContent | null;
+      messageHtml: string | null;
+    };
     image: (File | string)[];
   };
   noticeLength: number;
   editorResetKey: number;
+  onNoticeChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onEditorChange: (json: JSONContent) => void;
   onPictureChange: (file: (File | string)[]) => void;
   onPictureDelete: () => void;
@@ -23,9 +30,10 @@ interface Props {
 
 export const NoticeItem = ({
   id,
-  item,
+  notice,
   noticeLength,
   editorResetKey,
+  onNoticeChange,
   onEditorChange,
   onPictureChange,
   onPictureDelete,
@@ -33,37 +41,40 @@ export const NoticeItem = ({
 }: Props) => {
   return (
     <div className="flex flex-col gap-4 relative group">
-      <NavigationBar
-        action={
-          noticeLength > 1 && (
-            <UtilityButton
-              size="sm"
-              variant="danger"
-              onClick={onDelete}
-              className="text-red-500 hover:text-red-700 hover:bg-red-50"
-            >
-              삭제
-            </UtilityButton>
-          )
-        }
-      >
-        내용
-      </NavigationBar>
-      <TextEditor
-        key={`${id}-${item.id}-${editorResetKey}`}
-        value={item.messageJson}
-        defaultText="내용을 입력해 주세요"
-        defaultAlign="center"
-        onChange={onEditorChange}
-      />
-      <Picture
-        label="사진"
+      <ActionField
+        label="공지제목"
+        inputProps={{
+          placeholder: '제목을 입력해 주세요',
+          value: notice.notice,
+          onChange: onNoticeChange,
+        }}
         className="w-full text-center"
-        multiple={false}
-        value={item.image}
-        onChange={onPictureChange}
-        onDelete={onPictureDelete}
+        buttonProps={{
+          onClick: onDelete,
+          children: <p className="text-red-500">삭제</p>,
+          className: cn(
+            noticeLength > 1 ? 'block border-none w-[32px]' : 'hidden'
+          ),
+        }}
       />
+      <div className="flex flex-col gap-2">
+        <NavigationBar className="min-h-auto h-8">내용</NavigationBar>
+        <TextEditor
+          key={`${id}-${notice.noticeId}-${editorResetKey}`}
+          value={notice.content.messageJson}
+          defaultText="내용을 입력해 주세요"
+          defaultAlign="center"
+          onChange={onEditorChange}
+        />
+        <Picture
+          label="배너사진"
+          className="w-full text-center"
+          multiple={false}
+          value={notice.image}
+          onChange={onPictureChange}
+          onDelete={onPictureDelete}
+        />
+      </div>
     </div>
   );
 };
