@@ -7,6 +7,14 @@ export const organizerInformationSchema = {
       default: '',
       required: true,
     },
+    checkedEnglishTitle: {
+      default: false,
+      required: true,
+    },
+    englishTitle: {
+      default: '',
+      required: false,
+    },
     organizer: {
       default: '',
       required: true,

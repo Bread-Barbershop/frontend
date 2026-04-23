@@ -20,7 +20,16 @@ interface Props {
   id: string;
 }
 export const OrganizerInformation = ({ blockInfo, id }: Props) => {
-  const { title, organizer, hasUrl, url, messageJson, image } = blockInfo.props;
+  const {
+    title,
+    organizer,
+    hasUrl,
+    url,
+    messageJson,
+    image,
+    checkedEnglishTitle,
+    englishTitle,
+  } = blockInfo.props;
   const { updateBlock, updateImage } = useEditorStore(
     useShallow(state => ({
       updateBlock: state.updateBlock,
@@ -44,8 +53,14 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
     };
   }, [debouncedUpdateMessage]);
 
-  const handleStringChange = (
-    key: 'title' | 'organizer' | 'url' | 'hasUrl',
+  const handleValueChange = (
+    key:
+      | 'title'
+      | 'organizer'
+      | 'url'
+      | 'hasUrl'
+      | 'englishTitle'
+      | 'checkedEnglishTitle',
     e?: ChangeEvent<HTMLInputElement>,
     value?: boolean
   ) => {
@@ -66,28 +81,39 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
   };
 
   return (
-    <LeftEditorWrapper className="gap-3">
+    <LeftEditorWrapper className="gap-4 pb-3">
       <NavigationBar>주최정보</NavigationBar>
       <TextField
         label="제목"
         inputProps={{
           placeholder: '제목을 입력해주세요',
           value: title,
-          onChange: e => handleStringChange('title', e),
+          onChange: e => handleValueChange('title', e),
         }}
         className="text-center w-full"
       />
+      {checkedEnglishTitle && (
+        <TextField
+          label="영문제목"
+          inputProps={{
+            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+            value: englishTitle,
+            onChange: e => handleValueChange('englishTitle', e),
+          }}
+          className="text-center w-full"
+        />
+      )}
       <TextField
         label="주최명"
         inputProps={{
           placeholder: '00 Company',
           value: organizer,
-          onChange: e => handleStringChange('organizer', e),
+          onChange: e => handleValueChange('organizer', e),
         }}
         className="text-center w-full"
       />
 
-      <p className="text-center font-semibold py-2">내용</p>
+      <p className="text-center font-semibold py-1">내용</p>
       <TextEditor
         value={messageJson}
         defaultText="내용을 입력해 주세요"
@@ -106,23 +132,34 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
       />
       <section className="flex items-center gap-2 w-full">
         <Label className="font-semibold">추가기능</Label>
-        <Checkbox
-          checked={hasUrl}
-          onChange={() => handleStringChange('hasUrl', undefined, !hasUrl)}
-        >
-          <p className={hasUrl ? 'text-text-primary' : 'text-text-secondary'}>
-            로고 클릭 시 주최사 홈페이지 접속 가능
-          </p>
-        </Checkbox>
+        <div className="flex-col">
+          <Checkbox
+            className="text-[13px]"
+            checked={checkedEnglishTitle}
+            onChange={e =>
+              handleValueChange('checkedEnglishTitle', e, e.target.checked)
+            }
+          >
+            영문 제목 추가
+          </Checkbox>
+          <Checkbox
+            checked={hasUrl}
+            onChange={() => handleValueChange('hasUrl', undefined, !hasUrl)}
+          >
+            <p className={hasUrl ? 'text-text-primary' : 'text-text-secondary'}>
+              로고 클릭 시 주최사 홈페이지 접속 가능
+            </p>
+          </Checkbox>
+        </div>
       </section>
       {hasUrl && (
         <TextField
-          label="url"
+          label="URL"
           inputProps={{
             placeholder: 'https://example.com',
             value: url,
-            onChange: e => handleStringChange('url', e),
-            title: 'http, https로 시작하는 url을 입력해주세요',
+            onChange: e => handleValueChange('url', e),
+            title: 'http, https로 시작하는 URL을 입력해주세요',
           }}
           className="text-center w-full"
         />
