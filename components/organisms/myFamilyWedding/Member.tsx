@@ -51,6 +51,7 @@ export const Member = ({
     <div className="flex flex-col gap-2">
       <div className="flex flex-row gap-2">
         <Selector
+          type="normal"
           className="w-21.5"
           placeholder="관계"
           options={[

@@ -45,7 +45,7 @@ export const AccountPreview = ({
         dangerouslySetInnerHTML={{ __html: html }}
       />
 
-      <div className="w-70 flex flex-col gap-6">
+      <div className="w-70 flex flex-col items-center gap-6">
         {groupList.map((group, i) => (
           <GroupPreview key={i} group={group}>
             {isOpenAccount => (

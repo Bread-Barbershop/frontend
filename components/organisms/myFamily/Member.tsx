@@ -47,6 +47,7 @@ export const Member = ({
           소개{index + 1}
         </Label>
         <Selector
+          type="normal"
           className="w-21.5"
           placeholder="관계"
           options={[
@@ -64,7 +65,7 @@ export const Member = ({
             </div>
           )}
           <Input
-            placeholder="이름"
+            placeholder="성함"
             value={member.name}
             onChange={e => onNameChange(index, e)}
             className={cn('w-34', member.flower && 'pl-8')}
