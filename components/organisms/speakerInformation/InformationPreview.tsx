@@ -37,6 +37,13 @@ export const InformationPreview = ({
           />
         </div>
       )}
+      {!preview && (
+        <div className="w-83.75 h-83.75 overflow-hidden rounded-3xl border border-dashed border-gray-300 flex items-center justify-center">
+          <p className="text-text-secondary text-sm">
+            이미지를 업로드해 주세요.
+          </p>
+        </div>
+      )}
       <p className="text-center text-[16px] font-semibold">{speaker.name}</p>
       <div
         className="text-sm text-center select-none"

@@ -3,6 +3,9 @@ import { useMemo, useEffect, ChangeEvent } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
+import { Divider } from '@/components/atoms/divider/Divider';
+import { Label } from '@/components/atoms/label/Label';
+import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
@@ -34,7 +37,8 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
       updateImage: state.updateImage,
     }))
   );
-  const { speakers } = blockInfo.props;
+  const { speakers, title, checkedEnglishTitle, englishTitle } =
+    blockInfo.props;
 
   const handleEditorChange = useMemo(
     () =>
@@ -60,21 +64,22 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
     };
   }, [handleEditorChange]);
 
-  const handleStringChange = (
-    type: 'title' | 'name',
-    e: ChangeEvent<HTMLInputElement>,
-    speakerId?: string
+  const handleValueChange = (
+    key: 'title' | 'englishTitle' | 'checkedEnglishTitle',
+    e?: ChangeEvent<HTMLInputElement>,
+    value?: boolean
   ) => {
-    if (type === 'title') {
-      updateBlock(id, { title: e.target.value });
-    } else {
-      const newItems = (speakers || []).map(speaker =>
-        speaker.id === speakerId
-          ? { ...speaker, name: e.target.value }
-          : speaker
-      );
-      updateBlock(id, { speakers: newItems });
-    }
+    updateBlock(id, { [key]: e ? e.target.value : value });
+  };
+
+  const handleSpeakerNameChange = (
+    speakerId: string,
+    e: ChangeEvent<HTMLInputElement>
+  ) => {
+    const newItems = (speakers || []).map(speaker =>
+      speaker.id === speakerId ? { ...speaker, name: e.target.value } : speaker
+    );
+    updateBlock(id, { speakers: newItems });
   };
 
   const handlePictureChange = (speakerId: string, file: (File | string)[]) => {
@@ -147,7 +152,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
   }, [handleAddSpeaker, speakers]);
 
   return (
-    <LeftEditorWrapper ariaLabel="연사 정보">
+    <LeftEditorWrapper ariaLabel="연사 정보" className="gap-3">
       <NavigationBar
         action={
           <UtilityButton size="md" variant="primary" onClick={handleAddSpeaker}>
@@ -158,33 +163,40 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
       >
         연사정보
       </NavigationBar>
-
-      <TextField
-        label="제목"
-        inputProps={{
-          placeholder: '제목을 입력해주세요.',
-          value: blockInfo.props.title,
-          onChange: e => handleStringChange('title', e),
-        }}
-        className="text-center w-full pb-3"
-      />
+      <div className="flex flex-col w-full">
+        <TextField
+          label="제목"
+          inputProps={{
+            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+            value: title,
+            onChange: e => handleValueChange('title', e),
+          }}
+          className="text-center w-full pb-3"
+        />
+        {checkedEnglishTitle && (
+          <TextField
+            label="영문제목"
+            inputProps={{
+              placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+              value: englishTitle,
+              onChange: e => handleValueChange('englishTitle', e),
+            }}
+            className="text-center w-full"
+          />
+        )}
+      </div>
       {speakers?.map((speaker, index) => (
         <section
           key={`${speaker.id}-${index}`}
           className="w-full flex flex-col gap-2"
         >
-          {index !== 0 && (
-            <div className="flex flex-col items-center gap-1">
-              <div className="w-0.5 h-1 rounded-sm bg-text-secondary" />
-              <div className="w-0.5 h-1 rounded-sm bg-text-secondary" />
-            </div>
-          )}
+          {index !== 0 && <Divider />}
           <Information
             speakerLength={speakers?.length}
             id={speaker.id}
             speaker={speaker}
-            onStringChange={(type, e) =>
-              handleStringChange(type, e, speaker.id)
+            onStringChange={(_type, e) =>
+              handleSpeakerNameChange(speaker.id, e)
             }
             onEditorChange={json =>
               handleEditorChange(speaker.id, json, speakers || [])
@@ -195,6 +207,19 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
           />
         </section>
       ))}
+      <section className="flex items-center gap-2 w-full">
+        <Label className="font-semibold">추가기능</Label>
+
+        <Checkbox
+          className="text-[13px]"
+          checked={checkedEnglishTitle}
+          onChange={e =>
+            handleValueChange('checkedEnglishTitle', e, e.target.checked)
+          }
+        >
+          영문 제목 추가
+        </Checkbox>
+      </section>
     </LeftEditorWrapper>
   );
 };
