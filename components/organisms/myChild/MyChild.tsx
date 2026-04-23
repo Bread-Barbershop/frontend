@@ -218,8 +218,8 @@ export const MyChild = ({ blockInfo, id }: Props) => {
       />
 
       <Picture
-        label="아기 사진"
-        className="w-full"
+        label="사진"
+        className="w-full text-center"
         multiple={false}
         value={image}
         onChange={handlePictureChange}
