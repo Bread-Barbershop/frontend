@@ -64,7 +64,7 @@ export const Member = ({
             </div>
           )}
           <Input
-            placeholder="이름"
+            placeholder="성함"
             value={member.name}
             onChange={e => onNameChange(index, e)}
             className={cn('w-34', member.flower && 'pl-8')}

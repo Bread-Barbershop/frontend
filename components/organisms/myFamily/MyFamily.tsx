@@ -196,6 +196,7 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
           className="text-center w-full"
         />
       )}
+      <Divider className="w-full" />
       <section className="flex flex-col gap-3 w-full">
         {(family || []).map((member, index) => (
           <div key={index} className="flex flex-col gap-2 w-full">
