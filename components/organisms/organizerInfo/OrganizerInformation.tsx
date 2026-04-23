@@ -82,7 +82,7 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
 
   return (
     <LeftEditorWrapper className="gap-4 pb-3">
-      <NavigationBar>주최정보</NavigationBar>
+      <NavigationBar className="-mb-2">주최정보</NavigationBar>
       <TextField
         label="제목"
         inputProps={{
