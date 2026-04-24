@@ -98,7 +98,7 @@ export async function GET(request: Request) {
       (function () {
         try {
           // 부모창에 "로그인 성공" 전달
-          if (window.opener && !window.opener.closed) {
+          if (window.opener) {
             window.opener.postMessage({ type: 'GOOGLE_OAUTH_SUCCESS' }, '${origin}');
           }
         } catch (e) {}
