@@ -41,7 +41,6 @@ export async function GET() {
 
   if (!refreshToken) {
     return NextResponse.json(buildSession(false, false), {
-      status: 401,
       headers: NO_STORE_HEADERS,
     });
   }
@@ -74,7 +73,6 @@ export async function GET() {
     clearAuthCookies(cookieStore);
 
     return NextResponse.json(buildSession(false, false), {
-      status: 401,
       headers: NO_STORE_HEADERS,
     });
   }

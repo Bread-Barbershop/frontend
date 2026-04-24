@@ -21,6 +21,7 @@ jest.mock('next/navigation', () => ({
 describe('useAuthGate 테스트', () => {
   const mockFetch = jest.fn();
   const mockPopupFocus = jest.fn();
+  const mockPopupClose = jest.fn();
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -29,8 +30,8 @@ describe('useAuthGate 테스트', () => {
 
     window.open = jest.fn(() => {
       return {
-        closed: false,
         focus: mockPopupFocus,
+        close: mockPopupClose,
       } as unknown as Window;
     });
   });
@@ -73,8 +74,11 @@ describe('useAuthGate 테스트', () => {
 
   it('popup이 아직 열려 있으면 focus 이벤트만으로 로그인 대기 상태를 해제하지 않는다', async () => {
     mockFetch.mockResolvedValue({
-      ok: false,
-      status: 401,
+      ok: true,
+      status: 200,
+      json: async () => ({
+        isLoggedIn: false,
+      }),
     });
 
     const { result } = renderHook(() =>
@@ -98,7 +102,30 @@ describe('useAuthGate 테스트', () => {
       });
     });
 
+    expect(result.current.isLoginPending).toBe(false);
+    expect(result.current.isLoginOpen).toBe(false);
+  });
+
+  it('login pending 중 closeLogin()을 호출하면 popup과 modal 상태를 정리한다', async () => {
+    const { result } = renderHook(() =>
+      useAuthGate({ initialIsLoggedIn: false })
+    );
+
+    act(() => {
+      result.current.login();
+      result.current.loginWithGoogle();
+    });
+
+    expect(result.current.isLoginOpen).toBe(true);
     expect(result.current.isLoginPending).toBe(true);
+
+    act(() => {
+      result.current.closeLogin();
+    });
+
+    expect(mockPopupClose).toHaveBeenCalled();
+    expect(result.current.isLoginPending).toBe(false);
+    expect(result.current.isLoginOpen).toBe(false);
   });
 
   it('GOOGLE_OAUTH_SUCCESS 메시지를 받으면 로그인 상태가 true가 된다', async () => {
@@ -132,8 +159,11 @@ describe('useAuthGate 테스트', () => {
 
   it('로그인된 상태에서 runAfterAuth() 실행 후 session이 401이면 루트로 이동한다', async () => {
     mockFetch.mockResolvedValue({
-      status: 401,
-      ok: false,
+      status: 200,
+      ok: true,
+      json: async () => ({
+        isLoggedIn: false,
+      }),
     });
 
     const action = jest.fn();
