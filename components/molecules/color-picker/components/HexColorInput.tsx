@@ -16,21 +16,19 @@ export function HexColorInput({
   value: string;
   onChange: (hex: string) => void;
 }) {
-  const [draft, setDraft] = useState(value);
+  const normalizedValue = normalizeHexInput(value);
+  const [draft, setDraft] = useState(normalizedValue);
   const [isEditing, setIsEditing] = useState(false);
 
   return (
     <input
-      value={isEditing ? draft : value}
+      value={isEditing ? draft : normalizedValue}
       onFocus={() => {
-        setDraft(value);
+        setDraft(normalizedValue);
         setIsEditing(true);
       }}
       onChange={event => {
-        const nextValue = event.target.value
-          .toUpperCase()
-          .replace(/[^#0-9A-F]/g, '')
-          .slice(0, 7);
+        const nextValue = normalizeHexInput(event.target.value);
 
         setDraft(nextValue);
 
@@ -47,4 +45,14 @@ export function HexColorInput({
       aria-label="Hex color value"
     />
   );
+}
+
+function normalizeHexInput(value: string) {
+  const hexDigits = value
+    .toUpperCase()
+    .replace(/[^#0-9A-F]/g, '')
+    .replace(/#/g, '')
+    .slice(0, 6);
+
+  return `#${hexDigits}`;
 }

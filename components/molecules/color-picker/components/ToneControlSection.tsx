@@ -6,6 +6,7 @@ import Alpha from '@uiw/react-color-alpha';
 import { GlassPointer } from './GlassPointer';
 
 import type { PickerHsva } from './colorPicker.types';
+import type { GlassPointerSize } from './GlassPointer';
 
 /**
  * 투명도 값을 조절하는 슬라이더 영역입니다.
@@ -16,14 +17,16 @@ import type { PickerHsva } from './colorPicker.types';
 export function ToneControlSection({
   hsva,
   transparencyPercent,
+  pointerSize,
   onChange,
 }: {
   hsva: PickerHsva;
   transparencyPercent: number;
+  pointerSize?: GlassPointerSize;
   onChange: (alpha: number) => void;
 }) {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-5">
       <div className="flex h-8 w-13.5 shrink-0 items-center justify-center rounded-md border border-gray-200 bg-[#f5f5f5] text-[14px] font-medium text-gray-700">
         {transparencyPercent}%
       </div>
@@ -39,6 +42,7 @@ export function ToneControlSection({
               left={left}
               top={top}
               color={hsvaToHslaString(hsva)}
+              size={pointerSize}
             />
           )}
           onChange={newAlpha => {

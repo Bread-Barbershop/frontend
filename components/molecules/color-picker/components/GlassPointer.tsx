@@ -1,5 +1,15 @@
 'use client';
 
+export type GlassPointerSize = {
+  outer: number;
+  inner: number;
+};
+
+export const DEFAULT_GLASS_POINTER_SIZE: GlassPointerSize = {
+  outer: 32,
+  inner: 16,
+};
+
 /**
  * 팔레트와 각 슬라이더에서 공통으로 사용하는 시각 포인터입니다.
  *
@@ -10,10 +20,12 @@ export function GlassPointer({
   left,
   top = '50%',
   color,
+  size = DEFAULT_GLASS_POINTER_SIZE,
 }: {
   left?: string | number;
   top?: string | number;
   color: string;
+  size?: GlassPointerSize;
 }) {
   return (
     <div
@@ -26,15 +38,21 @@ export function GlassPointer({
       }}
     >
       <div
-        className="flex h-8 w-8 items-center justify-center rounded-full border border-white/35 bg-white/20 shadow-[0_8px_18px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.45)]"
+        className="flex items-center justify-center rounded-full border border-white/35 bg-white/20 shadow-[0_8px_18px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.45)]"
         style={{
+          width: size.outer,
+          height: size.outer,
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
         }}
       >
         <div
-          className="h-4 w-4 rounded-full border border-white/70 shadow-[0_1px_3px_rgba(0,0,0,0.2)]"
-          style={{ backgroundColor: color }}
+          className="rounded-full border border-white/70 shadow-[0_1px_3px_rgba(0,0,0,0.2)]"
+          style={{
+            width: size.inner,
+            height: size.inner,
+            backgroundColor: color,
+          }}
         />
       </div>
     </div>

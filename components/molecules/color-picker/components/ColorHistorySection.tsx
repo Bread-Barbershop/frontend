@@ -17,19 +17,23 @@ import type { PickerHsva } from './colorPicker.types';
  */
 export function ColorHistorySection({
   colorHistory,
+  columnCount = COLOR_HISTORY_COLUMN_COUNT,
+  maxCount = MAX_COLOR_HISTORY_COUNT,
   onChange,
 }: {
   colorHistory: string[];
+  columnCount?: number;
+  maxCount?: number;
   onChange: (nextColor: PickerHsva) => void;
 }) {
   return (
     <div
       className="grid gap-2 overflow-hidden"
       style={{
-        gridTemplateColumns: `repeat(${COLOR_HISTORY_COLUMN_COUNT}, minmax(0, 1fr))`,
+        gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
       }}
     >
-      {colorHistory.slice(0, MAX_COLOR_HISTORY_COUNT).map(color => (
+      {colorHistory.slice(0, maxCount).map(color => (
         <button
           key={color}
           type="button"

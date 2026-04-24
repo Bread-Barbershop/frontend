@@ -15,7 +15,7 @@ import UnderlineIcon from '@/shared/assets/icons/underline.svg';
 
 import { Selector } from '../selector';
 
-import ColorPicker from './components/ColorPicker';
+import TextEditorColorPickerPopover from './components/TextEditorColorPickerPopover';
 import { createTextEditorBarExtensions } from './utils/tiptapExtensions';
 
 interface TextEditorProps {
@@ -95,7 +95,7 @@ export function TextEditor({
     editorProps: {
       attributes: {
         class:
-          'min-h-[120px] outline-none text-[14px] leading-7 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6',
+          'min-h-[120px] outline-none text-[14px] leading-7 selection:bg-primary/20 selection:text-inherit [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6',
       },
     },
     onCreate({ editor }) {
@@ -187,13 +187,11 @@ export function TextEditor({
           />
 
           {colorPickerOpen && (
-            <div className="absolute z-50">
-              <ColorPicker
-                editor={editor}
-                onClose={() => setColorPickerOpen(false)}
-                containerRef={colorPickerContainerRef}
-              />
-            </div>
+            <TextEditorColorPickerPopover
+              editor={editor}
+              onClose={() => setColorPickerOpen(false)}
+              containerRef={colorPickerContainerRef}
+            />
           )}
         </div>
 
