@@ -327,7 +327,7 @@ const policySections: PolicySection[] = [
       {
         id: 'changes-date',
         type: 'paragraph',
-        content: '시행일: 2026년 4월 24일 / 최종 수정일: 2026년 4월 24일',
+        content: `시행일: ${policyInfo.effectiveDate} / 최종 수정일: ${policyInfo.lastUpdated}`,
       },
     ],
   },
