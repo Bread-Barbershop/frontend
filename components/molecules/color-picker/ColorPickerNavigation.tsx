@@ -3,7 +3,15 @@
 import { UtilityButton } from '@/components/atoms/button/UtilityButton';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 
-function ColorPickerNavigation({ onClose }: { onClose?: () => void }) {
+import type { ReactNode } from 'react';
+
+function ColorPickerNavigation({
+  title = '색상',
+  onClose,
+}: {
+  title?: ReactNode;
+  onClose?: () => void;
+}) {
   return (
     <NavigationBar
       action={
@@ -21,7 +29,7 @@ function ColorPickerNavigation({ onClose }: { onClose?: () => void }) {
       }
       direction="right"
     >
-      색상
+      {title}
     </NavigationBar>
   );
 }
