@@ -3,9 +3,6 @@
 import { hexToHsva, hsvaToHex, validHex } from '@uiw/color-convert';
 import { useEffect, useState } from 'react';
 
-import { UtilityButton } from '@/components/atoms/button/UtilityButton';
-import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
-
 import { ColorConverterSection } from './components/ColorConverterSection';
 import { ColorHistorySection } from './components/ColorHistorySection';
 import { ColorPaletteSection } from './components/ColorPaletteSection';
@@ -28,8 +25,6 @@ export type ColorPickerBaseProps = {
   value?: ColorPickerValue;
   defaultValue?: ColorPickerValue;
   onChange?: (nextColor: ColorPickerChange) => void;
-  onClose?: () => void;
-  className: string;
   paletteClassName?: string;
   pointerSize?: GlassPointerSize;
   historyColumnCount?: number;
@@ -40,8 +35,6 @@ function ColorPickerBase({
   value,
   defaultValue,
   onChange,
-  onClose,
-  className,
   paletteClassName,
   pointerSize,
   historyColumnCount = COLOR_HISTORY_COLUMN_COUNT,
@@ -51,7 +44,8 @@ function ColorPickerBase({
   const resolvedControlledValue = resolveColorValue(value);
   const initialHsva =
     resolvedControlledValue ??
-    resolvedDefaultValue ?? { h: 0, s: 0, v: 68, a: 1 };
+    resolvedDefaultValue ??
+    { h: 0, s: 0, v: 68, a: 1 };
   const [internalHsva, setInternalHsva] =
     useState<PickerHsva>(initialHsva);
   const [inputMode, setInputMode] = useState<InputMode>('hex');
@@ -94,26 +88,7 @@ function ColorPickerBase({
   }, [hex, maxHistoryCount]);
 
   return (
-    <div className={className}>
-      <NavigationBar
-        action={
-          onClose ? (
-            <UtilityButton
-              size="md"
-              variant="danger"
-              onClick={onClose}
-              aria-label="닫기"
-              className="text-sm"
-            >
-              닫기
-            </UtilityButton>
-          ) : null
-        }
-        direction="right"
-      >
-        색상
-      </NavigationBar>
-
+    <>
       <ColorPaletteSection
         hsva={hsva}
         className={paletteClassName}
@@ -161,7 +136,7 @@ function ColorPickerBase({
           applyHsva(nextColor);
         }}
       />
-    </div>
+    </>
   );
 }
 
