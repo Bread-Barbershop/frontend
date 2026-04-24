@@ -5,6 +5,8 @@ import Hue from '@uiw/react-color-hue';
 
 import { GlassPointer } from './GlassPointer';
 
+import type { GlassPointerSize } from './GlassPointer';
+
 /**
  * 색상환 기준의 Hue 값을 조절하는 슬라이더입니다.
  *
@@ -13,9 +15,11 @@ import { GlassPointer } from './GlassPointer';
  */
 export function ColorSlideSection({
   hue,
+  pointerSize,
   onChange,
 }: {
   hue: number;
+  pointerSize?: GlassPointerSize;
   onChange: (hue: number) => void;
 }) {
   return (
@@ -30,6 +34,7 @@ export function ColorSlideSection({
             left={left}
             top={top}
             color={hsvaToHslaString({ h: hue, s: 100, v: 100, a: 1 })}
+            size={pointerSize}
           />
         )}
         onChange={newHue => {

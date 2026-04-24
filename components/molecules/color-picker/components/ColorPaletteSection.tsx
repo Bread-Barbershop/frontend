@@ -6,6 +6,7 @@ import Saturation from '@uiw/react-color-saturation';
 import { GlassPointer } from './GlassPointer';
 
 import type { PickerHsva } from './colorPicker.types';
+import type { GlassPointerSize } from './GlassPointer';
 
 /**
  * 채도와 명도를 동시에 조절하는 메인 컬러 팔레트 영역입니다.
@@ -15,13 +16,17 @@ import type { PickerHsva } from './colorPicker.types';
  */
 export function ColorPaletteSection({
   hsva,
+  className = 'aspect-square w-full',
+  pointerSize,
   onChange,
 }: {
   hsva: PickerHsva;
+  className?: string;
+  pointerSize?: GlassPointerSize;
   onChange: (nextColor: Partial<PickerHsva>) => void;
 }) {
   return (
-    <div className="aspect-square w-full overflow-visible">
+    <div className={`${className} overflow-visible`}>
       <Saturation
         hsva={hsva}
         radius={12}
@@ -31,6 +36,7 @@ export function ColorPaletteSection({
             left={left}
             top={top}
             color={color || hsvaToHslaString(hsva)}
+            size={pointerSize}
           />
         )}
         onChange={newColor => {

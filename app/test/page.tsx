@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
-import NewColorPicker from '@/components/molecules/color-picker/NewColorPicker';
+import LargeColorPicker from '@/components/molecules/color-picker/LargeColorPicker';
+import SmallColorPicker from '@/components/molecules/color-picker/SmallColorPicker';
 import { KakaoShareButton } from '@/components/organisms/share-url/KakaoShareButton';
 
 type KakaoShareData = {
@@ -125,12 +126,15 @@ export default function TestPage() {
         />
       </section>
 
-      <section className="max-w-xl w-full bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
-          New Color Picker Test
-        </h2>
-        <NewColorPicker />
-      </section>
+      <div className="flex items-start gap-8">
+        <section className="w-fit bg-white ">
+          <LargeColorPicker />
+        </section>
+
+        <section className="w-fit bg-white ">
+          <SmallColorPicker />
+        </section>
+      </div>
     </div>
   );
 }
