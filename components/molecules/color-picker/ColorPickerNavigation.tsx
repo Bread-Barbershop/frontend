@@ -20,7 +20,6 @@ function ColorPickerNavigation({
             size="md"
             variant="danger"
             onClick={onClose}
-            aria-label="닫기"
             className="text-sm"
           >
             닫기
