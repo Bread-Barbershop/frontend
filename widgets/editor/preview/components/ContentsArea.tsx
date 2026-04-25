@@ -38,6 +38,7 @@ function ContentsArea({ scrollContainerRef, sectionRefs }: Props) {
     if (!component) return;
     const id = crypto.randomUUID();
     addBlock(type, component, id);
+
     selectedBlock(id);
     setIsEdit(false);
   };

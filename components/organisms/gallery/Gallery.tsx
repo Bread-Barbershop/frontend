@@ -19,9 +19,10 @@ interface Props {
 }
 
 function Gallery({ blockInfo, id }: Props) {
-  const { block, updateBlock, updateImage } = useEditorStore(
+  const { block, images, updateBlock, updateImage } = useEditorStore(
     useShallow(state => ({
       block: state.block,
+      images: state.images,
       updateBlock: state.updateBlock,
       updateImage: state.updateImage,
     }))
@@ -32,13 +33,23 @@ function Gallery({ blockInfo, id }: Props) {
   };
 
   const handlePictureChange = (file: (File | string)[]) => {
+    const curerentImage = images.filter(img => img.id === id);
+    if (curerentImage.length > 30 || curerentImage.length + file.length > 30) {
+      alert('갤러리 이미지는 최대 30개까지 추가할 수 있습니다.');
+      return;
+    }
     const currentBlock = block as EditorBlock<'gallery'>[];
     const image = currentBlock.find(b => b.id === id)?.props.images;
     updateBlock(id, { images: [...(image ?? []), ...file] });
     updateImage(id, [...(image ?? []), ...file]);
   };
 
-  const handlePictureDelete = (files: (File | string)[]) => {
+  const handlePictureDelete = (files?: (File | string)[]) => {
+    if (!files) {
+      updateBlock(id, { images: [] });
+      updateImage(id, []);
+      return;
+    }
     updateBlock(id, { images: files });
     updateImage(id, files);
   };
@@ -78,6 +89,10 @@ function Gallery({ blockInfo, id }: Props) {
           multiple={true}
           value={blockInfo.props.images}
           onChange={file => handlePictureChange(file)}
+          onReorder={file => {
+            updateBlock(id, { images: file });
+            updateImage(id, file);
+          }}
           onDelete={file => handlePictureDelete(file)}
         />
         {blockInfo.props.images && blockInfo.props.images?.length > 0 && (

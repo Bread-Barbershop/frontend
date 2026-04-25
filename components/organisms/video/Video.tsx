@@ -1,6 +1,7 @@
 import { useShallow } from 'zustand/react/shallow';
 
 import { Button } from '@/components/atoms/button';
+import { Divider } from '@/components/atoms/divider/Divider';
 import { Label } from '@/components/atoms/label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
@@ -20,7 +21,8 @@ interface Props {
 const ratioOptions = ['1:1', '3:4', '4:3', '9:16', '16:9'];
 
 export const Video = ({ blockInfo, id }: Props) => {
-  const { title, videoUrl, checkThumbnail } = blockInfo.props;
+  const { title, videoUrl, checkThumbnail, checkedEnglishTitle, englishTitle } =
+    blockInfo.props;
   const { updateBlock, updateImage } = useEditorStore(
     useShallow(state => ({
       updateBlock: state.updateBlock,
@@ -39,17 +41,29 @@ export const Video = ({ blockInfo, id }: Props) => {
     updateImage(id, []);
   };
   return (
-    <LeftEditorWrapper className="gap-4" ariaLabel="동영상">
-      <NavigationBar>동영상</NavigationBar>
+    <LeftEditorWrapper className="gap-4 pb-3" ariaLabel="동영상">
+      <NavigationBar className="-mb-2">동영상</NavigationBar>
       <TextField
         label="제목"
         inputProps={{
-          placeholder: '최대 20자',
+          placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
           onChange: e => handleUpdateBlock('title', e.target.value),
           value: title,
         }}
         className="w-full text-center"
       />
+      {checkedEnglishTitle && (
+        <TextField
+          label="영문제목"
+          inputProps={{
+            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+            value: englishTitle,
+            onChange: e => handleUpdateBlock('englishTitle', e.target.value),
+          }}
+          className="text-center w-full"
+        />
+      )}
+      <Divider className="w-full" />
       <TextField
         label="URL"
         inputProps={{
@@ -81,6 +95,7 @@ export const Video = ({ blockInfo, id }: Props) => {
       <section className="flex gap-2 w-full">
         <Label className="text-center font-semibold">추가기능</Label>
         <Checkbox
+          className="text-[13px]"
           checked={checkThumbnail}
           onChange={e => {
             const checked = e.target.checked;
@@ -88,6 +103,15 @@ export const Video = ({ blockInfo, id }: Props) => {
           }}
         >
           썸네일 이미지 추가
+        </Checkbox>
+        <Checkbox
+          className="text-[13px]"
+          checked={checkedEnglishTitle}
+          onChange={e =>
+            handleUpdateBlock('checkedEnglishTitle', e.target.checked)
+          }
+        >
+          영문 제목 추가
         </Checkbox>
       </section>
       {checkThumbnail && (

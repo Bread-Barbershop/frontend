@@ -57,10 +57,10 @@ export const PicturePopViewer = ({
     <div className="absolute inset-0 z-50 bg-black/80 flex-center">
       <Button
         type="button"
-        className="group absolute top-4 right-4 z-100 flex-center rounded-full bg-black/32 w-8 h-8 "
+        className="group absolute top-4 right-4 z-100 flex-center rounded-full bg-black/32 w-8 h-8 hover:bg-white transition-colors"
         onClick={onClose}
       >
-        <Cancel className="w-3.5 h-3.5 text-white" />
+        <Cancel className="w-3.5 h-3.5 text-white group-hover:text-black transition-colors" />
       </Button>
       <div className={cn('w-[90%] max-h-[85%] relative', ratioClass)}>
         <Carousel

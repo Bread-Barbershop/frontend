@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { Inter, Noto_Sans_KR } from 'next/font/google';
 import localFont from 'next/font/local';
 import Script from 'next/script';
 import { ReactNode } from 'react';
@@ -11,7 +12,17 @@ const pretendard = localFont({
   weight: '100 900',
   variable: '--pretendard',
 });
+const inter = Inter({
+  variable: '--inter',
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+});
 
+const notoSansKr = Noto_Sans_KR({
+  variable: '--noto-kr',
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+});
 export const metadata: Metadata = {
   title: {
     default: '미정 | 초대장의 새로운 기준',
@@ -36,7 +47,10 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="ko" className={pretendard.variable}>
+    <html
+      lang="ko"
+      className={`${pretendard.variable} ${inter.variable} ${notoSansKr.variable}`}
+    >
       <body className="antialiased font-pretendard">
         {children}
         <Script

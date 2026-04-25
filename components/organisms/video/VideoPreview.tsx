@@ -30,7 +30,15 @@ const ratioVariants = cva('', {
 });
 
 export const VideoPreview = ({ blockInfo, className, ...rest }: Props) => {
-  const { image, videoUrl, title, ratio, checkThumbnail } = blockInfo.props;
+  const {
+    image,
+    videoUrl,
+    title,
+    ratio,
+    checkThumbnail,
+    checkedEnglishTitle,
+    englishTitle,
+  } = blockInfo.props;
   const [isPlaying, setIsPlaying] = useState(false);
 
   const preview = useResolvedImageSources(image);
@@ -38,7 +46,15 @@ export const VideoPreview = ({ blockInfo, className, ...rest }: Props) => {
   const embedUrl = getEmbedUrl(videoUrl);
 
   return (
-    <MiddlePreviewWrapper className={className} koTitle={title} {...rest}>
+    <MiddlePreviewWrapper
+      className={className}
+      checkedEnglishTitle={checkedEnglishTitle}
+      enTitle={englishTitle}
+      enTitleDefault="VIDEO"
+      koTitle={title}
+      koTitleDefault="영상"
+      {...rest}
+    >
       <div
         className={cn(
           'relative w-full overflow-hidden group',

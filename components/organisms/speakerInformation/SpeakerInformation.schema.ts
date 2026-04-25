@@ -7,6 +7,14 @@ export const speakerInformationSchema = {
       default: '',
       required: true,
     },
+    englishTitle: {
+      default: '',
+      required: false,
+    },
+    checkedEnglishTitle: {
+      default: false,
+      required: true,
+    },
     speakers: {
       default: [] as {
         id: string;

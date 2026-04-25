@@ -7,9 +7,11 @@ import { greetingDefinition } from '@/components/organisms/greeting/Greeting.def
 import { interviewDefinition } from '@/components/organisms/interview/Interview.definition';
 import { myChildDefinition } from '@/components/organisms/myChild/MyChild.definition';
 import { myFamilyDefinition } from '@/components/organisms/myFamily/MyFamily.definition';
+import { myFamilyWeddingDefinition } from '@/components/organisms/myFamilyWedding/MyFamilyWedding.definition';
 import { noticeDefinition } from '@/components/organisms/notice/Notice.definition';
 import { organizerInformationDefinition } from '@/components/organisms/organizerInfo/OrganizerInformation.definition';
 import { phoneDefinition } from '@/components/organisms/phone/Phone.definition';
+import { pictureDefinition } from '@/components/organisms/picture/Picture.definition';
 import { placeDefinition } from '@/components/organisms/place/Place.definition';
 import { shareUrlDefinition } from '@/components/organisms/share-url/ShareUrl.definition';
 import { speakerInformationDefinition } from '@/components/organisms/speakerInformation/SpeakerInformation.definition';
@@ -44,8 +46,13 @@ export const blockRegistry = {
   },
   myChild: { ...blockSchema.myChild, ...myChildDefinition },
   myFamily: { ...blockSchema.myFamily, ...myFamilyDefinition },
+  myFamilyWedding: {
+    ...blockSchema.myFamilyWedding,
+    ...myFamilyWeddingDefinition,
+  },
   sponsorshipInfomation: {
     ...blockSchema.sponsorshipInfomation,
     ...sponsorshipInfomationDefinition,
   },
+  picture: { ...blockSchema.picture, ...pictureDefinition },
 } as const;

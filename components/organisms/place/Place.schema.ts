@@ -2,7 +2,11 @@ export const placeSchema = {
   type: null,
   fields: {
     title: {
-      default: '오시는 길',
+      default: '',
+      required: true,
+    },
+    englishTitle: {
+      default: '',
       required: true,
     },
     country: {
@@ -23,6 +27,10 @@ export const placeSchema = {
     },
     placeTel: {
       default: '',
+      required: true,
+    },
+    checkedEnglishTitle: {
+      default: false,
       required: true,
     },
     openMap: {

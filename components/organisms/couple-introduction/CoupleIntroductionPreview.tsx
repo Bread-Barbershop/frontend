@@ -18,7 +18,7 @@ function pickResolvableImageSource(value: unknown): ResolvableImageSource {
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'coupleIntroduction'>;
-  titleClassName: string;
+  titleClassName?: string;
 }
 
 function CoupleIntroductionPreview({
@@ -36,7 +36,6 @@ function CoupleIntroductionPreview({
     title = '',
     messageJson = null,
     messageHtml = null,
-    showProfileImage = false,
     showTitle = false,
     showContent = false,
     brideFirst = false,
@@ -112,21 +111,20 @@ function CoupleIntroductionPreview({
             key={profile.key}
             className="w-40 flex flex-col justify-center items-center gap-4"
           >
-            {showProfileImage &&
-              (profile.imageSrc ? (
-                <div className="relative size-40 rounded-3xl overflow-hidden">
-                  <Image
-                    src={profile.imageSrc}
-                    alt={`${profile.label} 사진`}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="size-40 rounded-3xl bg-border-neutral flex justify-center items-center">
-                  <p>사진을 추가해 주세요.</p>
-                </div>
-              ))}
+            {profile.imageSrc ? (
+              <div className="relative size-40 rounded-3xl overflow-hidden">
+                <Image
+                  src={profile.imageSrc}
+                  alt={`${profile.label} 사진`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            ) : (
+              <div className="size-40 rounded-3xl bg-border-neutral flex justify-center items-center">
+                <p>사진을 추가해 주세요.</p>
+              </div>
+            )}
             <p className="text-[16px] font-semibold">
               {profile.name || '성함'}
             </p>

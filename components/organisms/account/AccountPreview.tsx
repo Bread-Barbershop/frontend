@@ -8,7 +8,7 @@ import { GroupPreview } from './preview/GroupPreview';
 
 interface Props {
   blockInfo: EditorBlock<'account'>;
-  titleClassName: string;
+  titleClassName?: string;
   className?: string;
 }
 
@@ -18,16 +18,26 @@ export const AccountPreview = ({
   titleClassName,
   ...rest
 }: Props) => {
-  const { messageHtml, messageJson, groupList, accountList, title } =
-    blockInfo.props;
+  const {
+    messageHtml,
+    messageJson,
+    groupList,
+    accountList,
+    title,
+    checkedEnglishTitle,
+    englishTitle,
+  } = blockInfo.props;
   const html = messageHtml ?? tiptapJsonToHtmlUniversal(messageJson);
 
   return (
     <MiddlePreviewWrapper
       className={`${className} relative`}
       titleClassName={titleClassName}
-      enTitle="ACCOUNT"
+      checkedEnglishTitle={checkedEnglishTitle}
+      enTitle={englishTitle}
+      enTitleDefault="ACCOUNT"
       koTitle={title}
+      koTitleDefault="마음 보내실 곳"
       {...rest}
     >
       <div
@@ -35,7 +45,7 @@ export const AccountPreview = ({
         dangerouslySetInnerHTML={{ __html: html }}
       />
 
-      <div className="w-64.25 flex flex-col gap-4">
+      <div className="w-70 flex flex-col items-center gap-6">
         {groupList.map((group, i) => (
           <GroupPreview key={i} group={group}>
             {isOpenAccount => (

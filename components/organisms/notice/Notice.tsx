@@ -1,16 +1,17 @@
-import { Plus } from 'lucide-react';
-import { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
+import { Divider } from '@/components/atoms/divider';
+import { Label } from '@/components/atoms/label/Label';
+import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
-import { debounce } from '@/shared/utils/debounce';
 
-import { PopupOptionsJSON } from '../popup/PopupOptionsJSON';
+import PopupOptions from '../popup/PopupOptions';
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
 import { NoticeItem } from './NoticeItem';
@@ -23,13 +24,6 @@ interface Props {
   id: string;
 }
 
-interface Item {
-  id: string;
-  messageJson: JSONContent | null;
-  messageHtml: string | null;
-  image: (File | string)[];
-}
-
 export const Notice = ({ blockInfo, id }: Props) => {
   const { updateBlock, updateImage } = useEditorStore(
     useShallow(state => ({
@@ -40,122 +34,117 @@ export const Notice = ({ blockInfo, id }: Props) => {
   const [isNoticeListOpen, setIsNoticeListOpen] = useState(false);
   const [editorResetKey, setEditorResetKey] = useState(0);
 
-  const { items, title } = blockInfo.props;
+  const { noticeList, title, checkedEnglishTitle, englishTitle } =
+    blockInfo.props;
 
-  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { title: e.target.value });
+  const handleUpdateBlock = (key: string, value: string | boolean) => {
+    updateBlock(id, { [key]: value });
   };
 
-  const handleNoticeListSelect = (content: JSONContent, _index?: number) => {
-    const newItem = {
-      id: crypto.randomUUID(),
-      messageJson: content,
-      messageHtml: tiptapJsonToHtmlInBrowser(content),
-      image: [],
+  const handleNoticeChange = (notice: string | null, noticeId: string) => {
+    const newNoticeList = (noticeList || []).map(n =>
+      n.noticeId === noticeId
+        ? {
+            ...n,
+            notice,
+          }
+        : n
+    );
+    updateBlock(id, { noticeList: newNoticeList });
+  };
+
+  const handleNoticeListSelect = (content: string, _index?: number) => {
+    const newNotice = {
+      noticeId: crypto.randomUUID(),
+      notice: content,
+      content: {
+        messageJson: null,
+        messageHtml: null,
+      },
+      image: [] as (File | string)[],
     };
 
-    const newItems = [...(items || []), newItem];
     updateBlock(id, {
-      items: newItems,
-      images: newItems.map(s => s.image[0]),
+      noticeList: [...(noticeList || []), newNotice],
     });
     setEditorResetKey(prev => prev + 1);
     setIsNoticeListOpen(false);
   };
 
-  const handleItemEditorChange = useMemo(
-    () =>
-      debounce((itemId: string, json: JSONContent, items: Item[]) => {
-        updateBlock(id, {
-          items: items.map(item =>
-            item.id === itemId
-              ? {
-                  ...item,
-                  messageJson: json,
-                  messageHtml: tiptapJsonToHtmlInBrowser(json),
-                }
-              : item
-          ),
-        });
-      }, 300),
-    [id, updateBlock]
-  );
-
-  useEffect(() => {
-    return () => {
-      handleItemEditorChange.cancel();
-    };
-  }, [handleItemEditorChange]);
-
-  const handleItemPictureChange = (itemId: string, file: (File | string)[]) => {
-    const newItems = (items || []).map(item =>
-      item.id === itemId ? { ...item, image: file } : item
+  const handleNoticeEditorChange = (noticeId: string, json: JSONContent) => {
+    const newNoticeList = (noticeList || []).map(notice =>
+      notice.noticeId === noticeId
+        ? {
+            ...notice,
+            content: {
+              messageJson: json,
+              messageHtml: tiptapJsonToHtmlInBrowser(json),
+            },
+          }
+        : notice
     );
-    const allImages = newItems.map(s => s.image[0]);
-
-    updateBlock(id, {
-      items: newItems,
-      images: allImages,
-    });
-    updateImage(
-      id,
-      allImages.filter((f): f is File | string => !!f)
-    );
+    updateBlock(id, { noticeList: newNoticeList });
   };
 
-  const handleItemPictureDelete = (itemId: string) => {
-    const newItems = (items || []).map(item =>
-      item.id === itemId ? { ...item, image: [] } : item
+  const handleNoticePictureChange = (
+    noticeId: string,
+    file: (File | string)[]
+  ) => {
+    const newNoticeList = (noticeList || []).map(notice =>
+      notice.noticeId === noticeId
+        ? {
+            ...notice,
+            image: file,
+          }
+        : notice
     );
-    const allImages = newItems.map(s => s.image[0]);
 
-    updateBlock(id, {
-      items: newItems,
-      images: allImages,
-    });
-    updateImage(
-      id,
-      allImages.filter((f): f is File | string => !!f)
-    );
+    const allImages = newNoticeList.flatMap(s => s.image);
+    updateBlock(id, { noticeList: newNoticeList });
+    updateImage(id, allImages);
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleAddItem = () => {
-    const newItem = {
-      id: crypto.randomUUID(),
-      messageJson: null,
-      messageHtml: null,
-      image: [],
-    };
-    const newItems = [...(items || []), newItem];
-    updateBlock(id, {
-      items: newItems,
-      images: newItems.map(s => s.image[0]),
-    });
+  const handleNoticePictureDelete = (noticeId: string) => {
+    const newNoticeList = (noticeList || []).map(notice =>
+      notice.noticeId === noticeId
+        ? {
+            ...notice,
+            image: [],
+          }
+        : notice
+    );
+
+    const allImages = newNoticeList.flatMap(s => s.image);
+    updateBlock(id, { noticeList: newNoticeList });
+    updateImage(id, allImages);
   };
 
-  const handleItemDelete = (itemId: string) => {
-    const newItems = (items || []).filter(item => item.id !== itemId);
-    const newImages = newItems.map(s => s.image[0]);
-
-    updateBlock(id, {
-      items: newItems,
-      images: newImages,
-    });
-    updateImage(
-      id,
-      newImages.filter((f): f is File | string => !!f)
+  const handleDeleteNotice = (noticeId: string) => {
+    const newNoticeList = (noticeList || []).filter(
+      notice => notice.noticeId !== noticeId
     );
+    const newImages = newNoticeList.flatMap(s => s.image);
+    updateBlock(id, { noticeList: newNoticeList });
+    updateImage(id, newImages);
   };
 
   useEffect(() => {
-    if (!items || items.length === 0) {
-      handleAddItem();
+    if ((noticeList || []).length === 0) {
+      const initNotice = {
+        noticeId: crypto.randomUUID(),
+        notice: '',
+        content: {
+          messageJson: null,
+          messageHtml: null,
+        },
+        image: [] as (File | string)[],
+      };
+      updateBlock(id, { noticeList: [initNotice] });
     }
-  }, [handleAddItem, items]);
+  }, [id]);
 
   return (
-    <LeftEditorWrapper ariaLabel="공지사항">
+    <LeftEditorWrapper ariaLabel="공지사항" className="gap-3 pb-3">
       <NavigationBar
         action={
           <UtilityButton
@@ -163,7 +152,6 @@ export const Notice = ({ blockInfo, id }: Props) => {
             variant="primary"
             onClick={() => setIsNoticeListOpen(true)}
           >
-            <Plus size={16} />
             항목추가
           </UtilityButton>
         }
@@ -171,46 +159,71 @@ export const Notice = ({ blockInfo, id }: Props) => {
       >
         공지사항
       </NavigationBar>
-      <div className="flex flex-col gap-6 w-full">
+      <TextField
+        label="제목"
+        inputProps={{
+          placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+          value: title,
+          onChange: e => handleUpdateBlock('title', e.target.value),
+        }}
+        className="w-full text-center"
+      />
+      {checkedEnglishTitle && (
         <TextField
-          label="제목"
+          label="영문제목"
           inputProps={{
-            placeholder: '제목을 입력해 주세요',
-            value: title,
-            onChange: handleTitleChange,
+            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+            value: englishTitle,
+            onChange: e => handleUpdateBlock('englishTitle', e.target.value),
           }}
-          className="text-center"
+          className="text-center w-full pt-1"
         />
-        {(items || []).map((item, index) => (
-          <div key={item.id} className="flex flex-col">
-            {index !== 0 && (
-              <div className="flex flex-col items-center gap-1">
-                <div className="w-0.5 h-1 rounded-sm bg-text-secondary" />
-                <div className="w-0.5 h-1 rounded-sm bg-text-secondary" />
-              </div>
-            )}
+      )}
+      <section className="flex flex-row gap-2 items-center w-full">
+        <Label className="font-semibold">추가기능</Label>
+        <Checkbox
+          onChange={e =>
+            handleUpdateBlock('checkedEnglishTitle', e.target.checked)
+          }
+          checked={checkedEnglishTitle}
+        >
+          영문 제목 추가
+        </Checkbox>
+      </section>
+
+      <div className="flex flex-col gap-2 w-full">
+        {(noticeList || []).map((notice, index) => (
+          <div key={notice.noticeId} className="flex flex-col gap-1">
+            {index !== 0 && <Divider />}
             <NoticeItem
               id={id}
-              item={item}
-              noticeLength={blockInfo.props.items?.length || 0}
+              notice={notice}
+              noticeLength={(noticeList || []).length}
               editorResetKey={editorResetKey}
-              onEditorChange={json =>
-                handleItemEditorChange(item.id, json, items || [])
+              onNoticeChange={e =>
+                handleNoticeChange(e.target.value, notice.noticeId)
               }
-              onPictureChange={file => handleItemPictureChange(item.id, file)}
-              onPictureDelete={() => handleItemPictureDelete(item.id)}
-              onDelete={() => handleItemDelete(item.id)}
+              onEditorChange={json =>
+                handleNoticeEditorChange(notice.noticeId, json)
+              }
+              onPictureChange={file =>
+                handleNoticePictureChange(notice.noticeId, file)
+              }
+              onPictureDelete={() => handleNoticePictureDelete(notice.noticeId)}
+              onDelete={() => handleDeleteNotice(notice.noticeId)}
             />
           </div>
         ))}
       </div>
 
       {isNoticeListOpen && (
-        <PopupOptionsJSON
+        <PopupOptions
           popupTitle="항목 추가"
           options={NOTICE_LIST}
           onSelect={handleNoticeListSelect}
           onClose={() => setIsNoticeListOpen(false)}
+          listClassName="justify-center items-center"
+          textClassName="bg-bg-sub rounded-xl flex items-center px-4 h-13"
         />
       )}
     </LeftEditorWrapper>

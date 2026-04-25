@@ -10,7 +10,7 @@ import { MainPosterPreview } from '@/widgets/mainPoster/components/MainPosterPre
 import ComponentsPopup from './components/ComponentsPopup';
 import OrderPanel from './components/OrderPanel';
 import UploadButton from './components/UploadButton';
-import { previewTitleVariants } from './previewTitle.style';
+// import { previewTitleVariants } from './previewTitle.style';
 
 function Preview() {
   const [isTab, setIsTab] = useState(false);
@@ -75,7 +75,6 @@ function Preview() {
               const View = registryItem.viewComponent as React.ComponentType<{
                 blockInfo: typeof comp;
                 className: string;
-                titleClassName: string;
                 onClick: () => void;
               }>;
               return (
@@ -102,7 +101,7 @@ function Preview() {
           </div>
         </div>
       </div>
-      <div className="w-28 flex flex-col gap-4 absolute -right-43 top-1/2 -translate-y-1/2">
+      <div className="w-28 flex flex-col gap-4 absolute -right-43 top-1/2 -translate-y-1/2 z-10">
         <OrderPanel />
         <UploadButton />
       </div>

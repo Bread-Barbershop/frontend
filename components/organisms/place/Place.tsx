@@ -34,10 +34,12 @@ export function Place({ blockInfo, id }: Props) {
 
   const {
     title,
+    englishTitle,
     placeName,
     placeDetail,
     placeAddress,
     placeTel,
+    checkedEnglishTitle,
     openMap,
     openNavi,
     lng,
@@ -76,17 +78,30 @@ export function Place({ blockInfo, id }: Props) {
   return (
     <>
       <NaverMapScript onReady={() => setIsScriptLoaded(true)} />
-      <LeftEditorWrapper className="gap-4" ariaLabel="오시는 길">
-        <NavigationBar>오시는 길</NavigationBar>
-        <TextField
-          label="제목"
-          inputProps={{
-            placeholder: '오시는 길',
-            onChange: e => handleUpdateBlock('title', e.target.value),
-            value: title,
-          }}
-          className="w-full text-center"
-        />
+      <LeftEditorWrapper className="gap-4 pb-3" ariaLabel="오시는 길">
+        <div className="flex flex-col gap-1 w-full">
+          <NavigationBar>오시는 길</NavigationBar>
+          <TextField
+            label="제목"
+            inputProps={{
+              placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+              onChange: e => handleUpdateBlock('title', e.target.value),
+              value: title,
+            }}
+            className="w-full text-center"
+          />
+        </div>
+        {checkedEnglishTitle && (
+          <TextField
+            label="영문제목"
+            inputProps={{
+              placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+              value: englishTitle,
+              onChange: e => handleUpdateBlock('englishTitle', e.target.value),
+            }}
+            className="text-center w-full"
+          />
+        )}
         <section className="flex flex-row gap-2 w-full">
           <Label
             htmlFor="address"
@@ -95,6 +110,8 @@ export function Place({ blockInfo, id }: Props) {
             주소
           </Label>
           <Selector
+            type="normal"
+            className="w-[63px]"
             placeholder="국내"
             options={[
               { value: '국내', label: '국내' },
@@ -104,12 +121,17 @@ export function Place({ blockInfo, id }: Props) {
             selected={country ? { label: country, value: country } : null}
           />
           {openAddress && (
-            <Popup onClose={() => setOpenAddress(false)} popupTitle="주소 검색">
+            <Popup
+              onClose={() => setOpenAddress(false)}
+              popupTitle="주소 검색"
+              wrapperClassName="max-w-[480px] h-[640px]"
+            >
               <DaumPostcode
                 onComplete={data => {
                   searchAddress(data.address);
                 }}
                 autoClose={false}
+                style={{ height: '560px' }}
               />
             </Popup>
           )}
@@ -152,10 +174,18 @@ export function Place({ blockInfo, id }: Props) {
           }}
           className="w-full text-center"
         />
-        <section className="flex flex-row gap-1 items-center w-full">
-          <Label className="font-semibold">추가 기능</Label>
+        <section className="flex flex-row gap-2 items-center w-full">
+          <Label className="font-semibold">추가기능</Label>
           <div>
-            <div>
+            <div className="flex flex-row gap-2 items-center">
+              <Checkbox
+                onChange={e =>
+                  handleUpdateBlock('checkedEnglishTitle', e.target.checked)
+                }
+                checked={checkedEnglishTitle}
+              >
+                영문 제목 추가
+              </Checkbox>
               <Checkbox
                 direction="right"
                 onChange={() => handleUpdateBlock('openMap', !openMap)}
@@ -169,7 +199,7 @@ export function Place({ blockInfo, id }: Props) {
               onChange={() => handleUpdateBlock('openNavi', !openNavi)}
               checked={openNavi}
             >
-              내비 앱 바로가기 버튼(네이버, 카카오, 티맵)
+              내비 앱 바로가기 버튼(카카오,티맵,네이버)
             </Checkbox>
           </div>
         </section>

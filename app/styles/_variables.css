@@ -4,6 +4,8 @@
   --font-pretendard: var(--pretendard), sans-serif;
   --font-maruburi: 'MaruBuri', serif;
   --font-serif: 'MaruBuri', serif;
+  --font-inter: var(--inter), sans-serif;
+  --font-noto-kr: var(--noto-kr), sans-serif;
   /* text-base의 기본 크기를 13px로 변경 */
   --font-size-base: 13px;
   --font-size-base-line-height: 1.25rem; /* text-base의 기본 line-height를 1.25rem로 변경 */
@@ -14,7 +16,9 @@
     0 8px 24px 0 rgba(0, 0, 0, 0.06), 0 2px 10px rgba(0, 0, 0, 0.08);
   --shadow-btn-inner-white: inset 0 1px 2px 0 rgb(255 255 255 / 60%);
   --shadow-btn-drop-black: 0 2px 6px 0 rgb(0 0 0 / 8%);
-
+  --shadow-gallery-image:
+    0 30px 60px -16px rgb(11 18 32 / 8%), 0 10px -24px -6px rgb(11 18 32 / 8%),
+    0 1px 4px 0 rgb(11 18 32 / 5%);
   /* --- Brand --- */
   --color-primary: #1f72ef;
   --color-primary-hover: rgba(31, 114, 239, 0.08);

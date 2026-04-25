@@ -36,7 +36,6 @@ export const useInitData = ({
     setAudioFolderId,
     setBodyData,
     setTitleData,
-    setEngTitle,
     setBackgroundColor,
   } = useEditorStore(
     useShallow(state => ({
@@ -49,7 +48,6 @@ export const useInitData = ({
       setAudioFolderId: state.setAudioFolderId,
       setBodyData: state.setBodyData,
       setTitleData: state.setTitleData,
-      setEngTitle: state.setEngTitle,
       setBackgroundColor: state.setBackgroundColor,
     }))
   );
@@ -109,10 +107,9 @@ export const useInitData = ({
     if (bulkData) {
       setBodyData(bulkData.bodyData);
       setTitleData(bulkData.titleData);
-      setEngTitle(bulkData.isEngTitle);
       setBackgroundColor(bulkData.backgroundColor);
     }
-  }, [bulkData, setBodyData, setTitleData, setEngTitle, setBackgroundColor]);
+  }, [bulkData, setBodyData, setTitleData, setBackgroundColor]);
   return {
     initEditStore,
     initBgmStore,

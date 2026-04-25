@@ -7,6 +7,14 @@ export const interviewSchema = {
       default: '',
       required: true,
     },
+    checkedEnglishTitle: {
+      default: false,
+      required: true,
+    },
+    englishTitle: {
+      default: '',
+      required: false,
+    },
     questions: {
       default: [] as {
         questionId: string;
@@ -15,11 +23,8 @@ export const interviewSchema = {
           messageJson: JSONContent | null;
           messageHtml: string | null;
         };
+        image: (File | string)[];
       }[],
-      required: false,
-    },
-    image: {
-      default: [] as (File | string)[],
       required: false,
     },
   },

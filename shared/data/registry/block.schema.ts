@@ -7,9 +7,11 @@ import { greetingSchema } from '@/components/organisms/greeting/Greeting.schema'
 import { interviewSchema } from '@/components/organisms/interview/Interview.schema';
 import { myChildSchema } from '@/components/organisms/myChild/MyChild.schema';
 import { myFamilySchema } from '@/components/organisms/myFamily/MyFamily.schema';
+import { myFamilyWeddingSchema } from '@/components/organisms/myFamilyWedding/MyFamilyWedding.schema';
 import { noticeSchema } from '@/components/organisms/notice/Notice.schema';
 import { organizerInformationSchema } from '@/components/organisms/organizerInfo/OrganizerInformation.schema';
 import { phoneSchema } from '@/components/organisms/phone/Phone.schema';
+import { pictureSchema } from '@/components/organisms/picture/Picture.schema';
 import { placeSchema } from '@/components/organisms/place/Place.schema';
 import { shareUrlSchema } from '@/components/organisms/share-url/ShareUrl.schema';
 import { speakerInformationSchema } from '@/components/organisms/speakerInformation/SpeakerInformation.schema';
@@ -33,5 +35,7 @@ export const blockSchema = {
   speakerInformation: speakerInformationSchema,
   myChild: myChildSchema,
   myFamily: myFamilySchema,
+  myFamilyWedding: myFamilyWeddingSchema,
   sponsorshipInfomation: sponsorshipInfomationSchema,
+  picture: pictureSchema,
 } as const;

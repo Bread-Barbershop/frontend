@@ -1,10 +1,14 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type UseAuthGateOptions = {
   initialIsLoggedIn?: boolean;
+};
+
+type SessionResponse = {
+  isLoggedIn: boolean;
 };
 
 function openGoogleLoginPopup() {
@@ -21,6 +25,24 @@ function openGoogleLoginPopup() {
   );
 }
 
+async function fetchSessionState() {
+  const res = await fetch('/api/auth/session', {
+    method: 'GET',
+    cache: 'no-store',
+  });
+
+  if (res.status === 401) {
+    return false;
+  }
+
+  if (!res.ok) {
+    throw new Error(`session check failed: ${res.status}`);
+  }
+
+  const session = (await res.json()) as SessionResponse;
+  return session.isLoggedIn;
+}
+
 export function useAuthGate(options: UseAuthGateOptions = {}) {
   const { initialIsLoggedIn = false } = options;
   const router = useRouter();
@@ -33,6 +55,44 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
   const popupRef = useRef<Window | null>(null);
   const pendingActionRef = useRef<(() => void | Promise<void>) | null>(null);
 
+  const releaseLoginPending = useCallback(() => {
+    popupRef.current = null;
+    setIsLoginPending(false);
+  }, []);
+
+  const clearLoginAttempt = useCallback((closePopup = false) => {
+    const popup = popupRef.current;
+    popupRef.current = null;
+    setIsLoginPending(false);
+    setIsLoginOpen(false);
+    pendingActionRef.current = null;
+
+    if (closePopup && popup) {
+      try {
+        popup.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }, []);
+
+  const completeLoginSuccess = useCallback(() => {
+    popupRef.current = null;
+    setIsLoginPending(false);
+    setIsLoginOpen(false);
+    setIsLoggedIn(true);
+
+    const pendingAction = pendingActionRef.current;
+    pendingActionRef.current = null;
+
+    if (pendingAction) {
+      void Promise.resolve(pendingAction()).catch(console.error);
+      return;
+    }
+
+    router.refresh();
+  }, [router]);
+
   useEffect(() => {
     setIsLoggedIn(initialIsLoggedIn);
   }, [initialIsLoggedIn]);
@@ -42,62 +102,49 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
       if (event.origin !== window.location.origin) return;
 
       if (event.data?.type === 'GOOGLE_OAUTH_SUCCESS') {
-        popupRef.current = null;
-        setIsLoginPending(false);
-        setIsLoginOpen(false);
-        setIsLoggedIn(true);
-
-        const pendingAction = pendingActionRef.current;
-        pendingActionRef.current = null;
-
-        if (pendingAction) {
-          void Promise.resolve(pendingAction()).catch(console.error);
-          return;
-        }
-
-        router.refresh();
+        completeLoginSuccess();
         return;
       }
 
       if (event.data?.type === 'GOOGLE_OAUTH_ERROR') {
-        popupRef.current = null;
-        setIsLoginPending(false);
-        pendingActionRef.current = null;
+        clearLoginAttempt();
       }
     };
 
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
-  }, [router]);
+  }, [clearLoginAttempt, completeLoginSuccess]);
 
   useEffect(() => {
     if (!isLoginPending) return;
 
-    const intervalId = window.setInterval(() => {
-      const popup = popupRef.current;
-      if (!popup || popup.closed) {
-        popupRef.current = null;
-        setIsLoginPending(false);
-        pendingActionRef.current = null;
+    const handleFocus = async () => {
+      try {
+        if (await fetchSessionState()) {
+          completeLoginSuccess();
+          return;
+        }
+      } catch (err) {
+        console.error(err);
       }
-    }, 300);
 
-    return () => window.clearInterval(intervalId);
-  }, [isLoginPending]);
+      releaseLoginPending();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [completeLoginSuccess, isLoginPending, releaseLoginPending]);
 
   const login = () => {
     setIsLoginOpen(true);
   };
 
   const closeLogin = () => {
-    if (isLoginPending) return;
-
-    setIsLoginOpen(false);
-    pendingActionRef.current = null;
+    clearLoginAttempt(true);
   };
 
   const loginWithGoogle = () => {
-    if (popupRef.current && !popupRef.current.closed) {
+    if (popupRef.current) {
       popupRef.current.focus();
       return;
     }
@@ -111,22 +158,15 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
 
   const validateSession = async () => {
     try {
-      const res = await fetch('/api/auth/session', {
-        method: 'GET',
-        cache: 'no-store',
-      });
+      const isSessionValid = await fetchSessionState();
 
-      if (res.status === 401) {
+      if (!isSessionValid) {
         pendingActionRef.current = null;
         setIsLoggedIn(false);
         setIsLoginOpen(false);
         router.replace('/');
         router.refresh();
         return false;
-      }
-
-      if (!res.ok) {
-        throw new Error(`session check failed: ${res.status}`);
       }
 
       setIsLoggedIn(true);

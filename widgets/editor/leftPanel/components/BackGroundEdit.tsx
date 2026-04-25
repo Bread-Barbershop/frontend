@@ -50,7 +50,7 @@ function BackGroundEdit() {
           </div>
         </div>
         {colorPickerOpen && (
-          <div className="absolute z-50 top-13.5 -left-2">
+          <div className="absolute z-50 -top-35 -translate-y-1/2 -left-2">
             <SimpleWheelColorPicker
               initialHex={backgroundColor}
               onClose={() => setColorPickerOpen(false)}

@@ -17,12 +17,21 @@ function RightPanel() {
     }))
   );
   const { typeArray } = useComponentType({ block, selectedId });
+
+  const [prevTypeArray, setPrevTypeArray] = useState(typeArray);
   const [tab, setTab] = useState(
-    !typeArray || typeArray.length === 0 ? 'poster' : 'type'
+    typeArray && typeArray.length > 0 ? 'type' : 'poster'
   );
 
+  if (typeArray !== prevTypeArray) {
+    setPrevTypeArray(typeArray);
+    setTab(typeArray && typeArray.length > 0 ? 'type' : 'poster');
+  }
+
   return (
-    <div className="w-93.75 h-203 mr-15 flex flex-col gap-5">
+    <div
+      className={`${selectedId !== 'mainPoster' && (!typeArray || typeArray.length === 0) ? 'invisible' : 'visible'} 'w-93.75 h-203 mr-15 flex flex-col gap-5'`}
+    >
       <div className="w-93.75 min-h-0 flex-1 bg-white rounded-lg shadow-edit flex-center flex-col gap-3 px-5 ">
         <div className="w-full">
           <button
@@ -34,7 +43,7 @@ function RightPanel() {
           </button>
           <button
             type="button"
-            className={`w-41.75 h-11 font-semibold ${typeArray ? 'pointer-events-auto' : 'pointer-events-none'} ${tab === 'type' ? 'border-b text-text-primary' : 'text-text-tertiary'}`}
+            className={`w-41.75 h-11 font-semibold ${typeArray && typeArray.length > 0 ? 'pointer-events-auto' : 'pointer-events-none'} ${tab === 'type' ? 'border-b text-text-primary' : 'text-text-tertiary'}`}
             onPointerDown={() => setTab('type')}
           >
             타입

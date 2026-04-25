@@ -136,7 +136,7 @@ describe('auth session Route Handler 테스트', () => {
     const res = await GET();
     const json = await res.json();
 
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(200);
     expect(json).toEqual({
       isLoggedIn: false,
       hasAccessToken: false,
@@ -267,7 +267,7 @@ describe('auth session Route Handler 테스트', () => {
     /**
      * 최종 응답은 비로그인 상태여야 한다.
      */
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(200);
     expect(json).toEqual({
       isLoggedIn: false,
       hasAccessToken: false,

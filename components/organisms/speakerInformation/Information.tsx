@@ -1,10 +1,10 @@
 import { ChangeEvent } from 'react';
 
-import { UtilityButton } from '@/components/atoms/button/UtilityButton';
+import { ActionField } from '@/components/molecules/action-field/ActionField';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { Picture } from '@/components/molecules/picture/Picture';
 import { TextEditor } from '@/components/molecules/text-editor/TextEditor';
-import { TextField } from '@/components/molecules/text-field';
+import { cn } from '@/shared/utils/cn';
 
 import type { JSONContent } from '@tiptap/react';
 
@@ -35,31 +35,23 @@ export const Information = ({
 }: Props) => {
   return (
     <section className="flex flex-col gap-1">
-      <NavigationBar
-        action={
-          speakerLength > 1 && (
-            <UtilityButton
-              size="sm"
-              variant="danger"
-              onClick={onDelete}
-              className="text-red-500 hover:text-red-700 hover:bg-red-50"
-            >
-              삭제
-            </UtilityButton>
-          )
-        }
-      >
-        내용
-      </NavigationBar>
-      <TextField
+      <ActionField
         label="이름"
         inputProps={{
-          placeholder: '연사자 성함',
+          placeholder: '성함을 입력해 주세요.',
           value: speaker.name,
           onChange: e => onStringChange('name', e),
         }}
-        className="text-center w-full"
+        className="w-full text-center"
+        buttonProps={{
+          onClick: onDelete,
+          children: <p className="text-red-500">삭제</p>,
+          className: cn(
+            speakerLength > 1 ? 'block border-none w-[32px]' : 'hidden'
+          ),
+        }}
       />
+      <NavigationBar>내용</NavigationBar>
 
       <TextEditor
         value={speaker.messageJson}
@@ -69,8 +61,8 @@ export const Information = ({
       />
 
       <Picture
-        label="연사자 사진"
-        className="w-full"
+        label="사진"
+        className="w-full text-center"
         multiple={false}
         value={speaker.image}
         onChange={onPictureChange}

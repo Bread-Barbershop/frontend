@@ -1,4 +1,5 @@
 import { Image } from '@/components/atoms/image';
+import Flower from '@/shared/assets/icons/flower.svg';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 
 interface Props {
@@ -6,11 +7,12 @@ interface Props {
     relation: string;
     name: string;
     image: (File | string)[];
+    flower: boolean;
   };
 }
 
 export const MemberPreview = ({ member }: Props) => {
-  const { image, relation, name } = member;
+  const { image, relation, name, flower } = member;
   const preview = useResolvedImageSource(
     image && image.length > 0 ? image[0] : null
   );
@@ -21,8 +23,8 @@ export const MemberPreview = ({ member }: Props) => {
           <Image src={preview} alt="가족 사진" fill className="object-cover" />
         </div>
       )}
-      <p className="text-[16px] font-semibold text-center">
-        {relation} {name}
+      <p className="flex items-center gap-1 text-[16px] font-semibold text-center">
+        {relation} {flower ? <Flower /> : ''} {name}
       </p>
     </>
   );

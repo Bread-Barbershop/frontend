@@ -62,7 +62,6 @@ type InvitationPayload = {
 
 type BulkJson = {
   backgroundColor: string;
-  isEngTitle: boolean;
   titleData: BulkData;
   bodyData: BulkData;
 };
@@ -295,6 +294,11 @@ export async function saveInvitationFlow(params: {
         images?: (string | File)[];
         showLocationButton: boolean;
         showShareButton: boolean;
+        locationInfo?: {
+          lat: number;
+          lng: number;
+          placeName: string;
+        };
       };
 
       // 이미지 파일 ID 추출 (업로드된 Drive 파일 ID)
@@ -317,6 +321,7 @@ export async function saveInvitationFlow(params: {
             showLocationButton: shareProps.showLocationButton,
             showShareButton: shareProps.showShareButton,
             invitationUrl,
+            locationInfo: shareProps.locationInfo,
           },
         }),
       });

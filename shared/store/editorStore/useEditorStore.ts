@@ -26,7 +26,6 @@ export const selectUploadData = (state: EditorState) => ({
   imageFolderId: state.imageFolderId,
   audioFolderId: state.audioFolderId,
   backgroundColor: state.backgroundColor,
-  isEngTitle: state.isEngTitle,
   titleData: state.titleData,
   bodyData: state.bodyData,
   setInvitationFolderId: state.setInvitationFolderId,

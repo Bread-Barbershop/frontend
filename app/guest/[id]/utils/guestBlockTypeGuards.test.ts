@@ -51,7 +51,6 @@ const validPayload = {
   },
   bulkData: {
     backgroundColor: '#ffffff',
-    isEngTitle: false,
     titleData: {
       font: 'Inter',
       fontSize: '24px',
@@ -173,15 +172,13 @@ describe('isGuestPayload 테스트', () => {
   it('bulkData 구조가 잘못되면 false를 반환한다', () => {
     /**
      * 목적:
-     * bulkData는 backgroundColor, isEngTitle, titleData, bodyData를 가져야 한다.
-     * 여기서는 isEngTitle을 string으로 바꿔 invalid payload를 만든다.
+     * bulkData는 backgroundColor, titleData, bodyData를 가져야 한다.
      */
 
     const invalidPayload = {
       ...validPayload,
       bulkData: {
         ...validPayload.bulkData,
-        isEngTitle: 'false',
       },
     };
 

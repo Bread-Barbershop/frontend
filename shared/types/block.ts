@@ -93,12 +93,10 @@ export interface DriveSlice {
   setImageFolderId: (id: string) => void;
 }
 export interface BulkSlice {
-  isEngTitle: boolean;
   titleData: BulkData;
   bodyData: BulkData;
   backgroundColor: string;
   setBackgroundColor: (color: string) => void;
-  setEngTitle: (isEngTitle: boolean) => void;
   setTitleData: (data: BulkData) => void;
   setBodyData: (data: BulkData) => void;
 }

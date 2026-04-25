@@ -15,7 +15,6 @@
   .shadow-btn-drop-black {
     box-shadow: 0 2px 6px 0 rgb(0 0 0 / 8%);
   }
-
   .cursor-inherit {
     cursor: inherit;
   }
@@ -25,24 +24,36 @@
   }
 
   .textarea-custom-scrollbar::-webkit-scrollbar {
-    width: 10px;
+    width: 7px;
   }
 
   .textarea-custom-scrollbar::-webkit-scrollbar-track {
-    background-color: #e5e5e8;
     border-radius: 100vw !important;
-
-    border: 2px solid transparent;
-    background-clip: padding-box;
   }
-
   .textarea-custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: black;
+    background-color: #444444;
     border-radius: 100vw;
-    border: 2px solid transparent;
+    border: 1px solid transparent;
+    border-color: #d9d9d9;
     background-clip: padding-box;
   }
-
+  .edit-custom-scrollbar {
+    scrollbar-gutter: stable;
+    overflow-y: auto;
+  }
+  .edit-custom-scrollbar::-webkit-scrollbar {
+    width: 7px;
+  }
+  .edit-custom-scrollbar::-webkit-scrollbar-track {
+    border-radius: 100vw !important;
+  }
+  .edit-custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #a9a9a9;
+    border-radius: 100vw;
+    border: 1px solid transparent;
+    border-color: #d9d9d9;
+    background-clip: padding-box;
+  }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
@@ -92,5 +103,50 @@
 @media (prefers-reduced-motion: reduce) {
   .animate-eq {
     animation: none;
+  }
+}
+
+@layer components {
+  .embla__slide {
+    @apply transition-all duration-500 ease-out;
+    transform-origin: bottom center; /* 회전축을 아래로 */
+    /* 기본 (멀리 있는 슬라이드, ±3 이상) */
+    @apply opacity-70 z-[1];
+    transform: scale(0.6) translateY(20px) rotate(0deg);
+  }
+
+  /* 보이지만 스냅 안 된 슬라이드 기본값 (덮어쓰기 방지용) */
+  .embla__slide.is-in-view:not(.is-snapped) {
+    @apply opacity-100 z-[2];
+  }
+
+  /* 중앙: 스냅된 슬라이드 */
+  .embla__slide.is-snapped {
+    @apply opacity-100 z-20;
+    transform: scale(1) translateY(0) rotate(0deg);
+  }
+
+  /* 우측 인접 (±1) */
+  .embla__slide.is-snapped + .embla__slide {
+    @apply z-10;
+    transform: scale(0.9) translateY(8px) rotate(10deg);
+  }
+
+  /* 좌측 인접 (±1) */
+  .embla__slide:has(+ .embla__slide.is-snapped) {
+    @apply z-10;
+    transform: scale(0.9) translateY(8px) rotate(-10deg);
+  }
+
+  /* 우측 끝 (±2) */
+  .embla__slide.is-snapped + .embla__slide + .embla__slide {
+    @apply z-[5];
+    transform: scale(0.75) translateY(20px) rotate(20deg);
+  }
+
+  /* 좌측 끝 (±2) */
+  .embla__slide:has(+ .embla__slide + .embla__slide.is-snapped) {
+    @apply z-[5];
+    transform: scale(0.75) translateY(20px) rotate(-20deg);
   }
 }

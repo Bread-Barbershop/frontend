@@ -5,15 +5,14 @@ import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePrevi
 import { useResolvedImageSources } from '@/shared/hooks/useResolvedImageSources';
 import { EditorBlock } from '@/shared/types/block';
 
-import ImageCarousel from './components/ImageCarousel';
+import { GalleryTemplate } from './components';
 import ImageDefault from './components/ImageDefault';
-import ImageGrid from './components/ImageGrid';
 import { GalleryVariant, RatioType } from './types/galleryType';
 
 interface Props {
   blockInfo: EditorBlock<'gallery'>;
   className: string;
-  titleClassName: string;
+  titleClassName?: string;
   onClick: () => void;
 }
 
@@ -38,6 +37,8 @@ function GalleryPreview({
       setIsOpen(true);
     }
   };
+  const TemplateComponent =
+    GalleryTemplate[variant] || GalleryTemplate['galleryType1'];
 
   return (
     <MiddlePreviewWrapper
@@ -48,26 +49,13 @@ function GalleryPreview({
       {...rest}
     >
       {preview.length === 0 && <ImageDefault />}
-      {preview.length !== 0 &&
-        (variant === 'galleryType1' ||
-        variant === 'galleryType2' ||
-        variant === 'galleryType3' ||
-        variant === 'galleryType4' ||
-        variant === 'galleryType5' ? (
-          <ImageCarousel
-            preview={preview}
-            variant={variant}
-            ratio={ratio}
-            imageClick={handleImageClick}
-          />
-        ) : (
-          <ImageGrid
-            variant={variant}
-            preview={preview}
-            ratio={ratio}
-            imageClick={handleImageClick}
-          />
-        ))}
+      {preview.length !== 0 && (
+        <TemplateComponent
+          preview={preview}
+          ratio={ratio}
+          imageClick={handleImageClick}
+        />
+      )}
 
       {blockInfo.props.isPopupViewer && (
         <PicturePopViewer

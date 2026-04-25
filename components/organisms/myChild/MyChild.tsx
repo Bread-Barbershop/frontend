@@ -1,9 +1,12 @@
 import { Plus } from 'lucide-react';
 import { useState, useMemo, useEffect, ChangeEvent } from 'react';
+import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
+import { Divider } from '@/components/atoms/divider/Divider';
 import { Input } from '@/components/atoms/input/Input';
 import { Label } from '@/components/atoms/label/Label';
+import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { Picture } from '@/components/molecules/picture/Picture';
 import { TextEditor } from '@/components/molecules/text-editor';
@@ -46,7 +49,21 @@ function createParagraphJson(text: string): JSONContent {
 }
 
 export const MyChild = ({ blockInfo, id }: Props) => {
-  const updateBlock = useEditorStore(state => state.updateBlock);
+  const { updateBlock, updateImage } = useEditorStore(
+    useShallow(state => ({
+      updateBlock: state.updateBlock,
+      updateImage: state.updateImage,
+    }))
+  );
+  const {
+    checkedEnglishTitle,
+    englishTitle,
+    name,
+    nickname,
+    birthday,
+    messageJson,
+    image,
+  } = blockInfo.props;
   const [isSamplePopupOpen, setIsSamplePopupOpen] = useState(false);
   const [editorResetKey, setEditorResetKey] = useState(0);
   const debouncedUpdateMessage = useMemo(
@@ -67,10 +84,26 @@ export const MyChild = ({ blockInfo, id }: Props) => {
   }, [debouncedUpdateMessage]);
 
   const handleStringChange = (
-    type: 'title' | 'name' | 'nickname' | 'birthday',
+    type: 'title' | 'englishTitle' | 'name' | 'nickname',
     e: ChangeEvent<HTMLInputElement>
   ) => {
     updateBlock(id, { [type]: e.target.value });
+  };
+
+  const handleBirthdayChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const numericValue = value.replace(/\D/g, '').slice(0, 8);
+    let formattedValue = '';
+
+    if (numericValue.length <= 4) {
+      formattedValue = numericValue;
+    } else if (numericValue.length <= 6) {
+      formattedValue = `${numericValue.slice(0, 4)}.${numericValue.slice(4)}`;
+    } else {
+      formattedValue = `${numericValue.slice(0, 4)}.${numericValue.slice(4, 6)}.${numericValue.slice(6)}`;
+    }
+
+    updateBlock(id, { birthday: formattedValue });
   };
 
   const handleEditorChange = (json: JSONContent) => {
@@ -90,9 +123,15 @@ export const MyChild = ({ blockInfo, id }: Props) => {
 
   const handlePictureChange = (file: (File | string)[]) => {
     updateBlock(id, { image: file });
+    updateImage(id, file);
   };
   const handlePictureDelete = () => {
     updateBlock(id, { image: [] });
+    updateImage(id, []);
+  };
+
+  const handleCheckedChange = (e: ChangeEvent<HTMLInputElement>) => {
+    updateBlock(id, { checkedEnglishTitle: e.target.checked });
   };
 
   return (
@@ -102,17 +141,29 @@ export const MyChild = ({ blockInfo, id }: Props) => {
         <TextField
           label="제목"
           inputProps={{
-            placeholder: '제목을 입력해주세요.',
+            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
             value: blockInfo.props.title,
             onChange: e => handleStringChange('title', e),
           }}
           className="text-center w-full"
         />
+        {checkedEnglishTitle && (
+          <TextField
+            label="영문제목"
+            inputProps={{
+              placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+              value: englishTitle,
+              onChange: e => handleStringChange('englishTitle', e),
+            }}
+            className="text-center w-full"
+          />
+        )}
+        <Divider className="w-full" />
         <TextField
           label="이름"
           inputProps={{
             placeholder: '아기 이름',
-            value: blockInfo.props.name,
+            value: name,
             onChange: e => handleStringChange('name', e),
           }}
           className="text-center w-full"
@@ -120,8 +171,8 @@ export const MyChild = ({ blockInfo, id }: Props) => {
         <TextField
           label="애칭"
           inputProps={{
-            placeholder: '콩이',
-            value: blockInfo.props.nickname,
+            placeholder: 'ex. 콩이',
+            value: nickname,
             onChange: e => handleStringChange('nickname', e),
           }}
           className="text-center w-full"
@@ -135,9 +186,9 @@ export const MyChild = ({ blockInfo, id }: Props) => {
           </Label>
           <Input
             id="birthday"
-            placeholder="2024.12.12"
-            value={blockInfo.props.birthday}
-            onChange={e => handleStringChange('birthday', e)}
+            placeholder="ex. 2024.12.12"
+            value={birthday}
+            onChange={handleBirthdayChange}
           />
         </div>
       </section>
@@ -149,8 +200,8 @@ export const MyChild = ({ blockInfo, id }: Props) => {
             variant="primary"
             onClick={() => setIsSamplePopupOpen(true)}
           >
-            <Plus size={16} />
             샘플문구
+            <Plus size={9} />
           </UtilityButton>
         }
         direction="right"
@@ -160,17 +211,17 @@ export const MyChild = ({ blockInfo, id }: Props) => {
 
       <TextEditor
         key={`${id}-${editorResetKey}`}
-        value={blockInfo.props.messageJson}
+        value={messageJson}
         defaultText="내용을 입력해 주세요"
         defaultAlign="center"
         onChange={handleEditorChange}
       />
 
       <Picture
-        label="아기 사진"
-        className="w-full"
+        label="사진"
+        className="w-full text-center"
         multiple={false}
-        value={blockInfo.props.image}
+        value={image}
         onChange={handlePictureChange}
         onDelete={handlePictureDelete}
       />
@@ -183,6 +234,16 @@ export const MyChild = ({ blockInfo, id }: Props) => {
           onClose={() => setIsSamplePopupOpen(false)}
         />
       )}
+      <section className="flex w-full -mx-2 gap-1 py-1.5">
+        <Label className="font-semibold">추가기능</Label>
+        <Checkbox
+          className="text-[13px]"
+          checked={checkedEnglishTitle}
+          onChange={handleCheckedChange}
+        >
+          영문 제목 추가
+        </Checkbox>
+      </section>
     </LeftEditorWrapper>
   );
 };

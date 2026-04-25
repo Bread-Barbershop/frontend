@@ -14,14 +14,14 @@ import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
 import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissionWithRetry';
 
 /**
- * POST: 카카오 공유 데이터를 kakao-share.json에 저장 (생성 또는 업데이트)
+ * POST: 카카오 공유 데이터를 kakao-share.json에 저장합니다. (생성 또는 업데이트)
  *
  * Body: { invitationFolderId: string, shareData: KakaoSharePayload }
  *
  * 흐름:
- * 1. ensureKakaoShareFile로 파일 확보 (없으면 생성)
- * 2. 내용 업데이트
- * 3. 공개 권한 설정
+ * 1. ensureKakaoShareFile로 파일 정보를 확보합니다. (없으면 생성)
+ * 2. 내용을 업데이트합니다.
+ * 3. 공개 권한을 설정합니다.
  */
 export async function POST(req: Request) {
   try {
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // 1) 파일 확보 시도 (검색만 수행)
+    // 1) 파일 정보 시도 (검색만 수행)
     const { shareUrlFileId } = await ensureShareUrlFile(invitationFolderId);
 
     // 2) 파일이 없으면 새로 생성, 있으면 업데이트
@@ -81,74 +81,38 @@ export async function POST(req: Request) {
 }
 
 /**
- * GET: invitationFolderId로 kakao-share.json 조회
+ * GET: invitationFolderId로 kakao-share.json을 조회합니다.
  *
  * Query: ?invitationFolderId=<folderId>
  *
  * 흐름:
- * 1. ensureKakaoShareFile로 파일 ID 확보
- * 2. 파일 내용 다운로드
+ * 1. invitationFolderId가 있으면 해당 초대장 폴더에서 kakao-share.json 파일 ID를 찾습니다.
+ * 2. invitationFolderId가 없으면 기존 test 페이지 호환을 위해 전역에서 가장 최근 파일을 찾습니다.
+ * 3. 파일 내용을 다운로드합니다.
  */
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    //  드라이브 전체에서 이름이 kakao-share.json인 파일을 직접 검색 (가장 최근 수정된 1개)
-    const query = [
-      `trashed=false`,
-      `appProperties has { key='app_id' and value='Bread-Barbershop' }`,
-      `appProperties has { key='kind' and value='kakao_share_json' }`,
-      `name='kakao-share.json'`,
-    ].join(' and ');
+    const { searchParams } = new URL(req.url);
+    const invitationFolderId = searchParams.get('invitationFolderId')?.trim();
 
-    const searchParams = new URLSearchParams({
-      q: query,
-      spaces: 'drive',
-      fields: 'files(id)',
-      orderBy: 'modifiedTime desc',
-      pageSize: '1',
-    });
+    const shareUrlFileId = invitationFolderId
+      ? await getShareUrlFileIdByInvitationFolderId(invitationFolderId)
+      : await getLatestShareUrlFileId();
 
-    const searchResponse = await googleFetch(
-      `https://www.googleapis.com/drive/v3/files?${searchParams.toString()}`,
-      { cache: 'no-store' }
-    );
-
-    if (!searchResponse.ok) {
-      return NextResponse.json(
-        { ok: false, error: 'kakao-share.json 전역 검색 실패' },
-        { status: searchResponse.status }
-      );
-    }
-
-    const searchData = await searchResponse.json();
-    if (!searchData.files || searchData.files.length === 0) {
+    if (!shareUrlFileId) {
       return NextResponse.json(
         {
           ok: false,
-          error:
-            '드라이브 내에 kakao-share.json 파일이 존재하지 않습니다. 먼저 저장해주세요.',
+          error: invitationFolderId
+            ? '해당 초대장 폴더에 kakao-share.json 파일이 존재하지 않습니다. 먼저 저장해주세요.'
+            : '드라이브 내에 kakao-share.json 파일이 존재하지 않습니다. 먼저 저장해주세요.',
         },
         { status: 404 }
       );
     }
 
-    const shareUrlFileId = searchData.files[0].id;
-
-    // 3) 내용 다운로드
-    const res = await googleFetch(
-      `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(
-        shareUrlFileId
-      )}?alt=media`,
-      { cache: 'no-store' }
-    );
-
-    if (!res.ok) {
-      return NextResponse.json(
-        { ok: false, error: '파일 조회 실패' },
-        { status: res.status }
-      );
-    }
-
-    const data = await res.json();
+    // 3) 파일 내용 다운로드
+    const data = await loadShareUrlFileData(shareUrlFileId);
 
     return NextResponse.json({ ok: true, shareUrlFileId, data });
   } catch (err) {
@@ -166,6 +130,78 @@ export async function GET() {
       { status: 500 }
     );
   }
+}
+
+/**
+ * 전용 헬퍼: 초대장 폴더 기준으로 kakao-share.json 파일 ID를 찾습니다.
+ */
+async function getShareUrlFileIdByInvitationFolderId(
+  invitationFolderId: string
+): Promise<string | null> {
+  const { shareUrlFileId } = await ensureShareUrlFile(invitationFolderId);
+  return shareUrlFileId;
+}
+
+/**
+ * 전용 헬퍼: 기존 test 페이지 호환을 위해 전역에서 가장 최근 kakao-share.json 파일 ID를 찾습니다.
+ */
+async function getLatestShareUrlFileId(): Promise<string | null> {
+  const query = [
+    `trashed=false`,
+    `appProperties has { key='app_id' and value='Bread-Barbershop' }`,
+    `appProperties has { key='kind' and value='kakao_share_json' }`,
+    `name='kakao-share.json'`,
+  ].join(' and ');
+
+  const searchParams = new URLSearchParams({
+    q: query,
+    spaces: 'drive',
+    fields: 'files(id)',
+    orderBy: 'modifiedTime desc',
+    pageSize: '1',
+  });
+
+  const searchResponse = await googleFetch(
+    `https://www.googleapis.com/drive/v3/files?${searchParams.toString()}`,
+    { cache: 'no-store' }
+  );
+
+  const searchData = (await searchResponse.json().catch(() => ({}))) as {
+    files?: Array<{ id?: string }>;
+    error?: unknown;
+  };
+
+  if (!searchResponse.ok) {
+    throw new DriveHttpError(
+      'kakao-share.json 전역 검색 실패',
+      searchResponse.status,
+      searchData
+    );
+  }
+
+  return searchData.files?.[0]?.id ?? null;
+}
+
+/**
+ * 전용 헬퍼: kakao-share.json 파일 내용을 다운로드합니다.
+ */
+async function loadShareUrlFileData(fileId: string) {
+  const res = await googleFetch(
+    `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(
+      fileId
+    )}?alt=media`,
+    { cache: 'no-store' }
+  );
+
+  if (!res.ok) {
+    throw new DriveHttpError(
+      '파일 조회 실패',
+      res.status,
+      await res.json().catch(() => ({}))
+    );
+  }
+
+  return res.json();
 }
 
 /**
@@ -202,13 +238,13 @@ async function createShareUrlFile(
     );
   }
 
-  // 2) 생성된 ID에 실제 데이터 쓰기 (PATCH)
+  // 2) 생성된 ID에 실제 데이터를 씁니다. (PATCH)
   await updateShareUrlFile(created.id, shareData);
   return created.id;
 }
 
 /**
- * 전용 헬퍼: 기존 kakao-share.json 내용 업데이트
+ * 전용 헬퍼: 기존 kakao-share.json 내용을 업데이트합니다.
  */
 async function updateShareUrlFile(
   fileId: string,

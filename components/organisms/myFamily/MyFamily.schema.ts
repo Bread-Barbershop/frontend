@@ -7,11 +7,11 @@ export const myFamilySchema = {
       default: '',
       required: false,
     },
-    checkedImage: {
-      default: false,
+    englishTitle: {
+      default: '',
       required: false,
     },
-    checkedTitle: {
+    checkedEnglishTitle: {
       default: false,
       required: false,
     },
@@ -25,6 +25,7 @@ export const myFamilySchema = {
         relation: string;
         name: string;
         image: (File | string)[];
+        flower: boolean;
       }[],
       required: false,
     },

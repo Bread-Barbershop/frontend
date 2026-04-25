@@ -6,6 +6,20 @@ export type InviteListItem = {
   publishedUrl?: string | null;
 };
 
+export type KakaoShareData = {
+  title: string;
+  description: string;
+  imageFileId?: string;
+  showLocationButton: boolean;
+  showShareButton: boolean;
+  invitationUrl?: string;
+  locationInfo?: {
+    lat: number;
+    lng: number;
+    placeName: string;
+  };
+};
+
 export type LoadInvitationResponse = {
   workspaceFolderId: string | null;
   invites: InviteListItem[];

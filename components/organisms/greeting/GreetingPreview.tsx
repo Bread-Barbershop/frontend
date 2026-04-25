@@ -8,7 +8,7 @@ import type { HTMLAttributes } from 'react';
 interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'greeting'>;
   className: string;
-  titleClassName: string;
+  titleClassName?: string;
 }
 
 function GreetingPreview({

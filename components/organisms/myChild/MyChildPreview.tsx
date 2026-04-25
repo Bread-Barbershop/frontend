@@ -7,7 +7,7 @@ import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
 
 interface Props {
   className: string;
-  titleClassName: string;
+  titleClassName?: string;
   blockInfo: EditorBlock<'myChild'>;
 }
 
@@ -15,8 +15,17 @@ export const MyChildPreview = ({
   className,
   titleClassName,
   blockInfo,
+  ...rest
 }: Props) => {
-  const { title, name, nickname, birthday, image } = blockInfo.props;
+  const {
+    title,
+    name,
+    nickname,
+    birthday,
+    image,
+    checkedEnglishTitle,
+    englishTitle,
+  } = blockInfo.props;
   const html =
     blockInfo.props.messageHtml ??
     tiptapJsonToHtmlUniversal(blockInfo.props.messageJson);
@@ -27,20 +36,18 @@ export const MyChildPreview = ({
   return (
     <MiddlePreviewWrapper
       className={className}
-      enTitle="MY CHILD"
+      checkedEnglishTitle={checkedEnglishTitle}
+      enTitle={englishTitle}
+      enTitleDefault="MY CHILD"
       koTitle={title}
+      koTitleDefault={`${name}의 첫번째 생일`}
       titleClassName={titleClassName}
       childClassName="w-full flex flex-col gap-6"
+      {...rest}
     >
       {preview && (
-        <div className="w-83.75 h-83.75 overflow-hidden rounded-3xl">
-          <Image
-            src={preview}
-            alt="아기 사진"
-            width={335}
-            height={335}
-            className="object-cover"
-          />
+        <div className="relative w-full aspect-square overflow-hidden rounded-3xl">
+          <Image src={preview} alt="아기 사진" fill className="object-cover" />
         </div>
       )}
       <section className="grid grid-cols-[1fr_2fr_1fr] w-full items-center gap-10 text-text-primary">

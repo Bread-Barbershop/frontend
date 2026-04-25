@@ -33,7 +33,6 @@ export type GuestPayload = {
 
 export type BulkJson = {
   backgroundColor: string;
-  isEngTitle: boolean;
   titleData: BulkData;
   bodyData: BulkData;
 };

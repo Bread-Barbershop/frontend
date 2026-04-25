@@ -64,17 +64,6 @@ function CharSpacing({
           />
         </div>
       </div>
-
-      {/* 미리보기 */}
-      <div
-        className="mt-4 p-4 border"
-        style={{
-          letterSpacing: `${charSpacing / 100}em`,
-          lineHeight: `${lineHeight / 100}`,
-        }}
-      >
-        미리보기 텍스트입니다
-      </div>
     </div>
   );
 }
