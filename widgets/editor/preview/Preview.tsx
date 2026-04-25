@@ -10,7 +10,7 @@ import { MainPosterPreview } from '@/widgets/mainPoster/components/MainPosterPre
 import ComponentsPopup from './components/ComponentsPopup';
 import OrderPanel from './components/OrderPanel';
 import UploadButton from './components/UploadButton';
-// import { previewTitleVariants } from './previewTitle.style';
+import { previewTitleVariants } from './previewTitle.style';
 
 function Preview() {
   const [isTab, setIsTab] = useState(false);
@@ -75,6 +75,7 @@ function Preview() {
               const View = registryItem.viewComponent as React.ComponentType<{
                 blockInfo: typeof comp;
                 className: string;
+                titleClassName: string;
                 onClick: () => void;
               }>;
               return (
