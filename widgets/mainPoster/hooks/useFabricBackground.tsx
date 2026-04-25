@@ -36,6 +36,18 @@ export const useFabricBackground = ({ canvas, saveHistory }: Props) => {
       if (existingBg) {
         // 기존 배경이 있으면 소스만 교체
         await existingBg.setSrc(base64);
+        const scaleX = canvas.width / existingBg.width;
+        const scaleY = canvas.height / existingBg.height;
+        const scale = Math.max(scaleX, scaleY);
+        existingBg.set({
+          scaleX: scale,
+          scaleY: scale,
+          originX: 'center',
+          originY: 'center',
+          left: canvas.width / 2,
+          top: canvas.height / 2,
+        });
+        existingBg.setCoords();
         canvas.requestRenderAll();
         saveHistory();
         return;
