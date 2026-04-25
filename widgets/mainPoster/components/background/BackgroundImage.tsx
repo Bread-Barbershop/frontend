@@ -28,24 +28,15 @@ export const BackgroundImage = () => {
 
   const updateImageSrc = async () => {
     if (!canvas) return;
-    const activeObject = canvas.getActiveObject();
-    if (!activeObject || !(activeObject instanceof FabricImage)) {
-      // 배경 객체가 선택되어 있지 않다면 수동으로 찾아서 시도 (배경 탭 진입 시점 대비)
-      const bgObj = canvas
-        .getObjects()
-        .find(obj => obj.get('id') === 'background-layer') as FabricImage;
-      if (!bgObj) {
-        setImageSrc('');
-        return;
-      }
+    // 항상 배경 레이어를 타겟으로 함 (다른 객체가 선택되어도 프리뷰는 배경 유지)
+    const target = canvas
+      .getObjects()
+      .find(obj => obj.get('id') === 'background-layer') as FabricImage;
+
+    if (!target || !(target instanceof FabricImage)) {
+      setImageSrc('');
+      return;
     }
-
-    const target = (activeObject ||
-      canvas
-        .getObjects()
-        .find(obj => obj.get('id') === 'background-layer')) as FabricImage;
-
-    if (!target || !(target instanceof FabricImage)) return;
 
     // 1. 객체 복제 (원본 객체에 영향 주지 않기 위함)
     const clonedObject = await target.clone();
@@ -178,7 +169,16 @@ export const BackgroundImage = () => {
     options: PhotoPresetOptions,
     type: 'bw' | 'warm' | 'cool' | 'fade' | 'filmGrain' | 'vignette' | null
   ) => {
-    if (canvas) applyImageFilter(options, canvas, type);
+    if (canvas) {
+      // 배경 탭이므로 필터 적용 전 배경 레이어를 활성화하여 타겟팅 보장
+      const bgObj = canvas
+        .getObjects()
+        .find(obj => obj.get('id') === 'background-layer');
+      if (bgObj) {
+        canvas.setActiveObject(bgObj);
+      }
+      applyImageFilter(options, canvas, type);
+    }
     updateImageSrc();
   };
 
