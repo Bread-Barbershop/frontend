@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { FilterType } from '@/components/molecules/image-editor';
 
 import { PhotoPreset } from '../libs/customImage-filter';
-import { PhotoPresetOptions } from '../types/fabric';
+import { PhotoPresetOptions, FabricImageWithLock } from '../types/fabric';
 import { updateCropRatio } from '../utils/fabricUtils';
 
 interface Props {
@@ -23,6 +23,10 @@ export const useFabricImage = ({
   const autoCropHandlerRef = useRef<((opt: TPointerEventInfo) => void) | null>(
     null
   );
+  const escKeyHandlerRef = useRef<((e: KeyboardEvent) => void) | null>(null);
+  const documentClickHandlerRef = useRef<((e: MouseEvent) => void) | null>(
+    null
+  );
 
   //사진 보정 필터
   const applyImageFilter = (
@@ -30,6 +34,9 @@ export const useFabricImage = ({
     canvas: Canvas,
     type: FilterType
   ) => {
+    const activeObject = canvas.getActiveObject() as FabricImageWithLock;
+    if (!activeObject || activeObject.isLocked) return;
+
     const targetImage = isCropping
       ? (canvas
           .getObjects()
@@ -86,9 +93,9 @@ export const useFabricImage = ({
       return;
     }
 
-    const activeObject = canvas.getActiveObject();
-    if (!activeObject || !(activeObject instanceof FabricImage)) return;
-
+    const activeObject = canvas.getActiveObject() as FabricImageWithLock;
+    if (!activeObject || !activeObject.isType('image')) return;
+    if (activeObject.isLocked) return;
     setIsCropping(true);
 
     const img = activeObject;
@@ -168,7 +175,7 @@ export const useFabricImage = ({
       originX: 'center',
       originY: 'center',
       selectable: false,
-      evented: false,
+      evented: true,
       objectCaching: false,
       excludeFromExport: true,
     });
@@ -326,7 +333,7 @@ export const useFabricImage = ({
     zone.on('moving', constrainPosition);
     zone.on('scaling', constrainPosition);
 
-    // 자동 크롭 이벤트 (영역 외부 클릭 시)
+    // 캔버스 내부 클릭 시 크롭 적용 (크롭 박스 외부 클릭 시)
     const onMouseDown = (opt: TPointerEventInfo) => {
       const target = opt.target;
       if (!target || target !== cropZoneRef.current) {
@@ -335,6 +342,29 @@ export const useFabricImage = ({
     };
     autoCropHandlerRef.current = onMouseDown;
     canvas.on('mouse:down', onMouseDown);
+
+    // ESC 키 누를 시 크롭 취소
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        cancelCrop(canvas);
+      }
+    };
+    escKeyHandlerRef.current = onKeyDown;
+    document.addEventListener('keydown', onKeyDown);
+
+    // 캔버스 완전 외부 클릭 시 크롭 취소
+    const onDocumentMouseDown = (e: MouseEvent) => {
+      const canvasEl = canvas.getElement();
+      const container =
+        canvasEl.parentElement || canvasEl.closest('.canvas-container');
+
+      // 클릭된 대상이 캔버스 컨테이너 내부에 속하지 않는 경우 (진짜 캔버스 밖)
+      if (container && !container.contains(e.target as Node)) {
+        cancelCrop(canvas);
+      }
+    };
+    documentClickHandlerRef.current = onDocumentMouseDown;
+    document.addEventListener('mousedown', onDocumentMouseDown);
 
     canvas.add(darkOverlay, highlightImg, zone);
     canvas.setActiveObject(zone);
@@ -415,6 +445,14 @@ export const useFabricImage = ({
       canvas.off('mouse:down', autoCropHandlerRef.current);
       autoCropHandlerRef.current = null;
     }
+    if (escKeyHandlerRef.current) {
+      document.removeEventListener('keydown', escKeyHandlerRef.current);
+      escKeyHandlerRef.current = null;
+    }
+    if (documentClickHandlerRef.current) {
+      document.removeEventListener('mousedown', documentClickHandlerRef.current);
+      documentClickHandlerRef.current = null;
+    }
 
     setIsCropping(false);
     cropZoneRef.current = null;
@@ -452,6 +490,14 @@ export const useFabricImage = ({
     if (autoCropHandlerRef.current) {
       canvas.off('mouse:down', autoCropHandlerRef.current);
       autoCropHandlerRef.current = null;
+    }
+    if (escKeyHandlerRef.current) {
+      document.removeEventListener('keydown', escKeyHandlerRef.current);
+      escKeyHandlerRef.current = null;
+    }
+    if (documentClickHandlerRef.current) {
+      document.removeEventListener('mousedown', documentClickHandlerRef.current);
+      documentClickHandlerRef.current = null;
     }
 
     setIsCropping(false);

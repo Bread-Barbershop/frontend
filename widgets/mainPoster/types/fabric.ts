@@ -1,4 +1,24 @@
+import {
+  FabricObject as OriginalFabricObject,
+  Textbox as OriginalTextbox,
+  FabricImage as OriginalFabricImage,
+} from 'fabric';
+
+import { PhotoPresetOptions } from '@/components/molecules/image-editor';
+
 export type ShapeType = 'image' | 'text';
+
+export interface FabricObjectWithLock extends OriginalFabricObject {
+  isLocked?: boolean;
+}
+
+export interface TextboxWithLock extends OriginalTextbox {
+  isLocked?: boolean;
+}
+
+export interface FabricImageWithLock extends OriginalFabricImage {
+  isLocked?: boolean;
+}
 
 export interface BaseShape {
   id: string;
@@ -17,8 +37,6 @@ export interface BaseShape {
   borderDashArray?: number[]; // 테두리 점선 효과
   padding?: number; // 컨텐츠와 테두리 사이 여백
 }
-
-import { PhotoPresetOptions } from '@/components/molecules/image-editor';
 
 export type { PhotoPresetOptions };
 
@@ -96,6 +114,7 @@ export type DragPoints = {
 
 export interface ActiveObject {
   type: string | null;
+  isLocked: boolean;
   filters?: any;
   styles: Record<string, any>;
 }

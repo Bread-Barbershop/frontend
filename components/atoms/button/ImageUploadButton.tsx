@@ -1,16 +1,20 @@
 import { Plus } from 'lucide-react';
 import { ChangeEvent, forwardRef } from 'react';
 
+import { cn } from '@/shared/utils/cn';
+
 interface Props {
   onButtonClick: () => void;
   onInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  size?: number;
 }
 
 export const ImageUploadButton = forwardRef<HTMLInputElement, Props>(
-  ({ onButtonClick, onInputChange }, ref) => {
+  ({ onButtonClick, onInputChange, size = 335 }, ref) => {
     return (
       <div
-        className="flex-center size-[335px] border border-dashed cursor-pointer"
+        className={cn('flex-center border border-dashed cursor-pointer')}
+        style={{ width: size, height: size }}
         onClick={onButtonClick}
       >
         <Plus size={16} />

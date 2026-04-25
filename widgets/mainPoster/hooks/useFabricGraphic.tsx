@@ -1,83 +1,31 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Rect, Circle, Triangle, Canvas, PencilBrush } from 'fabric';
+import { Canvas, PencilBrush } from 'fabric';
 import { useRef } from 'react';
 
-import { DragPoints } from '../types/fabric';
-import { initDragHandler } from '../utils/fabricUtils';
-
-const shapeCreators = {
-  rect: (p: DragPoints, opts: any) =>
-    new Rect({
-      originX: 'left',
-      originY: 'top',
-      ...opts,
-      width: p.width,
-      height: p.height,
-    }),
-  circle: (p: DragPoints, opts: any) =>
-    new Circle({
-      originX: 'left',
-      originY: 'top',
-      ...opts,
-      radius: Math.max(p.width, p.height) / 2,
-    }),
-  triangle: (p: DragPoints, opts: any) =>
-    new Triangle({
-      originX: 'left',
-      originY: 'top',
-      ...opts,
-      width: p.width,
-      height: p.height,
-    }),
-};
-
 export const useFabricGraphic = () => {
-  const activeHandlerCleanup = useRef<(() => void) | null>(null);
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   const drawingListenerRef = useRef<((e: any) => void) | null>(null);
-
-  const addDiagram = (
-    canvas: Canvas,
-    type: keyof typeof shapeCreators,
-    options?: any
-  ) => {
-    // 기존 핸들러 있다면 제거 (중복 이벤트 방지)
-    if (activeHandlerCleanup.current) {
-      activeHandlerCleanup.current();
-      activeHandlerCleanup.current = null;
-    }
-
-    const cleanup = initDragHandler({
-      canvas,
-      onComplete: pointer => {
-        const creator = shapeCreators[type];
-        const shape = creator(pointer, {
-          left: pointer.left,
-          top: pointer.top,
-          stroke: 'black',
-          strokeWidth: 2,
-          ...options,
-        });
-        canvas.add(shape);
-        canvas.setActiveObject(shape);
-
-        // 완료 시 클린업 참조 해제
-        activeHandlerCleanup.current = null;
-      },
-      // initDragHandler 내부에서 onFinalize 같은 콜백이 있다면 거기서도 null 처리를 할 수 있지만,
-      // 현재 구조상 onComplete가 발생하면 이벤트가 해제되므로 여기서 null 처리.
-      // 만약 사용자가 드래그를 취소하거나 다른 도구를 선택했을 때도 정리되어야 하므로
-      // 새로운 addDiagram 호출 시 상단에서 cleanup을 먼저 호출하는 것이 핵심.
-    });
-
-    activeHandlerCleanup.current = cleanup;
-  };
 
   const toggleDrawingMode = (
     canvas: Canvas,
-    enable: boolean,
-    onFinish?: () => void
+    options: {
+      enable: boolean;
+      color?: string;
+      width?: number;
+      onFinish?: () => void;
+      autoDisable?: boolean;
+    }
   ) => {
+    const {
+      enable,
+      color = '#000000',
+      width = 5,
+      onFinish,
+      autoDisable = false,
+    } = options;
+
     canvas.isDrawingMode = enable;
+    canvas.defaultCursor = enable ? 'crosshair' : 'default';
+    canvas.hoverCursor = enable ? 'crosshair' : 'move';
 
     // 기존 리스너 제거
     if (drawingListenerRef.current) {
@@ -86,30 +34,32 @@ export const useFabricGraphic = () => {
     }
 
     if (enable) {
-      // 그리기 모드 활성화 시 기본 브러시 설정
-      if (!canvas.freeDrawingBrush) {
+      // 기본 브러시 설정
+      if (!(canvas.freeDrawingBrush instanceof PencilBrush)) {
         canvas.freeDrawingBrush = new PencilBrush(canvas);
       }
-      const currentBrushWidth = canvas.freeDrawingBrush.width || 5;
-      const currentBrushColor = canvas.freeDrawingBrush.color || '#000000';
 
-      canvas.freeDrawingBrush.width = currentBrushWidth;
-      canvas.freeDrawingBrush.color = currentBrushColor;
+      if (canvas.freeDrawingBrush) {
+        canvas.freeDrawingBrush.width = width;
+        canvas.freeDrawingBrush.color = color;
+      }
 
-      // 한 번 그리고 나면 그리기 모드 해제
-      const disableDrawingAfterPath = () => {
-        canvas.isDrawingMode = false;
-        if (onFinish) {
-          onFinish();
-        }
-        canvas.requestRenderAll();
-        // 실행 후 자기 자신 제거
-        canvas.off('path:created', disableDrawingAfterPath);
-        drawingListenerRef.current = null;
-      };
+      if (autoDisable) {
+        const disableDrawingAfterPath = () => {
+          canvas.isDrawingMode = false;
+          canvas.defaultCursor = 'default';
+          canvas.hoverCursor = 'move';
+          if (onFinish) {
+            onFinish();
+          }
+          canvas.requestRenderAll();
+          canvas.off('path:created', disableDrawingAfterPath);
+          drawingListenerRef.current = null;
+        };
 
-      drawingListenerRef.current = disableDrawingAfterPath;
-      canvas.on('path:created', disableDrawingAfterPath);
+        drawingListenerRef.current = disableDrawingAfterPath;
+        canvas.on('path:created', disableDrawingAfterPath);
+      }
     }
 
     canvas.requestRenderAll();
@@ -123,7 +73,6 @@ export const useFabricGraphic = () => {
   };
 
   return {
-    addDiagram,
     toggleDrawingMode,
     setBrushProperties,
   };

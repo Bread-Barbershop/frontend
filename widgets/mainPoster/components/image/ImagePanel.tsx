@@ -28,7 +28,14 @@ export const ImagePanel = () => {
   const updateImageSrc = async () => {
     if (!canvas) return;
     const activeObject = canvas.getActiveObject();
-    if (!activeObject || !(activeObject instanceof FabricImage)) {
+
+    // 선택된 객체가 없거나, FabricImage가 아니거나, 배경 레이어인 경우 프리뷰 비우기
+    if (
+      !activeObject ||
+      !(activeObject instanceof FabricImage) ||
+      activeObject.get('id') === 'background-layer'
+    ) {
+      setImageSrc('');
       return;
     }
 
