@@ -3,12 +3,11 @@
 import { useEffect } from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import LargeColorPicker from '@/components/molecules/color-picker/LargeColorPicker';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
-
-import ColorPicker from '../richtext/ColorPicker';
 
 export function GraphicPanel() {
   const { canvas, toggleDrawingMode } = useFabricContext();
@@ -51,7 +50,7 @@ export function GraphicPanel() {
     <LeftEditorWrapper ariaLabel="그리기 설정">
       <NavigationBar>그리기</NavigationBar>
 
-      <div className="flex flex-col gap-6 w-full py-2">
+      <div className="flex flex-col gap-6 w-full py-2 items-center">
         <section className="relative w-full">
           <div className="bg-bg-base">
             <div className="mb-2 text-center text-[13px] font-semibold text-text-primary">
@@ -83,9 +82,10 @@ export function GraphicPanel() {
           </div>
         </section>
 
-        <ColorPicker
-          onColorSelect={color => setDrawingConfig({ color })}
-          selectedColor={drawingConfig.color}
+        <LargeColorPicker
+          defaultValue={drawingConfig.color}
+          onChange={e => setDrawingConfig({ color: e.hex })}
+          className="border-none"
         />
       </div>
     </LeftEditorWrapper>

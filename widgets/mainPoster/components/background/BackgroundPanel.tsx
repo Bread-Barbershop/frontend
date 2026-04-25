@@ -20,7 +20,7 @@ export const BackgroundPanel = () => {
   return (
     <LeftEditorWrapper>
       <NavigationBar>배경</NavigationBar>
-      <div className="w-full flex items-center justify-center gap-2 pb-1.5">
+      <div className="flex w-full items-center justify-center gap-2 pb-1.5 px-5">
         <button
           onClick={() => {
             handleToggleTab('color');
