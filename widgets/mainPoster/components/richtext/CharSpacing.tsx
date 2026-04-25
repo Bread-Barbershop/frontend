@@ -56,22 +56,6 @@ function CharSpacing() {
       </div>
 
       <div className="flex items-center gap-1.5 w-full">
-        {/* 좌측 입력창 */}
-        <input
-          type="text"
-          inputMode="decimal"
-          value={showValue}
-          onChange={({ target: { value } }) => {
-            setShowValue(value);
-            const parsed = parseFloat(value);
-            if (!isNaN(parsed)) applyValue(parsed);
-          }}
-          onBlur={() => {
-            setShowValue(String(value));
-          }}
-          className="flex items-center justify-center text-center w-[47px] h-[32px] text-xs bg-bg-base border border-border-neutral rounded-lg focus:outline-none"
-        />
-
         {/* 중앙 슬라이더 */}
         <div className="flex-1 px-1">
           <input

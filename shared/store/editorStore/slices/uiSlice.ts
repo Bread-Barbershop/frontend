@@ -18,4 +18,12 @@ export const createUISlice: StateCreator<
   activeTab: null,
   setActiveTab: (tab: 'text' | 'image' | 'diagram' | 'background' | null) =>
     set({ activeTab: tab }),
+  drawingConfig: {
+    width: 5,
+    color: '#000000',
+  },
+  setDrawingConfig: config =>
+    set(state => ({
+      drawingConfig: { ...state.drawingConfig, ...config },
+    })),
 });
