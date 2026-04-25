@@ -183,6 +183,7 @@ export const useFabric = () => {
   const moveUp = useCallback(
     (activeObject: FabricObject) => {
       if (!activeObject || !canvas) return;
+      if (activeObject.get('id') === 'background-layer') return;
       canvas.bringObjectForward(activeObject);
       canvas.requestRenderAll();
       saveHistory();
@@ -217,6 +218,7 @@ export const useFabric = () => {
   const moveTop = useCallback(
     (activeObject: FabricObject) => {
       if (!activeObject || !canvas) return;
+      if (activeObject.get('id') === 'background-layer') return;
       canvas.bringObjectToFront(activeObject);
       canvas.requestRenderAll();
       saveHistory();
