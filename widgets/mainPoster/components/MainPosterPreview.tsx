@@ -8,7 +8,6 @@ import {
   Circle,
   Triangle,
   TPointerEventInfo,
-  TPointerEvent,
   Textbox,
   IText,
 } from 'fabric';
@@ -31,14 +30,16 @@ export const MainPosterPreview = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isMouseInCanvasRef = useRef(false);
 
-  const { selectedId, selectedBlock, setActiveTab, setIsEdit } = useEditorStore(
-    useShallow(state => ({
-      selectedId: state.selectedId,
-      selectedBlock: state.selectedBlock,
-      setActiveTab: state.setActiveTab,
-      setIsEdit: state.setIsEdit,
-    }))
-  );
+  const { activeTab, selectedId, selectedBlock, setActiveTab, setIsEdit } =
+    useEditorStore(
+      useShallow(state => ({
+        activeTab: state.activeTab,
+        selectedId: state.selectedId,
+        selectedBlock: state.selectedBlock,
+        setActiveTab: state.setActiveTab,
+        setIsEdit: state.setIsEdit,
+      }))
+    );
 
   const {
     canvas,
@@ -48,9 +49,6 @@ export const MainPosterPreview = () => {
     startCrop,
     isCropping,
     initialData,
-    copy,
-    paste,
-    handleDeleteShape,
     toggleDrawingMode,
   } = useFabricContext();
 
@@ -107,15 +105,16 @@ export const MainPosterPreview = () => {
     const handleSelection = () => {
       const activeObj = fabricCanvas.getActiveObject();
       if (!activeObj) {
-        setActiveTab('background');
+        if (!fabricCanvas.isDrawingMode) {
+          setActiveTab('background');
+        }
         return;
       }
 
       // 배경 레이어인 경우 배경 탭 유지
       if (activeObj.get('id') === 'background-layer') {
-        setActiveTab('background');
         if (!fabricCanvas.isDrawingMode) {
-          setActiveTab(null);
+          setActiveTab('background');
         }
         return;
       }
@@ -138,16 +137,15 @@ export const MainPosterPreview = () => {
       } else if (isActiveDiagram) {
         setActiveTab('diagram');
       } else {
-        setActiveTab(null);
+        setActiveTab('background');
       }
     };
 
     fabricCanvas.on('selection:created', handleSelection);
     fabricCanvas.on('selection:updated', handleSelection);
     fabricCanvas.on('selection:cleared', () => {
-      setActiveTab('background');
       if (!fabricCanvas.isDrawingMode) {
-        setActiveTab(null);
+        setActiveTab('background');
       }
     });
 
@@ -158,22 +156,34 @@ export const MainPosterPreview = () => {
 
   useEffect(() => {
     if (!canvas) return;
-    setupEventListeners(canvas);
 
-    const cleanupEmpty = handleDeleteEmptyShape(canvas);
+    if (activeTab !== 'diagram') {
+      if (canvas.isDrawingMode) {
+        toggleDrawingMode(canvas, { enable: false });
+        setActiveTab('background');
+      }
+    }
+  }, [canvas, activeTab, toggleDrawingMode, setActiveTab]);
 
-    const handleDoubleClick = (options: TPointerEventInfo<TPointerEvent>) => {
+  useEffect(() => {
+    const fabricCanvas = canvas;
+    if (!fabricCanvas) return;
+    setupEventListeners(fabricCanvas);
+
+    const cleanupEmpty = handleDeleteEmptyShape(fabricCanvas);
+
+    const handleDoubleClick = (options: TPointerEventInfo) => {
       if (
         options.target &&
         options.target instanceof FabricImage &&
         !isCropping
       ) {
-        startCrop(canvas);
+        startCrop(fabricCanvas);
       }
     };
 
     // 마우스 드래그해 그룹으로 영역 선택시 잠금 객체 제외하고 선택될수있게
-    const handleMouseDown = (options: TPointerEventInfo<TPointerEvent>) => {
+    const handleMouseDown = (options: TPointerEventInfo) => {
       const e = options.e as MouseEvent;
       if (e.button === 2) return; // 우클릭(Right Click)은 무시
 
@@ -181,41 +191,44 @@ export const MainPosterPreview = () => {
 
       // 빈 공간 클릭(드래그 선택 시작) 또는 배경 클릭 시 잠긴 객체의 selectable 해제
       if (!options.target || isBackground) {
-        canvas.getObjects().forEach(obj => {
+        fabricCanvas.getObjects().forEach(obj => {
           const target = obj as FabricObjectWithLock;
-          // 잠긴 객체이거나 배경 레이어인 경우 드래그 선택 그룹에서 제외
-          if (target.isLocked || target.get('id') === 'background-layer') {
+          // 클릭 대상이 아닌 경우에만 잠긴 객체나 배경 레이어를 선택 대상에서 제외 (드래그 선택용)
+          if (
+            (target.isLocked || target.get('id') === 'background-layer') &&
+            target !== options.target
+          ) {
             target.set({ selectable: false });
           }
         });
 
         if (!options.target) {
-          setActiveTab('background');
-        if (!canvas.isDrawingMode) {
-          setActiveTab(null);
+          if (!fabricCanvas.isDrawingMode) {
+            setActiveTab('background');
+          }
         }
       }
     };
 
     const handleMouseUp = () => {
-      // 드래그 종료 시 (또는 클릭 종료 시) 잠긴 객체의 selectable 다시 복구
-      canvas.getObjects().forEach(obj => {
+      // 드래그 종료 시 (또는 클릭 종료 시) 잠긴 객체와 배경 레이어의 selectable 다시 복구
+      fabricCanvas.getObjects().forEach(obj => {
         const target = obj as FabricObjectWithLock;
-        if (target.isLocked) {
+        if (target.isLocked || target.get('id') === 'background-layer') {
           target.set({ selectable: true });
         }
       });
     };
 
-    canvas.on('mouse:dblclick', handleDoubleClick);
-    canvas.on('mouse:down', handleMouseDown);
-    canvas.on('mouse:up', handleMouseUp);
+    fabricCanvas.on('mouse:dblclick', handleDoubleClick);
+    fabricCanvas.on('mouse:down', handleMouseDown);
+    fabricCanvas.on('mouse:up', handleMouseUp);
 
     return () => {
       cleanupEmpty();
-      canvas.off('mouse:dblclick', handleDoubleClick);
-      canvas.off('mouse:down', handleMouseDown);
-      canvas.off('mouse:up', handleMouseUp);
+      fabricCanvas.off('mouse:dblclick', handleDoubleClick);
+      fabricCanvas.off('mouse:down', handleMouseDown);
+      fabricCanvas.off('mouse:up', handleMouseUp);
     };
   }, [
     canvas,
@@ -263,53 +276,6 @@ export const MainPosterPreview = () => {
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, [canvas]);
-
-  useEffect(() => {
-    if (!canvas) return;
-
-    const handleKeyboard = (e: KeyboardEvent) => {
-      const hasActiveObj = canvas.getActiveObjects().length > 0;
-      if (!isMouseInCanvasRef.current && !hasActiveObj) return;
-
-      const mod = e.ctrlKey || e.metaKey;
-
-      if (mod && e.code === 'KeyC') {
-        const activeObj = canvas.getActiveObject();
-        const isEditingText =
-          activeObj && 'isEditing' in activeObj && (activeObj as any).isEditing;
-        if (activeObj && !isEditingText) {
-          e.preventDefault();
-          copy();
-        }
-      }
-
-      if (mod && e.code === 'KeyV') {
-        const activeObj = canvas.getActiveObject();
-        const isEditingText =
-          activeObj && 'isEditing' in activeObj && (activeObj as any).isEditing;
-        if (!isEditingText) {
-          e.preventDefault();
-          paste();
-        }
-      }
-
-      if (e.key === 'Delete') {
-        handleDeleteShape(canvas, e);
-      }
-
-      if (e.key === 'Escape') {
-        canvas.discardActiveObject();
-        if (canvas.isDrawingMode) {
-          toggleDrawingMode(canvas, { enable: false });
-          setActiveTab(null);
-        }
-        canvas.renderAll();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyboard);
-    return () => window.removeEventListener('keydown', handleKeyboard);
-  }, [canvas, copy, paste, handleDeleteShape]);
 
   return (
     <>

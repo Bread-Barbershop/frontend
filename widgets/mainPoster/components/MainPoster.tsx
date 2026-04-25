@@ -21,24 +21,16 @@ export const MainPoster = () => {
   return (
     <div className="flex flex-col pb-3.5 px-5 items-center w-full" data-canvas="true">
       {/* 텍스트 */}
-      <div className={activeTab === 'text' ? 'contents' : 'hidden'}>
-        <RichTextPanel />
-      </div>
+      {activeTab === 'text' && <RichTextPanel />}
 
       {/* 이미지 */}
-      <div className={activeTab === 'image' ? 'contents' : 'hidden'}>
-        <ImagePanel />
-      </div>
+      {activeTab === 'image' && <ImagePanel />}
 
       {/* 도형 */}
-      <div className={activeTab === 'diagram' ? 'contents' : 'hidden'}>
-        <GraphicPanel />
-      </div>
+      {activeTab === 'diagram' && <GraphicPanel />}
 
       {/* 배경 */}
-      <div className={activeTab === 'background' ? 'contents' : 'hidden'}>
-        <BackgroundPanel />
-      </div>
+      {(activeTab === 'background' || !activeTab) && <BackgroundPanel />}
     </div>
   );
 };

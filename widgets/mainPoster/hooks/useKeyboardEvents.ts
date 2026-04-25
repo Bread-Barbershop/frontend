@@ -160,7 +160,7 @@ export const useKeyboardEvents = (
         canvas.discardActiveObject();
         if (canvas.isDrawingMode) {
           toggleDrawingMode(canvas, { enable: false });
-          setActiveTab(null);
+          setActiveTab('background');
         }
         canvas.renderAll();
       }
