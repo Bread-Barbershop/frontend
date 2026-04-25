@@ -1,12 +1,13 @@
 import { FabricImage } from 'fabric';
 import Image from 'next/image';
-import { ChangeEvent, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { useShallow } from 'zustand/shallow';
 
 import { ImageUploadButton } from '@/components/atoms/button/ImageUploadButton';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import { PhotoPresetOptions } from '../../types/fabric';
-import { AspectRatioSelector } from '../image/AspectRatioSelector';
 import { ImageFilterSelector } from '../image/ImageFilterSelector';
 
 export const BackgroundImage = () => {
@@ -16,30 +17,38 @@ export const BackgroundImage = () => {
     setBackgroundImage,
     activeInfo,
     applyImageFilter,
-    startCrop,
   } = useFabricContext();
+  const { activeTab } = useEditorStore(
+    useShallow(state => ({
+      activeTab: state.activeTab,
+    }))
+  );
   const inputRef = useRef<HTMLInputElement>(null);
   const [imageSrc, setImageSrc] = useState('');
 
   const updateImageSrc = async () => {
     if (!canvas) return;
-    const activeObject = canvas.getActiveObject();
-    if (!activeObject || !(activeObject instanceof FabricImage)) {
+    // 항상 배경 레이어를 타겟으로 함 (다른 객체가 선택되어도 프리뷰는 배경 유지)
+    const target = canvas
+      .getObjects()
+      .find(obj => obj.get('id') === 'background-layer') as FabricImage;
+
+    if (!target || !(target instanceof FabricImage)) {
+      setImageSrc('');
       return;
     }
 
     // 1. 객체 복제 (원본 객체에 영향 주지 않기 위함)
-    const clonedObject = await activeObject.clone();
+    const clonedObject = await target.clone();
 
-    // 2. 리사이징용 캔버스 생성 (300px 제한) - 필터 적용 속도 최적화
-    const originalElem = clonedObject.getElement(); // 원본 엘리먼트 가져오기
+    // 2. 리사이징용 캔버스 생성 (335px 제한) - 필터 적용 속도 최적화
+    const originalElem = clonedObject.getElement();
     const offscreenCanvas = document.createElement('canvas');
     const MAX_SIZE = 335;
 
     let width = originalElem.width;
     let height = originalElem.height;
 
-    // 비율 유지 리사이징 계산
     if (width > height) {
       if (width > MAX_SIZE) {
         height *= MAX_SIZE / width;
@@ -57,34 +66,25 @@ export const BackgroundImage = () => {
     const ctx = offscreenCanvas.getContext('2d');
     if (!ctx) return;
 
-    // 원본 이미지를 작게 그리기 (Downscaling)
     ctx.drawImage(originalElem, 0, 0, width, height);
-
-    // 3. 복제된 객체의 소스를 작은 이미지로 교체
-    // 이제 applyFilters()는 이 작은 캔버스(300px)에 대해 수행되므로 매우 빠름
     clonedObject.setElement(offscreenCanvas);
 
-    // 4. 변환 초기화 (정자세, 리사이징된 크기 반영)
     clonedObject.set({
       angle: 0,
       scaleX: 1,
       scaleY: 1,
       left: 0,
       top: 0,
-      width: width, // 실제 렌더링될 크기 업데이트
+      width: width,
       height: height,
       cropX: 0,
       cropY: 0,
     });
 
-    // 5. 필터 적용
-    if (activeObject.filters && activeObject.filters.length > 0) {
-      // clone()이 필터를 제대로 복사하지 못했을 경우를 대비해 수동 복사
+    if (target.filters && target.filters.length > 0) {
       if (!clonedObject.filters || clonedObject.filters.length === 0) {
-        clonedObject.filters = [...activeObject.filters];
+        clonedObject.filters = [...target.filters];
       }
-
-      // 필터 적용 (작은 이미지라 빠름)
       clonedObject.applyFilters();
     }
 
@@ -94,6 +94,45 @@ export const BackgroundImage = () => {
     });
     setImageSrc(newDataUrl);
   };
+
+  // 배경 편집 모드 활성화 (배경 탭 활성화 시에만 배경 레이어 선택 가능하도록 함)
+  useEffect(() => {
+    if (!canvas) return;
+
+    const isActive = activeTab === 'background';
+    const objects = canvas.getObjects();
+    const bgObj = objects.find(obj => obj.get('id') === 'background-layer');
+
+    if (isActive) {
+      // 배경 모드: 배경 선택 가능
+      if (bgObj) {
+        bgObj.set({ selectable: true, evented: true });
+        canvas.setActiveObject(bgObj);
+        canvas.sendObjectToBack(bgObj);
+      }
+    } else {
+      // 일반 모드: 배경 비활성화
+      if (bgObj) {
+        bgObj.set({ selectable: false, evented: false });
+      }
+      
+      // 혹시 배경이 선택되어 있었다면 해제
+      const currentActive = canvas.getActiveObject();
+      if (currentActive === bgObj) {
+        canvas.discardActiveObject();
+      }
+    }
+
+    canvas.requestRenderAll();
+    updateImageSrc();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canvas, activeTab]);
+
+  // 객체 변경 시 프리뷰 업데이트
+  useEffect(() => {
+    updateImageSrc();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeInfo]);
 
   const handleImageUpload = () => {
     inputRef.current?.click();
@@ -109,6 +148,16 @@ export const BackgroundImage = () => {
       const compressed = await compressImage(base64);
       if (canvas) {
         await setBackgroundImage(compressed);
+
+        // 배경 객체 생성/업데이트 후 다시 활성화
+        const bgObj = canvas
+          .getObjects()
+          .find(obj => obj.get('id') === 'background-layer');
+        if (bgObj) {
+          bgObj.set({ selectable: true, evented: true });
+          canvas.setActiveObject(bgObj);
+          canvas.requestRenderAll();
+        }
       }
     };
     reader.readAsDataURL(file);
@@ -120,12 +169,19 @@ export const BackgroundImage = () => {
     options: PhotoPresetOptions,
     type: 'bw' | 'warm' | 'cool' | 'fade' | 'filmGrain' | 'vignette' | null
   ) => {
-    if (canvas) applyImageFilter(options, canvas, type);
-    updateImageSrc(); // 필터 적용 후 Preview 갱신
+    if (canvas) {
+      // 배경 탭이므로 필터 적용 전 배경 레이어를 활성화하여 타겟팅 보장
+      const bgObj = canvas
+        .getObjects()
+        .find(obj => obj.get('id') === 'background-layer');
+      if (bgObj) {
+        canvas.setActiveObject(bgObj);
+      }
+      applyImageFilter(options, canvas, type);
+    }
+    updateImageSrc();
   };
-  const handleStartCrop = (ratio: number | 'free') => {
-    if (canvas) startCrop(canvas, ratio);
-  };
+
   return (
     <section className="flex flex-col gap-3">
       <div className="py-5">
@@ -145,7 +201,6 @@ export const BackgroundImage = () => {
           />
         )}
       </div>
-      <AspectRatioSelector startCrop={handleStartCrop} />
       <ImageFilterSelector onApply={handleApply} activeInfo={activeInfo} />
     </section>
   );

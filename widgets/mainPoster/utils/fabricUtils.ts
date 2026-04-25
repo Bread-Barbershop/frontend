@@ -148,7 +148,7 @@ export const initDragHandler = ({
   let isDrawing = false;
   let startPoint = { x: 0, y: 0 };
 
-  // 커서 설정 변경 ('crosshair')
+  // 커서 설정 변경 ('')
   const defaultCursorInternal = canvas.defaultCursor;
   const hoverCursorInternal = canvas.hoverCursor;
 

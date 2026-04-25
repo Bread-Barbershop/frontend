@@ -12,13 +12,18 @@ const INACTIVE_TAB_CLASS =
 
 export const BackgroundPanel = () => {
   const [type, setType] = useState<'color' | 'image'>('color');
+
+  const handleToggleTab = (newType: 'color' | 'image') => {
+    setType(newType);
+  };
+
   return (
     <LeftEditorWrapper>
       <NavigationBar>배경</NavigationBar>
       <div className="w-full flex items-center justify-center gap-2 pb-1.5">
         <button
           onClick={() => {
-            setType('color');
+            handleToggleTab('color');
           }}
           type="button"
           className={type === 'color' ? ACTIVE_TAB_CLASS : INACTIVE_TAB_CLASS}
@@ -27,7 +32,7 @@ export const BackgroundPanel = () => {
         </button>
         <button
           onClick={() => {
-            setType('image');
+            handleToggleTab('image');
           }}
           type="button"
           className={type === 'image' ? ACTIVE_TAB_CLASS : INACTIVE_TAB_CLASS}

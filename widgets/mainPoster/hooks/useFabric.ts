@@ -193,6 +193,20 @@ export const useFabric = () => {
   const moveDown = useCallback(
     (activeObject: FabricObject) => {
       if (!activeObject || !canvas) return;
+
+      const objects = canvas.getObjects();
+      const index = objects.indexOf(activeObject);
+      const hasBackground = objects[0]?.get('id') === 'background-layer';
+
+      // 조작 대상이 배경이 아니고, 배경 레이어가 0번에 있다면 인덱스 1까지만 허용
+      if (
+        activeObject.get('id') !== 'background-layer' &&
+        hasBackground &&
+        index <= 1
+      ) {
+        return;
+      }
+
       canvas.sendObjectBackwards(activeObject);
       canvas.requestRenderAll();
       saveHistory();
@@ -213,7 +227,17 @@ export const useFabric = () => {
   const moveBottom = useCallback(
     (activeObject: FabricObject) => {
       if (!activeObject || !canvas) return;
-      canvas.sendObjectToBack(activeObject);
+
+      const objects = canvas.getObjects();
+      const hasBackground = objects[0]?.get('id') === 'background-layer';
+
+      // 배경 레이어가 있다면 인덱스 1로 이동, 없으면 맨 뒤(0)로 이동
+      if (activeObject.get('id') !== 'background-layer' && hasBackground) {
+        canvas.moveObjectTo(activeObject, 1);
+      } else {
+        canvas.sendObjectToBack(activeObject);
+      }
+
       canvas.requestRenderAll();
       saveHistory();
     },

@@ -69,7 +69,7 @@ export const MainPosterPreview = () => {
         await canvas.loadFromJSON(jsonData);
 
         canvas.getObjects().forEach(obj => {
-          if ((obj as any).isLocked) {
+          if ((obj as FabricObjectWithLock).isLocked) {
             obj.set({
               lockMovementX: true,
               lockMovementY: true,
@@ -107,6 +107,13 @@ export const MainPosterPreview = () => {
     const handleSelection = () => {
       const activeObj = fabricCanvas.getActiveObject();
       if (!activeObj) {
+        setActiveTab('background');
+        return;
+      }
+
+      // 배경 레이어인 경우 배경 탭 유지
+      if (activeObj.get('id') === 'background-layer') {
+        setActiveTab('background');
         if (!fabricCanvas.isDrawingMode) {
           setActiveTab(null);
         }
@@ -138,6 +145,7 @@ export const MainPosterPreview = () => {
     fabricCanvas.on('selection:created', handleSelection);
     fabricCanvas.on('selection:updated', handleSelection);
     fabricCanvas.on('selection:cleared', () => {
+      setActiveTab('background');
       if (!fabricCanvas.isDrawingMode) {
         setActiveTab(null);
       }
@@ -169,14 +177,20 @@ export const MainPosterPreview = () => {
       const e = options.e as MouseEvent;
       if (e.button === 2) return; // 우클릭(Right Click)은 무시
 
-      // 배경 클릭(드래그 선택 시작) 시 잠긴 객체의 selectable 해제
-      if (!options.target) {
+      const isBackground = options.target?.get('id') === 'background-layer';
+
+      // 빈 공간 클릭(드래그 선택 시작) 또는 배경 클릭 시 잠긴 객체의 selectable 해제
+      if (!options.target || isBackground) {
         canvas.getObjects().forEach(obj => {
           const target = obj as FabricObjectWithLock;
-          if (target.isLocked) {
+          // 잠긴 객체이거나 배경 레이어인 경우 드래그 선택 그룹에서 제외
+          if (target.isLocked || target.get('id') === 'background-layer') {
             target.set({ selectable: false });
           }
         });
+
+        if (!options.target) {
+          setActiveTab('background');
         if (!canvas.isDrawingMode) {
           setActiveTab(null);
         }
