@@ -80,11 +80,21 @@ function CharSpacing() {
           type="text"
           value={showValue}
           onChange={({ target: { value } }) => {
-            setShowValue(value);
-            const num = parseFloat(value);
-            if (!isNaN(num)) {
+            const numericValue = value.replace(/[^0-9.-]/g, '');
+            if (numericValue !== '' && !/^-?\d*\.?\d*$/.test(numericValue)) return;
+
+            setShowValue(numericValue);
+
+            const num = Number(numericValue);
+            if (numericValue !== '' && !isNaN(num)) {
               applyValue(num);
             }
+          }}
+          onBlur={() => {
+            const num = Number(showValue);
+            const next = isNaN(num) ? value : clamp(num, -20, 20);
+            setShowValue(String(next));
+            applyValue(next);
           }}
           className="flex items-center justify-center text-center w-[47px] h-[32px] text-xs bg-bg-base border border-border-neutral rounded-lg focus:outline-none"
         />
