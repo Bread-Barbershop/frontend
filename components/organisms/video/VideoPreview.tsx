@@ -52,7 +52,7 @@ export const VideoPreview = ({ blockInfo, className, ...rest }: Props) => {
       enTitle={englishTitle}
       enTitleDefault="VIDEO"
       koTitle={title}
-      koTitleDefault="영상"
+      koTitleDefault="제목을 입력해 주세요."
       {...rest}
     >
       <div

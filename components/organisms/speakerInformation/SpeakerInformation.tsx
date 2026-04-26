@@ -65,11 +65,14 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
   }, [handleEditorChange]);
 
   const handleValueChange = (
-    key: 'title' | 'englishTitle' | 'checkedEnglishTitle',
-    e?: ChangeEvent<HTMLInputElement>,
-    value?: boolean
+    key: 'title' | 'englishTitle',
+    e: ChangeEvent<HTMLInputElement>
   ) => {
-    updateBlock(id, { [key]: e ? e.target.value : value });
+    updateBlock(id, { [key]: e.target.value });
+  };
+
+  const handleCheckedChange = (e: ChangeEvent<HTMLInputElement>) => {
+    updateBlock(id, { checkedEnglishTitle: e.target.checked });
   };
 
   const handleSpeakerNameChange = (
@@ -163,7 +166,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
       >
         연사정보
       </NavigationBar>
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col w-full -mb-3">
         <TextField
           label="제목"
           inputProps={{
@@ -181,7 +184,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
               value: englishTitle,
               onChange: e => handleValueChange('englishTitle', e),
             }}
-            className="text-center w-full"
+            className="text-center w-full mb-3"
           />
         )}
       </div>
@@ -213,9 +216,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
         <Checkbox
           className="text-[13px]"
           checked={checkedEnglishTitle}
-          onChange={e =>
-            handleValueChange('checkedEnglishTitle', e, e.target.checked)
-          }
+          onChange={handleCheckedChange}
         >
           영문 제목 추가
         </Checkbox>
