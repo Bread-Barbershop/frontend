@@ -54,13 +54,7 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
   }, [debouncedUpdateMessage]);
 
   const handleValueChange = (
-    key:
-      | 'title'
-      | 'organizer'
-      | 'url'
-      | 'hasUrl'
-      | 'englishTitle'
-      | 'checkedEnglishTitle',
+    key: 'title' | 'organizer' | 'url' | 'hasUrl' | 'englishTitle',
     e?: ChangeEvent<HTMLInputElement>,
     value?: boolean
   ) => {
@@ -80,13 +74,17 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
     updateImage(id, []);
   };
 
+  const handleCheckedChange = (e: ChangeEvent<HTMLInputElement>) => {
+    updateBlock(id, { checkedEnglishTitle: e.target.checked });
+  };
+
   return (
     <LeftEditorWrapper className="gap-4 pb-3">
       <NavigationBar className="-mb-2">주최정보</NavigationBar>
       <TextField
         label="제목"
         inputProps={{
-          placeholder: '제목을 입력해주세요',
+          placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
           value: title,
           onChange: e => handleValueChange('title', e),
         }}
@@ -106,7 +104,7 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
       <TextField
         label="주최명"
         inputProps={{
-          placeholder: '00 Company',
+          placeholder: 'ex. 00 Company',
           value: organizer,
           onChange: e => handleValueChange('organizer', e),
         }}
@@ -136,9 +134,7 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
           <Checkbox
             className="text-[13px]"
             checked={checkedEnglishTitle}
-            onChange={e =>
-              handleValueChange('checkedEnglishTitle', e, e.target.checked)
-            }
+            onChange={handleCheckedChange}
           >
             영문 제목 추가
           </Checkbox>

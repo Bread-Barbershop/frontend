@@ -50,7 +50,7 @@ export const OrganizerInformationPreview = ({
       enTitle={englishTitle}
       enTitleDefault="ORGANIZER INFORMATION"
       koTitle={title}
-      koTitleDefault="주최정보"
+      koTitleDefault="주최사"
       titleClassName={titleClassName}
       childClassName="gap-6"
       {...rest}
