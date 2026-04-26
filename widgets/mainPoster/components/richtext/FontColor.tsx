@@ -2,10 +2,9 @@ import { Textbox } from 'fabric';
 import { ChevronDown } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 
+import SmallColorPicker from '@/components/molecules/color-picker/SmallColorPicker';
 import { cn } from '@/shared/utils/cn';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
-
-import ColorPicker from './ColorPicker';
 
 const ColorIcon = ({ color }: { color: string }) => (
   <svg
@@ -116,13 +115,14 @@ function FontColor() {
           inset: 'auto',
         }}
       >
-        <ColorPicker
-          onColorSelect={color => {
-            setPickerColor(color);
-            applyRichStyle({ fill: color }, canvas);
+        <SmallColorPicker
+          showHeader={false}
+          value={pickerColor || '#000000'}
+          onChange={color => {
+            setPickerColor(color.hex);
+            applyRichStyle({ fill: color.hex }, canvas);
             popoverRef.current?.hidePopover();
           }}
-          selectedColor={pickerColor}
         />
       </div>
     </section>

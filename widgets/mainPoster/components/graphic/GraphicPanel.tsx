@@ -83,7 +83,7 @@ export function GraphicPanel() {
         </section>
 
         <LargeColorPicker
-          defaultValue={drawingConfig.color}
+          value={drawingConfig.color}
           onChange={e => setDrawingConfig({ color: e.hex })}
           className="border-none"
         />

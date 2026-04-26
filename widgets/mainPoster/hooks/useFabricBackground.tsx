@@ -1,11 +1,14 @@
 import { Canvas, FabricImage } from 'fabric';
+import { useState } from 'react';
 
 interface Props {
   canvas: Canvas | null;
   saveHistory: () => void;
 }
 export const useFabricBackground = ({ canvas, saveHistory }: Props) => {
-  const setBackgroundColor = (color: string) => {
+  const [backgroundColor, setBackgroundColor] = useState<string>('');
+
+  const updateBackgroundColor = (color: string) => {
     if (!canvas) return;
 
     // 기존 배경 이미지 객체 제거
@@ -20,6 +23,7 @@ export const useFabricBackground = ({ canvas, saveHistory }: Props) => {
       backgroundColor: color,
       backgroundImage: null,
     });
+    setBackgroundColor(color);
     canvas.requestRenderAll();
     saveHistory();
   };
@@ -82,7 +86,8 @@ export const useFabricBackground = ({ canvas, saveHistory }: Props) => {
   };
 
   return {
-    setBackgroundColor,
+    backgroundColor,
+    updateBackgroundColor,
     setBackgroundImage,
   };
 };

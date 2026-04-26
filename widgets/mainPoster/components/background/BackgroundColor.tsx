@@ -2,12 +2,16 @@ import LargeColorPicker from '@/components/molecules/color-picker/LargeColorPick
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 export const BackgroundColor = () => {
-  const { setBackgroundColor } = useFabricContext();
+  const { backgroundColor, updateBackgroundColor } = useFabricContext();
+
   return (
     <LargeColorPicker
+      value={backgroundColor}
       className="border-none w-full px-0"
       showHeader={false}
-      onChange={e => setBackgroundColor(e.hex)}
+      onChange={e => {
+        updateBackgroundColor(e.hex);
+      }}
     />
   );
 };
