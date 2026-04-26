@@ -150,7 +150,7 @@ export const Selector = <T extends Option>({
         ref={popoverRef}
         popover="auto"
         className={cn(
-          'z-10 rounded-b-lg overflow-y-auto max-h-72 textarea-custom-scrollbar shadow-lg border-none p-0 m-0 fixed',
+          'z-10 rounded-b-lg overflow-y-auto max-h-72 shadow-lg border-none p-0 m-0 fixed list-none',
           selected ? 'bg-bg-base' : 'bg-border-neutral'
         )}
         style={{
@@ -165,7 +165,7 @@ export const Selector = <T extends Option>({
             key={option.value}
             onClick={() => handleSelect(option)}
             className={cn(
-              'flex items-center py-1 text-sm text-text-primary cursor-pointer hover:bg-bg-sub transition-colors',
+              'flex w-full items-center py-1 text-sm text-text-primary cursor-pointer hover:bg-bg-sub transition-colors',
               showCheckbox ? 'pr-2' : 'px-2'
             )}
             role="option"

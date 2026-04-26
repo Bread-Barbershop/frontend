@@ -7,6 +7,14 @@ export const greetingSchema = {
       default: '인사말',
       required: true,
     },
+    checkedEnglishTitle: {
+      default: false,
+      required: true,
+    },
+    englishTitle: {
+      default: 'INVITATION',
+      required: false,
+    },
     messageJson: {
       default: null as JSONContent | null,
       required: false,

@@ -2,6 +2,8 @@ import { Plus } from 'lucide-react';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 
 import { UtilityButton } from '@/components/atoms/button';
+import { Label } from '@/components/atoms/label/Label';
+import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { TextEditor } from '@/components/molecules/text-editor';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
@@ -21,6 +23,9 @@ interface Props {
   blockInfo: EditorBlock<'greeting'>;
   id: string;
 }
+
+const DEFAULT_GREETING_TITLE = '인사말';
+const DEFAULT_GREETING_ENGLISH_TITLE = 'INVITATION';
 
 function createParagraphJson(text: string): JSONContent {
   const lines = text.replace(/\r\n/g, '\n').split('\n');
@@ -44,6 +49,12 @@ function createParagraphJson(text: string): JSONContent {
 
 function Greeting({ blockInfo, id }: Props) {
   const updateBlock = useEditorStore(state => state.updateBlock);
+  const {
+    title,
+    checkedEnglishTitle = false,
+    englishTitle = DEFAULT_GREETING_ENGLISH_TITLE,
+    messageJson,
+  } = blockInfo.props;
   const [isSamplePopupOpen, setIsSamplePopupOpen] = useState(false);
   const [editorResetKey, setEditorResetKey] = useState(0);
   const debouncedUpdateMessage = useMemo(
@@ -58,13 +69,39 @@ function Greeting({ blockInfo, id }: Props) {
   );
 
   useEffect(() => {
+    if (title === '') {
+      updateBlock(id, { title: DEFAULT_GREETING_TITLE });
+    }
+  }, [id, title, updateBlock]);
+
+  useEffect(() => {
+    if (englishTitle === '') {
+      updateBlock(id, { englishTitle: DEFAULT_GREETING_ENGLISH_TITLE });
+    }
+  }, [englishTitle, id, updateBlock]);
+
+  useEffect(() => {
     return () => {
       debouncedUpdateMessage.cancel();
     };
   }, [debouncedUpdateMessage]);
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { title: e.target.value });
+    const nextTitle = e.target.value;
+    updateBlock(id, { title: nextTitle || DEFAULT_GREETING_TITLE });
+  };
+
+  const handleEnglishTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const nextEnglishTitle = e.target.value;
+    updateBlock(id, {
+      englishTitle: nextEnglishTitle || DEFAULT_GREETING_ENGLISH_TITLE,
+    });
+  };
+
+  const handleEnglishTitleCheckedChange = (
+    e: ChangeEvent<HTMLInputElement>
+  ) => {
+    updateBlock(id, { checkedEnglishTitle: e.target.checked });
   };
 
   const handleEditorChange = (json: JSONContent) => {
@@ -84,17 +121,33 @@ function Greeting({ blockInfo, id }: Props) {
   };
 
   return (
-    <LeftEditorWrapper ariaLabel="인사말">
+    <LeftEditorWrapper ariaLabel="인사말" className="gap-4">
       <NavigationBar>인사말</NavigationBar>
       <TextField
+        key={`title-${id}`}
         label="제목"
         inputProps={{
-          placeholder: '제목을 입력해 주세요',
-          value: blockInfo.props.title,
+          placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+          defaultValue: title === DEFAULT_GREETING_TITLE ? '' : title,
           onChange: handleTitleChange,
         }}
         className="text-center w-full"
       />
+      {checkedEnglishTitle && (
+        <TextField
+          key={`english-title-${id}`}
+          label="영문제목"
+          inputProps={{
+            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+            defaultValue:
+              englishTitle === DEFAULT_GREETING_ENGLISH_TITLE
+                ? ''
+                : englishTitle,
+            onChange: handleEnglishTitleChange,
+          }}
+          className="text-center w-full"
+        />
+      )}
 
       <NavigationBar
         action={
@@ -114,11 +167,21 @@ function Greeting({ blockInfo, id }: Props) {
 
       <TextEditor
         key={`${id}-${editorResetKey}`}
-        value={blockInfo.props.messageJson}
+        value={messageJson}
         defaultText="내용을 입력해 주세요"
         defaultAlign="center"
         onChange={handleEditorChange}
       />
+
+      <section className="flex flex-row gap-2 items-center w-full">
+        <Label className="font-semibold">추가기능</Label>
+        <Checkbox
+          checked={checkedEnglishTitle}
+          onChange={handleEnglishTitleCheckedChange}
+        >
+          영문 제목 추가
+        </Checkbox>
+      </section>
 
       {isSamplePopupOpen && (
         <PopupOptions
