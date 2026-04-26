@@ -17,15 +17,24 @@ function GreetingPreview({
   titleClassName,
   ...rest
 }: Props) {
+  const {
+    title,
+    checkedEnglishTitle = false,
+    englishTitle = '',
+    messageJson,
+    messageHtml,
+  } = blockInfo.props;
   const html =
-    blockInfo.props.messageHtml ??
-    tiptapJsonToHtmlUniversal(blockInfo.props.messageJson);
+    messageHtml ?? tiptapJsonToHtmlUniversal(messageJson);
 
   return (
     <MiddlePreviewWrapper
       className={className}
-      enTitle="INVITATION"
-      koTitle={blockInfo.props.title}
+      checkedEnglishTitle={checkedEnglishTitle}
+      enTitle={englishTitle}
+      enTitleDefault="INVITATION"
+      koTitle={title}
+      koTitleDefault="인사말"
       titleClassName={titleClassName}
       {...rest}
     >

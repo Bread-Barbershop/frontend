@@ -139,7 +139,7 @@ export function TextEditor({
           selected={fontSizeSelected}
           onSelect={handleFontSizeSelect}
           placeholder="폰트 크기"
-          className="font-semibold"
+          className="w-20 font-semibold"
         />
 
         <TextEditorButton
@@ -191,6 +191,8 @@ export function TextEditor({
           options={TEXT_ALIGN_OPTIONS}
           selected={textAlignSelected}
           onSelect={handleTextAlignSelect}
+          className="w-14"
+          showCheckbox={false}
         />
       </div>
 
