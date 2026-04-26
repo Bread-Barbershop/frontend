@@ -15,8 +15,8 @@ export const GuestMainPoster = ({ json }: { json: unknown }) => {
 
     const startInit = performance.now();
     const fabricCanvas = new Canvas(canvasRef.current, {
-      width: 375,
-      height: 600,
+      width: 365,
+      height: 812,
       selection: false,
       skipTargetFind: true,
       renderOnAddRemove: false,
