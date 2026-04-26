@@ -54,15 +54,15 @@ export const PicturePopViewer = ({
   if (!portalElement) return null;
 
   return createPortal(
-    <div className="absolute inset-0 z-50 bg-black/80 flex-center">
+    <div className="absolute inset-0 z-50 bg-black/80 flex justify-center items-end flex-col gap-2 px-7">
       <Button
         type="button"
-        className="group absolute top-4 right-4 z-100 flex-center rounded-full bg-black/32 w-8 h-8 hover:bg-white transition-colors"
+        className="group top-4 right-4 z-100 flex-center rounded-full bg-black/32 w-8 h-8 hover:bg-white transition-colors"
         onClick={onClose}
       >
         <Cancel className="w-3.5 h-3.5 text-white group-hover:text-black transition-colors" />
       </Button>
-      <div className={cn('w-[90%] max-h-[85%] relative', ratioClass)}>
+      <div className={cn('w-full max-h-[85%] relative', ratioClass)}>
         <Carousel
           options={{
             startIndex,

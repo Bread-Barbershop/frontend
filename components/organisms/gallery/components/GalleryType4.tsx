@@ -14,8 +14,8 @@ function GalleryType4({ imageClick, preview, ratio }: GalleryTemplateProps) {
     containScroll: false,
   });
   return (
-    <div className="w-full min-h-[120px] overflow-hidden py-8">
-      <div ref={emblaRef}>
+    <div className="w-full min-h-[120px]">
+      <div ref={emblaRef} className="overflow-hidden">
         <div className="flex items-center gap-5">
           {preview.map((src, i) => (
             <div key={i} className="flex-[0_0_70%]">

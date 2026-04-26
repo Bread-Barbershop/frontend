@@ -23,12 +23,15 @@ function PictureBlockPreview({ blockInfo, className, ...rest }: Props) {
   );
   return (
     <MiddlePreviewWrapper
-      noTitle={!blockInfo.props.isTitle}
+      checkedEnglishTitle={blockInfo.props.isEnglishTitle}
+      enTitle={blockInfo.props.enTitle}
+      enTitleDefault="PICTURE"
       koTitle={blockInfo.props.title}
+      koTitleDefault="사진"
       className={className}
       {...rest}
     >
-      <div className="flex flex-col gap-6">
+      <div className={`flex flex-col ${blockInfo.props.isContents && 'gap-6'}`}>
         <div>
           {blockInfo.props.isContents && (
             <PreviewBody html={blockInfo.props.contentsHtml ?? ''} />

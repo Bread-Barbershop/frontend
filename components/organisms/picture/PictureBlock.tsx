@@ -16,8 +16,6 @@ import { debounce } from '@/shared/utils/debounce';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
-import { ImageEffect } from './components/ImageEffect';
-
 interface Props {
   blockInfo: EditorBlock<'picture'>;
   id: string;
@@ -57,21 +55,23 @@ function PictureBlock({ blockInfo, id }: Props) {
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { isTitle: e.target.checked });
   };
+  const handleEngTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    updateBlock(id, { isEnglishTitle: e.target.checked });
+  };
   const handleContentsChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { isContents: e.target.checked });
   };
-  const handleEffectChange = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { isEffect: e.target.checked });
-  };
+
   const handleOnChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { title: e.target.value });
+  };
+  const handleOnChangeEngTitle = (e: ChangeEvent<HTMLInputElement>) => {
+    updateBlock(id, { enTitle: e.target.value });
   };
   const handleEditorChange = (json: JSONContent) => {
     debouncedUpdateMessage(json);
   };
-  const handleEffectClick = (value: string) => {
-    updateBlock(id, { selectedEffect: value });
-  };
+
   return (
     <LeftEditorWrapper ariaLabel="사진">
       <NavigationBar>사진</NavigationBar>
@@ -88,9 +88,21 @@ function PictureBlock({ blockInfo, id }: Props) {
             label="제목"
             className="py-1.5 text-center"
             inputProps={{
-              placeholder: '제목을 입력해주세요.',
+              placeholder: '최대 20자',
               onChange: e => handleOnChangeTitle(e),
               value: blockInfo.props.title,
+              maxLength: 20,
+            }}
+          />
+        )}
+        {blockInfo.props.isEnglishTitle && (
+          <TextField
+            label="영문 제목"
+            className="py-1.5 text-center"
+            inputProps={{
+              placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+              onChange: e => handleOnChangeEngTitle(e),
+              value: blockInfo.props.enTitle,
             }}
           />
         )}
@@ -105,29 +117,28 @@ function PictureBlock({ blockInfo, id }: Props) {
             />
           </div>
         )}
-        {blockInfo.props.isEffect && (
-          <ImageEffect onClick={handleEffectClick} />
-        )}
-        <div className="flex gap-2 py-[14px]">
-          <Label className="font-semibold shrink-0">추가기능</Label>
-          <Checkbox
-            checked={blockInfo.props.isTitle}
-            onChange={handleTitleChange}
-          >
-            제목 추가
-          </Checkbox>
-          <Checkbox
-            checked={blockInfo.props.isContents}
-            onChange={handleContentsChange}
-          >
-            내용 추가
-          </Checkbox>
-          <Checkbox
-            checked={blockInfo.props.isEffect}
-            onChange={handleEffectChange}
-          >
-            효과 추가
-          </Checkbox>
+        <div className="flex items-center gap-2">
+          <Label className="font-semibold shrink-0 text-center">추가기능</Label>
+          <div className="flex flex-wrap gap-2">
+            <Checkbox
+              checked={blockInfo.props.isTitle}
+              onChange={handleTitleChange}
+            >
+              제목 추가
+            </Checkbox>
+            <Checkbox
+              checked={blockInfo.props.isEnglishTitle}
+              onChange={handleEngTitleChange}
+            >
+              영문 제목 추가
+            </Checkbox>
+            <Checkbox
+              checked={blockInfo.props.isContents}
+              onChange={handleContentsChange}
+            >
+              내용 추가
+            </Checkbox>
+          </div>
         </div>
       </div>
     </LeftEditorWrapper>

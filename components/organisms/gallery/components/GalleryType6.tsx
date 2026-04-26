@@ -7,16 +7,17 @@ import { cn } from '@/shared/utils/cn';
 import { GalleryItemVariants } from '../GalleryCarouselType';
 import { GalleryTemplateProps } from '../types/galleryType';
 
-const GRID_HEIGHT_UNIT = 100; // 1개 행 높이 (px)
+const GRID_HEIGHT_UNIT = 200; // 1개 행 높이 (px)
 
 function GalleryType6({ imageClick, preview, ratio }: GalleryTemplateProps) {
   const [expandCount, setExpandCount] = useState(1);
   const [isFullyExpanded, setIsFullyExpanded] = useState(false);
 
   const maxHeight = expandCount * GRID_HEIGHT_UNIT;
+  const shouldShowButton = preview.length > 3;
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full px-4">
       <div
         className={cn(
           'relative w-full grid grid-cols-3 gap-4.5 overflow-hidden transition-[max-height] duration-500 ease-in-out'
@@ -55,28 +56,38 @@ function GalleryType6({ imageClick, preview, ratio }: GalleryTemplateProps) {
       <div
         className={cn(
           'flex justify-center items-end pointer-events-none absolute bottom-0 left-0 right-0 h-13',
-          'bg-linear-to-t from-white from-0% via-white/24 via-53% to-white/6 to-100%',
+          !isFullyExpanded &&
+            'bg-linear-to-t from-white from-0% via-white/24 via-53% to-white/6 to-100%',
           'transition-opacity duration-300 ease-in-out',
-          isFullyExpanded && 'opacity-0'
+          !shouldShowButton && 'opacity-0'
         )}
-        aria-hidden={isFullyExpanded}
+        aria-hidden={!shouldShowButton}
       >
         <button
           type="button"
-          disabled={isFullyExpanded}
-          aria-label="갤러리 더 보기"
+          aria-label={isFullyExpanded ? '갤러리 접기' : '갤러리 더 보기'}
           className={cn(
             'flex-center rounded-full border border-[#EAEAEA] backdrop-blur-[6px] bg-white/10 w-8 h-8',
-            isFullyExpanded
-              ? 'pointer-events-none'
-              : 'pointer-events-auto cursor-pointer'
+            shouldShowButton
+              ? 'pointer-events-auto cursor-pointer'
+              : 'pointer-events-none'
           )}
           onClick={e => {
             e.stopPropagation();
-            setExpandCount(prev => prev + 3);
+            if (isFullyExpanded) {
+              setExpandCount(1);
+              setIsFullyExpanded(false);
+            } else {
+              setExpandCount(prev => prev + 3);
+            }
           }}
         >
-          <Arrow className="w-3 h-[15px] text-black" />
+          <Arrow
+            className={cn(
+              'w-3 h-[15px] text-black transition-transform duration-300',
+              isFullyExpanded && 'rotate-180'
+            )}
+          />
         </button>
       </div>
     </div>

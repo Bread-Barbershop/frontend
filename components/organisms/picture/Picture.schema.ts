@@ -15,6 +15,14 @@ export const pictureSchema = {
       default: '',
       required: false,
     },
+    isEnglishTitle: {
+      default: false,
+      required: false,
+    },
+    enTitle: {
+      default: '',
+      required: false,
+    },
     isContents: {
       default: false,
       required: false,
@@ -25,14 +33,6 @@ export const pictureSchema = {
     },
     contentsHtml: {
       default: null as string | null,
-      required: false,
-    },
-    isEffect: {
-      default: false,
-      required: false,
-    },
-    selectedEffect: {
-      default: 'none',
       required: false,
     },
   },

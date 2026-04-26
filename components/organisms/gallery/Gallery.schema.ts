@@ -7,6 +7,10 @@ export const gallerySchema = {
       default: '',
       required: true,
     },
+    enTitle: {
+      default: '',
+      required: false,
+    },
     images: {
       default: [] as (File | string)[],
       required: true,
@@ -20,6 +24,10 @@ export const gallerySchema = {
       required: true,
     },
     isPopupViewer: {
+      default: false,
+      required: true,
+    },
+    isEnglishTitle: {
       default: false,
       required: true,
     },

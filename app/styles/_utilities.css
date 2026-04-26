@@ -129,24 +129,24 @@
   /* 우측 인접 (±1) */
   .embla__slide.is-snapped + .embla__slide {
     @apply z-10;
-    transform: scale(0.9) translateY(8px) rotate(10deg);
+    transform: scale(0.9) translateY(30px) rotate(15deg);
   }
 
   /* 좌측 인접 (±1) */
   .embla__slide:has(+ .embla__slide.is-snapped) {
     @apply z-10;
-    transform: scale(0.9) translateY(8px) rotate(-10deg);
+    transform: scale(0.9) translateY(30px) rotate(-15deg);
   }
 
   /* 우측 끝 (±2) */
   .embla__slide.is-snapped + .embla__slide + .embla__slide {
     @apply z-[5];
-    transform: scale(0.75) translateY(20px) rotate(20deg);
+    transform: scale(0.75) translateY(60px) rotate(25deg);
   }
 
   /* 좌측 끝 (±2) */
   .embla__slide:has(+ .embla__slide + .embla__slide.is-snapped) {
     @apply z-[5];
-    transform: scale(0.75) translateY(20px) rotate(-20deg);
+    transform: scale(0.75) translateY(60px) rotate(-25deg);
   }
 }
