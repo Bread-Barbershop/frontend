@@ -19,6 +19,9 @@ interface Props {
   id: string;
 }
 
+const DEFAULT_COUPLE_INTRODUCTION_TITLE = '신랑・신부 소개';
+const DEFAULT_COUPLE_INTRODUCTION_ENGLISH_TITLE = 'INTRODUCTION';
+
 function CoupleIntroduction({ blockInfo, id }: Props) {
   const updateBlock = useEditorStore(state => state.updateBlock);
   const updateImage = useEditorStore(state => state.updateImage);
@@ -27,9 +30,10 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
     bride = '',
     groomImage = [],
     brideImage = [],
-    title = '',
+    title = DEFAULT_COUPLE_INTRODUCTION_TITLE,
+    checkedEnglishTitle = false,
+    englishTitle = DEFAULT_COUPLE_INTRODUCTION_ENGLISH_TITLE,
     messageJson = null,
-    showTitle = false,
     showContent = false,
     brideFirst = false,
   } = blockInfo.props;
@@ -44,6 +48,20 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
       }, 300),
     [id, updateBlock]
   );
+
+  useEffect(() => {
+    if (title === '') {
+      updateBlock(id, { title: DEFAULT_COUPLE_INTRODUCTION_TITLE });
+    }
+  }, [id, title, updateBlock]);
+
+  useEffect(() => {
+    if (englishTitle === '') {
+      updateBlock(id, {
+        englishTitle: DEFAULT_COUPLE_INTRODUCTION_ENGLISH_TITLE,
+      });
+    }
+  }, [englishTitle, id, updateBlock]);
 
   useEffect(() => {
     return () => {
@@ -84,7 +102,18 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
   };
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { title: e.target.value });
+    const nextTitle = e.target.value;
+    updateBlock(id, {
+      title: nextTitle || DEFAULT_COUPLE_INTRODUCTION_TITLE,
+    });
+  };
+
+  const handleEnglishTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const nextEnglishTitle = e.target.value;
+    updateBlock(id, {
+      englishTitle:
+        nextEnglishTitle || DEFAULT_COUPLE_INTRODUCTION_ENGLISH_TITLE,
+    });
   };
 
   const handleEditorChange = (json: JSONContent) => {
@@ -142,15 +171,43 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
     <LeftEditorWrapper className="items-start" ariaLabel="신랑 신부 소개">
       <NavigationBar>신랑・신부 소개</NavigationBar>
 
-      {profileFields.map((profile, index) => (
+      <TextField
+        key={`title-${id}`}
+        label="제목"
+        inputProps={{
+          placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+          defaultValue:
+            title === DEFAULT_COUPLE_INTRODUCTION_TITLE ? '' : title,
+          onChange: handleTitleChange,
+        }}
+        className="w-full text-center py-1.5"
+      />
+
+      {checkedEnglishTitle && (
+        <TextField
+          key={`english-title-${id}`}
+          label="영문제목"
+          inputProps={{
+            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+            defaultValue:
+              englishTitle === DEFAULT_COUPLE_INTRODUCTION_ENGLISH_TITLE
+                ? ''
+                : englishTitle,
+            onChange: handleEnglishTitleChange,
+          }}
+          className="w-full text-center py-1.5"
+        />
+      )}
+
+      <div className="w-15 flex flex-col items-center gap-1">
+        <div className="w-0.5 h-1.5 rounded-sm bg-text-secondary" />
+        <div className="w-0.5 h-2 rounded-sm bg-text-secondary" />
+        <div className="w-0.5 h-1.5 rounded-sm bg-text-secondary" />
+      </div>
+
+      {profileFields.map(profile => (
         <Fragment key={profile.key}>
           <div className="flex flex-col gap-2 w-full">
-            {index !== 0 && (
-              <div className="flex flex-col items-center gap-1">
-                <div className="w-0.5 h-1 rounded-sm bg-text-secondary" />
-                <div className="w-0.5 h-1 rounded-sm bg-text-secondary" />
-              </div>
-            )}
             <TextField
               label={profile.label}
               inputProps={{
@@ -173,19 +230,6 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
         </Fragment>
       ))}
 
-      {/* 제목 추가 체크박스가 true일때. */}
-      {showTitle && (
-        <TextField
-          label="제목"
-          inputProps={{
-            placeholder: '제목을 입력해 주세요.',
-            value: title,
-            onChange: handleTitleChange,
-          }}
-          className="w-full text-center py-1.5"
-        />
-      )}
-
       {/* 내용 추가 체크박스가 true일때. */}
       {showContent && (
         <>
@@ -207,12 +251,14 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
           <div className="flex gap-2">
             <Checkbox
               className="gap-1 pl-1 font-medium text-text-secondary"
-              checked={showTitle}
-              onChange={e => updateBlock(id, { showTitle: e.target.checked })}
+              checked={checkedEnglishTitle}
+              onChange={e =>
+                updateBlock(id, { checkedEnglishTitle: e.target.checked })
+              }
             >
-              제목 추가
+              영문 제목 추가
             </Checkbox>
-            
+
             <Checkbox
               className="gap-1 pl-1 font-medium text-text-secondary"
               checked={showContent}

@@ -24,7 +24,15 @@ export const coupleIntroductionSchema = {
       required: false,
     },
     title: {
-      default: '',
+      default: '신랑・신부 소개',
+      required: false,
+    },
+    checkedEnglishTitle: {
+      default: false,
+      required: false,
+    },
+    englishTitle: {
+      default: 'INTRODUCTION',
       required: false,
     },
     messageJson: {

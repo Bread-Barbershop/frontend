@@ -34,9 +34,10 @@ function CoupleIntroductionPreview({
     brideImage = [],
     images = [],
     title = '',
+    checkedEnglishTitle = false,
+    englishTitle = '',
     messageJson = null,
     messageHtml = null,
-    showTitle = false,
     showContent = false,
     brideFirst = false,
   } = blockInfo.props;
@@ -101,8 +102,11 @@ function CoupleIntroductionPreview({
     <MiddlePreviewWrapper
       className={className}
       titleClassName={titleClassName}
-      enTitle="INTRODUCTION"
-      koTitle={showTitle && title ? title : '신랑・신부 소개'}
+      checkedEnglishTitle={checkedEnglishTitle}
+      enTitle={englishTitle}
+      enTitleDefault="INTRODUCTION"
+      koTitle={title}
+      koTitleDefault="신랑・신부 소개"
       {...rest}
     >
       <div className="flex flex-row gap-4.5">
