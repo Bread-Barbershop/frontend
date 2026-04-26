@@ -5,11 +5,15 @@
 @import 'tailwindcss';
 
 /* TipTap Placeholder */
+.ProseMirror {
+  position: relative;
+}
 .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   color: #787878;
   pointer-events: none;
   height: 0;
-  display: block;
-  text-align: center;
+  float: left;
+  width: 100%;
+  text-align: inherit;
 }

@@ -66,10 +66,9 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
 
   const handleValueChange = (
     key: 'title' | 'englishTitle',
-    e?: ChangeEvent<HTMLInputElement>,
-    value?: boolean
+    e: ChangeEvent<HTMLInputElement>
   ) => {
-    updateBlock(id, { [key]: e ? e.target.value : value });
+    updateBlock(id, { [key]: e.target.value });
   };
 
   const handleCheckedChange = (e: ChangeEvent<HTMLInputElement>) => {
