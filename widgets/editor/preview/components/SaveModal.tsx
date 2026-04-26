@@ -60,6 +60,7 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
                       alt="저장 실패 이미지"
                       width={100}
                       height={100}
+                      className="scale-150"
                     />
                   ) : (
                     <Image
@@ -135,6 +136,7 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
                       alt="저장 실패 이미지"
                       width={100}
                       height={100}
+                      className="scale-150"
                     />
                   </div>
                 ) : (

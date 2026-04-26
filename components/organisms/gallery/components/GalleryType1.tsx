@@ -20,7 +20,7 @@ function GalleryType1({ ratio, preview, imageClick }: GalleryTemplateProps) {
       const selectedIndex = emblaApi.selectedScrollSnap();
       emblaApi.slideNodes().forEach((node, index) => {
         node.style.transform =
-          index === selectedIndex ? 'scale(1)' : 'scale(0.8)';
+          index === selectedIndex ? 'scale(1)' : 'scale(0.6)';
         node.style.transition = 'transform 0.3s ease';
       });
     };
@@ -33,11 +33,11 @@ function GalleryType1({ ratio, preview, imageClick }: GalleryTemplateProps) {
   }, [emblaApi]);
 
   return (
-    <div className="w-full min-h-[120px] overflow-hidden py-8">
-      <div ref={emblaRef}>
+    <div className="w-full min-h-[120px]">
+      <div ref={emblaRef} className="overflow-hidden">
         <div className="flex items-center">
           {preview.map((src, i) => (
-            <div key={i} className="flex-[0_0_70%]">
+            <div key={i} className="flex-[0_0_60%]">
               <div
                 role="button"
                 tabIndex={0}

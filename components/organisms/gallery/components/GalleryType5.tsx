@@ -38,10 +38,10 @@ function GalleryType5({ imageClick, preview, ratio }: GalleryTemplateProps) {
   }, [emblaApi, onScroll]);
 
   return (
-    <div className="w-full min-h-[120px] py-8">
+    <div className="w-full min-h-[120px]">
       {/* overflow-hidden을 viewport로 이동 */}
       <div ref={emblaRef} className="overflow-hidden">
-        <div className="flex items-center py-5">
+        <div className="flex items-center py-8">
           {preview.map((src, i) => (
             // -mx-1 제거, 대신 내부 padding으로 간격 확보
             <div key={i} className="flex-[0_0_70%] min-w-0">

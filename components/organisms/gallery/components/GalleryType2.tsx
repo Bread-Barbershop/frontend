@@ -15,9 +15,9 @@ function GalleryType2({ preview, ratio, imageClick }: GalleryTemplateProps) {
   );
 
   return (
-    <div className="w-full min-h-[120px] overflow-hidden py-8">
+    <div className="w-full min-h-[120px] overflow-hidden">
       <div ref={emblaRef}>
-        <div className="flex items-center">
+        <div className="flex items-center px-[20%]">
           {preview.map((src, i) => (
             <div key={i} className="embla__slide flex-[0_0_60%] -mx-6">
               <div

@@ -47,7 +47,7 @@ function GalleryType3({ imageClick, preview, ratio }: GalleryTemplateProps) {
   }, [emblaApi, onSelect]);
 
   return (
-    <div className="w-full py-6">
+    <div className="w-full">
       <div ref={emblaRef} className="overflow-hidden">
         <div
           className="flex items-stretch gap-2 transition-[height] duration-300"

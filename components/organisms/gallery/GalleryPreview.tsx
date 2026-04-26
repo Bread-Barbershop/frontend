@@ -4,6 +4,7 @@ import { PicturePopViewer } from '@/components/molecules/picture/PicturePopViewe
 import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
 import { useResolvedImageSources } from '@/shared/hooks/useResolvedImageSources';
 import { EditorBlock } from '@/shared/types/block';
+import { cn } from '@/shared/utils/cn';
 
 import { GalleryTemplate } from './components';
 import ImageDefault from './components/ImageDefault';
@@ -42,9 +43,12 @@ function GalleryPreview({
 
   return (
     <MiddlePreviewWrapper
-      className={className}
-      enTitle="GALLERY"
+      className={cn(className, 'px-1')}
+      checkedEnglishTitle={blockInfo.props.isEnglishTitle}
+      enTitle={blockInfo.props.enTitle}
+      enTitleDefault="GALLERY"
       koTitle={blockInfo.props.title}
+      koTitleDefault="갤러리"
       titleClassName={titleClassName}
       {...rest}
     >

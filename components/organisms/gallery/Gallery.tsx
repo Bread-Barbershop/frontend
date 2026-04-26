@@ -31,6 +31,9 @@ function Gallery({ blockInfo, id }: Props) {
   const handleOnChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { title: e.target.value });
   };
+  const handleOnChangeEngTitle = (e: ChangeEvent<HTMLInputElement>) => {
+    updateBlock(id, { enTitle: e.target.value });
+  };
 
   const handlePictureChange = (file: (File | string)[]) => {
     const curerentImage = images.filter(img => img.id === id);
@@ -57,6 +60,9 @@ function Gallery({ blockInfo, id }: Props) {
   const handlePopViewChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { isPopupViewer: e.target.checked });
   };
+  const handleEnglishTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    updateBlock(id, { isEnglishTitle: e.target.checked });
+  };
 
   const handleAspectRatioChange = (e: PointerEvent<HTMLButtonElement>) => {
     updateBlock(id, { ratio: e.currentTarget.value });
@@ -68,24 +74,28 @@ function Gallery({ blockInfo, id }: Props) {
       <div className="w-full flex flex-col gap-1">
         <TextField
           label="제목"
-          className="py-1.5"
+          className="py-1.5 text-center"
           inputProps={{
-            placeholder: '제목을 입력해주세요.',
+            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
             onChange: e => handleOnChangeTitle(e),
             value: blockInfo.props.title,
           }}
         />
-        <div className="flex gap-2 py-2">
-          <Label className="font-semibold shrink-0">추가기능</Label>
-          <Checkbox onChange={handlePopViewChange}>
-            <p className="font-normal text-text-secondary text-[13px]">
-              팝업뷰어(사진을 터치하여 크게 볼 수 있어요.)
-            </p>
-          </Checkbox>
-        </div>
+        {blockInfo.props.isEnglishTitle && (
+          <TextField
+            label="영문 제목"
+            className="py-1.5 text-center"
+            inputProps={{
+              placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+              onChange: e => handleOnChangeEngTitle(e),
+              value: blockInfo.props.enTitle,
+            }}
+          />
+        )}
+
         <Picture
           label="사진"
-          className="py-1"
+          className="py-1 text-center"
           multiple={true}
           value={blockInfo.props.images}
           onChange={file => handlePictureChange(file)}
@@ -109,6 +119,27 @@ function Gallery({ blockInfo, id }: Props) {
             사진을 드래그하여 순서 변경 가능
           </li>
         </ul>
+        <div className="flex items-center gap-2 pt-2">
+          <Label className="font-semibold shrink-0 text-center">추가기능</Label>
+          <div>
+            <Checkbox
+              onChange={handleEnglishTitleChange}
+              checked={blockInfo.props.isEnglishTitle}
+            >
+              <p className="font-normal text-text-secondary text-[13px]">
+                영문 제목 추가
+              </p>
+            </Checkbox>
+            <Checkbox
+              onChange={handlePopViewChange}
+              checked={blockInfo.props.isPopupViewer}
+            >
+              <p className="font-normal text-text-secondary text-[13px]">
+                팝업뷰어(사진을 터치하여 크게 볼 수 있어요.)
+              </p>
+            </Checkbox>
+          </div>
+        </div>
       </div>
     </LeftEditorWrapper>
   );
