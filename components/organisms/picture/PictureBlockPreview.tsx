@@ -5,6 +5,7 @@ import { Image } from '@/components/atoms/image';
 import { PreviewBody } from '@/components/atoms/preview-body/PreviewBody';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 import { EditorBlock } from '@/shared/types/block';
+import { cn } from '@/shared/utils/cn';
 
 import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
 
@@ -31,7 +32,9 @@ function PictureBlockPreview({ blockInfo, className, ...rest }: Props) {
       className={className}
       {...rest}
     >
-      <div className={`flex flex-col ${blockInfo.props.isContents && 'gap-6'}`}>
+      <div
+        className={cn('flex flex-col', blockInfo.props.isContents && 'gap-6')}
+      >
         <div>
           {blockInfo.props.isContents && (
             <PreviewBody html={blockInfo.props.contentsHtml ?? ''} />

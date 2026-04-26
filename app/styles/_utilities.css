@@ -150,7 +150,7 @@
     transform: scale(0.6) translateY(100px) rotate(35deg);
   }
 
-  /* 좌측 -2 */
+  /* 좌측 -3 */
   .embla__slide:has(
     + .embla__slide + .embla__slide + .embla__slide.is-snapped
   ) {

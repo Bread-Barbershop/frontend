@@ -65,12 +65,11 @@ function GalleryType6({ imageClick, preview, ratio }: GalleryTemplateProps) {
       >
         <button
           type="button"
+          disabled={!shouldShowButton}
           aria-label={isFullyExpanded ? '갤러리 접기' : '갤러리 더 보기'}
           className={cn(
             'flex-center rounded-full border border-[#EAEAEA] backdrop-blur-[6px] bg-white/10 w-8 h-8',
-            shouldShowButton
-              ? 'pointer-events-auto cursor-pointer'
-              : 'pointer-events-none'
+            shouldShowButton ? 'cursor-pointer' : 'cursor-default'
           )}
           onClick={e => {
             e.stopPropagation();
