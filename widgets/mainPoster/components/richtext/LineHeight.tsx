@@ -86,8 +86,14 @@ function LineHeight() {
           {/* 우측 값 표시 */}
           <input
             type="text"
-            readOnly
             value={showValue}
+            onChange={e => {
+              setShowValue(e.target.value);
+              const d = Number(e.target.value);
+              if (!isNaN(d)) {
+                applyValue(d);
+              }
+            }}
             className="flex items-center justify-center text-center w-[47px] h-[32px] text-xs bg-bg-base border border-border-neutral rounded-lg focus:outline-none"
           />
         </div>

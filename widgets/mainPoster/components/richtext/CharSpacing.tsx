@@ -78,8 +78,14 @@ function CharSpacing() {
         {/* 우측 값 표시 (입력 가능) */}
         <input
           type="text"
-          readOnly
           value={showValue}
+          onChange={({ target: { value } }) => {
+            setShowValue(value);
+            const num = parseFloat(value);
+            if (!isNaN(num)) {
+              applyValue(num);
+            }
+          }}
           className="flex items-center justify-center text-center w-[47px] h-[32px] text-xs bg-bg-base border border-border-neutral rounded-lg focus:outline-none"
         />
       </div>
