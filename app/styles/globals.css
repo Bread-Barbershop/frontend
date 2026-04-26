@@ -3,3 +3,13 @@
 @import './_variables.css';
 @import './_utilities.css';
 @import 'tailwindcss';
+
+/* TipTap Placeholder */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #787878;
+  pointer-events: none;
+  height: 0;
+  display: block;
+  text-align: center;
+}

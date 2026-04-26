@@ -57,22 +57,6 @@ const DEFAULT_FONT_SIZE_OPTION: FontSizeOption = FONT_SIZE_OPTIONS[0];
 const DEFAULT_TEXT_ALIGN_OPTION: TextAlignOption = TEXT_ALIGN_OPTIONS[1];
 const DEFAULT_EDITOR_TEXT = '내용을 입력하세요.';
 
-function createDefaultDoc(
-  text: string,
-  align: TextAlignValue = DEFAULT_TEXT_ALIGN_OPTION.value
-): JSONContent {
-  return {
-    type: 'doc',
-    content: [
-      {
-        type: 'paragraph',
-        attrs: { textAlign: align },
-        content: [{ type: 'text', text }],
-      },
-    ],
-  };
-}
-
 export function TextEditor({
   value,
   defaultText = DEFAULT_EDITOR_TEXT,
@@ -83,19 +67,20 @@ export function TextEditor({
     DEFAULT_FONT_SIZE_OPTION
   );
   const [textAlignSelected, setTextAlignSelected] = useState<TextAlignOption>(
-    DEFAULT_TEXT_ALIGN_OPTION
+    TEXT_ALIGN_OPTIONS.find(opt => opt.value === defaultAlign) ??
+      DEFAULT_TEXT_ALIGN_OPTION
   );
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const colorPickerContainerRef = useRef<HTMLDivElement>(null);
 
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: createTextEditorBarExtensions(),
-    content: value ?? createDefaultDoc(defaultText, defaultAlign),
+    extensions: createTextEditorBarExtensions(defaultText),
+    content: value ?? null,
     editorProps: {
       attributes: {
         class:
-          'min-h-[120px] outline-none text-[14px] leading-7 selection:bg-primary/20 selection:text-inherit [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6',
+          'flex flex-col items-center justify-center min-h-[120px] outline-none text-[14px] leading-7 selection:bg-primary/20 selection:text-inherit [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6',
       },
     },
     onCreate({ editor }) {
