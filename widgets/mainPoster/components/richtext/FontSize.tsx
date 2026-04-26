@@ -11,7 +11,7 @@ function FontSize() {
     activeInfo,
     getRichStyles,
     applyRichStyle,
-    // debouncedApplyStyle,
+    debouncedApplyStyle,
   } = useFabricContext();
   const activeObject = canvas?.getActiveObject() as Textbox;
   const currentFontSize =
@@ -66,6 +66,7 @@ function FontSize() {
   if (!canvas) return null;
   return (
     <Selector
+      className="w-"
       placeholder="16px"
       options={fontSize}
       onSelect={option => {
@@ -80,14 +81,14 @@ function FontSize() {
           applyRichStyle({ fontSize: safeSize }, canvas);
         }
       }}
-      // onInputChange={value => {
-      //   setSelectedFontSize({ label: value, value: value });
+      onInputChange={value => {
+        setSelectedFontSize({ label: value ? `${value}px` : '', value: value });
 
-      //   const safeSize = handleNumberChange(value);
-      //   if (safeSize) {
-      //     debouncedApplyStyle({ fontSize: safeSize }, canvas);
-      //   }
-      // }}
+        const safeSize = handleNumberChange(value);
+        if (safeSize) {
+          debouncedApplyStyle({ fontSize: safeSize }, canvas);
+        }
+      }}
       selected={selectedFontSize}
       showCheckbox={false}
     />

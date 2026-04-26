@@ -56,7 +56,6 @@ export const Selector = <T extends Option>({
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     onInputChange?.(e.target.value);
-    onSelect({ label: e.target.value, value: e.target.value });
   };
 
   const handleSelect = (option: T) => {
@@ -115,7 +114,7 @@ export const Selector = <T extends Option>({
             ref={inputRef}
             type="text"
             className="w-full h-9 px-2 bg-transparent outline-none text-text-primary text-sm"
-            value={typeof selected?.label === 'string' ? selected.label : ''}
+            value={typeof selected?.value === 'string' ? selected.value : ''}
             onChange={handleInputChange}
             onBlur={() => {
               if (!selected?.label) setIsCustomInput(false);
@@ -191,9 +190,9 @@ export const Selector = <T extends Option>({
         {onInputChange && (
           <li
             onClick={handleCustomMenuItemClick}
-            className="h-7 leading-7 px-2 py-0.5 text-center text-sm hover:bg-bg-sub cursor-pointer"
+            className="h-7 leading-7 px-1 py-0.5 text-center text-[13px] hover:bg-bg-sub cursor-pointer"
           >
-            직접 입력
+            직접입력
           </li>
         )}
       </ul>
