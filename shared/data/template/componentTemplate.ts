@@ -16,4 +16,4 @@ export const calendarTemplate = [
   'calendarType5',
 ];
 
-export const shareUrlTemplate = ['shareUrlType1'];
+export const shareUrlTemplate: string[] = [];
