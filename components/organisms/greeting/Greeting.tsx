@@ -1,7 +1,5 @@
-import { Plus } from 'lucide-react';
-import { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, useEffect, useMemo } from 'react';
 
-import { UtilityButton } from '@/components/atoms/button';
 import { Label } from '@/components/atoms/label/Label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
@@ -13,10 +11,6 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 import { debounce } from '@/shared/utils/debounce';
 
-import PopupOptions from '../popup/PopupOptions';
-
-import { GREETING_SAMPLE_MESSAGES } from './greetingSampleMessages';
-
 import type { JSONContent } from '@tiptap/react';
 
 interface Props {
@@ -27,26 +21,6 @@ interface Props {
 const DEFAULT_GREETING_TITLE = '인사말';
 const DEFAULT_GREETING_ENGLISH_TITLE = 'INVITATION';
 
-function createParagraphJson(text: string): JSONContent {
-  const lines = text.replace(/\r\n/g, '\n').split('\n');
-
-  return {
-    type: 'doc',
-    content: lines.map(line =>
-      line.length === 0
-        ? {
-            type: 'paragraph',
-            attrs: { textAlign: 'center' },
-          }
-        : {
-            type: 'paragraph',
-            attrs: { textAlign: 'center' },
-            content: [{ type: 'text', text: line }],
-          }
-    ),
-  };
-}
-
 function Greeting({ blockInfo, id }: Props) {
   const updateBlock = useEditorStore(state => state.updateBlock);
   const {
@@ -55,8 +29,6 @@ function Greeting({ blockInfo, id }: Props) {
     englishTitle = DEFAULT_GREETING_ENGLISH_TITLE,
     messageJson,
   } = blockInfo.props;
-  const [isSamplePopupOpen, setIsSamplePopupOpen] = useState(false);
-  const [editorResetKey, setEditorResetKey] = useState(0);
   const debouncedUpdateMessage = useMemo(
     () =>
       debounce((messageJson: JSONContent) => {
@@ -108,18 +80,6 @@ function Greeting({ blockInfo, id }: Props) {
     debouncedUpdateMessage(json);
   };
 
-  const handleSampleSelect = (text: string) => {
-    debouncedUpdateMessage.cancel();
-    const messageJson = createParagraphJson(text);
-    updateBlock(id, {
-      messageJson,
-      messageHtml: tiptapJsonToHtmlInBrowser(messageJson),
-    });
-    // 같은 문구를 다시 선택해도 에디터가 해당 문구로 초기화되도록 강제 리마운트한다.
-    setEditorResetKey(prev => prev + 1);
-    setIsSamplePopupOpen(false);
-  };
-
   return (
     <LeftEditorWrapper ariaLabel="인사말" className="gap-4">
       <NavigationBar>인사말</NavigationBar>
@@ -149,48 +109,27 @@ function Greeting({ blockInfo, id }: Props) {
         />
       )}
 
-      <NavigationBar
-        action={
-          <UtilityButton
-            size="md"
-            variant="primary"
-            onClick={() => setIsSamplePopupOpen(true)}
-          >
-            <Plus size={16} />
-            샘플문구
-          </UtilityButton>
-        }
-        direction="right"
-      >
-        내용
-      </NavigationBar>
+      <NavigationBar>내용</NavigationBar>
 
-      <TextEditor
-        key={`${id}-${editorResetKey}`}
-        value={messageJson}
-        defaultText="내용을 입력해 주세요"
-        defaultAlign="center"
-        onChange={handleEditorChange}
-      />
-
-      <section className="flex flex-row gap-2 items-center w-full">
-        <Label className="font-semibold">추가기능</Label>
-        <Checkbox
-          checked={checkedEnglishTitle}
-          onChange={handleEnglishTitleCheckedChange}
-        >
-          영문 제목 추가
-        </Checkbox>
-      </section>
-
-      {isSamplePopupOpen && (
-        <PopupOptions
-          popupTitle="샘플 문구"
-          options={GREETING_SAMPLE_MESSAGES}
-          onSelect={handleSampleSelect}
-          onClose={() => setIsSamplePopupOpen(false)}
+      <div className="w-full flex flex-col gap-2">
+        <TextEditor
+          key={id}
+          value={messageJson}
+          defaultText="내용을 입력해 주세요"
+          defaultAlign="center"
+          onChange={handleEditorChange}
         />
-      )}
+
+        <section className="flex flex-row gap-2 items-center w-full">
+          <Label className="font-semibold">추가기능</Label>
+          <Checkbox
+            checked={checkedEnglishTitle}
+            onChange={handleEnglishTitleCheckedChange}
+          >
+            영문 제목 추가
+          </Checkbox>
+        </section>
+      </div>
     </LeftEditorWrapper>
   );
 }
