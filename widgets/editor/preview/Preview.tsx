@@ -9,6 +9,7 @@ import { MainPosterPreview } from '@/widgets/mainPoster/components/MainPosterPre
 
 import ComponentsPopup from './components/ComponentsPopup';
 import OrderPanel from './components/OrderPanel';
+import { ShareUrlButton } from './components/ShareUrlButton';
 import UploadButton from './components/UploadButton';
 import { previewTitleVariants } from './previewTitle.style';
 
@@ -104,6 +105,7 @@ function Preview() {
       </div>
       <div className="w-28 flex flex-col gap-4 absolute -right-43 top-1/2 -translate-y-1/2 z-10">
         <OrderPanel />
+        <ShareUrlButton />
         <UploadButton />
       </div>
 
