@@ -37,7 +37,7 @@ function GalleryType1({ ratio, preview, imageClick }: GalleryTemplateProps) {
       <div ref={emblaRef} className="overflow-hidden">
         <div className="flex items-center">
           {preview.map((src, i) => (
-            <div key={i} className="flex-[0_0_60%]">
+            <div key={i} className="flex-[0_0_50%]">
               <div
                 role="button"
                 tabIndex={0}
