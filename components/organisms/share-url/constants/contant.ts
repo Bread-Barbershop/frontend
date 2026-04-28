@@ -2,12 +2,11 @@ export const SHARE_NOTICES = [
   {
     id: 1,
     text: '* 해당 초대장을 공유 시 반영되는 기능입니다.',
-    colorClass: 'text-red-500',
+    colorClass: 'text-blue-500',
   },
   {
     id: 2,
     text: '* 위치보기 버튼은 오시는 길 블록이 설정되어야 켤 수 있습니다',
-    colorClass: 'text-blue-500',
   },
   {
     id: 3,

@@ -157,4 +157,17 @@
     @apply opacity-100 z-[5] pointer-events-auto;
     transform: scale(0.6) translateY(100px) rotate(-35deg);
   }
+
+  .checkerboard {
+    background-image: conic-gradient(
+      #e5e7eb 25%,
+      transparent 25% 50%,
+      #e5e7eb 50% 75%,
+      transparent 75%
+    );
+  }
+
+  .checker-size {
+    background-size: 20px 20px;
+  }
 }
