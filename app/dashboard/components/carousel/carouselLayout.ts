@@ -1,12 +1,16 @@
 import { CSSProperties } from 'react';
 
+const carouselCardHeight = '520px';
+
 export const dashboardCarouselLayout = {
   // 대시보드 셸 내부에서 캐러셀이 차지하는 전체 높이
-  stageHeight: '72%',
+  stageHeight: '75%',
+  dashboardStageHeight: '82%',
   // 캐러셀 전체 트랙이 아래로 얼마나 묻혀 보일지 결정하는 값
   buriedOffset: '21rem',
   // 선택된 카드가 기본 위치에서 위로 얼마나 떠오를지 결정하는 값
   selectedLift: '20rem',
+  dashboardSelectedLift: '16.5rem',
   // 떠오른 카드와 헤더가 위쪽에서 잘리지 않도록 확보하는 여백
   safeTop: '3rem',
   // 아래쪽에 묻힌 카드가 답답해 보이지 않도록 확보하는 여백
@@ -21,11 +25,11 @@ export const dashboardCarouselLayout = {
   cardLiftDurationMs: 600,
   // 카드 본체와 헤더가 함께 사용하는 공통 카드 크기
   cardWidth: '260px',
-  cardHeight: '475px',
+  cardHeight: carouselCardHeight,
   // 선택된 카드 위에 붙는 헤더 높이
   headerHeight: '32px',
   // 선택 상태에서 헤더와 카드가 합쳐졌을 때의 전체 시각 높이
-  selectedVisualHeight: 'calc(475px + 32px)',
+  selectedVisualHeight: `calc(${carouselCardHeight} + 32px)`,
   // 선택된 카드 우측 상단 액션 버튼 묶음 위치 보정값
   actionTop: '36px',
   actionRight: '-24px',

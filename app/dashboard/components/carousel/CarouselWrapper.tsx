@@ -7,6 +7,7 @@ import { InviteListItem } from '@/app/dashboard/types';
 import { getInvitationShowcaseItem } from '@/app/dashboard/utils/getInvitationShowcaseItem';
 
 import CarouselBase from './CarouselBase';
+import { dashboardCarouselLayout } from './carouselLayout';
 import { CarouselCardItem } from './carouselTypes';
 
 type CarouselWrapperProps = {
@@ -43,6 +44,8 @@ function CarouselWrapper({ initialInvites = [] }: CarouselWrapperProps) {
     <CarouselBase
       items={items}
       startIndex={Math.max(invites.length - 1, 0)}
+      stageHeight={dashboardCarouselLayout.dashboardStageHeight}
+      selectedLift={dashboardCarouselLayout.dashboardSelectedLift}
       showHeader
       showSideActions
       showCenterActions

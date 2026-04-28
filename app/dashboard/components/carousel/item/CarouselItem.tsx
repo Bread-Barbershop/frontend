@@ -18,6 +18,7 @@ type CarouselItemProps = {
   showHeader?: boolean;
   showSideActions?: boolean;
   showCenterActions?: boolean;
+  selectedLift?: string;
   onSelect: (index: number) => void;
   onUpdate?: (folderId: string, uuid?: string) => void;
   onPublish?: (folderId: string) => void;
@@ -35,6 +36,7 @@ function CarouselItem({
   showHeader = false,
   showSideActions = false,
   showCenterActions = false,
+  selectedLift: selectedLiftProp = dashboardCarouselLayout.selectedLift,
   onSelect,
   onUpdate,
   onPublish,
@@ -48,10 +50,13 @@ function CarouselItem({
   const invite = item.invite;
   const showSelectedOverlay = showHeader || showSideActions || showCenterActions;
   const hoverLift = showHeader
-    ? `calc(${dashboardCarouselLayout.selectedLift} - ${dashboardCarouselLayout.headerHeight})`
-    : dashboardCarouselLayout.selectedLift;
+    ? `calc(${selectedLiftProp} - ${dashboardCarouselLayout.headerHeight})`
+    : selectedLiftProp;
+  const selectedLift = showHeader
+    ? `calc(${selectedLiftProp} + ${dashboardCarouselLayout.headerHeight})`
+    : selectedLiftProp;
   const translateY = isSelected
-    ? dashboardCarouselLayout.selectedLift
+    ? selectedLift
     : isHovered
       ? hoverLift
       : null;
@@ -77,9 +82,10 @@ function CarouselItem({
       onMouseLeave={() => setIsHovered(false)}
       aria-label={item.invite?.name ?? item.alt}
       aria-pressed={isSelected}
-      className={`group relative shrink-0 overflow-visible cursor-pointer text-left ${
+      className={`group relative shrink-0 overflow-visible cursor-pointer select-none text-left ${
         isSelected ? 'z-10' : 'hover:z-10'
       }`}
+      draggable={false}
       style={{
         width: dashboardCarouselLayout.cardWidth,
         height: dashboardCarouselLayout.cardHeight,
@@ -163,6 +169,7 @@ function CarouselItem({
               alt={item.alt}
               fill
               sizes="260px"
+              draggable={false}
               className="object-cover"
             />
             <div

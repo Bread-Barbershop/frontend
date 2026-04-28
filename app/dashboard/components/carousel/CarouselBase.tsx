@@ -1,7 +1,7 @@
 'use client';
 
 import useEmblaCarousel from 'embla-carousel-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { dashboardCarouselLayout } from './carouselLayout';
 import CarouselTrack from './CarouselTrack';
@@ -14,6 +14,8 @@ type CarouselBaseProps = {
   showHeader?: boolean;
   showSideActions?: boolean;
   showCenterActions?: boolean;
+  stageHeight?: string;
+  selectedLift?: string;
   onUpdate?: (folderId: string, uuid?: string) => void;
   onPublish?: (folderId: string) => void;
   onCopyUrl?: (folderId: string) => void;
@@ -29,6 +31,8 @@ function CarouselBase({
   showHeader = false,
   showSideActions = false,
   showCenterActions = false,
+  stageHeight = dashboardCarouselLayout.stageHeight,
+  selectedLift,
   onUpdate,
   onPublish,
   onCopyUrl,
@@ -38,6 +42,7 @@ function CarouselBase({
   isPublishing,
 }: CarouselBaseProps) {
   const [selectedIndex, setSelectedIndex] = useState(startIndex);
+  const hasHandledInitialLayoutRef = useRef(false);
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'center',
     containScroll: false,
@@ -54,6 +59,7 @@ function CarouselBase({
       setSelectedIndex(emblaApi.selectedScrollSnap());
     };
 
+    syncSelectedIndex();
     emblaApi.on('select', syncSelectedIndex);
     emblaApi.on('reInit', syncSelectedIndex);
 
@@ -65,6 +71,11 @@ function CarouselBase({
 
   useEffect(() => {
     if (!emblaApi) return;
+
+    if (!hasHandledInitialLayoutRef.current) {
+      hasHandledInitialLayoutRef.current = true;
+      return;
+    }
 
     emblaApi.reInit();
 
@@ -105,15 +116,17 @@ function CarouselBase({
   return (
     <section
       className="relative left-1/2 w-screen -translate-x-1/2"
-      style={{ height: dashboardCarouselLayout.stageHeight }}
+      style={{ height: stageHeight }}
     >
       <CarouselTrack
         emblaRef={emblaRef}
         items={items}
+        isReady={Boolean(emblaApi)}
         selectedIndex={selectedIndex}
         showHeader={showHeader}
         showSideActions={showSideActions}
         showCenterActions={showCenterActions}
+        selectedLift={selectedLift}
         onSelect={handleSelect}
         onUpdate={onUpdate}
         onPublish={onPublish}
