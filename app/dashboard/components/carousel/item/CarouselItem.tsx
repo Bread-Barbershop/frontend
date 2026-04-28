@@ -82,9 +82,10 @@ function CarouselItem({
       onMouseLeave={() => setIsHovered(false)}
       aria-label={item.invite?.name ?? item.alt}
       aria-pressed={isSelected}
-      className={`group relative shrink-0 overflow-visible cursor-pointer text-left ${
+      className={`group relative shrink-0 overflow-visible cursor-pointer select-none text-left ${
         isSelected ? 'z-10' : 'hover:z-10'
       }`}
+      draggable={false}
       style={{
         width: dashboardCarouselLayout.cardWidth,
         height: dashboardCarouselLayout.cardHeight,
@@ -168,6 +169,7 @@ function CarouselItem({
               alt={item.alt}
               fill
               sizes="260px"
+              draggable={false}
               className="object-cover"
             />
             <div
