@@ -4,11 +4,11 @@ export const shareUrlSchema = {
   type: shareUrlTemplate,
   fields: {
     title: {
-      default: '',
+      default: '소중한 분들을 초대합니다.',
       required: true,
     },
     description: {
-      default: '',
+      default: '뜻깊은 날, 귀한 걸음으로 저희와 함께해 주세요.',
       required: true,
     },
     images: {
@@ -16,11 +16,11 @@ export const shareUrlSchema = {
       required: true,
     },
     urlTitle: {
-      default: '',
+      default: '소중한 분들을 초대합니다.',
       required: true,
     },
     urlDescription: {
-      default: '',
+      default: '뜻깊은 날, 귀한 걸음으로 저희와 함께해 주세요.',
       required: true,
     },
     urlImage: {

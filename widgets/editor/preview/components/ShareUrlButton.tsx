@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useShallow } from 'zustand/shallow';
 
@@ -7,30 +7,54 @@ import CellularConnectionIcon from '@/shared/assets/icons/cellular-connection.sv
 import PlusIcon from '@/shared/assets/icons/plus.svg';
 import WifiIcon from '@/shared/assets/icons/wifi.svg';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { EditorBlock } from '@/shared/types/block';
 
+const useImageObjectUrl = (image?: File | string) => {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (image instanceof File) {
+      const url = URL.createObjectURL(image);
+      // eslint-disable-next-line
+      setImageUrl(url);
+      return () => URL.revokeObjectURL(url);
+    }
+
+    setImageUrl(typeof image === 'string' ? image : null);
+  }, [image]);
+
+  return imageUrl;
+};
+
+// --- 메인 컴포넌트: 공유 썸네일 버튼 ---
 export const ShareUrlButton = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const [previewContainer, setPreviewContainer] = useState<HTMLElement | null>(
     null
   );
 
-  const { block, selectedBlock, setIsEdit, addBlock } = useEditorStore(
-    useShallow(state => ({
-      block: state.block,
-      selectedBlock: state.selectedBlock,
-      setIsEdit: state.setIsEdit,
-      addBlock: state.addBlock,
-    }))
-  );
+  const { block, selectedId, selectedBlock, setIsEdit, addBlock } =
+    useEditorStore(
+      useShallow(state => ({
+        block: state.block,
+        selectedId: state.selectedId,
+        selectedBlock: state.selectedBlock,
+        setIsEdit: state.setIsEdit,
+        addBlock: state.addBlock,
+      }))
+    );
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPreviewContainer(document.getElementById('preview-container'));
   }, []);
 
+  const shareUrlBlock = block.find(b => b.component === 'shareUrl') as
+    | EditorBlock<'shareUrl'>
+    | undefined;
+
+  const isOpen = shareUrlBlock ? selectedId === shareUrlBlock.id : false;
+
   const openDialog = () => {
-    setIsOpen(true);
-    const shareUrlBlock = block.find(b => b.component === 'shareUrl');
     if (shareUrlBlock) {
       selectedBlock(shareUrlBlock.id);
     } else {
@@ -41,13 +65,11 @@ export const ShareUrlButton = () => {
     setIsEdit(false);
   };
 
-  // const closeDialog = () => setIsOpen(false);
-
   return (
     <>
       <button
         type="button"
-        className="w-full h-11 bg-white rounded-lg shadow-edit flex-center text-sm font-semibold"
+        className="w-full h-11 bg-white rounded-lg shadow-edit flex-center text-sm font-semibold transition-colors hover:bg-gray-50"
         onClick={openDialog}
       >
         공유 썸네일
@@ -56,38 +78,134 @@ export const ShareUrlButton = () => {
       {isOpen &&
         previewContainer &&
         createPortal(
-          <div className="absolute top-0 left-0 w-full h-[812px] bg-[#ABC1D1] flex flex-col justify-between ring-1 ring-black rounded-lg overflow-hidden">
-            <div>
-              <div className="flex justify-between">
-                <div className="h-10 pl-[49px] font-semibold text-[17px] flex items-center">
-                  9:41
-                </div>
-                <div className="pr-[29px] gap-[7px] flex items-center">
-                  <CellularConnectionIcon />
-                  <WifiIcon />
-                  <CapacityIcon />
-                </div>
-              </div>
-              <div className="h-10 w-full flex-center font-semibold text-[13px]">
-                미리보기
-              </div>
-            </div>
-            <div className="bg-white pt-2 ">
-              <div className="flex items-center gap-[6px] px-2">
-                <div className="flex-center size-6 rounded-full bg-[#EFEFEF]">
-                  <PlusIcon />
-                </div>
-                <div className="bg-[#EFEFEF] rounded-3xl leading-[22px] py-[5px] px-2 text-[#A7A7A7] text-[11px] flex-1">
-                  카카오 초대장 썸네일 미리보기입니다.
-                </div>
-              </div>
-              <div className="flex justify-center pt-[21px] h-[34px]">
-                <div className="bg-black h-[5px] w-[144px] rounded-full" />
-              </div>
-            </div>
-          </div>,
+          <KakaoShareUrlView block={shareUrlBlock} />,
           previewContainer
         )}
     </>
+  );
+};
+
+// --- 하위 컴포넌트: 카카오톡 공유 썸네일 미리보기 UI ---
+const KakaoShareUrlView = ({ block }: { block?: EditorBlock<'shareUrl'> }) => {
+  const {
+    title,
+    description,
+    images = [],
+    showLocationButton = false,
+    showShareButton = true,
+  } = block?.props ?? {};
+
+  const displayTitle = title || '소중한 분들을 초대합니다.';
+  const displayDescription = description || '뜻깊은 날, 귀한 걸음으로 저희와 함께해 주세요.';
+
+  const imageUrl = useImageObjectUrl(images[0]);
+  const selectedBlock = useEditorStore(state => state.selectedBlock);
+  const popupRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      // 1. 팝업 내부(프리뷰 영역)를 클릭한 경우 무시
+      if (popupRef.current?.contains(e.target as Node)) return;
+
+      // 2. 좌측 패널(에디터) 영역을 클릭한 경우 무시
+      const isLeftPanel = (e.target as Element).closest('section[aria-label="공유 썸네일"]');
+      if (isLeftPanel) return;
+
+      // 3. 그 외의 배경 등 다른 영역 클릭 시 팝업 닫기 (선택 해제)
+      selectedBlock(null);
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [selectedBlock]);
+
+  return (
+    <div
+      ref={popupRef}
+      className="absolute top-0 left-0 w-full h-[812px] bg-[#ABC1D1] flex flex-col justify-between ring-1 ring-black rounded-lg overflow-hidden z-50"
+    >
+      {/* 상단바 */}
+      <header>
+        <div className="flex justify-between h-10 px-[29px] pl-[49px]">
+          <div className="font-semibold text-[17px] flex items-center">
+            9:41
+          </div>
+          <div className="gap-[7px] flex items-center">
+            <CellularConnectionIcon />
+            <WifiIcon />
+            <CapacityIcon />
+          </div>
+        </div>
+        <div className="h-10 w-full flex-center font-semibold text-[13px]">
+          미리보기
+        </div>
+      </header>
+
+      {/* 카카오톡 메시지 본문 */}
+      <main className="flex flex-1 gap-2 px-2 py-8">
+        <div className="size-[30px] rounded-[10px] bg-[#E2D9CE] overflow-hidden shrink-0" />
+        <div className="flex-1">
+          <p className="flex items-center h-6 text-[#1A1A1A] text-[13px]">
+            사용자님
+          </p>
+          <div className="bg-white pb-2 w-[260px] rounded-lg shadow-sm">
+            {/* 썸네일 이미지 영역 */}
+            <div>
+              {imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={imageUrl}
+                  alt="thumbnail"
+                  className="w-full aspect-square object-cover rounded-t-lg"
+                />
+              ) : (
+                <div className="checkerboard checker-size aspect-square w-full rounded-t-lg" />
+              )}
+            </div>
+
+            {/* 텍스트 영역 */}
+            <div className="px-2.5 mt-2">
+              <p className="font-semibold text-[13px] leading-[22px] mb-0.5 truncate text-[#1A1A1A]">
+                {displayTitle}
+              </p>
+              <p className="text-[11px] leading-[16px] mb-2 line-clamp-2 text-[#666666]">
+                {displayDescription}
+              </p>
+            </div>
+
+            {/* 하단 버튼 영역 */}
+            {(showShareButton || showLocationButton) && (
+              <div className="flex gap-2 px-2.5">
+                {showShareButton && (
+                  <button className="bg-[#F2F2F2] rounded-[4px] py-[5px] text-[12px] leading-[18px] flex-1 text-[#1A1A1A] transition-colors hover:bg-[#E5E5E5]">
+                    보러가기
+                  </button>
+                )}
+                {showLocationButton && (
+                  <button className="bg-[#F2F2F2] rounded-[4px] py-[5px] text-[12px] leading-[18px] flex-1 text-[#1A1A1A] transition-colors hover:bg-[#E5E5E5]">
+                    위치보기
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+
+      {/* 하단바 (입력창) */}
+      <footer className="bg-white pt-2 pb-5 px-2">
+        <div className="flex items-center gap-[6px] mb-2">
+          <div className="flex-center size-[28px] rounded-full bg-[#F2F2F2]">
+            <PlusIcon />
+          </div>
+          <div className="bg-[#F2F2F2] rounded-3xl leading-[22px] py-[6px] px-3 text-[#A7A7A7] text-[13px] flex-1">
+            카카오 초대장 썸네일 미리보기입니다.
+          </div>
+        </div>
+        <div className="flex justify-center pt-[10px] h-[34px]">
+          <div className="bg-black h-[5px] w-[134px] rounded-full" />
+        </div>
+      </footer>
+    </div>
   );
 };
