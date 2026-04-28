@@ -2,10 +2,11 @@ import { getAuthSession } from '@/app/api/auth/_lib/getAuthSession';
 import CarouselBase from '@/app/dashboard/components/carousel/CarouselBase';
 
 import Cta from './components/Cta';
-import { showcaseItems } from './components/showcaseItems';
+import { getShuffledShowcaseItems } from './components/showcaseItems';
 
 export default async function Home() {
   const session = await getAuthSession();
+  const showcaseItems = getShuffledShowcaseItems();
 
   return (
     <>

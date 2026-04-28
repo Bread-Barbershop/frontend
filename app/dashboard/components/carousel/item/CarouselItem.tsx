@@ -18,6 +18,7 @@ type CarouselItemProps = {
   showHeader?: boolean;
   showSideActions?: boolean;
   showCenterActions?: boolean;
+  selectedLift?: string;
   onSelect: (index: number) => void;
   onUpdate?: (folderId: string, uuid?: string) => void;
   onPublish?: (folderId: string) => void;
@@ -35,6 +36,7 @@ function CarouselItem({
   showHeader = false,
   showSideActions = false,
   showCenterActions = false,
+  selectedLift: selectedLiftProp = dashboardCarouselLayout.selectedLift,
   onSelect,
   onUpdate,
   onPublish,
@@ -48,10 +50,13 @@ function CarouselItem({
   const invite = item.invite;
   const showSelectedOverlay = showHeader || showSideActions || showCenterActions;
   const hoverLift = showHeader
-    ? `calc(${dashboardCarouselLayout.selectedLift} - ${dashboardCarouselLayout.headerHeight})`
-    : dashboardCarouselLayout.selectedLift;
+    ? `calc(${selectedLiftProp} - ${dashboardCarouselLayout.headerHeight})`
+    : selectedLiftProp;
+  const selectedLift = showHeader
+    ? `calc(${selectedLiftProp} + ${dashboardCarouselLayout.headerHeight})`
+    : selectedLiftProp;
   const translateY = isSelected
-    ? dashboardCarouselLayout.selectedLift
+    ? selectedLift
     : isHovered
       ? hoverLift
       : null;

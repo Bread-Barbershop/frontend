@@ -5,10 +5,12 @@ import CarouselItem from './item/CarouselItem';
 type CarouselTrackProps = {
   emblaRef: (instance: HTMLDivElement | null) => void;
   items: CarouselCardItem[];
+  isReady: boolean;
   selectedIndex: number;
   showHeader?: boolean;
   showSideActions?: boolean;
   showCenterActions?: boolean;
+  selectedLift?: string;
   onSelect: (index: number) => void;
   onUpdate?: (folderId: string, uuid?: string) => void;
   onPublish?: (folderId: string) => void;
@@ -22,10 +24,12 @@ type CarouselTrackProps = {
 function CarouselTrack({
   emblaRef,
   items,
+  isReady,
   selectedIndex,
   showHeader = false,
   showSideActions = false,
   showCenterActions = false,
+  selectedLift,
   onSelect,
   onUpdate,
   onPublish,
@@ -38,7 +42,9 @@ function CarouselTrack({
   return (
     <div
       ref={emblaRef}
-      className="h-full w-full overflow-hidden"
+      className={`h-full w-full overflow-hidden ${
+        isReady ? 'opacity-100' : 'opacity-0'
+      }`}
       style={{
         ...dashboardCarouselVars,
         paddingTop: 'var(--carousel-safe-top)',
@@ -61,6 +67,7 @@ function CarouselTrack({
             showHeader={showHeader}
             showSideActions={showSideActions}
             showCenterActions={showCenterActions}
+            selectedLift={selectedLift}
             onSelect={onSelect}
             onUpdate={onUpdate}
             onPublish={onPublish}
