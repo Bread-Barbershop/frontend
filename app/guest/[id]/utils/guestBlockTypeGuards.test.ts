@@ -177,6 +177,7 @@ describe('isGuestPayload 테스트', () => {
       ...validPayload,
       bulkData: {
         ...validPayload.bulkData,
+        bodyData: undefined,
       },
     };
 

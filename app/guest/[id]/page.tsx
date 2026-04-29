@@ -110,7 +110,9 @@ export default async function GuestPage({
         }}
       >
         <GuestMainPoster json={payload.mainPoster} />
-        <GuestRenderer blocks={payload.blocks} bulkData={payload.bulkData} />
+        <div className="mx-auto w-full max-w-[375px]">
+          <GuestRenderer blocks={payload.blocks} bulkData={payload.bulkData} />
+        </div>
         <GuestBgm bgm={payload.bgm} />
       </div>
     </main>
