@@ -6,12 +6,21 @@ import { useShallow } from 'zustand/shallow';
 import { UtilityButton } from '@/components/atoms/button';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { TextEditorPreview } from '@/components/molecules/preview-text-editor';
+import type { BulkColorPickerId } from '@/components/molecules/preview-text-editor/types';
 import { TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { BulkData } from '@/shared/types/block';
 import { toStyle } from '@/shared/utils/toStyle';
 
-function TitleEdit() {
+type TitleEditProps = {
+  activeColorPickerId: BulkColorPickerId | null;
+  onActiveColorPickerChange: (id: BulkColorPickerId | null) => void;
+};
+
+function TitleEdit({
+  activeColorPickerId,
+  onActiveColorPickerChange,
+}: TitleEditProps) {
   const { titleData, setTitleData } = useEditorStore(
     useShallow(state => ({
       titleData: state.titleData,
@@ -41,7 +50,13 @@ function TitleEdit() {
         >
           제목 편집
         </NavigationBar>
-        <TextEditorPreview value={bulkTitleData} onChange={setBulkTitleData}>
+        <TextEditorPreview
+          value={bulkTitleData}
+          onChange={setBulkTitleData}
+          colorPickerId="title"
+          activeColorPickerId={activeColorPickerId}
+          onActiveColorPickerChange={onActiveColorPickerChange}
+        >
           <div
             className={`w-full h-full flex flex-col gap-1 ${bulkTitleData.font}`}
           >
