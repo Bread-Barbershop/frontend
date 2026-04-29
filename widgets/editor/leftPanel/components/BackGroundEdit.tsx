@@ -5,7 +5,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { Radio } from '@/components/atoms/radio';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
-import SimpleWheelColorPicker from '@/components/molecules/preview-text-editor/components/ColorPicker';
+import BulkColorPicker from '@/components/molecules/preview-text-editor/components/ColorPicker';
 import SectionArrow from '@/shared/assets/icons/sectionArrow.svg';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
@@ -27,15 +27,17 @@ function BackGroundEdit() {
         onClick={() => {
           setColorPickerOpen(!colorPickerOpen);
         }}
+        ref={colorPickerContainerRef}
       >
         <div className="flex items-center gap-2">
-          <Radio
-            checked={colorPickerOpen}
-            onChange={e => {
-              e.stopPropagation();
-              setColorPickerOpen(!colorPickerOpen);
-            }}
-          />
+          <div onClick={e => e.stopPropagation()}>
+            <Radio
+              type="checkbox"
+              name="backgroundColor"
+              checked={colorPickerOpen}
+              onChange={() => setColorPickerOpen(!colorPickerOpen)}
+            />
+          </div>
           <p className="font-semibold text-sm">색상</p>
           <div className="flex items-center gap-2">
             <div
@@ -50,14 +52,12 @@ function BackGroundEdit() {
           </div>
         </div>
         {colorPickerOpen && (
-          <div className="absolute z-50 -top-35 -translate-y-1/2 -left-2">
-            <SimpleWheelColorPicker
-              initialHex={backgroundColor}
-              onClose={() => setColorPickerOpen(false)}
-              containerRef={colorPickerContainerRef}
-              onChange={setBackgroundColor}
-            />
-          </div>
+          <BulkColorPicker
+            initialHex={backgroundColor}
+            onClose={() => setColorPickerOpen(false)}
+            containerRef={colorPickerContainerRef}
+            onChange={setBackgroundColor}
+          />
         )}
       </div>
     </div>

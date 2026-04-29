@@ -15,7 +15,10 @@ function LeftPanel() {
   );
 
   return (
-    <div className="w-93.75 ml-15 flex flex-col gap-4" data-editor-left-panel>
+    <div
+      className="w-93.75 max-h-[810px] ml-15 flex flex-col gap-4"
+      data-editor-left-panel
+    >
       <div className="w-full">
         <button
           type="button"
@@ -55,7 +58,7 @@ function LeftPanel() {
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="w-full overflow-hidden"
+              className="w-full overflow-hidden max-h-[750px]"
             >
               <Edit />
             </motion.div>

@@ -61,11 +61,14 @@ function Preview() {
   return (
     <div
       id="preview-container"
-      className="w-93.75 h-218 flex flex-col  gap-4 relative"
+      className="w-93.75 h-full max-h-[810px] flex flex-col gap-4 relative"
     >
-      <div className="h-203 bg-white" style={{ backgroundColor }}>
+      <div
+        className="max-h-[750px] h-full bg-white"
+        style={{ backgroundColor }}
+      >
         <div className="overflow-y-auto h-full w-93.75 box-border scrollbar-hide">
-          <div className="flex flex-col min-h-full">
+          <div className="flex flex-col min-h-full font-maruburi">
             <MainPosterPreview />
             {block.map(comp => {
               const registryItem = blockRegistry[comp.component];

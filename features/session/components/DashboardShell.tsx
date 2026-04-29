@@ -6,6 +6,7 @@ import { DASHBOARD_SHELL_NAV_MENU } from '@/features/session/config/dashboardShe
 import homeBackgroundImage from '@/shared/assets/images/home/home-background.png';
 
 import HeaderAuthControl from './HeaderAuthControl';
+import HomeButton from './HomeButton';
 
 export default async function DashboardShell({
   children,
@@ -20,9 +21,7 @@ export default async function DashboardShell({
       style={{ backgroundImage: `url(${homeBackgroundImage.src})` }}
     >
       <header className="h-15.5 bg-white flex items-center justify-between px-10">
-        <Link href="/" className="font-semibold text-xl text-black">
-          Invia
-        </Link>
+        <HomeButton />
 
         <div className="flex items-center h-full">
           {DASHBOARD_SHELL_NAV_MENU.map(menu => (

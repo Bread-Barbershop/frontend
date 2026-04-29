@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { useEffect } from 'react';
 
 import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
+import { usePreventBack } from '@/shared/hooks/usePreventBack';
 import LeftPanel from '@/widgets/editor/leftPanel/LeftPanel';
 import Preview from '@/widgets/editor/preview/Preview';
 import RightPanel from '@/widgets/editor/rightPanel/RightPanel';
@@ -32,11 +33,11 @@ function EditorUpdate({ folderId, uuid }: Props) {
       initBgmStore();
     }
   }, [savedData, initEditStore, initBgmStore, initBulkData]);
-
+  usePreventBack();
   if (error) notFound();
   if (loading || !savedData) {
     return (
-      <div className="w-screen h-screen flex justify-center items-center bg-[#E7E9EB]">
+      <div className="w-screen h-full flex justify-center items-center bg-[#E7E9EB]">
         <LoadingSpinner className="w-20 h-20 animate-spin" />
       </div>
     );
@@ -44,7 +45,7 @@ function EditorUpdate({ folderId, uuid }: Props) {
 
   return (
     <FabricProvider initialData={savedData?.mainPoster}>
-      <div className="w-screen h-screen bg-[#E7E9EB] flex flex-col gap-13 justify-center overflow-hidden">
+      <div className="w-screen h-full bg-[#E7E9EB] flex flex-col gap-13 justify-center overflow-hidden">
         <div className="flex justify-between items-center">
           <LeftPanel />
           <Preview />

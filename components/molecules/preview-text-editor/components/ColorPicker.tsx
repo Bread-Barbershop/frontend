@@ -1,117 +1,116 @@
 'use client';
 
-import { hexToHsva, hsvaToHex, validHex } from '@uiw/color-convert';
-import ShadeSlider from '@uiw/react-color-shade-slider';
-import Wheel from '@uiw/react-color-wheel';
-import { type RefObject, useEffect, useRef, useState } from 'react';
+import { hsvaToHex } from '@uiw/color-convert';
+import {
+  type CSSProperties,
+  type RefObject,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
+import { createPortal } from 'react-dom';
+
+import SmallColorPicker from '@/components/molecules/color-picker/SmallColorPicker';
 
 interface Props {
   initialHex?: string;
   onClose?: () => void;
-  onChange: (hex: string) => void;
   containerRef?: RefObject<HTMLElement | null>;
+  onChange: (hex: string) => void;
 }
 
-export default function SimpleWheelColorPicker({
+const VIEWPORT_GAP = 12;
+const TRIGGER_GAP = 8;
+const PANEL_GAP = 12;
+const LEFT_PANEL_SELECTOR = '[data-editor-left-panel]';
+
+export default function BulkColorPicker({
   initialHex = '#FF4D6D',
   onClose,
-  onChange,
   containerRef,
+  onChange,
 }: Props) {
-  // HEX → HSVA 변환
-  const [hsva, setHsva] = useState(() => hexToHsva(initialHex));
-
   const pickerRef = useRef<HTMLDivElement>(null);
+  const [popoverStyle, setPopoverStyle] = useState<CSSProperties>({
+    position: 'fixed',
+    left: 0,
+    top: 0,
+    visibility: 'hidden',
+    zIndex: 1000,
+  });
 
-  const hex = hsvaToHex(hsva).toUpperCase();
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
 
-  useEffect(() => {
-    if (!onClose) return;
+    const updatePosition = () => {
+      const trigger = containerRef?.current;
+      const picker = pickerRef.current;
 
-    const handleOutsideClick = (event: MouseEvent) => {
-      const target = event.target as Node;
+      if (!trigger || !picker) return;
 
-      if (pickerRef.current?.contains(target)) return;
-      if (containerRef?.current?.contains(target)) return;
+      const triggerRect = trigger.getBoundingClientRect();
+      const pickerWidth = picker.offsetWidth;
+      const pickerHeight = picker.offsetHeight;
+      const panel = trigger.closest(LEFT_PANEL_SELECTOR);
+      const panelRect = panel?.getBoundingClientRect();
+      const maxLeft = window.innerWidth - pickerWidth - VIEWPORT_GAP;
+      const preferredLeft = panelRect
+        ? panelRect.right + PANEL_GAP
+        : triggerRect.right - pickerWidth;
+      const left = Math.min(Math.max(preferredLeft, VIEWPORT_GAP), maxLeft);
+      const preferredTop = panelRect
+        ? triggerRect.top
+        : triggerRect.bottom + TRIGGER_GAP;
+      const top =
+        preferredTop + pickerHeight <= window.innerHeight - VIEWPORT_GAP ||
+        triggerRect.top - pickerHeight - TRIGGER_GAP < VIEWPORT_GAP
+          ? Math.min(
+              preferredTop,
+              window.innerHeight - pickerHeight - VIEWPORT_GAP
+            )
+          : triggerRect.top - pickerHeight - TRIGGER_GAP;
 
-      onClose();
+      setPopoverStyle({
+        position: 'fixed',
+        left,
+        top,
+        visibility: 'visible',
+        zIndex: 1000,
+      });
     };
 
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
+    updatePosition();
+    const animationFrameId = window.requestAnimationFrame(updatePosition);
 
-    document.addEventListener('mousedown', handleOutsideClick);
-    document.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+
+    const resizeObserver = new ResizeObserver(updatePosition);
+    if (containerRef?.current) resizeObserver.observe(containerRef.current);
+    if (pickerRef.current) resizeObserver.observe(pickerRef.current);
 
     return () => {
-      document.removeEventListener('mousedown', handleOutsideClick);
-      document.removeEventListener('keydown', handleKeyDown);
+      window.cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+      resizeObserver.disconnect();
     };
-  }, [onClose, containerRef]);
+  }, [containerRef]);
 
-  return (
-    <div
-      ref={pickerRef}
-      className="flex flex-col items-center justify-center gap-2 w-50 p-3 bg-white rounded-xl shadow-xl"
-    >
-      {/* Wheel */}
-      <Wheel
-        color={hsva}
-        width={160}
-        height={160}
-        onChange={color => {
-          const next = { ...hsva, ...color.hsva };
-          setHsva(next);
-          onChange(hsvaToHex(next).toUpperCase());
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div ref={pickerRef} className="shadow-xl" style={popoverStyle}>
+      <SmallColorPicker
+        defaultValue={initialHex}
+        onClose={onClose}
+        onChange={({ hsva }) => {
+          const hex = hsvaToHex(hsva);
+
+          onChange(hex);
         }}
       />
-
-      {/* Shade Slider (명도 조절) */}
-      <ShadeSlider
-        hsva={hsva}
-        radius={12}
-        style={{
-          width: '95%',
-        }}
-        onChange={shade => {
-          const next = { ...hsva, ...shade };
-          setHsva(next);
-          onChange(hsvaToHex(next).toUpperCase());
-        }}
-      />
-
-      {/* HEX 입력 */}
-      <div className="flex w-full min-w-0 items-center gap-2">
-        <label className="text-xs font-medium shrink-0">HEX</label>
-        <input
-          type="text"
-          value={hex}
-          maxLength={7}
-          onChange={e => {
-            let value = e.target.value.toUpperCase();
-
-            if (!value.startsWith('#')) {
-              value = '#' + value.replace('#', '');
-            }
-
-            if (validHex(value)) {
-              const nextHsva = hexToHsva(value);
-              setHsva(nextHsva);
-              onChange(value);
-            }
-          }}
-          className="min-w-0 flex-1 border-2 border-border-neutral rounded px-2 py-1 text-sm focus:outline-none focus:border-pink-300"
-        />
-
-        {/* 미리보기 */}
-        <div
-          className="w-10 h-8 shrink rounded"
-          style={{ backgroundColor: hex }}
-        />
-      </div>
-    </div>
+    </div>,
+    document.body
   );
 }
