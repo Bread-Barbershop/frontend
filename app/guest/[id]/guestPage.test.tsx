@@ -55,13 +55,15 @@ const guestMainPosterMock = jest.fn((props: { json: unknown }) => {
   );
 });
 
-const guestRendererMock = jest.fn((props: { blocks: unknown }) => {
-  return React.createElement(
-    'div',
-    { 'data-testid': 'guest-renderer' },
-    JSON.stringify(props.blocks)
-  );
-});
+const guestRendererMock = jest.fn(
+  (props: { blocks: unknown; bulkData: unknown }) => {
+    return React.createElement(
+      'div',
+      { 'data-testid': 'guest-renderer' },
+      JSON.stringify(props.blocks)
+    );
+  }
+);
 
 const guestBgmMock = jest.fn((props: { bgm: unknown }) => {
   return React.createElement(
@@ -77,7 +79,8 @@ jest.mock('@/app/guest/[id]/components/GuestMainPoster', () => ({
 
 jest.mock('@/app/guest/[id]/components/GuestRenderer', () => ({
   __esModule: true,
-  default: (props: { blocks: unknown }) => guestRendererMock(props),
+  default: (props: { blocks: unknown; bulkData: unknown }) =>
+    guestRendererMock(props),
 }));
 
 jest.mock('@/app/guest/[id]/components/GuestBgm', () => ({
@@ -112,6 +115,27 @@ const validGuestPayload = {
     userBgmTitle: null,
     userBgmDuration: null,
     userBgmFileId: null,
+  },
+  bulkData: {
+    backgroundColor: '#ffffff',
+    titleData: {
+      font: 'Inter',
+      fontSize: '24px',
+      color: '#000000',
+      bold: false,
+      italic: false,
+      align: 'center',
+      isDefault: true,
+    },
+    bodyData: {
+      font: 'Inter',
+      fontSize: '16px',
+      color: '#000000',
+      bold: false,
+      italic: false,
+      align: 'center',
+      isDefault: true,
+    },
   },
 };
 
@@ -179,6 +203,7 @@ describe('GuestPage 서버 컴포넌트 테스트', () => {
 
     expect(guestRendererMock).toHaveBeenCalledWith({
       blocks: validGuestPayload.blocks,
+      bulkData: validGuestPayload.bulkData,
     });
 
     expect(guestBgmMock).toHaveBeenCalledWith({
@@ -188,6 +213,8 @@ describe('GuestPage 서버 컴포넌트 테스트', () => {
     expect(html).toContain('data-testid="guest-main-poster"');
     expect(html).toContain('data-testid="guest-renderer"');
     expect(html).toContain('data-testid="guest-bgm"');
+    expect(html).toContain('max-w-[430px]');
+    expect(html).toContain('max-w-[375px]');
   });
 
   it('fetch 실패(res.ok === false)면 notFound()를 호출한다', async () => {
