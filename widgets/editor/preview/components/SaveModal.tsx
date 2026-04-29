@@ -47,13 +47,17 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
             {isPublish ? (
               <>
                 <div className="pt-5">
-                  <p className="font-semibold text-sm">
-                    {busy ? 'URL 발행중...' : '성공적으로 발행되었습니다!'}
+                  <p className="font-semibold text-base">
+                    {busy
+                      ? 'URL 발행중...'
+                      : error
+                        ? 'URL 발행에 실패하였습니다.'
+                        : '성공적으로 발행되었습니다!'}
                   </p>
                 </div>
                 <div>
                   {busy ? (
-                    <LoadingSpinner className="w-25 h-25 animate-spin" />
+                    <LoadingSpinner className="w-21 h-21 animate-spin" />
                   ) : error ? (
                     <Image
                       src="/images/saveFail.png"

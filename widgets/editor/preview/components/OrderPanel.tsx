@@ -166,6 +166,7 @@ function OrderPanel() {
               left: contextMenu.x,
             }}
             className="w-35 h-12 bg-bg-base flex-center z-10 rounded-sm shadow-edit"
+            onContextMenu={e => e.preventDefault()}
           >
             <li
               role="button"

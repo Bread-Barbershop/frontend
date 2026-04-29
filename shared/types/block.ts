@@ -35,11 +35,8 @@ export interface BulkData {
   color: string;
   bold: boolean;
   italic: boolean;
-  underline: boolean;
   align: TextAlignValue;
   isDefault: boolean;
-  charSpacing: number;
-  lineHeight: number;
 }
 
 export interface TextAlignOption {
@@ -77,7 +74,9 @@ export interface UISlice {
   selectedId: string | null;
   selectedBlock: (id: string) => void;
   activeTab: 'text' | 'image' | 'diagram' | 'background' | null;
-  setActiveTab: (tab: 'text' | 'image' | 'diagram' | 'background' | null) => void;
+  setActiveTab: (
+    tab: 'text' | 'image' | 'diagram' | 'background' | null
+  ) => void;
   drawingConfig: DrawingConfig;
   setDrawingConfig: (config: Partial<DrawingConfig>) => void;
 }

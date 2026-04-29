@@ -19,6 +19,7 @@ interface SelectorProps<T> {
   onSelect: (option: T | { label: string; value: string }) => void;
   selected: T | { label: string; value: string } | null;
   showCheckbox?: boolean;
+  addPopWidth?: number;
 }
 
 export const Selector = <T extends Option>({
@@ -30,6 +31,7 @@ export const Selector = <T extends Option>({
   onInputChange,
   selected,
   showCheckbox = true,
+  addPopWidth = 0,
 }: SelectorProps<T>) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCustomInput, setIsCustomInput] = useState(false);
@@ -129,7 +131,7 @@ export const Selector = <T extends Option>({
             aria-haspopup="listbox"
             aria-expanded={isOpen}
           >
-            <span className="h-6 leading-6 text-center text-text-primary truncate flex-1 flex-center min-w-0">
+            <span className="h-6 leading-6 text-center text-text-primary truncate flex-1 min-w-0 block">
               {hasValue ? selected?.label : placeholder}
             </span>
 
@@ -156,7 +158,7 @@ export const Selector = <T extends Option>({
         style={{
           top: `${popoverPos.top}px`,
           left: `${popoverPos.left}px`,
-          width: `${popoverPos.width}px`,
+          width: `${popoverPos.width + addPopWidth}px`,
           inset: 'auto', // popover 기본값 오버라이드
         }}
       >

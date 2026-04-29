@@ -7,16 +7,13 @@ import AlignCenterIcon from '@/shared/assets/icons/alignCenter.svg';
 import AlignLeftIcon from '@/shared/assets/icons/alignLeft.svg';
 import AlignRightIcon from '@/shared/assets/icons/alignRight.svg';
 import BoldIcon from '@/shared/assets/icons/bold.svg';
-import CharspacingIcon from '@/shared/assets/icons/charspacing.svg';
 import FontColorIcon from '@/shared/assets/icons/color.svg';
 import ItalicIcon from '@/shared/assets/icons/italic.svg';
-import UnderlineIcon from '@/shared/assets/icons/underline.svg';
 import { BulkData, FontOption, TextAlignOption } from '@/shared/types/block';
 
 import { Selector } from '../selector';
 
-import CharSpacing from './components/CharSpacing';
-import ColorPicker from './components/ColorPicker';
+import BulkColorPicker from './components/ColorPicker';
 import { useBulkEditor } from './hooks/useBulkEditor';
 
 interface TextEditorPreviewProps {
@@ -53,7 +50,6 @@ export function TextEditorPreview({
   onChange,
 }: TextEditorPreviewProps) {
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
-  const [charSpacingOpen, setCharSpacingOpen] = useState(false);
 
   const colorPickerContainerRef = useRef<HTMLDivElement>(null);
 
@@ -72,8 +68,6 @@ export function TextEditorPreview({
     handleFontFamilySelect,
     handleTextAlignSelect,
     handleTextColorSelect,
-    handleTextCharSpacing,
-    handleTextLineHeight,
   } = useBulkEditor(value, onChange);
   const handleColorPickerToggle = () => {
     setColorPickerOpen(prev => !prev);
@@ -82,14 +76,39 @@ export function TextEditorPreview({
   return (
     <div className="w-full space-y-1">
       <div className="w-full flex flex-col ">
-        <div className="w-full flex gap-[23px] items-center">
+        <div className="w-full flex gap-2 items-center">
+          <Selector<FontOption>
+            options={FONT_FAMILY_OPTIONS}
+            selected={fontFamilySelected}
+            onSelect={handleFontFamilySelect}
+            placeholder="폰트 변경"
+            className="font-semibold w-20"
+            addPopWidth={40}
+          />
           <Selector<FontOption>
             options={FONT_SIZE_OPTIONS}
             selected={fontSizeSelected}
             onSelect={handleFontSizeSelect}
             placeholder="폰트 크기"
-            className="font-semibold w-40"
+            className="font-semibold"
+            addPopWidth={20}
           />
+          <div className="relative" ref={colorPickerContainerRef}>
+            <TextEditorButton
+              icon={<FontColorIcon />}
+              label="글자색"
+              onClick={handleColorPickerToggle}
+            />
+
+            {colorPickerOpen && (
+              <BulkColorPicker
+                initialHex={value.color}
+                onClose={() => setColorPickerOpen(false)}
+                containerRef={colorPickerContainerRef}
+                onChange={handleTextColorSelect}
+              />
+            )}
+          </div>
           <TextEditorButton
             icon={<BoldIcon />}
             label="굵게"
@@ -105,69 +124,11 @@ export function TextEditorPreview({
             }}
           />
 
-          <TextEditorButton
-            icon={<UnderlineIcon />}
-            label="밑줄"
-            onClick={() => {
-              onChange({ ...value, underline: !value.underline });
-            }}
-          />
-          <div className="relative">
-            <TextEditorButton
-              icon={<CharspacingIcon />}
-              label="텍스트 간격"
-              onClick={() => {
-                setCharSpacingOpen(prev => !prev);
-              }}
-            />
-            {charSpacingOpen && (
-              <div className="absolute z-50 top-11 -right-23 shadow-edit">
-                <CharSpacing
-                  charSpacing={value.charSpacing}
-                  lineHeight={value.lineHeight}
-                  onChangeCharSpacing={handleTextCharSpacing}
-                  onChangeLineHeight={handleTextLineHeight}
-                />
-              </div>
-            )}
-          </div>
           <Selector<TextAlignOption>
             options={TEXT_ALIGN_OPTIONS}
             selected={textAlignSelected}
             onSelect={handleTextAlignSelect}
-            className="w-30"
           />
-        </div>
-        <div className="w-full flex gap-4 items-center justify-between">
-          <Selector<FontOption>
-            options={FONT_FAMILY_OPTIONS}
-            selected={fontFamilySelected}
-            onSelect={handleFontFamilySelect}
-            placeholder="폰트 변경"
-            className="font-semibold w-40"
-          />
-
-          <div
-            className="relative w-40 flex-center"
-            ref={colorPickerContainerRef}
-          >
-            <TextEditorButton
-              icon={<FontColorIcon />}
-              label="글자색"
-              onClick={handleColorPickerToggle}
-            />
-
-            {colorPickerOpen && (
-              <div className="absolute z-50 top-13.5 ">
-                <ColorPicker
-                  initialHex={value.color}
-                  onClose={() => setColorPickerOpen(false)}
-                  containerRef={colorPickerContainerRef}
-                  onChange={handleTextColorSelect}
-                />
-              </div>
-            )}
-          </div>
         </div>
       </div>
       <div className="bg-bg-base border border-border-neutral rounded-lg py-4">

@@ -32,7 +32,33 @@ function EditorUpdate({ folderId, uuid }: Props) {
       initBgmStore();
     }
   }, [savedData, initEditStore, initBgmStore, initBulkData]);
+  useEffect(() => {
+    // 1. 탭 닫기 / 새로고침 방지
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
 
+    // 2. 뒤로가기 방지
+    const handlePopState = () => {
+      const leave = window.confirm(
+        '수정된 내용이 저장되지 않을 수 있습니다.\n정말 나가시겠습니까?'
+      );
+      if (leave) {
+        history.back();
+      } else {
+        history.pushState(null, '', window.location.href);
+      }
+    };
+
+    history.pushState(null, '', window.location.href);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
   if (error) notFound();
   if (loading || !savedData) {
     return (
@@ -44,7 +70,7 @@ function EditorUpdate({ folderId, uuid }: Props) {
 
   return (
     <FabricProvider initialData={savedData?.mainPoster}>
-      <div className="w-screen h-screen bg-[#E7E9EB] flex flex-col gap-13 justify-center overflow-hidden">
+      <div className="w-screen h-full bg-[#E7E9EB] flex flex-col gap-13 justify-center overflow-hidden">
         <div className="flex justify-between items-center">
           <LeftPanel />
           <Preview />
