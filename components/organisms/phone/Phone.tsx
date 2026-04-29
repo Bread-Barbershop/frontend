@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Button, UtilityButton } from '@/components/atoms/button';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
@@ -33,13 +33,12 @@ function Phone({ blockInfo, id }: Props) {
   const [openContactMenuId, setOpenContactMenuId] = useState<string | null>(
     null
   );
-  const [groups, setGroups] = useState<PhoneGroup[]>(() => [
-    ...getInitialPhoneGroups(blockInfo.props.groups),
-  ]);
-
-  useEffect(() => {
-    updateBlock(id, { groups });
-  }, [groups, id, updateBlock]);
+  const fallbackGroupsByIdRef = useRef<Record<string, PhoneGroup[]>>({});
+  const storedGroups = blockInfo.props.groups;
+  const groups =
+    storedGroups && storedGroups.length > 0
+      ? storedGroups
+      : (fallbackGroupsByIdRef.current[id] ??= getInitialPhoneGroups());
 
   useEffect(() => {
     if (!openContactMenuId) return;
@@ -55,29 +54,29 @@ function Phone({ blockInfo, id }: Props) {
     };
   }, [openContactMenuId]);
 
-  const handleDeleteContact = (groupIndex: number, contactId: string) => {
-    setGroups(prevGroups =>
-      deletePhoneContact(prevGroups, groupIndex, contactId)
-    );
-    setOpenContactMenuId(null);
+  const updateGroups = (nextGroups: PhoneGroup[]) => {
+    updateBlock(id, { groups: nextGroups });
   };
 
   const handleAddContact = (groupIndex: number) => {
-    setGroups(prevGroups => addPhoneContact(prevGroups, groupIndex));
+    updateGroups(addPhoneContact(groups, groupIndex));
   };
 
   const handleAddGroup = () => {
-    setGroups(addPhoneGroup);
+    updateGroups(addPhoneGroup(groups));
   };
 
   const handleDeleteGroup = (groupId: string) => {
-    setGroups(prevGroups => deletePhoneGroup(prevGroups, groupId));
+    updateGroups(deletePhoneGroup(groups, groupId));
+  };
+
+  const handleDeleteContact = (groupIndex: number, contactId: string) => {
+    updateGroups(deletePhoneContact(groups, groupIndex, contactId));
+    setOpenContactMenuId(null);
   };
 
   const handleGroupNameChange = (groupIndex: number, name: string) => {
-    setGroups(prevGroups =>
-      updatePhoneGroupName(prevGroups, groupIndex, name)
-    );
+    updateGroups(updatePhoneGroupName(groups, groupIndex, name));
   };
 
   const handleContactLabelChange = (
@@ -85,8 +84,8 @@ function Phone({ blockInfo, id }: Props) {
     contactIndex: number,
     label: string
   ) => {
-    setGroups(prevGroups =>
-      updatePhoneContactLabel(prevGroups, groupIndex, contactIndex, label)
+    updateGroups(
+      updatePhoneContactLabel(groups, groupIndex, contactIndex, label)
     );
   };
 
@@ -95,8 +94,8 @@ function Phone({ blockInfo, id }: Props) {
     contactIndex: number,
     number: string
   ) => {
-    setGroups(prevGroups =>
-      updatePhoneContactNumber(prevGroups, groupIndex, contactIndex, number)
+    updateGroups(
+      updatePhoneContactNumber(groups, groupIndex, contactIndex, number)
     );
   };
 
