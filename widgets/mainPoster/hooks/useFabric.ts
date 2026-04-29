@@ -38,6 +38,20 @@ export const useFabric = () => {
         'editable',
         'selectable',
         'evented',
+        'fontSize',
+        'fontFamily',
+        'fontWeight',
+        'fontStyle',
+        'textAlign',
+        'lineHeight',
+        'charSpacing',
+        'underline',
+        'linethrough',
+        'fill',
+        'stroke',
+        'strokeWidth',
+        'shadow',
+        'paintFirst',
       ])
     );
 
@@ -441,6 +455,20 @@ export const useFabric = () => {
       'editable',
       'selectable',
       'evented',
+      'fontSize',
+      'fontFamily',
+      'fontWeight',
+      'fontStyle',
+      'textAlign',
+      'lineHeight',
+      'charSpacing',
+      'underline',
+      'linethrough',
+      'fill',
+      'stroke',
+      'strokeWidth',
+      'shadow',
+      'paintFirst',
     ];
     const json = canvas.toObject(propertiesToInclude);
     json.objects = filteredData.map(obj => obj.toObject(propertiesToInclude));

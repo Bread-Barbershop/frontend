@@ -46,7 +46,7 @@ const getFallbackValue = (key: string) => {
     case 'fontSize':
       return 16;
     case 'charSpacing':
-      return 100;
+      return 0;
     default:
       return '';
   }
