@@ -78,6 +78,11 @@ export const MainPosterPreview = () => {
               editable: false,
             });
           }
+
+          if (obj.isType('textbox') || obj.isType('itext')) {
+            obj.set({ dirty: true });
+            (obj as any).initDimensions?.();
+          }
         });
 
         canvas.requestRenderAll();

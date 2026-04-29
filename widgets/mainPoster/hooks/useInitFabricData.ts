@@ -11,6 +11,14 @@ export const useInitFabricData = () => {
     const loadData = async () => {
       try {
         await canvas.loadFromJSON(initialData);
+
+        canvas.getObjects().forEach(obj => {
+          if (obj.isType('textbox') || obj.isType('itext')) {
+            obj.set({ dirty: true });
+            (obj as any).initDimensions?.();
+          }
+        });
+
         canvas.requestRenderAll();
         saveHistory();
       } catch (error) {
