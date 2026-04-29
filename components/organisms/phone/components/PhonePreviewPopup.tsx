@@ -7,21 +7,25 @@ import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationB
 import Message from '@/shared/assets/icons/message.svg';
 import PhoneIcon from '@/shared/assets/icons/phoneIcon.svg';
 
-type PhoneContact = {
-  label: string;
-  number: string;
-};
+import { PhoneGroup } from '../utils/phone.types';
 
 interface Props {
-  contacts?: PhoneContact[];
+  groups?: PhoneGroup[];
 }
 
-function PhonePreviewPopup({ contacts = [] }: Props) {
+function PhonePreviewPopup({ groups = [] }: Props) {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const visibleContacts = contacts.filter(
-    contact =>
-      contact.label.trim().length > 0 || contact.number.trim().length > 0
-  );
+  const visibleGroups = groups
+    .map(group => ({
+      ...group,
+      contacts: group.contacts.filter(
+        contact =>
+          contact.label.trim().length > 0 || contact.number.trim().length > 0
+      ),
+    }))
+    .filter(
+      group => group.name.trim().length > 0 || group.contacts.length > 0
+    );
 
   return (
     <>
@@ -64,38 +68,56 @@ function PhonePreviewPopup({ contacts = [] }: Props) {
             </NavigationBar>
 
             <ul className="max-h-120 overflow-y-auto space-y-2 pr-1">
-              {visibleContacts.length === 0 && (
+              {visibleGroups.length === 0 && (
                 <li className="px-2 py-3 text-sm text-text-secondary text-center">
                   표시할 연락처가 없습니다.
                 </li>
               )}
 
-              {visibleContacts.map((contact, index) => (
-                <li
-                  key={`${contact.label}-${contact.number}-${index}`}
-                  className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg hover:bg-black/5 transition-colors"
-                >
-                  <p className="text-sm font-semibold text-text-primary">
-                    {contact.label || `연락처 ${index + 1}`}
-                  </p>
+              {visibleGroups.map((group, groupIndex) => (
+                <li key={group.id} className="space-y-1">
+                  {(group.name || visibleGroups.length > 1) && (
+                    <p className="px-3 pt-2 text-xs font-semibold text-text-secondary text-left">
+                      {group.name || `${groupIndex + 1}번 그룹`}
+                    </p>
+                  )}
 
-                  <div className="flex items-center gap-2">
-                    <a
-                      href={`tel:${contact.number}`}
-                      aria-label="전화 걸기"
-                      className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors"
-                    >
-                      <PhoneIcon className="w-7 h-7 text-text-secondary" />
-                    </a>
+                  <ul className="space-y-1">
+                    {group.contacts.length === 0 && (
+                      <li className="px-3 py-2 text-sm text-text-secondary text-center">
+                        표시할 연락처가 없습니다.
+                      </li>
+                    )}
 
-                    <a
-                      href={`sms:${contact.number}`}
-                      aria-label="문자 보내기"
-                      className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors"
-                    >
-                      <Message className="w-5 h-5 text-text-secondary" />
-                    </a>
-                  </div>
+                    {group.contacts.map((contact, contactIndex) => (
+                      <li
+                        key={contact.id}
+                        className="flex items-center justify-between gap-3 py-2 pl-3"
+                      >
+                        <p className="text-sm font-semibold text-text-primary">
+                          {contact.label || `연락처 ${contactIndex + 1}`}
+                        </p>
+
+                        <div className="flex items-center gap-2">
+                          <a
+                            href={`tel:${contact.number}`}
+                            aria-label="전화 걸기"
+                            className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors"
+                          >
+                            <PhoneIcon className="w-7 h-7 text-text-secondary" />
+                          </a>
+
+                          <a
+                            href={`sms:${contact.number}`}
+                            aria-label="문자 보내기"
+                            className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors"
+                          >
+                            <Message className="w-5 h-5 text-text-secondary" />
+                          </a>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
                 </li>
               ))}
             </ul>
