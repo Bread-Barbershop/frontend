@@ -481,10 +481,6 @@ export const useFabric = () => {
     } catch (error) {
       console.error('캔버스 썸네일 생성 중 오류 발생.:', error);
 
-      if (error instanceof Error) {
-        console.error(error);
-      }
-
       return undefined;
     }
   }, [canvas]);

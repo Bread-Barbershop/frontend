@@ -347,10 +347,11 @@ export async function saveInvitationFlow(params: {
     }
   }
 
+  let thumbnailSaveFailed = false;
   // 6) 초대장 썸네일 데이터 저장
   if (invitationThumbnail && invitationThumbnail.dataUrl) {
     try {
-      await fetch('/api/drive/thumbnail', {
+      const thumbnailResponse = await fetch('/api/drive/thumbnail', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -358,7 +359,11 @@ export async function saveInvitationFlow(params: {
           thumbnailData: invitationThumbnail,
         }),
       });
+      if (!thumbnailResponse.ok) {
+        throw new Error(`thumbnail save failed: ${thumbnailResponse.status}`);
+      }
     } catch (error) {
+      thumbnailSaveFailed = true;
       console.error('초대장 썸네일 데이터 저장 실패:', error);
     }
   }
@@ -366,7 +371,8 @@ export async function saveInvitationFlow(params: {
   const totalFailed =
     imagesStep.final.fail.length +
     audioStep.final.fail.length +
-    dataStep.final.fail.length;
+    dataStep.final.fail.length +
+    (thumbnailSaveFailed ? 1 : 0);
 
   return {
     success: totalFailed === 0,

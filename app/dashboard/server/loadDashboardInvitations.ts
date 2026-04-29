@@ -1,5 +1,9 @@
 import 'server-only';
 
+import {
+  THUMBNAIL_KIND,
+  THUMBNAIL_NAME,
+} from '@/app/api/drive/_lib/ensureThumbnailFile';
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import { escapeDriveQueryValue } from '@/app/api/drive/_lib/escapeQueryValue';
 import { findWorkspaceFolderId } from '@/app/api/drive/_lib/findWorkspaceFolderId';
@@ -10,8 +14,6 @@ const APP_IDENTIFIER = 'Bread-Barbershop';
 const INVITATION_KIND = 'invitation';
 const PUBLISHED_JSON_NAME = 'published.json';
 const PUBLISHED_JSON_KIND = 'invitation_published_json';
-const THUMBNAIL_NAME = 'invitation-thumbnail.json';
-const THUMBNAIL_KIND = 'invitation_thumbnail_json';
 
 type DriveListResponse = {
   files?: Array<{
@@ -31,9 +33,7 @@ type DriveSearchResponse = {
   error?: unknown;
 };
 
-function isThumbnailPayload(
-  value: unknown
-): value is {
+function isThumbnailPayload(value: unknown): value is {
   dataUrl: string;
 } {
   return (
@@ -220,11 +220,17 @@ export async function loadDashboardInvitations(): Promise<LoadInvitationResponse
     .filter(x => Boolean(x.invitationUuid));
 
   const invites = await Promise.all(
-    invitationFolders.map(async invite => ({
-      ...invite,
-      publishedUrl: await loadPublishedUrl(invite.folderId),
-      thumbnailUrl: await loadThumbnailUrl(invite.folderId),
-    }))
+    invitationFolders.map(async invite => {
+      const [publishedUrl, thumbnailUrl] = await Promise.all([
+        loadPublishedUrl(invite.folderId),
+        loadThumbnailUrl(invite.folderId),
+      ]);
+      return {
+        ...invite,
+        publishedUrl,
+        thumbnailUrl,
+      };
+    })
   );
 
   return {

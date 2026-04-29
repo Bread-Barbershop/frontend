@@ -32,17 +32,24 @@ export async function POST(req: Request) {
       );
     }
 
-    // 1) 파일 정보 시도
+    if (!thumbnailData || !thumbnailData.dataUrl) {
+      return NextResponse.json(
+        { ok: false, error: 'thumbnailData 및 dataUrl 필수' },
+        { status: 400 }
+      );
+    }
+
+    // 1) 기존 파일 확인
     const { thumbnailFileId } = await ensureThumbnailFile(invitationFolderId);
 
-    // 2) 파일 업데이트 시 기존 파일 삭제 후 재생성
-    if (thumbnailFileId) {
-      await deleteThumbnailFile(thumbnailFileId);
-    }
+    // 2) 새 파일 생성 성공 후 기존 파일 삭제
     const finalFileId = await createThumbnailFile(
       invitationFolderId,
       thumbnailData
     );
+    if (thumbnailFileId && finalFileId !== thumbnailFileId) {
+      await deleteThumbnailFile(thumbnailFileId);
+    }
 
     // 3) 공개 권한 설정
     await publishPermissionWithRetry(finalFileId);
