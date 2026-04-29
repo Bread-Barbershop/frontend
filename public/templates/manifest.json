@@ -1,0 +1,12 @@
+{
+  "templates": [
+    {
+      "id": "sample-template",
+      "name": "샘플 템플릿",
+      "category": "etc",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/sample-template.png",
+      "jsonUrl": "/templates/json/sample-template.v1.json"
+    }
+  ]
+}
