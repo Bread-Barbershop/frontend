@@ -12,6 +12,7 @@ export const useInitFabricData = () => {
       try {
         await canvas.loadFromJSON(initialData);
 
+        await document.fonts.ready;
         canvas.getObjects().forEach(obj => {
           if (obj.isType('textbox') || obj.isType('itext')) {
             obj.set({ dirty: true });

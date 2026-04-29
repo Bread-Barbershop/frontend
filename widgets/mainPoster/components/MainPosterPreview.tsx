@@ -66,6 +66,7 @@ export const MainPosterPreview = () => {
             : initialData;
         await canvas.loadFromJSON(jsonData);
 
+        await document.fonts.ready;
         canvas.getObjects().forEach(obj => {
           if ((obj as FabricObjectWithLock).isLocked) {
             obj.set({

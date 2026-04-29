@@ -17,10 +17,9 @@ export const useTemplate = () => {
     try {
       const templateJson = await getTemplateJson(jsonUrl);
 
-      // Fabric 6+ 및 7+ 버전의 loadFromJSON은 Promise를 반환합니다.
       await canvas.loadFromJSON(templateJson);
 
-      // 이미지 필터 및 텍스트 레이아웃 재계산 보장
+      await document.fonts.ready;
       const objects = canvas.getObjects();
       for (const obj of objects) {
         if (
