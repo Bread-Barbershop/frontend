@@ -117,7 +117,7 @@ function ShareUrl({ blockInfo, id }: Props) {
           className="py-1.5"
           inputProps={{
             name: activeTab === 'kakao' ? 'title' : 'urlTitle',
-            placeholder: '제목을 입력해 주세요.',
+            placeholder: '소중한 분들을 초대합니다.',
             onChange: handleChange,
             value:
               activeTab === 'kakao'
@@ -131,7 +131,7 @@ function ShareUrl({ blockInfo, id }: Props) {
             key={`desc-${activeTab}`}
             size="full"
             name={activeTab === 'kakao' ? 'description' : 'urlDescription'}
-            placeholder="내용을 입력해 주세요."
+            placeholder="뜻깊은 날, 귀한 걸음으로 저희와 함께해 주세요."
             onChange={handleChange}
             value={
               activeTab === 'kakao'
