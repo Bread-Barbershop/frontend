@@ -66,6 +66,15 @@ type BulkJson = {
   bodyData: BulkData;
 };
 
+type InvitationThumbnail = {
+  name: string;
+  mimeType: string;
+  dataUrl: string;
+  width: number;
+  height: number;
+  createdAt: string;
+};
+
 export async function saveInvitationFlow(params: {
   bulkData: BulkJson;
   images: UploadTask[];
@@ -74,6 +83,7 @@ export async function saveInvitationFlow(params: {
   bgmData: BgmData;
   invitationUuid?: string; // 수정 진입이면 해당 파라미터가 존재함.
   mainPoster: MainPosterData;
+  invitationThumbnail: InvitationThumbnail;
 }): Promise<{
   success: boolean;
   invitationUuid: string;
@@ -93,9 +103,16 @@ export async function saveInvitationFlow(params: {
     usedAccessToken: string;
   };
 }> {
-  // 여기에 포스터 데이터 추가
-  const { bulkData, images, audio, data, bgmData, invitationUuid, mainPoster } =
-    params;
+  const {
+    bulkData,
+    images,
+    audio,
+    data,
+    bgmData,
+    invitationUuid,
+    mainPoster,
+    invitationThumbnail,
+  } = params;
 
   // 1) 서버에서 폴더 구조 + fresh 토큰 받기
   const prepRes = await fetch('/api/drive/saveInvitation', {
@@ -234,7 +251,6 @@ export async function saveInvitationFlow(params: {
       : null,
   };
 
-  // 여기에 포스터 데이터 추가
   const payload: InvitationPayload = {
     bulkData: bulkData,
     blocks: newData,
@@ -328,6 +344,22 @@ export async function saveInvitationFlow(params: {
     } catch (error) {
       // 공유 데이터 저장 실패는 전체 저장 실패로 간주하지 않음
       console.error('공유 데이터 저장 실패:', error);
+    }
+  }
+
+  // 6) 초대장 썸네일 데이터 저장
+  if (invitationThumbnail && invitationThumbnail.dataUrl) {
+    try {
+      await fetch('/api/drive/thumbnail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invitationFolderId: prep.invitationFolderId,
+          thumbnailData: invitationThumbnail,
+        }),
+      });
+    } catch (error) {
+      console.error('초대장 썸네일 데이터 저장 실패:', error);
     }
   }
 
