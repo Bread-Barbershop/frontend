@@ -447,6 +447,48 @@ export const useFabric = () => {
     return json;
   }, [canvas]);
 
+  const exportCanvasPreview = useCallback(() => {
+    if (!canvas) return;
+
+    try {
+      const canvasWidth = canvas.getWidth();
+      const canvasHeight = canvas.getHeight();
+
+      if (!canvasWidth || !canvasHeight) {
+        console.warn('캔버스 썸네일 생성 중 캔버스 유효하지 않음.', {
+          width: canvasWidth,
+          height: canvasHeight,
+        });
+        return;
+      }
+
+      canvas.requestRenderAll();
+
+      const previewDataUrl = canvas.toDataURL({
+        format: 'png',
+        quality: 1,
+        multiplier: 2,
+      });
+
+      return {
+        name: 'invitation-thumbnail.png',
+        mimeType: 'image/png',
+        dataUrl: previewDataUrl,
+        width: canvasWidth,
+        height: canvasHeight,
+        createdAt: new Date().toISOString(),
+      };
+    } catch (error) {
+      console.error('캔버스 썸네일 생성 중 오류 발생.:', error);
+
+      if (error instanceof Error) {
+        console.error(error);
+      }
+
+      return undefined;
+    }
+  }, [canvas]);
+
   return {
     canvas,
     setCanvas,
@@ -467,6 +509,7 @@ export const useFabric = () => {
     unLock,
     saveHistory,
     exportIntersectedJSON,
+    exportCanvasPreview,
     clipboard,
     canUndo,
     canRedo,
