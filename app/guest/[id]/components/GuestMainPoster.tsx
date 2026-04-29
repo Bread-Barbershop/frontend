@@ -1,11 +1,11 @@
 'use client';
-import { Canvas } from 'fabric';
+import { StaticCanvas } from 'fabric';
 import { useEffect, useRef, useState } from 'react';
 
 import '@/widgets/mainPoster/libs/customImage-filter';
 
 export const GuestMainPoster = ({ json }: { json: unknown }) => {
-  const [canvas, setCanvas] = useState<Canvas | null>(null);
+  const [canvas, setCanvas] = useState<StaticCanvas | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [renderStartTime] = useState(() => performance.now());
   const canvasInitTime = useRef<number>(0);
@@ -14,9 +14,9 @@ export const GuestMainPoster = ({ json }: { json: unknown }) => {
     if (!canvasRef.current) return;
 
     const startInit = performance.now();
-    const fabricCanvas = new Canvas(canvasRef.current, {
-      width: 365,
-      height: 812,
+    const fabricCanvas = new StaticCanvas(canvasRef.current, {
+      width: 375,
+      height: 750,
       selection: false,
       skipTargetFind: true,
       renderOnAddRemove: false,
@@ -36,8 +36,6 @@ export const GuestMainPoster = ({ json }: { json: unknown }) => {
 
     const loadStart = performance.now();
     canvas.loadFromJSON(json).then(() => {
-      canvas.discardActiveObject();
-      canvas.selection = false;
       canvas.requestRenderAll();
 
       const loadEnd = performance.now();

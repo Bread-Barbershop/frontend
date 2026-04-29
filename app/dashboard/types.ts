@@ -4,6 +4,7 @@ export type InviteListItem = {
   createdTime?: string;
   invitationUuid?: string;
   publishedUrl?: string | null;
+  thumbnailUrl?: string | null;
 };
 
 export type KakaoShareData = {

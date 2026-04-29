@@ -12,7 +12,7 @@ import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 export const useInvitationUpload = () => {
   const editorData = useEditorStore(useShallow(selectUploadData));
 
-  const { exportIntersectedJSON } = useFabricContext();
+  const { exportIntersectedJSON, exportCanvasPreview } = useFabricContext();
 
   const {
     selectedBgmId,
@@ -63,6 +63,15 @@ export const useInvitationUpload = () => {
         version: '7.1.0',
         objects: [],
       };
+      const invitationThumbnail = exportCanvasPreview() ?? {
+        name: 'invitation-thumbnail.png',
+        mimeType: 'image/png',
+        dataUrl: '',
+        width: 0,
+        height: 0,
+        createdAt: '',
+      };
+
       if (editorData.invitationUuid === '') {
         const saveResult = await saveInvitationFlow({
           bulkData,
@@ -71,6 +80,7 @@ export const useInvitationUpload = () => {
           data: editorData.block,
           bgmData, // bgm의 data 버전.
           mainPoster,
+          invitationThumbnail,
         });
         editorData.setInvitationUuid(saveResult.invitationUuid);
         editorData.setImageFolderId(saveResult.folders.imageFolderId);
@@ -91,6 +101,7 @@ export const useInvitationUpload = () => {
           data: editorData.block,
           bgmData, // bgm의 data 버전.
           mainPoster,
+          invitationThumbnail,
           invitationUuid: editorData.invitationUuid,
         });
         editorData.setInvitationUuid(saveResult.invitationUuid);

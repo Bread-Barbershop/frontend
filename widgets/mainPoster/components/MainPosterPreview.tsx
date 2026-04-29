@@ -93,8 +93,8 @@ export const MainPosterPreview = () => {
     if (!canvasRef.current) return;
 
     const fabricCanvas = new Canvas(canvasRef.current, {
-      width: 365,
-      height: 812,
+      width: 375,
+      height: 750,
       fireRightClick: true,
       stopContextMenu: true,
     });
@@ -284,13 +284,13 @@ export const MainPosterPreview = () => {
           setIsEdit(false);
           selectedBlock('mainPoster');
         }}
-        className={cn('relative w-[365px] h-[812px] shrink-0')}
+        className={cn('relative w-[375px] h-[750px] shrink-0')}
       >
         {selectedId === 'mainPoster' && (
           <div
             data-canvas="true"
             className={cn(
-              'absolute inset-0 w-full h-full ring-1 ring-inset ring-primary rounded-lg pointer-events-none'
+              'absolute inset-0 z-10 w-full h-full ring-1 ring-inset ring-primary rounded-lg pointer-events-none'
             )}
           />
         )}

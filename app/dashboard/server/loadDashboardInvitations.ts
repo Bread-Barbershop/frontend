@@ -1,5 +1,9 @@
 import 'server-only';
 
+import {
+  THUMBNAIL_KIND,
+  THUMBNAIL_NAME,
+} from '@/app/api/drive/_lib/ensureThumbnailFile';
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import { escapeDriveQueryValue } from '@/app/api/drive/_lib/escapeQueryValue';
 import { findWorkspaceFolderId } from '@/app/api/drive/_lib/findWorkspaceFolderId';
@@ -29,9 +33,18 @@ type DriveSearchResponse = {
   error?: unknown;
 };
 
-function isPublishedPayload(
-  value: unknown
-): value is {
+function isThumbnailPayload(value: unknown): value is {
+  dataUrl: string;
+} {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'dataUrl' in value &&
+    typeof value.dataUrl === 'string'
+  );
+}
+
+function isPublishedPayload(value: unknown): value is {
   guestUrl: string;
 } {
   return (
@@ -42,7 +55,9 @@ function isPublishedPayload(
   );
 }
 
-async function loadPublishedUrl(invitationFolderId: string): Promise<string | null> {
+async function loadPublishedUrl(
+  invitationFolderId: string
+): Promise<string | null> {
   try {
     const q = [
       `'${escapeDriveQueryValue(invitationFolderId)}' in parents`,
@@ -96,6 +111,62 @@ async function loadPublishedUrl(invitationFolderId: string): Promise<string | nu
   }
 }
 
+async function loadThumbnailUrl(
+  invitationFolderId: string
+): Promise<string | null> {
+  try {
+    const q = [
+      `'${escapeDriveQueryValue(invitationFolderId)}' in parents`,
+      `trashed=false`,
+      `appProperties has { key='app_id' and value='${escapeDriveQueryValue(
+        APP_IDENTIFIER
+      )}' }`,
+      `appProperties has { key='kind' and value='${THUMBNAIL_KIND}' }`,
+      `name='${escapeDriveQueryValue(THUMBNAIL_NAME)}'`,
+    ].join(' and ');
+
+    const searchParams = new URLSearchParams({
+      q,
+      spaces: 'drive',
+      fields: 'files(id)',
+      pageSize: '1',
+    });
+
+    const searchRes = await googleFetch(
+      `https://www.googleapis.com/drive/v3/files?${searchParams.toString()}`,
+      { cache: 'no-store' }
+    );
+    const searchData = (await searchRes
+      .json()
+      .catch(() => ({}))) as DriveSearchResponse;
+
+    if (!searchRes.ok) {
+      return null;
+    }
+
+    const thumbnailFileId = searchData.files?.[0]?.id;
+    if (!thumbnailFileId) {
+      return null;
+    }
+
+    const contentRes = await googleFetch(
+      `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(
+        thumbnailFileId
+      )}?alt=media`,
+      { cache: 'no-store' }
+    );
+
+    if (!contentRes.ok) {
+      return null;
+    }
+
+    const content = (await contentRes.json().catch(() => null)) as unknown;
+    return isThumbnailPayload(content) ? content.dataUrl : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function loadDashboardInvitations(): Promise<LoadInvitationResponse> {
   const workspaceFolderId = await findWorkspaceFolderId();
 
@@ -130,7 +201,9 @@ export async function loadDashboardInvitations(): Promise<LoadInvitationResponse
   );
 
   const listRes = await googleFetch(url.toString(), { cache: 'no-store' });
-  const listData = (await listRes.json().catch(() => ({}))) as DriveListResponse;
+  const listData = (await listRes
+    .json()
+    .catch(() => ({}))) as DriveListResponse;
 
   if (!listRes.ok) {
     throw new DriveHttpError('초대장 목록 조회 실패', listRes.status, listData);
@@ -147,10 +220,17 @@ export async function loadDashboardInvitations(): Promise<LoadInvitationResponse
     .filter(x => Boolean(x.invitationUuid));
 
   const invites = await Promise.all(
-    invitationFolders.map(async invite => ({
-      ...invite,
-      publishedUrl: await loadPublishedUrl(invite.folderId),
-    }))
+    invitationFolders.map(async invite => {
+      const [publishedUrl, thumbnailUrl] = await Promise.all([
+        loadPublishedUrl(invite.folderId),
+        loadThumbnailUrl(invite.folderId),
+      ]);
+      return {
+        ...invite,
+        publishedUrl,
+        thumbnailUrl,
+      };
+    })
   );
 
   return {
