@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode, useRef, useState } from 'react';
+import { type ReactNode } from 'react';
 
 import TextEditorButton from '@/components/atoms/text-editor-button/TextEditorButton';
 import AlignCenterIcon from '@/shared/assets/icons/alignCenter.svg';
@@ -16,10 +16,15 @@ import { Selector } from '../selector';
 import BulkColorPicker from './components/ColorPicker';
 import { useBulkEditor } from './hooks/useBulkEditor';
 
+import type { BulkColorPickerId } from './types';
+
 interface TextEditorPreviewProps {
   children: ReactNode;
   value: BulkData;
   onChange: (bulkData: BulkData) => void;
+  colorPickerId: BulkColorPickerId;
+  activeColorPickerId: BulkColorPickerId | null;
+  onActiveColorPickerChange: (id: BulkColorPickerId | null) => void;
 }
 
 const FONT_SIZE_OPTIONS: FontOption[] = [
@@ -48,10 +53,11 @@ export function TextEditorPreview({
   children,
   value,
   onChange,
+  colorPickerId,
+  activeColorPickerId,
+  onActiveColorPickerChange,
 }: TextEditorPreviewProps) {
-  const [colorPickerOpen, setColorPickerOpen] = useState(false);
-
-  const colorPickerContainerRef = useRef<HTMLDivElement>(null);
+  const colorPickerOpen = activeColorPickerId === colorPickerId;
 
   const fontSizeSelected =
     FONT_SIZE_OPTIONS.find(option => option.value === value.fontSize) ??
@@ -70,7 +76,7 @@ export function TextEditorPreview({
     handleTextColorSelect,
   } = useBulkEditor(value, onChange);
   const handleColorPickerToggle = () => {
-    setColorPickerOpen(prev => !prev);
+    onActiveColorPickerChange(colorPickerOpen ? null : colorPickerId);
   };
 
   return (
@@ -93,7 +99,7 @@ export function TextEditorPreview({
             className="font-semibold"
             addPopWidth={20}
           />
-          <div className="relative" ref={colorPickerContainerRef}>
+          <div className="relative">
             <TextEditorButton
               icon={<FontColorIcon />}
               label="글자색"
@@ -103,8 +109,7 @@ export function TextEditorPreview({
             {colorPickerOpen && (
               <BulkColorPicker
                 initialHex={value.color}
-                onClose={() => setColorPickerOpen(false)}
-                containerRef={colorPickerContainerRef}
+                onClose={() => onActiveColorPickerChange(null)}
                 onChange={handleTextColorSelect}
               />
             )}

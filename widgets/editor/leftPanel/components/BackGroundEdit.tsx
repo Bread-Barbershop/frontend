@@ -1,17 +1,25 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { Radio } from '@/components/atoms/radio';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import BulkColorPicker from '@/components/molecules/preview-text-editor/components/ColorPicker';
+import type { BulkColorPickerId } from '@/components/molecules/preview-text-editor/types';
 import SectionArrow from '@/shared/assets/icons/sectionArrow.svg';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
-function BackGroundEdit() {
-  const [colorPickerOpen, setColorPickerOpen] = useState(false);
-  const colorPickerContainerRef = useRef<HTMLDivElement>(null);
+type BackGroundEditProps = {
+  activeColorPickerId: BulkColorPickerId | null;
+  onActiveColorPickerChange: (id: BulkColorPickerId | null) => void;
+};
+
+function BackGroundEdit({
+  activeColorPickerId,
+  onActiveColorPickerChange,
+}: BackGroundEditProps) {
+  const colorPickerOpen = activeColorPickerId === 'background';
 
   const { backgroundColor, setBackgroundColor } = useEditorStore(
     useShallow(state => ({
@@ -25,9 +33,8 @@ function BackGroundEdit() {
       <div
         className={`w-fit px-[14px] py-1 flex gap-2 relative ${colorPickerOpen ? 'border border-primary rounded-sm' : ''}`}
         onClick={() => {
-          setColorPickerOpen(!colorPickerOpen);
+          onActiveColorPickerChange(colorPickerOpen ? null : 'background');
         }}
-        ref={colorPickerContainerRef}
       >
         <div className="flex items-center gap-2">
           <div onClick={e => e.stopPropagation()}>
@@ -35,7 +42,9 @@ function BackGroundEdit() {
               type="checkbox"
               name="backgroundColor"
               checked={colorPickerOpen}
-              onChange={() => setColorPickerOpen(!colorPickerOpen)}
+              onChange={() =>
+                onActiveColorPickerChange(colorPickerOpen ? null : 'background')
+              }
             />
           </div>
           <p className="font-semibold text-sm">색상</p>
@@ -54,8 +63,7 @@ function BackGroundEdit() {
         {colorPickerOpen && (
           <BulkColorPicker
             initialHex={backgroundColor}
-            onClose={() => setColorPickerOpen(false)}
-            containerRef={colorPickerContainerRef}
+            onClose={() => onActiveColorPickerChange(null)}
             onChange={setBackgroundColor}
           />
         )}

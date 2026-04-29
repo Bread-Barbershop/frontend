@@ -24,6 +24,9 @@ const TRIGGER_GAP = 8;
 const PANEL_GAP = 12;
 const LEFT_PANEL_SELECTOR = '[data-editor-left-panel]';
 
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), Math.max(min, max));
+
 export default function BulkColorPicker({
   initialHex = '#FF4D6D',
   onClose,
@@ -46,29 +49,40 @@ export default function BulkColorPicker({
       const trigger = containerRef?.current;
       const picker = pickerRef.current;
 
-      if (!trigger || !picker) return;
+      if (!picker) return;
 
-      const triggerRect = trigger.getBoundingClientRect();
       const pickerWidth = picker.offsetWidth;
       const pickerHeight = picker.offsetHeight;
-      const panel = trigger.closest(LEFT_PANEL_SELECTOR);
+      const triggerRect = trigger?.getBoundingClientRect();
+      const panel =
+        trigger?.closest(LEFT_PANEL_SELECTOR) ??
+        document.querySelector(LEFT_PANEL_SELECTOR);
       const panelRect = panel?.getBoundingClientRect();
       const maxLeft = window.innerWidth - pickerWidth - VIEWPORT_GAP;
+
       const preferredLeft = panelRect
         ? panelRect.right + PANEL_GAP
-        : triggerRect.right - pickerWidth;
-      const left = Math.min(Math.max(preferredLeft, VIEWPORT_GAP), maxLeft);
-      const preferredTop = panelRect
+        : triggerRect
+          ? triggerRect.right - pickerWidth
+          : (window.innerWidth - pickerWidth) / 2;
+      const left = clamp(preferredLeft, VIEWPORT_GAP, maxLeft);
+
+      const maxTop = window.innerHeight - pickerHeight - VIEWPORT_GAP;
+      const preferredTop = triggerRect
         ? triggerRect.top
-        : triggerRect.bottom + TRIGGER_GAP;
-      const top =
-        preferredTop + pickerHeight <= window.innerHeight - VIEWPORT_GAP ||
-        triggerRect.top - pickerHeight - TRIGGER_GAP < VIEWPORT_GAP
-          ? Math.min(
-              preferredTop,
-              window.innerHeight - pickerHeight - VIEWPORT_GAP
+        : panelRect
+          ? panelRect.top + (panelRect.height - pickerHeight) / 2
+          : (window.innerHeight - pickerHeight) / 2;
+      const top = triggerRect
+        ? preferredTop + pickerHeight <= window.innerHeight - VIEWPORT_GAP ||
+          triggerRect.top - pickerHeight - TRIGGER_GAP < VIEWPORT_GAP
+          ? clamp(preferredTop, VIEWPORT_GAP, maxTop)
+          : clamp(
+              triggerRect.top - pickerHeight - TRIGGER_GAP,
+              VIEWPORT_GAP,
+              maxTop
             )
-          : triggerRect.top - pickerHeight - TRIGGER_GAP;
+        : clamp(preferredTop, VIEWPORT_GAP, maxTop);
 
       setPopoverStyle({
         position: 'fixed',
@@ -86,8 +100,10 @@ export default function BulkColorPicker({
     window.addEventListener('scroll', updatePosition, true);
 
     const resizeObserver = new ResizeObserver(updatePosition);
+    const panel = document.querySelector(LEFT_PANEL_SELECTOR);
     if (containerRef?.current) resizeObserver.observe(containerRef.current);
     if (pickerRef.current) resizeObserver.observe(pickerRef.current);
+    if (panel) resizeObserver.observe(panel);
 
     return () => {
       window.cancelAnimationFrame(animationFrameId);

@@ -5,12 +5,21 @@ import { useShallow } from 'zustand/shallow';
 import { UtilityButton } from '@/components/atoms/button';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { TextEditorPreview } from '@/components/molecules/preview-text-editor';
+import type { BulkColorPickerId } from '@/components/molecules/preview-text-editor/types';
 import { BODY_BULK_DATA } from '@/shared/data/sample/bulkData';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { BulkData } from '@/shared/types/block';
 import { toStyle } from '@/shared/utils/toStyle';
 
-function BodyEdit() {
+type BodyEditProps = {
+  activeColorPickerId: BulkColorPickerId | null;
+  onActiveColorPickerChange: (id: BulkColorPickerId | null) => void;
+};
+
+function BodyEdit({
+  activeColorPickerId,
+  onActiveColorPickerChange,
+}: BodyEditProps) {
   const { bodyData, setBodyData } = useEditorStore(
     useShallow(state => ({
       bodyData: state.bodyData,
@@ -40,7 +49,13 @@ function BodyEdit() {
       >
         본문 편집
       </NavigationBar>
-      <TextEditorPreview value={bulkBodyData} onChange={setBulkBodyData}>
+      <TextEditorPreview
+        value={bulkBodyData}
+        onChange={setBulkBodyData}
+        colorPickerId="body"
+        activeColorPickerId={activeColorPickerId}
+        onActiveColorPickerChange={onActiveColorPickerChange}
+      >
         <div className="w-full h-full flex flex-col gap-1 ">
           <p
             className="font-base text-base"
