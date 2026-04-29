@@ -171,8 +171,13 @@ async function createThumbnailFile(
     );
   }
 
-  await updateThumbnailFile(created.id, thumbnailData);
-  return created.id;
+  try {
+    await updateThumbnailFile(created.id, thumbnailData);
+    return created.id;
+  } catch (error) {
+    await deleteThumbnailFile(created.id);
+    throw error;
+  }
 }
 
 async function deleteThumbnailFile(fileId: string): Promise<void> {
