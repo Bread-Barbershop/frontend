@@ -210,7 +210,9 @@ export function initAligningGuidelines(
   };
 
   const beforeRender = () => {
-    state.canvas.clearContext(state.canvas.contextTop);
+    const ctx = state.canvas.contextTop;
+    if (!ctx) return;
+    state.canvas.clearContext(ctx);
   };
 
   const afterRender = () => {
