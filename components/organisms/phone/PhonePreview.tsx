@@ -13,7 +13,7 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 function PhonePreview({ blockInfo, className, ...rest }: Props) {
   return (
     <MiddlePreviewWrapper noTitle={true} className={className} {...rest}>
-      <PhonePreviewPopup contacts={blockInfo.props.contacts} />
+      <PhonePreviewPopup groups={blockInfo.props.groups} />
     </MiddlePreviewWrapper>
   );
 }

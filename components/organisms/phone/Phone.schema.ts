@@ -1,13 +1,10 @@
-type PhoneContact = {
-  label: string;
-  number: string;
-};
+import { PhoneGroup } from './utils/phone.types';
 
 export const phoneSchema = {
   type: null,
   fields: {
-    contacts: {
-      default: [] as PhoneContact[],
+    groups: {
+      default: [] as PhoneGroup[],
       required: true,
     },
   },
