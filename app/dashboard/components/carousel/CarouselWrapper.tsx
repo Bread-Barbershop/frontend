@@ -31,7 +31,10 @@ function CarouselWrapper({ initialInvites = [] }: CarouselWrapperProps) {
 
         return {
           id: invite.folderId,
-          image: showcaseItem.image,
+          image:
+            invite.thumbnailUrl && invite.thumbnailUrl !== ''
+              ? invite.thumbnailUrl
+              : showcaseItem.image,
           alt: showcaseItem.alt,
           invite,
         };

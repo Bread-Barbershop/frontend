@@ -4,7 +4,7 @@ import { InviteListItem } from '@/app/dashboard/types';
 
 export type CarouselCardItem = {
   id: string;
-  image: StaticImageData;
+  image: string | StaticImageData;
   alt: string;
   invite?: InviteListItem;
 };
