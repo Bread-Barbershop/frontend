@@ -7,12 +7,16 @@ import { useFabricBackground } from '../hooks/useFabricBackground';
 import { useFabricGraphic } from '../hooks/useFabricGraphic';
 import { useFabricImage } from '../hooks/useFabricImage';
 import { useFabricText } from '../hooks/useFabricText';
+import { useTemplate } from '../hooks/useTemplate';
+
 
 type FabricContextType = ReturnType<typeof useFabric> &
   ReturnType<typeof useFabricGraphic> &
   ReturnType<typeof useFabricImage> &
   ReturnType<typeof useFabricBackground> &
-  ReturnType<typeof useFabricText> & {
+  ReturnType<typeof useFabricText> &
+  ReturnType<typeof useTemplate> & {
+
     initialData?: string;
     canUndo: boolean;
     canRedo: boolean;
@@ -47,14 +51,19 @@ export const FabricProvider = ({
     saveHistory: fabricValues.saveHistory,
   });
 
+  const fabricTemplateValues = useTemplate();
+
   const value = useMemo(
+
     () => ({
       ...fabricValues,
       ...fabricDiagramValues,
       ...fabricImageValues,
       ...fabricTextValues,
       ...fabricBackgroundValues,
+      ...fabricTemplateValues,
       initialData,
+
     }),
     [
       fabricValues,
@@ -62,7 +71,9 @@ export const FabricProvider = ({
       fabricImageValues,
       fabricTextValues,
       fabricBackgroundValues,
+      fabricTemplateValues,
       initialData,
+
     ]
   );
 
