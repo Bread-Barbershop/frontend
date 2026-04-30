@@ -1,16 +1,17 @@
-import { hsvaToHex, hsvaToRgba } from '@uiw/color-convert';
+import { hsvaToHex } from '@uiw/color-convert';
 import { Textbox } from 'fabric';
 import { ChevronDown } from 'lucide-react';
 import React, { useEffect, useId, useRef, useState } from 'react';
 
 import {
-  ColorPickerChange,
   ColorPickerValue,
   PickerHsva,
 } from '@/components/molecules/color-picker/components/colorPicker.types';
 import SmallColorPicker from '@/components/molecules/color-picker/SmallColorPicker';
 import { cn } from '@/shared/utils/cn';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
+
+import { convertFabricColor } from '../../utils/fabricUtils';
 
 const ColorIcon = ({ color }: { color: string }) => (
   <svg
@@ -62,16 +63,6 @@ function FontColor() {
       updatePopoverPosition();
       popoverRef.current?.showPopover();
     }
-  };
-
-  const convertFabricColor = (color: ColorPickerChange) => {
-    if (color.hsva.a >= 1) {
-      return color.hex;
-    }
-
-    const { r, g, b, a } = hsvaToRgba(color.hsva);
-
-    return `rgba(${r}, ${g}, ${b}, ${a})`;
   };
 
   const getIconColor = (color: ColorPickerValue) => {
