@@ -2,6 +2,8 @@
 
 import Image from 'next/image';
 
+import inviaLogo from '@/shared/assets/logo/Invia-logo.png';
+
 interface LoginModalProps {
   open: boolean;
   isLoading: boolean;
@@ -28,8 +30,15 @@ function LoginModal({
         className="w-98 rounded-xl border border-white/20 bg-white/15 p-5 shadow-xl backdrop-blur-lg flex flex-col items-center gap-6"
         onClick={e => e.stopPropagation()}
       >
-        <div className="h-24.25 w-36 flex items-center justify-center">
-          <p className='text-5xl'>Invia</p>
+        <div className="h-24.25 w-full flex items-center justify-center">
+          <Image
+            src={inviaLogo}
+            alt="Invia"
+            width={4096}
+            height={821}
+            className="h-12 w-auto"
+            priority
+          />
         </div>
 
         <button

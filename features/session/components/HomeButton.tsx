@@ -1,8 +1,11 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react';
+
+import inviaLogo from '@/shared/assets/logo/Invia-logo.png';
 
 function HomeButton() {
   const pathname = usePathname();
@@ -19,10 +22,11 @@ function HomeButton() {
   return (
     <Link
       href="/"
-      className="font-semibold text-xl text-black"
+      className="flex items-center"
       onClick={handleHomeClick}
+      aria-label="Invia 홈으로 이동"
     >
-      Invia
+      <Image src={inviaLogo} alt="Invia" width={92} height={18} priority />
     </Link>
   );
 }
