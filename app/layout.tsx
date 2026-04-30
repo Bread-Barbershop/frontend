@@ -23,21 +23,35 @@ const notoSansKr = Noto_Sans_KR({
   subsets: ['latin'],
   weight: ['400', '500', '700'],
 });
+
+const serviceName = 'Invia';
+const defaultTitle = 'Invia | 초대장의 새로운 기준';
+const defaultDescription =
+  '모든 종류의 초대장을 무료로 만드세요. 개인정보를 요구하지 않으며, 모든 데이터는 당신의 Google Drive에 안전하게 보관됩니다. 기록이 남지 않는 가장 투명한 초대장 서비스.';
+
 export const metadata: Metadata = {
+  metadataBase: new URL('https://invia.co.kr'),
+  applicationName: serviceName,
   title: {
-    default: '미정 | 초대장의 새로운 기준',
-    template: '%s | 미정',
+    default: defaultTitle,
+    template: `%s | ${serviceName}`,
   },
-  description:
-    '결혼식, 돌잔치, 기업 행사까지. 당신의 Google Drive에 직접 저장되어 안전하게 소유되는 차세대 초대장 서비스.',
+  description: defaultDescription,
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
-    title: '미정 | 초대장의 새로운 기준',
-    description:
-      '결혼식, 돌잔치, 기업 행사까지. 당신의 Google Drive에 직접 저장되어 안전하게 소유되는 차세대 초대장 서비스.',
-    url: 'https://teambred.vercel.app',
-    siteName: '미정',
+    title: defaultTitle,
+    description: defaultDescription,
+    url: '/',
+    siteName: serviceName,
     locale: 'ko_KR',
     type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: defaultTitle,
+    description: defaultDescription,
   },
 };
 
