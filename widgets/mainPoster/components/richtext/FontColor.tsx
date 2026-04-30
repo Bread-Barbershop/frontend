@@ -1,7 +1,13 @@
+import { hsvaToHex, hsvaToRgba } from '@uiw/color-convert';
 import { Textbox } from 'fabric';
 import { ChevronDown } from 'lucide-react';
-import { useEffect, useId, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 
+import {
+  ColorPickerChange,
+  ColorPickerValue,
+  PickerHsva,
+} from '@/components/molecules/color-picker/components/colorPicker.types';
 import SmallColorPicker from '@/components/molecules/color-picker/SmallColorPicker';
 import { cn } from '@/shared/utils/cn';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
@@ -24,11 +30,17 @@ const ColorIcon = ({ color }: { color: string }) => (
 
 function FontColor() {
   const { canvas, applyRichStyle, getRichStyles } = useFabricContext();
-  const [pickerColor, setPickerColor] = useState<string | null>('black');
+  const [pickerColor, setPickerColor] = useState<ColorPickerValue>({
+    h: 0,
+    s: 0,
+    v: 0,
+    a: 1,
+  });
   const [openFontColor, setOpenFontColor] = useState<boolean>(false);
   const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
+  const isPickingColorRef = useRef(false);
   const activeObject = canvas?.getActiveObject() as Textbox;
   const baseId = useId();
   const popoverId = `color-picker-${baseId}`;
@@ -41,6 +53,37 @@ function FontColor() {
         left: rect.left + window.scrollX,
       });
     }
+  };
+
+  const handleColorPickerToggle = () => {
+    if (openFontColor) {
+      popoverRef.current?.hidePopover();
+    } else {
+      updatePopoverPosition();
+      popoverRef.current?.showPopover();
+    }
+  };
+
+  const convertFabricColor = (color: ColorPickerChange) => {
+    if (color.hsva.a >= 1) {
+      return color.hex;
+    }
+
+    const { r, g, b, a } = hsvaToRgba(color.hsva);
+
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+  };
+
+  const getIconColor = (color: ColorPickerValue) => {
+    if (typeof color === 'string') return color;
+
+    return hsvaToHex(color as PickerHsva);
+  };
+
+  const startPickingColor = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    isPickingColorRef.current = true;
+    e.currentTarget.setPointerCapture(e.pointerId);
   };
 
   useEffect(() => {
@@ -61,8 +104,11 @@ function FontColor() {
     if (!activeObject) {
       return;
     }
-    const handleSync = () =>
+    const handleSync = () => {
+      if (isPickingColorRef.current) return;
+
       getRichStyles(activeObject, 'fill', color => setPickerColor(color));
+    };
 
     activeObject.on('changed', handleSync);
     activeObject.on('selection:changed', handleSync);
@@ -75,14 +121,21 @@ function FontColor() {
     };
   }, [activeObject, getRichStyles]);
 
-  const handleToggle = () => {
-    if (openFontColor) {
-      popoverRef.current?.hidePopover();
-    } else {
-      updatePopoverPosition();
-      popoverRef.current?.showPopover();
-    }
-  };
+  useEffect(() => {
+    const handlePointerUp = () => {
+      requestAnimationFrame(() => {
+        isPickingColorRef.current = false;
+      });
+    };
+
+    window.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener('pointercancel', handlePointerUp);
+
+    return () => {
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointercancel', handlePointerUp);
+    };
+  }, []);
 
   if (!canvas) return null;
 
@@ -91,9 +144,9 @@ function FontColor() {
       <button
         type="button"
         className="h-8 flex justify-center items-center pl-2 bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
-        onClick={handleToggle}
+        onClick={handleColorPickerToggle}
       >
-        <ColorIcon color={pickerColor || 'black'} />
+        <ColorIcon color={getIconColor(pickerColor) || 'black'} />
         <div
           className={cn(
             'flex-center size-7 transition-transform duration-200 shrink-0',
@@ -113,15 +166,16 @@ function FontColor() {
           top: `${popoverPos.top + 4}px`,
           left: `${popoverPos.left}px`,
           inset: 'auto',
+          touchAction: 'none',
         }}
+        onPointerDownCapture={startPickingColor}
       >
         <SmallColorPicker
           showHeader={false}
           value={pickerColor || '#000000'}
           onChange={color => {
-            setPickerColor(color.hex);
-            applyRichStyle({ fill: color.hex }, canvas);
-            popoverRef.current?.hidePopover();
+            setPickerColor(color.hsva);
+            applyRichStyle({ fill: convertFabricColor(color) }, canvas);
           }}
         />
       </div>
