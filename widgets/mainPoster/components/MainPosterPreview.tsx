@@ -66,6 +66,7 @@ export const MainPosterPreview = () => {
             : initialData;
         await canvas.loadFromJSON(jsonData);
 
+        await document.fonts.ready;
         canvas.getObjects().forEach(obj => {
           if ((obj as FabricObjectWithLock).isLocked) {
             obj.set({
@@ -77,6 +78,11 @@ export const MainPosterPreview = () => {
               hasControls: false,
               editable: false,
             });
+          }
+
+          if (obj.isType('textbox') || obj.isType('itext')) {
+            obj.set({ dirty: true });
+            (obj as any).initDimensions?.();
           }
         });
 

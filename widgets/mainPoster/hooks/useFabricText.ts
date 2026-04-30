@@ -46,7 +46,7 @@ const getFallbackValue = (key: string) => {
     case 'fontSize':
       return 16;
     case 'charSpacing':
-      return 100;
+      return 0;
     default:
       return '';
   }
@@ -121,7 +121,14 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
             )[0]?.[key]
           : activeObject.get(key as keyof Textbox);
 
-        if (key === 'fontSize' || key === 'fontFamily' || isLayout) {
+        if (
+          key === 'fontSize' ||
+          key === 'fontFamily' ||
+          key === 'fill' ||
+          key === 'stroke' ||
+          key === 'textBackgroundColor' ||
+          isLayout
+        ) {
           finalStyle[key] = nextValue as never;
         } else if (currentStyle === nextValue) {
           finalStyle[key] = getFallbackValue(key) as never;

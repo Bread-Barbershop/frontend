@@ -1,4 +1,7 @@
+import { hsvaToHex, hsvaToRgba } from '@uiw/color-convert';
 import { Canvas, FabricObject, TPointerEventInfo } from 'fabric';
+
+import { ColorPickerChange, ColorPickerValue } from '@/components/molecules/color-picker/components/colorPicker.types';
 
 import { ICON_PATHS, SIDES_CONFIG } from '../constants/fabric';
 import { DragPoints } from '../types/fabric';
@@ -210,4 +213,22 @@ export const initDragHandler = ({
     cleanupCursor(); // 커서 복구
     canvas.requestRenderAll();
   };
+};
+
+export const convertFabricColor = (color: ColorPickerChange | ColorPickerValue) => {
+  if (typeof color === 'string') return color;
+
+  if ('hsva' in color) {
+    if (color.hsva.a >= 1) {
+      return color.hex;
+    }
+    const { r, g, b, a } = hsvaToRgba(color.hsva);
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+  }
+
+  if (color.a >= 1) {
+    return hsvaToHex(color);
+  }
+  const { r, g, b, a } = hsvaToRgba(color);
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
 };

@@ -10,7 +10,7 @@ export const BackgroundColor = () => {
       className="border-none w-full px-0"
       showHeader={false}
       onChange={e => {
-        updateBackgroundColor(e.hex);
+        updateBackgroundColor(e);
       }}
     />
   );
