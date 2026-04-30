@@ -22,6 +22,7 @@ function PictureBlockPreview({ blockInfo, className, ...rest }: Props) {
       ? blockInfo.props.image[0]
       : null
   );
+
   return (
     <MiddlePreviewWrapper
       checkedEnglishTitle={blockInfo.props.isEnglishTitle}
@@ -54,6 +55,7 @@ function PictureBlockPreview({ blockInfo, className, ...rest }: Props) {
               alt="사진 컴포넌트 이미지"
               fill
               className="object-cover rounded-3xl"
+              draggable={true}
             />
           </div>
         )}

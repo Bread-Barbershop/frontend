@@ -19,7 +19,7 @@ function GalleryType2({ preview, ratio, imageClick }: GalleryTemplateProps) {
       <div ref={emblaRef}>
         <div className="flex items-center px-[20%]">
           {preview.map((src, i) => (
-            <div key={i} className="embla__slide flex-[0_0_60%] -mx-6">
+            <div key={i} className="embla__slide flex-[0_0_70%] -mx-10">
               <div
                 role="button"
                 tabIndex={0}
