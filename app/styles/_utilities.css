@@ -124,38 +124,38 @@
   /* 우측 +1 */
   .embla__slide.is-snapped + .embla__slide {
     @apply opacity-100 z-10 pointer-events-auto;
-    transform: scale(0.9) translateY(30px) rotate(15deg);
+    transform: scale(0.8) rotate(5deg);
   }
 
   /* 좌측 -1 */
   .embla__slide:has(+ .embla__slide.is-snapped) {
     @apply opacity-100 z-10 pointer-events-auto;
-    transform: scale(0.9) translateY(30px) rotate(-15deg);
+    transform: scale(0.8) rotate(-5deg);
   }
 
   /* 우측 +2 */
   .embla__slide.is-snapped + .embla__slide + .embla__slide {
     @apply opacity-100 z-[5] pointer-events-auto;
-    transform: scale(0.75) translateY(60px) rotate(25deg);
+    transform: scale(0.56) rotate(10deg);
   }
 
   /* 좌측 -2 */
   .embla__slide:has(+ .embla__slide + .embla__slide.is-snapped) {
     @apply opacity-100 z-[5] pointer-events-auto;
-    transform: scale(0.75) translateY(60px) rotate(-25deg);
+    transform: scale(0.56) rotate(-10deg);
   }
   /* 우측 +3 */
   .embla__slide.is-snapped + .embla__slide + .embla__slide + .embla__slide {
-    @apply opacity-100 z-[5] pointer-events-auto;
-    transform: scale(0.6) translateY(100px) rotate(35deg);
+    @apply opacity-100 z-[2] pointer-events-auto;
+    transform: scale(0.3) rotate(15deg);
   }
 
   /* 좌측 -3 */
   .embla__slide:has(
     + .embla__slide + .embla__slide + .embla__slide.is-snapped
   ) {
-    @apply opacity-100 z-[5] pointer-events-auto;
-    transform: scale(0.6) translateY(100px) rotate(-35deg);
+    @apply opacity-100 z-[2] pointer-events-auto;
+    transform: scale(0.3) rotate(-15deg);
   }
 
   .checkerboard {

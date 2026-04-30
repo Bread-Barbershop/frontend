@@ -6,7 +6,7 @@ import { Image } from '@/components/atoms/image';
 
 import { GalleryTemplateProps } from '../types/galleryType';
 
-const MAX_WIDTH = 160; // 중앙일 때 카드 폭
+const MAX_WIDTH = 240; // 중앙일 때 카드 폭
 const MIN_WIDTH = 32; // 가장 멀어졌을 때 카드 폭
 
 const RATIO_MAP: Record<string, number> = {

@@ -22,7 +22,7 @@ function GalleryType5({ imageClick, preview, ratio }: GalleryTemplateProps) {
       // 슬라이드 자체가 아니라 내부 자식(data-rotate-target)에 적용
       const target = slide.querySelector<HTMLElement>('[data-rotate-target]');
       if (!target) return;
-      const rotate = 2 * (index % 2 === 0 ? 1 : -1);
+      const rotate = 6 * (index % 2 === 0 ? 1 : -1);
       target.style.transform = `rotate(${rotate}deg)`;
     });
   }, []);
@@ -44,14 +44,14 @@ function GalleryType5({ imageClick, preview, ratio }: GalleryTemplateProps) {
         <div className="flex items-center py-8">
           {preview.map((src, i) => (
             // -mx-1 제거, 대신 내부 padding으로 간격 확보
-            <div key={i} className="flex-[0_0_70%] min-w-0">
+            <div key={i} className="flex-[0_0_40%] min-w-0 -mx-1">
               <div
                 data-rotate-target
                 role="button"
                 tabIndex={0}
                 style={{ margin: '0 -4px' }}
                 className={cn(
-                  'relative overflow-hidden p-2 pb-8 bg-bg-base rounded-sm min-h-[120px] shadow-[0_1px_2px_0_rgba(0,0,0,0.04),0_1px_4px_0_rgba(0,0,0,0.08),0_8px_24px_0_rgba(0,0,0,0.1)]',
+                  'relative overflow-hidden p-2 pb-6 bg-bg-base rounded-sm min-h-[120px] shadow-[0_1px_2px_0_rgba(0,0,0,0.04),0_1px_4px_0_rgba(0,0,0,0.08),0_8px_24px_0_rgba(0,0,0,0.1)]',
                   GalleryItemVariants({ ratio })
                 )}
                 onClick={() => imageClick(i)}

@@ -7,7 +7,7 @@ export const TITLE_BULK_DATA: BulkData = {
   bold: false,
   italic: false,
   align: 'center',
-  isDefault: true,
+  isDefault: false,
 };
 export const BODY_BULK_DATA: BulkData = {
   font: 'font-pretendard',
@@ -16,5 +16,5 @@ export const BODY_BULK_DATA: BulkData = {
   bold: false,
   italic: false,
   align: 'center',
-  isDefault: true,
+  isDefault: false,
 };

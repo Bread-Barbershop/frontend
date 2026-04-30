@@ -6,39 +6,47 @@ import { cn } from '@/shared/utils/cn';
 
 import { GalleryItemVariants } from '../GalleryCarouselType';
 import { GalleryTemplateProps } from '../types/galleryType';
-const GRID_HEIGHT_UNIT = 300; // 1개 행 높이 (px)
 
 function GalleryType7({ imageClick, preview, ratio }: GalleryTemplateProps) {
-  const [expandCount, setExpandCount] = useState(1);
+  const [expandCount, setExpandCount] = useState(2);
+  const [firstClick, setFirstClick] = useState(true);
   const [isFullyExpanded, setIsFullyExpanded] = useState(false);
 
-  const maxHeight = expandCount * GRID_HEIGHT_UNIT;
   const shouldShowButton = preview.length > 2;
+  const handleClickExpandButton = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.stopPropagation();
 
+    if (isFullyExpanded) {
+      setExpandCount(2);
+      setIsFullyExpanded(false);
+      setFirstClick(true);
+    } else {
+      if (firstClick) {
+        setFirstClick(false);
+        setExpandCount(prev => prev + 2);
+      } else {
+        setIsFullyExpanded(true);
+        setExpandCount(preview.length + 1);
+      }
+    }
+  };
   return (
     <div className="relative w-full px-4">
       <div
         className={cn(
-          'relative w-full grid grid-cols-2 gap-[15px] overflow-hidden transition-[max-height] duration-500 ease-in-out'
+          'relative w-full grid grid-cols-2 gap-[15px] overflow-y-auto max-h-[300px] scrollbar-hide duration-500 ease-in-out scrollbar-hide'
         )}
-        style={{ maxHeight: isFullyExpanded ? 'none' : `${maxHeight}px` }}
-        onTransitionEnd={e => {
-          // 실제 콘텐츠가 maxHeight보다 작으면 완전 펼쳐진 것
-          const el = e.currentTarget;
-
-          if (el.scrollHeight <= maxHeight) {
-            setIsFullyExpanded(true);
-          }
-        }}
       >
-        {preview.map((file, index) => (
+        {preview.slice(0, expandCount).map((file, index) => (
           <div
             role="button"
             tabIndex={0}
             key={index}
             aria-label="갤러리 더 보기"
             className={cn(
-              'relative w-full overflow-hidden rounded-lg cursor-pointer',
+              'relative w-full rounded-lg cursor-pointer',
               GalleryItemVariants({ ratio })
             )}
             onClick={() => imageClick(index)}
@@ -72,15 +80,7 @@ function GalleryType7({ imageClick, preview, ratio }: GalleryTemplateProps) {
               ? 'pointer-events-auto cursor-pointer'
               : 'pointer-events-none'
           )}
-          onClick={e => {
-            e.stopPropagation();
-            if (isFullyExpanded) {
-              setExpandCount(1);
-              setIsFullyExpanded(false);
-            } else {
-              setExpandCount(prev => prev + 3);
-            }
-          }}
+          onClick={handleClickExpandButton}
         >
           <Arrow
             className={cn(
