@@ -1,6 +1,8 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 import Arrow from '@/shared/assets/icons/arrow.svg';
+import inviaLogo from '@/shared/assets/logo/Invia-logo.png';
 
 import type { ReactNode } from 'react';
 
@@ -385,12 +387,19 @@ function Policy() {
             href="/"
             className="inline-flex cursor-pointer items-center gap-2.5 rounded-md border border-black/30 px-4 py-2 text-sm transition-colors hover:bg-black hover:text-white"
           >
-            <Arrow className="h-[10px] w-2 rotate-90 font-light" />
+            <Arrow className="h-2.5 w-2 rotate-90 font-light" />
             <span>메인으로 돌아가기</span>
           </Link>
 
           <div className="flex flex-col items-center gap-3">
-            <p className="text-2xl tracking-wider">{policyInfo.serviceName}</p>
+            <Image
+              src={inviaLogo}
+              alt={policyInfo.serviceName}
+              width={4096}
+              height={821}
+              className="h-6 w-auto"
+              priority
+            />
             <h1 className="text-4xl font-semibold tracking-widest">
               {policyInfo.title}
             </h1>
