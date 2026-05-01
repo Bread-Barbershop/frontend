@@ -34,6 +34,7 @@ export const useEditorStore = create<EditorState>()(
           backgroundColor: '#FFFFFF',
           titleData: TITLE_BULK_DATA,
           bodyData: BODY_BULK_DATA,
+          isZoom: false,
         }),
     };
   })
@@ -48,6 +49,7 @@ export const selectUploadData = (state: EditorState) => ({
   backgroundColor: state.backgroundColor,
   titleData: state.titleData,
   bodyData: state.bodyData,
+  isZoom: state.isZoom,
   setInvitationFolderId: state.setInvitationFolderId,
   setInvitationUuid: state.setInvitationUuid,
   setImageFolderId: state.setImageFolderId,
