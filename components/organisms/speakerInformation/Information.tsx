@@ -60,14 +60,16 @@ export const Information = ({
         onChange={onEditorChange}
       />
 
-      <Picture
-        label="사진"
-        className="w-full text-center"
-        multiple={false}
-        value={speaker.image}
-        onChange={onPictureChange}
-        onDelete={onPictureDelete}
-      />
+      <div className="mt-1 w-full">
+        <Picture
+          label="사진"
+          className="w-full text-center"
+          multiple={false}
+          value={speaker.image}
+          onChange={onPictureChange}
+          onDelete={onPictureDelete}
+        />
+      </div>
     </section>
   );
 };
