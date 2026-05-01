@@ -79,7 +79,7 @@ export const NoticePreview = ({
               key={`preview-${notice.noticeId}-${index}`}
               className={cn(
                 'w-full',
-                displayNoticeList.length > 1 && index === 0 ? 'ml-8' : '',
+                (displayNoticeList?.length ?? 0) > 1 && index === 0 ? 'ml-8' : '',
                 displayNoticeList.length === 1 && 'flex-center'
               )}
             >
