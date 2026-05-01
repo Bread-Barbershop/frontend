@@ -69,7 +69,7 @@ export const NoticePreview = ({
           options={carouselOptions}
           isButtonShow={false}
           className="h-full w-full"
-          carouselClassName="gap-3"
+          carouselClassName="gap-8"
           autoscroll={isAutoScrollActive}
           autoscrollOptions={autoscrollOptions}
           loop={isAutoScrollActive}
@@ -79,7 +79,7 @@ export const NoticePreview = ({
               key={`preview-${notice.noticeId}-${index}`}
               className={cn(
                 'w-full',
-                displayNoticeList.length > 1 && index === 0 ? 'ml-3' : '',
+                (displayNoticeList?.length ?? 0) > 1 && index === 0 ? 'ml-8' : '',
                 displayNoticeList.length === 1 && 'flex-center'
               )}
             >

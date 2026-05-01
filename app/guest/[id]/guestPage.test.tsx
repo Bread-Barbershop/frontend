@@ -214,7 +214,7 @@ describe('GuestPage 서버 컴포넌트 테스트', () => {
     expect(html).toContain('data-testid="guest-renderer"');
     expect(html).toContain('data-testid="guest-bgm"');
     expect(html).toContain('max-w-[430px]');
-    expect(html).toContain('max-w-[375px]');
+    expect(html).toContain('min-w-[375px]');
   });
 
   it('fetch 실패(res.ok === false)면 notFound()를 호출한다', async () => {
