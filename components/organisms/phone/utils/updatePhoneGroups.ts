@@ -1,5 +1,6 @@
+import { normalizePhoneNumber } from '@/shared/utils/phoneNumber';
+
 import { createPhoneContact, createPhoneGroup } from './createPhoneGroup';
-import { normalizePhoneNumber } from './formatPhoneNumber';
 import { MAX_CONTACTS_PER_GROUP, MAX_PHONE_GROUPS } from './phone.constants';
 import { PhoneGroup } from './phone.types';
 

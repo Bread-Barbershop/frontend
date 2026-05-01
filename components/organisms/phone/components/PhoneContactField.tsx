@@ -2,8 +2,8 @@ import { CircleMinus } from 'lucide-react';
 
 import { ActionMenuButton } from '@/components/atoms/action-menu-button';
 import { MultiField } from '@/components/molecules/multi-field';
+import { formatPhoneNumber } from '@/shared/utils/phoneNumber';
 
-import { formatPhoneNumber } from '../utils/formatPhoneNumber';
 import { PhoneContact } from '../utils/phone.types';
 
 interface PhoneContactFieldProps {

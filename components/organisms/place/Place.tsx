@@ -12,6 +12,10 @@ import { TextField } from '@/components/molecules/text-field';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+import {
+  formatPhoneNumber,
+  normalizePhoneNumber,
+} from '@/shared/utils/phoneNumber';
 
 import { Popup } from '../popup/Popup';
 
@@ -169,8 +173,14 @@ export function Place({ blockInfo, id }: Props) {
           label="연락처"
           inputProps={{
             placeholder: '예식장 연락처, ex.02-000-000',
-            onChange: e => handleUpdateBlock('placeTel', e.target.value),
-            value: placeTel,
+            type: 'tel',
+            inputMode: 'numeric',
+            onChange: e =>
+              handleUpdateBlock(
+                'placeTel',
+                normalizePhoneNumber(e.target.value)
+              ),
+            value: formatPhoneNumber(placeTel),
           }}
           className="w-full text-center"
         />
