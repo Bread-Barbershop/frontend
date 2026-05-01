@@ -152,7 +152,7 @@ export const Selector = <T extends Option>({
         ref={popoverRef}
         popover="auto"
         className={cn(
-          'z-10 rounded-b-lg overflow-y-auto max-h-72 shadow-lg border-none p-0 m-0 fixed list-none',
+          'z-10 rounded-b-lg max-h-72 shadow-lg border-none p-0 m-0 fixed list-none edit-custom-scrollbar',
           selected ? 'bg-bg-base' : 'bg-border-neutral'
         )}
         style={{
