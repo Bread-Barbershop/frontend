@@ -54,7 +54,6 @@ export const Member = ({
         <Selector
           type="normal"
           className="w-21.5"
-          customInputClassName="text-center"
           placeholder="관계"
           options={[
             { value: '부', label: '부' },
