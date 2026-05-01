@@ -15,6 +15,7 @@ interface SelectorProps<T> {
   options: T[];
   placeholder?: string;
   className?: string;
+  customInputClassName?: string;
   onInputChange?: (value: string) => void;
   onSelect: (option: T | { label: string; value: string }) => void;
   selected: T | { label: string; value: string } | null;
@@ -27,6 +28,7 @@ export const Selector = <T extends Option>({
   options,
   placeholder = '선택',
   className,
+  customInputClassName,
   onSelect,
   onInputChange,
   selected,
@@ -115,7 +117,10 @@ export const Selector = <T extends Option>({
           <input
             ref={inputRef}
             type="text"
-            className="w-full h-9 px-2 bg-transparent outline-none text-text-primary text-sm"
+            className={cn(
+              'w-full h-9 px-2 bg-transparent outline-none text-text-primary text-sm',
+              customInputClassName
+            )}
             value={typeof selected?.value === 'string' ? selected.value : ''}
             onChange={handleInputChange}
             onBlur={() => {
