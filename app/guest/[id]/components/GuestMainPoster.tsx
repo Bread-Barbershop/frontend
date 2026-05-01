@@ -69,6 +69,9 @@ export const GuestMainPoster = ({ json }: { json: unknown }) => {
     canvas.loadFromJSON(json).then(() => {
       updateCanvasSize();
       canvas.requestRenderAll();
+      window.requestAnimationFrame(() => {
+        window.dispatchEvent(new Event('guest-main-poster-ready'));
+      });
 
       const loadEnd = performance.now();
       const totalTime = loadEnd - renderStartTime;
