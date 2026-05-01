@@ -164,14 +164,16 @@ export const MyChild = ({ blockInfo, id }: Props) => {
         onChange={handleEditorChange}
       />
 
-      <Picture
-        label="사진"
-        className="w-full text-center"
-        multiple={false}
-        value={image}
-        onChange={handlePictureChange}
-        onDelete={handlePictureDelete}
-      />
+      <div className="mt-2 w-full">
+        <Picture
+          label="사진"
+          className="w-full text-center"
+          multiple={false}
+          value={image}
+          onChange={handlePictureChange}
+          onDelete={handlePictureDelete}
+        />
+      </div>
 
       <section className="flex w-full -mx-2 gap-1 py-1.5">
         <Label className="font-semibold">추가기능</Label>
