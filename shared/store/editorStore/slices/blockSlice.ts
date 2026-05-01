@@ -17,7 +17,7 @@ export const createBlockSlice: StateCreator<EditorState, [], [], BlockSlice> = (
           id,
           type,
           component,
-          props: createDefaultProps(component),
+          props: createDefaultProps(component, type),
         },
       ],
     })),

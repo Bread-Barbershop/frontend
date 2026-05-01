@@ -1,8 +1,6 @@
-import { Plus } from 'lucide-react';
-import { useState, useMemo, useEffect, ChangeEvent } from 'react';
+import { useMemo, useEffect, ChangeEvent } from 'react';
 import { useShallow } from 'zustand/shallow';
 
-import { UtilityButton } from '@/components/atoms/button';
 import { Divider } from '@/components/atoms/divider/Divider';
 import { Input } from '@/components/atoms/input/Input';
 import { Label } from '@/components/atoms/label/Label';
@@ -16,36 +14,13 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 import { debounce } from '@/shared/utils/debounce';
 
-import PopupOptions from '../popup/PopupOptions';
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
-
-import { MYCHILD_SAMPLE_MESSAGES } from './myChildSampleMessages';
 
 import type { JSONContent } from '@tiptap/react';
 
 interface Props {
   blockInfo: EditorBlock<'myChild'>;
   id: string;
-}
-
-function createParagraphJson(text: string): JSONContent {
-  const lines = text.replace(/\r\n/g, '\n').split('\n');
-
-  return {
-    type: 'doc',
-    content: lines.map(line =>
-      line.length === 0
-        ? {
-            type: 'paragraph',
-            attrs: { textAlign: 'center' },
-          }
-        : {
-            type: 'paragraph',
-            attrs: { textAlign: 'center' },
-            content: [{ type: 'text', text: line }],
-          }
-    ),
-  };
 }
 
 export const MyChild = ({ blockInfo, id }: Props) => {
@@ -64,8 +39,6 @@ export const MyChild = ({ blockInfo, id }: Props) => {
     messageJson,
     image,
   } = blockInfo.props;
-  const [isSamplePopupOpen, setIsSamplePopupOpen] = useState(false);
-  const [editorResetKey, setEditorResetKey] = useState(0);
   const debouncedUpdateMessage = useMemo(
     () =>
       debounce((messageJson: JSONContent) => {
@@ -108,17 +81,6 @@ export const MyChild = ({ blockInfo, id }: Props) => {
 
   const handleEditorChange = (json: JSONContent) => {
     debouncedUpdateMessage(json);
-  };
-
-  const handleSampleSelect = (text: string) => {
-    debouncedUpdateMessage.cancel();
-    const messageJson = createParagraphJson(text);
-    updateBlock(id, {
-      messageJson,
-      messageHtml: tiptapJsonToHtmlInBrowser(messageJson),
-    });
-    setEditorResetKey(prev => prev + 1);
-    setIsSamplePopupOpen(false);
   };
 
   const handlePictureChange = (file: (File | string)[]) => {
@@ -193,47 +155,26 @@ export const MyChild = ({ blockInfo, id }: Props) => {
         </div>
       </section>
 
-      <NavigationBar
-        action={
-          <UtilityButton
-            size="md"
-            variant="primary"
-            onClick={() => setIsSamplePopupOpen(true)}
-          >
-            샘플문구
-            <Plus size={9} />
-          </UtilityButton>
-        }
-        direction="right"
-      >
-        내용
-      </NavigationBar>
+      <NavigationBar>내용</NavigationBar>
 
       <TextEditor
-        key={`${id}-${editorResetKey}`}
         value={messageJson}
         defaultText="내용을 입력해 주세요"
         defaultAlign="center"
         onChange={handleEditorChange}
       />
 
-      <Picture
-        label="사진"
-        className="w-full text-center"
-        multiple={false}
-        value={image}
-        onChange={handlePictureChange}
-        onDelete={handlePictureDelete}
-      />
-
-      {isSamplePopupOpen && (
-        <PopupOptions
-          popupTitle="샘플 문구"
-          options={MYCHILD_SAMPLE_MESSAGES}
-          onSelect={handleSampleSelect}
-          onClose={() => setIsSamplePopupOpen(false)}
+      <div className="mt-2 w-full">
+        <Picture
+          label="사진"
+          className="w-full text-center"
+          multiple={false}
+          value={image}
+          onChange={handlePictureChange}
+          onDelete={handlePictureDelete}
         />
-      )}
+      </div>
+
       <section className="flex w-full -mx-2 gap-1 py-1.5">
         <Label className="font-semibold">추가기능</Label>
         <Checkbox

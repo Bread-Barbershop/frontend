@@ -1,8 +1,9 @@
-import { CircleMinus, EllipsisVertical } from 'lucide-react';
+import { CircleMinus } from 'lucide-react';
 
+import { ActionMenuButton } from '@/components/atoms/action-menu-button';
 import { MultiField } from '@/components/molecules/multi-field';
+import { formatPhoneNumber } from '@/shared/utils/phoneNumber';
 
-import { formatPhoneNumber } from '../utils/formatPhoneNumber';
 import { PhoneContact } from '../utils/phone.types';
 
 interface PhoneContactFieldProps {
@@ -13,6 +14,7 @@ interface PhoneContactFieldProps {
   onNumberChange: (number: string) => void;
   onDelete: () => void;
   onMenuToggle: () => void;
+  onMenuClose: () => void;
 }
 
 export function PhoneContactField({
@@ -23,6 +25,7 @@ export function PhoneContactField({
   onNumberChange,
   onDelete,
   onMenuToggle,
+  onMenuClose,
 }: PhoneContactFieldProps) {
   return (
     <div className="relative flex w-full items-center gap-1.5 py-1.5">
@@ -46,22 +49,13 @@ export function PhoneContactField({
         }}
         className="min-w-0 flex-1"
       />
-      <button
-        type="button"
+      <ActionMenuButton
         aria-label="연락처 메뉴"
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg hover:bg-btn-hover active:bg-btn-pressed"
-        onClick={event => {
-          event.stopPropagation();
-          onMenuToggle();
-        }}
-      >
-        <EllipsisVertical className="size-6 text-black" />
-      </button>
-      {isMenuOpen && (
-        <div
-          className="absolute right-0 top-10 z-10 rounded-lg border border-border-neutral bg-white shadow-edit"
-          onClick={event => event.stopPropagation()}
-        >
+        isOpen={isMenuOpen}
+        onToggle={onMenuToggle}
+        onClose={onMenuClose}
+        menuClassName="rounded-lg border border-border-neutral bg-white shadow-edit"
+        menu={
           <button
             type="button"
             disabled={!canDelete}
@@ -71,8 +65,8 @@ export function PhoneContactField({
             <CircleMinus className="h-4 w-4" />
             삭제
           </button>
-        </div>
-      )}
+        }
+      />
     </div>
   );
 }

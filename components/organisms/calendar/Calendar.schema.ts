@@ -3,6 +3,14 @@ import { calendarTemplate } from '@/shared/data/template/componentTemplate';
 export const calendarSchema = {
   type: calendarTemplate,
   fields: {
+    title: {
+      default: '예식 일시',
+      required: true,
+    },
+    englishTitle: {
+      default: 'THE WEDDING CEREMONY',
+      required: true,
+    },
     date: {
       default: (() => {
         const date = new Date();

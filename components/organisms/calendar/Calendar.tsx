@@ -76,6 +76,8 @@ export function Calendar({ blockInfo, id }: Props) {
       <div className="w-full flex flex-col gap-3">
         <TextField
           label="예식일"
+          className="w-full"
+          labelClassName="w-14 text-center"
           inputProps={{
             placeholder: '2026-03-09',
             value: blockInfo.props.date ? String(blockInfo.props.date) : '',
@@ -83,9 +85,11 @@ export function Calendar({ blockInfo, id }: Props) {
             maxLength: 10,
           }}
         />
-        <div className="flex items-center">
-          <Label>예식시간</Label>
-          <div className="flex-1">
+        <div className="flex items-center gap-2 w-full">
+          <Label className="w-14 text-center font-semibold shrink-0">
+            예식시간
+          </Label>
+          <div className="min-w-0 flex-1">
             <TimeSelector
               value={blockInfo.props.time}
               onChange={handleTimeChange}
@@ -93,8 +97,10 @@ export function Calendar({ blockInfo, id }: Props) {
           </div>
         </div>
         <NavigationBar>디데이&카운트다운</NavigationBar>
-        <div className="flex gap-2 mb-4">
-          <Label>추가기능</Label>
+        <div className="flex items-center gap-2 w-full mb-4">
+          <Label className="w-14 text-center font-semibold shrink-0">
+            추가기능
+          </Label>
           <Checkbox
             checked={blockInfo.props.showCalendar}
             onChange={handleShowCalendarChange}

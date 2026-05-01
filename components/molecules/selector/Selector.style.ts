@@ -9,7 +9,8 @@ export const selectorVariants = cva(
         editor: '',
       },
       isOpen: {
-        true: 'rounded-t-lg border-b-transparent',
+        true:
+          'rounded-t-lg border-b-transparent shadow-[0_-3px_8px_rgba(0,0,0,0.08)]',
         false: 'rounded-lg',
       },
       hasValue: {

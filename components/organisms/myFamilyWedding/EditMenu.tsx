@@ -29,7 +29,7 @@ export const EditMenu = ({
   onToggle,
 }: Props) => {
   return (
-    <section className="absolute flex flex-col items-center justify-center gap-2.5 px-2 right-0 top-9 z-10 bg-bg-base w-21.5 h-16.5 rounded-lg shadow-custom">
+    <section className="flex flex-col items-center justify-center gap-2.5 px-2 bg-bg-base w-21.5 h-16.5 rounded-lg shadow-custom">
       <button
         type="button"
         className="w-full flex items-center gap-1 text-[14px]"

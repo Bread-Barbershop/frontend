@@ -20,6 +20,7 @@ interface PhoneGroupSectionProps {
     label: string
   ) => void;
   onContactMenuToggle: (contactId: string) => void;
+  onContactMenuClose: () => void;
   onContactNumberChange: (
     groupIndex: number,
     contactIndex: number,
@@ -36,6 +37,7 @@ export function PhoneGroupSection({
   onContactDelete,
   onContactLabelChange,
   onContactMenuToggle,
+  onContactMenuClose,
   onContactNumberChange,
   onGroupNameChange,
 }: PhoneGroupSectionProps) {
@@ -74,6 +76,7 @@ export function PhoneGroupSection({
           isMenuOpen={openContactMenuId === contact.id}
           canDelete={group.contacts.length > 1}
           onMenuToggle={() => onContactMenuToggle(contact.id)}
+          onMenuClose={onContactMenuClose}
           onDelete={() => onContactDelete(groupIndex, contact.id)}
           onLabelChange={label =>
             onContactLabelChange(groupIndex, contactIndex, label)
