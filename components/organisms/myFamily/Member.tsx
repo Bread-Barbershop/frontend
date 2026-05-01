@@ -1,5 +1,6 @@
 import { ChangeEvent } from 'react';
 
+import { ActionMenuButton } from '@/components/atoms/action-menu-button';
 import { Input } from '@/components/atoms/input';
 import { Label } from '@/components/atoms/label';
 import { Picture } from '@/components/molecules/picture';
@@ -72,23 +73,23 @@ export const Member = ({
             className={cn('w-34', member.flower && 'pl-8')}
           />
         </div>
-        <div className="relative w-8 flex items-center justify-center">
-          <button
-            type="button"
-            className="w-full h-full flex items-center justify-center"
-            onClick={() => onToggle(index)}
-          >
-            <Menu />
-          </button>
-          {isOpen && (
+        <ActionMenuButton
+          aria-label="가족소개 메뉴"
+          isOpen={isOpen}
+          onToggle={() => onToggle(index)}
+          onClose={() => onToggle(index)}
+          icon={<Menu />}
+          wrapperClassName="w-8 flex items-center justify-center"
+          buttonClassName="w-full h-full rounded-none hover:bg-transparent active:bg-transparent"
+          menu={
             <EditMenu
               onFlowerChange={value => onFlowerChange(index, value)}
               onDelete={() => onDelete(index)}
               onToggle={() => onToggle(index)}
               member={member}
             />
-          )}
-        </div>
+          }
+        />
       </div>
       <Picture
         label="사진"

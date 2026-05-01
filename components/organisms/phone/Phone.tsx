@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { Button, UtilityButton } from '@/components/atoms/button';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
@@ -39,20 +39,6 @@ function Phone({ blockInfo, id }: Props) {
     storedGroups && storedGroups.length > 0
       ? storedGroups
       : (fallbackGroupsByIdRef.current[id] ??= getInitialPhoneGroups());
-
-  useEffect(() => {
-    if (!openContactMenuId) return;
-
-    const handleClickOutside = () => {
-      setOpenContactMenuId(null);
-    };
-
-    document.addEventListener('click', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [openContactMenuId]);
 
   const updateGroups = (nextGroups: PhoneGroup[]) => {
     updateBlock(id, { groups: nextGroups });
@@ -132,6 +118,7 @@ function Phone({ blockInfo, id }: Props) {
           onContactDelete={handleDeleteContact}
           onContactLabelChange={handleContactLabelChange}
           onContactMenuToggle={handleContactMenuToggle}
+          onContactMenuClose={() => setOpenContactMenuId(null)}
           onContactNumberChange={handleContactNumberChange}
           onGroupNameChange={handleGroupNameChange}
         />
