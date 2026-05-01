@@ -1,5 +1,6 @@
 import { ChangeEvent } from 'react';
 
+import { ActionMenuButton } from '@/components/atoms/action-menu-button';
 import { Input } from '@/components/atoms/input';
 import { Selector } from '@/components/molecules/selector';
 import Flower from '@/shared/assets/icons/flower.svg';
@@ -75,15 +76,15 @@ export const Member = ({
             className={cn('w-34', member.flower && 'pl-8')}
           />
         </div>
-        <div className="relative w-8 flex items-center justify-center">
-          <button
-            type="button"
-            className="w-full h-full flex items-center justify-center"
-            onClick={() => onToggle(type, index)}
-          >
-            <Menu />
-          </button>
-          {isOpen && (
+        <ActionMenuButton
+          aria-label="wedding family menu"
+          isOpen={isOpen}
+          onToggle={() => onToggle(type, index)}
+          onClose={() => onToggle(type, index)}
+          icon={<Menu />}
+          wrapperClassName="w-8 flex items-center justify-center"
+          buttonClassName="w-full h-full rounded-none hover:bg-transparent active:bg-transparent"
+          menu={
             <EditMenu
               type={type}
               index={index}
@@ -92,8 +93,8 @@ export const Member = ({
               onDelete={onDelete}
               onToggle={onToggle}
             />
-          )}
-        </div>
+          }
+        />
       </div>
     </div>
   );
