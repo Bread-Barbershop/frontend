@@ -15,6 +15,7 @@ interface SelectorProps<T> {
   options: T[];
   placeholder?: string;
   className?: string;
+  triggerClassName?: string;
   customInputClassName?: string;
   onInputChange?: (value: string) => void;
   onSelect: (option: T | { label: string; value: string }) => void;
@@ -28,6 +29,7 @@ export const Selector = <T extends Option>({
   options,
   placeholder = '선택',
   className,
+  triggerClassName,
   customInputClassName,
   onSelect,
   onInputChange,
@@ -112,7 +114,12 @@ export const Selector = <T extends Option>({
 
   return (
     <div ref={containerRef} className={cn('relative', className)}>
-      <div className={cn(selectorVariants({ type, isOpen, hasValue }))}>
+      <div
+        className={cn(
+          selectorVariants({ type, isOpen, hasValue }),
+          triggerClassName
+        )}
+      >
         {isCustomInput ? (
           <input
             ref={inputRef}

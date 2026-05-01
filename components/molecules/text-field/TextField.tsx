@@ -9,6 +9,7 @@ interface TextFieldProps {
   label: string;
   disabled?: boolean;
   className?: string;
+  labelClassName?: string;
   inputProps?: ComponentPropsWithoutRef<typeof Input>;
 }
 
@@ -17,6 +18,7 @@ export const TextField = ({
   label,
   disabled = false,
   className,
+  labelClassName,
   inputProps = {},
 }: TextFieldProps) => {
   const generatedId = useId();
@@ -24,7 +26,10 @@ export const TextField = ({
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      <Label htmlFor={inputId} className="font-semibold shrink-0">
+      <Label
+        htmlFor={inputId}
+        className={cn('font-semibold shrink-0', labelClassName)}
+      >
         {label}
       </Label>
       <Input

@@ -1,10 +1,28 @@
 import { blockRegistry } from '@/shared/data/registry/registry';
-import { BlockType } from '@/shared/types/editor';
+import type { InvitationType } from '@/shared/types/block';
+import { BlockType, PropsFromFields } from '@/shared/types/editor';
 
-export function createDefaultProps(type: BlockType) {
+type DefaultProps<T extends BlockType> = PropsFromFields<
+  (typeof blockRegistry)[T]['fields']
+>;
+
+export function createDefaultProps<T extends BlockType>(
+  type: T,
+  invitationType?: InvitationType
+): DefaultProps<T> {
   const fields = blockRegistry[type].fields;
 
-  return Object.fromEntries(
+  const props = Object.fromEntries(
     Object.entries(fields).map(([key, value]) => [key, value.default])
-  ) as any;
+  ) as DefaultProps<T>;
+
+  if (type === 'calendar' && invitationType && invitationType !== 'wedding') {
+    return {
+      ...props,
+      title: '행사 일시',
+      englishTitle: 'THE EVENT TIME',
+    } as DefaultProps<T>;
+  }
+
+  return props;
 }

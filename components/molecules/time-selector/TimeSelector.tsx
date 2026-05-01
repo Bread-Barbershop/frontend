@@ -48,15 +48,17 @@ export const TimeSelector = ({ value, onChange }: TimeSelectorProps) => {
 
   return (
     <div className="flex gap-2 w-full">
-      <div className="flex-1">
+      <div className="min-w-0 flex-1">
         <Selector
+          type="normal"
           options={AMPM_OPTIONS}
           selected={selectedAmPm}
           onSelect={handleAmPmChange}
         />
       </div>
-      <div className="flex-2">
+      <div className="min-w-0 flex-[2]">
         <Selector
+          type="normal"
           options={timeOptions}
           selected={selectedTime}
           onSelect={handleTimeChange}
