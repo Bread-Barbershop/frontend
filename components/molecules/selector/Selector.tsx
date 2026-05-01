@@ -131,7 +131,7 @@ export const Selector = <T extends Option>({
             aria-haspopup="listbox"
             aria-expanded={isOpen}
           >
-            <span className="h-6 leading-6 text-center text-text-primary truncate flex-1 min-w-0 block">
+            <span className="h-fit leading-6 text-center text-text-primary truncate flex-1 min-w-0 block">
               {hasValue ? selected?.label : placeholder}
             </span>
 
