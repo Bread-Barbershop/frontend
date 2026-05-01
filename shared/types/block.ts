@@ -104,4 +104,6 @@ export type EditorState = BlockSlice &
   ImageSlice &
   UISlice &
   DriveSlice &
-  BulkSlice;
+  BulkSlice & {
+    reset: () => void;
+  };
