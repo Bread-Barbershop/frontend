@@ -1,6 +1,5 @@
 import Flower from '@/shared/assets/icons/flower.svg';
 import type { EditorBlock } from '@/shared/types/block';
-import { cn } from '@/shared/utils/cn';
 
 import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
 
@@ -20,7 +19,7 @@ export const MyFamilyWeddingPreview = ({
 
   return (
     <MiddlePreviewWrapper
-      className={cn(className, 'py-0')}
+      className={className}
       enTitle="MY FAMILY"
       noTitle={true}
       titleClassName={titleClassName}
