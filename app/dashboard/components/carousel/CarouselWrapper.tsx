@@ -9,14 +9,20 @@ import { getInvitationShowcaseItem } from '@/app/dashboard/utils/getInvitationSh
 import CarouselBase from './CarouselBase';
 import { dashboardCarouselLayout } from './carouselLayout';
 import { CarouselCardItem } from './carouselTypes';
+import DashboardCarouselSkeleton from './DashboardCarouselSkeleton';
 
 type CarouselWrapperProps = {
   initialInvites?: InviteListItem[];
+  loadOnMount?: boolean;
 };
 
-function CarouselWrapper({ initialInvites = [] }: CarouselWrapperProps) {
+function CarouselWrapper({
+  initialInvites = [],
+  loadOnMount,
+}: CarouselWrapperProps) {
   const {
     invites,
+    loading,
     handleUpdate,
     handlePublish,
     handleCopyPublishedUrl,
@@ -24,7 +30,7 @@ function CarouselWrapper({ initialInvites = [] }: CarouselWrapperProps) {
     getPublishedUrl,
     isSharing,
     isPublishing,
-  } = useDashboardInvitations(initialInvites);
+  } = useDashboardInvitations(initialInvites, { loadOnMount });
   const items: CarouselCardItem[] = useMemo(
     () =>
       invites.map(invite => {
@@ -42,6 +48,10 @@ function CarouselWrapper({ initialInvites = [] }: CarouselWrapperProps) {
       }),
     [invites]
   );
+
+  if (loading) {
+    return <DashboardCarouselSkeleton />;
+  }
 
   return (
     <CarouselBase
