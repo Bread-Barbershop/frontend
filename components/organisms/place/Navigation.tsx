@@ -39,7 +39,7 @@ export function Navigation({ lat, lng, name }: Props) {
         <Button
           variant="bordered"
           size="sm"
-          className="w-26.5 shadow-btn-drop-black"
+          className="h-auto w-26.5 shadow-btn-drop-black"
           onClick={() => handleNavigation('naver')}
         >
           <MapIcon />
@@ -48,7 +48,7 @@ export function Navigation({ lat, lng, name }: Props) {
         <Button
           variant="bordered"
           size="sm"
-          className="w-26.5 shadow-btn-drop-black"
+          className="h-auto w-26.5 shadow-btn-drop-black"
           onClick={() => handleNavigation('kakao')}
         >
           <MapIcon />
@@ -57,7 +57,7 @@ export function Navigation({ lat, lng, name }: Props) {
         <Button
           variant="bordered"
           size="sm"
-          className="w-26.5 shadow-btn-drop-black"
+          className="h-auto w-26.5 shadow-btn-drop-black"
           onClick={() => handleNavigation('tmap')}
         >
           <MapIcon />
