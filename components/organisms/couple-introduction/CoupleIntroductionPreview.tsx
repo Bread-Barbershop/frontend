@@ -109,14 +109,14 @@ function CoupleIntroductionPreview({
       koTitleDefault="신랑・신부 소개"
       {...rest}
     >
-      <div className="flex flex-row gap-4.5">
+      <div className="flex w-full flex-row gap-4.5">
         {profileItems.map(profile => (
           <div
             key={profile.key}
-            className="w-40 flex flex-col justify-center items-center gap-4"
+            className="flex min-w-0 flex-1 flex-col items-center justify-center gap-4"
           >
             {profile.imageSrc ? (
-              <div className="relative size-40 rounded-3xl overflow-hidden">
+              <div className="relative aspect-square w-full overflow-hidden rounded-3xl">
                 <Image
                   src={profile.imageSrc}
                   alt={`${profile.label} 사진`}
@@ -125,7 +125,7 @@ function CoupleIntroductionPreview({
                 />
               </div>
             ) : (
-              <div className="size-40 rounded-3xl bg-border-neutral flex justify-center items-center">
+              <div className="flex aspect-square w-full items-center justify-center rounded-3xl bg-border-neutral">
                 <p>사진을 추가해 주세요.</p>
               </div>
             )}
