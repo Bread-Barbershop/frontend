@@ -1,12 +1,36 @@
 {
   "templates": [
     {
-      "id": "sample-template",
-      "name": "샘플 템플릿",
+      "id": "sample",
+      "name": "샘플",
       "category": "etc",
       "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/sample-template.png",
-      "jsonUrl": "/templates/json/sample-template.v1.json"
+      "thumbnailUrl": "/templates/thumbnails/sample.png",
+      "jsonUrl": "/templates/json/sample.v1.json"
+    },
+    {
+      "id": "wedding_01",
+      "name": "웨딩 01",
+      "category": "wedding",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/wedding_01.png",
+      "jsonUrl": "/templates/json/wedding_01.v1.json"
+    },
+    {
+      "id": "wedding_02_eng",
+      "name": "웨딩 02 (영문)",
+      "category": "wedding",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/wedding_02_eng.png",
+      "jsonUrl": "/templates/json/wedding_02_eng.v1.json"
+    },
+    {
+      "id": "wedding_02_kor",
+      "name": "웨딩 02 (국문)",
+      "category": "wedding",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/wedding_02_kor.png",
+      "jsonUrl": "/templates/json/wedding_02_kor.v1.json"
     }
   ]
 }
