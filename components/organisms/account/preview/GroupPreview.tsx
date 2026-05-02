@@ -16,9 +16,9 @@ export const GroupPreview = ({
     setIsOpenAccount(prev => !prev);
   };
   return (
-    <div className="relative flex flex-col px-1 py-2 justify-center w-66 border border-border-button rounded-lg shadow-btn-drop-black">
+    <div className="relative flex w-70 flex-col justify-center overflow-hidden rounded-lg border border-border-button shadow-btn-drop-black">
       <Button
-        className="text-sm text-text-secondary w-full border-none"
+        className="h-[43px] w-full border-none py-2 text-sm text-text-secondary font-bold"
         type="button"
         onClick={handleOpenAccount}
       >
