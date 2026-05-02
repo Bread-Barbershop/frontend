@@ -3,12 +3,16 @@ import { useEffect } from 'react';
 import { useFabricContext } from '../context/FabricContext';
 
 function History() {
-  const { saveHistory, undo, redo, canvas } = useFabricContext();
+  const { saveHistory, undo, redo, canvas, isUpdating, isDeleting } =
+    useFabricContext();
 
   useEffect(() => {
     if (!canvas) return;
 
-    const handleSave = () => saveHistory();
+    const handleSave = () => {
+      if (isUpdating.current || isDeleting.current) return;
+      saveHistory();
+    };
 
     canvas.on('object:modified', handleSave);
     canvas.on('object:added', handleSave);
@@ -19,7 +23,7 @@ function History() {
       canvas.off('object:added', handleSave);
       canvas.off('object:removed', handleSave);
     };
-  }, [canvas, saveHistory]);
+  }, [canvas, saveHistory, isDeleting, isUpdating]);
 
   return (
     <div>
