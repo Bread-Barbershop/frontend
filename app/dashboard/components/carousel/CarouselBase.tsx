@@ -16,11 +16,13 @@ type CarouselBaseProps = {
   showCenterActions?: boolean;
   stageHeight?: string;
   selectedLift?: string;
+  onDelete?: (folderId: string) => void | Promise<void>;
   onUpdate?: (folderId: string, uuid?: string) => void;
   onPublish?: (folderId: string) => void;
   onCopyUrl?: (folderId: string) => void;
   onShare?: (folderId: string) => Promise<void>;
   getPublishedUrl?: (folderId: string) => string | null;
+  isDeleting?: (folderId: string) => boolean;
   isSharing?: (folderId: string) => boolean;
   isPublishing?: (folderId: string) => boolean;
 };
@@ -33,11 +35,13 @@ function CarouselBase({
   showCenterActions = false,
   stageHeight = dashboardCarouselLayout.stageHeight,
   selectedLift,
+  onDelete,
   onUpdate,
   onPublish,
   onCopyUrl,
   onShare,
   getPublishedUrl,
+  isDeleting,
   isSharing,
   isPublishing,
 }: CarouselBaseProps) {
@@ -128,11 +132,13 @@ function CarouselBase({
         showCenterActions={showCenterActions}
         selectedLift={selectedLift}
         onSelect={handleSelect}
+        onDelete={onDelete}
         onUpdate={onUpdate}
         onPublish={onPublish}
         onCopyUrl={onCopyUrl}
         onShare={onShare}
         getPublishedUrl={getPublishedUrl}
+        isDeleting={isDeleting}
         isSharing={isSharing}
         isPublishing={isPublishing}
       />

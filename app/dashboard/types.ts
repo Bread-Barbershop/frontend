@@ -5,6 +5,7 @@ export type InviteListItem = {
   invitationUuid?: string;
   publishedUrl?: string | null;
   thumbnailUrl?: string | null;
+  hasKakaoShareData?: boolean;
 };
 
 export type KakaoShareData = {

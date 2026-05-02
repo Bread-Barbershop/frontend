@@ -20,11 +20,13 @@ type CarouselItemProps = {
   showCenterActions?: boolean;
   selectedLift?: string;
   onSelect: (index: number) => void;
+  onDelete?: (folderId: string) => void | Promise<void>;
   onUpdate?: (folderId: string, uuid?: string) => void;
   onPublish?: (folderId: string) => void;
   onCopyUrl?: (folderId: string) => void;
   onShare?: (folderId: string) => Promise<void>;
   publishedUrl: string | null;
+  isDeleting: boolean;
   isSharing: boolean;
   isPublishing: boolean;
 };
@@ -38,28 +40,28 @@ function CarouselItem({
   showCenterActions = false,
   selectedLift: selectedLiftProp = dashboardCarouselLayout.selectedLift,
   onSelect,
+  onDelete,
   onUpdate,
   onPublish,
   onCopyUrl,
   onShare,
   publishedUrl,
+  isDeleting,
   isSharing,
   isPublishing,
 }: CarouselItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const invite = item.invite;
-  const showSelectedOverlay = showHeader || showSideActions || showCenterActions;
+  const canShare = Boolean(invite?.hasKakaoShareData);
+  const showSelectedOverlay =
+    showHeader || showSideActions || showCenterActions;
   const hoverLift = showHeader
     ? `calc(${selectedLiftProp} - ${dashboardCarouselLayout.headerHeight})`
     : selectedLiftProp;
   const selectedLift = showHeader
     ? `calc(${selectedLiftProp} + ${dashboardCarouselLayout.headerHeight})`
     : selectedLiftProp;
-  const translateY = isSelected
-    ? selectedLift
-    : isHovered
-      ? hoverLift
-      : null;
+  const translateY = isSelected ? selectedLift : isHovered ? hoverLift : null;
 
   const handleActionClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -95,7 +97,9 @@ function CarouselItem({
         className="relative overflow-visible transition-transform"
         style={{
           transitionDuration: `${dashboardCarouselLayout.cardLiftDurationMs}ms`,
-          transform: translateY ? `translateY(calc(-1 * ${translateY}))` : undefined,
+          transform: translateY
+            ? `translateY(calc(-1 * ${translateY}))`
+            : undefined,
           height:
             isSelected && showHeader
               ? dashboardCarouselLayout.selectedVisualHeight
@@ -109,28 +113,39 @@ function CarouselItem({
               top: dashboardCarouselLayout.actionTop,
               right: dashboardCarouselLayout.actionRight,
               gap: dashboardCarouselLayout.sideActionGap,
+              minHeight: `calc(${dashboardCarouselLayout.sideActionSize} * 2 + ${dashboardCarouselLayout.sideActionGap})`,
             }}
           >
             <button
               type="button"
-              onClick={handleActionClick}
-              className="cursor-pointer"
+              disabled={isDeleting}
+              onClick={event => {
+                handleActionClick(event);
+                if (isDeleting) return;
+                void onDelete?.(invite.folderId);
+              }}
+              className={
+                isDeleting ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+              }
+              aria-disabled={isDeleting}
             >
               <DeleteButton />
             </button>
-            <button
-              type="button"
-              disabled={isSharing}
-              onClick={event => {
-                handleActionClick(event);
-                if (isSharing) return;
-                void onShare?.(invite.folderId);
-              }}
-              className={isSharing ? 'cursor-not-allowed' : 'cursor-pointer'}
-              aria-disabled={isSharing}
-            >
-              <ShareButton disabled={isSharing} />
-            </button>
+            {canShare && (
+              <button
+                type="button"
+                disabled={isSharing}
+                onClick={event => {
+                  handleActionClick(event);
+                  if (isSharing) return;
+                  void onShare?.(invite.folderId);
+                }}
+                className={isSharing ? 'cursor-not-allowed' : 'cursor-pointer'}
+                aria-disabled={isSharing}
+              >
+                <ShareButton disabled={isSharing} />
+              </button>
+            )}
           </div>
         )}
 
