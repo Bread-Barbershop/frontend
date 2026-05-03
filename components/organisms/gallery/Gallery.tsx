@@ -107,7 +107,7 @@ function Gallery({ blockInfo, id }: Props) {
         />
         {blockInfo.props.images && blockInfo.props.images?.length > 0 && (
           <ButtonSelector
-            className="gap-2"
+            className="gap-2 text-center"
             label="비율"
             selectorOption={ASPECT_RATIO_OPTIONS}
             onPointerDown={handleAspectRatioChange}
@@ -119,7 +119,7 @@ function Gallery({ blockInfo, id }: Props) {
             사진을 드래그하여 순서 변경 가능
           </li>
         </ul>
-        <div className="flex items-center gap-2 pt-2">
+        <div className="flex items-center gap-2 pb-2">
           <Label className="font-semibold shrink-0 text-center">추가기능</Label>
           <div>
             <Checkbox
