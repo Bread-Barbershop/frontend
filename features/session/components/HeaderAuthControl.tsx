@@ -1,7 +1,8 @@
 'use client';
 
 import { CircleUserRound } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import React from 'react';
 
 import { useAuthGate } from '@/features/session/hooks/useAuthGate';
 
@@ -24,6 +25,17 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
     logout,
     runAfterAuth,
   } = useAuthGate({ initialIsLoggedIn });
+  const pathname = usePathname();
+
+  const handleDashboardClick = (e: React.MouseEvent) => {
+    if (pathname.startsWith('/editor')) {
+      const leave = window.confirm(
+        '수정된 내용이 저장되지 않을 수 있습니다.\n정말 나가시겠습니까?'
+      );
+      if (!leave) e.preventDefault();
+      runAfterAuth(() => router.push('/dashboard'));
+    }
+  };
 
   if (isLoggedIn) {
     return (
@@ -38,7 +50,7 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
         </button>
         <button
           type="button"
-          onClick={() => runAfterAuth(() => router.push('/dashboard'))}
+          onClick={handleDashboardClick}
           disabled={isBusy}
           aria-label="Go to dashboard"
           className="ml-4 flex h-10 w-10 items-center justify-center bg-transparent cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-50"

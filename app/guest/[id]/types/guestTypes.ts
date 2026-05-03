@@ -35,6 +35,7 @@ export type BulkJson = {
   backgroundColor: string;
   titleData: BulkData;
   bodyData: BulkData;
+  isZoom: boolean;
 };
 
 export type GuestMainPosterData = {

@@ -95,13 +95,17 @@ export interface BulkSlice {
   titleData: BulkData;
   bodyData: BulkData;
   backgroundColor: string;
+  isZoom: boolean;
   setBackgroundColor: (color: string) => void;
   setTitleData: (data: BulkData) => void;
   setBodyData: (data: BulkData) => void;
+  setIsZoom: (isZoom: boolean) => void;
 }
 
 export type EditorState = BlockSlice &
   ImageSlice &
   UISlice &
   DriveSlice &
-  BulkSlice;
+  BulkSlice & {
+    reset: () => void;
+  };

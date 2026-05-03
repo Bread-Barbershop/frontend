@@ -49,7 +49,7 @@ function LeftPanel() {
         </AnimatePresence>
       </div>
 
-      <div className="flex-center bg-white rounded-lg shadow-edit border border-black/5 transition-all duration-300 ease-in-out">
+      <div className="flex flex-col bg-white rounded-lg shadow-edit border border-black/5 transition-all duration-300 ease-in-out">
         <AnimatePresence mode="wait">
           {!isEdit && (
             <motion.div

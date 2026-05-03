@@ -29,7 +29,7 @@ function PictureBlockPreview({ blockInfo, className, ...rest }: Props) {
       enTitle={blockInfo.props.enTitle}
       enTitleDefault="PICTURE"
       koTitle={blockInfo.props.title}
-      koTitleDefault="사진"
+      koTitleDefault="제목을 입력해주세요."
       className={className}
       {...rest}
     >
@@ -42,7 +42,7 @@ function PictureBlockPreview({ blockInfo, className, ...rest }: Props) {
           )}
         </div>
         {!preview && (
-          <div className="w-[335px] h-[335px] flex-center bg-border-neutral rounded-3xl">
+          <div className="w-[335px] h-[335px] flex-center bg-border-neutral">
             <p className="text-text-primary text-[13px]">
               사진을 추가해주세요.
             </p>
@@ -54,7 +54,7 @@ function PictureBlockPreview({ blockInfo, className, ...rest }: Props) {
               src={preview}
               alt="사진 컴포넌트 이미지"
               fill
-              className="object-cover rounded-3xl"
+              className="object-cover"
               draggable={true}
             />
           </div>

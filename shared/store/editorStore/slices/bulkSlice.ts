@@ -10,7 +10,9 @@ export const createBulkSlice: StateCreator<EditorState, [], [], BulkSlice> = (
   backgroundColor: '#FFFFFF',
   titleData: TITLE_BULK_DATA,
   bodyData: BODY_BULK_DATA,
+  isZoom: false,
   setBackgroundColor: (color: string) => set({ backgroundColor: color }),
   setTitleData: (data: BulkData) => set({ titleData: data }),
   setBodyData: (data: BulkData) => set({ bodyData: data }),
+  setIsZoom: (isZoom: boolean) => set({ isZoom }),
 });

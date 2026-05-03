@@ -41,19 +41,6 @@
     scrollbar-gutter: stable;
     overflow-y: auto;
   }
-  .edit-custom-scrollbar::-webkit-scrollbar {
-    width: 7px;
-  }
-  .edit-custom-scrollbar::-webkit-scrollbar-track {
-    border-radius: 100vw !important;
-  }
-  .edit-custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #a9a9a9;
-    border-radius: 100vw;
-    border: 1px solid transparent;
-    border-color: #d9d9d9;
-    background-clip: padding-box;
-  }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }

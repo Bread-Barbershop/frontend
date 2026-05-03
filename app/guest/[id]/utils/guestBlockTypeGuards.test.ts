@@ -52,23 +52,24 @@ const validPayload = {
   bulkData: {
     backgroundColor: '#ffffff',
     titleData: {
-      font: 'Inter',
-      fontSize: '24px',
-      color: '#000000',
+      font: 'font-maruburi',
+      fontSize: '20px',
+      color: '#FA7564',
       bold: false,
       italic: false,
       align: 'center',
-      isDefault: true,
+      isDefault: false,
     },
     bodyData: {
-      font: 'Inter',
+      font: 'font-maruburi',
       fontSize: '16px',
       color: '#000000',
       bold: false,
       italic: false,
       align: 'center',
-      isDefault: true,
+      isDefault: false,
     },
+    isZoom: false,
   },
 };
 
