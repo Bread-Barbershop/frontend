@@ -4,6 +4,7 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import { ImageUploadButton } from '@/components/atoms/button/ImageUploadButton';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
+import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import { PhotoPresetOptions } from '../../types/fabric';
@@ -142,7 +143,7 @@ export const ImagePanel = () => {
   }, [canvas, activeInfo]);
 
   return (
-    <div className="flex flex-col items-center gap-1.5 w-full p-2">
+    <LeftEditorWrapper ariaLabel="사진 편집">
       <NavigationBar>사진</NavigationBar>
       <div className="py-5">
         {imageSrc ? (
@@ -163,6 +164,6 @@ export const ImagePanel = () => {
       </div>
       <AspectRatioSelector startCrop={handleStartCrop} />
       <ImageFilterSelector onApply={handleApply} activeInfo={activeInfo} />
-    </div>
+    </LeftEditorWrapper>
   );
 };
