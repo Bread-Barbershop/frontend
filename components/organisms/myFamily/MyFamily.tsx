@@ -98,7 +98,13 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
   const handleAddFamily = () => {
     const newFamily = [
       ...(family || []),
-      { relation: '', name: '', image: [], flower: false },
+      {
+        id: crypto.randomUUID(),
+        relation: '',
+        name: '',
+        image: [],
+        flower: false,
+      },
     ];
     updateBlock(id, { family: newFamily });
   };
@@ -158,8 +164,8 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
   useEffect(() => {
     if (family && family.length > 0) return;
     const newFamily = [
-      { relation: '', name: '', image: [] },
-      { relation: '', name: '', image: [] },
+      { id: crypto.randomUUID(), relation: '', name: '', image: [] },
+      { id: crypto.randomUUID(), relation: '', name: '', image: [] },
     ];
     updateBlock(id, { family: newFamily });
   }, [id, family, updateBlock]);

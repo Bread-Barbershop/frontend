@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { extractFileGroups } from '@/shared/utils/extractFileGroups';
 
 import { SavedData } from '../types/savedata';
 
@@ -57,10 +58,12 @@ export const useInitData = ({
   const initEditStore = useCallback(() => {
     if (blocks) {
       setBlock(blocks);
+      console.log('blocks', blocks);
       blocks.forEach(block => {
-        if ('images' in block.props && block.props.images instanceof Array) {
-          updateImage(block.id, block.props.images);
-        }
+        const results = extractFileGroups(block);
+        results.forEach(result => {
+          updateImage(result.id, result.image);
+        });
       });
     }
     if (imageFolderId) {
