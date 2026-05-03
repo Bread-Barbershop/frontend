@@ -3,7 +3,7 @@ import type { JSONContent } from '@tiptap/react';
 export const pictureSchema = {
   type: null,
   fields: {
-    image: {
+    images: {
       default: [] as (File | string)[],
       required: true,
     },

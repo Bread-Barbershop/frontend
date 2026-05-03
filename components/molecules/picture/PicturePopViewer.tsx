@@ -1,3 +1,4 @@
+import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -23,7 +24,7 @@ export const PicturePopViewer = ({
   ratio = '1:1',
 }: Props) => {
   const [isMounted, setIsMounted] = useState(false);
-
+  const pathname = usePathname();
   const ratioClass = useMemo(() => {
     switch (ratio) {
       case '1:1':
@@ -54,7 +55,9 @@ export const PicturePopViewer = ({
   if (!portalElement) return null;
 
   return createPortal(
-    <div className="absolute inset-0 z-50 bg-black/80 flex justify-center items-end flex-col gap-2 px-7">
+    <div
+      className={`inset-0 z-50 bg-black/80 flex justify-center items-end flex-col gap-2 px-7 ${pathname.startsWith('/editor') ? 'absolute' : 'fixed'}`}
+    >
       <Button
         type="button"
         className="group z-100 flex-center rounded-full bg-black/32 w-8 h-8 hover:bg-white transition-colors"

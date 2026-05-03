@@ -17,7 +17,6 @@ interface Props {
 function SponsorshipInfomationPreview({
   blockInfo,
   className,
-  titleClassName,
   ...rest
 }: Props) {
   const preview = useResolvedImageSources(blockInfo.props.images);
@@ -29,8 +28,11 @@ function SponsorshipInfomationPreview({
   return (
     <MiddlePreviewWrapper
       className={className}
+      checkedEnglishTitle={blockInfo.props.isEnglishTitle}
+      enTitle={blockInfo.props.englishTitle}
+      enTitleDefault="Our Sponsors"
       koTitle={blockInfo.props.title}
-      titleClassName={titleClassName}
+      koTitleDefault="후원사"
       {...rest}
     >
       <AutoScrollCarousel className="h-21 w-full" carouselClassName="gap-10">
