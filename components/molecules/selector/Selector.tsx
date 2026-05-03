@@ -17,6 +17,8 @@ interface SelectorProps<T> {
   placeholder?: string;
   className?: string;
   triggerClassName?: string;
+  labelClassName?: string;
+  optionLabelClassName?: string;
   customInputClassName?: string;
   onInputChange?: (value: string) => void;
   onSelect: (option: T | { label: string; value: string }) => void;
@@ -32,6 +34,8 @@ export const Selector = <T extends Option>({
   placeholder = '선택',
   className,
   triggerClassName,
+  labelClassName,
+  optionLabelClassName,
   customInputClassName,
   onSelect,
   onInputChange,
@@ -141,7 +145,7 @@ export const Selector = <T extends Option>({
             ref={inputRef}
             type="text"
             className={cn(
-              'w-full h-9 px-2 bg-transparent outline-none text-text-primary text-sm',
+              'w-full h-8 px-2 bg-transparent outline-none text-text-primary text-sm',
               customInputClassName
             )}
             value={typeof selected?.value === 'string' ? selected.value : ''}
@@ -159,7 +163,12 @@ export const Selector = <T extends Option>({
             aria-haspopup="listbox"
             aria-expanded={isOpen}
           >
-            <span className="h-6 text-center text-text-primary truncate flex-1 min-w-0 flex items-center justify-center">
+            <span
+              className={cn(
+                'h-6 text-center text-text-primary truncate flex-1 min-w-0 flex items-center justify-center',
+                labelClassName
+              )}
+            >
               {hasValue ? selected?.label : placeholder}
             </span>
 
@@ -223,7 +232,12 @@ export const Selector = <T extends Option>({
                 <Check size={12} />
               </div>
             )}
-            <span className="h-7 leading-7 text-center flex-1 truncate min-w-0 flex-center">
+            <span
+              className={cn(
+                'h-7 leading-7 text-center flex-1 truncate min-w-0 flex-center',
+                optionLabelClassName
+              )}
+            >
               {option.label}
             </span>
           </li>
