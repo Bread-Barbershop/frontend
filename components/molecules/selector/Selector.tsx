@@ -93,13 +93,6 @@ export const Selector = <T extends Option>({
     onSelect({ label: '', value: '' });
   };
 
-  const currentSelectedValue = selected?.value;
-  const isOptionValue = options.some(opt => opt.value === currentSelectedValue);
-
-  if (isCustomInput && currentSelectedValue && isOptionValue) {
-    setIsCustomInput(false);
-  }
-
   useEffect(() => {
     if (isCustomInput) {
       inputRef.current?.focus();
@@ -151,7 +144,12 @@ export const Selector = <T extends Option>({
             value={typeof selected?.value === 'string' ? selected.value : ''}
             onChange={handleInputChange}
             onBlur={() => {
-              if (!selected?.label) setIsCustomInput(false);
+              setIsCustomInput(false);
+            }}
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === 'Escape') {
+                setIsCustomInput(false);
+              }
             }}
           />
         ) : (
@@ -200,13 +198,13 @@ export const Selector = <T extends Option>({
         }}
       >
         {searchable && (
-          <div className="sticky top-0 bg-bg-base z-10 p-1 border-b border-border-neutral">
+          <div className="sticky top-0 z-10 p-1 bg-bg-base border-b border-border-neutral rounded-md">
             <Input
               type="text"
               placeholder="검색"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="w-full h-8 px-2 text-xs bg-bg-sub border border-border-neutral rounded outline-none focus:border-primary text-text-primary placeholder:text-text-disabled"
+              className="w-full h-8 px-2 text-xs bg-transparent border border-border-neutral rounded-md outline-none focus:border-primary text-text-primary placeholder:text-text-disabled"
               onClick={e => e.stopPropagation()}
             />
           </div>

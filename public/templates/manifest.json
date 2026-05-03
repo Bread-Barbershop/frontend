@@ -47,6 +47,78 @@
       "version": 1,
       "thumbnailUrl": "/templates/thumbnails/wedding_05.png",
       "jsonUrl": "/templates/json/wedding_05.v1.json"
+    },
+    {
+      "id": "wedding_06",
+      "name": "웨딩 06",
+      "category": "wedding",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/wedding_06.png",
+      "jsonUrl": "/templates/json/wedding_06.v1.json"
+    },
+    {
+      "id": "wedding_07",
+      "name": "웨딩 07",
+      "category": "wedding",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/wedding_07.png",
+      "jsonUrl": "/templates/json/wedding_07.v1.json"
+    },
+    {
+      "id": "wedding_08",
+      "name": "웨딩 08",
+      "category": "wedding",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/wedding_08.png",
+      "jsonUrl": "/templates/json/wedding_08.v1.json"
+    },
+    {
+      "id": "wedding_09",
+      "name": "웨딩 09",
+      "category": "wedding",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/wedding_09.png",
+      "jsonUrl": "/templates/json/wedding_09.v1.json"
+    },
+    {
+      "id": "wedding_11",
+      "name": "웨딩 11",
+      "category": "wedding",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/wedding_11.png",
+      "jsonUrl": "/templates/json/wedding_11.v1.json"
+    },
+    {
+      "id": "wedding_12",
+      "name": "웨딩 12",
+      "category": "wedding",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/wedding_12.png",
+      "jsonUrl": "/templates/json/wedding_12.v1.json"
+    },
+    {
+      "id": "wedding_13",
+      "name": "웨딩 13",
+      "category": "wedding",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/wedding_13.png",
+      "jsonUrl": "/templates/json/wedding_13.v1.json"
+    },
+    {
+      "id": "firstBirthday_01",
+      "name": "돌잔치 01",
+      "category": "firstBirthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/firstBirthday_01.png",
+      "jsonUrl": "/templates/json/firstBirthday_01.v1.json"
+    },
+    {
+      "id": "firstBirthday_02",
+      "name": "돌잔치 02",
+      "category": "firstBirthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/firstBirthday_02.png",
+      "jsonUrl": "/templates/json/firstBirthday_02.v1.json"
     }
   ]
 }

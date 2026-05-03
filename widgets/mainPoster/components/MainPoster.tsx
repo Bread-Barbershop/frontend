@@ -46,7 +46,7 @@ export const MainPoster = () => {
 
   return (
     <div
-      className="flex flex-col pb-3.5 px-5 items-center w-full max-h-203 overflow-y-auto overflow-x-hidden edit-custom-scrollbar"
+      className="flex flex-col pb-3.5 px-5 items-center w-full max-h-[750px] overflow-y-scroll overflow-x-hidden scrollbar-hide"
       data-canvas="true"
     >
       <NavigationBar>포스터 프리뷰(개발용)</NavigationBar>

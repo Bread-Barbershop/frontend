@@ -7,7 +7,7 @@ export const BackgroundColor = () => {
   return (
     <LargeColorPicker
       value={backgroundColor}
-      className="border-none w-full px-0"
+      className="border-none pl-1 pr-0.5"
       showHeader={false}
       onChange={e => {
         updateBackgroundColor(e);
