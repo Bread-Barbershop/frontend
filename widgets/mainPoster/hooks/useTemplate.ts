@@ -7,7 +7,7 @@ import { CUSTOM_FONTS } from '../constants/fonts';
 /**
  * 템플릿 JSON에서 모든 fontFamily를 추출하여 로드합니다.
  */
-const preloadFonts = async (templateJson: any) => {
+export const preloadFonts = async (templateJson: any) => {
   const fontFamilies = new Set<string>();
 
   // 기본 객체들에서 fontFamily 추출
