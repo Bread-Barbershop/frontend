@@ -137,7 +137,7 @@
           "start": 0,
           "end": 46,
           "style": {
-            "fontFamily": "CormorantGaramond-Regular",
+            "fontFamily": "Cormorant Garamond-Regular",
             "fontSize": 14
           }
         }
@@ -174,7 +174,7 @@
       "originY": "center",
       "left": 187.5,
       "top": 319.9728,
-      "width": 146.75,
+      "width": 179.875,
       "height": 34.1712,
       "strokeDashArray": null,
       "strokeLineCap": "butt",
@@ -280,7 +280,7 @@
           "start": 0,
           "end": 22,
           "style": {
-            "fontFamily": "CormorantGaramond-SemiBold",
+            "fontFamily": "Cormorant Garamond-SemiBold",
             "fontSize": 20,
             "fill": "#000000"
           }
