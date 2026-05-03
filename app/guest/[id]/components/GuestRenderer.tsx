@@ -26,6 +26,33 @@ function GuestRenderer({
     setTitleData(titleData);
     setBodyData(bodyData);
   }, [setTitleData, setBodyData, titleData, bodyData]);
+  useEffect(() => {
+    if (bulkData.isZoom) {
+      document.addEventListener(
+        'gesturestart',
+        e => {
+          e.preventDefault();
+        },
+        { passive: false }
+      );
+
+      document.addEventListener(
+        'gesturechange',
+        e => {
+          e.preventDefault();
+        },
+        { passive: false }
+      );
+
+      document.addEventListener(
+        'gestureend',
+        e => {
+          e.preventDefault();
+        },
+        { passive: false }
+      );
+    }
+  }, []);
   return (
     <div className="flex flex-col">
       {blocks.map(block => {

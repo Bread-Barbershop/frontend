@@ -1,6 +1,8 @@
-import CarouselWrapper from './components/carousel/CarouselWrapper';
+import { Suspense } from 'react';
+
+import DashboardCarouselSkeleton from './components/carousel/DashboardCarouselSkeleton';
+import DashboardInvitations from './components/DashboardInvitations';
 import DashboardTitle from './components/title/DashboardTitle';
-import { loadDashboardInvitations } from './server/loadDashboardInvitations';
 
 import type { Metadata } from 'next';
 
@@ -9,11 +11,7 @@ export const metadata: Metadata = {
   description: '내 초대장을 관리하고 발행하는 Invia 대시보드입니다.',
 };
 
-export default async function DashboardPage() {
-  const initialData = await loadDashboardInvitations().catch(() => ({
-    invites: [],
-  }));
-
+export default function DashboardPage() {
   return (
     <>
       <div
@@ -22,7 +20,9 @@ export default async function DashboardPage() {
       >
         <DashboardTitle />
       </div>
-      <CarouselWrapper initialInvites={initialData.invites} />
+      <Suspense fallback={<DashboardCarouselSkeleton />}>
+        <DashboardInvitations />
+      </Suspense>
     </>
   );
 }

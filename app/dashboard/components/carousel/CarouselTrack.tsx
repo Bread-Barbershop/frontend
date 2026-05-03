@@ -1,4 +1,7 @@
-import { dashboardCarouselLayout, dashboardCarouselVars } from './carouselLayout';
+import {
+  dashboardCarouselLayout,
+  dashboardCarouselVars,
+} from './carouselLayout';
 import { CarouselCardItem } from './carouselTypes';
 import CarouselItem from './item/CarouselItem';
 
@@ -12,11 +15,13 @@ type CarouselTrackProps = {
   showCenterActions?: boolean;
   selectedLift?: string;
   onSelect: (index: number) => void;
+  onDelete?: (folderId: string) => void | Promise<void>;
   onUpdate?: (folderId: string, uuid?: string) => void;
   onPublish?: (folderId: string) => void;
   onCopyUrl?: (folderId: string) => void;
   onShare?: (folderId: string) => Promise<void>;
   getPublishedUrl?: (folderId: string) => string | null;
+  isDeleting?: (folderId: string) => boolean;
   isSharing?: (folderId: string) => boolean;
   isPublishing?: (folderId: string) => boolean;
 };
@@ -31,11 +36,13 @@ function CarouselTrack({
   showCenterActions = false,
   selectedLift,
   onSelect,
+  onDelete,
   onUpdate,
   onPublish,
   onCopyUrl,
   onShare,
   getPublishedUrl,
+  isDeleting,
   isSharing,
   isPublishing,
 }: CarouselTrackProps) {
@@ -69,6 +76,7 @@ function CarouselTrack({
             showCenterActions={showCenterActions}
             selectedLift={selectedLift}
             onSelect={onSelect}
+            onDelete={onDelete}
             onUpdate={onUpdate}
             onPublish={onPublish}
             onCopyUrl={onCopyUrl}
@@ -77,6 +85,11 @@ function CarouselTrack({
               item.invite && getPublishedUrl
                 ? getPublishedUrl(item.invite.folderId)
                 : null
+            }
+            isDeleting={
+              item.invite && isDeleting
+                ? isDeleting(item.invite.folderId)
+                : false
             }
             isSharing={
               item.invite && isSharing ? isSharing(item.invite.folderId) : false

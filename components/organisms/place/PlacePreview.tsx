@@ -36,6 +36,7 @@ export const PlacePreview = ({
   return (
     <MiddlePreviewWrapper
       className={className}
+      childClassName="gap-6"
       titleClassName={titleClassName}
       checkedEnglishTitle={checkedEnglishTitle}
       enTitle={englishTitle}
@@ -49,9 +50,9 @@ export const PlacePreview = ({
         <p className="font-semibold text-[16px]">
           {placeName} {placeDetail}
         </p>
-        <p className="font-semibold pb-2.5 text-sm">{placeAddress}</p>
+        <p className="font-semibold text-sm">{placeAddress}</p>
       </section>
-      <p className="font-normal text-text-tertiary pb-2.5">
+      <p className="font-normal text-text-tertiary">
         TEL. {formatPhoneNumber(placeTel)}
       </p>
 

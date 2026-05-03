@@ -37,6 +37,7 @@ export const useInitData = ({
     setBodyData,
     setTitleData,
     setBackgroundColor,
+    setIsZoom,
   } = useEditorStore(
     useShallow(state => ({
       setBlock: state.setBlock,
@@ -49,6 +50,7 @@ export const useInitData = ({
       setBodyData: state.setBodyData,
       setTitleData: state.setTitleData,
       setBackgroundColor: state.setBackgroundColor,
+      setIsZoom: state.setIsZoom,
     }))
   );
 
@@ -108,8 +110,9 @@ export const useInitData = ({
       setBodyData(bulkData.bodyData);
       setTitleData(bulkData.titleData);
       setBackgroundColor(bulkData.backgroundColor);
+      setIsZoom(bulkData.isZoom);
     }
-  }, [bulkData, setBodyData, setTitleData, setBackgroundColor]);
+  }, [bulkData, setBodyData, setTitleData, setBackgroundColor, setIsZoom]);
   return {
     initEditStore,
     initBgmStore,

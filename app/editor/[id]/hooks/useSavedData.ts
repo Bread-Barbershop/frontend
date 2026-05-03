@@ -100,6 +100,7 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
           backgroundColor: '#FFFFFF',
           titleData: TITLE_BULK_DATA,
           bodyData: BODY_BULK_DATA,
+          isZoom: false,
         };
         const updatedBlocksWithImages = await setImageFile(
           updatedBlocks,

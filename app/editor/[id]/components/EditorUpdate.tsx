@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 
 import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
 import { usePreventBack } from '@/shared/hooks/usePreventBack';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import LeftPanel from '@/widgets/editor/leftPanel/LeftPanel';
 import Preview from '@/widgets/editor/preview/Preview';
 import RightPanel from '@/widgets/editor/rightPanel/RightPanel';
@@ -25,6 +26,13 @@ function EditorUpdate({ folderId, uuid }: Props) {
     uuid,
     invitationFolderId: folderId,
   });
+  const reset = useEditorStore(state => state.reset);
+
+  useEffect(() => {
+    return () => {
+      reset();
+    };
+  }, [reset]);
 
   useEffect(() => {
     if (savedData) {

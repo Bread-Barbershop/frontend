@@ -8,6 +8,7 @@ import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrap
 import BackGroundEdit from './BackGroundEdit';
 import BodyEdit from './BodyEdit';
 import TitleEdit from './TitleEdit';
+import ZoomEdit from './ZoomEdit';
 
 function BulkEdit() {
   const [activeColorPickerId, setActiveColorPickerId] =
@@ -28,6 +29,7 @@ function BulkEdit() {
           activeColorPickerId={activeColorPickerId}
           onActiveColorPickerChange={setActiveColorPickerId}
         />
+        <ZoomEdit />
       </LeftEditorWrapper>
     </div>
   );

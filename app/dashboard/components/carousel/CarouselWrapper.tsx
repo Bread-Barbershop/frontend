@@ -9,25 +9,34 @@ import { getInvitationShowcaseItem } from '@/app/dashboard/utils/getInvitationSh
 import CarouselBase from './CarouselBase';
 import { dashboardCarouselLayout } from './carouselLayout';
 import { CarouselCardItem } from './carouselTypes';
+import DashboardCarouselSkeleton from './DashboardCarouselSkeleton';
 
 type CarouselWrapperProps = {
   initialInvites?: InviteListItem[];
+  loadOnMount?: boolean;
 };
 
-function CarouselWrapper({ initialInvites = [] }: CarouselWrapperProps) {
+function CarouselWrapper({
+  initialInvites = [],
+  loadOnMount,
+}: CarouselWrapperProps) {
   const {
     invites,
+    loading,
+    handleDelete,
     handleUpdate,
     handlePublish,
     handleCopyPublishedUrl,
     handleShare,
     getPublishedUrl,
+    isDeleting,
     isSharing,
     isPublishing,
-  } = useDashboardInvitations(initialInvites);
+  } = useDashboardInvitations(initialInvites, { loadOnMount });
+  const orderedInvites = useMemo(() => [...invites].reverse(), [invites]);
   const items: CarouselCardItem[] = useMemo(
     () =>
-      invites.map(invite => {
+      orderedInvites.map(invite => {
         const showcaseItem = getInvitationShowcaseItem(invite.folderId);
 
         return {
@@ -40,23 +49,29 @@ function CarouselWrapper({ initialInvites = [] }: CarouselWrapperProps) {
           invite,
         };
       }),
-    [invites]
+    [orderedInvites]
   );
+
+  if (loading) {
+    return <DashboardCarouselSkeleton />;
+  }
 
   return (
     <CarouselBase
       items={items}
-      startIndex={Math.max(invites.length - 1, 0)}
+      startIndex={Math.max(orderedInvites.length - 1, 0)}
       stageHeight={dashboardCarouselLayout.dashboardStageHeight}
       selectedLift={dashboardCarouselLayout.dashboardSelectedLift}
       showHeader
       showSideActions
       showCenterActions
+      onDelete={handleDelete}
       onUpdate={handleUpdate}
       onPublish={handlePublish}
       onCopyUrl={handleCopyPublishedUrl}
       onShare={handleShare}
       getPublishedUrl={getPublishedUrl}
+      isDeleting={isDeleting}
       isSharing={isSharing}
       isPublishing={isPublishing}
     />

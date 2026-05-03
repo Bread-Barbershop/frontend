@@ -26,6 +26,7 @@ export async function GET(
         backgroundColor: '#FFFFFF',
         titleData: TITLE_BULK_DATA,
         bodyData: BODY_BULK_DATA,
+        isZoom: false,
       },
       blocks: [], // singular
       mainPoster: '',
@@ -101,6 +102,7 @@ export async function GET(
             backgroundColor: '#FFFFFF',
             titleData: TITLE_BULK_DATA,
             bodyData: BODY_BULK_DATA,
+            isZoom: false,
           },
           blocks: [] as EditorBlock[],
           mainPoster: '',

@@ -12,6 +12,7 @@ export interface SavedData {
     backgroundColor: string;
     titleData: BulkData;
     bodyData: BulkData;
+    isZoom: boolean;
   };
   blocks: EditorBlock[];
   mainPoster: string;
@@ -25,6 +26,7 @@ export interface JsonData {
     backgroundColor: string;
     titleData: BulkData;
     bodyData: BulkData;
+    isZoom: boolean;
   };
   blocks: EditorBlock[]; // singular to match store
   mainPoster: string;

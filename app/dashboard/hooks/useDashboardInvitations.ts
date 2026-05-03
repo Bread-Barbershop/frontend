@@ -18,6 +18,9 @@ type PublishErrorMap = Record<string, string | null>;
 type PublishResultMap = Record<string, PublishResult | null>;
 type ShareStateMap = Record<string, boolean>;
 type LoadInvitationErrorPayload = { message?: string };
+type UseDashboardInvitationsOptions = {
+  loadOnMount?: boolean;
+};
 type ShareUrlResponse = {
   ok: boolean;
   data?: KakaoShareData;
@@ -30,10 +33,7 @@ function resolveShareImageUrl(imageFileId?: string) {
     : 'https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png';
 }
 
-function shareInvitationWithKakao(
-  shareData: KakaoShareData,
-  origin: string
-) {
+function shareInvitationWithKakao(shareData: KakaoShareData, origin: string) {
   if (typeof window === 'undefined' || !window.Kakao) {
     throw new Error('카카오 SDK 스크립트가 아직 로드되지 않았습니다.');
   }
@@ -123,7 +123,9 @@ function getPayloadMessage(
     : null;
 }
 
-function createInitialPublishResults(invites: InviteListItem[]): PublishResultMap {
+function createInitialPublishResults(
+  invites: InviteListItem[]
+): PublishResultMap {
   return invites.reduce<PublishResultMap>((acc, invite) => {
     if (!invite.publishedUrl) return acc;
 
@@ -135,10 +137,14 @@ function createInitialPublishResults(invites: InviteListItem[]): PublishResultMa
   }, {});
 }
 
-function useDashboardInvitations(initialInvites: InviteListItem[] = []) {
+function useDashboardInvitations(
+  initialInvites: InviteListItem[] = [],
+  options: UseDashboardInvitationsOptions = {}
+) {
   const router = useRouter();
+  const loadOnMount = options.loadOnMount ?? initialInvites.length === 0;
 
-  const [loading, setLoading] = useState(initialInvites.length === 0);
+  const [loading, setLoading] = useState(loadOnMount);
   const [error, setError] = useState<string | null>(null);
   const [invites, setInvites] = useState<InviteListItem[]>(initialInvites);
   const [origin, setOrigin] = useState('');
@@ -236,9 +242,7 @@ function useDashboardInvitations(initialInvites: InviteListItem[] = []) {
       setDeleteErrors({});
       resetPublishState();
       setError(
-        err instanceof Error
-          ? err.message
-          : '알 수 없는 오류가 발생했습니다.'
+        err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.'
       );
     } finally {
       setLoading(false);
@@ -246,12 +250,12 @@ function useDashboardInvitations(initialInvites: InviteListItem[] = []) {
   }, [resetPublishState, router]);
 
   useEffect(() => {
-    if (initialInvites.length > 0) {
+    if (!loadOnMount) {
       return;
     }
 
     void loadInvitations();
-  }, [initialInvites.length, loadInvitations]);
+  }, [loadInvitations, loadOnMount]);
 
   useEffect(() => {
     setOrigin(window.location.origin);
@@ -314,9 +318,9 @@ function useDashboardInvitations(initialInvites: InviteListItem[] = []) {
           body: JSON.stringify({ folderId }),
         });
 
-        const payload = (await res.json().catch(() => null)) as
-          | DeleteInvitationResponse
-          | null;
+        const payload = (await res
+          .json()
+          .catch(() => null)) as DeleteInvitationResponse | null;
 
         if (!res.ok || payload?.success === false) {
           throw new Error(payload?.message ?? '초대장 삭제에 실패했습니다.');
@@ -385,7 +389,9 @@ function useDashboardInvitations(initialInvites: InviteListItem[] = []) {
       }
     );
 
-    const payload = (await res.json().catch(() => null)) as ShareUrlResponse | null;
+    const payload = (await res
+      .json()
+      .catch(() => null)) as ShareUrlResponse | null;
 
     if (!res.ok || payload?.ok === false || !payload?.data) {
       throw new Error(payload?.error ?? '공유 데이터를 불러오지 못했습니다.');

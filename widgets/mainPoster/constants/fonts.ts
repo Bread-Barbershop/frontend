@@ -875,4 +875,34 @@ export const CUSTOM_FONTS = [
     weight: '800',
     style: 'normal',
   },
+  {
+    family: 'Pretendard-Light',
+    url: 'url(/font/PretendardVariable.woff2)',
+    weight: '300',
+    style: 'normal',
+  },
+  {
+    family: 'Pretendard-Regular',
+    url: 'url(/font/PretendardVariable.woff2)',
+    weight: '400',
+    style: 'normal',
+  },
+  {
+    family: 'Pretendard-Medium',
+    url: 'url(/font/PretendardVariable.woff2)',
+    weight: '500',
+    style: 'normal',
+  },
+  {
+    family: 'Pretendard-SemiBold',
+    url: 'url(/font/PretendardVariable.woff2)',
+    weight: '600',
+    style: 'normal',
+  },
+  {
+    family: 'Pretendard-Bold',
+    url: 'url(/font/PretendardVariable.woff2)',
+    weight: '700',
+    style: 'normal',
+  },
 ];
