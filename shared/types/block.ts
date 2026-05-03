@@ -19,6 +19,9 @@ export type EditorBlock<T extends BlockType = BlockType> = {
   props: PropsFromFields<(typeof blockSchema)[T]['fields']>;
 };
 
+export type PersistedBlockType = Exclude<BlockType, 'shareUrl'>;
+export type PersistedEditorBlock = EditorBlock<PersistedBlockType>;
+
 export type ImageArray = {
   id: string;
   file: (File | string)[];
@@ -102,10 +105,33 @@ export interface BulkSlice {
   setIsZoom: (isZoom: boolean) => void;
 }
 
+export interface ShareUrlState {
+  title: string;
+  description: string;
+  images: (File | string)[];
+  urlTitle: string;
+  urlDescription: string;
+  urlImage: (File | string)[];
+  showLocationButton: boolean;
+  showShareButton: boolean;
+  locationInfo?: {
+    lat: number;
+    lng: number;
+    placeName: string;
+  };
+}
+
+export interface ShareUrlSlice {
+  shareUrl: ShareUrlState;
+  updateShareUrl: (data: Partial<ShareUrlState>) => void;
+  setShareUrl: (data: ShareUrlState) => void;
+}
+
 export type EditorState = BlockSlice &
   ImageSlice &
   UISlice &
   DriveSlice &
+  ShareUrlSlice &
   BulkSlice & {
     reset: () => void;
   };

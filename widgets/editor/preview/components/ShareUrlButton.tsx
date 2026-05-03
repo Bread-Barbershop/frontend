@@ -7,7 +7,6 @@ import CellularConnectionIcon from '@/shared/assets/icons/cellular-connection.sv
 import PlusIcon from '@/shared/assets/icons/plus.svg';
 import WifiIcon from '@/shared/assets/icons/wifi.svg';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
-import { EditorBlock } from '@/shared/types/block';
 
 const useImageObjectUrl = (image?: File | string) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -32,27 +31,21 @@ export const ShareUrlButton = () => {
     null
   );
 
-  const { block, selectedId, selectedBlock, setIsEdit, addBlock } =
-    useEditorStore(
-      useShallow(state => ({
-        block: state.block,
-        selectedId: state.selectedId,
-        selectedBlock: state.selectedBlock,
-        setIsEdit: state.setIsEdit,
-        addBlock: state.addBlock,
-      }))
-    );
+  const { shareUrl, selectedId, selectedBlock, setIsEdit } = useEditorStore(
+    useShallow(state => ({
+      shareUrl: state.shareUrl,
+      selectedId: state.selectedId,
+      selectedBlock: state.selectedBlock,
+      setIsEdit: state.setIsEdit,
+    }))
+  );
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPreviewContainer(document.getElementById('preview-container'));
   }, []);
 
-  const shareUrlBlock = block.find(b => b.component === 'shareUrl') as
-    | EditorBlock<'shareUrl'>
-    | undefined;
-
-  const isOpen = shareUrlBlock ? selectedId === shareUrlBlock.id : false;
+  const isOpen = selectedId === 'shareUrl';
 
   const handleToggle = () => {
     if (isOpen) {
@@ -60,13 +53,7 @@ export const ShareUrlButton = () => {
       return;
     }
 
-    if (shareUrlBlock) {
-      selectedBlock(shareUrlBlock.id);
-    } else {
-      const newId = crypto.randomUUID();
-      addBlock('etc', 'shareUrl', newId);
-      selectedBlock(newId);
-    }
+    selectedBlock('shareUrl');
     setIsEdit(false);
   };
 
@@ -83,7 +70,7 @@ export const ShareUrlButton = () => {
       {isOpen &&
         previewContainer &&
         createPortal(
-          <KakaoShareUrlView block={shareUrlBlock} />,
+          <KakaoShareUrlView shareUrl={shareUrl} />,
           previewContainer
         )}
     </>
@@ -91,14 +78,24 @@ export const ShareUrlButton = () => {
 };
 
 // --- 하위 컴포넌트: 카카오톡 공유 썸네일 미리보기 UI ---
-const KakaoShareUrlView = ({ block }: { block?: EditorBlock<'shareUrl'> }) => {
+const KakaoShareUrlView = ({
+  shareUrl,
+}: {
+  shareUrl: {
+    title: string;
+    description: string;
+    images: (File | string)[];
+    showLocationButton: boolean;
+    showShareButton: boolean;
+  };
+}) => {
   const {
     title,
     description,
     images = [],
     showLocationButton = false,
     showShareButton = true,
-  } = block?.props ?? {};
+  } = shareUrl;
 
   const displayTitle = title || '소중한 분들을 초대합니다.';
   const displayDescription = description || '뜻깊은 날, 귀한 걸음으로 저희와 함께해 주세요.';

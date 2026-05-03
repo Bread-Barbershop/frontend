@@ -79,6 +79,7 @@ export const useInvitationUpload = () => {
           images: task as { id: string; file: File }[],
           audio: userFile,
           data: editorData.block,
+          shareUrl: editorData.shareUrl,
           bgmData, // bgm의 data 버전.
           mainPoster,
           invitationThumbnail,
@@ -100,6 +101,7 @@ export const useInvitationUpload = () => {
           images: task as { id: string; file: File }[],
           audio: userFile,
           data: editorData.block,
+          shareUrl: editorData.shareUrl,
           bgmData, // bgm의 data 버전.
           mainPoster,
           invitationThumbnail,

@@ -3,11 +3,13 @@ import { devtools } from 'zustand/middleware';
 
 import { BODY_BULK_DATA, TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
 import { EditorState } from '@/shared/types/block';
+import { createDefaultShareUrlState } from '@/shared/utils/shareUrlDefaults';
 
 import { createBlockSlice } from './slices/blockSlice';
 import { createBulkSlice } from './slices/bulkSlice';
 import { createDriveSlice } from './slices/driveSlice';
 import { createImageSlice } from './slices/imageSlice';
+import { createShareUrlSlice } from './slices/shareUrlSlice';
 import { createUISlice } from './slices/uiSlice';
 
 export const useEditorStore = create<EditorState>()(
@@ -19,6 +21,7 @@ export const useEditorStore = create<EditorState>()(
       ...createUISlice(...a),
       ...createDriveSlice(...a),
       ...createBulkSlice(...a),
+      ...createShareUrlSlice(...a),
       reset: () =>
         set({
           block: [],
@@ -35,6 +38,7 @@ export const useEditorStore = create<EditorState>()(
           titleData: TITLE_BULK_DATA,
           bodyData: BODY_BULK_DATA,
           isZoom: false,
+          shareUrl: createDefaultShareUrlState(),
         }),
     };
   })
@@ -50,6 +54,7 @@ export const selectUploadData = (state: EditorState) => ({
   titleData: state.titleData,
   bodyData: state.bodyData,
   isZoom: state.isZoom,
+  shareUrl: state.shareUrl,
   setInvitationFolderId: state.setInvitationFolderId,
   setInvitationUuid: state.setInvitationUuid,
   setImageFolderId: state.setImageFolderId,

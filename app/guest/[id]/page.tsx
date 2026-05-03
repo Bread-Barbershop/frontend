@@ -1,13 +1,17 @@
 import 'server-only';
+import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+
+import {
+  DEFAULT_DESCRIPTION,
+  DEFAULT_TITLE,
+} from '@/shared/utils/shareUrlDefaults';
 
 import GuestBgm from './components/GuestBgm';
 import { GuestMainPoster } from './components/GuestMainPoster';
 import GuestRenderer from './components/GuestRenderer';
 import { DEFAULT_IMAGE_URL } from './constants/constant';
 import { isGuestPayload } from './utils/guestBlockTypeGuards';
-
-import type { Metadata } from 'next';
 
 export const dynamic = 'force-static';
 export const revalidate = false;
@@ -37,17 +41,10 @@ export async function generateMetadata({
       return {};
     }
 
-    const shareBlock = payload.blocks.find(
-      (b: any) => b.component === 'shareUrl'
-    );
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const metadataProps = (shareBlock?.props as Record<string, any>) || {};
-
-    const title = metadataProps?.urlTitle || '초대장';
-    const description =
-      metadataProps?.urlDescription || '소중한 분들을 초대합니다.';
-
-    const rawImageUrl = metadataProps?.urlImage?.[0];
+    const topLevelShare = payload.shareUrl;
+    const title = topLevelShare?.urlTitle || DEFAULT_TITLE;
+    const description = topLevelShare?.urlDescription || DEFAULT_DESCRIPTION;
+    const rawImageUrl = topLevelShare?.urlImage?.[0];
 
     return {
       title,

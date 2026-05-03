@@ -27,6 +27,21 @@ export type GuestBgm = {
 export type GuestPayload = {
   bulkData: BulkJson;
   blocks: GuestBlock[];
+  shareUrl?: {
+    title: string;
+    description: string;
+    images: string[];
+    urlTitle: string;
+    urlDescription: string;
+    urlImage: string[];
+    showLocationButton: boolean;
+    showShareButton: boolean;
+    locationInfo?: {
+      lat: number;
+      lng: number;
+      placeName: string;
+    };
+  };
   bgm: GuestBgm;
   mainPoster: GuestMainPosterData;
 };

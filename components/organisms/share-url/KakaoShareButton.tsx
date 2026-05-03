@@ -2,6 +2,12 @@
 
 import { useState, useEffect } from 'react';
 
+import { DEFAULT_IMAGE_URL } from '@/app/guest/[id]/constants/constant';
+import {
+  DEFAULT_DESCRIPTION,
+  DEFAULT_TITLE,
+} from '@/shared/utils/shareUrlDefaults';
+
 interface Props {
   title: string;
   description: string;
@@ -91,12 +97,9 @@ export const KakaoShareButton = ({
     window.Kakao.Share.sendDefault({
       objectType: 'feed',
       content: {
-        title: title || '소중한 분들을 초대합니다.',
-        description:
-          description || '뜻 깊은 날, 귀한 걸음으로 저희와 함게해 주세요.',
-        imageUrl:
-          imageUrl ||
-          'https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png',
+        title: title || DEFAULT_TITLE,
+        description: description || DEFAULT_DESCRIPTION,
+        imageUrl: imageUrl || `${window.location.origin}${DEFAULT_IMAGE_URL}`,
         link: {
           mobileWebUrl: safeLinkUrl,
           webUrl: safeLinkUrl,

@@ -2,6 +2,7 @@
 import React from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import ShareUrl from '@/components/organisms/share-url/ShareUrl';
 import { blockRegistry } from '@/shared/data/registry/registry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { MainPoster } from '@/widgets/mainPoster/components/MainPoster';
@@ -14,6 +15,7 @@ function Edit() {
     }))
   );
   if (selectedId === 'mainPoster') return <MainPoster />;
+  if (selectedId === 'shareUrl') return <ShareUrl />;
 
   if (!block || !selectedId)
     return (
