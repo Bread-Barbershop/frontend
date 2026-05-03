@@ -189,7 +189,7 @@ export const Selector = <T extends Option>({
         }}
       >
         {searchable && (
-          <div className="sticky top-0 z-10 p-1 bg-transparent border-b border-border-neutral rounded-md">
+          <div className="sticky top-0 z-10 p-1 bg-bg-base border-b border-border-neutral rounded-md">
             <Input
               type="text"
               placeholder="검색"

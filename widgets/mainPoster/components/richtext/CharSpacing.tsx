@@ -81,7 +81,8 @@ function CharSpacing() {
           value={showValue}
           onChange={({ target: { value } }) => {
             const numericValue = value.replace(/[^0-9.-]/g, '');
-            if (numericValue !== '' && !/^-?\d*\.?\d*$/.test(numericValue)) return;
+            if (numericValue !== '' && !/^-?\d*\.?\d*$/.test(numericValue))
+              return;
 
             setShowValue(numericValue);
 
@@ -96,7 +97,7 @@ function CharSpacing() {
             setShowValue(String(next));
             applyValue(next);
           }}
-          className="flex items-center justify-center text-center w-[47px] h-[32px] text-xs bg-bg-base border border-border-neutral rounded-lg focus:outline-none"
+          className="flex items-center justify-center text-center w-[47px] h-[32px] text-xs bg-bg-base border border-border-neutral focus:border-primary rounded-lg focus:outline-none"
         />
       </div>
     </div>
