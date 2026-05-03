@@ -7,6 +7,7 @@ import CellularConnectionIcon from '@/shared/assets/icons/cellular-connection.sv
 import PlusIcon from '@/shared/assets/icons/plus.svg';
 import WifiIcon from '@/shared/assets/icons/wifi.svg';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { cn } from '@/shared/utils/cn';
 
 const useImageObjectUrl = (image?: File | string) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -61,7 +62,12 @@ export const ShareUrlButton = () => {
     <>
       <button
         type="button"
-        className="w-full h-11 bg-white rounded-lg shadow-edit flex-center text-sm font-semibold transition-colors hover:bg-gray-50"
+        className={cn(
+          'w-full h-11 rounded-lg shadow-edit flex-center text-sm font-semibold transition-all duration-200 ease-out',
+          isOpen
+            ? 'bg-primary text-white hover:bg-primary/90'
+            : 'bg-white text-black hover:bg-gray-50'
+        )}
         onClick={handleToggle}
       >
         공유 썸네일
@@ -98,15 +104,13 @@ const KakaoShareUrlView = ({
   } = shareUrl;
 
   const displayTitle = title || '소중한 분들을 초대합니다.';
-  const displayDescription = description || '뜻깊은 날, 귀한 걸음으로 저희와 함께해 주세요.';
+  const displayDescription =
+    description || '뜻깊은 날, 귀한 걸음으로 저희와 함께해 주세요.';
 
   const imageUrl = useImageObjectUrl(images[0]);
 
-
   return (
-    <div
-      className="absolute top-0 left-0 w-full h-[812px] bg-[#ABC1D1] flex flex-col justify-between overflow-hidden z-50"
-    >
+    <div className="absolute top-0 left-0 w-full h-[812px] bg-[#ABC1D1] flex flex-col justify-between overflow-hidden z-50">
       {/* 상단바 */}
       <header>
         <div className="flex justify-between h-10 px-[29px] pl-[49px]">
