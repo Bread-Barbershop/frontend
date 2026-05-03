@@ -26,7 +26,7 @@ export const useEditorStore = create<EditorState>()(
           isEdit: false,
           selectedId: null,
           activeTab: null,
-          drawingConfig: { width: 5, color: '#000000' },
+          drawingConfig: { width: 5, color: { h: 0, s: 0, v: 0, a: 1 } },
           invitationFolderId: '',
           invitationUuid: '',
           audioFolderId: '',
