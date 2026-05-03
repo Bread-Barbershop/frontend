@@ -62,7 +62,7 @@ export const InterviewPreview = ({
       titleClassName={titleClassName}
       {...rest}
     >
-      <div className="w-full flex justify-center relative overflow-hidden">
+      <div className="w-full flex justify-center relative overflow-hidden px-px">
         <Carousel
           options={carouselOptions}
           isButtonShow={false}

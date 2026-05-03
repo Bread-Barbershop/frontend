@@ -65,11 +65,11 @@ function Preview() {
       className="w-93.75 h-full max-h-[810px] flex flex-col gap-4 relative"
     >
       <div
-        className="max-h-[750px] h-full bg-white"
+        className="max-h-[750px] h-full bg-white rounded-lg"
         style={{ backgroundColor }}
       >
         <div className="overflow-y-auto h-full w-93.75 box-border scrollbar-hide">
-          <div className="flex flex-col min-h-full font-maruburi">
+          <div className="flex flex-col min-h-full font-maruburi ">
             <MainPosterPreview />
             {block.map(comp => {
               const registryItem = blockRegistry[comp.component];

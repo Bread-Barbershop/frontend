@@ -34,7 +34,10 @@ function PictureBlockPreview({ blockInfo, className, ...rest }: Props) {
       {...rest}
     >
       <div
-        className={cn('flex flex-col', blockInfo.props.isContents && 'gap-6')}
+        className={cn(
+          'flex flex-col w-full',
+          blockInfo.props.isContents && 'gap-6'
+        )}
       >
         <div>
           {blockInfo.props.isContents && (
@@ -42,14 +45,14 @@ function PictureBlockPreview({ blockInfo, className, ...rest }: Props) {
           )}
         </div>
         {!preview && (
-          <div className="w-[335px] h-[335px] flex-center bg-border-neutral">
+          <div className="w-full aspect-square flex-center bg-border-neutral">
             <p className="text-text-primary text-[13px]">
               사진을 추가해주세요.
             </p>
           </div>
         )}
         {preview && (
-          <div className="relative w-[335px] h-[335px]">
+          <div className="relative w-full aspect-square">
             <Image
               src={preview}
               alt="사진 컴포넌트 이미지"
