@@ -51,33 +51,6 @@ function FontFamily() {
     };
   }, [activeObject, getRichStyles]);
 
-  const defaultFontOption: FontOption[] = [
-    {
-      label: 'Times New Roman',
-      value: 'Times New Roman',
-    },
-    {
-      label: 'Verdana',
-      value: 'Verdana',
-    },
-    {
-      label: 'Noto Sans KR',
-      value: 'Noto Sans KR',
-    },
-    {
-      label: 'Arial',
-      value: 'Arial',
-    },
-    {
-      label: 'sans-serif',
-      value: 'sans-serif',
-    },
-    {
-      label: 'Georgia',
-      value: 'Georgia',
-    },
-  ];
-
   const customFontOption: CustomFontOption[] = CUSTOM_FONTS.map(f => ({
     label: f.family,
     value: f.family,
@@ -105,7 +78,7 @@ function FontFamily() {
     });
   }, []);
 
-  const fontOption = [...defaultFontOption, ...customFontOption];
+  const fontOption = customFontOption;
 
   if (!canvas) return;
   return (
@@ -118,6 +91,7 @@ function FontFamily() {
         }}
         selected={selectedFont}
         showCheckbox={false}
+        searchable={true}
       />
     </div>
   );

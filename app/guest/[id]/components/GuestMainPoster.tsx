@@ -1,8 +1,9 @@
 'use client';
-import { StaticCanvas } from 'fabric';
+import { StaticCanvas, IText, Textbox } from 'fabric';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import '@/widgets/mainPoster/libs/customImage-filter';
+import { preloadFonts } from '@/widgets/mainPoster/hooks/useTemplate';
 
 const POSTER_BASE_WIDTH = 375;
 const POSTER_BASE_HEIGHT = 750;
@@ -65,10 +66,38 @@ export const GuestMainPoster = ({ json }: { json: unknown }) => {
   useEffect(() => {
     if (!canvas || !json) return;
 
-    const loadStart = performance.now();
-    canvas.loadFromJSON(json).then(() => {
+    const loadTemplate = async () => {
+      const loadStart = performance.now();
+
+      await preloadFonts(json);
+      await canvas.loadFromJSON(json);
+
+      canvas.getObjects().forEach(obj => {
+        if (
+          obj.isType('textbox') ||
+          obj.isType('itext') ||
+          obj.isType('text')
+        ) {
+          const textObj = obj as Textbox | IText;
+          textObj.set({
+            dirty: true,
+            objectCaching: false,
+          });
+          if ('_initDimensions' in textObj) {
+            (textObj as any)._initDimensions();
+          } else if ('initDimensions' in textObj) {
+            (textObj as any).initDimensions();
+          }
+          textObj.setCoords();
+        }
+      });
+
       updateCanvasSize();
       canvas.requestRenderAll();
+
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      canvas.requestRenderAll();
+
       window.requestAnimationFrame(() => {
         window.dispatchEvent(new Event('guest-main-poster-ready'));
       });
@@ -83,7 +112,9 @@ export const GuestMainPoster = ({ json }: { json: unknown }) => {
         `- Canvas Init Time: ${canvasInitTime.current.toFixed(2)}ms`
       );
       console.info(`- JSON Load Time: ${jsonLoadTime.toFixed(2)}ms`);
-    });
+    };
+
+    loadTemplate();
   }, [canvas, json, renderStartTime, updateCanvasSize]);
 
   return (

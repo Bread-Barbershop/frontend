@@ -1,6 +1,7 @@
 import { ChevronDown, Check } from 'lucide-react';
 import React, { useState, useRef, useEffect, ChangeEvent, useId } from 'react';
 
+import { Input } from '@/components/atoms/input';
 import { cn } from '@/shared/utils/cn';
 
 import { selectorVariants } from './Selector.style';
@@ -22,6 +23,7 @@ interface SelectorProps<T> {
   selected: T | { label: string; value: string } | null;
   showCheckbox?: boolean;
   addPopWidth?: number;
+  searchable?: boolean;
 }
 
 export const Selector = <T extends Option>({
@@ -36,9 +38,11 @@ export const Selector = <T extends Option>({
   selected,
   showCheckbox = true,
   addPopWidth = 0,
+  searchable = false,
 }: SelectorProps<T>) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCustomInput, setIsCustomInput] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0, width: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -104,13 +108,25 @@ export const Selector = <T extends Option>({
 
     const handleToggleEvent = (e: Event) => {
       const toggleEvent = e as ToggleEvent;
-      setIsOpen(toggleEvent.newState === 'open');
-      if (toggleEvent.newState === 'open') updatePopoverPosition();
+      const isOpening = toggleEvent.newState === 'open';
+      setIsOpen(isOpening);
+      if (isOpening) {
+        updatePopoverPosition();
+        setSearchTerm('');
+      }
     };
 
     el.addEventListener('toggle', handleToggleEvent);
     return () => el.removeEventListener('toggle', handleToggleEvent);
   }, []);
+
+  const filteredOptions = searchable
+    ? options.filter(opt => {
+        const labelStr =
+          typeof opt.label === 'string' ? opt.label : String(opt.label);
+        return labelStr.toLowerCase().includes(searchTerm.toLowerCase());
+      })
+    : options;
 
   return (
     <div ref={containerRef} className={cn('relative', className)}>
@@ -174,7 +190,19 @@ export const Selector = <T extends Option>({
           inset: 'auto', // popover 기본값 오버라이드
         }}
       >
-        {options.map(option => (
+        {searchable && (
+          <div className="sticky top-0 bg-bg-base z-10 p-1 border-b border-border-neutral">
+            <Input
+              type="text"
+              placeholder="검색"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="w-full h-8 px-2 text-xs bg-bg-sub border border-border-neutral rounded outline-none focus:border-primary text-text-primary placeholder:text-text-disabled"
+              onClick={e => e.stopPropagation()}
+            />
+          </div>
+        )}
+        {filteredOptions.map(option => (
           <li
             key={option.value}
             onClick={() => handleSelect(option)}
