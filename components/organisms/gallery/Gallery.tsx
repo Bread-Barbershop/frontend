@@ -107,7 +107,7 @@ function Gallery({ blockInfo, id }: Props) {
         />
         {blockInfo.props.images && blockInfo.props.images?.length > 0 && (
           <ButtonSelector
-            className="gap-2"
+            className="gap-2 text-center"
             label="비율"
             selectorOption={ASPECT_RATIO_OPTIONS}
             onPointerDown={handleAspectRatioChange}

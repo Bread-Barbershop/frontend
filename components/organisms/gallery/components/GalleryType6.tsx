@@ -56,7 +56,7 @@ function GalleryType6({ imageClick, preview, ratio }: GalleryTemplateProps) {
               src={file}
               alt={`갤러리 이미지 ${index + 1}`}
               fill
-              className="object-cover"
+              className="object-cover rounded-lg"
             />
           </div>
         ))}
