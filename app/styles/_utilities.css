@@ -53,6 +53,35 @@
     animation: equalize 1.8s infinite ease-in-out;
     will-change: transform;
   }
+  .dashboard-skeleton-card {
+    background-color: rgb(92 92 92 / 38%);
+    animation: dashboard-skeleton-card-glow 1.8s ease-in-out infinite;
+    animation-delay: var(--dashboard-skeleton-delay, 0ms);
+    will-change: background-color;
+  }
+  .dashboard-skeleton-shimmer {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .dashboard-skeleton-shimmer::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    bottom: -20%;
+    left: 0;
+    width: 60%;
+    transform: translateX(-120%) skewX(-18deg);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(255 255 255 / 12%),
+      transparent
+    );
+    animation: dashboard-skeleton-shimmer 1.8s linear infinite;
+    animation-delay: var(--dashboard-skeleton-delay, 0ms);
+    will-change: transform;
+  }
   .sub-title {
     font-size: 13px;
     font-weight: 600;
@@ -87,8 +116,36 @@
   }
 }
 
+@keyframes dashboard-skeleton-shimmer {
+  0% {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  100% {
+    transform: translateX(320%) skewX(-18deg);
+  }
+}
+
+@keyframes dashboard-skeleton-card-glow {
+  0%,
+  100% {
+    background-color: rgb(92 92 92 / 38%);
+  }
+  48% {
+    background-color: rgb(172 172 172 / 54%);
+  }
+  72% {
+    background-color: rgb(92 92 92 / 38%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-eq {
+    animation: none;
+  }
+  .dashboard-skeleton-card {
+    animation: none;
+  }
+  .dashboard-skeleton-shimmer::before {
     animation: none;
   }
 }

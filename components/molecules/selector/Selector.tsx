@@ -15,6 +15,8 @@ interface SelectorProps<T> {
   options: T[];
   placeholder?: string;
   className?: string;
+  triggerClassName?: string;
+  customInputClassName?: string;
   onInputChange?: (value: string) => void;
   onSelect: (option: T | { label: string; value: string }) => void;
   selected: T | { label: string; value: string } | null;
@@ -27,6 +29,8 @@ export const Selector = <T extends Option>({
   options,
   placeholder = '선택',
   className,
+  triggerClassName,
+  customInputClassName,
   onSelect,
   onInputChange,
   selected,
@@ -110,12 +114,20 @@ export const Selector = <T extends Option>({
 
   return (
     <div ref={containerRef} className={cn('relative', className)}>
-      <div className={cn(selectorVariants({ type, isOpen, hasValue }))}>
+      <div
+        className={cn(
+          selectorVariants({ type, isOpen, hasValue }),
+          triggerClassName
+        )}
+      >
         {isCustomInput ? (
           <input
             ref={inputRef}
             type="text"
-            className="w-full h-9 px-2 bg-transparent outline-none text-text-primary text-sm"
+            className={cn(
+              'w-full h-9 px-2 bg-transparent outline-none text-text-primary text-sm',
+              customInputClassName
+            )}
             value={typeof selected?.value === 'string' ? selected.value : ''}
             onChange={handleInputChange}
             onBlur={() => {
@@ -131,7 +143,7 @@ export const Selector = <T extends Option>({
             aria-haspopup="listbox"
             aria-expanded={isOpen}
           >
-            <span className="h-fit leading-6 text-center text-text-primary truncate flex-1 min-w-0 block">
+            <span className="h-6 text-center text-text-primary truncate flex-1 min-w-0 flex items-center justify-center">
               {hasValue ? selected?.label : placeholder}
             </span>
 
@@ -152,7 +164,7 @@ export const Selector = <T extends Option>({
         ref={popoverRef}
         popover="auto"
         className={cn(
-          'z-10 rounded-b-lg overflow-y-auto max-h-72 shadow-lg border-none p-0 m-0 fixed list-none',
+          'z-10 rounded-b-lg max-h-72 shadow-lg border-none p-0 m-0 fixed list-none edit-custom-scrollbar',
           selected ? 'bg-bg-base' : 'bg-border-neutral'
         )}
         style={{

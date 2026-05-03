@@ -44,9 +44,11 @@ export const InformationPreview = ({
           </p>
         </div>
       )}
-      <p className="text-center text-[16px] font-semibold">{speaker.name}</p>
+      <p className="w-full px-5 text-center text-[16px] font-semibold">
+        {speaker.name}
+      </p>
       <div
-        className="text-sm text-center select-none"
+        className="w-full px-5 text-sm text-center select-none"
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </div>

@@ -4,6 +4,7 @@ import { HTMLAttributes, useState } from 'react';
 
 import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
 import type { EditorBlock } from '@/shared/types/block';
+import { formatPhoneNumber } from '@/shared/utils/phoneNumber';
 
 import { NaverMapScript } from './NaverMapScript';
 import { Navigation } from './Navigation';
@@ -35,6 +36,7 @@ export const PlacePreview = ({
   return (
     <MiddlePreviewWrapper
       className={className}
+      childClassName="gap-6"
       titleClassName={titleClassName}
       checkedEnglishTitle={checkedEnglishTitle}
       enTitle={englishTitle}
@@ -48,9 +50,11 @@ export const PlacePreview = ({
         <p className="font-semibold text-[16px]">
           {placeName} {placeDetail}
         </p>
-        <p className="font-semibold pb-2.5 text-sm">{placeAddress}</p>
+        <p className="font-semibold text-sm">{placeAddress}</p>
       </section>
-      <p className="font-normal text-text-tertiary pb-2.5">TEL. {placeTel}</p>
+      <p className="font-normal text-text-tertiary">
+        TEL. {formatPhoneNumber(placeTel)}
+      </p>
 
       {blockInfo.props.openMap && isScriptLoaded && (
         <PlaceMap

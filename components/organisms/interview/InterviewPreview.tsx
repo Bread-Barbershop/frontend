@@ -67,7 +67,7 @@ export const InterviewPreview = ({
           options={carouselOptions}
           isButtonShow={false}
           className="h-full w-full"
-          carouselClassName="gap-3"
+          carouselClassName="gap-6"
           autoscroll={isAutoScrollActive}
           autoscrollOptions={autoscrollOptions}
           loop={isAutoScrollActive}
@@ -77,7 +77,7 @@ export const InterviewPreview = ({
               key={`${question.questionId}-${index}`}
               className={cn(
                 'w-full',
-                (displayItems?.length ?? 0) > 1 && index === 0 ? 'ml-3' : '',
+                (displayItems?.length ?? 0) > 1 && index === 0 ? 'ml-6' : '',
                 (displayItems?.length ?? 0) === 1 && 'flex-center'
               )}
             >

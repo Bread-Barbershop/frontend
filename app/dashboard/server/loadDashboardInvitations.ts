@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { ensureShareUrlFile } from '@/app/api/drive/_lib/ensureShareUrlFile';
 import {
   THUMBNAIL_KIND,
   THUMBNAIL_NAME,
@@ -167,6 +168,15 @@ async function loadThumbnailUrl(
   }
 }
 
+async function hasKakaoShareData(invitationFolderId: string): Promise<boolean> {
+  try {
+    const { shareUrlFileId } = await ensureShareUrlFile(invitationFolderId);
+    return Boolean(shareUrlFileId);
+  } catch {
+    return false;
+  }
+}
+
 export async function loadDashboardInvitations(): Promise<LoadInvitationResponse> {
   const workspaceFolderId = await findWorkspaceFolderId();
 
@@ -221,14 +231,16 @@ export async function loadDashboardInvitations(): Promise<LoadInvitationResponse
 
   const invites = await Promise.all(
     invitationFolders.map(async invite => {
-      const [publishedUrl, thumbnailUrl] = await Promise.all([
+      const [publishedUrl, thumbnailUrl, hasShareData] = await Promise.all([
         loadPublishedUrl(invite.folderId),
         loadThumbnailUrl(invite.folderId),
+        hasKakaoShareData(invite.folderId),
       ]);
       return {
         ...invite,
         publishedUrl,
         thumbnailUrl,
+        hasKakaoShareData: hasShareData,
       };
     })
   );

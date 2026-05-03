@@ -23,8 +23,19 @@ export function CalendarPreview({
   titleClassName,
   ...rest
 }: Props) {
-  const { date, time, showStringDate, template, showCalendar, showDday } =
-    blockInfo.props;
+  const {
+    title,
+    englishTitle,
+    date,
+    time,
+    showStringDate,
+    template,
+    showCalendar,
+    showDday,
+  } = blockInfo.props;
+  const defaultTitle = blockInfo.type === 'wedding' ? '예식 일시' : '행사일시';
+  const defaultEnglishTitle =
+    blockInfo.type === 'wedding' ? 'THE WEDDING CEREMONY' : 'Date & Time';
 
   const {
     currentYear,
@@ -54,8 +65,8 @@ export function CalendarPreview({
     >
       {/* Title */}
       <PreviewTitle
-        enTitle="THE WEDDING CEREMONY"
-        koTitle="예식 일시"
+        enTitle={englishTitle || defaultEnglishTitle}
+        koTitle={title || defaultTitle}
         titleClassName={titleClassName}
       />
 

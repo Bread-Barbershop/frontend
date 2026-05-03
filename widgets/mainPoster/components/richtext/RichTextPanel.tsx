@@ -40,17 +40,17 @@ export const RichTextPanel = () => {
     {
       id: 'bold',
       style: { fontWeight: 'bold' },
-      component: <BoldIcon className="w-2.75 h-3.5" />,
+      component: <BoldIcon />,
     },
     {
       id: 'italic',
       style: { fontStyle: 'italic' },
-      component: <ItalicIcon className="w-2.75 h-3.5" />,
+      component: <ItalicIcon />,
     },
     {
       id: 'underline',
       style: { underline: true },
-      component: <UnderlineIcon className="w-2.5 h-3.5" />,
+      component: <UnderlineIcon />,
     },
   ];
 
@@ -66,7 +66,7 @@ export const RichTextPanel = () => {
               key={id}
               type="button"
               onClick={() => applyRichStyle({ ...style }, canvas)}
-              className="w-8 h-8 flex p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
+              className="w-8 h-8 flex p-1 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
             >
               {component}
             </button>
@@ -74,9 +74,9 @@ export const RichTextPanel = () => {
         })}
         <button
           type="button"
-          className="w-9 h-8 flex p-2.25 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
+          className="w-9 h-8 flex p-1 justify-center items-center bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
         >
-          <CharspacingIcon className="w-4.25 h-3.5" />
+          <CharspacingIcon />
         </button>
         <TextAlign />
 

@@ -79,7 +79,7 @@ export function DDayCountdown({ date, time }: Props) {
   return (
     <div
       className={cn(
-        'w-full border-t border-border-divider py-6 px-6 flex flex-col items-center justify-center gap-4 bg-white'
+        'w-full border-t border-border-divider py-6 px-6 flex flex-col items-center justify-center gap-4 bg-white font-bold'
       )}
     >
       <div className="flex w-full justify-between items-center text-center">
@@ -116,7 +116,7 @@ export function DDayCountdown({ date, time }: Props) {
           </span>
         </div>
       </div>
-      <div className="text-[#8e8e8e] text-sm tracking-tight font-medium w-full text-center">
+      <div className="text-[#8e8e8e] text-sm tracking-tight w-full text-center">
         {timeLeft.days}일 남았습니다.
       </div>
     </div>

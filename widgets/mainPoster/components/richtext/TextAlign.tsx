@@ -11,15 +11,15 @@ import { selectorOptions } from '../../types/editor';
 
 const ALIGN_OPTIONS: selectorOptions[] = [
   {
-    label: <AlignLeftIcon className="w-4.25 h-3.5" />,
+    label: <AlignLeftIcon />,
     value: 'left',
   },
   {
-    label: <AlignCenterIcon className="w-4.25 h-3.5" />,
+    label: <AlignCenterIcon />,
     value: 'center',
   },
   {
-    label: <AlignRightIcon className="w-4.25 h-3.5" />,
+    label: <AlignRightIcon />,
     value: 'right',
   },
 ];

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useShallow } from 'zustand/shallow';
 
@@ -54,7 +54,12 @@ export const ShareUrlButton = () => {
 
   const isOpen = shareUrlBlock ? selectedId === shareUrlBlock.id : false;
 
-  const openDialog = () => {
+  const handleToggle = () => {
+    if (isOpen) {
+      selectedBlock(null);
+      return;
+    }
+
     if (shareUrlBlock) {
       selectedBlock(shareUrlBlock.id);
     } else {
@@ -70,7 +75,7 @@ export const ShareUrlButton = () => {
       <button
         type="button"
         className="w-full h-11 bg-white rounded-lg shadow-edit flex-center text-sm font-semibold transition-colors hover:bg-gray-50"
-        onClick={openDialog}
+        onClick={handleToggle}
       >
         공유 썸네일
       </button>
@@ -99,30 +104,11 @@ const KakaoShareUrlView = ({ block }: { block?: EditorBlock<'shareUrl'> }) => {
   const displayDescription = description || '뜻깊은 날, 귀한 걸음으로 저희와 함께해 주세요.';
 
   const imageUrl = useImageObjectUrl(images[0]);
-  const selectedBlock = useEditorStore(state => state.selectedBlock);
-  const popupRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      // 1. 팝업 내부(프리뷰 영역)를 클릭한 경우 무시
-      if (popupRef.current?.contains(e.target as Node)) return;
-
-      // 2. 좌측 패널(에디터) 영역을 클릭한 경우 무시
-      const isLeftPanel = (e.target as Element).closest('section[aria-label="공유 썸네일"]');
-      if (isLeftPanel) return;
-
-      // 3. 그 외의 배경 등 다른 영역 클릭 시 팝업 닫기 (선택 해제)
-      selectedBlock(null);
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [selectedBlock]);
 
   return (
     <div
-      ref={popupRef}
-      className="absolute top-0 left-0 w-full h-[812px] bg-[#ABC1D1] flex flex-col justify-between ring-1 ring-black rounded-lg overflow-hidden z-50"
+      className="absolute top-0 left-0 w-full h-[812px] bg-[#ABC1D1] flex flex-col justify-between overflow-hidden z-50"
     >
       {/* 상단바 */}
       <header>
