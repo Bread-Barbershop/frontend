@@ -145,7 +145,7 @@ export const Selector = <T extends Option>({
             ref={inputRef}
             type="text"
             className={cn(
-              'w-full h-9 px-2 bg-transparent outline-none text-text-primary text-sm',
+              'w-full h-8 px-2 bg-transparent outline-none text-text-primary text-sm',
               customInputClassName
             )}
             value={typeof selected?.value === 'string' ? selected.value : ''}
