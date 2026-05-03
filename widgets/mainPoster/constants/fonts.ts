@@ -1219,7 +1219,7 @@ export const CUSTOM_FONTS = [
   },
   {
     family: 'BM 연성',
-    url: 'url(/font/BMYeonsung.ttf)',
+    url: 'url(/font/BMYEONSUNG.ttf)',
     weight: 'normal',
     style: 'normal',
   },
