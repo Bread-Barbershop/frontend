@@ -45,7 +45,6 @@ function OrderPanel() {
 
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const orderBlocks = block.filter(item => item.component !== 'shareUrl');
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -142,10 +141,10 @@ function OrderPanel() {
               포스터
             </button>
             <SortableContext
-              items={orderBlocks.map(b => b.id)}
+              items={block.map(b => b.id)}
               strategy={verticalListSortingStrategy}
             >
-              {orderBlocks.map(items => (
+              {block.map(items => (
                 <SortableItems
                   key={items.id}
                   id={items.id}

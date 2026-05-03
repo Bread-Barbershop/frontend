@@ -5,13 +5,25 @@ import {
   UpdateInvitationResponse,
 } from '@/app/editor/[id]/types/savedata';
 import { BODY_BULK_DATA, TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
-import { EditorBlock } from '@/shared/types/block';
+import { PersistedEditorBlock } from '@/shared/types/block';
 
 import {
   downloadFiles,
   getFilesInFolder,
   loadInvitations,
 } from '../_lib/getSaveDataFetch';
+
+const normalizePersistedBlocks = (blocks: unknown): PersistedEditorBlock[] => {
+  if (!Array.isArray(blocks)) return [];
+
+  return blocks.filter(
+    (block): block is PersistedEditorBlock =>
+      typeof block === 'object' &&
+      block !== null &&
+      'component' in block &&
+      (block as { component?: unknown }).component !== 'shareUrl'
+  );
+};
 
 export async function GET(
   request: Request
@@ -80,9 +92,10 @@ export async function GET(
         if (fileContent) {
           responseData.config = {
             bulkData: fileContent.bulkData,
-            blocks: fileContent.blocks,
+            blocks: normalizePersistedBlocks(fileContent.blocks),
             mainPoster: fileContent.mainPoster,
             bgm: fileContent.bgm,
+            shareUrl: fileContent.shareUrl,
           };
         }
       }
@@ -104,7 +117,7 @@ export async function GET(
             bodyData: BODY_BULK_DATA,
             isZoom: false,
           },
-          blocks: [] as EditorBlock[],
+          blocks: [] as PersistedEditorBlock[],
           mainPoster: '',
           bgm: {
             selectedBgmId: null,
