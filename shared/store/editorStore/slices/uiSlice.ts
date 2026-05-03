@@ -20,7 +20,12 @@ export const createUISlice: StateCreator<
     set({ activeTab: tab }),
   drawingConfig: {
     width: 5,
-    color: '#000000',
+    color: {
+      h: 0,
+      s: 0,
+      v: 0,
+      a: 1,
+    },
   },
   setDrawingConfig: config =>
     set(state => ({

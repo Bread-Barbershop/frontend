@@ -20,6 +20,7 @@ import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import { useKeyboardEvents } from '../hooks/useKeyboardEvents';
 import { useSetFabricControls } from '../hooks/useSetFabricControls';
+import { preloadFonts } from '../hooks/useTemplate';
 import { initAligningGuidelines } from '../libs/aligning-guidelines';
 import { FabricObjectWithLock } from '../types/fabric';
 
@@ -64,9 +65,10 @@ export const MainPosterPreview = () => {
           typeof initialData === 'string'
             ? JSON.parse(initialData)
             : initialData;
+
+        await preloadFonts(jsonData);
         await canvas.loadFromJSON(jsonData);
 
-        await document.fonts.ready;
         canvas.getObjects().forEach(obj => {
           if ((obj as FabricObjectWithLock).isLocked) {
             obj.set({
@@ -80,12 +82,26 @@ export const MainPosterPreview = () => {
             });
           }
 
-          if (obj.isType('textbox') || obj.isType('itext')) {
-            obj.set({ dirty: true });
-            (obj as any).initDimensions?.();
+          if (
+            obj.isType('textbox') ||
+            obj.isType('itext') ||
+            obj.isType('text')
+          ) {
+            const textObj = obj as Textbox | IText;
+            textObj.set({
+              dirty: true,
+              objectCaching: false,
+            });
+            if ('_initDimensions' in textObj) {
+              (textObj as any)._initDimensions();
+            } else if ('initDimensions' in textObj) {
+              (textObj as any).initDimensions();
+            }
+            textObj.setCoords();
           }
         });
 
+        await new Promise(resolve => requestAnimationFrame(resolve));
         canvas.requestRenderAll();
       } catch (error) {
         console.error('Fabric load Error:', error);

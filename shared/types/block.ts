@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 
+import { PickerHsva } from '@/components/molecules/color-picker/components/colorPicker.types';
 import { blockRegistry } from '@/shared/data/registry/registry';
 
 import { blockSchema } from '../data/registry/block.schema';
@@ -65,7 +66,7 @@ export interface ImageSlice {
 
 export interface DrawingConfig {
   width: number;
-  color: string;
+  color: PickerHsva;
 }
 
 export interface UISlice {
