@@ -17,6 +17,7 @@ export const useFabric = () => {
   const undoStack = useRef<string[]>([]);
   const redoStack = useRef<string[]>([]);
   const isUpdating = useRef<boolean>(false);
+  const isDeleting = useRef<boolean>(false);
   const MAX_STACK_SIZE = 30;
 
   const saveHistory = useCallback(() => {
@@ -72,38 +73,81 @@ export const useFabric = () => {
     setCanRedo(redoStack.current.length > 0);
   }, [canvas]);
 
+  type FabricCanvasObject = ReturnType<Canvas['getObjects']>[number];
+
+  type CanvasWithObjects = Canvas & {
+    _objects: FabricCanvasObject[];
+  };
+
+  const deleteObjects = (canvas: Canvas, targets: FabricCanvasObject[]) => {
+    const fabricCanvas = canvas as CanvasWithObjects;
+    const allObjects = fabricCanvas._objects;
+
+    const isDeleteAll = targets.length === allObjects.length;
+
+    if (isDeleteAll) {
+      targets.forEach(obj => {
+        obj.set?.('canvas', undefined);
+      });
+
+      fabricCanvas._objects = [];
+      return;
+    }
+
+    const targetSet = new Set(targets);
+
+    targets.forEach(obj => {
+      obj.set?.('canvas', undefined);
+    });
+
+    fabricCanvas._objects = allObjects.filter(obj => !targetSet.has(obj));
+  };
+
   const handleDeleteShape = useCallback(
     (canvas: Canvas, e?: KeyboardEvent, flag?: boolean) => {
-      // 페이지 내의 포스터 캔버스가 아닌곳에서 키보드 이벤트 발생시 작동 중지
-      const activeObjects = canvas.getActiveObjects();
-      const isHoveringCanvas = canvas.elements.container.matches(':hover');
-      if (!isHoveringCanvas && activeObjects.length === 0) return;
-      const exist = activeObjects.length > 0 ? true : false;
+      if (e?.repeat) return;
 
-      if (exist) {
+      const activeObjects = [...canvas.getActiveObjects()];
+      const isHoveringCanvas = canvas.elements.container.matches(':hover');
+
+      if (!isHoveringCanvas && activeObjects.length === 0) return;
+
+      if (activeObjects.length > 0) {
         const isEditing = activeObjects.some(
           obj => obj instanceof Textbox && obj.isEditing
         );
 
-        if (isEditing) return;
+        if (isEditing || isDeleting.current) return;
+
         if (e?.key === 'Delete' || flag === true) {
           e?.preventDefault();
+          isDeleting.current = true;
 
-          canvas.remove(...activeObjects);
+          try {
+            canvas.discardActiveObject();
+            deleteObjects(canvas, activeObjects);
+          } finally {
+            isDeleting.current = false;
+          }
 
-          canvas.discardActiveObject();
+          saveHistory();
           canvas.requestRenderAll();
         }
-      } else if (!exist && e?.key === 'Backspace') {
+
+        return;
+      }
+
+      if (e?.key === 'Backspace') {
         const checkGoToBack = confirm(
           '정말 뒤돌아가시겠습니까? 저장되지 않은 내역은 모두 사라집니다'
         );
+
         if (!checkGoToBack) {
           e?.preventDefault();
         }
       }
     },
-    []
+    [saveHistory]
   );
 
   const handleDeleteEmptyShape = useCallback((canvas: Canvas) => {
@@ -517,6 +561,8 @@ export const useFabric = () => {
     canvas,
     setCanvas,
     activeInfo,
+    isUpdating,
+    isDeleting,
     setupEventListeners,
     syncActiveObjectInfo,
     handleDeleteShape,

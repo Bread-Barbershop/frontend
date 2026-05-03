@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { Selector } from '@/components/molecules/selector';
 
+import { CUSTOM_FONTS } from '../../constants/fonts';
 import { useFabricContext } from '../../context/FabricContext';
 
 type FontOption = {
@@ -77,54 +78,32 @@ function FontFamily() {
     },
   ];
 
-  const customFontOption: CustomFontOption[] = [
-    {
-      label: 'VT323',
-      value: 'VT323',
-      url: 'url(https://fonts.gstatic.com/s/vt323/v17/pxiKyp0ihIEF2isfFJXUdVNF.woff2)',
-    },
-    {
-      label: 'Pacifico',
-      value: 'Pacifico',
-      url: 'url(https://fonts.gstatic.com/s/pacifico/v22/FwZY7-Qmy14u9lezJ-6H6MmBp0u-.woff2)',
-    },
-    {
-      label: 'Lato100',
-      value: 'Lato100',
-      url: 'url(https://fonts.gstatic.com/s/lato/v24/S6u8w4BMUTPHh30AXC-qNiXg7Q.woff2)',
-    },
-  ];
+  const customFontOption: CustomFontOption[] = CUSTOM_FONTS.map(f => ({
+    label: f.family,
+    value: f.family,
+    url: f.url,
+  }));
 
-  const fontVT323 = new FontFace('VT323', customFontOption[0].url, {
-    style: 'normal',
-    weight: 'normal',
-  });
-  const fontPacifico = new FontFace('Pacifico', customFontOption[1].url, {
-    style: 'normal',
-    weight: 'normal',
-  });
+  // 전역에서 관리되는 폰트 로딩은 useTemplate 등에서 처리되지만,
+  // 에디터 진입 시 기본적으로 필요한 폰트들을 등록합니다.
+  useEffect(() => {
+    CUSTOM_FONTS.forEach(customFont => {
+      const existingFaces = Array.from(document.fonts);
+      const isAlreadyRegistered = existingFaces.some(
+        face =>
+          face.family === customFont.family && face.weight === customFont.weight
+      );
 
-  const Lato100 = new FontFace('Lato', customFontOption[2].url, {
-    style: 'normal',
-    weight: '100',
-  });
-
-  const Lato900 = new FontFace('Lato', customFontOption[2].url, {
-    style: 'normal',
-    weight: '900',
-  });
-
-  Promise.all([
-    fontVT323.load(),
-    fontPacifico.load(),
-    Lato100.load(),
-    Lato900.load(),
-  ]).then(() => {
-    document.fonts.add(fontPacifico);
-    document.fonts.add(fontVT323);
-    document.fonts.add(Lato100);
-    document.fonts.add(Lato900);
-  });
+      if (!isAlreadyRegistered) {
+        const fontFace = new FontFace(customFont.family, customFont.url, {
+          style: customFont.style as any,
+          weight: customFont.weight as any,
+        });
+        document.fonts.add(fontFace);
+        fontFace.load();
+      }
+    });
+  }, []);
 
   const fontOption = [...defaultFontOption, ...customFontOption];
 
