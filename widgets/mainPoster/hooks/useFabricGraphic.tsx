@@ -1,6 +1,10 @@
 import { Canvas, PencilBrush } from 'fabric';
 import { useRef } from 'react';
 
+import { PickerHsva } from '@/components/molecules/color-picker/components/colorPicker.types';
+
+import { convertFabricColor } from '../utils/fabricUtils';
+
 export const useFabricGraphic = () => {
   /* eslint-disable @typescript-eslint/no-explicit-any */
   const drawingListenerRef = useRef<((e: any) => void) | null>(null);
@@ -9,7 +13,7 @@ export const useFabricGraphic = () => {
     canvas: Canvas,
     options: {
       enable: boolean;
-      color?: string;
+      color?: PickerHsva;
       width?: number;
       onFinish?: () => void;
       autoDisable?: boolean;
@@ -17,7 +21,7 @@ export const useFabricGraphic = () => {
   ) => {
     const {
       enable,
-      color = '#000000',
+      color = { h: 0, s: 0, v: 0, a: 1 },
       width = 5,
       onFinish,
       autoDisable = false,
@@ -41,7 +45,7 @@ export const useFabricGraphic = () => {
 
       if (canvas.freeDrawingBrush) {
         canvas.freeDrawingBrush.width = width;
-        canvas.freeDrawingBrush.color = color;
+        canvas.freeDrawingBrush.color = convertFabricColor(color);
       }
 
       if (autoDisable) {
@@ -65,9 +69,13 @@ export const useFabricGraphic = () => {
     canvas.requestRenderAll();
   };
 
-  const setBrushProperties = (canvas: Canvas, color: string, width: number) => {
+  const setBrushProperties = (
+    canvas: Canvas,
+    color: PickerHsva,
+    width: number
+  ) => {
     if (canvas.freeDrawingBrush) {
-      canvas.freeDrawingBrush.color = color;
+      canvas.freeDrawingBrush.color = convertFabricColor(color);
       canvas.freeDrawingBrush.width = width;
     }
   };
