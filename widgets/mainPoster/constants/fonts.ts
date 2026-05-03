@@ -1229,4 +1229,52 @@ export const CUSTOM_FONTS = [
     weight: 'normal',
     style: 'normal',
   },
+  {
+    family: 'Rosarivo-Regular',
+    url: 'url(/font/Rosarivo/Rosarivo-Regular.ttf)',
+    weight: 'normal',
+    style: 'normal',
+  },
+  {
+    family: 'Rosarivo-Italic',
+    url: 'url(/font/Rosarivo/Rosarivo-Italic.ttf)',
+    weight: 'normal',
+    style: 'normal',
+  },
+  {
+    family: 'Ruwudu-Regular',
+    url: 'url(/font/Ruwudu/Ruwudu-Regular.ttf)',
+    weight: 'normal',
+    style: 'normal',
+  },
+  {
+    family: 'Ruwudu-Medium',
+    url: 'url(/font/Ruwudu/Ruwudu-Medium.ttf)',
+    weight: 'normal',
+    style: 'normal',
+  },
+  {
+    family: 'Ruwudu-Bold',
+    url: 'url(/font/Ruwudu/Ruwudu-Bold.ttf)',
+    weight: 'normal',
+    style: 'normal',
+  },
+  {
+    family: 'Ruwudu-SemiBold',
+    url: 'url(/font/Ruwudu/Ruwudu-SemiBold.ttf)',
+    weight: 'normal',
+    style: 'normal',
+  },
+  {
+    family: '고운 바탕-Regular',
+    url: 'url(/font/GowunBatang/GowunBatang-Regular.ttf)',
+    weight: 'normal',
+    style: 'normal',
+  },
+  {
+    family: '고운 바탕-Bold',
+    url: 'url(/font/GowunBatang/GowunBatang-Bold.ttf)',
+    weight: 'normal',
+    style: 'normal',
+  },
 ];
