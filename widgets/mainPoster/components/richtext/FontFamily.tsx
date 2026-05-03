@@ -91,6 +91,7 @@ function FontFamily() {
         }}
         selected={selectedFont}
         showCheckbox={false}
+        searchable={true}
       />
     </div>
   );
