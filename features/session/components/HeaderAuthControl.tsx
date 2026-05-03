@@ -37,6 +37,8 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
         return;
       }
       runAfterAuth(() => router.push('/dashboard'));
+    } else {
+      runAfterAuth(() => router.push('/dashboard'));
     }
   };
 
