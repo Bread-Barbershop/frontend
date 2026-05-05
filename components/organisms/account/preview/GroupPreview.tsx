@@ -12,6 +12,7 @@ export const GroupPreview = ({
   group: { name: string };
 }) => {
   const [isOpenAccount, setIsOpenAccount] = useState(false);
+  const displayGroupName = group.name.trim() || '그룹명';
   const handleOpenAccount = () => {
     setIsOpenAccount(prev => !prev);
   };
@@ -22,7 +23,7 @@ export const GroupPreview = ({
         type="button"
         onClick={handleOpenAccount}
       >
-        {group.name}
+        {displayGroupName}
         <div
           className={cn(
             'absolute right-2 flex-center size-8 transition-transform duration-200 shrink-0',

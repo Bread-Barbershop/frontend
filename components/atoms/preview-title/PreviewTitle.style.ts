@@ -5,8 +5,8 @@ export const previewTitleVariants = cva(
   {
     variants: {
       language: {
-        en: 'text-[13px] text-[#FA7564] font-medium tracking-wide',
-        ko: 'text-[20px] text-[#FA7564] font-medium',
+        en: 'text-[13px] text-[#FA7564] font-semibold tracking-wide',
+        ko: 'text-[20px] text-[#FA7564] font-semibold',
       },
     },
     defaultVariants: {

@@ -14,7 +14,7 @@ export const PreviewBody = ({ html }: { html: string }) => {
 
   return (
     <div
-      className="text-sm w-full"
+      className="text-sm w-full [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6"
       dangerouslySetInnerHTML={{ __html: html }}
       style={!bodyData.isDefault ? toStyle(bodyData, false) : undefined}
     />
