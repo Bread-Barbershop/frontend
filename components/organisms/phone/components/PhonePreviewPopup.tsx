@@ -143,7 +143,7 @@ function PhonePreviewPopup({ groups = [] }: Props) {
                   <li className="flex items-center justify-center px-2 text-sm text-text-secondary text-center">
                     표시할 연락처가 없습니다.
                     <br />
-                    연락처를 추가 해주세요.
+                    연락처를 추가해주세요.
                   </li>
                 )}
 
