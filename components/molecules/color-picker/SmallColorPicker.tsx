@@ -10,10 +10,7 @@ import type { ReactNode } from 'react';
 
 type SmallColorPickerProps = Omit<
   ColorPickerBaseProps,
-  | 'paletteClassName'
-  | 'pointerSize'
-  | 'historyColumnCount'
-  | 'maxHistoryCount'
+  'paletteClassName' | 'pointerSize' | 'historyColumnCount' | 'maxHistoryCount'
 > & {
   showHeader?: boolean;
   title?: ReactNode;
@@ -29,8 +26,7 @@ function SmallColorPicker({
   return (
     <div
       className={cn(
-        'box-border flex w-70 flex-col gap-4 rounded-lg bg-white px-5 pb-5',
-        showHeader ? 'pt-0' : 'pt-5'
+        'box-border flex w-70 flex-col gap-4 rounded-lg bg-white px-5 pb-[14px] pt-0'
       )}
     >
       {showHeader && <ColorPickerNavigation title={title} onClose={onClose} />}
