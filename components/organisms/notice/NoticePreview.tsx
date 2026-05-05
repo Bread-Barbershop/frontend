@@ -24,6 +24,7 @@ export const NoticePreview = ({
 }: Props) => {
   const { noticeList, title, checkedEnglishTitle, englishTitle } =
     blockInfo.props;
+  const isSingleNotice = (noticeList?.length ?? 0) === 1;
 
   const displayNoticeList = useMemo(() => {
     if (noticeList && noticeList.length === 2) {
@@ -78,15 +79,18 @@ export const NoticePreview = ({
             <div
               key={`preview-${notice.noticeId}-${index}`}
               className={cn(
-                'w-full',
-                (displayNoticeList?.length ?? 0) > 1 && index === 0 ? 'ml-6' : '',
-                displayNoticeList.length === 1 && 'flex-center'
+                isSingleNotice ? 'mx-auto w-[calc(100%-40px)]' : 'w-full',
+                (displayNoticeList?.length ?? 0) > 1 && index === 0
+                  ? 'ml-6'
+                  : '',
+                isSingleNotice && 'flex-center'
               )}
             >
               <NoticePreviewItem
                 notice={notice}
                 images={notice.image}
                 index={index % (noticeList?.length || 1)}
+                className={isSingleNotice ? 'w-full' : 'w-70'}
               />
             </div>
           ))}
