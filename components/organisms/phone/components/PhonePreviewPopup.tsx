@@ -1,5 +1,6 @@
 'use client';
 
+import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -52,9 +53,8 @@ function PhonePreviewPopup({ groups = [] }: Props) {
           contact.label.trim().length > 0 || contact.number.trim().length > 0
       ),
     }))
-    .filter(
-      group => group.name.trim().length > 0 || group.contacts.length > 0
-    );
+    .filter(group => group.name.trim().length > 0 || group.contacts.length > 0);
+  const isEmpty = visibleGroups.length === 0;
 
   useEffect(() => {
     if (copyToastKey === 0) return;
@@ -111,80 +111,100 @@ function PhonePreviewPopup({ groups = [] }: Props) {
         <p className="text-sm font-bold text-text-secondary">연락처</p>
       </button>
 
-      {isPopupOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center"
-          onClick={() => setIsPopupOpen(false)}
-        >
-          <section
-            aria-label="연락처"
-            role="dialog"
-            aria-modal="true"
-            className="w-[280px] rounded-lg bg-white pb-[14px] shadow-edit"
-            onClick={event => event.stopPropagation()}
+      <AnimatePresence>
+        {isPopupOpen && (
+          <motion.div
+            className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
+            onClick={() => setIsPopupOpen(false)}
           >
-            <ul className="max-h-120 overflow-y-auto flex flex-col gap-1.5 pr-1">
-              {visibleGroups.length === 0 && (
-                <li className="h-11 flex items-center justify-center px-2 text-sm text-text-secondary text-center">
-                  표시할 연락처가 없습니다.
-                </li>
-              )}
+            <motion.section
+              aria-label="연락처"
+              role="dialog"
+              aria-modal="true"
+              className={`w-[280px] rounded-lg bg-white shadow-edit ${
+                isEmpty ? '' : 'pb-[14px]'
+              }`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2, ease: 'easeInOut' }}
+              onClick={event => event.stopPropagation()}
+            >
+              <ul
+                className={`max-h-120 overflow-y-auto flex flex-col gap-1.5 pr-1 ${
+                  isEmpty ? 'h-[72px] justify-center pr-0' : ''
+                }`}
+              >
+                {isEmpty && (
+                  <li className="flex items-center justify-center px-2 text-sm text-text-secondary text-center">
+                    표시할 연락처가 없습니다.
+                    <br />
+                    연락처를 추가 해주세요.
+                  </li>
+                )}
 
-              {visibleGroups.map((group, groupIndex) => (
-                <li key={group.id} className="flex flex-col gap-1.5">
-                  {(group.name || visibleGroups.length > 1) && (
-                    <p className="h-11 flex items-center justify-center px-3 text-sm font-bold text-text-secondary text-center">
-                      {group.name || `${groupIndex + 1}번 그룹`}
-                    </p>
-                  )}
-
-                  <ul className="flex flex-col gap-1.5">
-                    {group.contacts.length === 0 && (
-                      <li className="h-11 flex items-center justify-center px-3 text-sm text-text-secondary text-center">
-                        표시할 연락처가 없습니다.
-                      </li>
+                {visibleGroups.map((group, groupIndex) => (
+                  <li key={group.id} className="flex flex-col gap-1.5">
+                    {(group.name || visibleGroups.length > 1) && (
+                      <p className="h-11 flex items-center justify-center px-3 text-sm font-bold text-text-secondary text-center">
+                        {group.name || `${groupIndex + 1}번 그룹`}
+                      </p>
                     )}
 
-                    {group.contacts.map((contact, contactIndex) => (
-                      <li
-                        key={contact.id}
-                        className="h-11 flex items-center justify-between gap-3 pl-5 pr-[7px]"
-                      >
-                        <div className="min-w-0 flex flex-col justify-center gap-1.5 text-left">
-                          <p className="truncate text-[13px] font-semibold leading-[13px] text-[#444444]">
-                            {contact.label || `연락처 ${contactIndex + 1}`}
-                          </p>
-                          <p className="truncate text-[13px] font-semibold leading-[13px] text-[#444444]">
-                            {formatPhoneNumber(contact.number)}
-                          </p>
-                        </div>
+                    <ul className="flex flex-col gap-1.5">
+                      {group.contacts.length === 0 && (
+                        <li className="h-11 flex items-center justify-center px-3 text-sm text-text-secondary text-center">
+                          표시할 연락처가 없습니다.
+                        </li>
+                      )}
 
-                        <div className="flex shrink-0 items-center">
-                          <button
-                            type="button"
-                            aria-label="전화번호 복사"
-                            className="flex items-center justify-center size-11 rounded-full text-[#787878] hover:bg-black/5 active:bg-black/10 transition-colors"
-                            onClick={() => handleCopyPhoneNumber(contact.number)}
-                          >
-                            <CopyIcon />
-                          </button>
-                          <a
-                            href={`tel:${contact.number}`}
-                            aria-label="전화 걸기"
-                            className="flex items-center justify-center size-11 rounded-full text-[#787878] hover:bg-black/5 active:bg-black/10 transition-colors"
-                          >
-                            <PhoneActionIcon />
-                          </a>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
-            </ul>
-          </section>
-        </div>
-      )}
+                      {group.contacts.map((contact, contactIndex) => (
+                        <li
+                          key={contact.id}
+                          className="h-11 flex items-center justify-between gap-3 pl-5 pr-[7px]"
+                        >
+                          <div className="min-w-0 flex flex-col justify-center gap-1.5 text-left">
+                            <p className="truncate text-[13px] font-semibold leading-[13px] text-[#444444]">
+                              {contact.label || `연락처 ${contactIndex + 1}`}
+                            </p>
+                            <p className="truncate text-[13px] font-semibold leading-[13px] text-[#444444]">
+                              {formatPhoneNumber(contact.number)}
+                            </p>
+                          </div>
+
+                          <div className="flex shrink-0 items-center">
+                            <button
+                              type="button"
+                              aria-label="전화번호 복사"
+                              className="flex items-center justify-center size-11 rounded-full text-[#787878] hover:bg-black/5 active:bg-black/10 transition-colors cursor-pointer"
+                              onClick={() =>
+                                handleCopyPhoneNumber(contact.number)
+                              }
+                            >
+                              <CopyIcon />
+                            </button>
+                            <a
+                              href={`tel:${contact.number}`}
+                              aria-label="전화 걸기"
+                              className="flex items-center justify-center size-11 rounded-full text-[#787878] hover:bg-black/5 active:bg-black/10 transition-colors"
+                            >
+                              <PhoneActionIcon />
+                            </a>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            </motion.section>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
