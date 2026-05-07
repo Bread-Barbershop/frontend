@@ -7,17 +7,9 @@ import { ImageUploadButton } from '@/components/atoms/button/ImageUploadButton';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
-import { PhotoPresetOptions } from '../../types/fabric';
-import { ImageFilterSelector } from '../image/ImageFilterSelector';
-
 export const BackgroundImage = () => {
-  const {
-    canvas,
-    compressImage,
-    setBackgroundImage,
-    activeInfo,
-    applyImageFilter,
-  } = useFabricContext();
+  const { canvas, compressImage, setBackgroundImage, activeInfo } =
+    useFabricContext();
   const { activeTab } = useEditorStore(
     useShallow(state => ({
       activeTab: state.activeTab,
@@ -165,23 +157,6 @@ export const BackgroundImage = () => {
     e.target.value = '';
   };
 
-  const handleApply = (
-    options: PhotoPresetOptions,
-    type: 'bw' | 'warm' | 'cool' | 'fade' | 'filmGrain' | 'vignette' | null
-  ) => {
-    if (canvas) {
-      // 배경 탭이므로 필터 적용 전 배경 레이어를 활성화하여 타겟팅 보장
-      const bgObj = canvas
-        .getObjects()
-        .find(obj => obj.get('id') === 'background-layer');
-      if (bgObj) {
-        canvas.setActiveObject(bgObj);
-      }
-      applyImageFilter(options, canvas, type);
-    }
-    updateImageSrc();
-  };
-
   return (
     <section className="flex flex-col items-center gap-3">
       <div className="py-5">
@@ -201,7 +176,6 @@ export const BackgroundImage = () => {
           />
         )}
       </div>
-      <ImageFilterSelector onApply={handleApply} activeInfo={activeInfo} />
     </section>
   );
 };
