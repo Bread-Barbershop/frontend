@@ -64,7 +64,7 @@ export function ContextMenu() {
   return (
     <div
       ref={menuRef}
-      className="fixed z-9999 w-55 flex flex-col gap-3 p-3 bg-white border border-gray-200 rounded-md shadow-lg"
+      className="fixed z-9999 font-pretendard w-55 flex flex-col gap-3 p-3 bg-white border border-gray-200 rounded-md shadow-lg"
       style={{ top: pos.y, left: pos.x }}
       onContextMenu={e => e.preventDefault()}
     >
