@@ -17,7 +17,7 @@ function FontSize() {
   const currentFontSize =
     (activeInfo?.styles?.fontSize as string | number) || '16';
   const [selectedFontSize, setSelectedFontSize] = useState<selectorOptions>({
-    label: `${currentFontSize}px`,
+    label: currentFontSize,
     value: String(currentFontSize),
   });
 
@@ -28,7 +28,7 @@ function FontSize() {
     const handleSync = () =>
       getRichStyles(activeObject, 'fontSize', fontSize =>
         setSelectedFontSize({
-          label: `${fontSize}px`,
+          label: fontSize,
           value: String(fontSize),
         })
       );
@@ -48,7 +48,7 @@ function FontSize() {
   const fontSizeList = [10, 12, 14, 16, 20, 24, 32, 40];
   fontSizeList.forEach(size => {
     const obj = {
-      label: `${size}px`,
+      label: size,
       value: String(size),
     };
     fontSize.push(obj);
@@ -67,7 +67,10 @@ function FontSize() {
   return (
     <Selector
       type="editor"
-      triggerClassName="w-fit bg-bg-base"
+      className="w-[78px] "
+      triggerClassName="bg-bg-base"
+      labelClassName="justify-start pl-1"
+      optionLabelClassName="justify-start pl-1"
       placeholder="16px"
       options={fontSize}
       onSelect={option => {
@@ -83,7 +86,7 @@ function FontSize() {
         }
       }}
       onInputChange={value => {
-        setSelectedFontSize({ label: value ? `${value}px` : '', value: value });
+        setSelectedFontSize({ label: value ? value : '', value: value });
 
         const safeSize = handleNumberChange(value);
         if (safeSize) {

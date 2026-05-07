@@ -135,7 +135,7 @@ export const Selector = <T extends Option>({
     : options;
 
   return (
-    <div ref={containerRef} className={cn('relative', className)}>
+    <div ref={containerRef} className={cn('relative text-center', className)}>
       <div
         className={cn(
           selectorVariants({ type, isOpen, hasValue }),
@@ -172,7 +172,7 @@ export const Selector = <T extends Option>({
           >
             <span
               className={cn(
-                'h-6 text-center text-text-primary truncate flex-1 min-w-0 flex items-center justify-center',
+                'h-6 text-text-primary truncate flex-1 min-w-0 flex items-center justify-center',
                 labelClassName
               )}
               style={selected?.style}
@@ -242,7 +242,7 @@ export const Selector = <T extends Option>({
             )}
             <span
               className={cn(
-                'h-7 leading-7 text-center flex-1 truncate min-w-0 flex-center',
+                'h-7 leading-7 flex-1 truncate min-w-0 flex-center',
                 optionLabelClassName
               )}
               style={option.style}
@@ -255,7 +255,7 @@ export const Selector = <T extends Option>({
         {onInputChange && (
           <li
             onClick={handleCustomMenuItemClick}
-            className="h-7 leading-7 px-1 py-0.5 text-center text-[13px] hover:bg-bg-sub cursor-pointer"
+            className="h-7 leading-7 px-1 py-0.5 text-[13px] hover:bg-bg-sub cursor-pointer"
           >
             직접입력
           </li>
