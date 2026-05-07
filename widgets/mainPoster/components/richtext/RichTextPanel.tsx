@@ -37,7 +37,7 @@ export const RichTextPanel = () => {
     fontStyle: string;
     underline: boolean;
   }>({
-    fontWeight: 'normal',
+    fontWeight: '400',
     fontStyle: 'normal',
     underline: false,
   });

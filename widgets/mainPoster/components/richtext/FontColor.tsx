@@ -23,7 +23,7 @@ const ColorIcon = ({ color }: { color: string }) => (
   >
     <path
       d="M2.46133 11H0L3.81354 0H6.74586L10.5442 11H8.09807L7.27762 8.46271H3.29696L2.46133 11ZM3.87431 6.68508H6.70028L5.31768 2.47652H5.24171L3.87431 6.68508Z"
-      fill="black"
+      fill="currentColor"
     />
     <line y1="13" x2="11" y2="13" stroke={color} strokeWidth="2" />
   </svg>

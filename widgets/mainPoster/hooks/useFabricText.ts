@@ -108,12 +108,27 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
   };
 
   const resetCharacterStyles = (activeObject: Textbox, styleObj: RichStyle) => {
-    if ('fontFamily' in styleObj) {
-      activeObject.removeStyle('fontFamily' as never);
-    }
+    if (!activeObject.styles) return;
 
-    if ('fontWeight' in styleObj) {
-      activeObject.removeStyle('fontWeight' as never);
+    const keys = Object.keys(styleObj) as Array<keyof RichStyle>;
+
+    for (const lineIndex in activeObject.styles) {
+      const line = activeObject.styles[lineIndex];
+      for (const charIndex in line) {
+        keys.forEach(key => {
+          if (isLayoutStyle({ [key]: styleObj[key] })) return;
+
+          if (line[charIndex] && key in line[charIndex]) {
+            delete line[charIndex][key];
+          }
+        });
+        if (Object.keys(line[charIndex]).length === 0) {
+          delete line[charIndex];
+        }
+      }
+      if (Object.keys(line).length === 0) {
+        delete activeObject.styles[lineIndex];
+      }
     }
   };
 
