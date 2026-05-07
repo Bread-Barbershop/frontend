@@ -1,5 +1,13 @@
 import { ChevronDown, Check } from 'lucide-react';
-import React, { useState, useRef, useEffect, ChangeEvent, useId } from 'react';
+import {
+  useState,
+  useRef,
+  useEffect,
+  ChangeEvent,
+  useId,
+  CSSProperties,
+  ReactNode,
+} from 'react';
 
 import { Input } from '@/components/atoms/input';
 import { cn } from '@/shared/utils/cn';
@@ -7,11 +15,12 @@ import { cn } from '@/shared/utils/cn';
 import { selectorVariants } from './Selector.style';
 
 interface Option {
-  label: string | React.ReactNode;
+  label: string | ReactNode;
   value: string;
+  style?: CSSProperties;
 }
 
-interface SelectorProps<T> {
+interface SelectorProps<T extends Option> {
   type?: 'normal' | 'editor';
   options: T[];
   placeholder?: string;
@@ -21,8 +30,8 @@ interface SelectorProps<T> {
   optionLabelClassName?: string;
   customInputClassName?: string;
   onInputChange?: (value: string) => void;
-  onSelect: (option: T | { label: string; value: string }) => void;
-  selected: T | { label: string; value: string } | null;
+  onSelect: (option: T | Option) => void;
+  selected: T | Option | null;
   showCheckbox?: boolean;
   addPopWidth?: number;
   searchable?: boolean;
@@ -166,6 +175,7 @@ export const Selector = <T extends Option>({
                 'h-6 text-center text-text-primary truncate flex-1 min-w-0 flex items-center justify-center',
                 labelClassName
               )}
+              style={selected?.style}
             >
               {hasValue ? selected?.label : placeholder}
             </span>
@@ -235,6 +245,7 @@ export const Selector = <T extends Option>({
                 'h-7 leading-7 text-center flex-1 truncate min-w-0 flex-center',
                 optionLabelClassName
               )}
+              style={option.style}
             >
               {option.label}
             </span>

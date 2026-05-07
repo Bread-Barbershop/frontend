@@ -3,7 +3,14 @@ import { useCallback, useMemo } from 'react';
 
 import { debounce } from '@/shared/utils/debounce';
 
-import { LayoutStyle, RichStyle, RichStyleKey, TextboxWithLock } from '../types/fabric';
+import {
+  LayoutStyle,
+  RichStyle,
+  RichStyleKey,
+  TextboxWithLock,
+  TextSelectionStyleKey,
+} from '../types/fabric';
+import { MIXED_VALUE, normalizeFontWeight } from '../utils/fontUtils';
 
 interface Props {
   syncActiveObjectInfo?: (canvas: Canvas) => void;
@@ -22,7 +29,7 @@ const isLayoutStyle = (style: RichStyle): style is LayoutStyle => {
 const getFallbackValue = (key: string) => {
   switch (key) {
     case 'fontWeight':
-      return 'normal';
+      return '400';
     case 'fontStyle':
       return 'normal';
     case 'underline':
@@ -61,6 +68,8 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
       originY: 'center',
       width: 100,
       fontSize: 16,
+      fontFamily: 'Pretendard',
+      fontWeight: '400',
       splitByGrapheme: true,
     });
 
@@ -96,6 +105,16 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
       }
     }
     return false;
+  };
+
+  const resetCharacterStyles = (activeObject: Textbox, styleObj: RichStyle) => {
+    if ('fontFamily' in styleObj) {
+      activeObject.removeStyle('fontFamily' as never);
+    }
+
+    if ('fontWeight' in styleObj) {
+      activeObject.removeStyle('fontWeight' as never);
+    }
   };
 
   const applyRichStyle = useCallback(
@@ -151,8 +170,29 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
       } else {
         if (isSelectionPresent) {
           activeObject.setSelectionStyles(finalStyle);
+          console.log('finalStyle:', finalStyle);
+          console.log('object fontFamily:', activeObject.fontFamily);
+          console.log('object fontWeight:', activeObject.fontWeight);
+          console.log('char styles:', activeObject.styles);
+          console.log(
+            'font loaded:',
+            document.fonts.check(
+              `${activeObject.fontWeight ?? 400} ${activeObject.fontSize ?? 16}px "${activeObject.fontFamily}"`
+            )
+          );
         } else {
           activeObject.set(finalStyle);
+          console.log('finalStyle:', finalStyle);
+          console.log('object fontFamily:', activeObject.fontFamily);
+          console.log('object fontWeight:', activeObject.fontWeight);
+          console.log('char styles:', activeObject.styles);
+          console.log(
+            'font loaded:',
+            document.fonts.check(
+              `${activeObject.fontWeight ?? 400} ${activeObject.fontSize ?? 16}px "${activeObject.fontFamily}"`
+            )
+          );
+          resetCharacterStyles(activeObject, finalStyle);
         }
       }
 
@@ -172,19 +212,54 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
   ) => {
     if (!activeObject) return;
 
-    const isSelectionPresent =
-      activeObject.selectionStart !== activeObject.selectionEnd;
+    const selectionStart = activeObject.selectionStart ?? 0;
+    const selectionEnd = activeObject.selectionEnd ?? 0;
 
-    const currentStyle = isSelectionPresent
-      ? (activeObject.getSelectionStyles(
-          activeObject.selectionStart,
-          activeObject.selectionStart + 1
-        )[0]?.[style] as string)
-      : (activeObject.get(style) as string);
+    const isSelectionPresent = selectionStart !== selectionEnd;
 
-    if (currentStyle !== undefined && currentStyle !== null) {
-      onChange(currentStyle);
+    const start = isSelectionPresent ? selectionStart : 0;
+    const end = isSelectionPresent
+      ? selectionEnd
+      : (activeObject.text?.length ?? 0);
+
+    const styles = activeObject.getSelectionStyles(start, end, true);
+
+    const values = styles
+      .map(styleObj => {
+        const key = style as TextSelectionStyleKey;
+        return styleObj[key];
+      })
+      .filter(value => value !== undefined && value !== null)
+      .map(value => {
+        if (style === 'fontWeight') {
+          return normalizeFontWeight(value);
+        }
+
+        return String(value);
+      });
+
+    if (values.length === 0) {
+      const objectValue = activeObject.get(style as keyof Textbox);
+
+      if (objectValue !== undefined && objectValue !== null) {
+        onChange(
+          style === 'fontWeight'
+            ? normalizeFontWeight(objectValue)
+            : String(objectValue)
+        );
+      }
+
+      return;
     }
+
+    const uniqueValues = new Set(values);
+
+    if (uniqueValues.size > 1) {
+      onChange(MIXED_VALUE);
+      return;
+    }
+
+    onChange(values[0]);
   };
 
   const setPatternOffset = (

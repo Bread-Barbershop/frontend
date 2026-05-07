@@ -1,19 +1,23 @@
 import { Textbox } from 'fabric';
-import { useEffect, useState } from 'react';
+import { CSSProperties, useEffect, useState } from 'react';
 
 import { Selector } from '@/components/molecules/selector';
 
 import { CUSTOM_FONTS } from '../../constants/fonts';
 import { useFabricContext } from '../../context/FabricContext';
+import { preloadPreviewFonts } from '../../utils/fontLoader';
+import {
+  createFontOption,
+  createFontStyle,
+  MIXED_VALUE,
+  mixedOption,
+  weightToLabel,
+} from '../../utils/fontUtils';
 
 type FontOption = {
   label: string;
   value: string;
-};
-type CustomFontOption = {
-  label: string;
-  value: string;
-  url: string;
+  style?: CSSProperties;
 };
 
 function FontFamily() {
@@ -22,23 +26,54 @@ function FontFamily() {
   const activeObject = canvas?.getActiveObject() as Textbox;
 
   const currentFontFamily =
-    (activeInfo?.styles?.fontFamily as string) || 'Times New Roman';
-  const [selectedFont, setSelectedFont] = useState<FontOption>({
-    label: currentFontFamily,
-    value: currentFontFamily,
+    (activeInfo?.styles?.fontFamily as string) || 'Pretendard';
+  const currentFontWeight = (activeInfo?.styles?.fontWeight as string) || '400';
+
+  const [selectedFont, setSelectedFont] = useState<FontOption>(
+    createFontOption(currentFontFamily)
+  );
+
+  const [selectedWeight, setSelectedWeight] = useState<FontOption>({
+    label: weightToLabel(currentFontWeight),
+    value: currentFontWeight,
   });
+
+  useEffect(() => {
+    preloadPreviewFonts();
+  }, []);
 
   useEffect(() => {
     if (!activeObject) {
       return;
     }
-    const handleSync = () =>
-      getRichStyles(activeObject, 'fontFamily', fontFamily =>
-        setSelectedFont({
-          label: fontFamily,
-          value: fontFamily,
-        })
-      );
+
+    const handleSync = () => {
+      getRichStyles(activeObject, 'fontFamily', fontFamily => {
+        setSelectedFont(
+          fontFamily === MIXED_VALUE
+            ? mixedOption
+            : {
+                label: fontFamily,
+                value: fontFamily,
+                style: {
+                  fontFamily: `"${fontFamily}", Pretendard`,
+                  fontWeight: 400,
+                },
+              }
+        );
+      });
+
+      getRichStyles(activeObject, 'fontWeight', fontWeight => {
+        setSelectedWeight(
+          fontWeight === MIXED_VALUE
+            ? mixedOption
+            : {
+                label: weightToLabel(fontWeight),
+                value: fontWeight,
+              }
+        );
+      });
+    };
 
     activeObject.on('changed', handleSync);
     activeObject.on('selection:changed', handleSync);
@@ -51,48 +86,104 @@ function FontFamily() {
     };
   }, [activeObject, getRichStyles]);
 
-  const customFontOption: CustomFontOption[] = CUSTOM_FONTS.map(f => ({
-    label: f.family,
-    value: f.family,
-    url: f.url,
-  }));
+  const families = Array.from(new Set(CUSTOM_FONTS.map(f => f.family)));
+  const familyOptions = families.map(family => createFontOption(family, 400));
 
-  // 전역에서 관리되는 폰트 로딩은 useTemplate 등에서 처리되지만,
-  // 에디터 진입 시 기본적으로 필요한 폰트들을 등록합니다.
-  useEffect(() => {
-    CUSTOM_FONTS.forEach(customFont => {
-      const existingFaces = Array.from(document.fonts);
-      const isAlreadyRegistered = existingFaces.some(
-        face =>
-          face.family === customFont.family && face.weight === customFont.weight
-      );
+  const availableWeights = CUSTOM_FONTS.filter(
+    f => f.family === selectedFont.value
+  );
+  const weightOptions = Array.from(new Set(availableWeights.map(f => f.weight)))
+    .sort((a, b) => Number(a) - Number(b))
+    .map(weight => ({
+      label: weightToLabel(weight),
+      value: weight,
+      style: createFontStyle(selectedFont.value, weight),
+    }));
 
-      if (!isAlreadyRegistered) {
-        const fontFace = new FontFace(customFont.family, customFont.url, {
-          style: customFont.style as any,
-          weight: customFont.weight as any,
-        });
-        document.fonts.add(fontFace);
-        fontFace.load();
-      }
-    });
-  }, []);
+  const getFallbackWeight = (weights: string[], currentWeight: string) => {
+    if (weights.includes(currentWeight)) return currentWeight;
+    if (weights.includes('400')) return '400';
+    return weights[0] ?? '400';
+  };
 
-  const fontOption = customFontOption;
+  if (!canvas) return null;
 
-  if (!canvas) return;
   return (
-    <div>
-      <Selector
-        placeholder="16px"
-        options={fontOption}
-        onSelect={option => {
-          applyRichStyle({ fontFamily: option.value }, canvas);
-        }}
-        selected={selectedFont}
-        showCheckbox={false}
-        searchable={true}
-      />
+    <div style={{ display: 'flex', gap: '8px' }}>
+      <div style={{ flex: 2 }}>
+        <Selector
+          className="w-[211px]"
+          placeholder="폰트 패밀리"
+          options={familyOptions}
+          onSelect={option => {
+            const newFamily = option.value;
+
+            const weights = CUSTOM_FONTS.filter(
+              f => f.family === newFamily
+            ).map(f => String(f.weight));
+
+            const currentWeight =
+              selectedWeight.value === MIXED_VALUE
+                ? '400'
+                : selectedWeight.value;
+
+            const nextWeight = getFallbackWeight(weights, currentWeight);
+
+            const nextSelectedWeight = {
+              label: weightToLabel(nextWeight),
+              value: nextWeight,
+            };
+
+            setSelectedFont({
+              label: newFamily,
+              value: newFamily,
+              style: {
+                fontFamily: `"${newFamily}", Pretendard`,
+                fontWeight: 400,
+              },
+            });
+            setSelectedWeight(nextSelectedWeight);
+
+            applyRichStyle(
+              {
+                fontFamily: newFamily,
+                fontWeight: nextWeight,
+              },
+              canvas
+            );
+          }}
+          selected={selectedFont}
+          showCheckbox={false}
+          searchable={true}
+        />
+      </div>
+      <div style={{ flex: 1 }}>
+        <Selector
+          className="w-[78px]"
+          placeholder="굵기"
+          options={weightOptions}
+          onSelect={option => {
+            const nextWeight = option.value;
+
+            setSelectedWeight({
+              label: weightToLabel(nextWeight),
+              value: nextWeight,
+              style: {
+                fontFamily:
+                  selectedFont.value === MIXED_VALUE
+                    ? 'Pretendard'
+                    : `"${selectedFont.value}", Pretendard`,
+                fontWeight: nextWeight,
+              },
+            });
+
+            applyRichStyle({ fontWeight: nextWeight }, canvas);
+          }}
+          selected={selectedWeight}
+          showCheckbox={false}
+          searchable={false}
+        />
+      </div>
     </div>
   );
 }
