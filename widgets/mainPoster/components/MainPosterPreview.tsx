@@ -209,22 +209,69 @@ export const MainPosterPreview = () => {
       const e = options.e as MouseEvent;
       if (e.button === 2) return; // 우클릭(Right Click)은 무시
 
-      const isBackground = options.target?.get('id') === 'background-layer';
+      let target = options.target;
+      const targetId = target?.get('id');
+      const isBackground = targetId === 'background-layer';
+      const isLocked = (target as any)?.isLocked;
+
+      const getKoreanType = (obj: any) => {
+        if (!obj) return '빈 공간';
+        if (obj.get('id') === 'background-layer') return '배경';
+        if (obj.isType('textbox') || obj.isType('itext') || obj.isType('text'))
+          return '텍스트';
+        if (obj.isType('image')) return '이미지';
+        if (
+          obj.isType('rect') ||
+          obj.isType('circle') ||
+          obj.isType('triangle')
+        )
+          return '도형';
+        if (obj.isType('path') || obj.isType('line')) return '선/경로';
+        return obj.type;
+      };
+
+      console.log(
+        `[Fabric] 마우스 다운: ${getKoreanType(target)} (ID: ${targetId}, 잠금: ${isLocked})`
+      );
+
+      // 잠긴 객체가 잡혔을 때, 그 위치에 있는 다른 (잠기지 않은) 객체를 찾아서 선택해줌
+      if (target && isLocked && !isBackground) {
+        const pointer =
+          options.scenePoint || (fabricCanvas as any).getScenePoint(e);
+        const objects = fabricCanvas.getObjects();
+
+        // 역순(맨 위 객체부터)으로 탐색하여 잠기지 않은 객체가 있는지 확인
+        for (let i = objects.length - 1; i >= 0; i--) {
+          const obj = objects[i];
+          if (
+            obj !== target &&
+            !(obj as any).isLocked &&
+            obj.containsPoint(pointer)
+          ) {
+            console.log(
+              `[Fabric] 잠긴 객체 투과 -> ${getKoreanType(obj)} 선택`
+            );
+
+            fabricCanvas.setActiveObject(obj);
+            target = obj; // 타겟 교체
+            break;
+          }
+        }
+      }
 
       // 빈 공간 클릭(드래그 선택 시작) 또는 배경 클릭 시 잠긴 객체의 selectable 해제
-      if (!options.target || isBackground) {
+      if (!target || isBackground) {
         fabricCanvas.getObjects().forEach(obj => {
-          const target = obj as FabricObjectWithLock;
-          // 클릭 대상이 아닌 경우에만 잠긴 객체나 배경 레이어를 선택 대상에서 제외 (드래그 선택용)
+          const t = obj as FabricObjectWithLock;
           if (
-            (target.isLocked || target.get('id') === 'background-layer') &&
-            target !== options.target
+            (t.isLocked || t.get('id') === 'background-layer') &&
+            t !== target
           ) {
-            target.set({ selectable: false });
+            t.set({ selectable: false });
           }
         });
 
-        if (!options.target) {
+        if (!target) {
           if (!fabricCanvas.isDrawingMode) {
             setActiveTab('background');
           }
@@ -233,6 +280,12 @@ export const MainPosterPreview = () => {
     };
 
     const handleMouseUp = () => {
+      if (
+        typeof window !== 'undefined' &&
+        window.location.pathname.startsWith('/dev')
+      ) {
+        console.log('[Fabric] 마우스 업: 선택 가능 상태 복구');
+      }
       // 드래그 종료 시 (또는 클릭 종료 시) 잠긴 객체와 배경 레이어의 selectable 다시 복구
       fabricCanvas.getObjects().forEach(obj => {
         const target = obj as FabricObjectWithLock;
