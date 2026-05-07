@@ -185,28 +185,8 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
       } else {
         if (isSelectionPresent) {
           activeObject.setSelectionStyles(finalStyle);
-          console.log('finalStyle:', finalStyle);
-          console.log('object fontFamily:', activeObject.fontFamily);
-          console.log('object fontWeight:', activeObject.fontWeight);
-          console.log('char styles:', activeObject.styles);
-          console.log(
-            'font loaded:',
-            document.fonts.check(
-              `${activeObject.fontWeight ?? 400} ${activeObject.fontSize ?? 16}px "${activeObject.fontFamily}"`
-            )
-          );
         } else {
           activeObject.set(finalStyle);
-          console.log('finalStyle:', finalStyle);
-          console.log('object fontFamily:', activeObject.fontFamily);
-          console.log('object fontWeight:', activeObject.fontWeight);
-          console.log('char styles:', activeObject.styles);
-          console.log(
-            'font loaded:',
-            document.fonts.check(
-              `${activeObject.fontWeight ?? 400} ${activeObject.fontSize ?? 16}px "${activeObject.fontFamily}"`
-            )
-          );
           resetCharacterStyles(activeObject, finalStyle);
         }
       }
