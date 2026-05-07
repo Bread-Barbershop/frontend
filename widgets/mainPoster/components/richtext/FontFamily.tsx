@@ -8,7 +8,6 @@ import { useFabricContext } from '../../context/FabricContext';
 import { preloadPreviewFonts } from '../../utils/fontLoader';
 import {
   createFontOption,
-  createFontStyle,
   MIXED_VALUE,
   mixedOption,
   weightToLabel,
@@ -70,6 +69,7 @@ function FontFamily() {
             : {
                 label: weightToLabel(fontWeight),
                 value: fontWeight,
+                style: { fontFamily: 'Pretendard', fontWeight: 400 },
               }
         );
       });
@@ -97,7 +97,7 @@ function FontFamily() {
     .map(weight => ({
       label: weightToLabel(weight),
       value: weight,
-      style: createFontStyle(selectedFont.value, weight),
+      style: { fontFamily: 'Pretendard', fontWeight: 400 },
     }));
 
   const getFallbackWeight = (weights: string[], currentWeight: string) => {
@@ -110,7 +110,7 @@ function FontFamily() {
 
   return (
     <div className="flex gap-3">
-      <Selector
+      <Selector<FontOption>
         className="w-[211px]"
         labelClassName="justify-start pl-1"
         optionLabelClassName="justify-start pl-1"
@@ -131,6 +131,7 @@ function FontFamily() {
           const nextSelectedWeight = {
             label: weightToLabel(nextWeight),
             value: nextWeight,
+            style: { fontFamily: 'Pretendard', fontWeight: 400 },
           };
 
           setSelectedFont({
@@ -156,7 +157,7 @@ function FontFamily() {
         searchable={true}
       />
 
-      <Selector
+      <Selector<FontOption>
         className="w-[112px]"
         labelClassName="justify-start pl-1"
         optionLabelClassName="justify-start pl-1"
@@ -169,11 +170,8 @@ function FontFamily() {
             label: weightToLabel(nextWeight),
             value: nextWeight,
             style: {
-              fontFamily:
-                selectedFont.value === MIXED_VALUE
-                  ? 'Pretendard'
-                  : `"${selectedFont.value}", Pretendard`,
-              fontWeight: nextWeight,
+              fontFamily: 'Pretendard',
+              fontWeight: 400,
             },
           });
 

@@ -30,8 +30,8 @@ interface SelectorProps<T extends Option> {
   optionLabelClassName?: string;
   customInputClassName?: string;
   onInputChange?: (value: string) => void;
-  onSelect: (option: T | Option) => void;
-  selected: T | Option | null;
+  onSelect: (option: T) => void;
+  selected: T | null;
   showCheckbox?: boolean;
   addPopWidth?: number;
   searchable?: boolean;
@@ -99,7 +99,7 @@ export const Selector = <T extends Option>({
   const handleCustomMenuItemClick = () => {
     setIsCustomInput(true);
     popoverRef.current?.hidePopover();
-    onSelect({ label: '', value: '' });
+    onSelect({ label: '', value: '' } as T);
   };
 
   useEffect(() => {
