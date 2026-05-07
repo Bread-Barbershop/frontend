@@ -1,21 +1,25 @@
-import { BulkData, FontOption, TextAlignOption } from '@/shared/types/block';
+import { ReactNode } from 'react';
+
+import { BulkData } from '@/shared/types/block';
 
 export function useBulkEditor(
   bulkData: BulkData,
   onBulkChange: (bulkData: BulkData) => void
 ) {
-  const handleFontSizeSelect = (
-    option: FontOption | { label: string; value: string }
-  ) => {
+  const handleFontSizeSelect = (option: {
+    label: string | ReactNode;
+    value: string;
+  }) => {
     const selected = option;
     onBulkChange({
       ...bulkData,
       fontSize: selected.value,
     });
   };
-  const handleFontFamilySelect = (
-    option: FontOption | { label: string; value: string }
-  ) => {
+  const handleFontFamilySelect = (option: {
+    label: string | ReactNode;
+    value: string;
+  }) => {
     const selected = option;
     onBulkChange({
       ...bulkData,
@@ -23,13 +27,14 @@ export function useBulkEditor(
     });
   };
 
-  const handleTextAlignSelect = (
-    option: TextAlignOption | { label: string; value: string }
-  ) => {
-    const selected = option as TextAlignOption;
+  const handleTextAlignSelect = (option: {
+    label: string | ReactNode;
+    value: string;
+  }) => {
+    const selected = option;
     onBulkChange({
       ...bulkData,
-      align: selected.value,
+      align: selected.value as any,
     });
   };
 

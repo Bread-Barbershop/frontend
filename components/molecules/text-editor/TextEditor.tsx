@@ -93,20 +93,22 @@ export function TextEditor({
 
   if (!editor) return null;
 
-  const handleFontSizeSelect = (
-    option: FontSizeOption | { label: string; value: string }
-  ) => {
+  const handleFontSizeSelect = (option: {
+    label: string | ReactNode;
+    value: string;
+  }) => {
     const selected = option as FontSizeOption;
     setFontSizeSelected(selected);
     editor.chain().focus().setFontSize(selected.value).run();
   };
 
-  const handleTextAlignSelect = (
-    option: TextAlignOption | { label: string; value: string }
-  ) => {
+  const handleTextAlignSelect = (option: {
+    label: string | ReactNode;
+    value: string;
+  }) => {
     const selected = option as TextAlignOption;
     setTextAlignSelected(selected);
-    editor.chain().focus().setTextAlign(selected.value).run();
+    editor.chain().focus().setTextAlign(selected.value as TextAlignValue).run();
   };
 
   const handleColorPickerToggle = () => {
