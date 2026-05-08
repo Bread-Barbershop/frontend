@@ -74,7 +74,7 @@ export const InterviewPreview = ({
         >
           {displayItems?.map((question, index) => (
             <div
-              key={`${question.questionId}-${index}`}
+              key={`${question.id}-${index}`}
               className={cn(
                 'w-full',
                 (displayItems?.length ?? 0) > 1 && index === 0 ? 'ml-6' : '',

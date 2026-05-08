@@ -43,7 +43,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
     questionId: string
   ) => {
     const newQuestions = (questions || []).map(q =>
-      q.questionId === questionId
+      q.id === questionId
         ? {
             ...q,
             question,
@@ -55,7 +55,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
 
   const handleQuestionListSelect = (content: string, _index?: number) => {
     const newQuestion = {
-      questionId: crypto.randomUUID(),
+      id: crypto.randomUUID(),
       question: content,
       answer: {
         messageJson: null,
@@ -73,7 +73,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
 
   const handleAnswerEditorChange = (questionId: string, json: JSONContent) => {
     const newQuestions = (questions || []).map(question =>
-      question.questionId === questionId
+      question.id === questionId
         ? {
             ...question,
             answer: {
@@ -91,7 +91,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
     file: (File | string)[]
   ) => {
     const newQuestions = (questions || []).map(question =>
-      question.questionId === questionId
+      question.id === questionId
         ? {
             ...question,
             image: file,
@@ -101,12 +101,12 @@ export const Interview = ({ blockInfo, id }: Props) => {
 
     const allImages = newQuestions.flatMap(s => s.image);
     updateBlock(id, { questions: newQuestions });
-    updateImage(id, allImages);
+    updateImage(questionId, allImages);
   };
 
   const handleQuestionImageDelete = (questionId: string) => {
     const newQuestions = (questions || []).map(question =>
-      question.questionId === questionId
+      question.id === questionId
         ? {
             ...question,
             image: [],
@@ -116,22 +116,22 @@ export const Interview = ({ blockInfo, id }: Props) => {
 
     const allImages = newQuestions.flatMap(s => s.image);
     updateBlock(id, { questions: newQuestions });
-    updateImage(id, allImages);
+    updateImage(questionId, allImages);
   };
 
   const handleQuestionDelete = (questionId: string) => {
     const newQuestions = (questions || []).filter(
-      question => question.questionId !== questionId
+      question => question.id !== questionId
     );
     const newImages = newQuestions.flatMap(s => s.image);
     updateBlock(id, { questions: newQuestions });
-    updateImage(id, newImages);
+    updateImage(questionId, newImages);
   };
 
   useEffect(() => {
     if ((questions || []).length === 0) {
       const initQuestions = {
-        questionId: crypto.randomUUID(),
+        id: crypto.randomUUID(),
         question: '',
         answer: {
           messageJson: null,
@@ -193,7 +193,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
 
       <div className="flex flex-col gap-2 w-full">
         {(questions || []).map((question, index) => (
-          <div key={question.questionId} className="flex flex-col gap-1">
+          <div key={question.id} className="flex flex-col gap-1">
             {index !== 0 && <Divider />}
             <InterviewItem
               id={id}
@@ -201,18 +201,16 @@ export const Interview = ({ blockInfo, id }: Props) => {
               questionLength={(questions || []).length}
               editorResetKey={editorResetKey}
               onQuestionChange={e =>
-                handleQuestionChange(e.target.value, question.questionId)
+                handleQuestionChange(e.target.value, question.id)
               }
               onEditorChange={json =>
-                handleAnswerEditorChange(question.questionId, json)
+                handleAnswerEditorChange(question.id, json)
               }
               onPictureChange={file =>
-                handleQuestionImageChange(question.questionId, file)
+                handleQuestionImageChange(question.id, file)
               }
-              onPictureDelete={() =>
-                handleQuestionImageDelete(question.questionId)
-              }
-              onDelete={() => handleQuestionDelete(question.questionId)}
+              onPictureDelete={() => handleQuestionImageDelete(question.id)}
+              onDelete={() => handleQuestionDelete(question.id)}
             />
           </div>
         ))}

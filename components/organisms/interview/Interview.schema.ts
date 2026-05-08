@@ -17,7 +17,7 @@ export const interviewSchema = {
     },
     questions: {
       default: [] as {
-        questionId: string;
+        id: string;
         question: string;
         answer: {
           messageJson: JSONContent | null;
