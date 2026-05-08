@@ -30,9 +30,8 @@ function CoupleIntroductionPreview({
   const {
     groom = '',
     bride = '',
-    groomImage = [],
-    brideImage = [],
-    images = [],
+    groomImage = { id: '', image: [] },
+    brideImage = { id: '', image: [] },
     title = '',
     checkedEnglishTitle = false,
     englishTitle = '',
@@ -42,25 +41,27 @@ function CoupleIntroductionPreview({
     brideFirst = false,
   } = blockInfo.props;
 
-  const hasGroomImageSlot = Array.isArray(groomImage) && groomImage.length > 0;
-  const hasBrideImageSlot = Array.isArray(brideImage) && brideImage.length > 0;
-  const transportImages = Array.isArray(images) ? images : [];
+  const hasGroomImageSlot =
+    Array.isArray(groomImage.image) && groomImage.image.length > 0;
+  const hasBrideImageSlot =
+    Array.isArray(brideImage.image) && brideImage.image.length > 0;
+  //const transportImages = []; //Array.isArray(images) ? images : [];
 
-  let groomTransportSource = pickResolvableImageSource(transportImages[0]);
-  let brideTransportSource = pickResolvableImageSource(transportImages[1]);
+  let groomTransportSource = pickResolvableImageSource(groomImage.image[0]);
+  let brideTransportSource = pickResolvableImageSource(brideImage.image[0]);
 
-  if (transportImages.length === 1) {
+  if (groomImage.image?.length === 1 && hasBrideImageSlot) {
     if (hasGroomImageSlot && !hasBrideImageSlot) {
-      groomTransportSource = pickResolvableImageSource(transportImages[0]);
+      groomTransportSource = pickResolvableImageSource(groomImage.image[0]);
       brideTransportSource = null;
     } else if (!hasGroomImageSlot && hasBrideImageSlot) {
       groomTransportSource = null;
-      brideTransportSource = pickResolvableImageSource(transportImages[0]);
+      brideTransportSource = pickResolvableImageSource(brideImage.image[0]);
     }
   }
 
-  const groomFallbackSource = pickResolvableImageSource(groomImage?.[0]);
-  const brideFallbackSource = pickResolvableImageSource(brideImage?.[0]);
+  const groomFallbackSource = pickResolvableImageSource(groomImage?.image?.[0]);
+  const brideFallbackSource = pickResolvableImageSource(brideImage?.image?.[0]);
   const groomImageSrc = useResolvedImageSource(
     groomTransportSource ?? groomFallbackSource
   );

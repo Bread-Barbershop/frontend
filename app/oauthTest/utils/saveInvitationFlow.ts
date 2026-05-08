@@ -58,6 +58,7 @@ type InvitationPayload = {
   blocks: EditorBlock[];
   bgm: BgmData;
   mainPoster: MainPosterData;
+  invitationImage: UploadTask[];
 };
 
 type BulkJson = {
@@ -257,6 +258,7 @@ export async function saveInvitationFlow(params: {
     blocks: newData,
     bgm: finalBgm,
     mainPoster: mainPoster,
+    invitationImage: images,
   };
 
   // 편집 데이터가 기록될 json 파일 생성.

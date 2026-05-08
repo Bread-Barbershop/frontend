@@ -112,7 +112,6 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
           data.audios.files ?? null,
           controller.signal
         );
-
         setSavedData({
           bulkData: updatedBulkData,
           blocks: updatedBlocksWithImages,
@@ -123,6 +122,7 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
           },
           imageFolderId: data.imageFolderId,
           audioFolderId: data.audioFolderId,
+          invitationImage: data.config.invitationImage,
         });
       } catch (err) {
         if (err instanceof DOMException && err.name === 'AbortError') return;

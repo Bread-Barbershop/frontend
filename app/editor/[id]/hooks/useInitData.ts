@@ -16,8 +16,14 @@ export const useInitData = ({
   uuid: string;
   invitationFolderId: string;
 }) => {
-  const { bulkData, blocks, bgm, imageFolderId, audioFolderId } =
-    savedData || {};
+  const {
+    bulkData,
+    blocks,
+    bgm,
+    imageFolderId,
+    audioFolderId,
+    invitationImage,
+  } = savedData || {};
 
   const { setSelectedBgmId, setIsLoop, setUserFile } = useBgmStore(
     useShallow(state => ({
@@ -58,13 +64,13 @@ export const useInitData = ({
   const initEditStore = useCallback(() => {
     if (blocks) {
       setBlock(blocks);
-      console.log('blocks', blocks);
-      blocks.forEach(block => {
-        const results = extractFileGroups(block);
-        results.forEach(result => {
-          updateImage(result.id, result.image);
+
+      const imageMap = extractFileGroups(blocks, invitationImage ?? []);
+      if (imageMap) {
+        imageMap.forEach((value, key) => {
+          updateImage(key, value.file);
         });
-      });
+      }
     }
     if (imageFolderId) {
       setImageFolderId(imageFolderId);
@@ -92,6 +98,7 @@ export const useInitData = ({
     setInvitationUuid,
     selectedBlock,
     setInvitationFolderId,
+    invitationImage,
   ]);
 
   const initBgmStore = useCallback(() => {

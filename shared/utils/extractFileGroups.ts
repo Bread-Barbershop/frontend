@@ -1,53 +1,66 @@
-export function extractFileGroups(data: {
-  id: string;
-  props: Record<string, any>;
-}): Record<string, any>[] {
-  const results: Record<string, any>[] = [];
+import { EditorBlock } from '../types/block';
+
+export function extractFileGroups(
+  block: EditorBlock[],
+  imageList: { id: string; file: any }[]
+) {
+  if (!block || !imageList || imageList.length === 0) return;
+
+  // 빠른 조회를 위해 imageList를 Map으로 변환
+  const imageMap = new Map(imageList.map(item => [item.id, item]));
 
   const isFile = (v: unknown): v is File => v instanceof File;
   const isFileArr = (v: unknown): v is File[] =>
     Array.isArray(v) && v.length > 0 && v.every(isFile);
 
-  // 객체에서 File/File[] 필드만 추출
-  function pickFiles(obj: Record<string, any>) {
-    const out: Record<string, File | File[]> = {};
-    for (const [k, v] of Object.entries(obj)) {
-      if (k === 'id') continue;
-      if (isFile(v) || isFileArr(v)) out[k] = v;
+  function traverse(obj: any) {
+    if (!obj || typeof obj !== 'object') return;
+
+    // 배열인 경우 각 요소를 탐색
+    if (Array.isArray(obj)) {
+      obj.forEach(traverse);
+      return;
     }
-    return Object.keys(out).length ? out : null;
-  }
 
-  // props 직속 File → 최상위 id로 묶기
-  const direct = pickFiles(data.props);
-  if (direct) {
-    results.push({ id: data.id, ...direct });
-  }
+    // id가 있고 imageList에 존재하는 경우
+    const id = obj.id;
+    if (id && imageMap.has(id)) {
+      const target = imageMap.get(id)!;
 
-  // 재귀 탐색
-  function traverse(value: any, parentId: string | number) {
-    if (value == null || typeof value !== 'object' || isFile(value)) return;
-
-    if (Array.isArray(value)) {
-      value.forEach(item => {
-        if (typeof item === 'object' && item !== null && !isFile(item)) {
-          const id = item.id ?? parentId;
-          const files = pickFiles(item);
-          if (files) results.push({ id, ...files });
-
-          // 더 깊은 중첩 탐색
-          Object.values(item).forEach(v => traverse(v, id));
+      // 1. 같은 레벨에서 File 또는 File[] 찾기
+      for (const [key, value] of Object.entries(obj)) {
+        if (key === 'id') continue;
+        if (isFile(value) || isFileArr(value)) {
+          target.file = value;
+          break;
         }
-      });
-    } else {
-      Object.values(value).forEach(v => traverse(v, parentId));
+      }
+
+      // 2. EditorBlock의 경우 props 내부에서도 확인
+      if (obj.props && typeof obj.props === 'object') {
+        for (const [_, value] of Object.entries(obj.props)) {
+          if (isFile(value) || isFileArr(value)) {
+            target.file = value;
+            break;
+          }
+        }
+      }
+    }
+
+    // 모든 속성에 대해 재귀적으로 탐색 (File 객체는 제외)
+    for (const key in obj) {
+      const value = obj[key];
+      if (
+        key !== 'id' &&
+        value &&
+        typeof value === 'object' &&
+        !(value instanceof File)
+      ) {
+        traverse(value);
+      }
     }
   }
 
-  // props의 비-File 값들을 재귀 탐색
-  for (const [, v] of Object.entries(data.props)) {
-    if (!isFile(v) && !isFileArr(v)) traverse(v, data.id);
-  }
-
-  return results;
+  traverse(block);
+  return imageMap;
 }
