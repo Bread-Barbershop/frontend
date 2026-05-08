@@ -99,9 +99,8 @@ export const Interview = ({ blockInfo, id }: Props) => {
         : question
     );
 
-    const allImages = newQuestions.flatMap(s => s.image);
     updateBlock(id, { questions: newQuestions });
-    updateImage(questionId, allImages);
+    updateImage(questionId, file);
   };
 
   const handleQuestionImageDelete = (questionId: string) => {
@@ -114,18 +113,17 @@ export const Interview = ({ blockInfo, id }: Props) => {
         : question
     );
 
-    const allImages = newQuestions.flatMap(s => s.image);
     updateBlock(id, { questions: newQuestions });
-    updateImage(questionId, allImages);
+    updateImage(questionId, []);
   };
 
   const handleQuestionDelete = (questionId: string) => {
     const newQuestions = (questions || []).filter(
       question => question.id !== questionId
     );
-    const newImages = newQuestions.flatMap(s => s.image);
+
     updateBlock(id, { questions: newQuestions });
-    updateImage(questionId, newImages);
+    updateImage(questionId, []);
   };
 
   useEffect(() => {

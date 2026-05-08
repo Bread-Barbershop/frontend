@@ -17,7 +17,7 @@ export const noticeSchema = {
     },
     noticeList: {
       default: [] as {
-        noticeId: string;
+        id: string;
         notice: string;
         content: {
           messageJson: JSONContent | null;

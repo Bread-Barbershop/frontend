@@ -11,7 +11,7 @@ import type { JSONContent } from '@tiptap/react';
 interface Props {
   id: string;
   notice: {
-    noticeId: string;
+    id: string;
     notice: string;
     content: {
       messageJson: JSONContent | null;
@@ -60,7 +60,7 @@ export const NoticeItem = ({
       <div className="flex flex-col gap-2">
         <NavigationBar className="min-h-auto h-8">내용</NavigationBar>
         <TextEditor
-          key={`${id}-${notice.noticeId}-${editorResetKey}`}
+          key={`${id}-${notice.id}-${editorResetKey}`}
           value={notice.content.messageJson}
           defaultText="내용을 입력해 주세요"
           defaultAlign="center"

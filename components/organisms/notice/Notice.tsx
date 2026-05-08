@@ -43,7 +43,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
 
   const handleNoticeChange = (notice: string | null, noticeId: string) => {
     const newNoticeList = (noticeList || []).map(n =>
-      n.noticeId === noticeId
+      n.id === noticeId
         ? {
             ...n,
             notice,
@@ -55,7 +55,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
 
   const handleNoticeListSelect = (content: string, _index?: number) => {
     const newNotice = {
-      noticeId: crypto.randomUUID(),
+      id: crypto.randomUUID(),
       notice: content,
       content: {
         messageJson: null,
@@ -73,7 +73,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
 
   const handleNoticeEditorChange = (noticeId: string, json: JSONContent) => {
     const newNoticeList = (noticeList || []).map(notice =>
-      notice.noticeId === noticeId
+      notice.id === noticeId
         ? {
             ...notice,
             content: {
@@ -91,7 +91,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
     file: (File | string)[]
   ) => {
     const newNoticeList = (noticeList || []).map(notice =>
-      notice.noticeId === noticeId
+      notice.id === noticeId
         ? {
             ...notice,
             image: file,
@@ -99,14 +99,13 @@ export const Notice = ({ blockInfo, id }: Props) => {
         : notice
     );
 
-    const allImages = newNoticeList.flatMap(s => s.image);
     updateBlock(id, { noticeList: newNoticeList });
-    updateImage(id, allImages);
+    updateImage(noticeId, file);
   };
 
   const handleNoticePictureDelete = (noticeId: string) => {
     const newNoticeList = (noticeList || []).map(notice =>
-      notice.noticeId === noticeId
+      notice.id === noticeId
         ? {
             ...notice,
             image: [],
@@ -114,24 +113,22 @@ export const Notice = ({ blockInfo, id }: Props) => {
         : notice
     );
 
-    const allImages = newNoticeList.flatMap(s => s.image);
     updateBlock(id, { noticeList: newNoticeList });
-    updateImage(id, allImages);
+    updateImage(noticeId, []);
   };
 
   const handleDeleteNotice = (noticeId: string) => {
     const newNoticeList = (noticeList || []).filter(
-      notice => notice.noticeId !== noticeId
+      notice => notice.id !== noticeId
     );
-    const newImages = newNoticeList.flatMap(s => s.image);
     updateBlock(id, { noticeList: newNoticeList });
-    updateImage(id, newImages);
+    updateImage(noticeId, []);
   };
 
   useEffect(() => {
     if ((noticeList || []).length === 0) {
       const initNotice = {
-        noticeId: crypto.randomUUID(),
+        id: crypto.randomUUID(),
         notice: '',
         content: {
           messageJson: null,
@@ -193,7 +190,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
 
       <div className="flex flex-col gap-2 w-full">
         {(noticeList || []).map((notice, index) => (
-          <div key={notice.noticeId} className="flex flex-col gap-1">
+          <div key={notice.id} className="flex flex-col gap-1">
             {index !== 0 && <Divider />}
             <NoticeItem
               id={id}
@@ -201,16 +198,14 @@ export const Notice = ({ blockInfo, id }: Props) => {
               noticeLength={(noticeList || []).length}
               editorResetKey={editorResetKey}
               onNoticeChange={e =>
-                handleNoticeChange(e.target.value, notice.noticeId)
+                handleNoticeChange(e.target.value, notice.id)
               }
-              onEditorChange={json =>
-                handleNoticeEditorChange(notice.noticeId, json)
-              }
+              onEditorChange={json => handleNoticeEditorChange(notice.id, json)}
               onPictureChange={file =>
-                handleNoticePictureChange(notice.noticeId, file)
+                handleNoticePictureChange(notice.id, file)
               }
-              onPictureDelete={() => handleNoticePictureDelete(notice.noticeId)}
-              onDelete={() => handleDeleteNotice(notice.noticeId)}
+              onPictureDelete={() => handleNoticePictureDelete(notice.id)}
+              onDelete={() => handleDeleteNotice(notice.id)}
             />
           </div>
         ))}
