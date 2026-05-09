@@ -89,31 +89,21 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
     const newSpeakers = (speakers || []).map(speaker =>
       speaker.id === speakerId ? { ...speaker, image: file } : speaker
     );
-    const allImages = newSpeakers.map(s => s.image[0]);
 
     updateBlock(id, {
       speakers: newSpeakers,
-      images: allImages,
     });
-    updateImage(
-      id,
-      allImages.filter((f): f is File | string => !!f)
-    );
+    updateImage(speakerId, file);
   };
   const handlePictureDelete = (speakerId: string) => {
     const newSpeakers = (speakers || []).map(speaker =>
       speaker.id === speakerId ? { ...speaker, image: [] } : speaker
     );
-    const allImages = newSpeakers.map(s => s.image[0]);
 
     updateBlock(id, {
       speakers: newSpeakers,
-      images: allImages,
     });
-    updateImage(
-      id,
-      allImages.filter((f): f is File | string => !!f)
-    );
+    updateImage(speakerId, []);
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -128,7 +118,6 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
     const newSpeakers = [...(speakers || []), newSpeaker];
     updateBlock(id, {
       speakers: newSpeakers,
-      images: newSpeakers.map(s => s.image[0]),
     });
   };
 
@@ -142,10 +131,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
       speakers: newSpeakers,
       images: newImages,
     });
-    updateImage(
-      id,
-      newImages.filter((f): f is File | string => !!f)
-    );
+    updateImage(speakerId, []);
   };
 
   useEffect(() => {
