@@ -4,8 +4,6 @@ export function extractFileGroups(
   block: EditorBlock[],
   imageList: { id: string; file: any }[]
 ) {
-  console.log(imageList);
-  console.log(block);
   if (!block || !imageList || imageList.length === 0) return;
 
   // 빠른 조회를 위해 imageList를 Map으로 변환

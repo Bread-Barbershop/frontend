@@ -67,7 +67,6 @@ export const useInitData = ({
 
       const imageMap = extractFileGroups(blocks, invitationImage ?? []);
       if (imageMap) {
-        console.log('imageMap', imageMap);
         imageMap.forEach((value, key) => {
           updateImage(key, value.file);
         });
