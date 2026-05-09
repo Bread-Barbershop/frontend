@@ -10,6 +10,11 @@ import {
   LoadInvitationResponse,
   PublishResult,
 } from '@/app/dashboard/types';
+import { DEFAULT_IMAGE_URL } from '@/app/guest/[id]/constants/constant';
+import {
+  DEFAULT_DESCRIPTION,
+  DEFAULT_TITLE,
+} from '@/shared/utils/shareUrlDefaults';
 
 type DeleteStateMap = Record<string, boolean>;
 type DeleteErrorMap = Record<string, string | null>;
@@ -27,10 +32,10 @@ type ShareUrlResponse = {
   error?: string;
 };
 
-function resolveShareImageUrl(imageFileId?: string) {
+function resolveShareImageUrl(imageFileId?: string, origin?: string) {
   return imageFileId
     ? `https://lh3.googleusercontent.com/d/${imageFileId}`
-    : 'https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png';
+    : `${origin || window.location.origin}${DEFAULT_IMAGE_URL}`;
 }
 
 function shareInvitationWithKakao(shareData: KakaoShareData, origin: string) {
@@ -88,10 +93,9 @@ function shareInvitationWithKakao(shareData: KakaoShareData, origin: string) {
   window.Kakao.Share.sendDefault({
     objectType: 'feed',
     content: {
-      title: shareData.title || '소중한 분들을 초대합니다.',
-      description:
-        shareData.description || '함께해 주시면 더없이 기쁘겠습니다.',
-      imageUrl: resolveShareImageUrl(shareData.imageFileId),
+      title: shareData.title || DEFAULT_TITLE,
+      description: shareData.description || DEFAULT_DESCRIPTION,
+      imageUrl: resolveShareImageUrl(shareData.imageFileId, origin),
       link: {
         mobileWebUrl: safeLinkUrl,
         webUrl: safeLinkUrl,

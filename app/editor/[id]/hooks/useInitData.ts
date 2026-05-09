@@ -16,14 +16,8 @@ export const useInitData = ({
   uuid: string;
   invitationFolderId: string;
 }) => {
-  const {
-    bulkData,
-    blocks,
-    bgm,
-    imageFolderId,
-    audioFolderId,
-    invitationImage,
-  } = savedData || {};
+  const { bulkData, blocks, bgm, shareUrl, imageFolderId, audioFolderId, invitationImage } =
+    savedData || {};
 
   const { setSelectedBgmId, setIsLoop, setUserFile } = useBgmStore(
     useShallow(state => ({
@@ -45,6 +39,7 @@ export const useInitData = ({
     setTitleData,
     setBackgroundColor,
     setIsZoom,
+    setShareUrl,
   } = useEditorStore(
     useShallow(state => ({
       setBlock: state.setBlock,
@@ -58,6 +53,7 @@ export const useInitData = ({
       setTitleData: state.setTitleData,
       setBackgroundColor: state.setBackgroundColor,
       setIsZoom: state.setIsZoom,
+      setShareUrl: state.setShareUrl,
     }))
   );
 
@@ -84,6 +80,9 @@ export const useInitData = ({
     if (invitationFolderId) {
       setInvitationFolderId(invitationFolderId);
     }
+    if (shareUrl) {
+      setShareUrl(shareUrl);
+    }
     selectedBlock('mainPoster');
   }, [
     blocks,
@@ -91,6 +90,7 @@ export const useInitData = ({
     audioFolderId,
     uuid,
     invitationFolderId,
+    shareUrl,
     setBlock,
     updateImage,
     setImageFolderId,
@@ -99,6 +99,7 @@ export const useInitData = ({
     selectedBlock,
     setInvitationFolderId,
     invitationImage,
+    setShareUrl,
   ]);
 
   const initBgmStore = useCallback(() => {

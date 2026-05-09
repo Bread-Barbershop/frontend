@@ -9,7 +9,7 @@ export const toStyle = (
 ): React.CSSProperties => ({
   fontSize: isEng ? '13px' : data.fontSize,
   fontFamily: data.font.startsWith('font-') ? `var(--${data.font})` : undefined,
-  fontWeight: data.bold ? '700' : isTitle ? '500' : '400',
+  fontWeight: data.bold ? '600' : '400',
   fontStyle: data.italic ? 'italic' : 'normal',
   textAlign: data.align,
   color: data.color,

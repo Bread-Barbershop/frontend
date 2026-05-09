@@ -4,7 +4,7 @@ export const TITLE_BULK_DATA: BulkData = {
   font: 'font-maruburi',
   fontSize: '20px',
   color: '#FA7564',
-  bold: false,
+  bold: true,
   italic: false,
   align: 'center',
   isDefault: false,

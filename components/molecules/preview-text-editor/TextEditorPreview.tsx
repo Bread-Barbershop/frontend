@@ -89,6 +89,7 @@ export function TextEditorPreview({
             onSelect={handleFontFamilySelect}
             placeholder="폰트 변경"
             className="font-semibold w-20"
+            labelClassName="block px-1 text-left leading-6"
             addPopWidth={40}
           />
           <Selector<FontOption>
@@ -133,6 +134,10 @@ export function TextEditorPreview({
             options={TEXT_ALIGN_OPTIONS}
             selected={textAlignSelected}
             onSelect={handleTextAlignSelect}
+            className="w-14"
+            showCheckbox={false}
+            labelClassName="h-auto min-h-6 overflow-visible [&_svg]:size-5 [&_svg]:shrink-0"
+            optionLabelClassName="h-auto min-h-7 leading-none overflow-visible [&_svg]:size-5 [&_svg]:shrink-0"
           />
         </div>
       </div>

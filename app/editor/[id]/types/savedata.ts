@@ -1,6 +1,10 @@
 import { DriveListResponse } from '@/app/api/drive/_lib/getSaveDataFetch';
 import { BgmData } from '@/app/oauthTest/utils/saveInvitationFlow';
-import { BulkData, EditorBlock } from '@/shared/types/block';
+import {
+  BulkData,
+  PersistedEditorBlock,
+  ShareUrlState,
+} from '@/shared/types/block';
 
 export interface BgmFile {
   bgmInfo: BgmData | null;
@@ -17,9 +21,10 @@ export interface SavedData {
     bodyData: BulkData;
     isZoom: boolean;
   };
-  blocks: EditorBlock[];
+  blocks: PersistedEditorBlock[];
   mainPoster: string;
   bgm: BgmFile;
+  shareUrl: ShareUrlState;
   imageFolderId: string;
   audioFolderId: string;
   invitationImage: UploadTask[];
@@ -32,7 +37,8 @@ export interface JsonData {
     bodyData: BulkData;
     isZoom: boolean;
   };
-  blocks: EditorBlock[]; // singular to match store
+  blocks: PersistedEditorBlock[]; // singular to match store
+  shareUrl?: ShareUrlState;
   mainPoster: string;
   bgm: BgmData;
   invitationImage: UploadTask[];

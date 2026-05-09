@@ -2,6 +2,7 @@
 
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
+import { createDefaultShareUrlState } from '@/shared/utils/shareUrlDefaults';
 
 import { escapeDriveQueryValue } from './escapeQueryValue';
 
@@ -23,6 +24,7 @@ const DATA_JSON_KIND = 'invitation_data_json';
 
 const DEFAULT_DATA_JSON_PAYLOAD = {
   blocks: [],
+  shareUrl: createDefaultShareUrlState(),
   bgm: {
     selectedBgmId: null,
     isLoop: false,

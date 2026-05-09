@@ -11,45 +11,44 @@ import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrap
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 
-import { SHARE_NOTICES } from './constants/contant';
+import { SHARE_NOTICES } from './constants/share';
 
-interface Props {
-  blockInfo: EditorBlock<'shareUrl'>;
-  id: string;
-}
+const SHARE_URL_IMAGE_ID = 'shareUrl';
 
-function ShareUrl({ blockInfo, id }: Props) {
+function ShareUrl() {
   const [activeTab, setActiveTab] = useState<'url' | 'kakao'>('url');
-  const { block, updateBlock, updateImage } = useEditorStore(
+  const { block, shareUrl, updateShareUrl, updateImage } = useEditorStore(
     useShallow(state => ({
       block: state.block,
-      updateBlock: state.updateBlock,
+      shareUrl: state.shareUrl,
+      updateShareUrl: state.updateShareUrl,
       updateImage: state.updateImage,
     }))
   );
 
   // 오시는 길 블록의 예식장명과 주소 설정 여부 확인
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const placeBlock = block.find((b: any) => b.component === 'place') as any;
+  const placeBlock = block.find(
+    (b): b is EditorBlock<'place'> => b.component === 'place'
+  );
   const hasValidLocation = Boolean(
     placeBlock &&
-    placeBlock.props.lat !== undefined &&
-    placeBlock.props.lng !== undefined
+    typeof placeBlock.props.lat === 'number' &&
+    typeof placeBlock.props.lng === 'number'
   );
 
   const handleChange = ({
     target: { name, value },
   }: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    updateBlock(id, { [name]: value });
+    updateShareUrl({ [name]: value } as Partial<typeof shareUrl>);
   };
 
   const handleCheckboxChange = ({
     target: { checked, name },
   }: React.ChangeEvent<HTMLInputElement>) => {
     if (name === 'showLocationButton') {
-      if (!hasValidLocation) return;
-      updateBlock(id, { showLocationButton: checked });
-      updateBlock(id, {
+      if (!hasValidLocation || !placeBlock) return;
+      updateShareUrl({ showLocationButton: checked });
+      updateShareUrl({
         locationInfo: {
           lat: placeBlock.props.lat,
           lng: placeBlock.props.lng,
@@ -57,23 +56,19 @@ function ShareUrl({ blockInfo, id }: Props) {
         },
       });
     } else if (name === 'showShareButton') {
-      updateBlock(id, { showShareButton: checked });
+      updateShareUrl({ showShareButton: checked });
     }
   };
 
   const handlePictureChange = (newFiles: (File | string)[]) => {
-    const props = (block as EditorBlock<'shareUrl'>[]).find(
-      b => b.id === id
-    )?.props;
     const isKakaoTab = activeTab === 'kakao';
 
     // 각 탭의 이미지 리스트 결정 (현재 탭인 경우 새 파일 합산)
-    const kakaoImages = isKakaoTab ? newFiles : (props?.images ?? []);
-    const urlImages = !isKakaoTab ? newFiles : (props?.urlImage ?? []);
+    const kakaoImages = isKakaoTab ? newFiles : (shareUrl.images ?? []);
+    const urlImages = !isKakaoTab ? newFiles : (shareUrl.urlImage ?? []);
 
-    // 1. 블록 데이터 업데이트 (현재 탭의 필드만 업데이트)
-    updateBlock(
-      id,
+    // 1. 공유 URL 전역 상태 업데이트 (현재 탭 필드만 반영)
+    updateShareUrl(
       isKakaoTab ? { images: kakaoImages } : { urlImage: urlImages }
     );
 
@@ -82,7 +77,7 @@ function ShareUrl({ blockInfo, id }: Props) {
       f => f instanceof File
     ) as File[];
 
-    updateImage(id, allFilesToUpload);
+    updateImage(SHARE_URL_IMAGE_ID, allFilesToUpload);
   };
 
   return (
@@ -110,7 +105,7 @@ function ShareUrl({ blockInfo, id }: Props) {
           카카오
         </div>
       </nav>
-      <div className="w-full flex flex-col gap-1">
+      <div className="w-full flex flex-col gap-1 mb-2">
         <TextField
           key={`title-${activeTab}`}
           label="제목"
@@ -119,10 +114,7 @@ function ShareUrl({ blockInfo, id }: Props) {
             name: activeTab === 'kakao' ? 'title' : 'urlTitle',
             placeholder: '소중한 분들을 초대합니다.',
             onChange: handleChange,
-            value:
-              activeTab === 'kakao'
-                ? blockInfo.props.title
-                : blockInfo.props.urlTitle,
+            value: activeTab === 'kakao' ? shareUrl.title : shareUrl.urlTitle,
           }}
         />
         <div className="flex flex-col gap-1.5 py-1.5">
@@ -135,8 +127,8 @@ function ShareUrl({ blockInfo, id }: Props) {
             onChange={handleChange}
             value={
               activeTab === 'kakao'
-                ? blockInfo.props.description
-                : blockInfo.props.urlDescription
+                ? shareUrl.description
+                : shareUrl.urlDescription
             }
           />
         </div>
@@ -145,11 +137,7 @@ function ShareUrl({ blockInfo, id }: Props) {
           label="사진"
           className="py-1"
           multiple={false}
-          value={
-            activeTab === 'kakao'
-              ? blockInfo.props.images
-              : blockInfo.props.urlImage
-          }
+          value={activeTab === 'kakao' ? shareUrl.images : shareUrl.urlImage}
           onChange={handlePictureChange}
         />
         {activeTab === 'kakao' && (
@@ -158,7 +146,7 @@ function ShareUrl({ blockInfo, id }: Props) {
             <div className="flex flex-col gap-1">
               <Checkbox
                 onChange={handleCheckboxChange}
-                checked={hasValidLocation && blockInfo.props.showLocationButton}
+                checked={hasValidLocation && shareUrl.showLocationButton}
                 disabled={!hasValidLocation}
                 name="showLocationButton"
               >
@@ -168,7 +156,7 @@ function ShareUrl({ blockInfo, id }: Props) {
               </Checkbox>
               <Checkbox
                 onChange={handleCheckboxChange}
-                checked={blockInfo.props.showShareButton}
+                checked={shareUrl.showShareButton}
                 name="showShareButton"
               >
                 <p className="font-normal text-text-secondary text-[13px]">

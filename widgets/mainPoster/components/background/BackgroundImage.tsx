@@ -115,7 +115,7 @@ export const BackgroundImage = () => {
       if (bgObj) {
         bgObj.set({ selectable: false, evented: false });
       }
-      
+
       // 혹시 배경이 선택되어 있었다면 해제
       const currentActive = canvas.getActiveObject();
       if (currentActive === bgObj) {
@@ -183,7 +183,7 @@ export const BackgroundImage = () => {
   };
 
   return (
-    <section className="flex flex-col gap-3">
+    <section className="flex flex-col items-center gap-3">
       <div className="py-5">
         {imageSrc ? (
           <Image

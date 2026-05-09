@@ -171,13 +171,12 @@ export function TextEditor({
             onClick={handleColorPickerToggle}
           />
 
-          {colorPickerOpen && (
-            <TextEditorColorPickerPopover
-              editor={editor}
-              onClose={() => setColorPickerOpen(false)}
-              containerRef={colorPickerContainerRef}
-            />
-          )}
+          <TextEditorColorPickerPopover
+            editor={editor}
+            isOpen={colorPickerOpen}
+            onClose={() => setColorPickerOpen(false)}
+            containerRef={colorPickerContainerRef}
+          />
         </div>
 
         <TextEditorButton

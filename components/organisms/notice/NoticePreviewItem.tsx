@@ -1,6 +1,7 @@
 import { Image } from '@/components/atoms/image';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
+import { cn } from '@/shared/utils/cn';
 
 import type { JSONContent } from '@tiptap/react';
 
@@ -8,6 +9,7 @@ export const NoticePreviewItem = ({
   notice,
   images,
   index,
+  className,
 }: {
   notice: {
     id: string;
@@ -20,6 +22,7 @@ export const NoticePreviewItem = ({
   };
   images?: (File | string)[];
   index: number;
+  className?: string;
 }) => {
   const html =
     notice.content.messageHtml ??
@@ -30,9 +33,9 @@ export const NoticePreviewItem = ({
   );
 
   return (
-    <div className="w-70 flex flex-col gap-6 overflow-hidden">
+    <div className={cn('flex flex-col gap-6 overflow-hidden', className)}>
       {preview && (
-        <div className="relative h-25 overflow-hidden rounded-3xl">
+        <div className="relative h-25 w-full overflow-hidden rounded-3xl">
           <Image
             src={preview}
             alt="공지사항 이미지"

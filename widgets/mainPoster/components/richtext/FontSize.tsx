@@ -66,7 +66,8 @@ function FontSize() {
   if (!canvas) return null;
   return (
     <Selector
-      className="w-"
+      type="editor"
+      triggerClassName="w-fit bg-bg-base"
       placeholder="16px"
       options={fontSize}
       onSelect={option => {
@@ -89,6 +90,9 @@ function FontSize() {
           debouncedApplyStyle({ fontSize: safeSize }, canvas);
         }
       }}
+      customInputClassName={
+        'w-[60px] h-8 bg-transparent border border-border-neutral outline-none focus:border-primary rounded-lg text-center'
+      }
       selected={selectedFontSize}
       showCheckbox={false}
     />

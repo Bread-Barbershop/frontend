@@ -1,5 +1,5 @@
 import { EmblaOptionsType } from 'embla-carousel';
-import { useMemo, type HTMLAttributes } from 'react';
+import { useMemo, useState, type HTMLAttributes } from 'react';
 
 import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
 import Carousel from '@/features/EmblaCarousel/Carousel/Carousel';
@@ -22,6 +22,11 @@ export const InterviewPreview = ({
 }: Props) => {
   const { title, questions, checkedEnglishTitle, englishTitle } =
     blockInfo.props;
+  const questionCount = questions?.length ?? 0;
+  const isMultiple = questionCount > 1;
+  const [openQuestionIds, setOpenQuestionIds] = useState<
+    Record<string, boolean>
+  >({});
 
   const displayItems = useMemo(() => {
     if (questions && questions.length === 2) {
@@ -30,26 +35,21 @@ export const InterviewPreview = ({
     return questions;
   }, [questions]);
 
-  const isAutoScrollActive = (questions?.length ?? 0) > 1;
-
   const carouselOptions: EmblaOptionsType = useMemo(
     () => ({
       align: 'center',
-      containScroll: false,
-      loop: isAutoScrollActive,
+      containScroll: isMultiple ? false : 'trimSnaps',
+      loop: isMultiple,
     }),
-    [isAutoScrollActive]
+    [isMultiple]
   );
 
-  const autoscrollOptions = useMemo(
-    () => ({
-      speed: 1,
-      stopOnInteraction: false,
-      stopOnMouseEnter: false,
-      stopOnFocusIn: false,
-    }),
-    []
-  );
+  const handleToggleOpen = (questionId: string) => {
+    setOpenQuestionIds(prev => ({
+      ...prev,
+      [questionId]: !prev[questionId],
+    }));
+  };
 
   return (
     <MiddlePreviewWrapper
@@ -67,24 +67,25 @@ export const InterviewPreview = ({
           options={carouselOptions}
           isButtonShow={false}
           className="h-full w-full"
-          carouselClassName="gap-6"
-          autoscroll={isAutoScrollActive}
-          autoscrollOptions={autoscrollOptions}
-          loop={isAutoScrollActive}
+          loop={isMultiple}
         >
           {displayItems?.map((question, index) => (
             <div
               key={`${question.id}-${index}`}
               className={cn(
-                'w-full',
-                (displayItems?.length ?? 0) > 1 && index === 0 ? 'ml-6' : '',
-                (displayItems?.length ?? 0) === 1 && 'flex-center'
+                'shrink-0 min-w-0',
+                isMultiple
+                  ? 'w-70 mr-6'
+                  : 'mx-auto w-[calc(100%-40px)] flex-center'
               )}
             >
               <InterviewPreviewItem
                 question={question.question}
                 answerHtml={question.answer.messageHtml || ''}
                 image={question.image}
+                isOpen={openQuestionIds[question.questionId] ?? false}
+                className={isMultiple ? 'w-70' : 'w-full'}
+                onToggle={() => handleToggleOpen(question.questionId)}
               />
             </div>
           ))}

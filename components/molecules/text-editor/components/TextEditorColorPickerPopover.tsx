@@ -1,9 +1,11 @@
 'use client';
 
 import { hsvaToRgba } from '@uiw/color-convert';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   type CSSProperties,
   type RefObject,
+  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -16,6 +18,7 @@ import type { Editor } from '@tiptap/react';
 
 interface Props {
   editor: Editor | null;
+  isOpen: boolean;
   initialHex?: string;
   onClose?: () => void;
   containerRef?: RefObject<HTMLElement | null>;
@@ -28,6 +31,7 @@ const LEFT_PANEL_SELECTOR = '[data-editor-left-panel]';
 
 export default function TextEditorColorPickerPopover({
   editor,
+  isOpen,
   initialHex = '#FF4D6D',
   onClose,
   containerRef,
@@ -42,6 +46,7 @@ export default function TextEditorColorPickerPopover({
   });
 
   useLayoutEffect(() => {
+    if (!isOpen) return;
     if (typeof window === 'undefined') return;
 
     const updatePosition = () => {
@@ -60,7 +65,9 @@ export default function TextEditorColorPickerPopover({
         ? panelRect.right + PANEL_GAP
         : triggerRect.right - pickerWidth;
       const left = Math.min(Math.max(preferredLeft, VIEWPORT_GAP), maxLeft);
-      const preferredTop = panelRect ? triggerRect.top : triggerRect.bottom + TRIGGER_GAP;
+      const preferredTop = panelRect
+        ? triggerRect.top
+        : triggerRect.bottom + TRIGGER_GAP;
       const top =
         preferredTop + pickerHeight <= window.innerHeight - VIEWPORT_GAP ||
         triggerRect.top - pickerHeight - TRIGGER_GAP < VIEWPORT_GAP
@@ -95,22 +102,57 @@ export default function TextEditorColorPickerPopover({
       window.removeEventListener('scroll', updatePosition, true);
       resizeObserver.disconnect();
     };
-  }, [containerRef]);
+  }, [containerRef, isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (typeof document === 'undefined') return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node;
+
+      if (pickerRef.current?.contains(target)) return;
+      if (containerRef?.current?.contains(target)) return;
+
+      onClose?.();
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown, true);
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown, true);
+    };
+  }, [containerRef, isOpen, onClose]);
 
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <div ref={pickerRef} className="shadow-xl" style={popoverStyle}>
-      <SmallColorPicker
-        defaultValue={initialHex}
-        onClose={onClose}
-        onChange={({ hsva }) => {
-          const { r, g, b, a } = hsvaToRgba(hsva);
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          ref={pickerRef}
+          className="overflow-hidden rounded-lg bg-white shadow-xl"
+          style={popoverStyle}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18, ease: 'easeInOut' }}
+        >
+          <SmallColorPicker
+            defaultValue={initialHex}
+            onChange={({ hsva }) => {
+              const { r, g, b, a } = hsvaToRgba(hsva);
 
-          editor?.chain().focus().setColor(`rgba(${r}, ${g}, ${b}, ${a})`).run();
-        }}
-      />
-    </div>,
+              editor
+                ?.chain()
+                .focus()
+                .setColor(`rgba(${r}, ${g}, ${b}, ${a})`)
+                .run();
+            }}
+          />
+        </motion.div>
+      )}
+    </AnimatePresence>,
     document.body
   );
 }

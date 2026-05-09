@@ -17,6 +17,8 @@ interface SelectorProps<T> {
   placeholder?: string;
   className?: string;
   triggerClassName?: string;
+  labelClassName?: string;
+  optionLabelClassName?: string;
   customInputClassName?: string;
   onInputChange?: (value: string) => void;
   onSelect: (option: T | { label: string; value: string }) => void;
@@ -32,6 +34,8 @@ export const Selector = <T extends Option>({
   placeholder = '선택',
   className,
   triggerClassName,
+  labelClassName,
+  optionLabelClassName,
   customInputClassName,
   onSelect,
   onInputChange,
@@ -89,13 +93,6 @@ export const Selector = <T extends Option>({
     onSelect({ label: '', value: '' });
   };
 
-  const currentSelectedValue = selected?.value;
-  const isOptionValue = options.some(opt => opt.value === currentSelectedValue);
-
-  if (isCustomInput && currentSelectedValue && isOptionValue) {
-    setIsCustomInput(false);
-  }
-
   useEffect(() => {
     if (isCustomInput) {
       inputRef.current?.focus();
@@ -141,13 +138,18 @@ export const Selector = <T extends Option>({
             ref={inputRef}
             type="text"
             className={cn(
-              'w-full h-9 px-2 bg-transparent outline-none text-text-primary text-sm',
+              'w-full h-8 px-2 bg-transparent outline-none text-text-primary text-sm',
               customInputClassName
             )}
             value={typeof selected?.value === 'string' ? selected.value : ''}
             onChange={handleInputChange}
             onBlur={() => {
-              if (!selected?.label) setIsCustomInput(false);
+              setIsCustomInput(false);
+            }}
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === 'Escape') {
+                setIsCustomInput(false);
+              }
             }}
           />
         ) : (
@@ -159,7 +161,12 @@ export const Selector = <T extends Option>({
             aria-haspopup="listbox"
             aria-expanded={isOpen}
           >
-            <span className="h-6 text-center text-text-primary truncate flex-1 min-w-0 flex items-center justify-center">
+            <span
+              className={cn(
+                'h-6 text-center text-text-primary truncate flex-1 min-w-0 flex items-center justify-center',
+                labelClassName
+              )}
+            >
               {hasValue ? selected?.label : placeholder}
             </span>
 
@@ -191,13 +198,13 @@ export const Selector = <T extends Option>({
         }}
       >
         {searchable && (
-          <div className="sticky top-0 bg-bg-base z-10 p-1 border-b border-border-neutral">
+          <div className="sticky top-0 z-10 p-1 bg-bg-base border-b border-border-neutral rounded-md">
             <Input
               type="text"
               placeholder="검색"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="w-full h-8 px-2 text-xs bg-bg-sub border border-border-neutral rounded outline-none focus:border-primary text-text-primary placeholder:text-text-disabled"
+              className="w-full h-8 px-2 text-xs bg-transparent border border-border-neutral rounded-md outline-none focus:border-primary text-text-primary placeholder:text-text-disabled"
               onClick={e => e.stopPropagation()}
             />
           </div>
@@ -223,7 +230,12 @@ export const Selector = <T extends Option>({
                 <Check size={12} />
               </div>
             )}
-            <span className="h-7 leading-7 text-center flex-1 truncate min-w-0 flex-center">
+            <span
+              className={cn(
+                'h-7 leading-7 text-center flex-1 truncate min-w-0 flex-center',
+                optionLabelClassName
+              )}
+            >
               {option.label}
             </span>
           </li>
