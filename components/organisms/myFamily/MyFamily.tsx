@@ -33,6 +33,7 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
   } = blockInfo.props;
   const updateBlock = useEditorStore(state => state.updateBlock);
   const updateImage = useEditorStore(state => state.updateImage);
+
   const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
 
   const handleMenuToggle = (index: number) => {
@@ -110,9 +111,11 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
   };
 
   const handleDeleteFamily = (index: number) => {
+    const deleteId = family?.[index].id ?? '';
     updateBlock(id, {
       family: family?.filter((_, i) => i !== index),
     });
+    updateImage(deleteId, []);
   };
 
   const handleCheckedChange = (
@@ -136,29 +139,27 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
   };
 
   const handleImageChange = (index: number, value: (File | string)[]) => {
+    const selectId = family?.[index].id ?? '';
     const newFamily = (family || []).map((member, i) =>
       i === index ? { ...member, image: value } : member
     );
-    const allImages = newFamily.flatMap(member => member.image || []);
 
     updateBlock(id, {
       family: newFamily,
-      image: allImages,
     });
-    updateImage(id, allImages);
+    updateImage(selectId, value);
   };
 
   const handleImageDelete = (index: number) => {
     const newFamily = (family || []).map((member, i) =>
       i === index ? { ...member, image: [] } : member
     );
-    const allImages = newFamily.flatMap(member => member.image || []);
+    const deleteId = family?.[index].id ?? '';
 
     updateBlock(id, {
       family: newFamily,
-      image: allImages,
     });
-    updateImage(id, allImages);
+    updateImage(deleteId, []);
   };
 
   useEffect(() => {
