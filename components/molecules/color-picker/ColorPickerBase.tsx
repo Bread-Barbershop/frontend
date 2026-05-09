@@ -12,6 +12,7 @@ import {
 } from './components/colorPicker.constants';
 import { ColorSlideSection } from './components/ColorSlideSection';
 import { ToneControlSection } from './components/ToneControlSection';
+import { useColorHistoryStore } from './store/useColorHistoryStore';
 
 import type {
   ColorPickerChange,
@@ -42,16 +43,12 @@ function ColorPickerBase({
 }: ColorPickerBaseProps) {
   const resolvedDefaultValue = resolveColorValue(defaultValue);
   const resolvedControlledValue = resolveColorValue(value);
-  const initialHsva =
-    resolvedControlledValue ??
-    resolvedDefaultValue ??
-    { h: 0, s: 0, v: 68, a: 1 };
-  const [internalHsva, setInternalHsva] =
-    useState<PickerHsva>(initialHsva);
+  const initialHsva = resolvedControlledValue ??
+    resolvedDefaultValue ?? { h: 0, s: 0, v: 68, a: 1 };
+  const [internalHsva, setInternalHsva] = useState<PickerHsva>(initialHsva);
   const [inputMode, setInputMode] = useState<InputMode>('hex');
-  const [colorHistory, setColorHistory] = useState<string[]>(() => [
-    hsvaToHex(initialHsva).toUpperCase(),
-  ]);
+  const colorHistory = useColorHistoryStore(state => state.colorHistory);
+  const addColorHistory = useColorHistoryStore(state => state.addColorHistory);
   const controlledHsva = resolvedControlledValue;
   const hsva = controlledHsva ?? internalHsva;
   const transparencyPercent = Math.round((1 - hsva.a) * 100);
@@ -74,18 +71,13 @@ function ColorPickerBase({
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      setColorHistory(prev =>
-        [hex, ...prev.filter(color => color !== hex)].slice(
-          0,
-          maxHistoryCount
-        )
-      );
+      addColorHistory(hex, maxHistoryCount);
     }, 250);
 
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [hex, maxHistoryCount]);
+  }, [addColorHistory, hex, maxHistoryCount]);
 
   return (
     <>
@@ -140,9 +132,7 @@ function ColorPickerBase({
   );
 }
 
-function resolveColorValue(
-  value?: ColorPickerValue
-): PickerHsva | undefined {
+function resolveColorValue(value?: ColorPickerValue): PickerHsva | undefined {
   if (!value) return undefined;
 
   if (typeof value === 'string') {

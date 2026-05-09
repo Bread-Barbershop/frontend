@@ -18,9 +18,9 @@ export const BackgroundPanel = () => {
   };
 
   return (
-    <LeftEditorWrapper>
+    <LeftEditorWrapper ariaLabel="배경 편집">
       <NavigationBar>배경</NavigationBar>
-      <div className="flex w-full items-center justify-center gap-2 pb-1.5 px-5">
+      <div className="flex w-full items-center justify-center gap-2 pb-1.5">
         <button
           onClick={() => {
             handleToggleTab('color');
@@ -40,7 +40,9 @@ export const BackgroundPanel = () => {
           이미지
         </button>
       </div>
-      {type === 'color' ? <BackgroundColor /> : <BackgroundImage />}
+      <div className="flex w-full items-center justify-center">
+        {type === 'color' ? <BackgroundColor /> : <BackgroundImage />}
+      </div>
     </LeftEditorWrapper>
   );
 };

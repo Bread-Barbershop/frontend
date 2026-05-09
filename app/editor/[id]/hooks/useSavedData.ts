@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { BODY_BULK_DATA, TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
-import { EditorBlock } from '@/shared/types/block';
+import { PersistedEditorBlock } from '@/shared/types/block';
+import { createDefaultShareUrlState } from '@/shared/utils/shareUrlDefaults';
 
 import { SavedData } from '../types/savedata';
 import { fetchAudioFiles, fetchImageFiles } from '../utils/fetchFile';
@@ -12,6 +13,18 @@ interface UseSavedDataReturn {
   error: string | null;
 }
 
+const normalizePersistedBlocks = (blocks: unknown): PersistedEditorBlock[] => {
+  if (!Array.isArray(blocks)) return [];
+
+  return blocks.filter(
+    (block): block is PersistedEditorBlock =>
+      typeof block === 'object' &&
+      block !== null &&
+      'component' in block &&
+      (block as { component?: unknown }).component !== 'shareUrl'
+  );
+};
+
 export const useSavedData = (folderId: string): UseSavedDataReturn => {
   const [savedData, setSavedData] = useState<SavedData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -21,7 +34,7 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
   const abortRef = useRef<AbortController | null>(null);
 
   const setImageFile = async (
-    blocks: EditorBlock[],
+    blocks: PersistedEditorBlock[],
     imageFile: { id: string; name: string; mimeType: string }[] | null,
     signal: AbortSignal
   ) => {
@@ -95,7 +108,8 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
           throw new Error('저장 데이터 형식이 올바르지 않습니다.');
         }
 
-        const updatedBlocks: EditorBlock[] = data.config.blocks;
+        // shareUrl 제외한 블록 데이터 정규화
+        const updatedBlocks = normalizePersistedBlocks(data.config.blocks);
         const updatedBulkData = data.config.bulkData ?? {
           backgroundColor: '#FFFFFF',
           titleData: TITLE_BULK_DATA,
@@ -120,6 +134,7 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
             bgmInfo: data.config.bgm,
             bgmFile: audioFiles,
           },
+          shareUrl: data.config.shareUrl ?? createDefaultShareUrlState(),
           imageFolderId: data.imageFolderId,
           audioFolderId: data.audioFolderId,
           invitationImage: data.config.invitationImage,

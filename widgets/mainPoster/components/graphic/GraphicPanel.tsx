@@ -50,7 +50,7 @@ export function GraphicPanel() {
     <LeftEditorWrapper ariaLabel="그리기 설정">
       <NavigationBar>그리기</NavigationBar>
 
-      <div className="flex flex-col gap-6 w-full py-2 items-center">
+      <div className="flex flex-col gap-6 w-full pt-2 pb-5 items-center">
         <section className="relative w-full">
           <div className="bg-bg-base">
             <div className="mb-2 text-center text-[13px] font-semibold text-text-primary">
@@ -85,7 +85,7 @@ export function GraphicPanel() {
         <LargeColorPicker
           value={drawingConfig.color}
           onChange={e => setDrawingConfig({ color: e.hsva })}
-          className="border-none"
+          className="border-none pl-6 pr-4"
         />
       </div>
     </LeftEditorWrapper>

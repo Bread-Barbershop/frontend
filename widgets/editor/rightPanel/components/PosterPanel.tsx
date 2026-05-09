@@ -8,7 +8,7 @@ import { Image } from '@/components/atoms/image';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 function PosterPanel() {
-  const { canvas, applyTemplateToCanvas } = useFabricContext();
+  const { canvas, applyTemplateToCanvas, saveHistory } = useFabricContext();
   const [templates, setTemplates] = useState<TemplateItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +33,7 @@ function PosterPanel() {
   const handleSelectTemplate = async (template: TemplateItem) => {
     try {
       await applyTemplateToCanvas(canvas, template.jsonUrl);
+      saveHistory();
     } catch (err) {
       console.error('템플릿을 적용하는 중 오류가 발생했습니다.', err);
     }

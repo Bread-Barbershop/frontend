@@ -10,7 +10,7 @@ interface Props {
 export const AspectRatioSelector = ({ startCrop }: Props) => {
   return (
     <div className="flex-center gap-2 h-11">
-      <Label>자르기</Label>
+      <Label className="text-center font-semibold">자르기</Label>
       <div className="flex gap-1.5">
         {ASPECT_RATIO_OPTIONS.map(option => (
           <Button
