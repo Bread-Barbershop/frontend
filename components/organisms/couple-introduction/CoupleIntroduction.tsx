@@ -28,8 +28,8 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
   const {
     groom = '',
     bride = '',
-    groomImage = [],
-    brideImage = [],
+    groomImage = { id: crypto.randomUUID(), image: [] },
+    brideImage = { id: crypto.randomUUID(), image: [] },
     title = DEFAULT_COUPLE_INTRODUCTION_TITLE,
     checkedEnglishTitle = false,
     englishTitle = DEFAULT_COUPLE_INTRODUCTION_ENGLISH_TITLE,
@@ -70,19 +70,17 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
   }, [debouncedUpdateMessage]);
 
   const syncProfileImages = (
-    nextGroomImage: (File | string)[],
-    nextBrideImage: (File | string)[]
+    nextGroomImage: { id: string; image: (File | string)[] },
+    nextBrideImage: { id: string; image: (File | string)[] }
   ) => {
-    const mergedImages = [nextGroomImage[0], nextBrideImage[0]].filter(
-      (file): file is File => file instanceof File
-    );
-
     updateBlock(id, {
       groomImage: nextGroomImage,
       brideImage: nextBrideImage,
-      images: mergedImages,
     });
-    updateImage(id, mergedImages);
+    if (nextGroomImage.id !== '')
+      updateImage(nextGroomImage.id, nextGroomImage.image);
+    if (nextBrideImage.id !== '')
+      updateImage(nextBrideImage.id, nextBrideImage.image);
   };
 
   const handleGroomChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -94,11 +92,17 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
   };
 
   const handleGroomImageChange = (files: (File | string)[]) => {
-    syncProfileImages(files.slice(0, 1), brideImage);
+    syncProfileImages(
+      { id: crypto.randomUUID(), image: files.slice(0, 1) },
+      brideImage
+    );
   };
 
   const handleBrideImageChange = (files: (File | string)[]) => {
-    syncProfileImages(groomImage, files.slice(0, 1));
+    syncProfileImages(groomImage, {
+      id: crypto.randomUUID(),
+      image: files.slice(0, 1),
+    });
   };
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -120,10 +124,10 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
     debouncedUpdateMessage(json);
   };
   const handleGroomDelete = () => {
-    syncProfileImages([], brideImage);
+    syncProfileImages({ id: groomImage.id, image: [] }, brideImage);
   };
   const handleBrideDelete = () => {
-    syncProfileImages(groomImage, []);
+    syncProfileImages(groomImage, { id: brideImage.id, image: [] });
   };
   const profileFields = brideFirst
     ? [
@@ -221,7 +225,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
             <Picture
               key={`${profile.key}-${brideFirst ? 'first' : 'last'}`}
               label="사진"
-              value={profile.imageValue}
+              value={profile.imageValue.image}
               onChange={profile.onImageChange}
               onDelete={profile.onDelete}
               className="text-center"

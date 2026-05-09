@@ -12,7 +12,7 @@ export const NoticePreviewItem = ({
   className,
 }: {
   notice: {
-    noticeId: string;
+    id: string;
     notice: string;
     content: {
       messageJson: JSONContent | null;

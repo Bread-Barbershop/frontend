@@ -62,7 +62,7 @@ export const InterviewPreview = ({
       titleClassName={titleClassName}
       {...rest}
     >
-      <div className="w-full flex justify-center relative overflow-hidden">
+      <div className="w-full flex justify-center relative overflow-hidden px-px">
         <Carousel
           options={carouselOptions}
           isButtonShow={false}
@@ -71,7 +71,7 @@ export const InterviewPreview = ({
         >
           {displayItems?.map((question, index) => (
             <div
-              key={`${question.questionId}-${index}`}
+              key={`${question.id}-${index}`}
               className={cn(
                 'shrink-0 min-w-0',
                 isMultiple
@@ -83,9 +83,9 @@ export const InterviewPreview = ({
                 question={question.question}
                 answerHtml={question.answer.messageHtml || ''}
                 image={question.image}
-                isOpen={openQuestionIds[question.questionId] ?? false}
+                isOpen={openQuestionIds[question.id] ?? false}
                 className={isMultiple ? 'w-70' : 'w-full'}
-                onToggle={() => handleToggleOpen(question.questionId)}
+                onToggle={() => handleToggleOpen(question.id)}
               />
             </div>
           ))}

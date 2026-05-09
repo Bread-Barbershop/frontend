@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { extractFileGroups } from '@/shared/utils/extractFileGroups';
 
 import { SavedData } from '../types/savedata';
 
@@ -15,8 +16,15 @@ export const useInitData = ({
   uuid: string;
   invitationFolderId: string;
 }) => {
-  const { bulkData, blocks, bgm, shareUrl, imageFolderId, audioFolderId } =
-    savedData || {};
+  const {
+    bulkData,
+    blocks,
+    bgm,
+    shareUrl,
+    imageFolderId,
+    audioFolderId,
+    invitationImage,
+  } = savedData || {};
 
   const { setSelectedBgmId, setIsLoop, setUserFile } = useBgmStore(
     useShallow(state => ({
@@ -59,11 +67,13 @@ export const useInitData = ({
   const initEditStore = useCallback(() => {
     if (blocks) {
       setBlock(blocks);
-      blocks.forEach(block => {
-        if ('images' in block.props && block.props.images instanceof Array) {
-          updateImage(block.id, block.props.images);
-        }
-      });
+
+      const imageMap = extractFileGroups(blocks, invitationImage ?? []);
+      if (imageMap) {
+        imageMap.forEach((value, key) => {
+          updateImage(key, value.file);
+        });
+      }
     }
     if (imageFolderId) {
       setImageFolderId(imageFolderId);
@@ -95,6 +105,7 @@ export const useInitData = ({
     setInvitationUuid,
     selectedBlock,
     setInvitationFolderId,
+    invitationImage,
     setShareUrl,
   ]);
 

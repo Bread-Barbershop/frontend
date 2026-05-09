@@ -19,6 +19,11 @@ interface Props {
 }
 
 function Gallery({ blockInfo, id }: Props) {
+  const {
+    isEnglishTitle = false,
+    isPopupViewer = false,
+    ratio,
+  } = blockInfo.props;
   const { block, images, updateBlock, updateImage } = useEditorStore(
     useShallow(state => ({
       block: state.block,
@@ -111,7 +116,7 @@ function Gallery({ blockInfo, id }: Props) {
             label="비율"
             selectorOption={ASPECT_RATIO_OPTIONS}
             onPointerDown={handleAspectRatioChange}
-            selectedValue={blockInfo.props.ratio}
+            selectedValue={ratio}
           />
         )}
         <ul className="list-disc pl-5 marker:text-text-secondary py-3.5">
@@ -124,17 +129,12 @@ function Gallery({ blockInfo, id }: Props) {
           <div>
             <Checkbox
               onChange={handleEnglishTitleChange}
-              checked={blockInfo.props.isEnglishTitle}
+              checked={isEnglishTitle}
             >
-              <p className="font-normal text-text-secondary text-[13px]">
-                영문 제목 추가
-              </p>
+              <p className="font-normal text-[13px]">영문 제목 추가</p>
             </Checkbox>
-            <Checkbox
-              onChange={handlePopViewChange}
-              checked={blockInfo.props.isPopupViewer}
-            >
-              <p className="font-normal text-text-secondary text-[13px]">
+            <Checkbox onChange={handlePopViewChange} checked={isPopupViewer}>
+              <p className="font-normal text-[13px]">
                 팝업뷰어(사진을 터치하여 크게 볼 수 있어요.)
               </p>
             </Checkbox>

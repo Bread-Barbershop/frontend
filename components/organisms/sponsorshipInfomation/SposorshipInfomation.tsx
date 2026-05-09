@@ -97,9 +97,7 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
           onChange={handleOnChangeIsEnglishTitle}
           checked={blockInfo.props.isEnglishTitle}
         >
-          <p className="font-normal text-text-secondary text-[13px]">
-            영문 제목 추가
-          </p>
+          영문 제목 추가
         </Checkbox>
       </div>
     </LeftEditorWrapper>

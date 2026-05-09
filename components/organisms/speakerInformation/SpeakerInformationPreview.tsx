@@ -20,7 +20,7 @@ export const SpeakerInformationPreview = ({
   titleClassName,
   ...rest
 }: Props) => {
-  const { title, speakers, images, checkedEnglishTitle, englishTitle } =
+  const { title, speakers, checkedEnglishTitle, englishTitle } =
     blockInfo.props;
 
   const displayItems = useMemo(() => {
@@ -62,7 +62,7 @@ export const SpeakerInformationPreview = ({
       titleClassName={titleClassName}
       {...rest}
     >
-      <div className="w-full flex justify-center relative overflow-hidden">
+      <div className="w-full flex justify-center relative overflow-hidden px-px">
         <Carousel
           options={carouselOptions}
           isButtonShow={false}
@@ -81,11 +81,7 @@ export const SpeakerInformationPreview = ({
                 (displayItems?.length ?? 0) === 1 && 'flex-center'
               )}
             >
-              <InformationPreview
-                speaker={speaker}
-                images={images}
-                index={index % (speakers?.length || 1)}
-              />
+              <InformationPreview speaker={speaker} />
             </div>
           ))}
         </Carousel>

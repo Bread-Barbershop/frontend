@@ -10,7 +10,7 @@ import { cn } from '@/shared/utils/cn';
 interface Props {
   id: string;
   question: {
-    questionId: string;
+    id: string;
     question: string;
     answer: {
       messageJson: JSONContent | null;
@@ -59,7 +59,7 @@ export const InterviewItem = ({
       <div className="flex flex-col gap-2">
         <NavigationBar className="min-h-auto h-8">내용</NavigationBar>
         <TextEditor
-          key={`${id}-${question.questionId}-${editorResetKey}`}
+          key={`${id}-${question.id}-${editorResetKey}`}
           value={question.answer.messageJson}
           defaultText="내용을 입력해 주세요"
           defaultAlign="center"

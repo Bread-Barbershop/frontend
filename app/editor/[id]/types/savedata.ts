@@ -10,7 +10,10 @@ export interface BgmFile {
   bgmInfo: BgmData | null;
   bgmFile: File | null;
 }
-
+type UploadTask = {
+  id: string;
+  file: File;
+};
 export interface SavedData {
   bulkData: {
     backgroundColor: string;
@@ -24,6 +27,7 @@ export interface SavedData {
   shareUrl: ShareUrlState;
   imageFolderId: string;
   audioFolderId: string;
+  invitationImage: UploadTask[];
 }
 
 export interface JsonData {
@@ -37,6 +41,7 @@ export interface JsonData {
   shareUrl?: ShareUrlState;
   mainPoster: string;
   bgm: BgmData;
+  invitationImage: UploadTask[];
 }
 
 export interface ResponseData {

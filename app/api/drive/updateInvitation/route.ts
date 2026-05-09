@@ -50,6 +50,7 @@ export async function GET(
         userBgmDuration: null,
         userBgmFileId: null,
       },
+      invitationImage: [],
     }, // data.json 내용
     images: {}, // 이미지 파일 목록 (ID, Name 등)
     audios: {}, // 오디오 파일 목록
@@ -95,6 +96,7 @@ export async function GET(
             blocks: normalizePersistedBlocks(fileContent.blocks),
             mainPoster: fileContent.mainPoster,
             bgm: fileContent.bgm,
+            invitationImage: fileContent.invitationImage,
             shareUrl: fileContent.shareUrl,
           };
         }
@@ -127,9 +129,12 @@ export async function GET(
             userBgmDuration: null,
             userBgmFileId: null,
           },
+          invitationImage: [],
         },
         images: {},
         audios: {},
+        imageFolderId: '',
+        audioFolderId: '',
       } as UpdateInvitationResponse,
       {
         status: 500,

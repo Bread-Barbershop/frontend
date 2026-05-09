@@ -12,15 +12,17 @@ export const coupleIntroductionSchema = {
       required: true,
     },
     groomImage: {
-      default: [] as File[],
+      default: {
+        id: '',
+        image: [] as Array<File | string>,
+      },
       required: false,
     },
     brideImage: {
-      default: [] as File[],
-      required: false,
-    },
-    images: {
-      default: [] as Array<File | string>,
+      default: {
+        id: '',
+        image: [] as Array<File | string>,
+      },
       required: false,
     },
     title: {
