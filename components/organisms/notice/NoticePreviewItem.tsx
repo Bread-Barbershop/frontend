@@ -10,7 +10,7 @@ export const NoticePreviewItem = ({
   index,
 }: {
   notice: {
-    noticeId: string;
+    id: string;
     notice: string;
     content: {
       messageJson: JSONContent | null;

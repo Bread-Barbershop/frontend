@@ -76,7 +76,7 @@ export const NoticePreview = ({
         >
           {displayNoticeList?.map((notice, index) => (
             <div
-              key={`preview-${notice.noticeId}-${index}`}
+              key={`preview-${notice.id}-${index}`}
               className={cn(
                 'w-full',
                 (displayNoticeList?.length ?? 0) > 1 && index === 0
