@@ -7,15 +7,15 @@ import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationB
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
-import { PhotoPresetOptions } from '../../types/fabric';
+// import { PhotoPresetOptions } from '../../types/fabric';
 
 import { AspectRatioSelector } from './AspectRatioSelector';
-import { ImageFilterSelector } from './ImageFilterSelector';
+// import { ImageFilterSelector } from './ImageFilterSelector';
 
 export const ImagePanel = () => {
   const {
     canvas,
-    applyImageFilter,
+    // applyImageFilter,
     addImage,
     startCrop,
     activeInfo,
@@ -125,13 +125,14 @@ export const ImagePanel = () => {
     reader.readAsDataURL(file);
   };
 
-  const handleApply = (
-    options: PhotoPresetOptions,
-    type: 'bw' | 'warm' | 'cool' | 'fade' | 'filmGrain' | 'vignette' | null
-  ) => {
-    if (canvas) applyImageFilter(options, canvas, type);
-    updateImageSrc(); // 필터 적용 후 Preview 갱신
-  };
+  // const handleApply = (
+  //   options: PhotoPresetOptions,
+  //   type: 'bw' | 'warm' | 'cool' | 'fade' | 'filmGrain' | 'vignette' | null
+  // ) => {
+  //   if (canvas) applyImageFilter(options, canvas, type);
+  //   updateImageSrc(); // 필터 적용 후 Preview 갱신
+  // };
+
   const handleStartCrop = (ratio: number | 'free') => {
     if (canvas) startCrop(canvas, ratio);
   };
@@ -163,7 +164,6 @@ export const ImagePanel = () => {
         )}
       </div>
       <AspectRatioSelector startCrop={handleStartCrop} />
-      <ImageFilterSelector onApply={handleApply} activeInfo={activeInfo} />
     </LeftEditorWrapper>
   );
 };

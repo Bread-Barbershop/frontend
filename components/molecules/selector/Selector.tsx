@@ -1,5 +1,13 @@
 import { ChevronDown, Check } from 'lucide-react';
-import React, { useState, useRef, useEffect, ChangeEvent, useId } from 'react';
+import {
+  useState,
+  useRef,
+  useEffect,
+  ChangeEvent,
+  useId,
+  CSSProperties,
+  ReactNode,
+} from 'react';
 
 import { Input } from '@/components/atoms/input';
 import { cn } from '@/shared/utils/cn';
@@ -7,11 +15,12 @@ import { cn } from '@/shared/utils/cn';
 import { selectorVariants } from './Selector.style';
 
 interface Option {
-  label: string | React.ReactNode;
+  label: string | ReactNode;
   value: string;
+  style?: CSSProperties;
 }
 
-interface SelectorProps<T> {
+interface SelectorProps<T extends Option> {
   type?: 'normal' | 'editor';
   options: T[];
   placeholder?: string;
@@ -21,8 +30,8 @@ interface SelectorProps<T> {
   optionLabelClassName?: string;
   customInputClassName?: string;
   onInputChange?: (value: string) => void;
-  onSelect: (option: T | { label: string; value: string }) => void;
-  selected: T | { label: string; value: string } | null;
+  onSelect: (option: T) => void;
+  selected: T | null;
   showCheckbox?: boolean;
   addPopWidth?: number;
   searchable?: boolean;
@@ -90,7 +99,7 @@ export const Selector = <T extends Option>({
   const handleCustomMenuItemClick = () => {
     setIsCustomInput(true);
     popoverRef.current?.hidePopover();
-    onSelect({ label: '', value: '' });
+    onSelect({ label: '', value: '' } as T);
   };
 
   useEffect(() => {
@@ -126,7 +135,7 @@ export const Selector = <T extends Option>({
     : options;
 
   return (
-    <div ref={containerRef} className={cn('relative', className)}>
+    <div ref={containerRef} className={cn('relative text-center', className)}>
       <div
         className={cn(
           selectorVariants({ type, isOpen, hasValue }),
@@ -163,9 +172,10 @@ export const Selector = <T extends Option>({
           >
             <span
               className={cn(
-                'h-6 text-center text-text-primary truncate flex-1 min-w-0 flex items-center justify-center',
+                'h-6 text-text-primary truncate flex-1 min-w-0 flex items-center justify-center',
                 labelClassName
               )}
+              style={selected?.style}
             >
               {hasValue ? selected?.label : placeholder}
             </span>
@@ -232,9 +242,10 @@ export const Selector = <T extends Option>({
             )}
             <span
               className={cn(
-                'h-7 leading-7 text-center flex-1 truncate min-w-0 flex-center',
+                'h-7 leading-7 flex-1 truncate min-w-0 flex-center',
                 optionLabelClassName
               )}
+              style={option.style}
             >
               {option.label}
             </span>
@@ -244,7 +255,7 @@ export const Selector = <T extends Option>({
         {onInputChange && (
           <li
             onClick={handleCustomMenuItemClick}
-            className="h-7 leading-7 px-1 py-0.5 text-center text-[13px] hover:bg-bg-sub cursor-pointer"
+            className="h-7 leading-7 px-1 py-0.5 text-[13px] hover:bg-bg-sub cursor-pointer"
           >
             직접입력
           </li>

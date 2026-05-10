@@ -2,6 +2,7 @@ import {
   FabricObject as OriginalFabricObject,
   Textbox as OriginalTextbox,
   FabricImage as OriginalFabricImage,
+  CompleteTextStyleDeclaration,
 } from 'fabric';
 
 import { PhotoPresetOptions } from '@/components/molecules/image-editor';
@@ -99,6 +100,9 @@ export interface AllStyle {
 export type RichStyle = LayoutStyle | AllStyle;
 
 export type RichStyleKey = keyof LayoutStyle | keyof AllStyle;
+
+export type TextSelectionStyle = Partial<CompleteTextStyleDeclaration>;
+export type TextSelectionStyleKey = keyof TextSelectionStyle;
 
 // 드래그 타입
 export type DragPoints = {

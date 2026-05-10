@@ -6,7 +6,7 @@ import { clamp } from '@/shared/utils/calculationUtils';
 import { useFabricContext } from '../../context/FabricContext';
 
 function CharSpacing() {
-  const { canvas, debouncedApplyStyle } = useFabricContext();
+  const { canvas, applyRichStyle } = useFabricContext();
   const activeObject = canvas?.getActiveObject() as Textbox | null;
 
   const [value, setValue] = useState<number>(0);
@@ -46,7 +46,7 @@ function CharSpacing() {
     setValue(next);
 
     const charSpacing = Math.round(next * 10); // -200~200
-    debouncedApplyStyle({ charSpacing }, canvas);
+    applyRichStyle({ charSpacing }, canvas);
   };
 
   return (

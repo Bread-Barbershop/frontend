@@ -3,7 +3,14 @@ import { useCallback, useMemo } from 'react';
 
 import { debounce } from '@/shared/utils/debounce';
 
-import { LayoutStyle, RichStyle, RichStyleKey, TextboxWithLock } from '../types/fabric';
+import {
+  LayoutStyle,
+  RichStyle,
+  RichStyleKey,
+  TextboxWithLock,
+  TextSelectionStyleKey,
+} from '../types/fabric';
+import { MIXED_VALUE, normalizeFontWeight } from '../utils/fontUtils';
 
 interface Props {
   syncActiveObjectInfo?: (canvas: Canvas) => void;
@@ -22,7 +29,7 @@ const isLayoutStyle = (style: RichStyle): style is LayoutStyle => {
 const getFallbackValue = (key: string) => {
   switch (key) {
     case 'fontWeight':
-      return 'normal';
+      return '400';
     case 'fontStyle':
       return 'normal';
     case 'underline':
@@ -61,6 +68,8 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
       originY: 'center',
       width: 100,
       fontSize: 16,
+      fontFamily: 'Pretendard',
+      fontWeight: '400',
       splitByGrapheme: true,
     });
 
@@ -96,6 +105,32 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
       }
     }
     return false;
+  };
+
+  const resetCharacterStyles = (activeObject: Textbox, styleObj: RichStyle) => {
+    if (!activeObject.styles) return;
+
+    const keys = (Object.keys(styleObj) as Array<keyof RichStyle>).filter(
+      key => !isLayoutStyle({ [key]: styleObj[key] } as RichStyle)
+    );
+    if (keys.length === 0) return;
+
+    for (const lineIndex in activeObject.styles) {
+      const line = activeObject.styles[lineIndex];
+      for (const charIndex in line) {
+        keys.forEach(key => {
+          if (line[charIndex] && key in line[charIndex]) {
+            delete line[charIndex][key];
+          }
+        });
+        if (Object.keys(line[charIndex]).length === 0) {
+          delete line[charIndex];
+        }
+      }
+      if (Object.keys(line).length === 0) {
+        delete activeObject.styles[lineIndex];
+      }
+    }
   };
 
   const applyRichStyle = useCallback(
@@ -153,6 +188,7 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
           activeObject.setSelectionStyles(finalStyle);
         } else {
           activeObject.set(finalStyle);
+          resetCharacterStyles(activeObject, finalStyle);
         }
       }
 
@@ -165,27 +201,127 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
     [saveHistory, syncActiveObjectInfo]
   );
 
-  const getRichStyles = <T extends RichStyleKey>(
+  type RichStyleResult<T extends readonly RichStyleKey[]> = {
+    [K in keyof T]: string;
+  };
+
+  const getRichStyles = <const T extends readonly RichStyleKey[]>(
     activeObject: Textbox,
-    style: T,
-    onChange: (value: string) => void
+    styleKeys: T,
+    onChange: (values: RichStyleResult<T>) => void
   ) => {
     if (!activeObject) return;
 
-    const isSelectionPresent =
-      activeObject.selectionStart !== activeObject.selectionEnd;
+    const selectionStart = activeObject.selectionStart ?? 0;
+    const selectionEnd = activeObject.selectionEnd ?? 0;
 
-    const currentStyle = isSelectionPresent
-      ? (activeObject.getSelectionStyles(
-          activeObject.selectionStart,
-          activeObject.selectionStart + 1
-        )[0]?.[style] as string)
-      : (activeObject.get(style) as string);
+    const isSelectionPresent = selectionStart !== selectionEnd;
 
-    if (currentStyle !== undefined && currentStyle !== null) {
-      onChange(currentStyle);
-    }
+    const start = isSelectionPresent ? selectionStart : 0;
+    const end = isSelectionPresent
+      ? selectionEnd
+      : (activeObject.text?.length ?? 0);
+
+    const selectionStyles = activeObject.getSelectionStyles(start, end, true);
+
+    const getStyleValue = (style: RichStyleKey): string => {
+      const values = selectionStyles
+        .map(styleObj => {
+          const key = style as TextSelectionStyleKey;
+          return styleObj[key];
+        })
+        .filter(value => value !== undefined && value !== null)
+        .map(value => {
+          if (style === 'fontWeight') {
+            return normalizeFontWeight(value);
+          }
+
+          return String(value);
+        });
+
+      if (values.length === 0) {
+        const objectValue = activeObject.get(style as keyof Textbox);
+
+        if (objectValue !== undefined && objectValue !== null) {
+          return style === 'fontWeight'
+            ? normalizeFontWeight(objectValue)
+            : String(objectValue);
+        }
+
+        return '';
+      }
+
+      const uniqueValues = new Set(values);
+
+      if (uniqueValues.size > 1) {
+        return MIXED_VALUE;
+      }
+
+      return values[0];
+    };
+
+    const result = styleKeys.map(style =>
+      getStyleValue(style)
+    ) as RichStyleResult<T>;
+
+    onChange(result);
   };
+  // const getRichStyles = <T extends RichStyleKey>(
+  //   activeObject: Textbox,
+  //   style: T,
+  //   onChange: (value: string) => void
+  // ) => {
+  //   if (!activeObject) return;
+
+  //   const selectionStart = activeObject.selectionStart ?? 0;
+  //   const selectionEnd = activeObject.selectionEnd ?? 0;
+
+  //   const isSelectionPresent = selectionStart !== selectionEnd;
+
+  //   const start = isSelectionPresent ? selectionStart : 0;
+  //   const end = isSelectionPresent
+  //     ? selectionEnd
+  //     : (activeObject.text?.length ?? 0);
+
+  //   const styles = activeObject.getSelectionStyles(start, end, true);
+
+  //   const values = styles
+  //     .map(styleObj => {
+  //       const key = style as TextSelectionStyleKey;
+  //       return styleObj[key];
+  //     })
+  //     .filter(value => value !== undefined && value !== null)
+  //     .map(value => {
+  //       if (style === 'fontWeight') {
+  //         return normalizeFontWeight(value);
+  //       }
+
+  //       return String(value);
+  //     });
+
+  //   if (values.length === 0) {
+  //     const objectValue = activeObject.get(style as keyof Textbox);
+
+  //     if (objectValue !== undefined && objectValue !== null) {
+  //       onChange(
+  //         style === 'fontWeight'
+  //           ? normalizeFontWeight(objectValue)
+  //           : String(objectValue)
+  //       );
+  //     }
+
+  //     return;
+  //   }
+
+  //   const uniqueValues = new Set(values);
+
+  //   if (uniqueValues.size > 1) {
+  //     onChange(MIXED_VALUE);
+  //     return;
+  //   }
+
+  //   onChange(values[0]);
+  // };
 
   const setPatternOffset = (
     canvas: Canvas,

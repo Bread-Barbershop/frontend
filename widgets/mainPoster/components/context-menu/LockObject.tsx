@@ -3,6 +3,8 @@ import { cn } from '@/shared/utils/cn';
 import { useFabricContext } from '../../context/FabricContext';
 import { FabricObjectWithLock } from '../../types/fabric';
 
+import { ActiveStyle, DisabledStyle, DisabledShortCutStyle } from './style';
+
 interface Props {
   onClick: () => void;
 }
@@ -22,10 +24,7 @@ export const LockObject = ({ onClick }: Props) => {
       <button
         type="button"
         disabled={!canLock}
-        className={cn(
-          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
-          !canLock && 'opacity-50 cursor-not-allowed grayscale'
-        )}
+        className={cn(ActiveStyle, !canLock && DisabledStyle)}
         onClick={() => {
           if (canLock && activeObject) {
             lock(activeObject);
@@ -33,16 +32,13 @@ export const LockObject = ({ onClick }: Props) => {
           }
         }}
       >
-        <p className={cn(!canLock && 'text-gray-400')}>잠그기</p>
-        <p className={cn(!canLock && 'text-gray-400 font-[12px]')}>Ctrl + L</p>
+        <p className={cn(!canLock && DisabledStyle)}>위치 잠그기</p>
+        <p className={cn(!canLock && DisabledShortCutStyle)}>Ctrl + L</p>
       </button>
       <button
         type="button"
         disabled={!canUnlock}
-        className={cn(
-          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
-          !canUnlock && 'opacity-50 cursor-not-allowed grayscale'
-        )}
+        className={cn(ActiveStyle, !canUnlock && DisabledStyle)}
         onClick={() => {
           if (canUnlock && activeObject) {
             unLock(activeObject);
@@ -50,8 +46,8 @@ export const LockObject = ({ onClick }: Props) => {
           }
         }}
       >
-        <p className={cn(!canUnlock && 'text-gray-400')}>잠금 해제하기</p>
-        <p className={cn(!canUnlock && 'text-gray-400 font-[12px]')}>
+        <p className={cn(!canUnlock && DisabledStyle)}>위치 잠금 해제하기</p>
+        <p className={cn(!canUnlock && DisabledShortCutStyle)}>
           Ctrl + Shift + L
         </p>
       </button>

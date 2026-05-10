@@ -8,7 +8,7 @@ import { useFabricContext } from '../../context/FabricContext';
 const BASE_LINE_HEIGHT = 1.16;
 
 function LineHeight() {
-  const { canvas, debouncedApplyStyle } = useFabricContext();
+  const { canvas, applyRichStyle } = useFabricContext();
   const activeObject = canvas?.getActiveObject() as Textbox | null;
   const [value, setValue] = useState<number>(0);
   const [showValue, setShowValue] = useState<string>('0');
@@ -53,7 +53,7 @@ function LineHeight() {
     setShowValue(String(next));
 
     const lineHeight = BASE_LINE_HEIGHT * (1 + next / 100); // 1.16기준
-    debouncedApplyStyle({ lineHeight }, canvas);
+    applyRichStyle({ lineHeight }, canvas);
   };
 
   return (

@@ -7,6 +7,7 @@ import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 import ControlZindex from './ControlZindex';
 import CopyAndPaste from './CopyAndPaste';
 import { LockObject } from './LockObject';
+import { ActiveStyle, DisabledShortCutStyle, DisabledStyle } from './style';
 import { UndoRedo } from './UndoRedo';
 
 export function ContextMenu() {
@@ -64,7 +65,7 @@ export function ContextMenu() {
   return (
     <div
       ref={menuRef}
-      className="fixed z-9999 w-55 flex flex-col gap-3 p-3 bg-white border border-gray-200 rounded-md shadow-lg"
+      className="fixed z-9999 font-pretendard w-55 flex flex-col gap-3 p-3 bg-white border border-gray-200 rounded-md shadow-lg"
       style={{ top: pos.y, left: pos.x }}
       onContextMenu={e => e.preventDefault()}
     >
@@ -74,10 +75,7 @@ export function ContextMenu() {
       <button
         type="button"
         disabled={!hasActiveObject}
-        className={cn(
-          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
-          !hasActiveObject && 'opacity-50 cursor-not-allowed grayscale'
-        )}
+        className={cn(ActiveStyle, !hasActiveObject && DisabledStyle)}
         onClick={() => {
           if (canvas && hasActiveObject) {
             handleDeleteShape(canvas, undefined, true);
@@ -85,10 +83,8 @@ export function ContextMenu() {
           setOpen(false);
         }}
       >
-        <p className={cn(!hasActiveObject && 'text-gray-400')}>삭제하기</p>
-        <p className={cn(!hasActiveObject && 'text-gray-400 font-[12px]')}>
-          Delete
-        </p>
+        <p className={cn(!hasActiveObject && DisabledStyle)}>삭제하기</p>
+        <p className={cn(!hasActiveObject && DisabledShortCutStyle)}>Delete</p>
       </button>
       <LockObject onClick={() => setOpen(false)} />
     </div>

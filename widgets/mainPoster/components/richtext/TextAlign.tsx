@@ -1,26 +1,28 @@
 import { Textbox } from 'fabric';
 import { useEffect, useState } from 'react';
 
-import { Selector } from '@/components/molecules/selector';
 import AlignCenterIcon from '@/shared/assets/icons/alignCenter.svg';
 import AlignLeftIcon from '@/shared/assets/icons/alignLeft.svg';
 import AlignRightIcon from '@/shared/assets/icons/alignRight.svg';
+import { cn } from '@/shared/utils/cn';
 
 import { useFabricContext } from '../../context/FabricContext';
-import { selectorOptions } from '../../types/editor';
 
-const ALIGN_OPTIONS: selectorOptions[] = [
+const ALIGN_OPTIONS = [
   {
-    label: <AlignLeftIcon />,
+    Icon: AlignLeftIcon,
     value: 'left',
+    label: '왼쪽 정렬',
   },
   {
-    label: <AlignCenterIcon />,
+    Icon: AlignCenterIcon,
     value: 'center',
+    label: '가운데 정렬',
   },
   {
-    label: <AlignRightIcon />,
+    Icon: AlignRightIcon,
     value: 'right',
+    label: '오른쪽 정렬',
   },
 ];
 
@@ -28,17 +30,14 @@ function TextAlign() {
   const { getRichStyles, canvas, applyRichStyle } = useFabricContext();
   const activeObject = canvas?.getActiveObject() as Textbox;
 
-  const [selectedAlign, setSelectedAlign] = useState<selectorOptions>(
-    ALIGN_OPTIONS[0]
-  );
+  const [selectedAlign, setSelectedAlign] = useState(ALIGN_OPTIONS[0].value);
 
   useEffect(() => {
     if (!activeObject) return;
 
     const handleSync = () => {
-      getRichStyles(activeObject, 'textAlign', textAlign => {
-        const found = ALIGN_OPTIONS.find(opt => opt.value === textAlign);
-        if (found) setSelectedAlign(found);
+      getRichStyles(activeObject, ['textAlign'], ([textAlign]) => {
+        setSelectedAlign(textAlign);
       });
     };
 
@@ -56,18 +55,34 @@ function TextAlign() {
   if (!canvas) return null;
 
   return (
-    <Selector
-      className="w-14"
-      options={ALIGN_OPTIONS}
-      selected={selectedAlign}
-      onSelect={option => {
-        applyRichStyle(
-          { textAlign: option.value as 'left' | 'right' | 'center' },
-          canvas
+    <div className="w-24 p-0.5 -ml-1 flex flex-row gap-0.5 bg-btn-inactive rounded-sm">
+      {ALIGN_OPTIONS.map(option => {
+        const isSelected = selectedAlign === option.value;
+        const Icon = option.Icon;
+
+        return (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => {
+              setSelectedAlign(option.value);
+              applyRichStyle(
+                { textAlign: option.value as 'left' | 'right' | 'center' },
+                canvas
+              );
+            }}
+            className={cn(
+              'w-7.5 h-7.5 flex p-1 justify-center items-center rounded-sm transition-colors',
+              isSelected
+                ? 'bg-bg-base text-text-primary'
+                : 'bg-transparent text-text-tertiary hover:bg-btn-hover active:bg-btn-pressed'
+            )}
+          >
+            <Icon fill="currentColor" aria-label={option.label} />
+          </button>
         );
-      }}
-      showCheckbox={false}
-    />
+      })}
+    </div>
   );
 }
 

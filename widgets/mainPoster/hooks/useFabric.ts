@@ -346,11 +346,34 @@ export const useFabric = () => {
     const activeObjects = canvas.getActiveObjects();
 
     if (activeObjects.length === 0) {
+      if (typeof window !== 'undefined' && window.location.pathname.startsWith('/dev')) {
+        console.log('[Fabric] 선택 해제됨');
+      }
       setActiveInfo({ type: null, isLocked: false, filters: [], styles: {} });
       return;
     }
 
     const primaryObject = activeObjects[0];
+    const getKoreanType = (obj: any) => {
+      if (obj.get('id') === 'background-layer') return '배경';
+      if (obj.isType('textbox') || obj.isType('itext') || obj.isType('text')) return '텍스트';
+      if (obj.isType('image')) return '이미지';
+      if (obj.isType('rect') || obj.isType('circle') || obj.isType('triangle')) return '도형';
+      if (obj.isType('path') || obj.isType('line')) return '선/경로';
+      if (obj.isType('activeSelection')) return '다중 선택';
+      return obj.type;
+    };
+
+    const isDev = typeof window !== 'undefined' && window.location.pathname.startsWith('/dev');
+
+    if (isDev) {
+      console.log(`[Fabric] 객체 활성화: ${getKoreanType(primaryObject)}`, {
+        id: primaryObject.get('id'),
+        isLocked: (primaryObject as any).isLocked,
+        selectable: primaryObject.selectable,
+        evented: primaryObject.evented,
+      });
+    }
 
     // UI 버튼 활성화를 위해 필요한 정보만 추출
     setActiveInfo({

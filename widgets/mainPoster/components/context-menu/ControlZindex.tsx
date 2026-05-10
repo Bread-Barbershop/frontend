@@ -3,6 +3,8 @@ import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import { FabricObjectWithLock } from '../../types/fabric';
 
+import { ActiveStyle, DisabledStyle, DisabledShortCutStyle } from './style';
+
 interface Props {
   onClick: () => void;
 }
@@ -18,10 +20,7 @@ function ControlZindex({ onClick }: Props) {
       <button
         type="button"
         disabled={!hasActiveObject}
-        className={cn(
-          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
-          !hasActiveObject && 'opacity-50 cursor-not-allowed grayscale'
-        )}
+        className={cn(ActiveStyle, !hasActiveObject && DisabledStyle)}
         onClick={() => {
           if (hasActiveObject && activeObject) {
             moveTop(activeObject);
@@ -29,20 +28,15 @@ function ControlZindex({ onClick }: Props) {
           }
         }}
       >
-        <p className={cn(!hasActiveObject && 'text-gray-400')}>
-          맨 위로 보내기
-        </p>
-        <p className={cn(!hasActiveObject && 'text-gray-400 font-[12px]')}>
+        <p className={cn(!hasActiveObject && DisabledStyle)}>맨 위로 보내기</p>
+        <p className={cn(!hasActiveObject && DisabledShortCutStyle)}>
           Ctrl + Shift + [
         </p>
       </button>
       <button
         type="button"
         disabled={!hasActiveObject}
-        className={cn(
-          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
-          !hasActiveObject && 'opacity-50 cursor-not-allowed grayscale'
-        )}
+        className={cn(ActiveStyle, !hasActiveObject && DisabledStyle)}
         onClick={() => {
           if (hasActiveObject && activeObject) {
             moveBottom(activeObject);
@@ -50,20 +44,17 @@ function ControlZindex({ onClick }: Props) {
           }
         }}
       >
-        <p className={cn(!hasActiveObject && 'text-gray-400')}>
+        <p className={cn(!hasActiveObject && DisabledStyle)}>
           맨 아래로 보내기
         </p>
-        <p className={cn(!hasActiveObject && 'text-gray-400 font-[12px]')}>
+        <p className={cn(!hasActiveObject && DisabledShortCutStyle)}>
           Ctrl + Shift + ]
         </p>
       </button>
       <button
         type="button"
         disabled={!hasActiveObject}
-        className={cn(
-          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
-          !hasActiveObject && 'opacity-50 cursor-not-allowed grayscale'
-        )}
+        className={cn(ActiveStyle, !hasActiveObject && DisabledStyle)}
         onClick={() => {
           if (hasActiveObject && activeObject) {
             moveUp(activeObject);
@@ -71,18 +62,15 @@ function ControlZindex({ onClick }: Props) {
           }
         }}
       >
-        <p className={cn(!hasActiveObject && 'text-gray-400')}>위로 보내기</p>
-        <p className={cn(!hasActiveObject && 'text-gray-400 font-[12px]')}>
+        <p className={cn(!hasActiveObject && DisabledStyle)}>위로 보내기</p>
+        <p className={cn(!hasActiveObject && DisabledShortCutStyle)}>
           Ctrl + [
         </p>
       </button>
       <button
         type="button"
         disabled={!hasActiveObject}
-        className={cn(
-          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
-          !hasActiveObject && 'opacity-50 cursor-not-allowed grayscale'
-        )}
+        className={cn(ActiveStyle, !hasActiveObject && DisabledStyle)}
         onClick={() => {
           if (hasActiveObject && activeObject) {
             moveDown(activeObject);
@@ -90,8 +78,8 @@ function ControlZindex({ onClick }: Props) {
           }
         }}
       >
-        <p className={cn(!hasActiveObject && 'text-gray-400')}>아래로 보내기</p>
-        <p className={cn(!hasActiveObject && 'text-gray-400 font-[12px]')}>
+        <p className={cn(!hasActiveObject && DisabledStyle)}>아래로 보내기</p>
+        <p className={cn(!hasActiveObject && DisabledShortCutStyle)}>
           Ctrl + ]
         </p>
       </button>
