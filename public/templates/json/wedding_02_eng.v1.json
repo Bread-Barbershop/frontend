@@ -137,8 +137,9 @@
           "start": 0,
           "end": 46,
           "style": {
-            "fontFamily": "Cormorant Garamond-Regular",
-            "fontSize": 14
+            "fontFamily": "Cormorant Garamond",
+            "fontSize": 14,
+            "fontWeight": "400"
           }
         }
       ],
@@ -197,8 +198,8 @@
     },
     {
       "fontSize": 16,
-      "fontWeight": "normal",
-      "fontFamily": "Times New Roman",
+      "fontWeight": "300",
+      "fontFamily": "Oswald",
       "fontStyle": "normal",
       "lineHeight": 1.16,
       "text": "2026.03.03",
@@ -209,7 +210,6 @@
           "start": 0,
           "end": 10,
           "style": {
-            "fontFamily": "Oswald-Light",
             "fontSize": 24
           }
         }
@@ -280,9 +280,10 @@
           "start": 0,
           "end": 22,
           "style": {
-            "fontFamily": "Cormorant Garamond-SemiBold",
+            "fontFamily": "Cormorant Garamond",
             "fontSize": 20,
-            "fill": "#000000"
+            "fill": "#000000",
+            "fontWeight": "600"
           }
         }
       ],

@@ -171,7 +171,7 @@ function FontFamily() {
         }}
         selected={selectedFont}
         showCheckbox={false}
-        searchable={true}
+        searchable={false}
       />
 
       <Selector<FontOption>

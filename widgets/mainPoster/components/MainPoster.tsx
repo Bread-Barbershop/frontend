@@ -1,7 +1,7 @@
 import { useShallow } from 'zustand/shallow';
 
-import { UtilityButton } from '@/components/atoms/button';
-import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
+// import { UtilityButton } from '@/components/atoms/button';
+// import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
@@ -16,41 +16,42 @@ export const MainPoster = () => {
       activeTab: state.activeTab,
     }))
   );
-  const { canvas, exportCanvasPreview, exportIntersectedJSON } =
-    useFabricContext();
+  const { canvas } = useFabricContext();
+  // const { canvas, exportCanvasPreview, exportIntersectedJSON } =
+  //   useFabricContext();
 
-  const handleDownloadImage = () => {
-    const preview = exportCanvasPreview();
-    if (!preview) return;
-    const link = document.createElement('a');
-    link.href = preview.dataUrl;
-    link.download = preview.name;
-    link.click();
-  };
+  // const handleDownloadImage = () => {
+  //   const preview = exportCanvasPreview();
+  //   if (!preview) return;
+  //   const link = document.createElement('a');
+  //   link.href = preview.dataUrl;
+  //   link.download = preview.name;
+  //   link.click();
+  // };
 
-  const handleDownloadJSON = () => {
-    const json = exportIntersectedJSON();
-    if (!json) return;
-    const blob = new Blob([JSON.stringify(json, null, 2)], {
-      type: 'application/json',
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'template.json';
-    link.click();
-    URL.revokeObjectURL(url);
-  };
+  // const handleDownloadJSON = () => {
+  //   const json = exportIntersectedJSON();
+  //   if (!json) return;
+  //   const blob = new Blob([JSON.stringify(json, null, 2)], {
+  //     type: 'application/json',
+  //   });
+  //   const url = URL.createObjectURL(blob);
+  //   const link = document.createElement('a');
+  //   link.href = url;
+  //   link.download = 'template.json';
+  //   link.click();
+  //   URL.revokeObjectURL(url);
+  // };
 
   if (!canvas) return null;
 
   return (
     <div
-      className="flex flex-col pb-3.5 px-5 items-center w-full max-h-[750px] overflow-y-scroll overflow-x-hidden scrollbar-hide"
+      className="flex flex-col pb-3.5 px-5 items-center w-full max-h-[812px] overflow-y-scroll overflow-x-hidden scrollbar-hide"
       data-canvas="true"
     >
-      <NavigationBar>포스터 프리뷰(개발용)</NavigationBar>
-      <div className="flex gap-2 w-full mb-4">
+      {/* <NavigationBar>포스터 프리뷰(개발용)</NavigationBar> */}
+      {/* <div className="flex gap-2 w-full mb-4">
         <UtilityButton
           size="sm"
           className="flex-1"
@@ -65,7 +66,7 @@ export const MainPoster = () => {
         >
           데이터 다운로드
         </UtilityButton>
-      </div>
+      </div> */}
 
       {/* 텍스트 */}
       {activeTab === 'text' && <RichTextPanel />}

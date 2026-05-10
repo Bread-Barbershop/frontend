@@ -116,7 +116,7 @@ export const MainPosterPreview = () => {
 
     const fabricCanvas = new Canvas(canvasRef.current, {
       width: 375,
-      height: 750,
+      height: 812,
       fireRightClick: true,
       stopContextMenu: true,
     });
