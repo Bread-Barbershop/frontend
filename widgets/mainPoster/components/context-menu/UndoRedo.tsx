@@ -1,6 +1,8 @@
 import { cn } from '@/shared/utils/cn';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
+import { ActiveStyle, DisabledShortCutStyle, DisabledStyle } from './style';
+
 interface Props {
   onClick: () => void;
 }
@@ -13,10 +15,7 @@ export const UndoRedo = ({ onClick }: Props) => {
       <button
         type="button"
         disabled={!canUndo}
-        className={cn(
-          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
-          !canUndo && 'opacity-50 cursor-not-allowed grayscale'
-        )}
+        className={cn(ActiveStyle, !canUndo && DisabledStyle)}
         onClick={() => {
           if (canUndo) {
             undo();
@@ -24,16 +23,13 @@ export const UndoRedo = ({ onClick }: Props) => {
           }
         }}
       >
-        <p className={cn(!canUndo && 'text-gray-400')}>되돌리기</p>
-        <p className={cn(!canUndo && 'text-gray-400 font-[12px]')}>Ctrl + Z</p>
+        <p className={cn(!canUndo && DisabledStyle)}>되돌리기</p>
+        <p className={cn(!canUndo && DisabledShortCutStyle)}>Ctrl + Z</p>
       </button>
       <button
         type="button"
         disabled={!canRedo}
-        className={cn(
-          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
-          !canRedo && 'opacity-50 cursor-not-allowed grayscale'
-        )}
+        className={cn(ActiveStyle, !canRedo && DisabledStyle)}
         onClick={() => {
           if (canRedo) {
             redo();
@@ -41,8 +37,8 @@ export const UndoRedo = ({ onClick }: Props) => {
           }
         }}
       >
-        <p className={cn(!canRedo && 'text-gray-400')}>다시하기</p>
-        <p className={cn(!canRedo && 'text-gray-400 font-[12px]')}>
+        <p className={cn(!canRedo && DisabledStyle)}>다시하기</p>
+        <p className={cn(!canRedo && DisabledShortCutStyle)}>
           Ctrl + Shift + Z
         </p>
       </button>

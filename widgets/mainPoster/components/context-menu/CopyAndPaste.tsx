@@ -1,6 +1,8 @@
 import { cn } from '@/shared/utils/cn';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
+import { ActiveStyle, DisabledShortCutStyle, DisabledStyle } from './style';
+
 interface Props {
   onClick: () => void;
 }
@@ -15,10 +17,7 @@ function CopyAndPaste({ onClick }: Props) {
       <button
         type="button"
         disabled={!hasActiveObject}
-        className={cn(
-          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
-          !hasActiveObject && 'opacity-50 cursor-not-allowed grayscale'
-        )}
+        className={cn(ActiveStyle, !hasActiveObject && DisabledStyle)}
         onClick={async () => {
           if (hasActiveObject) {
             await copy();
@@ -26,18 +25,15 @@ function CopyAndPaste({ onClick }: Props) {
           }
         }}
       >
-        <p className={cn(!hasActiveObject && 'text-gray-400')}>복사</p>
-        <p className={cn(!hasActiveObject && 'text-gray-400 font-[12px]')}>
+        <p className={cn(!hasActiveObject && DisabledStyle)}>복사</p>
+        <p className={cn(!hasActiveObject && DisabledShortCutStyle)}>
           Ctrl + C
         </p>
       </button>
       <button
         type="button"
         disabled={!hasClipboard}
-        className={cn(
-          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
-          !hasClipboard && 'opacity-50 cursor-not-allowed grayscale'
-        )}
+        className={cn(ActiveStyle, !hasClipboard && DisabledStyle)}
         onClick={async () => {
           if (hasClipboard) {
             await paste();
@@ -45,10 +41,8 @@ function CopyAndPaste({ onClick }: Props) {
           }
         }}
       >
-        <p className={cn(!hasClipboard && 'text-gray-400')}>붙여넣기</p>
-        <p className={cn(!hasClipboard && 'text-gray-400 font-[12px]')}>
-          Ctrl + V
-        </p>
+        <p className={cn(!hasClipboard && DisabledStyle)}>붙여넣기</p>
+        <p className={cn(!hasClipboard && DisabledShortCutStyle)}>Ctrl + V</p>
       </button>
     </>
   );

@@ -7,6 +7,7 @@ import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 import ControlZindex from './ControlZindex';
 import CopyAndPaste from './CopyAndPaste';
 import { LockObject } from './LockObject';
+import { ActiveStyle, DisabledShortCutStyle, DisabledStyle } from './style';
 import { UndoRedo } from './UndoRedo';
 
 export function ContextMenu() {
@@ -74,10 +75,7 @@ export function ContextMenu() {
       <button
         type="button"
         disabled={!hasActiveObject}
-        className={cn(
-          'hover:bg-gray-100 active:bg-gray-200 flex justify-between px-1 rounded transition-colors',
-          !hasActiveObject && 'opacity-50 cursor-not-allowed grayscale'
-        )}
+        className={cn(ActiveStyle, !hasActiveObject && DisabledStyle)}
         onClick={() => {
           if (canvas && hasActiveObject) {
             handleDeleteShape(canvas, undefined, true);
@@ -85,10 +83,8 @@ export function ContextMenu() {
           setOpen(false);
         }}
       >
-        <p className={cn(!hasActiveObject && 'text-gray-400')}>삭제하기</p>
-        <p className={cn(!hasActiveObject && 'text-gray-400 font-[12px]')}>
-          Delete
-        </p>
+        <p className={cn(!hasActiveObject && DisabledStyle)}>삭제하기</p>
+        <p className={cn(!hasActiveObject && DisabledShortCutStyle)}>Delete</p>
       </button>
       <LockObject onClick={() => setOpen(false)} />
     </div>
