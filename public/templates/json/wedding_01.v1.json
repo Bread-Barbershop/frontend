@@ -15,9 +15,10 @@
           "start": 0,
           "end": 11,
           "style": {
-            "fontFamily": "SUIT-Bold",
+            "fontFamily": "SUIT",
             "fontSize": 14,
-            "fill": "#222222"
+            "fill": "#222222",
+            "fontWeight": "700"
           }
         }
       ],
@@ -137,9 +138,10 @@
           "start": 0,
           "end": 8,
           "style": {
-            "fontFamily": "SUIT-Medium",
+            "fontFamily": "SUIT",
             "fontSize": 20,
-            "fill": "#222222"
+            "fill": "#222222",
+            "fontWeight": "500"
           }
         }
       ],
@@ -209,9 +211,10 @@
           "start": 0,
           "end": 7,
           "style": {
-            "fontFamily": "SUIT-Medium",
+            "fontFamily": "SUIT",
             "fontSize": 20,
-            "fill": "#222222"
+            "fill": "#222222",
+            "fontWeight": "500"
           }
         }
       ],
@@ -281,9 +284,10 @@
           "start": 0,
           "end": 1,
           "style": {
-            "fontFamily": "SUIT-Medium",
+            "fontFamily": "SUIT",
             "fontSize": 16,
-            "fill": "#222222"
+            "fill": "#222222",
+            "fontWeight": "500"
           }
         }
       ],
@@ -353,9 +357,10 @@
           "start": 0,
           "end": 10,
           "style": {
-            "fontFamily": "SUIT-Bold",
+            "fontFamily": "SUIT",
             "fontSize": 18,
-            "fill": "#222222"
+            "fill": "#222222",
+            "fontWeight": "700"
           }
         }
       ],
@@ -426,8 +431,9 @@
           "end": 11,
           "style": {
             "fontSize": 14,
-            "fontFamily": "SUIT-Medium",
-            "fill": "#222222"
+            "fontFamily": "SUIT",
+            "fill": "#222222",
+            "fontWeight": "500"
           }
         }
       ],
@@ -442,14 +448,14 @@
       "textDecorationThickness": 66.667,
       "minWidth": 20,
       "splitByGrapheme": true,
-      "lockMovementX": false,
-      "lockMovementY": false,
+      "lockMovementX": true,
+      "lockMovementY": true,
       "lockScalingX": false,
       "lockScalingY": false,
       "lockRotation": false,
-      "hasControls": true,
+      "hasControls": false,
       "editable": true,
-      "selectable": true,
+      "selectable": false,
       "evented": true,
       "fill": "rgb(0,0,0)",
       "stroke": null,
