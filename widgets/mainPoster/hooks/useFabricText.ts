@@ -110,14 +110,15 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
   const resetCharacterStyles = (activeObject: Textbox, styleObj: RichStyle) => {
     if (!activeObject.styles) return;
 
-    const keys = Object.keys(styleObj) as Array<keyof RichStyle>;
+    const keys = (Object.keys(styleObj) as Array<keyof RichStyle>).filter(
+      key => !isLayoutStyle({ [key]: styleObj[key] } as RichStyle)
+    );
+    if (keys.length === 0) return;
 
     for (const lineIndex in activeObject.styles) {
       const line = activeObject.styles[lineIndex];
       for (const charIndex in line) {
         keys.forEach(key => {
-          if (isLayoutStyle({ [key]: styleObj[key] })) return;
-
           if (line[charIndex] && key in line[charIndex]) {
             delete line[charIndex][key];
           }
@@ -200,10 +201,14 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
     [saveHistory, syncActiveObjectInfo]
   );
 
-  const getRichStyles = <T extends RichStyleKey>(
+  type RichStyleResult<T extends readonly RichStyleKey[]> = {
+    [K in keyof T]: string;
+  };
+
+  const getRichStyles = <const T extends readonly RichStyleKey[]>(
     activeObject: Textbox,
-    style: T,
-    onChange: (value: string) => void
+    styleKeys: T,
+    onChange: (values: RichStyleResult<T>) => void
   ) => {
     if (!activeObject) return;
 
@@ -217,45 +222,106 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
       ? selectionEnd
       : (activeObject.text?.length ?? 0);
 
-    const styles = activeObject.getSelectionStyles(start, end, true);
+    const selectionStyles = activeObject.getSelectionStyles(start, end, true);
 
-    const values = styles
-      .map(styleObj => {
-        const key = style as TextSelectionStyleKey;
-        return styleObj[key];
-      })
-      .filter(value => value !== undefined && value !== null)
-      .map(value => {
-        if (style === 'fontWeight') {
-          return normalizeFontWeight(value);
+    const getStyleValue = (style: RichStyleKey): string => {
+      const values = selectionStyles
+        .map(styleObj => {
+          const key = style as TextSelectionStyleKey;
+          return styleObj[key];
+        })
+        .filter(value => value !== undefined && value !== null)
+        .map(value => {
+          if (style === 'fontWeight') {
+            return normalizeFontWeight(value);
+          }
+
+          return String(value);
+        });
+
+      if (values.length === 0) {
+        const objectValue = activeObject.get(style as keyof Textbox);
+
+        if (objectValue !== undefined && objectValue !== null) {
+          return style === 'fontWeight'
+            ? normalizeFontWeight(objectValue)
+            : String(objectValue);
         }
 
-        return String(value);
-      });
-
-    if (values.length === 0) {
-      const objectValue = activeObject.get(style as keyof Textbox);
-
-      if (objectValue !== undefined && objectValue !== null) {
-        onChange(
-          style === 'fontWeight'
-            ? normalizeFontWeight(objectValue)
-            : String(objectValue)
-        );
+        return '';
       }
 
-      return;
-    }
+      const uniqueValues = new Set(values);
 
-    const uniqueValues = new Set(values);
+      if (uniqueValues.size > 1) {
+        return MIXED_VALUE;
+      }
 
-    if (uniqueValues.size > 1) {
-      onChange(MIXED_VALUE);
-      return;
-    }
+      return values[0];
+    };
 
-    onChange(values[0]);
+    const result = styleKeys.map(style =>
+      getStyleValue(style)
+    ) as RichStyleResult<T>;
+
+    onChange(result);
   };
+  // const getRichStyles = <T extends RichStyleKey>(
+  //   activeObject: Textbox,
+  //   style: T,
+  //   onChange: (value: string) => void
+  // ) => {
+  //   if (!activeObject) return;
+
+  //   const selectionStart = activeObject.selectionStart ?? 0;
+  //   const selectionEnd = activeObject.selectionEnd ?? 0;
+
+  //   const isSelectionPresent = selectionStart !== selectionEnd;
+
+  //   const start = isSelectionPresent ? selectionStart : 0;
+  //   const end = isSelectionPresent
+  //     ? selectionEnd
+  //     : (activeObject.text?.length ?? 0);
+
+  //   const styles = activeObject.getSelectionStyles(start, end, true);
+
+  //   const values = styles
+  //     .map(styleObj => {
+  //       const key = style as TextSelectionStyleKey;
+  //       return styleObj[key];
+  //     })
+  //     .filter(value => value !== undefined && value !== null)
+  //     .map(value => {
+  //       if (style === 'fontWeight') {
+  //         return normalizeFontWeight(value);
+  //       }
+
+  //       return String(value);
+  //     });
+
+  //   if (values.length === 0) {
+  //     const objectValue = activeObject.get(style as keyof Textbox);
+
+  //     if (objectValue !== undefined && objectValue !== null) {
+  //       onChange(
+  //         style === 'fontWeight'
+  //           ? normalizeFontWeight(objectValue)
+  //           : String(objectValue)
+  //       );
+  //     }
+
+  //     return;
+  //   }
+
+  //   const uniqueValues = new Set(values);
+
+  //   if (uniqueValues.size > 1) {
+  //     onChange(MIXED_VALUE);
+  //     return;
+  //   }
+
+  //   onChange(values[0]);
+  // };
 
   const setPatternOffset = (
     canvas: Canvas,

@@ -46,15 +46,18 @@ export const RichTextPanel = () => {
     if (!activeObject) return;
 
     const handleSync = () => {
-      getRichStyles(activeObject, 'fontWeight', value => {
-        setActiveStyles(prev => ({ ...prev, fontWeight: value }));
-      });
-      getRichStyles(activeObject, 'fontStyle', value => {
-        setActiveStyles(prev => ({ ...prev, fontStyle: value }));
-      });
-      getRichStyles(activeObject, 'underline', value => {
-        setActiveStyles(prev => ({ ...prev, underline: value === 'true' }));
-      });
+      getRichStyles(
+        activeObject,
+        ['fontWeight', 'fontStyle', 'underline'],
+        ([fontWeight, fontStyle, underline]) => {
+          setActiveStyles(prev => ({
+            ...prev,
+            fontWeight,
+            fontStyle,
+            underline: underline === 'true',
+          }));
+        }
+      );
     };
 
     activeObject.on('changed', handleSync);
@@ -66,7 +69,7 @@ export const RichTextPanel = () => {
       activeObject.off('changed', handleSync);
       activeObject.off('selection:changed', handleSync);
     };
-  }, [activeObject, getRichStyles]);
+  }, [activeObject]);
 
   if (!canvas) return null;
 

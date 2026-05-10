@@ -1,6 +1,6 @@
 import { CUSTOM_FONTS } from '../constants/fonts';
 
-const loadedFontSet = new Set<string>();
+const loadingFontMap = new Map<string, Promise<void>>();
 
 const normalizeFontUrl = (url: string) => {
   if (url.startsWith('url(')) {
@@ -43,22 +43,20 @@ export const loadCustomFont = async (
 
   const fontKey = getFontKey(family, normalizedWeight, style);
 
-  if (loadedFontSet.has(fontKey)) {
-    return;
-  }
+  const inflight = loadingFontMap.get(fontKey);
+  if (inflight) return inflight;
 
-  const fontFace = new FontFace(family, normalizeFontUrl(font.url), {
-    weight: normalizedWeight,
-    style,
-  });
-
-  await fontFace.load();
-
-  document.fonts.add(fontFace);
-
-  await document.fonts.load(`${style} ${normalizedWeight} 16px "${family}"`);
-
-  loadedFontSet.add(fontKey);
+  const promise = (async () => {
+    const fontFace = new FontFace(family, normalizeFontUrl(font.url), {
+      weight: normalizedWeight,
+      style,
+    });
+    await fontFace.load();
+    document.fonts.add(fontFace);
+    await document.fonts.load(`${style} ${normalizedWeight} 16px "${family}"`);
+  })();
+  loadingFontMap.set(fontKey, promise);
+  return promise;
 };
 
 export const getPreviewFonts = () => {
@@ -81,6 +79,21 @@ export const preloadPreviewFonts = async () => {
 
   await Promise.allSettled(
     previewFonts.map(font =>
+      loadCustomFont(font.family, String(font.weight), font.style)
+    )
+  );
+};
+
+export const preloadFontFamilyWeights = async (
+  family: string,
+  style = 'normal'
+) => {
+  const fonts = CUSTOM_FONTS.filter(
+    font => font.family === family && font.style === style
+  );
+
+  await Promise.allSettled(
+    fonts.map(font =>
       loadCustomFont(font.family, String(font.weight), font.style)
     )
   );

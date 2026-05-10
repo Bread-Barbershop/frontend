@@ -98,7 +98,7 @@ function FontColor() {
     const handleSync = () => {
       if (isPickingColorRef.current) return;
 
-      getRichStyles(activeObject, 'fill', color => setPickerColor(color));
+      getRichStyles(activeObject, ['fill'], ([color]) => setPickerColor(color));
     };
 
     activeObject.on('changed', handleSync);

@@ -16,8 +16,8 @@ export const mixedOption: FontOption = {
 export const normalizeFontWeight = (weight: unknown) => {
   const value = String(weight ?? '400');
 
-  if (value === 'normal') return '400';
-  if (value === 'bold') return '700';
+  if (value === 'normal' || value === 'lighter') return '400';
+  if (value === 'bold' || value === 'bolder') return '700';
 
   return value;
 };

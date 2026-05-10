@@ -280,10 +280,7 @@ export const MainPosterPreview = () => {
     };
 
     const handleMouseUp = () => {
-      if (
-        typeof window !== 'undefined' &&
-        window.location.pathname.startsWith('/dev')
-      ) {
+      if (typeof window !== 'undefined') {
         console.log('[Fabric] 마우스 업: 선택 가능 상태 복구');
       }
       // 드래그 종료 시 (또는 클릭 종료 시) 잠긴 객체와 배경 레이어의 selectable 다시 복구

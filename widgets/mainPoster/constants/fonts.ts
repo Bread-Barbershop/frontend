@@ -1,1916 +1,1814 @@
 export const CUSTOM_FONTS = [
   {
-    "family": "SUIT",
-    "url": "url(/font/SUIT.woff2)",
-    "weight": "100",
-    "style": "normal"
+    family: 'SUIT',
+    url: 'url(/font/SUIT.woff2)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "SUIT",
-    "url": "url(/font/SUIT.woff2)",
-    "weight": "200",
-    "style": "normal"
+    family: 'SUIT',
+    url: 'url(/font/SUIT.woff2)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "SUIT",
-    "url": "url(/font/SUIT.woff2)",
-    "weight": "300",
-    "style": "normal"
+    family: 'SUIT',
+    url: 'url(/font/SUIT.woff2)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "SUIT",
-    "url": "url(/font/SUIT.woff2)",
-    "weight": "400",
-    "style": "normal"
+    family: 'SUIT',
+    url: 'url(/font/SUIT.woff2)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "SUIT",
-    "url": "url(/font/SUIT.woff2)",
-    "weight": "500",
-    "style": "normal"
+    family: 'SUIT',
+    url: 'url(/font/SUIT.woff2)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "SUIT",
-    "url": "url(/font/SUIT.woff2)",
-    "weight": "600",
-    "style": "normal"
+    family: 'SUIT',
+    url: 'url(/font/SUIT.woff2)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "SUIT",
-    "url": "url(/font/SUIT.woff2)",
-    "weight": "700",
-    "style": "normal"
+    family: 'SUIT',
+    url: 'url(/font/SUIT.woff2)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "SUIT",
-    "url": "url(/font/SUIT.woff2)",
-    "weight": "800",
-    "style": "normal"
+    family: 'SUIT',
+    url: 'url(/font/SUIT.woff2)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "SUIT",
-    "url": "url(/font/SUIT.woff2)",
-    "weight": "900",
-    "style": "normal"
+    family: 'SUIT',
+    url: 'url(/font/SUIT.woff2)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Cormorant Garamond",
-    "url": "url(/font/CormorantGaramond-Variable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Cormorant Garamond',
+    url: 'url(/font/CormorantGaramond-Variable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Cormorant Garamond",
-    "url": "url(/font/CormorantGaramond-Variable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Cormorant Garamond',
+    url: 'url(/font/CormorantGaramond-Variable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Cormorant Garamond",
-    "url": "url(/font/CormorantGaramond-Variable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Cormorant Garamond',
+    url: 'url(/font/CormorantGaramond-Variable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Cormorant Garamond",
-    "url": "url(/font/CormorantGaramond-Variable.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Cormorant Garamond',
+    url: 'url(/font/CormorantGaramond-Variable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Cormorant Garamond",
-    "url": "url(/font/CormorantGaramond-Variable.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Cormorant Garamond',
+    url: 'url(/font/CormorantGaramond-Variable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Cormorant Garamond",
-    "url": "url(/font/CormorantGaramond-Variable.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Cormorant Garamond',
+    url: 'url(/font/CormorantGaramond-Variable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Cormorant Garamond",
-    "url": "url(/font/CormorantGaramond-Variable.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Cormorant Garamond',
+    url: 'url(/font/CormorantGaramond-Variable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Cormorant Garamond",
-    "url": "url(/font/CormorantGaramond-Variable.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Cormorant Garamond',
+    url: 'url(/font/CormorantGaramond-Variable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Cormorant Garamond",
-    "url": "url(/font/CormorantGaramond-Variable.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Cormorant Garamond',
+    url: 'url(/font/CormorantGaramond-Variable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Hahmlet",
-    "url": "url(/font/Hahmlet-Variable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Hahmlet',
+    url: 'url(/font/Hahmlet-Variable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Hahmlet",
-    "url": "url(/font/Hahmlet-Variable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Hahmlet',
+    url: 'url(/font/Hahmlet-Variable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Hahmlet",
-    "url": "url(/font/Hahmlet-Variable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Hahmlet',
+    url: 'url(/font/Hahmlet-Variable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Hahmlet",
-    "url": "url(/font/Hahmlet-Variable.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Hahmlet',
+    url: 'url(/font/Hahmlet-Variable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Hahmlet",
-    "url": "url(/font/Hahmlet-Variable.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Hahmlet',
+    url: 'url(/font/Hahmlet-Variable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Hahmlet",
-    "url": "url(/font/Hahmlet-Variable.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Hahmlet',
+    url: 'url(/font/Hahmlet-Variable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Hahmlet",
-    "url": "url(/font/Hahmlet-Variable.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Hahmlet',
+    url: 'url(/font/Hahmlet-Variable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Hahmlet",
-    "url": "url(/font/Hahmlet-Variable.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Hahmlet',
+    url: 'url(/font/Hahmlet-Variable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Hahmlet",
-    "url": "url(/font/Hahmlet-Variable.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Hahmlet',
+    url: 'url(/font/Hahmlet-Variable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Oswald",
-    "url": "url(/font/Oswald-Variable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Oswald',
+    url: 'url(/font/Oswald-Variable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Oswald",
-    "url": "url(/font/Oswald-Variable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Oswald',
+    url: 'url(/font/Oswald-Variable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Oswald",
-    "url": "url(/font/Oswald-Variable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Oswald',
+    url: 'url(/font/Oswald-Variable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Oswald",
-    "url": "url(/font/Oswald-Variable.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Oswald',
+    url: 'url(/font/Oswald-Variable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Oswald",
-    "url": "url(/font/Oswald-Variable.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Oswald',
+    url: 'url(/font/Oswald-Variable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Oswald",
-    "url": "url(/font/Oswald-Variable.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Oswald',
+    url: 'url(/font/Oswald-Variable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Oswald",
-    "url": "url(/font/Oswald-Variable.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Oswald',
+    url: 'url(/font/Oswald-Variable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Oswald",
-    "url": "url(/font/Oswald-Variable.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Oswald',
+    url: 'url(/font/Oswald-Variable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Oswald",
-    "url": "url(/font/Oswald-Variable.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Oswald',
+    url: 'url(/font/Oswald-Variable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Allura",
-    "url": "url(/font/Allura-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Allura',
+    url: 'url(/font/Allura-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Italianno",
-    "url": "url(/font/Italianno-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Italianno',
+    url: 'url(/font/Italianno-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Jost",
-    "url": "url(/font/Jost-Variable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Jost',
+    url: 'url(/font/Jost-Variable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Jost",
-    "url": "url(/font/Jost-Variable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Jost',
+    url: 'url(/font/Jost-Variable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Jost",
-    "url": "url(/font/Jost-Variable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Jost',
+    url: 'url(/font/Jost-Variable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Jost",
-    "url": "url(/font/Jost-Variable.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Jost',
+    url: 'url(/font/Jost-Variable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Jost",
-    "url": "url(/font/Jost-Variable.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Jost',
+    url: 'url(/font/Jost-Variable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Jost",
-    "url": "url(/font/Jost-Variable.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Jost',
+    url: 'url(/font/Jost-Variable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Jost",
-    "url": "url(/font/Jost-Variable.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Jost',
+    url: 'url(/font/Jost-Variable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Jost",
-    "url": "url(/font/Jost-Variable.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Jost',
+    url: 'url(/font/Jost-Variable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Jost",
-    "url": "url(/font/Jost-Variable.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Jost',
+    url: 'url(/font/Jost-Variable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Pathway Gothic One",
-    "url": "url(/font/PathwayGothicOne-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Pathway Gothic One',
+    url: 'url(/font/PathwayGothicOne-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Barlow Condensed",
-    "url": "url(/font/BarlowCondensed/BarlowCondensed-Thin.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Barlow Condensed',
+    url: 'url(/font/BarlowCondensed/BarlowCondensed-Thin.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Barlow Condensed",
-    "url": "url(/font/BarlowCondensed/BarlowCondensed-ExtraLight.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Barlow Condensed',
+    url: 'url(/font/BarlowCondensed/BarlowCondensed-ExtraLight.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Barlow Condensed",
-    "url": "url(/font/BarlowCondensed/BarlowCondensed-Light.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Barlow Condensed',
+    url: 'url(/font/BarlowCondensed/BarlowCondensed-Light.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Barlow Condensed",
-    "url": "url(/font/BarlowCondensed/BarlowCondensed-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Barlow Condensed',
+    url: 'url(/font/BarlowCondensed/BarlowCondensed-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Barlow Condensed",
-    "url": "url(/font/BarlowCondensed/BarlowCondensed-Medium.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Barlow Condensed',
+    url: 'url(/font/BarlowCondensed/BarlowCondensed-Medium.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Barlow Condensed",
-    "url": "url(/font/BarlowCondensed/BarlowCondensed-SemiBold.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Barlow Condensed',
+    url: 'url(/font/BarlowCondensed/BarlowCondensed-SemiBold.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Barlow Condensed",
-    "url": "url(/font/BarlowCondensed/BarlowCondensed-Bold.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Barlow Condensed',
+    url: 'url(/font/BarlowCondensed/BarlowCondensed-Bold.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Barlow Condensed",
-    "url": "url(/font/BarlowCondensed/BarlowCondensed-ExtraBold.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Barlow Condensed',
+    url: 'url(/font/BarlowCondensed/BarlowCondensed-ExtraBold.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Barlow Condensed",
-    "url": "url(/font/BarlowCondensed/BarlowCondensed-Black.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Barlow Condensed',
+    url: 'url(/font/BarlowCondensed/BarlowCondensed-Black.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "나눔 스퀘어 네오",
-    "url": "url(/font/NanumSquareNeo/NanumSquareNeo-aLt.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: '나눔 스퀘어 네오',
+    url: 'url(/font/NanumSquareNeo/NanumSquareNeo-aLt.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "나눔 스퀘어 네오",
-    "url": "url(/font/NanumSquareNeo/NanumSquareNeo-bRg.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: '나눔 스퀘어 네오',
+    url: 'url(/font/NanumSquareNeo/NanumSquareNeo-bRg.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "나눔 스퀘어 네오",
-    "url": "url(/font/NanumSquareNeo/NanumSquareNeo-cBd.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: '나눔 스퀘어 네오',
+    url: 'url(/font/NanumSquareNeo/NanumSquareNeo-cBd.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "나눔 스퀘어 네오",
-    "url": "url(/font/NanumSquareNeo/NanumSquareNeo-dEb.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: '나눔 스퀘어 네오',
+    url: 'url(/font/NanumSquareNeo/NanumSquareNeo-dEb.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "나눔 스퀘어 네오",
-    "url": "url(/font/NanumSquareNeo/NanumSquareNeo-eHv.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: '나눔 스퀘어 네오',
+    url: 'url(/font/NanumSquareNeo/NanumSquareNeo-eHv.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Noto Sans KR",
-    "url": "url(/font/NotoSansKR-Variable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Noto Sans KR',
+    url: 'url(/font/NotoSansKR-Variable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Noto Sans KR",
-    "url": "url(/font/NotoSansKR-Variable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Noto Sans KR',
+    url: 'url(/font/NotoSansKR-Variable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Noto Sans KR",
-    "url": "url(/font/NotoSansKR-Variable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Noto Sans KR',
+    url: 'url(/font/NotoSansKR-Variable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Noto Sans KR",
-    "url": "url(/font/NotoSansKR-Variable.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Noto Sans KR',
+    url: 'url(/font/NotoSansKR-Variable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Noto Sans KR",
-    "url": "url(/font/NotoSansKR-Variable.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Noto Sans KR',
+    url: 'url(/font/NotoSansKR-Variable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Noto Sans KR",
-    "url": "url(/font/NotoSansKR-Variable.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Noto Sans KR',
+    url: 'url(/font/NotoSansKR-Variable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Noto Sans KR",
-    "url": "url(/font/NotoSansKR-Variable.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Noto Sans KR',
+    url: 'url(/font/NotoSansKR-Variable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Noto Sans KR",
-    "url": "url(/font/NotoSansKR-Variable.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Noto Sans KR',
+    url: 'url(/font/NotoSansKR-Variable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Noto Sans KR",
-    "url": "url(/font/NotoSansKR-Variable.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Noto Sans KR',
+    url: 'url(/font/NotoSansKR-Variable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Qwigley",
-    "url": "url(/font/Qwigley-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Qwigley',
+    url: 'url(/font/Qwigley-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "DM Serif Display",
-    "url": "url(/font/DMSerifDisplay-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'DM Serif Display',
+    url: 'url(/font/DMSerifDisplay-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "LINESeedKR",
-    "url": "url(/font/LINESeedKR/LINESeedKR-Th.woff2)",
-    "weight": "100",
-    "style": "normal"
+    family: 'LINESeedKR',
+    url: 'url(/font/LINESeedKR/LINESeedKR-Th.woff2)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "LINESeedKR",
-    "url": "url(/font/LINESeedKR/LINESeedKR-Th.woff2)",
-    "weight": "200",
-    "style": "normal"
+    family: 'LINESeedKR',
+    url: 'url(/font/LINESeedKR/LINESeedKR-Rg.woff2)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "LINESeedKR",
-    "url": "url(/font/LINESeedKR/LINESeedKR-Th.woff2)",
-    "weight": "300",
-    "style": "normal"
+    family: 'LINESeedKR',
+    url: 'url(/font/LINESeedKR/LINESeedKR-Bd.woff2)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "LINESeedKR",
-    "url": "url(/font/LINESeedKR/LINESeedKR-Th.woff2)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Manrope',
+    url: 'url(/font/Manrope-Variable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "LINESeedKR",
-    "url": "url(/font/LINESeedKR/LINESeedKR-Th.woff2)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Manrope',
+    url: 'url(/font/Manrope-Variable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "LINESeedKR",
-    "url": "url(/font/LINESeedKR/LINESeedKR-Th.woff2)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Manrope',
+    url: 'url(/font/Manrope-Variable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "LINESeedKR",
-    "url": "url(/font/LINESeedKR/LINESeedKR-Th.woff2)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Manrope',
+    url: 'url(/font/Manrope-Variable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "LINESeedKR",
-    "url": "url(/font/LINESeedKR/LINESeedKR-Th.woff2)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Manrope',
+    url: 'url(/font/Manrope-Variable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "LINESeedKR",
-    "url": "url(/font/LINESeedKR/LINESeedKR-Th.woff2)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Manrope',
+    url: 'url(/font/Manrope-Variable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Manrope",
-    "url": "url(/font/Manrope-Variable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Manrope',
+    url: 'url(/font/Manrope-Variable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Manrope",
-    "url": "url(/font/Manrope-Variable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Manrope',
+    url: 'url(/font/Manrope-Variable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Manrope",
-    "url": "url(/font/Manrope-Variable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Manrope',
+    url: 'url(/font/Manrope-Variable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Manrope",
-    "url": "url(/font/Manrope-Variable.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Sora',
+    url: 'url(/font/Sora-Variable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Manrope",
-    "url": "url(/font/Manrope-Variable.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Sora',
+    url: 'url(/font/Sora-Variable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Manrope",
-    "url": "url(/font/Manrope-Variable.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Sora',
+    url: 'url(/font/Sora-Variable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Manrope",
-    "url": "url(/font/Manrope-Variable.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Sora',
+    url: 'url(/font/Sora-Variable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Manrope",
-    "url": "url(/font/Manrope-Variable.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Sora',
+    url: 'url(/font/Sora-Variable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Manrope",
-    "url": "url(/font/Manrope-Variable.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Sora',
+    url: 'url(/font/Sora-Variable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Sora",
-    "url": "url(/font/Sora-Variable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Sora',
+    url: 'url(/font/Sora-Variable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Sora",
-    "url": "url(/font/Sora-Variable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Sora',
+    url: 'url(/font/Sora-Variable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Sora",
-    "url": "url(/font/Sora-Variable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Sora',
+    url: 'url(/font/Sora-Variable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Sora",
-    "url": "url(/font/Sora-Variable.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Mrs Saint Delafield',
+    url: 'url(/font/MrsSaintDelafield-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Sora",
-    "url": "url(/font/Sora-Variable.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Old Standard TT',
+    url: 'url(/font/OldStandardTT/OldStandardTT-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Sora",
-    "url": "url(/font/Sora-Variable.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Old Standard TT',
+    url: 'url(/font/OldStandardTT/OldStandardTT-Bold.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Sora",
-    "url": "url(/font/Sora-Variable.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Cormorant SC',
+    url: 'url(/font/CormorantSC/CormorantSC-Light.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Sora",
-    "url": "url(/font/Sora-Variable.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Cormorant SC',
+    url: 'url(/font/CormorantSC/CormorantSC-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Sora",
-    "url": "url(/font/Sora-Variable.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Cormorant SC',
+    url: 'url(/font/CormorantSC/CormorantSC-Medium.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Mrs Saint Delafine",
-    "url": "url(/font/MrsSaintDelafield-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Cormorant SC',
+    url: 'url(/font/CormorantSC/CormorantSC-SemiBold.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Old Standard TT",
-    "url": "url(/font/OldStandardTT/OldStandardTT-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Cormorant SC',
+    url: 'url(/font/CormorantSC/CormorantSC-Bold.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Old Standard TT",
-    "url": "url(/font/OldStandardTT/OldStandardTT-Bold.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Kalam',
+    url: 'url(/font/Kalam/Kalam-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Old Standard TT-Italic",
-    "url": "url(/font/OldStandardTT/OldStandardTT-Italic.ttf)",
-    "weight": "400",
-    "style": "italic"
+    family: 'Kalam',
+    url: 'url(/font/Kalam/Kalam-Bold.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Cormorant SC",
-    "url": "url(/font/CormorantSC/CormorantSC-Light.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Kalam',
+    url: 'url(/font/Kalam/Kalam-Light.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Cormorant SC",
-    "url": "url(/font/CormorantSC/CormorantSC-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Permanent Marker',
+    url: 'url(/font/PermanentMarker-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Cormorant SC",
-    "url": "url(/font/CormorantSC/CormorantSC-Medium.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Noto Serif KR',
+    url: 'url(/font/NotoSerifKR-Variable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Cormorant SC",
-    "url": "url(/font/CormorantSC/CormorantSC-SemiBold.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Noto Serif KR',
+    url: 'url(/font/NotoSerifKR-Variable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Cormorant SC",
-    "url": "url(/font/CormorantSC/CormorantSC-Bold.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Noto Serif KR',
+    url: 'url(/font/NotoSerifKR-Variable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Kalam",
-    "url": "url(/font/Kalam/Kalam-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Noto Serif KR',
+    url: 'url(/font/NotoSerifKR-Variable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Kalam",
-    "url": "url(/font/Kalam/Kalam-Bold.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Noto Serif KR',
+    url: 'url(/font/NotoSerifKR-Variable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Kalam",
-    "url": "url(/font/Kalam/Kalam-Light.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Noto Serif KR',
+    url: 'url(/font/NotoSerifKR-Variable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Permanent Marker",
-    "url": "url(/font/PermanentMarker-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Noto Serif KR',
+    url: 'url(/font/NotoSerifKR-Variable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Noto Serif KR",
-    "url": "url(/font/NotoSerifKR-Variable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Noto Serif KR',
+    url: 'url(/font/NotoSerifKR-Variable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Noto Serif KR",
-    "url": "url(/font/NotoSerifKR-Variable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Noto Serif KR',
+    url: 'url(/font/NotoSerifKR-Variable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Noto Serif KR",
-    "url": "url(/font/NotoSerifKR-Variable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Prata',
+    url: 'url(/font/Prata-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Noto Serif KR",
-    "url": "url(/font/NotoSerifKR-Variable.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'TenorSans',
+    url: 'url(/font/TenorSans-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Noto Serif KR",
-    "url": "url(/font/NotoSerifKR-Variable.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Bodoni Moda',
+    url: 'url(/font/BodoniModaVariable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Noto Serif KR",
-    "url": "url(/font/NotoSerifKR-Variable.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Bodoni Moda',
+    url: 'url(/font/BodoniModaVariable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Noto Serif KR",
-    "url": "url(/font/NotoSerifKR-Variable.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Bodoni Moda',
+    url: 'url(/font/BodoniModaVariable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Noto Serif KR",
-    "url": "url(/font/NotoSerifKR-Variable.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Bodoni Moda',
+    url: 'url(/font/BodoniModaVariable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Noto Serif KR",
-    "url": "url(/font/NotoSerifKR-Variable.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Bodoni Moda',
+    url: 'url(/font/BodoniModaVariable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Prata",
-    "url": "url(/font/Prata-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Bodoni Moda',
+    url: 'url(/font/BodoniModaVariable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "TenorSans",
-    "url": "url(/font/TenorSans-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Bodoni Moda',
+    url: 'url(/font/BodoniModaVariable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Bodoni Moda",
-    "url": "url(/font/BodoniModaVariable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Bodoni Moda',
+    url: 'url(/font/BodoniModaVariable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Bodoni Moda",
-    "url": "url(/font/BodoniModaVariable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Bodoni Moda',
+    url: 'url(/font/BodoniModaVariable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Bodoni Moda",
-    "url": "url(/font/BodoniModaVariable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Noto Serif',
+    url: 'url(/font/NotoSerif/NotoSerif-Variable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Bodoni Moda",
-    "url": "url(/font/BodoniModaVariable.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Noto Serif',
+    url: 'url(/font/NotoSerif/NotoSerif-Variable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Bodoni Moda",
-    "url": "url(/font/BodoniModaVariable.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Noto Serif',
+    url: 'url(/font/NotoSerif/NotoSerif-Variable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Bodoni Moda",
-    "url": "url(/font/BodoniModaVariable.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Noto Serif',
+    url: 'url(/font/NotoSerif/NotoSerif-Variable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Bodoni Moda",
-    "url": "url(/font/BodoniModaVariable.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Noto Serif',
+    url: 'url(/font/NotoSerif/NotoSerif-Variable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Bodoni Moda",
-    "url": "url(/font/BodoniModaVariable.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Noto Serif',
+    url: 'url(/font/NotoSerif/NotoSerif-Variable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Bodoni Moda",
-    "url": "url(/font/BodoniModaVariable.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Noto Serif',
+    url: 'url(/font/NotoSerif/NotoSerif-Variable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Noto Serif",
-    "url": "url(/font/NotoSerif/NotoSerif-Variable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Noto Serif',
+    url: 'url(/font/NotoSerif/NotoSerif-Variable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Noto Serif",
-    "url": "url(/font/NotoSerif/NotoSerif-Variable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Noto Serif',
+    url: 'url(/font/NotoSerif/NotoSerif-Variable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Noto Serif",
-    "url": "url(/font/NotoSerif/NotoSerif-Variable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Bona Nova',
+    url: 'url(/font/BonaNova/BonaNova-Bold.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Noto Serif",
-    "url": "url(/font/NotoSerif/NotoSerif-Variable.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Bona Nova',
+    url: 'url(/font/BonaNova/BonaNova-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Noto Serif",
-    "url": "url(/font/NotoSerif/NotoSerif-Variable.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'IBM Plex Sans',
+    url: 'url(/font/IBMPlexSans-Variable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Noto Serif",
-    "url": "url(/font/NotoSerif/NotoSerif-Variable.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'IBM Plex Sans',
+    url: 'url(/font/IBMPlexSans-Variable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Noto Serif",
-    "url": "url(/font/NotoSerif/NotoSerif-Variable.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'IBM Plex Sans',
+    url: 'url(/font/IBMPlexSans-Variable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Noto Serif",
-    "url": "url(/font/NotoSerif/NotoSerif-Variable.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'IBM Plex Sans',
+    url: 'url(/font/IBMPlexSans-Variable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Noto Serif",
-    "url": "url(/font/NotoSerif/NotoSerif-Variable.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'IBM Plex Sans',
+    url: 'url(/font/IBMPlexSans-Variable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Bona Nova",
-    "url": "url(/font/BonaNova/BonaNova-Bold.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'IBM Plex Sans',
+    url: 'url(/font/IBMPlexSans-Variable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Bona Nova",
-    "url": "url(/font/BonaNova/BonaNova-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'IBM Plex Sans',
+    url: 'url(/font/IBMPlexSans-Variable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Bona Nova-Italic",
-    "url": "url(/font/BonaNova/BonaNova-Italic.ttf)",
-    "weight": "400",
-    "style": "italic"
+    family: 'IBM Plex Sans',
+    url: 'url(/font/IBMPlexSans-Variable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "IBM Plex Sans",
-    "url": "url(/font/IBMPlexSans-Variable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'IBM Plex Sans',
+    url: 'url(/font/IBMPlexSans-Variable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "IBM Plex Sans",
-    "url": "url(/font/IBMPlexSans-Variable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Bebas Neue',
+    url: 'url(/font/BebasNeue-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "IBM Plex Sans",
-    "url": "url(/font/IBMPlexSans-Variable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Anton',
+    url: 'url(/font/Anton-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "IBM Plex Sans",
-    "url": "url(/font/IBMPlexSans-Variable.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Paperlogy',
+    url: 'url(/font/Paperlogy/Paperlogy-Light.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "IBM Plex Sans",
-    "url": "url(/font/IBMPlexSans-Variable.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Paperlogy',
+    url: 'url(/font/Paperlogy/Paperlogy-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "IBM Plex Sans",
-    "url": "url(/font/IBMPlexSans-Variable.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Paperlogy',
+    url: 'url(/font/Paperlogy/Paperlogy-Medium.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "IBM Plex Sans",
-    "url": "url(/font/IBMPlexSans-Variable.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Paperlogy',
+    url: 'url(/font/Paperlogy/Paperlogy-SemiBold.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "IBM Plex Sans",
-    "url": "url(/font/IBMPlexSans-Variable.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Paperlogy',
+    url: 'url(/font/Paperlogy/Paperlogy-Bold.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "IBM Plex Sans",
-    "url": "url(/font/IBMPlexSans-Variable.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Urbanist',
+    url: 'url(/font/Urbanist-Variable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Bebas Neue",
-    "url": "url(/font/BebasNeue-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Urbanist',
+    url: 'url(/font/Urbanist-Variable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Anton",
-    "url": "url(/font/Anton-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Urbanist',
+    url: 'url(/font/Urbanist-Variable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Paperlogy",
-    "url": "url(/font/Paperlogy/Paperlogy-Light.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Urbanist',
+    url: 'url(/font/Urbanist-Variable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Paperlogy",
-    "url": "url(/font/Paperlogy/Paperlogy-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Urbanist',
+    url: 'url(/font/Urbanist-Variable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Paperlogy",
-    "url": "url(/font/Paperlogy/Paperlogy-Medium.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Urbanist',
+    url: 'url(/font/Urbanist-Variable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Paperlogy",
-    "url": "url(/font/Paperlogy/Paperlogy-SemiBold.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Urbanist',
+    url: 'url(/font/Urbanist-Variable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Paperlogy",
-    "url": "url(/font/Paperlogy/Paperlogy-Bold.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Urbanist',
+    url: 'url(/font/Urbanist-Variable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Urbanist",
-    "url": "url(/font/Urbanist-Variable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Urbanist',
+    url: 'url(/font/Urbanist-Variable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Urbanist",
-    "url": "url(/font/Urbanist-Variable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Archivo',
+    url: 'url(/font/Archivo-Variable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Urbanist",
-    "url": "url(/font/Urbanist-Variable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Archivo',
+    url: 'url(/font/Archivo-Variable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Urbanist",
-    "url": "url(/font/Urbanist-Variable.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Archivo',
+    url: 'url(/font/Archivo-Variable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Urbanist",
-    "url": "url(/font/Urbanist-Variable.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Archivo',
+    url: 'url(/font/Archivo-Variable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Urbanist",
-    "url": "url(/font/Urbanist-Variable.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Archivo',
+    url: 'url(/font/Archivo-Variable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Urbanist",
-    "url": "url(/font/Urbanist-Variable.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Archivo',
+    url: 'url(/font/Archivo-Variable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Urbanist",
-    "url": "url(/font/Urbanist-Variable.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Archivo',
+    url: 'url(/font/Archivo-Variable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Urbanist",
-    "url": "url(/font/Urbanist-Variable.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Archivo',
+    url: 'url(/font/Archivo-Variable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Archivo",
-    "url": "url(/font/Archivo-Variable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Archivo',
+    url: 'url(/font/Archivo-Variable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Archivo",
-    "url": "url(/font/Archivo-Variable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'G마켓 산스',
+    url: 'url(/font/GmarketSans/GmarketSansTTFBold.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Archivo",
-    "url": "url(/font/Archivo-Variable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'G마켓 산스',
+    url: 'url(/font/GmarketSans/GmarketSansTTFLight.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Archivo",
-    "url": "url(/font/Archivo-Variable.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'G마켓 산스',
+    url: 'url(/font/GmarketSans/GmarketSansTTFMedium.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Archivo",
-    "url": "url(/font/Archivo-Variable.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'DM Sans',
+    url: 'url(/font/DMSans-Variable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Archivo",
-    "url": "url(/font/Archivo-Variable.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'DM Sans',
+    url: 'url(/font/DMSans-Variable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Archivo",
-    "url": "url(/font/Archivo-Variable.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'DM Sans',
+    url: 'url(/font/DMSans-Variable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Archivo",
-    "url": "url(/font/Archivo-Variable.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'DM Sans',
+    url: 'url(/font/DMSans-Variable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Archivo",
-    "url": "url(/font/Archivo-Variable.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'DM Sans',
+    url: 'url(/font/DMSans-Variable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "G마켓 산스",
-    "url": "url(/font/GmarketSans/GmarketSansTTFBold.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'DM Sans',
+    url: 'url(/font/DMSans-Variable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "G마켓 산스",
-    "url": "url(/font/GmarketSans/GmarketSansTTFLight.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'DM Sans',
+    url: 'url(/font/DMSans-Variable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "G마켓 산스",
-    "url": "url(/font/GmarketSans/GmarketSansTTFMedium.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'DM Sans',
+    url: 'url(/font/DMSans-Variable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "DM Sans",
-    "url": "url(/font/DMSans-Variable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'DM Sans',
+    url: 'url(/font/DMSans-Variable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "DM Sans",
-    "url": "url(/font/DMSans-Variable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Source Sans 3',
+    url: 'url(/font/SourceSans3-Variable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "DM Sans",
-    "url": "url(/font/DMSans-Variable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Source Sans 3',
+    url: 'url(/font/SourceSans3-Variable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "DM Sans",
-    "url": "url(/font/DMSans-Variable.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Source Sans 3',
+    url: 'url(/font/SourceSans3-Variable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "DM Sans",
-    "url": "url(/font/DMSans-Variable.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Source Sans 3',
+    url: 'url(/font/SourceSans3-Variable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "DM Sans",
-    "url": "url(/font/DMSans-Variable.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Source Sans 3',
+    url: 'url(/font/SourceSans3-Variable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "DM Sans",
-    "url": "url(/font/DMSans-Variable.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Source Sans 3',
+    url: 'url(/font/SourceSans3-Variable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "DM Sans",
-    "url": "url(/font/DMSans-Variable.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Source Sans 3',
+    url: 'url(/font/SourceSans3-Variable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "DM Sans",
-    "url": "url(/font/DMSans-Variable.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Source Sans 3',
+    url: 'url(/font/SourceSans3-Variable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Source Sans 3",
-    "url": "url(/font/SourceSans3-Variable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Source Sans 3',
+    url: 'url(/font/SourceSans3-Variable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Source Sans 3",
-    "url": "url(/font/SourceSans3-Variable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Clash Grotesk',
+    url: 'url(/font/ClashGrotesk-Variable.woff2)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Source Sans 3",
-    "url": "url(/font/SourceSans3-Variable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Clash Grotesk',
+    url: 'url(/font/ClashGrotesk-Variable.woff2)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Source Sans 3",
-    "url": "url(/font/SourceSans3-Variable.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Clash Grotesk',
+    url: 'url(/font/ClashGrotesk-Variable.woff2)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Source Sans 3",
-    "url": "url(/font/SourceSans3-Variable.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Clash Grotesk',
+    url: 'url(/font/ClashGrotesk-Variable.woff2)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Source Sans 3",
-    "url": "url(/font/SourceSans3-Variable.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Clash Grotesk',
+    url: 'url(/font/ClashGrotesk-Variable.woff2)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Source Sans 3",
-    "url": "url(/font/SourceSans3-Variable.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Clash Grotesk',
+    url: 'url(/font/ClashGrotesk-Variable.woff2)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Source Sans 3",
-    "url": "url(/font/SourceSans3-Variable.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Clash Grotesk',
+    url: 'url(/font/ClashGrotesk-Variable.woff2)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Source Sans 3",
-    "url": "url(/font/SourceSans3-Variable.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Clash Grotesk',
+    url: 'url(/font/ClashGrotesk-Variable.woff2)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Clash Grotest",
-    "url": "url(/font/ClashGrotesk-Variable.woff2)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Clash Grotesk',
+    url: 'url(/font/ClashGrotesk-Variable.woff2)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Clash Grotest",
-    "url": "url(/font/ClashGrotesk-Variable.woff2)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Pretendard',
+    url: 'url(/font/PretendardVariable.woff2)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Clash Grotest",
-    "url": "url(/font/ClashGrotesk-Variable.woff2)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Pretendard',
+    url: 'url(/font/PretendardVariable.woff2)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Clash Grotest",
-    "url": "url(/font/ClashGrotesk-Variable.woff2)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Pretendard',
+    url: 'url(/font/PretendardVariable.woff2)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Clash Grotest",
-    "url": "url(/font/ClashGrotesk-Variable.woff2)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Pretendard',
+    url: 'url(/font/PretendardVariable.woff2)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Clash Grotest",
-    "url": "url(/font/ClashGrotesk-Variable.woff2)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Pretendard',
+    url: 'url(/font/PretendardVariable.woff2)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Clash Grotest",
-    "url": "url(/font/ClashGrotesk-Variable.woff2)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Pretendard',
+    url: 'url(/font/PretendardVariable.woff2)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Clash Grotest",
-    "url": "url(/font/ClashGrotesk-Variable.woff2)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Pretendard',
+    url: 'url(/font/PretendardVariable.woff2)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Clash Grotest",
-    "url": "url(/font/ClashGrotesk-Variable.woff2)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Pretendard',
+    url: 'url(/font/PretendardVariable.woff2)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Pretendard",
-    "url": "url(/font/PretendardVariable.woff2)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Pretendard',
+    url: 'url(/font/PretendardVariable.woff2)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Pretendard",
-    "url": "url(/font/PretendardVariable.woff2)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Epilogue',
+    url: 'url(/font/Epilogue-Variable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Pretendard",
-    "url": "url(/font/PretendardVariable.woff2)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Epilogue',
+    url: 'url(/font/Epilogue-Variable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Pretendard",
-    "url": "url(/font/PretendardVariable.woff2)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Epilogue',
+    url: 'url(/font/Epilogue-Variable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Pretendard",
-    "url": "url(/font/PretendardVariable.woff2)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Epilogue',
+    url: 'url(/font/Epilogue-Variable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Pretendard",
-    "url": "url(/font/PretendardVariable.woff2)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Epilogue',
+    url: 'url(/font/Epilogue-Variable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Pretendard",
-    "url": "url(/font/PretendardVariable.woff2)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Epilogue',
+    url: 'url(/font/Epilogue-Variable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Pretendard",
-    "url": "url(/font/PretendardVariable.woff2)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Epilogue',
+    url: 'url(/font/Epilogue-Variable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Pretendard",
-    "url": "url(/font/PretendardVariable.woff2)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Epilogue',
+    url: 'url(/font/Epilogue-Variable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Epilogue",
-    "url": "url(/font/Epilogue-Variable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Epilogue',
+    url: 'url(/font/Epilogue-Variable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Epilogue",
-    "url": "url(/font/Epilogue-Variable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Figtree',
+    url: 'url(/font/Figtree-Variable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Epilogue",
-    "url": "url(/font/Epilogue-Variable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Figtree',
+    url: 'url(/font/Figtree-Variable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Epilogue",
-    "url": "url(/font/Epilogue-Variable.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Figtree',
+    url: 'url(/font/Figtree-Variable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Epilogue",
-    "url": "url(/font/Epilogue-Variable.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Figtree',
+    url: 'url(/font/Figtree-Variable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Epilogue",
-    "url": "url(/font/Epilogue-Variable.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Figtree',
+    url: 'url(/font/Figtree-Variable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Epilogue",
-    "url": "url(/font/Epilogue-Variable.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Figtree',
+    url: 'url(/font/Figtree-Variable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Epilogue",
-    "url": "url(/font/Epilogue-Variable.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Figtree',
+    url: 'url(/font/Figtree-Variable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Epilogue",
-    "url": "url(/font/Epilogue-Variable.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Figtree',
+    url: 'url(/font/Figtree-Variable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Figtree",
-    "url": "url(/font/Figtree-Variable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Figtree',
+    url: 'url(/font/Figtree-Variable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Figtree",
-    "url": "url(/font/Figtree-Variable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'GothicA1',
+    url: 'url(/font/GothicA1/GothicA1-Light.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Figtree",
-    "url": "url(/font/Figtree-Variable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'GothicA1',
+    url: 'url(/font/GothicA1/GothicA1-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Figtree",
-    "url": "url(/font/Figtree-Variable.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'GothicA1',
+    url: 'url(/font/GothicA1/GothicA1-Medium.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Figtree",
-    "url": "url(/font/Figtree-Variable.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'GothicA1',
+    url: 'url(/font/GothicA1/GothicA1-SemiBold.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Figtree",
-    "url": "url(/font/Figtree-Variable.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Poppins',
+    url: 'url(/font/Poppins/Poppins-Light.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Figtree",
-    "url": "url(/font/Figtree-Variable.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Poppins',
+    url: 'url(/font/Poppins/Poppins-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Figtree",
-    "url": "url(/font/Figtree-Variable.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Poppins',
+    url: 'url(/font/Poppins/Poppins-Medium.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Figtree",
-    "url": "url(/font/Figtree-Variable.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Poppins',
+    url: 'url(/font/Poppins/Poppins-SemiBold.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "GothicA1",
-    "url": "url(/font/GothicA1/GothicA1-Light.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: '나눔 고딕',
+    url: 'url(/font/NanumGothic/NanumGothic-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "GothicA1",
-    "url": "url(/font/GothicA1/GothicA1-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: '나눔 고딕',
+    url: 'url(/font/NanumGothic/NanumGothic-Bold.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "GothicA1",
-    "url": "url(/font/GothicA1/GothicA1-Medium.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: '나눔 고딕',
+    url: 'url(/font/NanumGothic/NanumGothic-ExtraBold.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "GothicA1",
-    "url": "url(/font/GothicA1/GothicA1-SemiBold.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Heebo',
+    url: 'url(/font/Heebo-Variable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Poppins",
-    "url": "url(/font/Poppins/Poppins-Light.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Heebo',
+    url: 'url(/font/Heebo-Variable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Poppins",
-    "url": "url(/font/Poppins/Poppins-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Heebo',
+    url: 'url(/font/Heebo-Variable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Poppins",
-    "url": "url(/font/Poppins/Poppins-Medium.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Heebo',
+    url: 'url(/font/Heebo-Variable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Poppins",
-    "url": "url(/font/Poppins/Poppins-SemiBold.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Heebo',
+    url: 'url(/font/Heebo-Variable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "나눔 고딕",
-    "url": "url(/font/NanumGothic/NanumGothic-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Heebo',
+    url: 'url(/font/Heebo-Variable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "나눔 고딕",
-    "url": "url(/font/NanumGothic/NanumGothic-Bold.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Heebo',
+    url: 'url(/font/Heebo-Variable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "나눔 고딕",
-    "url": "url(/font/NanumGothic/NanumGothic-ExtraBold.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Heebo',
+    url: 'url(/font/Heebo-Variable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Heebo",
-    "url": "url(/font/Heebo-Variable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Heebo',
+    url: 'url(/font/Heebo-Variable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Heebo",
-    "url": "url(/font/Heebo-Variable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'BM Dohyeon',
+    url: 'url(/font/BMDOHYEON.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Heebo",
-    "url": "url(/font/Heebo-Variable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'ONE Mobile Title',
+    url: 'url(/font/ONEMobileTitle.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Heebo",
-    "url": "url(/font/Heebo-Variable.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'M Plus 1',
+    url: 'url(/font/MPLUS1-Variable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Heebo",
-    "url": "url(/font/Heebo-Variable.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'M Plus 1',
+    url: 'url(/font/MPLUS1-Variable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Heebo",
-    "url": "url(/font/Heebo-Variable.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'M Plus 1',
+    url: 'url(/font/MPLUS1-Variable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Heebo",
-    "url": "url(/font/Heebo-Variable.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'M Plus 1',
+    url: 'url(/font/MPLUS1-Variable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Heebo",
-    "url": "url(/font/Heebo-Variable.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'M Plus 1',
+    url: 'url(/font/MPLUS1-Variable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Heebo",
-    "url": "url(/font/Heebo-Variable.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'M Plus 1',
+    url: 'url(/font/MPLUS1-Variable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "BM Dohyeon",
-    "url": "url(/font/BMDOHYEON.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'M Plus 1',
+    url: 'url(/font/MPLUS1-Variable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "ONE Mobile Tilte",
-    "url": "url(/font/ONEMobileTitle.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'M Plus 1',
+    url: 'url(/font/MPLUS1-Variable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "M Plus 1",
-    "url": "url(/font/MPLUS1-Variable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'M Plus 1',
+    url: 'url(/font/MPLUS1-Variable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "M Plus 1",
-    "url": "url(/font/MPLUS1-Variable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Red Hat Display',
+    url: 'url(/font/RedHatDisplay-Variable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "M Plus 1",
-    "url": "url(/font/MPLUS1-Variable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Red Hat Display',
+    url: 'url(/font/RedHatDisplay-Variable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "M Plus 1",
-    "url": "url(/font/MPLUS1-Variable.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Red Hat Display',
+    url: 'url(/font/RedHatDisplay-Variable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "M Plus 1",
-    "url": "url(/font/MPLUS1-Variable.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Red Hat Display',
+    url: 'url(/font/RedHatDisplay-Variable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "M Plus 1",
-    "url": "url(/font/MPLUS1-Variable.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Red Hat Display',
+    url: 'url(/font/RedHatDisplay-Variable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "M Plus 1",
-    "url": "url(/font/MPLUS1-Variable.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Red Hat Display',
+    url: 'url(/font/RedHatDisplay-Variable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "M Plus 1",
-    "url": "url(/font/MPLUS1-Variable.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Red Hat Display',
+    url: 'url(/font/RedHatDisplay-Variable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "M Plus 1",
-    "url": "url(/font/MPLUS1-Variable.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Red Hat Display',
+    url: 'url(/font/RedHatDisplay-Variable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Red Hat Display",
-    "url": "url(/font/RedHatDisplay-Variable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Red Hat Display',
+    url: 'url(/font/RedHatDisplay-Variable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Red Hat Display",
-    "url": "url(/font/RedHatDisplay-Variable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Saira Condensed',
+    url: 'url(/font/SairaCondensed/SairaCondensed-Light.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Red Hat Display",
-    "url": "url(/font/RedHatDisplay-Variable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Saira Condensed',
+    url: 'url(/font/SairaCondensed/SairaCondensed-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Red Hat Display",
-    "url": "url(/font/RedHatDisplay-Variable.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Saira Condensed',
+    url: 'url(/font/SairaCondensed/SairaCondensed-Medium.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Red Hat Display",
-    "url": "url(/font/RedHatDisplay-Variable.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Saira Condensed',
+    url: 'url(/font/SairaCondensed/SairaCondensed-SemiBold.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Red Hat Display",
-    "url": "url(/font/RedHatDisplay-Variable.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Saira Condensed',
+    url: 'url(/font/SairaCondensed/SairaCondensed-Bold.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Red Hat Display",
-    "url": "url(/font/RedHatDisplay-Variable.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'MicrogrammaDExtended',
+    url: 'url(/font/MicrogrammaDExtended.otf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Red Hat Display",
-    "url": "url(/font/RedHatDisplay-Variable.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Tungsten Narrow',
+    url: 'url(/font/TungstenNarrow.woff2)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Red Hat Display",
-    "url": "url(/font/RedHatDisplay-Variable.ttf)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Russo One',
+    url: 'url(/font/RussoOne-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Saira Condensed",
-    "url": "url(/font/SairaCondensed/SairaCondensed-Light.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Rajdhani',
+    url: 'url(/font/Rajdhani/Rajdhani-Bold.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Saira Condensed",
-    "url": "url(/font/SairaCondensed/SairaCondensed-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Rajdhani',
+    url: 'url(/font/Rajdhani/Rajdhani-SemiBold.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Saira Condensed",
-    "url": "url(/font/SairaCondensed/SairaCondensed-Medium.ttf)",
-    "weight": "500",
-    "style": "normal"
+    family: 'BM 한나는11살체',
+    url: 'url(/font/BMHANNA_11yrs.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Saira Condensed",
-    "url": "url(/font/SairaCondensed/SairaCondensed-SemiBold.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: '나눔 스퀘어',
+    url: 'url(/font/NanumSquare/NanumSquare_acL.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Saira Condensed",
-    "url": "url(/font/SairaCondensed/SairaCondensed-Bold.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: '나눔 스퀘어',
+    url: 'url(/font/NanumSquare/NanumSquare_acR.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "MicrogrammaDExtended",
-    "url": "url(/font/MicrogrammaDExtended.otf)",
-    "weight": "400",
-    "style": "normal"
+    family: '나눔 스퀘어',
+    url: 'url(/font/NanumSquare/NanumSquare_acB.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Tungsten Narrow",
-    "url": "url(/font/TungstenNarrow.woff2)",
-    "weight": "100",
-    "style": "normal"
+    family: '나눔 스퀘어',
+    url: 'url(/font/NanumSquare/NanumSquare_acEB.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Tungsten Narrow",
-    "url": "url(/font/TungstenNarrow.woff2)",
-    "weight": "200",
-    "style": "normal"
+    family: 'Exo2',
+    url: 'url(/font/Exo2-Variable.ttf)',
+    weight: '100',
+    style: 'normal',
   },
   {
-    "family": "Tungsten Narrow",
-    "url": "url(/font/TungstenNarrow.woff2)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Exo2',
+    url: 'url(/font/Exo2-Variable.ttf)',
+    weight: '200',
+    style: 'normal',
   },
   {
-    "family": "Tungsten Narrow",
-    "url": "url(/font/TungstenNarrow.woff2)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Exo2',
+    url: 'url(/font/Exo2-Variable.ttf)',
+    weight: '300',
+    style: 'normal',
   },
   {
-    "family": "Tungsten Narrow",
-    "url": "url(/font/TungstenNarrow.woff2)",
-    "weight": "500",
-    "style": "normal"
+    family: 'Exo2',
+    url: 'url(/font/Exo2-Variable.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Tungsten Narrow",
-    "url": "url(/font/TungstenNarrow.woff2)",
-    "weight": "600",
-    "style": "normal"
+    family: 'Exo2',
+    url: 'url(/font/Exo2-Variable.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "Tungsten Narrow",
-    "url": "url(/font/TungstenNarrow.woff2)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Exo2',
+    url: 'url(/font/Exo2-Variable.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Tungsten Narrow",
-    "url": "url(/font/TungstenNarrow.woff2)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Exo2',
+    url: 'url(/font/Exo2-Variable.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Tungsten Narrow",
-    "url": "url(/font/TungstenNarrow.woff2)",
-    "weight": "900",
-    "style": "normal"
+    family: 'Exo2',
+    url: 'url(/font/Exo2-Variable.ttf)',
+    weight: '800',
+    style: 'normal',
   },
   {
-    "family": "Russo One",
-    "url": "url(/font/RussoOne-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Exo2',
+    url: 'url(/font/Exo2-Variable.ttf)',
+    weight: '900',
+    style: 'normal',
   },
   {
-    "family": "Rajdhani",
-    "url": "url(/font/Rajdhani/Rajdhani-Bold.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Dela Gothic One',
+    url: 'url(/font/DelaGothicOne-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Rajdhani",
-    "url": "url(/font/Rajdhani/Rajdhani-SemiBold.ttf)",
-    "weight": "600",
-    "style": "normal"
+    family: 'BM 연성',
+    url: 'url(/font/BMYEONSUNG.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "BM 한나는11살체",
-    "url": "url(/font/BMHANNA_11yrs.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'ONE Mobile POP',
+    url: 'url(/font/ONEMobilePOP.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "나눔 스퀘어",
-    "url": "url(/font/NanumSquare/NanumSquare_acL.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: 'Rosarivo',
+    url: 'url(/font/Rosarivo/Rosarivo-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "나눔 스퀘어",
-    "url": "url(/font/NanumSquare/NanumSquare_acR.ttf)",
-    "weight": "400",
-    "style": "normal"
+    family: 'Ruwudu',
+    url: 'url(/font/Ruwudu/Ruwudu-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "나눔 스퀘어",
-    "url": "url(/font/NanumSquare/NanumSquare_acB.ttf)",
-    "weight": "700",
-    "style": "normal"
+    family: 'Ruwudu',
+    url: 'url(/font/Ruwudu/Ruwudu-Medium.ttf)',
+    weight: '500',
+    style: 'normal',
   },
   {
-    "family": "나눔 스퀘어",
-    "url": "url(/font/NanumSquare/NanumSquare_acEB.ttf)",
-    "weight": "800",
-    "style": "normal"
+    family: 'Ruwudu',
+    url: 'url(/font/Ruwudu/Ruwudu-Bold.ttf)',
+    weight: '700',
+    style: 'normal',
   },
   {
-    "family": "Exo2",
-    "url": "url(/font/Exo2-Variable.ttf)",
-    "weight": "100",
-    "style": "normal"
+    family: 'Ruwudu',
+    url: 'url(/font/Ruwudu/Ruwudu-SemiBold.ttf)',
+    weight: '600',
+    style: 'normal',
   },
   {
-    "family": "Exo2",
-    "url": "url(/font/Exo2-Variable.ttf)",
-    "weight": "200",
-    "style": "normal"
+    family: '고운 바탕',
+    url: 'url(/font/GowunBatang/GowunBatang-Regular.ttf)',
+    weight: '400',
+    style: 'normal',
   },
   {
-    "family": "Exo2",
-    "url": "url(/font/Exo2-Variable.ttf)",
-    "weight": "300",
-    "style": "normal"
+    family: '고운 바탕',
+    url: 'url(/font/GowunBatang/GowunBatang-Bold.ttf)',
+    weight: '700',
+    style: 'normal',
   },
-  {
-    "family": "Exo2",
-    "url": "url(/font/Exo2-Variable.ttf)",
-    "weight": "400",
-    "style": "normal"
-  },
-  {
-    "family": "Exo2",
-    "url": "url(/font/Exo2-Variable.ttf)",
-    "weight": "500",
-    "style": "normal"
-  },
-  {
-    "family": "Exo2",
-    "url": "url(/font/Exo2-Variable.ttf)",
-    "weight": "600",
-    "style": "normal"
-  },
-  {
-    "family": "Exo2",
-    "url": "url(/font/Exo2-Variable.ttf)",
-    "weight": "700",
-    "style": "normal"
-  },
-  {
-    "family": "Exo2",
-    "url": "url(/font/Exo2-Variable.ttf)",
-    "weight": "800",
-    "style": "normal"
-  },
-  {
-    "family": "Exo2",
-    "url": "url(/font/Exo2-Variable.ttf)",
-    "weight": "900",
-    "style": "normal"
-  },
-  {
-    "family": "Dela Gothic One",
-    "url": "url(/font/DelaGothicOne-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
-  },
-  {
-    "family": "BM 연성",
-    "url": "url(/font/BMYEONSUNG.ttf)",
-    "weight": "400",
-    "style": "normal"
-  },
-  {
-    "family": "ONE Moblie POP",
-    "url": "url(/font/ONEMobilePOP.ttf)",
-    "weight": "400",
-    "style": "normal"
-  },
-  {
-    "family": "Rosarivo",
-    "url": "url(/font/Rosarivo/Rosarivo-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
-  },
-  {
-    "family": "Rosarivo-Italic",
-    "url": "url(/font/Rosarivo/Rosarivo-Italic.ttf)",
-    "weight": "400",
-    "style": "italic"
-  },
-  {
-    "family": "Ruwudu",
-    "url": "url(/font/Ruwudu/Ruwudu-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
-  },
-  {
-    "family": "Ruwudu",
-    "url": "url(/font/Ruwudu/Ruwudu-Medium.ttf)",
-    "weight": "500",
-    "style": "normal"
-  },
-  {
-    "family": "Ruwudu",
-    "url": "url(/font/Ruwudu/Ruwudu-Bold.ttf)",
-    "weight": "700",
-    "style": "normal"
-  },
-  {
-    "family": "Ruwudu",
-    "url": "url(/font/Ruwudu/Ruwudu-SemiBold.ttf)",
-    "weight": "600",
-    "style": "normal"
-  },
-  {
-    "family": "고운 바탕",
-    "url": "url(/font/GowunBatang/GowunBatang-Regular.ttf)",
-    "weight": "400",
-    "style": "normal"
-  },
-  {
-    "family": "고운 바탕",
-    "url": "url(/font/GowunBatang/GowunBatang-Bold.ttf)",
-    "weight": "700",
-    "style": "normal"
-  }
 ];

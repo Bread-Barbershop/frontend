@@ -26,7 +26,7 @@ function FontSize() {
       return;
     }
     const handleSync = () =>
-      getRichStyles(activeObject, 'fontSize', fontSize =>
+      getRichStyles(activeObject, ['fontSize'], fontSize =>
         setSelectedFontSize({
           label: fontSize,
           value: String(fontSize),

@@ -12,14 +12,17 @@ const ALIGN_OPTIONS = [
   {
     Icon: AlignLeftIcon,
     value: 'left',
+    label: '왼쪽 정렬',
   },
   {
     Icon: AlignCenterIcon,
     value: 'center',
+    label: '가운데 정렬',
   },
   {
     Icon: AlignRightIcon,
     value: 'right',
+    label: '오른쪽 정렬',
   },
 ];
 
@@ -33,7 +36,7 @@ function TextAlign() {
     if (!activeObject) return;
 
     const handleSync = () => {
-      getRichStyles(activeObject, 'textAlign', textAlign => {
+      getRichStyles(activeObject, ['textAlign'], ([textAlign]) => {
         setSelectedAlign(textAlign);
       });
     };
@@ -75,7 +78,7 @@ function TextAlign() {
                 : 'bg-transparent text-text-tertiary hover:bg-btn-hover active:bg-btn-pressed'
             )}
           >
-            <Icon fill="currentColor" />
+            <Icon fill="currentColor" aria-label={option.label} />
           </button>
         );
       })}
