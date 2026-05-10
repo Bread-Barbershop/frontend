@@ -6,7 +6,7 @@ import '@/widgets/mainPoster/libs/customImage-filter';
 import { preloadFonts } from '@/widgets/mainPoster/hooks/useTemplate';
 
 const POSTER_BASE_WIDTH = 375;
-const POSTER_BASE_HEIGHT = 750;
+const POSTER_BASE_HEIGHT = 812;
 
 export const GuestMainPoster = ({ json }: { json: unknown }) => {
   const [canvas, setCanvas] = useState<StaticCanvas | null>(null);

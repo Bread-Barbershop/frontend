@@ -1,7 +1,7 @@
 import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
-import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
+// import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
@@ -46,10 +46,10 @@ export const MainPoster = () => {
 
   return (
     <div
-      className="flex flex-col pb-3.5 px-5 items-center w-full max-h-[750px] overflow-y-scroll overflow-x-hidden scrollbar-hide"
+      className="flex flex-col pb-3.5 px-5 items-center w-full max-h-[812px] overflow-y-scroll overflow-x-hidden scrollbar-hide"
       data-canvas="true"
     >
-      <NavigationBar>포스터 프리뷰(개발용)</NavigationBar>
+      {/* <NavigationBar>포스터 프리뷰(개발용)</NavigationBar> */}
       <div className="flex gap-2 w-full mb-4">
         <UtilityButton
           size="sm"
