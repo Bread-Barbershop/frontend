@@ -105,7 +105,7 @@ function Phone({ blockInfo, id }: Props) {
         }
         direction="right"
       >
-        연락처
+        연락처 편집 페이지
       </NavigationBar>
 
       {groups.map((group, groupIndex) => (

@@ -41,24 +41,25 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
   };
 
   const handleOnChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { title: e.target.value });
+    updateBlock(id, { title: e.target.value || '후원사' });
   };
   const handleOnChangeIsEnglishTitle = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { isEnglishTitle: e.target.checked });
   };
 
   const handleOnchangeEnglishTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { englishTitle: e.target.value });
+    updateBlock(id, { englishTitle: e.target.value || 'OUR SPONSORS' });
   };
   return (
     <LeftEditorWrapper ariaLabel="후원 정보">
-      <NavigationBar>후원 정보</NavigationBar>
+      <NavigationBar>후원 정보 편집 페이지</NavigationBar>
       <div className="w-full">
         <TextField
           label="제목"
           className="py-1.5 text-center"
           inputProps={{
-            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+            placeholder: '후원사',
+            value: blockInfo.props.title === '후원사' ? '' : blockInfo.props.title,
             onChange: handleOnChangeTitle,
           }}
         />
@@ -69,7 +70,11 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
             label="영문 제목"
             className="py-1.5 text-center"
             inputProps={{
-              placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+              placeholder: 'OUR SPONSORS',
+              value:
+                blockInfo.props.englishTitle === 'OUR SPONSORS'
+                  ? ''
+                  : blockInfo.props.englishTitle,
               onChange: handleOnchangeEnglishTitle,
             }}
           />

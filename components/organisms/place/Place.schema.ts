@@ -2,11 +2,11 @@ export const placeSchema = {
   type: null,
   fields: {
     title: {
-      default: '',
+      default: '행사 장소',
       required: true,
     },
     englishTitle: {
-      default: '',
+      default: 'LOCATION',
       required: true,
     },
     country: {
@@ -30,7 +30,7 @@ export const placeSchema = {
       required: true,
     },
     checkedEnglishTitle: {
-      default: false,
+      default: true,
       required: true,
     },
     openMap: {
@@ -38,6 +38,10 @@ export const placeSchema = {
       required: true,
     },
     openNavi: {
+      default: false,
+      required: true,
+    },
+    mapLocked: {
       default: false,
       required: true,
     },

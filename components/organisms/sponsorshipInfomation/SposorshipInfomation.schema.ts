@@ -2,15 +2,15 @@ export const sponsorshipInfomationSchema = {
   type: null,
   fields: {
     title: {
-      default: '제목을 입력해 주세요.',
+      default: '후원사',
       required: true,
     },
     isEnglishTitle: {
-      default: false,
+      default: true,
       required: false,
     },
     englishTitle: {
-      default: '',
+      default: 'OUR SPONSORS',
       required: false,
     },
     images: {

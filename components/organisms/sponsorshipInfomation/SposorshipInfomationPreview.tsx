@@ -30,7 +30,7 @@ function SponsorshipInfomationPreview({
       className={className}
       checkedEnglishTitle={blockInfo.props.isEnglishTitle}
       enTitle={blockInfo.props.englishTitle}
-      enTitleDefault="Our Sponsors"
+      enTitleDefault="OUR SPONSORS"
       koTitle={blockInfo.props.title}
       koTitleDefault="후원사"
       {...rest}

@@ -19,7 +19,7 @@ function GreetingPreview({
 }: Props) {
   const {
     title,
-    checkedEnglishTitle = false,
+    checkedEnglishTitle = true,
     englishTitle = '',
     messageJson,
     messageHtml,

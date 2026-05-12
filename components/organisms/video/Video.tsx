@@ -42,13 +42,17 @@ export const Video = ({ blockInfo, id }: Props) => {
   };
   return (
     <LeftEditorWrapper className="gap-4 pb-3" ariaLabel="동영상">
-      <NavigationBar className="-mb-2">동영상</NavigationBar>
+      <NavigationBar className="-mb-2">동영상 편집 페이지</NavigationBar>
       <TextField
         label="제목"
         inputProps={{
-          placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
-          onChange: e => handleUpdateBlock('title', e.target.value),
-          value: title,
+          placeholder: '제목을 입력해 주세요.',
+          onChange: e =>
+            handleUpdateBlock(
+              'title',
+              e.target.value || '제목을 입력해 주세요.'
+            ),
+          value: title === '제목을 입력해 주세요.' ? '' : title,
         }}
         className="w-full text-center"
       />
@@ -56,9 +60,10 @@ export const Video = ({ blockInfo, id }: Props) => {
         <TextField
           label="영문제목"
           inputProps={{
-            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
-            value: englishTitle,
-            onChange: e => handleUpdateBlock('englishTitle', e.target.value),
+            placeholder: 'VIDEO',
+            value: englishTitle === 'VIDEO' ? '' : englishTitle,
+            onChange: e =>
+              handleUpdateBlock('englishTitle', e.target.value || 'VIDEO'),
           }}
           className="text-center w-full"
         />

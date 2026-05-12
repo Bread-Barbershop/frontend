@@ -1,10 +1,14 @@
+import Image from 'next/image';
+
 import {
   openKakaoMap,
   openNaverMap,
   openTMap,
 } from '@/app/api/place/navigation';
 import { Button } from '@/components/atoms/button';
-import MapIcon from '@/shared/assets/icons/map.svg';
+import kakaoMapIcon from '@/shared/assets/icons/kakao-map.png';
+import naverMapIcon from '@/shared/assets/icons/naver-map.png';
+import tmapIcon from '@/shared/assets/icons/tmap.png';
 
 interface Props {
   lat: number;
@@ -42,16 +46,16 @@ export function Navigation({ lat, lng, name }: Props) {
           className="h-auto w-26.5 shadow-btn-drop-black"
           onClick={() => handleNavigation('naver')}
         >
-          <MapIcon />
+          <Image src={naverMapIcon} alt="" width={22} height={22} />
           <p className="text-sm text-text-tertiary">네이버지도</p>
         </Button>
         <Button
           variant="bordered"
           size="sm"
-          className="h-auto w-26.5 shadow-btn-drop-black"
+          className="h-auto w-26.5 gap-[6px] shadow-btn-drop-black"
           onClick={() => handleNavigation('kakao')}
         >
-          <MapIcon />
+          <Image src={kakaoMapIcon} alt="" width={22} height={22} />
           <p className="text-sm text-text-tertiary">카카오맵</p>
         </Button>
         <Button
@@ -60,7 +64,7 @@ export function Navigation({ lat, lng, name }: Props) {
           className="h-auto w-26.5 shadow-btn-drop-black"
           onClick={() => handleNavigation('tmap')}
         >
-          <MapIcon />
+          <Image src={tmapIcon} alt="" width={22} height={22} />
           <p className="text-sm text-text-tertiary">티맵</p>
         </Button>
       </div>

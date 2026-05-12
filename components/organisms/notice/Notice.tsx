@@ -154,14 +154,15 @@ export const Notice = ({ blockInfo, id }: Props) => {
         }
         direction="right"
       >
-        공지사항
+        공지사항 편집 페이지
       </NavigationBar>
       <TextField
         label="제목"
         inputProps={{
-          placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
-          value: title,
-          onChange: e => handleUpdateBlock('title', e.target.value),
+          placeholder: '공지사항',
+          value: title === '공지사항' ? '' : title,
+          onChange: e =>
+            handleUpdateBlock('title', e.target.value || '공지사항'),
         }}
         className="w-full text-center"
       />
@@ -169,9 +170,13 @@ export const Notice = ({ blockInfo, id }: Props) => {
         <TextField
           label="영문제목"
           inputProps={{
-            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
-            value: englishTitle,
-            onChange: e => handleUpdateBlock('englishTitle', e.target.value),
+            placeholder: 'INFORMATION',
+            value: englishTitle === 'INFORMATION' ? '' : englishTitle,
+            onChange: e =>
+              handleUpdateBlock(
+                'englishTitle',
+                e.target.value || 'INFORMATION'
+              ),
           }}
           className="text-center w-full pt-1"
         />

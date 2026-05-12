@@ -4,15 +4,15 @@ export const speakerInformationSchema = {
   type: null,
   fields: {
     title: {
-      default: '',
+      default: '연사정보',
       required: true,
     },
     englishTitle: {
-      default: '',
+      default: 'SPEAKER INFORMATION',
       required: false,
     },
     checkedEnglishTitle: {
-      default: false,
+      default: true,
       required: true,
     },
     speakers: {

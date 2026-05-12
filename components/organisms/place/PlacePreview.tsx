@@ -5,6 +5,10 @@ import { HTMLAttributes, useState } from 'react';
 import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
 import type { EditorBlock } from '@/shared/types/block';
 import { formatPhoneNumber } from '@/shared/utils/phoneNumber';
+import {
+  getDefaultPlaceTitle,
+  normalizePlaceTitle,
+} from '@/shared/utils/placeTitle';
 
 import { NaverMapScript } from './NaverMapScript';
 import { Navigation } from './Navigation';
@@ -31,7 +35,9 @@ export const PlacePreview = ({
     placeAddress,
     placeTel,
     checkedEnglishTitle,
+    mapLocked,
   } = blockInfo.props;
+  const defaultTitle = getDefaultPlaceTitle(blockInfo.type);
 
   return (
     <MiddlePreviewWrapper
@@ -41,8 +47,8 @@ export const PlacePreview = ({
       checkedEnglishTitle={checkedEnglishTitle}
       enTitle={englishTitle}
       enTitleDefault="LOCATION"
-      koTitle={title}
-      koTitleDefault="오시는 길"
+      koTitle={normalizePlaceTitle(title, blockInfo.type)}
+      koTitleDefault={defaultTitle}
       {...rest}
     >
       <NaverMapScript onReady={() => setIsScriptLoaded(true)} />
@@ -61,10 +67,11 @@ export const PlacePreview = ({
           lng={blockInfo.props.lng}
           lat={blockInfo.props.lat}
           category="preview"
+          locked={Boolean(mapLocked)}
         />
       )}
 
-      {blockInfo.props.openNavi && (
+      {blockInfo.props.openMap && blockInfo.props.openNavi && (
         <Navigation
           lat={blockInfo.props.lat}
           lng={blockInfo.props.lng}

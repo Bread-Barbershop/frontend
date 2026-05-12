@@ -20,7 +20,7 @@ interface Props {
 
 function Gallery({ blockInfo, id }: Props) {
   const {
-    isEnglishTitle = false,
+    isEnglishTitle = true,
     isPopupViewer = false,
     ratio,
   } = blockInfo.props;
@@ -34,10 +34,10 @@ function Gallery({ blockInfo, id }: Props) {
   );
 
   const handleOnChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { title: e.target.value });
+    updateBlock(id, { title: e.target.value || '갤러리' });
   };
   const handleOnChangeEngTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { enTitle: e.target.value });
+    updateBlock(id, { enTitle: e.target.value || 'GALLERY' });
   };
 
   const handlePictureChange = (file: (File | string)[]) => {
@@ -75,15 +75,15 @@ function Gallery({ blockInfo, id }: Props) {
 
   return (
     <LeftEditorWrapper ariaLabel="갤러리">
-      <NavigationBar>갤러리</NavigationBar>
+      <NavigationBar>갤러리 편집 페이지</NavigationBar>
       <div className="w-full flex flex-col gap-1">
         <TextField
           label="제목"
           className="py-1.5 text-center"
           inputProps={{
-            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+            placeholder: '갤러리',
             onChange: e => handleOnChangeTitle(e),
-            value: blockInfo.props.title,
+            value: blockInfo.props.title === '갤러리' ? '' : blockInfo.props.title,
           }}
         />
         {blockInfo.props.isEnglishTitle && (
@@ -91,9 +91,12 @@ function Gallery({ blockInfo, id }: Props) {
             label="영문 제목"
             className="py-1.5 text-center"
             inputProps={{
-              placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+              placeholder: 'GALLERY',
               onChange: e => handleOnChangeEngTitle(e),
-              value: blockInfo.props.enTitle,
+              value:
+                blockInfo.props.enTitle === 'GALLERY'
+                  ? ''
+                  : blockInfo.props.enTitle,
             }}
           />
         )}

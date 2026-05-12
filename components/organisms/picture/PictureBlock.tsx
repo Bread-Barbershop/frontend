@@ -63,10 +63,10 @@ function PictureBlock({ blockInfo, id }: Props) {
   };
 
   const handleOnChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { title: e.target.value });
+    updateBlock(id, { title: e.target.value || '제목을 입력해주세요.' });
   };
   const handleOnChangeEngTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { enTitle: e.target.value });
+    updateBlock(id, { enTitle: e.target.value || 'PICTURE' });
   };
   const handleEditorChange = (json: JSONContent) => {
     debouncedUpdateMessage(json);
@@ -74,7 +74,7 @@ function PictureBlock({ blockInfo, id }: Props) {
 
   return (
     <LeftEditorWrapper ariaLabel="사진">
-      <NavigationBar>사진</NavigationBar>
+      <NavigationBar>사진 편집 페이지</NavigationBar>
       <div className="w-full flex flex-col gap-1">
         <Picture
           label="사진"
@@ -88,9 +88,12 @@ function PictureBlock({ blockInfo, id }: Props) {
             label="제목"
             className="py-1.5 text-center"
             inputProps={{
-              placeholder: '최대 20자',
+              placeholder: '제목을 입력해주세요.',
               onChange: e => handleOnChangeTitle(e),
-              value: blockInfo.props.title,
+              value:
+                blockInfo.props.title === '제목을 입력해주세요.'
+                  ? ''
+                  : blockInfo.props.title,
               maxLength: 20,
             }}
           />
@@ -100,9 +103,12 @@ function PictureBlock({ blockInfo, id }: Props) {
             label="영문 제목"
             className="py-1.5 text-center"
             inputProps={{
-              placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+              placeholder: 'PICTURE',
               onChange: e => handleOnChangeEngTitle(e),
-              value: blockInfo.props.enTitle,
+              value:
+                blockInfo.props.enTitle === 'PICTURE'
+                  ? ''
+                  : blockInfo.props.enTitle,
             }}
           />
         )}
