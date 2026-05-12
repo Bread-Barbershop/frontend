@@ -33,7 +33,6 @@ export function NaverMapScript({ onReady }: Props) {
   }, [onReady]);
 
   const handleReady = () => {
-    onReady?.();
     window.dispatchEvent(new Event(NAVER_MAP_READY_EVENT));
   };
 
