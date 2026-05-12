@@ -4,6 +4,7 @@ import { isGuestPayload } from '@/app/guest/[id]/utils/guestBlockTypeGuards';
 
 export type ProbeFailureReason =
   | 'fetch_failed'
+  | 'fetch_timeout'
   | 'http_not_ok'
   | 'json_parse_failed'
   | 'invalid_schema';
@@ -30,24 +31,40 @@ const guestDataUrl = (dataJsonFileId: string) =>
     dataJsonFileId
   )}`;
 
+const PROBE_FETCH_TIMEOUT_MS = 3000;
+
 const sleep = (ms: number) =>
   new Promise<void>(resolve => {
     setTimeout(resolve, ms);
   });
 
+function isAbortError(error: unknown) {
+  return error instanceof DOMException && error.name === 'AbortError';
+}
+
 export async function probeGuestData(
   dataJsonFileId: string
 ): Promise<ProbeResult> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+  }, PROBE_FETCH_TIMEOUT_MS);
+
   let res: Response;
   try {
-    res = await fetch(guestDataUrl(dataJsonFileId), { cache: 'no-store' });
+    res = await fetch(guestDataUrl(dataJsonFileId), {
+      cache: 'no-store',
+      signal: controller.signal,
+    });
   } catch (error) {
     return {
       ok: false,
       status: 0,
-      reason: 'fetch_failed',
+      reason: isAbortError(error) ? 'fetch_timeout' : 'fetch_failed',
       error: error instanceof Error ? error.message : String(error),
     };
+  } finally {
+    clearTimeout(timeoutId);
   }
 
   if (!res.ok) {

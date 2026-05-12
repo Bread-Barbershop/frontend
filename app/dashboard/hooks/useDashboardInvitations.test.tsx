@@ -172,7 +172,11 @@ describe('useDashboardInvitations', () => {
     expect(mockFetch).toHaveBeenCalledTimes(2);
     expect(mockFetch).toHaveBeenLastCalledWith(
       '/api/drive/publishInvitation/readiness?dataJsonFileId=data-json-file-id-1',
-      { method: 'GET', cache: 'no-store' }
+      {
+        method: 'GET',
+        cache: 'no-store',
+        signal: expect.any(AbortSignal),
+      }
     );
   });
 });

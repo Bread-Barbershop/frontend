@@ -221,7 +221,7 @@ describe('publishInvitation Route Handler 테스트', () => {
     expect(mockFetch).toHaveBeenCalledTimes(1);
     expect(mockFetch).toHaveBeenCalledWith(
       'https://drive.google.com/uc?export=download&id=data-json-file-id-1',
-      { cache: 'no-store' }
+      { cache: 'no-store', signal: expect.any(AbortSignal) }
     );
   });
 
