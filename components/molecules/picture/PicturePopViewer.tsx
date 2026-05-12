@@ -22,7 +22,7 @@ export const PicturePopViewer = ({
 }: Props) => {
   const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
-  const currentImage = images[startIndex];
+  const currentImage = images[startIndex] ?? null;
   const ratioData = useMemo(() => {
     switch (ratio) {
       case '1:1':
@@ -47,6 +47,15 @@ export const PicturePopViewer = ({
     return () => cancelAnimationFrame(raf);
   }, []);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen || !isMounted) return null;
 
   const portalElement = document.getElementById('preview-container');
@@ -66,12 +75,19 @@ export const PicturePopViewer = ({
         onClick={e => e.stopPropagation()}
       >
         <div className="relative w-full h-full">
-          <Image
-            src={currentImage}
-            alt="팝업 이미지"
-            fill
-            className="object-cover"
-          />
+          {currentImage && (
+            <Image
+              src={currentImage}
+              alt="팝업 이미지"
+              fill
+              className="object-cover"
+            />
+          )}
+          {!currentImage && (
+            <div className="w-full h-full bg-gray-200 flex-center">
+              이미지를 불러올 수 없습니다.
+            </div>
+          )}
         </div>
       </div>
     </div>,
