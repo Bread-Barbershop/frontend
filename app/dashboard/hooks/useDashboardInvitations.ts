@@ -32,6 +32,13 @@ type ShareUrlResponse = {
   error?: string;
 };
 
+const READINESS_POLL_DELAYS_MS = [1000, 1500, 2500, 4000, 6000];
+
+const sleep = (ms: number) =>
+  new Promise<void>(resolve => {
+    setTimeout(resolve, ms);
+  });
+
 function resolveShareImageUrl(imageFileId?: string, origin?: string) {
   return imageFileId
     ? `https://lh3.googleusercontent.com/d/${imageFileId}`
@@ -135,6 +142,8 @@ function createInitialPublishResults(
 
     acc[invite.folderId] = {
       ok: true,
+      published: true,
+      ready: true,
       guestUrl: invite.publishedUrl,
     };
     return acc;
@@ -156,6 +165,7 @@ function useDashboardInvitations(
   const [deleteErrors, setDeleteErrors] = useState<DeleteErrorMap>({});
   const [publishBusy, setPublishBusy] = useState<PublishStateMap>({});
   const [publishErrors, setPublishErrors] = useState<PublishErrorMap>({});
+  const [readinessPolling, setReadinessPolling] = useState<PublishStateMap>({});
   const [shareBusy, setShareBusy] = useState<ShareStateMap>({});
   const [publishResults, setPublishResults] = useState<PublishResultMap>(
     createInitialPublishResults(initialInvites)
@@ -164,6 +174,7 @@ function useDashboardInvitations(
   const resetPublishState = useCallback(() => {
     setPublishBusy({});
     setPublishErrors({});
+    setReadinessPolling({});
     setPublishResults({});
   }, []);
 
@@ -184,6 +195,11 @@ function useDashboardInvitations(
       return next;
     });
     setPublishErrors(prev => {
+      const next = { ...prev };
+      delete next[folderId];
+      return next;
+    });
+    setReadinessPolling(prev => {
       const next = { ...prev };
       delete next[folderId];
       return next;
@@ -238,6 +254,7 @@ function useDashboardInvitations(
       setDeleteErrors({});
       setPublishBusy({});
       setPublishErrors({});
+      setReadinessPolling({});
       setPublishResults(createInitialPublishResults(loadedInvites));
     } catch (err) {
       console.error(err);
@@ -265,12 +282,56 @@ function useDashboardInvitations(
     setOrigin(window.location.origin);
   }, []);
 
+  const pollGuestReadiness = useCallback(
+    async (folderId: string, initialResult: PublishResult) => {
+      const dataJsonFileId = initialResult.dataJsonFileId;
+      if (!dataJsonFileId) return;
+
+      setReadinessPolling(prev => ({ ...prev, [folderId]: true }));
+
+      let latestResult = initialResult;
+
+      try {
+        for (const delayMs of READINESS_POLL_DELAYS_MS) {
+          await sleep(delayMs);
+
+          const res = await fetch(
+            `/api/drive/publishInvitation/readiness?dataJsonFileId=${encodeURIComponent(
+              dataJsonFileId
+            )}`,
+            { method: 'GET', cache: 'no-store' }
+          );
+
+          const json = (await res.json().catch(() => ({}))) as PublishResult;
+          latestResult = {
+            ...latestResult,
+            ...json,
+            guestUrl: json.guestUrl ?? latestResult.guestUrl,
+            dataJsonFileId: json.dataJsonFileId ?? dataJsonFileId,
+          };
+
+          setPublishResults(prev => ({ ...prev, [folderId]: latestResult }));
+
+          if (res.ok && json.ready === true) {
+            break;
+          }
+        }
+      } catch (err) {
+        console.error('Guest readiness polling failed:', err);
+      } finally {
+        setReadinessPolling(prev => ({ ...prev, [folderId]: false }));
+      }
+    },
+    []
+  );
+
   const handlePublish = useCallback(async (invitationFolderId: string) => {
     if (!invitationFolderId) return;
 
     setPublishErrors(prev => ({ ...prev, [invitationFolderId]: null }));
     setPublishResults(prev => ({ ...prev, [invitationFolderId]: null }));
     setPublishBusy(prev => ({ ...prev, [invitationFolderId]: true }));
+    setReadinessPolling(prev => ({ ...prev, [invitationFolderId]: false }));
 
     try {
       const res = await fetch('/api/drive/publishInvitation', {
@@ -293,6 +354,10 @@ function useDashboardInvitations(
       }
 
       setPublishResults(prev => ({ ...prev, [invitationFolderId]: json }));
+
+      if (json.ready === false) {
+        void pollGuestReadiness(invitationFolderId, json);
+      }
     } catch (err) {
       setPublishErrors(prev => ({
         ...prev,
@@ -302,7 +367,7 @@ function useDashboardInvitations(
     } finally {
       setPublishBusy(prev => ({ ...prev, [invitationFolderId]: false }));
     }
-  }, []);
+  }, [pollGuestReadiness]);
 
   const handleDelete = useCallback(
     async (folderId: string) => {
@@ -438,6 +503,17 @@ function useDashboardInvitations(
     [publishBusy]
   );
 
+  const isPublishReadinessPolling = useCallback(
+    (folderId: string) => Boolean(readinessPolling[folderId]),
+    [readinessPolling]
+  );
+
+  const isPublishReadyPending = useCallback(
+    (folderId: string) =>
+      !publishErrors[folderId] && publishResults[folderId]?.ready === false,
+    [publishErrors, publishResults]
+  );
+
   const isSharing = useCallback(
     (folderId: string) => Boolean(shareBusy[folderId]),
     [shareBusy]
@@ -472,6 +548,8 @@ function useDashboardInvitations(
     getPublishedUrl,
     isDeleting,
     isSharing,
+    isPublishReadinessPolling,
+    isPublishReadyPending,
     getDeleteError,
     isPublishing,
     getPublishError,

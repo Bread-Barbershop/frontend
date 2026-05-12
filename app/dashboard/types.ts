@@ -30,9 +30,12 @@ export type LoadInvitationResponse = {
 
 export type PublishResult = {
   ok: boolean;
+  published?: boolean;
+  ready?: boolean;
   guestUrl?: string;
   dataJsonFileId?: string;
   ignored?: string;
+  warning?: string;
   error?: string;
   status?: number;
   details?: unknown;

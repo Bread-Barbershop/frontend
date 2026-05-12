@@ -29,6 +29,8 @@ type CarouselItemProps = {
   isDeleting: boolean;
   isSharing: boolean;
   isPublishing: boolean;
+  isPublishReadinessPolling: boolean;
+  isPublishReadyPending: boolean;
 };
 
 function CarouselItem({
@@ -49,6 +51,8 @@ function CarouselItem({
   isDeleting,
   isSharing,
   isPublishing,
+  isPublishReadinessPolling,
+  isPublishReadyPending,
 }: CarouselItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const invite = item.invite;
@@ -206,6 +210,8 @@ function CarouselItem({
                 <PublishButton
                   isPublished={Boolean(publishedUrl)}
                   isPublishing={isPublishing}
+                  isReadinessPolling={isPublishReadinessPolling}
+                  isReadyPending={isPublishReadyPending}
                   onPublish={() => onPublish?.(invite.folderId)}
                 />
                 <button

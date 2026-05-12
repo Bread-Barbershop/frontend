@@ -210,6 +210,8 @@ describe('publishInvitation Route Handler 테스트', () => {
     expect(res.status).toBe(200);
     expect(json).toEqual({
       ok: true,
+      published: true,
+      ready: true,
       guestUrl: '/guest/data-json-file-id-1',
       dataJsonFileId: 'data-json-file-id-1',
     });
@@ -270,6 +272,8 @@ describe('publishInvitation Route Handler 테스트', () => {
     expect(res.status).toBe(200);
     expect(json).toEqual({
       ok: true,
+      published: true,
+      ready: true,
       guestUrl: '/guest/data-json-file-id-3',
       dataJsonFileId: 'data-json-file-id-3',
       ignored: 'already_public',
@@ -399,14 +403,68 @@ describe('publishInvitation Route Handler 테스트', () => {
     const res = await responsePromise;
     const json = await res.json();
 
-    expect(res.status).toBe(502);
-    expect(json.ok).toBe(false);
-    expect(json.error).toBe('guest_not_ready_after_publish');
+    expect(res.status).toBe(202);
+    expect(json.ok).toBe(true);
+    expect(json.published).toBe(true);
+    expect(json.ready).toBe(false);
+    expect(json.warning).toBe('guest_not_ready_after_publish');
+    expect(json.status).toBe(202);
     expect(json.guestUrl).toBe('/guest/data-json-file-id-2');
     expect(json.dataJsonFileId).toBe('data-json-file-id-2');
 
     expect(mockFetch).toHaveBeenCalledTimes(3);
     expect(ensureDataJsonFile).toHaveBeenCalledWith('folder-999');
     expect(publishPermissionWithRetry).toHaveBeenCalledWith('folder-999');
+  });
+
+  it('guest readiness fetch 자체가 실패해도 발행 완료 상태는 유지한다', async () => {
+    jest.useFakeTimers();
+
+    (ensureDataJsonFile as jest.Mock).mockResolvedValue({
+      dataJsonFileId: 'data-json-file-id-fetch-error',
+    });
+
+    (publishPermissionWithRetry as jest.Mock).mockResolvedValue({
+      ok: true,
+      attempt: 1,
+    });
+
+    mockFetch.mockRejectedValue(new Error('network unavailable'));
+
+    const req = new Request('http://localhost/api/drive/publishInvitation', {
+      method: 'POST',
+      body: JSON.stringify({
+        invitationFolderId: 'folder-fetch-error',
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const responsePromise = POST(req);
+
+    await jest.advanceTimersByTimeAsync(1000);
+
+    const res = await responsePromise;
+    const json = await res.json();
+
+    expect(res.status).toBe(202);
+    expect(json).toMatchObject({
+      ok: true,
+      published: true,
+      ready: false,
+      warning: 'guest_not_ready_after_publish',
+      guestUrl: '/guest/data-json-file-id-fetch-error',
+      dataJsonFileId: 'data-json-file-id-fetch-error',
+      status: 202,
+    });
+    expect(json.details.lastProbe).toMatchObject({
+      ok: false,
+      status: 0,
+      reason: 'fetch_failed',
+      error: 'network unavailable',
+    });
+
+    expect(mockFetch).toHaveBeenCalledTimes(3);
   });
 });

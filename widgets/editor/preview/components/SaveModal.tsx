@@ -23,13 +23,16 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
       handlePublish,
       publishResults,
       publishBusy,
+      readinessPolling,
       publishErrors,
       isPublish,
     } = useInvitationPublish({ invitationFolderId });
 
     const result = publishResults[invitationFolderId];
     const busy = Boolean(publishBusy[invitationFolderId]);
+    const readinessBusy = Boolean(readinessPolling[invitationFolderId]);
     const error = publishErrors[invitationFolderId];
+    const isReadyPending = !error && result?.ready === false;
     const finalGuestUrl =
       result?.guestUrl && result.guestUrl.startsWith('http')
         ? result.guestUrl
@@ -41,7 +44,7 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
         <div
           className="fixed inset-0 z-40 bg-black/20"
           onMouseDown={e => {
-            if (isLoading || busy) {
+            if (isLoading || busy || readinessBusy) {
               e.stopPropagation();
             }
           }}
@@ -63,7 +66,11 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
                         ? 'URL 발행중...'
                         : error
                           ? 'URL 발행에 실패하였습니다.'
-                          : '성공적으로 발행되었습니다!'}
+                          : readinessBusy
+                            ? 'URL 발행 완료, 반영 중입니다.'
+                            : isReadyPending
+                              ? 'URL 발행 완료, 반영 지연 중입니다.'
+                            : '성공적으로 발행되었습니다.'}
                     </p>
                   </div>
                   <div>
@@ -76,6 +83,8 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
                         width={84}
                         height={84}
                       />
+                    ) : readinessBusy ? (
+                      <LoadingSpinner className="w-[84px] h-[84px] animate-spin" />
                     ) : (
                       <Image
                         src="/images/saveSuccess.png"
@@ -104,7 +113,11 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
                     ) : (
                       <div className="px-2 font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[295px] h-[44px] gap-1">
                         {!finalGuestUrl || error ? (
-                          <button className="text-white truncate w-[215px] hover:bg-white/30 rounded-lg p-1">
+                          <button
+                            type="button"
+                            className="text-white truncate w-[215px] hover:bg-white/30 rounded-lg p-1"
+                            onClick={handlePublish}
+                          >
                             초대장 URL 다시 발행하기
                           </button>
                         ) : (
@@ -164,13 +177,19 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
                   )}
 
                   <div>
-                    <button
-                      type="button"
-                      className="font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[295px] h-[44px]"
-                      onClick={handlePublish}
-                    >
-                      초대장 URL 발행하기
-                    </button>
+                    {isFail ? (
+                      <div className="font-semibold text-sm border border-white/12 rounded-lg bg-black/50 text-white/70 flex-center w-[295px] h-[44px]">
+                        저장 후 URL을 발행할 수 있습니다.
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        className="font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[295px] h-[44px]"
+                        onClick={handlePublish}
+                      >
+                        초대장 URL 발행하기
+                      </button>
+                    )}
                   </div>
                 </>
               )}

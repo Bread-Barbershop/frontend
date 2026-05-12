@@ -2,6 +2,7 @@
 
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
+import { BODY_BULK_DATA, TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
 import { createDefaultShareUrlState } from '@/shared/utils/shareUrlDefaults';
 
 import { escapeDriveQueryValue } from './escapeQueryValue';
@@ -23,6 +24,12 @@ const DATA_JSON_NAME = 'data.json';
 const DATA_JSON_KIND = 'invitation_data_json';
 
 const DEFAULT_DATA_JSON_PAYLOAD = {
+  bulkData: {
+    backgroundColor: '#FFFFFF',
+    titleData: TITLE_BULK_DATA,
+    bodyData: BODY_BULK_DATA,
+    isZoom: false,
+  },
   blocks: [],
   shareUrl: createDefaultShareUrlState(),
   bgm: {
@@ -37,6 +44,7 @@ const DEFAULT_DATA_JSON_PAYLOAD = {
     version: '7.1.0',
     objects: [],
   },
+  invitationImage: [],
 };
 
 // "invitation 폴더 내에 단일 data.json 초대 파일이 존재하는지 확인합니다. 파일이 없는 경우, 파일을 생성하고 유효한 기본 페이로드(payload)로 초기화합니다."

@@ -2,13 +2,23 @@ import { useState } from 'react';
 
 type PublishResult = {
   ok: boolean;
+  published?: boolean;
+  ready?: boolean;
   guestUrl?: string;
   dataJsonFileId?: string;
   ignored?: string;
+  warning?: string;
   error?: string;
   status?: number;
   details?: unknown;
 };
+
+const READINESS_POLL_DELAYS_MS = [1000, 1500, 2500, 4000, 6000];
+
+const sleep = (ms: number) =>
+  new Promise<void>(resolve => {
+    setTimeout(resolve, ms);
+  });
 
 export const useInvitationPublish = ({
   invitationFolderId,
@@ -23,6 +33,52 @@ export const useInvitationPublish = ({
   const [publishResults, setPublishResults] = useState<
     Record<string, PublishResult | null>
   >({});
+  const [readinessPolling, setReadinessPolling] = useState<
+    Record<string, boolean>
+  >({});
+
+  const pollGuestReadiness = async (
+    folderId: string,
+    initialResult: PublishResult
+  ) => {
+    const dataJsonFileId = initialResult.dataJsonFileId;
+    if (!dataJsonFileId) return;
+
+    setReadinessPolling(prev => ({ ...prev, [folderId]: true }));
+
+    let latestResult = initialResult;
+
+    try {
+      for (const delayMs of READINESS_POLL_DELAYS_MS) {
+        await sleep(delayMs);
+
+        const res = await fetch(
+          `/api/drive/publishInvitation/readiness?dataJsonFileId=${encodeURIComponent(
+            dataJsonFileId
+          )}`,
+          { method: 'GET', cache: 'no-store' }
+        );
+
+        const json = (await res.json().catch(() => ({}))) as PublishResult;
+        latestResult = {
+          ...latestResult,
+          ...json,
+          guestUrl: json.guestUrl ?? latestResult.guestUrl,
+          dataJsonFileId: json.dataJsonFileId ?? dataJsonFileId,
+        };
+
+        setPublishResults(prev => ({ ...prev, [folderId]: latestResult }));
+
+        if (res.ok && json.ready === true) {
+          break;
+        }
+      }
+    } catch (err) {
+      console.error('Guest readiness polling failed:', err);
+    } finally {
+      setReadinessPolling(prev => ({ ...prev, [folderId]: false }));
+    }
+  };
 
   const handlePublish = async () => {
     if (!invitationFolderId) return;
@@ -53,6 +109,10 @@ export const useInvitationPublish = ({
       }
 
       setPublishResults(prev => ({ ...prev, [invitationFolderId]: json }));
+
+      if (json.ready === false) {
+        void pollGuestReadiness(invitationFolderId, json);
+      }
     } catch (err) {
       setPublishErrors(prev => ({
         ...prev,
@@ -67,6 +127,7 @@ export const useInvitationPublish = ({
     handlePublish,
     publishResults,
     publishBusy,
+    readinessPolling,
     publishErrors,
     isPublish,
   };

@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 
 import useDashboardInvitations from '@/app/dashboard/hooks/useDashboardInvitations';
 
@@ -23,7 +23,12 @@ describe('useDashboardInvitations', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
+    jest.useRealTimers();
     global.fetch = mockFetch as unknown as typeof fetch;
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it('redirects home when loadInvitation returns an invalid request error', async () => {
@@ -100,5 +105,74 @@ describe('useDashboardInvitations', () => {
       'http://localhost/guest/data-json-file-id-1'
     );
     expect(result.current.getPublishedUrl('folder-2')).toBeNull();
+  });
+
+  it('polls publish readiness until the guest page is ready', async () => {
+    jest.useFakeTimers();
+
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 202,
+        json: jest.fn().mockResolvedValue({
+          ok: true,
+          published: true,
+          ready: false,
+          guestUrl: '/guest/data-json-file-id-1',
+          dataJsonFileId: 'data-json-file-id-1',
+          warning: 'guest_not_ready_after_publish',
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: jest.fn().mockResolvedValue({
+          ok: true,
+          published: true,
+          ready: true,
+          guestUrl: '/guest/data-json-file-id-1',
+          dataJsonFileId: 'data-json-file-id-1',
+        }),
+      });
+
+    const { result } = renderHook(() =>
+      useDashboardInvitations(
+        [
+          {
+            folderId: 'folder-1',
+            name: 'Invitation 1',
+            invitationUuid: 'uuid-1',
+          },
+        ],
+        { loadOnMount: false }
+      )
+    );
+
+    await act(async () => {
+      await result.current.handlePublish('folder-1');
+    });
+
+    await waitFor(() => {
+      expect(result.current.isPublishReadyPending('folder-1')).toBe(true);
+      expect(result.current.isPublishReadinessPolling('folder-1')).toBe(true);
+    });
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(1000);
+    });
+
+    await waitFor(() => {
+      expect(result.current.isPublishReadinessPolling('folder-1')).toBe(false);
+      expect(result.current.isPublishReadyPending('folder-1')).toBe(false);
+    });
+
+    expect(result.current.getPublishedUrl('folder-1')).toBe(
+      'http://localhost/guest/data-json-file-id-1'
+    );
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+    expect(mockFetch).toHaveBeenLastCalledWith(
+      '/api/drive/publishInvitation/readiness?dataJsonFileId=data-json-file-id-1',
+      { method: 'GET', cache: 'no-store' }
+    );
   });
 });
