@@ -24,6 +24,7 @@ export function PlaceMap({
     mapInstance.current = new naver.maps.Map(mapRef.current, {
       center,
       zoom: 15,
+      scaleControl: false,
     });
 
     new naver.maps.Marker({
@@ -52,7 +53,10 @@ export function PlaceMap({
       >
         지도
       </Label>
-      <div ref={mapRef} className="rounded-lg w-full h-64.5"></div>
+      <div
+        ref={mapRef}
+        className="relative isolate z-0 h-64.5 w-full overflow-hidden rounded-lg"
+      ></div>
     </section>
   );
 }
