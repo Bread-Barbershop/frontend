@@ -63,7 +63,7 @@ function PictureBlock({ blockInfo, id }: Props) {
   };
 
   const handleOnChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { title: e.target.value || '제목을 입력해주세요.' });
+    updateBlock(id, { title: e.target.value || '사진' });
   };
   const handleOnChangeEngTitle = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { enTitle: e.target.value || 'PICTURE' });
@@ -88,12 +88,10 @@ function PictureBlock({ blockInfo, id }: Props) {
             label="제목"
             className="py-1.5 text-center"
             inputProps={{
-              placeholder: '제목을 입력해주세요.',
+              placeholder: '사진',
               onChange: e => handleOnChangeTitle(e),
               value:
-                blockInfo.props.title === '제목을 입력해주세요.'
-                  ? ''
-                  : blockInfo.props.title,
+                blockInfo.props.title === '사진' ? '' : blockInfo.props.title,
               maxLength: 20,
             }}
           />

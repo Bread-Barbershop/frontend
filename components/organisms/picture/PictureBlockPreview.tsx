@@ -25,11 +25,12 @@ function PictureBlockPreview({ blockInfo, className, ...rest }: Props) {
 
   return (
     <MiddlePreviewWrapper
+      noTitle={!blockInfo.props.isTitle}
       checkedEnglishTitle={blockInfo.props.isEnglishTitle}
       enTitle={blockInfo.props.enTitle}
       enTitleDefault="PICTURE"
       koTitle={blockInfo.props.title}
-      koTitleDefault="제목을 입력해주세요."
+      koTitleDefault="사진"
       className={className}
       {...rest}
     >
@@ -46,9 +47,7 @@ function PictureBlockPreview({ blockInfo, className, ...rest }: Props) {
         </div>
         {!preview && (
           <div className="w-full aspect-square flex-center bg-border-neutral">
-            <p className="text-text-primary text-[13px]">
-              사진을 추가해주세요.
-            </p>
+            <p className="text-text-secondary text-sm">사진을 추가해주세요.</p>
           </div>
         )}
         {preview && (

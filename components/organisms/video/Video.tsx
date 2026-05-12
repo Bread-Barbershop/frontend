@@ -21,8 +21,13 @@ interface Props {
 const ratioOptions = ['1:1', '3:4', '4:3', '9:16', '16:9'];
 
 export const Video = ({ blockInfo, id }: Props) => {
-  const { title, videoUrl, checkThumbnail, checkedEnglishTitle, englishTitle } =
-    blockInfo.props;
+  const {
+    title,
+    videoUrl,
+    checkThumbnail,
+    checkedEnglishTitle,
+    englishTitle,
+  } = blockInfo.props;
   const { updateBlock, updateImage } = useEditorStore(
     useShallow(state => ({
       updateBlock: state.updateBlock,
@@ -46,13 +51,9 @@ export const Video = ({ blockInfo, id }: Props) => {
       <TextField
         label="제목"
         inputProps={{
-          placeholder: '제목을 입력해 주세요.',
-          onChange: e =>
-            handleUpdateBlock(
-              'title',
-              e.target.value || '제목을 입력해 주세요.'
-            ),
-          value: title === '제목을 입력해 주세요.' ? '' : title,
+          placeholder: '동영상',
+          onChange: e => handleUpdateBlock('title', e.target.value || '동영상'),
+          value: title === '동영상' ? '' : title,
         }}
         className="w-full text-center"
       />

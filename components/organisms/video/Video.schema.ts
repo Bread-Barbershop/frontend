@@ -2,7 +2,7 @@ export const videoSchema = {
   type: null,
   fields: {
     title: {
-      default: '제목을 입력해 주세요.',
+      default: '동영상',
       required: true,
     },
     checkedEnglishTitle: {

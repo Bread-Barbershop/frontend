@@ -12,11 +12,11 @@ export const pictureSchema = {
       required: false,
     },
     title: {
-      default: '제목을 입력해주세요.',
+      default: '사진',
       required: false,
     },
     isEnglishTitle: {
-      default: true,
+      default: false,
       required: false,
     },
     enTitle: {
