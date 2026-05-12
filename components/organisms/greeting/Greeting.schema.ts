@@ -8,7 +8,7 @@ export const greetingSchema = {
       required: true,
     },
     checkedEnglishTitle: {
-      default: false,
+      default: true,
       required: true,
     },
     englishTitle: {

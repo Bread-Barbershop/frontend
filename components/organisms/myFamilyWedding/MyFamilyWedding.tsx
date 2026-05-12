@@ -103,7 +103,7 @@ export const MyFamilyWedding = ({ blockInfo, id }: Props) => {
 
   return (
     <LeftEditorWrapper ariaLabel="가족 소개" className="gap-3">
-      <NavigationBar>가족 소개</NavigationBar>
+      <NavigationBar>가족 소개 편집 페이지</NavigationBar>
       <Group
         family={groomFamily || []}
         type="groom"

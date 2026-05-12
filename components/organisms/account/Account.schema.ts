@@ -4,15 +4,15 @@ export const accountSchema = {
   type: null,
   fields: {
     title: {
-      default: '',
+      default: '마음 보내실 곳',
       required: true,
     },
     checkedEnglishTitle: {
-      default: false,
+      default: true,
       required: true,
     },
     englishTitle: {
-      default: '',
+      default: 'ACCOUNT',
       required: false,
     },
     messageJson: {

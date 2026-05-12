@@ -33,7 +33,7 @@ function CoupleIntroductionPreview({
     groomImage = { id: '', image: [] },
     brideImage = { id: '', image: [] },
     title = '',
-    checkedEnglishTitle = false,
+    checkedEnglishTitle = true,
     englishTitle = '',
     messageJson = null,
     messageHtml = null,

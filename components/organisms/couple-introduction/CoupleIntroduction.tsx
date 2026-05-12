@@ -31,7 +31,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
     groomImage = { id: crypto.randomUUID(), image: [] },
     brideImage = { id: crypto.randomUUID(), image: [] },
     title = DEFAULT_COUPLE_INTRODUCTION_TITLE,
-    checkedEnglishTitle = false,
+    checkedEnglishTitle = true,
     englishTitle = DEFAULT_COUPLE_INTRODUCTION_ENGLISH_TITLE,
     messageJson = null,
     showContent = false,
@@ -173,13 +173,13 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
 
   return (
     <LeftEditorWrapper className="items-start" ariaLabel="신랑 신부 소개">
-      <NavigationBar>신랑・신부 소개</NavigationBar>
+      <NavigationBar>신랑・신부 소개 편집 페이지</NavigationBar>
 
       <TextField
         key={`title-${id}`}
         label="제목"
         inputProps={{
-          placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+          placeholder: DEFAULT_COUPLE_INTRODUCTION_TITLE,
           defaultValue:
             title === DEFAULT_COUPLE_INTRODUCTION_TITLE ? '' : title,
           onChange: handleTitleChange,
@@ -192,7 +192,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
           key={`english-title-${id}`}
           label="영문제목"
           inputProps={{
-            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+            placeholder: DEFAULT_COUPLE_INTRODUCTION_ENGLISH_TITLE,
             defaultValue:
               englishTitle === DEFAULT_COUPLE_INTRODUCTION_ENGLISH_TITLE
                 ? ''

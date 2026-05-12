@@ -56,7 +56,7 @@ export default function Bgm() {
 
   return (
     <LeftEditorWrapper className="items-start" ariaLabel="배경 음악">
-      <NavigationBar>배경 음악</NavigationBar>
+      <NavigationBar>배경 음악 편집 페이지</NavigationBar>
       <input
         ref={fileInputRef}
         type="file"

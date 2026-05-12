@@ -4,15 +4,15 @@ export const interviewSchema = {
   type: null,
   fields: {
     title: {
-      default: '',
+      default: '인터뷰',
       required: true,
     },
     checkedEnglishTitle: {
-      default: false,
+      default: true,
       required: true,
     },
     englishTitle: {
-      default: '',
+      default: 'INTERVIEW',
       required: false,
     },
     questions: {

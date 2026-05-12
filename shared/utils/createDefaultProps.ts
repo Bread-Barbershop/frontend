@@ -1,6 +1,7 @@
 import { blockRegistry } from '@/shared/data/registry/registry';
 import type { InvitationType } from '@/shared/types/block';
 import { BlockType, PropsFromFields } from '@/shared/types/editor';
+import { getDefaultPlaceTitle } from '@/shared/utils/placeTitle';
 
 type DefaultProps<T extends BlockType> = PropsFromFields<
   (typeof blockRegistry)[T]['fields']
@@ -21,6 +22,13 @@ export function createDefaultProps<T extends BlockType>(
       ...props,
       title: '행사 일시',
       englishTitle: 'THE EVENT TIME',
+    } as DefaultProps<T>;
+  }
+
+  if (type === 'place') {
+    return {
+      ...props,
+      title: getDefaultPlaceTitle(invitationType),
     } as DefaultProps<T>;
   }
 

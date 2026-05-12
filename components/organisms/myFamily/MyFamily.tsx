@@ -58,11 +58,13 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
   }, [debouncedUpdateMessage]);
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { title: e.target.value });
+    updateBlock(id, {
+      title: e.target.value || '저희 가족을 소개합니다.',
+    });
   };
 
   const handleEnglishTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { englishTitle: e.target.value });
+    updateBlock(id, { englishTitle: e.target.value || 'MY FAMILY' });
   };
 
   const handleRelationChange = (index: number, value: string) => {
@@ -181,13 +183,13 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
         }
         direction="right"
       >
-        가족 소개
+        가족 소개 편집 페이지
       </NavigationBar>
       <TextField
         label="제목"
         inputProps={{
-          placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
-          value: title,
+          placeholder: '저희 가족을 소개합니다.',
+          value: title === '저희 가족을 소개합니다.' ? '' : title,
           onChange: handleTitleChange,
         }}
         className="text-center w-full"
@@ -196,8 +198,8 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
         <TextField
           label="영문제목"
           inputProps={{
-            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
-            value: englishTitle,
+            placeholder: 'MY FAMILY',
+            value: englishTitle === 'MY FAMILY' ? '' : englishTitle,
             onChange: handleEnglishTitleChange,
           }}
           className="text-center w-full"

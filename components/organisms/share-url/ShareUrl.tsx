@@ -26,7 +26,7 @@ function ShareUrl() {
     }))
   );
 
-  // 오시는 길 블록의 예식장명과 주소 설정 여부 확인
+  // 행사 장소 블록의 장소명과 주소 설정 여부 확인
   const placeBlock = block.find(
     (b): b is EditorBlock<'place'> => b.component === 'place'
   );
@@ -151,7 +151,7 @@ function ShareUrl() {
                 name="showLocationButton"
               >
                 <p className="font-normal text-text-secondary text-[13px]">
-                  위치보기 버튼 (오시는 길 컴포넌트 연동)
+                  위치보기 버튼 (행사 장소 컴포넌트 연동)
                 </p>
               </Checkbox>
               <Checkbox

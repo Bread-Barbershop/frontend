@@ -124,14 +124,15 @@ export const Account = ({ blockInfo, id }: Props) => {
 
   return (
     <LeftEditorWrapper ariaLabel="계좌번호">
-      <NavigationBar>계좌번호</NavigationBar>
+      <NavigationBar>계좌번호 편집 페이지</NavigationBar>
 
       <TextField
         label="제목"
         inputProps={{
-          placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
-          value: title,
-          onChange: e => handleUpdateBlock('title', e.target.value),
+          placeholder: '마음 보내실 곳',
+          value: title === '마음 보내실 곳' ? '' : title,
+          onChange: e =>
+            handleUpdateBlock('title', e.target.value || '마음 보내실 곳'),
         }}
         className="w-full text-center"
       />
@@ -139,9 +140,10 @@ export const Account = ({ blockInfo, id }: Props) => {
         <TextField
           label="영문제목"
           inputProps={{
-            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
-            value: englishTitle,
-            onChange: e => handleUpdateBlock('englishTitle', e.target.value),
+            placeholder: 'ACCOUNT',
+            value: englishTitle === 'ACCOUNT' ? '' : englishTitle,
+            onChange: e =>
+              handleUpdateBlock('englishTitle', e.target.value || 'ACCOUNT'),
           }}
           className="text-center w-full pt-3"
         />

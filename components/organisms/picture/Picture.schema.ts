@@ -12,7 +12,7 @@ export const pictureSchema = {
       required: false,
     },
     title: {
-      default: '',
+      default: '사진',
       required: false,
     },
     isEnglishTitle: {
@@ -20,7 +20,7 @@ export const pictureSchema = {
       required: false,
     },
     enTitle: {
-      default: '',
+      default: 'PICTURE',
       required: false,
     },
     isContents: {

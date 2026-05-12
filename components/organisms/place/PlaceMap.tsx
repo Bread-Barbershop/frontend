@@ -10,10 +10,12 @@ export function PlaceMap({
   lng,
   lat,
   category = '',
+  locked = false,
 }: {
   lng: Lng;
   lat: Lat;
   category?: string;
+  locked?: boolean;
 }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<NaverMap | null>(null);
@@ -24,13 +26,21 @@ export function PlaceMap({
     mapInstance.current = new naver.maps.Map(mapRef.current, {
       center,
       zoom: 15,
+      scaleControl: false,
+      draggable: !locked,
+      scrollWheel: !locked,
+      pinchZoom: !locked,
+      keyboardShortcuts: !locked,
+      disableDoubleClickZoom: locked,
+      disableDoubleTapZoom: locked,
+      disableTwoFingerTapZoom: locked,
     });
 
     new naver.maps.Marker({
       map: mapInstance.current,
       position: center,
     });
-  }, [lng, lat]);
+  }, [lng, lat, locked]);
 
   const validatePosition = (lng: Lng, lat: Lat) => {
     if (lng > 180 || lng < -180 || lat > 90 || lat < -90) {
@@ -52,7 +62,10 @@ export function PlaceMap({
       >
         지도
       </Label>
-      <div ref={mapRef} className="rounded-lg w-full h-64.5"></div>
+      <div
+        ref={mapRef}
+        className="relative isolate z-0 h-64.5 w-full overflow-hidden rounded-lg"
+      ></div>
     </section>
   );
 }

@@ -56,9 +56,9 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
   const handleValueChange = (
     key: 'title' | 'organizer' | 'url' | 'hasUrl' | 'englishTitle',
     e?: ChangeEvent<HTMLInputElement>,
-    value?: boolean
+    value?: string | boolean
   ) => {
-    updateBlock(id, { [key]: e?.target.value ?? value });
+    updateBlock(id, { [key]: value ?? e?.target.value });
   };
 
   const handleEditorChange = (json: JSONContent) => {
@@ -80,13 +80,14 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
 
   return (
     <LeftEditorWrapper className="gap-4 pb-3">
-      <NavigationBar className="-mb-2">주최정보</NavigationBar>
+      <NavigationBar className="-mb-2">주최정보 편집 페이지</NavigationBar>
       <TextField
         label="제목"
         inputProps={{
-          placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
-          value: title,
-          onChange: e => handleValueChange('title', e),
+          placeholder: '주최사',
+          value: title === '주최사' ? '' : title,
+          onChange: e =>
+            handleValueChange('title', undefined, e.target.value || '주최사'),
         }}
         className="text-center w-full"
       />
@@ -94,9 +95,15 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
         <TextField
           label="영문제목"
           inputProps={{
-            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
-            value: englishTitle,
-            onChange: e => handleValueChange('englishTitle', e),
+            placeholder: 'ORGANIZER INFORMATION',
+            value:
+              englishTitle === 'ORGANIZER INFORMATION' ? '' : englishTitle,
+            onChange: e =>
+              handleValueChange(
+                'englishTitle',
+                undefined,
+                e.target.value || 'ORGANIZER INFORMATION'
+              ),
           }}
           className="text-center w-full"
         />
