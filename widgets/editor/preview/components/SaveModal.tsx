@@ -11,6 +11,7 @@ interface Props {
   isLoading: boolean;
   isFail: boolean;
 }
+
 export const SaveModal = forwardRef<HTMLDivElement, Props>(
   ({ isLoading, isFail }: Props, ref) => {
     const invitationFolderId = useEditorStore(
@@ -39,6 +40,15 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
         : result?.guestUrl && origin
           ? `${origin}${result.guestUrl}`
           : (result?.guestUrl ?? null);
+
+    const getStatusMessage = () => {
+      if (busy) return 'URL 발행중...';
+      if (error) return 'URL 발행에 실패했습니다.';
+      if (readinessBusy) return 'URL 발행 완료, 반영 중입니다.';
+      if (isReadyPending) return 'URL 발행 완료, 반영 지연 중입니다.';
+      return '성공적으로 발행되었습니다.';
+    };
+
     return createPortal(
       <>
         <div
@@ -62,21 +72,7 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
                 <>
                   <div className="pt-5">
                     <p className="font-semibold text-base">
-                      {busy
-                        ? 'URL 발행중...'
-                        : error
-                          ? 'URL 발행에 실패하였습니다.'
-const getStatusMessage = () => {
-  if (busy) return 'URL 발행중...';
-  if (error) return 'URL 발행에 실패하였습니다.';
-  if (readinessBusy) return 'URL 발행 완료, 반영 중입니다.';
-  if (isReadyPending) return 'URL 발행 완료, 반영 지연 중입니다.';
-  return '성공적으로 발행되었습니다.';
-};
-
-<p className="font-semibold text-base">
-  {getStatusMessage()}
-</p>
+                      {getStatusMessage()}
                     </p>
                   </div>
                   <div>
@@ -143,7 +139,7 @@ const getStatusMessage = () => {
                             onClick={e => {
                               e.stopPropagation();
                               navigator.clipboard.writeText(finalGuestUrl);
-                              alert('복사되었습니다!');
+                              alert('복사되었습니다.');
                             }}
                           >
                             복사하기
@@ -158,7 +154,7 @@ const getStatusMessage = () => {
                   <div className="pt-5">
                     <p className="font-semibold text-base">
                       {isFail
-                        ? '파일 저장에 실패하였습니다.'
+                        ? '파일 저장에 실패했습니다.'
                         : '성공적으로 저장되었습니다!'}
                     </p>
                   </div>
@@ -207,4 +203,5 @@ const getStatusMessage = () => {
     );
   }
 );
+
 SaveModal.displayName = 'SaveModal';
