@@ -9,6 +9,7 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
   noTitle?: boolean;
   titleClassName?: string;
   checkedEnglishTitle?: boolean;
+  checkedKoTitle?: boolean;
   enTitle?: string;
   enTitleDefault?: string;
   koTitle?: string;
@@ -22,6 +23,7 @@ export const MiddlePreviewWrapper = ({
   noTitle = false,
   titleClassName,
   checkedEnglishTitle,
+  checkedKoTitle = true,
   enTitle,
   enTitleDefault,
   koTitle,
@@ -36,6 +38,7 @@ export const MiddlePreviewWrapper = ({
     >
       {!noTitle && (
         <PreviewTitle
+          isKoTitle={checkedKoTitle}
           enTitle={
             checkedEnglishTitle
               ? enTitle && enTitle.length > 1
@@ -43,7 +46,13 @@ export const MiddlePreviewWrapper = ({
                 : enTitleDefault
               : ''
           }
-          koTitle={koTitle && koTitle.length > 1 ? koTitle : koTitleDefault}
+          koTitle={
+            checkedKoTitle
+              ? koTitle && koTitle.length > 1
+                ? koTitle
+                : koTitleDefault
+              : ''
+          }
           titleClassName={titleClassName}
         />
       )}

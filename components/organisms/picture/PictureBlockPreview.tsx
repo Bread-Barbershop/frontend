@@ -26,10 +26,11 @@ function PictureBlockPreview({ blockInfo, className, ...rest }: Props) {
   return (
     <MiddlePreviewWrapper
       checkedEnglishTitle={blockInfo.props.isEnglishTitle}
+      checkedKoTitle={blockInfo.props.isTitle}
       enTitle={blockInfo.props.enTitle}
       enTitleDefault="PICTURE"
       koTitle={blockInfo.props.title}
-      koTitleDefault="제목을 입력해주세요."
+      koTitleDefault="사진"
       className={className}
       {...rest}
     >
