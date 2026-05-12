@@ -6,7 +6,7 @@ import { Image } from '@/components/atoms/image';
 
 import { GalleryTemplateProps } from '../types/galleryType';
 
-const MAX_WIDTH = 240; // 중앙일 때 카드 폭
+const MAX_WIDTH = 200; // 중앙일 때 카드 폭
 const MIN_WIDTH = 32; // 가장 멀어졌을 때 카드 폭
 
 const RATIO_MAP: Record<string, number> = {
@@ -48,7 +48,7 @@ function GalleryType3({ imageClick, preview, ratio }: GalleryTemplateProps) {
 
   return (
     <div className="w-full">
-      <div ref={emblaRef} className="overflow-hidden">
+      <div ref={emblaRef} className="overflow-hidden py-10">
         <div
           className="flex items-stretch gap-2 transition-[height] duration-300"
           style={{ height: rowHeight }}

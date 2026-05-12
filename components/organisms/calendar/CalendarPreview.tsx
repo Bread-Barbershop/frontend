@@ -65,6 +65,7 @@ export function CalendarPreview({
     >
       {/* Title */}
       <PreviewTitle
+        isKoTitle={true}
         enTitle={englishTitle || defaultEnglishTitle}
         koTitle={title || defaultTitle}
         titleClassName={titleClassName}

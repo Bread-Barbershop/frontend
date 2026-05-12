@@ -11,6 +11,7 @@ import { toStyle } from '@/shared/utils/toStyle';
 import { previewTitleVariants } from './PreviewTitle.style';
 
 interface PreviewTitleProps extends VariantProps<typeof previewTitleVariants> {
+  isKoTitle?: boolean;
   koTitle?: string;
   enTitle?: string;
   className?: string;
@@ -18,6 +19,7 @@ interface PreviewTitleProps extends VariantProps<typeof previewTitleVariants> {
 }
 
 export const PreviewTitle = ({
+  isKoTitle,
   koTitle,
   enTitle,
   className,
@@ -46,13 +48,17 @@ export const PreviewTitle = ({
           {enText}
         </p>
       )}
-
-      <p
-        className={cn(previewTitleVariants({ language: 'ko' }), titleClassName)}
-        style={!titleData.isDefault ? toStyle(titleData, true) : undefined}
-      >
-        {koText}
-      </p>
+      {isKoTitle && (
+        <p
+          className={cn(
+            previewTitleVariants({ language: 'ko' }),
+            titleClassName
+          )}
+          style={!titleData.isDefault ? toStyle(titleData, true) : undefined}
+        >
+          {koText}
+        </p>
+      )}
     </div>
   );
 };

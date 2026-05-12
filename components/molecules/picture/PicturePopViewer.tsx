@@ -2,10 +2,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import { Button } from '@/components/atoms/button';
 import { Image } from '@/components/atoms/image';
-import Carousel from '@/features/EmblaCarousel/Carousel/Carousel';
-import Cancel from '@/shared/assets/icons/cancel.svg';
 import { cn } from '@/shared/utils/cn';
 
 interface Props {
@@ -25,20 +22,21 @@ export const PicturePopViewer = ({
 }: Props) => {
   const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
-  const ratioClass = useMemo(() => {
+  const currentImage = images[startIndex] ?? null;
+  const ratioData = useMemo(() => {
     switch (ratio) {
       case '1:1':
-        return 'aspect-square';
+        return { style: { aspectRatio: '1 / 1' }, value: 1 };
       case '4:3':
-        return 'aspect-[4/3]';
+        return { style: { aspectRatio: '4 / 3' }, value: 4 / 3 };
       case '3:4':
-        return 'aspect-[3/4]';
+        return { style: { aspectRatio: '3 / 4' }, value: 3 / 4 };
       case '16:9':
-        return 'aspect-[16/9]';
+        return { style: { aspectRatio: '16 / 9' }, value: 16 / 9 };
       case '9:16':
-        return 'aspect-[9/16]';
+        return { style: { aspectRatio: '9 / 16' }, value: 9 / 16 };
       default:
-        return 'aspect-square';
+        return { style: { aspectRatio: '1 / 1' }, value: 1 };
     }
   }, [ratio]);
 
@@ -49,6 +47,15 @@ export const PicturePopViewer = ({
     return () => cancelAnimationFrame(raf);
   }, []);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen || !isMounted) return null;
 
   const portalElement = document.getElementById('preview-container');
@@ -56,35 +63,32 @@ export const PicturePopViewer = ({
 
   return createPortal(
     <div
-      className={`inset-0 z-50 bg-black/80 flex justify-center items-end flex-col gap-2 px-7 ${pathname.startsWith('/editor') ? 'absolute' : 'fixed'}`}
+      className={`inset-0 z-50 bg-black/80 flex justify-center items-center flex-col gap-2 px-7 ${pathname.startsWith('/editor') ? 'absolute' : 'fixed'}`}
+      onClick={onClose}
     >
-      <Button
-        type="button"
-        className="group z-100 flex-center rounded-full bg-black/32 w-8 h-8 hover:bg-white transition-colors"
-        onClick={onClose}
+      <div
+        className={cn('w-full relative mx-auto')}
+        style={{
+          ...ratioData.style,
+          maxWidth: `calc(85vh * ${ratioData.value})`,
+        }}
+        onClick={e => e.stopPropagation()}
       >
-        <Cancel className="w-3.5 h-3.5 text-white group-hover:text-black transition-colors" />
-      </Button>
-      <div className={cn('w-full max-h-[85%] relative', ratioClass)}>
-        <Carousel
-          options={{
-            startIndex,
-            align: 'center',
-          }}
-          isButtonShow={true}
-          buttonClassName="absolute top-1/2 z-0 justify-between w-full"
-        >
-          {images.map((src, index) => (
-            <div key={index} className="flex-[0_0_100%] relative w-full h-full">
-              <Image
-                src={src}
-                alt="팝업 이미지"
-                fill
-                className="object-cover"
-              />
+        <div className="relative w-full h-full">
+          {currentImage && (
+            <Image
+              src={currentImage}
+              alt="팝업 이미지"
+              fill
+              className="object-cover"
+            />
+          )}
+          {!currentImage && (
+            <div className="w-full h-full bg-gray-200 flex-center">
+              이미지를 불러올 수 없습니다.
             </div>
-          ))}
-        </Carousel>
+          )}
+        </div>
       </div>
     </div>,
     portalElement

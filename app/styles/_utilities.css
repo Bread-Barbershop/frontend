@@ -150,68 +150,15 @@
   }
 }
 
-@layer components {
-  .embla__slide {
-    @apply transition-all duration-500 ease-out;
-    transform-origin: bottom center;
-    /* 기본: 전부 숨김 */
-    @apply opacity-0 z-[1] pointer-events-none;
-    transform: scale(0.6) translateY(20px) rotate(0deg);
-  }
+.checkerboard {
+  background-image: conic-gradient(
+    #e5e7eb 25%,
+    transparent 25% 50%,
+    #e5e7eb 50% 75%,
+    transparent 75%
+  );
+}
 
-  /* 중앙: 스냅된 슬라이드 */
-  .embla__slide.is-snapped {
-    @apply opacity-100 z-20 pointer-events-auto;
-    transform: scale(1) translateY(0) rotate(0deg);
-  }
-
-  /* 우측 +1 */
-  .embla__slide.is-snapped + .embla__slide {
-    @apply opacity-100 z-10 pointer-events-auto;
-    transform: scale(0.8) rotate(5deg);
-  }
-
-  /* 좌측 -1 */
-  .embla__slide:has(+ .embla__slide.is-snapped) {
-    @apply opacity-100 z-10 pointer-events-auto;
-    transform: scale(0.8) rotate(-5deg);
-  }
-
-  /* 우측 +2 */
-  .embla__slide.is-snapped + .embla__slide + .embla__slide {
-    @apply opacity-100 z-[5] pointer-events-auto;
-    transform: scale(0.56) rotate(10deg);
-  }
-
-  /* 좌측 -2 */
-  .embla__slide:has(+ .embla__slide + .embla__slide.is-snapped) {
-    @apply opacity-100 z-[5] pointer-events-auto;
-    transform: scale(0.56) rotate(-10deg);
-  }
-  /* 우측 +3 */
-  .embla__slide.is-snapped + .embla__slide + .embla__slide + .embla__slide {
-    @apply opacity-100 z-[2] pointer-events-auto;
-    transform: scale(0.3) rotate(15deg);
-  }
-
-  /* 좌측 -3 */
-  .embla__slide:has(
-    + .embla__slide + .embla__slide + .embla__slide.is-snapped
-  ) {
-    @apply opacity-100 z-[2] pointer-events-auto;
-    transform: scale(0.3) rotate(-15deg);
-  }
-
-  .checkerboard {
-    background-image: conic-gradient(
-      #e5e7eb 25%,
-      transparent 25% 50%,
-      #e5e7eb 50% 75%,
-      transparent 75%
-    );
-  }
-
-  .checker-size {
-    background-size: 20px 20px;
-  }
+.checker-size {
+  background-size: 20px 20px;
 }

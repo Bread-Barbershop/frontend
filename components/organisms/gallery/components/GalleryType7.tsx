@@ -1,4 +1,10 @@
-import React, { useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { Image } from '@/components/atoms/image';
 import Arrow from '@/shared/assets/icons/arrow.svg';
@@ -8,38 +14,63 @@ import { GalleryItemVariants } from '../GalleryCarouselType';
 import { GalleryTemplateProps } from '../types/galleryType';
 
 function GalleryType7({ imageClick, preview, ratio }: GalleryTemplateProps) {
-  const [expandCount, setExpandCount] = useState(2);
-  const [firstClick, setFirstClick] = useState(true);
   const [isFullyExpanded, setIsFullyExpanded] = useState(false);
-
-  const shouldShowButton = preview.length > 2;
-  const handleClickExpandButton = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    e.stopPropagation();
-
-    if (isFullyExpanded) {
-      setExpandCount(2);
-      setIsFullyExpanded(false);
-      setFirstClick(true);
-    } else {
-      if (firstClick) {
-        setFirstClick(false);
-        setExpandCount(prev => prev + 2);
-      } else {
-        setIsFullyExpanded(true);
-        setExpandCount(preview.length + 1);
-      }
+  const [isBottom, setIsBottom] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const isScrollable = useMemo(() => {
+    return preview.length > 2 ? true : false;
+  }, [preview]);
+  const checkScrollBottom = useCallback(() => {
+    if (scrollRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+      // 내용이 적어서 스크롤이 생기지 않는 경우도 바닥으로 간주
+      const bottom = scrollHeight - scrollTop <= clientHeight + 1;
+      setIsBottom(bottom);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    // 렌더링 후 및 이미지 개수 변화 시 체크
+    checkScrollBottom();
+  }, [isFullyExpanded, preview, checkScrollBottom, ratio]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => checkScrollBottom());
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [checkScrollBottom]);
+
+  const ratioValue =
+    {
+      '1:1': 1,
+      '4:3': 3 / 4,
+      '3:4': 4 / 3,
+      '16:9': 9 / 16,
+      '9:16': 16 / 9,
+    }[ratio] || 1;
+
+  // 2열 그리드에서 이미지 한 장의 너비 대비 높이 계산 (간격 gap = 15px 고려)
+  // 100% 대신 100cqw를 사용하여 부모 너비를 정확히 참조
+  const collapsedHeight = `calc(min(300px, ((100cqw - 15px) / 2) * ${ratioValue} + 2px))`;
+
   return (
-    <div className="relative w-full px-4">
+    <div
+      className="relative w-full px-4"
+      style={{ containerType: 'inline-size' }}
+    >
       <div
+        ref={scrollRef}
+        onScroll={checkScrollBottom}
+        style={{
+          maxHeight: isFullyExpanded ? '300px' : collapsedHeight,
+        }}
         className={cn(
-          'relative w-full grid grid-cols-2 gap-[15px] overflow-y-auto max-h-[300px] scrollbar-hide duration-500 ease-in-out scrollbar-hide'
+          'relative w-full grid grid-cols-2 gap-[15px] overflow-y-auto duration-500 ease-in-out scrollbar-hide transition-[max-height]'
         )}
       >
-        {preview.slice(0, expandCount).map((file, index) => (
+        {preview.map((file, index) => (
           <div
             role="button"
             tabIndex={0}
@@ -60,36 +91,36 @@ function GalleryType7({ imageClick, preview, ratio }: GalleryTemplateProps) {
           </div>
         ))}
       </div>
-
-      <div
-        className={cn(
-          'flex justify-center items-end pointer-events-none absolute bottom-0 left-0 right-0 h-13',
-          !isFullyExpanded &&
-            'bg-linear-to-t from-white from-0% via-white/24 via-53% to-white/6 to-100%',
-          'transition-opacity duration-300 ease-in-out',
-          !shouldShowButton && 'opacity-0'
-        )}
-        aria-hidden={!shouldShowButton}
-      >
-        <button
-          type="button"
-          aria-label={isFullyExpanded ? '갤러리 접기' : '갤러리 더 보기'}
-          className={cn(
-            'flex-center rounded-full border border-[#EAEAEA] backdrop-blur-[6px] bg-white/10 w-8 h-8',
-            shouldShowButton
-              ? 'pointer-events-auto cursor-pointer'
-              : 'pointer-events-none'
-          )}
-          onClick={handleClickExpandButton}
-        >
-          <Arrow
+      {isScrollable && (
+        <>
+          <div
             className={cn(
-              'w-3 h-[15px] text-black transition-transform duration-300',
-              isFullyExpanded && 'rotate-180'
+              'flex justify-center items-end absolute bottom-0 left-0 right-0 h-13 pointer-events-none transition-opacity duration-300 ease-in-out',
+              (!isFullyExpanded || !isBottom) &&
+                'bg-linear-to-t from-white from-0% via-white/24 via-53% to-white/6 to-100%'
             )}
+            aria-hidden
           />
-        </button>
-      </div>
+          <button
+            type="button"
+            aria-label={isFullyExpanded ? '갤러리 접기' : '갤러리 더 보기'}
+            className={cn(
+              ' absolute bottom-0 left-1/2 -translate-x-1/2 flex-center rounded-full border border-[#EAEAEA] backdrop-blur-[6px] bg-white/10 w-8 h-8 pointer-events-auto'
+            )}
+            onClick={e => {
+              e.stopPropagation();
+              setIsFullyExpanded(!isFullyExpanded);
+            }}
+          >
+            <Arrow
+              className={cn(
+                'w-3 h-[15px] text-black transition-transform duration-300',
+                isFullyExpanded && 'rotate-180'
+              )}
+            />
+          </button>
+        </>
+      )}
     </div>
   );
 }
