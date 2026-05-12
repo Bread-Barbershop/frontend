@@ -24,7 +24,6 @@ export function PlaceMap({
     mapInstance.current = new naver.maps.Map(mapRef.current, {
       center,
       zoom: 15,
-      scaleControl: false,
     });
 
     new naver.maps.Marker({
