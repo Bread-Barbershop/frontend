@@ -32,6 +32,8 @@ function CarouselWrapper({
     isDeleting,
     isSharing,
     isPublishing,
+    isPublishReadinessPolling,
+    isPublishReadyPending,
   } = useDashboardInvitations(initialInvites, { loadOnMount });
   const orderedInvites = useMemo(() => [...invites].reverse(), [invites]);
   const items: CarouselCardItem[] = useMemo(
@@ -74,6 +76,8 @@ function CarouselWrapper({
       isDeleting={isDeleting}
       isSharing={isSharing}
       isPublishing={isPublishing}
+      isPublishReadinessPolling={isPublishReadinessPolling}
+      isPublishReadyPending={isPublishReadyPending}
     />
   );
 }

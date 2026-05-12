@@ -37,9 +37,24 @@ export const useInvitationUpload = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isFail, setIsFail] = useState(false);
 
+  const applySaveResult = (
+    saveResult: Awaited<ReturnType<typeof saveInvitationFlow>>
+  ) => {
+    if (!saveResult.success) {
+      console.error('Invitation save failed:', saveResult.results);
+      throw new Error('Invitation save failed.');
+    }
+
+    editorData.setInvitationUuid(saveResult.invitationUuid);
+    editorData.setImageFolderId(saveResult.folders.imageFolderId);
+    editorData.setAudioFolderId(saveResult.folders.audioFolderId);
+    editorData.setInvitationFolderId(saveResult.folders.invitationFolderId);
+  };
+
   const handleUpload = async () => {
     try {
       setIsLoading(true);
+      setIsFail(false);
       const task = editorData.images.flatMap(item =>
         item.file.map(file => ({ id: item.id, file }))
       );
@@ -84,10 +99,7 @@ export const useInvitationUpload = () => {
           mainPoster,
           invitationThumbnail,
         });
-        editorData.setInvitationUuid(saveResult.invitationUuid);
-        editorData.setImageFolderId(saveResult.folders.imageFolderId);
-        editorData.setAudioFolderId(saveResult.folders.audioFolderId);
-        editorData.setInvitationFolderId(saveResult.folders.invitationFolderId);
+        applySaveResult(saveResult);
       } else {
         const result = await trashFolder();
         //실패 토스트 알람 표시
@@ -107,10 +119,7 @@ export const useInvitationUpload = () => {
           invitationThumbnail,
           invitationUuid: editorData.invitationUuid,
         });
-        editorData.setInvitationUuid(saveResult.invitationUuid);
-        editorData.setImageFolderId(saveResult.folders.imageFolderId);
-        editorData.setAudioFolderId(saveResult.folders.audioFolderId);
-        editorData.setInvitationFolderId(saveResult.folders.invitationFolderId);
+        applySaveResult(saveResult);
       }
     } catch (error) {
       console.error('저장 중 오류 발생:', error);

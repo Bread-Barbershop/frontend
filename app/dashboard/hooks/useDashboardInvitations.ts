@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
   DeleteInvitationResponse,
@@ -31,6 +31,31 @@ type ShareUrlResponse = {
   data?: KakaoShareData;
   error?: string;
 };
+
+const READINESS_POLL_DELAYS_MS = [1000, 1500, 2500, 4000, 6000];
+
+const sleep = (ms: number, signal: AbortSignal) =>
+  new Promise<void>((resolve, reject) => {
+    if (signal.aborted) {
+      reject(new DOMException('Aborted', 'AbortError'));
+      return;
+    }
+
+    const onAbort = () => {
+      clearTimeout(timeoutId);
+      reject(new DOMException('Aborted', 'AbortError'));
+    };
+    const timeoutId = setTimeout(() => {
+      signal.removeEventListener('abort', onAbort);
+      resolve();
+    }, ms);
+
+    signal.addEventListener('abort', onAbort, { once: true });
+  });
+
+function isAbortError(error: unknown) {
+  return error instanceof DOMException && error.name === 'AbortError';
+}
 
 function resolveShareImageUrl(imageFileId?: string, origin?: string) {
   return imageFileId
@@ -135,6 +160,8 @@ function createInitialPublishResults(
 
     acc[invite.folderId] = {
       ok: true,
+      published: true,
+      ready: true,
       guestUrl: invite.publishedUrl,
     };
     return acc;
@@ -156,49 +183,78 @@ function useDashboardInvitations(
   const [deleteErrors, setDeleteErrors] = useState<DeleteErrorMap>({});
   const [publishBusy, setPublishBusy] = useState<PublishStateMap>({});
   const [publishErrors, setPublishErrors] = useState<PublishErrorMap>({});
+  const [readinessPolling, setReadinessPolling] = useState<PublishStateMap>({});
   const [shareBusy, setShareBusy] = useState<ShareStateMap>({});
   const [publishResults, setPublishResults] = useState<PublishResultMap>(
     createInitialPublishResults(initialInvites)
   );
+  const readinessAbortControllersRef = useRef(
+    new Map<string, AbortController>()
+  );
+
+  const abortReadinessPolling = useCallback((folderId: string) => {
+    const controller = readinessAbortControllersRef.current.get(folderId);
+    controller?.abort();
+    readinessAbortControllersRef.current.delete(folderId);
+  }, []);
+
+  const abortAllReadinessPolling = useCallback(() => {
+    readinessAbortControllersRef.current.forEach(controller => {
+      controller.abort();
+    });
+    readinessAbortControllersRef.current.clear();
+  }, []);
 
   const resetPublishState = useCallback(() => {
+    abortAllReadinessPolling();
     setPublishBusy({});
     setPublishErrors({});
+    setReadinessPolling({});
     setPublishResults({});
-  }, []);
+  }, [abortAllReadinessPolling]);
 
-  const clearInvitationTransientState = useCallback((folderId: string) => {
-    setDeleteBusy(prev => {
-      const next = { ...prev };
-      delete next[folderId];
-      return next;
-    });
-    setDeleteErrors(prev => {
-      const next = { ...prev };
-      delete next[folderId];
-      return next;
-    });
-    setPublishBusy(prev => {
-      const next = { ...prev };
-      delete next[folderId];
-      return next;
-    });
-    setPublishErrors(prev => {
-      const next = { ...prev };
-      delete next[folderId];
-      return next;
-    });
-    setShareBusy(prev => {
-      const next = { ...prev };
-      delete next[folderId];
-      return next;
-    });
-    setPublishResults(prev => {
-      const next = { ...prev };
-      delete next[folderId];
-      return next;
-    });
-  }, []);
+  const clearInvitationTransientState = useCallback(
+    (folderId: string) => {
+      abortReadinessPolling(folderId);
+
+      setDeleteBusy(prev => {
+        const next = { ...prev };
+        delete next[folderId];
+        return next;
+      });
+      setDeleteErrors(prev => {
+        const next = { ...prev };
+        delete next[folderId];
+        return next;
+      });
+      setPublishBusy(prev => {
+        const next = { ...prev };
+        delete next[folderId];
+        return next;
+      });
+      setPublishErrors(prev => {
+        const next = { ...prev };
+        delete next[folderId];
+        return next;
+      });
+      setReadinessPolling(prev => {
+        const next = { ...prev };
+        delete next[folderId];
+        return next;
+      });
+      setShareBusy(prev => {
+        const next = { ...prev };
+        delete next[folderId];
+        return next;
+      });
+      setPublishResults(prev => {
+        const next = { ...prev };
+        delete next[folderId];
+        return next;
+      });
+    },
+    [abortReadinessPolling]
+  );
 
   const loadInvitations = useCallback(async () => {
     setLoading(true);
@@ -238,6 +294,8 @@ function useDashboardInvitations(
       setDeleteErrors({});
       setPublishBusy({});
       setPublishErrors({});
+      abortAllReadinessPolling();
+      setReadinessPolling({});
       setPublishResults(createInitialPublishResults(loadedInvites));
     } catch (err) {
       console.error(err);
@@ -251,7 +309,13 @@ function useDashboardInvitations(
     } finally {
       setLoading(false);
     }
-  }, [resetPublishState, router]);
+  }, [abortAllReadinessPolling, resetPublishState, router]);
+
+  useEffect(() => {
+    return () => {
+      abortAllReadinessPolling();
+    };
+  }, [abortAllReadinessPolling]);
 
   useEffect(() => {
     if (!loadOnMount) {
@@ -265,12 +329,72 @@ function useDashboardInvitations(
     setOrigin(window.location.origin);
   }, []);
 
+  const pollGuestReadiness = useCallback(
+    async (folderId: string, initialResult: PublishResult) => {
+      const dataJsonFileId = initialResult.dataJsonFileId;
+      if (!dataJsonFileId) return;
+
+      abortReadinessPolling(folderId);
+      const controller = new AbortController();
+      readinessAbortControllersRef.current.set(folderId, controller);
+      const { signal } = controller;
+
+      setReadinessPolling(prev => ({ ...prev, [folderId]: true }));
+
+      let latestResult = initialResult;
+
+      try {
+        for (const delayMs of READINESS_POLL_DELAYS_MS) {
+          await sleep(delayMs, signal);
+          if (signal.aborted) break;
+
+          const res = await fetch(
+            `/api/drive/publishInvitation/readiness?dataJsonFileId=${encodeURIComponent(
+              dataJsonFileId
+            )}`,
+            { method: 'GET', cache: 'no-store', signal }
+          );
+          if (signal.aborted) break;
+
+          const json = (await res.json().catch(() => ({}))) as PublishResult;
+          latestResult = {
+            ...latestResult,
+            ...json,
+            guestUrl: json.guestUrl ?? latestResult.guestUrl,
+            dataJsonFileId: json.dataJsonFileId ?? dataJsonFileId,
+          };
+
+          setPublishResults(prev => ({ ...prev, [folderId]: latestResult }));
+
+          if (res.ok && json.ready === true) {
+            break;
+          }
+        }
+      } catch (err) {
+        if (!isAbortError(err)) {
+          console.error('Guest readiness polling failed:', err);
+        }
+      } finally {
+        if (readinessAbortControllersRef.current.get(folderId) === controller) {
+          readinessAbortControllersRef.current.delete(folderId);
+        }
+
+        if (!signal.aborted) {
+          setReadinessPolling(prev => ({ ...prev, [folderId]: false }));
+        }
+      }
+    },
+    [abortReadinessPolling]
+  );
+
   const handlePublish = useCallback(async (invitationFolderId: string) => {
     if (!invitationFolderId) return;
 
     setPublishErrors(prev => ({ ...prev, [invitationFolderId]: null }));
     setPublishResults(prev => ({ ...prev, [invitationFolderId]: null }));
     setPublishBusy(prev => ({ ...prev, [invitationFolderId]: true }));
+    abortReadinessPolling(invitationFolderId);
+    setReadinessPolling(prev => ({ ...prev, [invitationFolderId]: false }));
 
     try {
       const res = await fetch('/api/drive/publishInvitation', {
@@ -293,6 +417,10 @@ function useDashboardInvitations(
       }
 
       setPublishResults(prev => ({ ...prev, [invitationFolderId]: json }));
+
+      if (json.ready === false) {
+        void pollGuestReadiness(invitationFolderId, json);
+      }
     } catch (err) {
       setPublishErrors(prev => ({
         ...prev,
@@ -302,7 +430,7 @@ function useDashboardInvitations(
     } finally {
       setPublishBusy(prev => ({ ...prev, [invitationFolderId]: false }));
     }
-  }, []);
+  }, [abortReadinessPolling, pollGuestReadiness]);
 
   const handleDelete = useCallback(
     async (folderId: string) => {
@@ -438,6 +566,17 @@ function useDashboardInvitations(
     [publishBusy]
   );
 
+  const isPublishReadinessPolling = useCallback(
+    (folderId: string) => Boolean(readinessPolling[folderId]),
+    [readinessPolling]
+  );
+
+  const isPublishReadyPending = useCallback(
+    (folderId: string) =>
+      !publishErrors[folderId] && publishResults[folderId]?.ready === false,
+    [publishErrors, publishResults]
+  );
+
   const isSharing = useCallback(
     (folderId: string) => Boolean(shareBusy[folderId]),
     [shareBusy]
@@ -472,6 +611,8 @@ function useDashboardInvitations(
     getPublishedUrl,
     isDeleting,
     isSharing,
+    isPublishReadinessPolling,
+    isPublishReadyPending,
     getDeleteError,
     isPublishing,
     getPublishError,

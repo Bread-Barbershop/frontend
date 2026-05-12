@@ -3,50 +3,20 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 
 import { ensureDataJsonFile } from '@/app/api/drive/_lib/ensureDataJsonFile';
+import {
+  guestPath,
+  ReadinessResult,
+  waitUntilGuestReady,
+} from '@/app/api/drive/_lib/guestReadiness';
 import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissionWithRetry';
-import { isGuestPayload } from '@/app/guest/[id]/utils/guestBlockTypeGuards';
 
 import { ensurePublishedJsonFile } from '../_lib/ensurePublishedJsonFile';
 
 // publish API 요청 본문
 type Body = { invitationFolderId: string };
 
-// 단일 probe 실패 사유
-type ProbeFailureReason =
-  | 'http_not_ok'
-  | 'json_parse_failed'
-  | 'invalid_schema';
-
-// 단일 probe 결과
-type ProbeResult =
-  | { ok: true; status: number }
-  | {
-      ok: false;
-      status: number;
-      reason: ProbeFailureReason;
-      error?: string;
-      rawPreview?: string;
-    };
-
-// 재시도 전체 결과
-type ReadinessResult =
-  | { ok: true; attempt: number }
-  | { ok: false; attempts: number; lastProbe: ProbeResult | null };
-
 const VERIFY_MAX_ATTEMPTS = 3;
 const VERIFY_DELAY_MS = 350;
-
-const guestPath = (dataJsonFileId: string) => `/guest/${dataJsonFileId}`;
-
-const guestDataUrl = (dataJsonFileId: string) =>
-  `https://drive.google.com/uc?export=download&id=${encodeURIComponent(
-    dataJsonFileId
-  )}`;
-
-const sleep = (ms: number) =>
-  new Promise<void>(resolve => {
-    setTimeout(resolve, ms);
-  });
 
 // 게스트 페이지/태그 캐시를 함께 무효화
 function revalidateGuestCaches(dataJsonFileId: string) {
@@ -56,76 +26,28 @@ function revalidateGuestCaches(dataJsonFileId: string) {
   revalidatePath(guestPath(dataJsonFileId));
 }
 
-// 공개 data.json URL을 1회 조회하고 파싱/스키마까지 검증
-async function probeGuestData(dataJsonFileId: string): Promise<ProbeResult> {
-  const res = await fetch(guestDataUrl(dataJsonFileId), { cache: 'no-store' });
-
-  if (!res.ok) {
-    return { ok: false, status: res.status, reason: 'http_not_ok' };
-  }
-
-  const raw = await res.text();
-
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(raw);
-  } catch (error) {
-    return {
-      ok: false,
-      status: res.status,
-      reason: 'json_parse_failed',
-      rawPreview: raw.slice(0, 200),
-      error: error instanceof Error ? error.message : String(error),
-    };
-  }
-
-  if (!isGuestPayload(parsed)) {
-    return { ok: false, status: res.status, reason: 'invalid_schema' };
-  }
-
-  return { ok: true, status: res.status };
-}
-
-// guest 데이터가 준비될 때까지 짧게 재시도
-async function waitUntilGuestReady(
-  dataJsonFileId: string
-): Promise<ReadinessResult> {
-  let lastProbe: ProbeResult | null = null;
-
-  for (let attempt = 1; attempt <= VERIFY_MAX_ATTEMPTS; attempt += 1) {
-    const probe = await probeGuestData(dataJsonFileId);
-    if (probe.ok) {
-      return { ok: true, attempt };
-    }
-
-    lastProbe = probe;
-
-    if (attempt < VERIFY_MAX_ATTEMPTS) {
-      await sleep(VERIFY_DELAY_MS);
-    }
-  }
-
-  return { ok: false, attempts: VERIFY_MAX_ATTEMPTS, lastProbe };
-}
-
-// "게스트 미준비" 공통 실패 응답
-function notReadyResponse(params: {
+// 발행은 완료됐지만 공개 데이터 읽기 검증이 아직 안정화되지 않은 응답
+function readinessPendingResponse(params: {
   guestUrl: string;
   dataJsonFileId: string;
   verification: ReadinessResult;
+  ignored?: string;
 }) {
-  const { guestUrl, dataJsonFileId, verification } = params;
+  const { guestUrl, dataJsonFileId, verification, ignored } = params;
 
   return NextResponse.json(
     {
-      ok: false,
+      ok: true,
+      published: true,
+      ready: false,
       guestUrl,
       dataJsonFileId,
-      error: 'guest_not_ready_after_publish',
-      status: 502,
+      warning: 'guest_not_ready_after_publish',
+      status: 202,
       details: verification,
+      ...(ignored ? { ignored } : {}),
     },
-    { status: 502 }
+    { status: 202 }
   );
 }
 
@@ -139,15 +61,23 @@ async function buildPublishSuccessResponse(params: {
 
   revalidateGuestCaches(dataJsonFileId);
 
-  // 공개된 JSON 엔드포인트가 안정적으로 읽히는 것이 확인된 이후에만
-  // 게스트 URL을 외부에 노출한다.
-  const verification = await waitUntilGuestReady(dataJsonFileId);
+  const verification = await waitUntilGuestReady(dataJsonFileId, {
+    maxAttempts: VERIFY_MAX_ATTEMPTS,
+    delayMs: VERIFY_DELAY_MS,
+  });
   if (!verification.ok) {
-    return notReadyResponse({ guestUrl, dataJsonFileId, verification });
+    return readinessPendingResponse({
+      guestUrl,
+      dataJsonFileId,
+      verification,
+      ignored,
+    });
   }
 
   return NextResponse.json({
     ok: true,
+    published: true,
+    ready: true,
     guestUrl,
     dataJsonFileId,
     ...(ignored ? { ignored } : {}),

@@ -24,6 +24,8 @@ type CarouselTrackProps = {
   isDeleting?: (folderId: string) => boolean;
   isSharing?: (folderId: string) => boolean;
   isPublishing?: (folderId: string) => boolean;
+  isPublishReadinessPolling?: (folderId: string) => boolean;
+  isPublishReadyPending?: (folderId: string) => boolean;
 };
 
 function CarouselTrack({
@@ -45,6 +47,8 @@ function CarouselTrack({
   isDeleting,
   isSharing,
   isPublishing,
+  isPublishReadinessPolling,
+  isPublishReadyPending,
 }: CarouselTrackProps) {
   return (
     <div
@@ -97,6 +101,16 @@ function CarouselTrack({
             isPublishing={
               item.invite && isPublishing
                 ? isPublishing(item.invite.folderId)
+                : false
+            }
+            isPublishReadinessPolling={
+              item.invite && isPublishReadinessPolling
+                ? isPublishReadinessPolling(item.invite.folderId)
+                : false
+            }
+            isPublishReadyPending={
+              item.invite && isPublishReadyPending
+                ? isPublishReadyPending(item.invite.folderId)
                 : false
             }
           />

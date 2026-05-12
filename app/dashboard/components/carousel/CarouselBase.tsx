@@ -25,6 +25,8 @@ type CarouselBaseProps = {
   isDeleting?: (folderId: string) => boolean;
   isSharing?: (folderId: string) => boolean;
   isPublishing?: (folderId: string) => boolean;
+  isPublishReadinessPolling?: (folderId: string) => boolean;
+  isPublishReadyPending?: (folderId: string) => boolean;
 };
 
 function CarouselBase({
@@ -44,6 +46,8 @@ function CarouselBase({
   isDeleting,
   isSharing,
   isPublishing,
+  isPublishReadinessPolling,
+  isPublishReadyPending,
 }: CarouselBaseProps) {
   const [selectedIndex, setSelectedIndex] = useState(startIndex);
   const hasHandledInitialLayoutRef = useRef(false);
@@ -141,6 +145,8 @@ function CarouselBase({
         isDeleting={isDeleting}
         isSharing={isSharing}
         isPublishing={isPublishing}
+        isPublishReadinessPolling={isPublishReadinessPolling}
+        isPublishReadyPending={isPublishReadyPending}
       />
       <div className="absolute inset-x-0 bottom-0 z-10">
         <CarouselController onMove={handleMove} />
