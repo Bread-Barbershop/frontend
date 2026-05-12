@@ -2,10 +2,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import { Button } from '@/components/atoms/button';
 import { Image } from '@/components/atoms/image';
-import Carousel from '@/features/EmblaCarousel/Carousel/Carousel';
-import Cancel from '@/shared/assets/icons/cancel.svg';
 import { cn } from '@/shared/utils/cn';
 
 interface Props {
@@ -25,6 +22,7 @@ export const PicturePopViewer = ({
 }: Props) => {
   const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
+  const currentImage = images[startIndex];
   const ratioClass = useMemo(() => {
     switch (ratio) {
       case '1:1':
@@ -57,34 +55,20 @@ export const PicturePopViewer = ({
   return createPortal(
     <div
       className={`inset-0 z-50 bg-black/80 flex justify-center items-end flex-col gap-2 px-7 ${pathname.startsWith('/editor') ? 'absolute' : 'fixed'}`}
+      onClick={onClose}
     >
-      <Button
-        type="button"
-        className="group z-100 flex-center rounded-full bg-black/32 w-8 h-8 hover:bg-white transition-colors"
-        onClick={onClose}
+      <div
+        className={cn('w-full max-h-[85%] relative', ratioClass)}
+        onClick={e => e.stopPropagation()}
       >
-        <Cancel className="w-3.5 h-3.5 text-white group-hover:text-black transition-colors" />
-      </Button>
-      <div className={cn('w-full max-h-[85%] relative', ratioClass)}>
-        <Carousel
-          options={{
-            startIndex,
-            align: 'center',
-          }}
-          isButtonShow={true}
-          buttonClassName="absolute top-1/2 z-0 justify-between w-full"
-        >
-          {images.map((src, index) => (
-            <div key={index} className="flex-[0_0_100%] relative w-full h-full">
-              <Image
-                src={src}
-                alt="팝업 이미지"
-                fill
-                className="object-cover"
-              />
-            </div>
-          ))}
-        </Carousel>
+        <div className="relative w-full h-full">
+          <Image
+            src={currentImage}
+            alt="팝업 이미지"
+            fill
+            className="object-cover"
+          />
+        </div>
       </div>
     </div>,
     portalElement
