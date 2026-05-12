@@ -23,20 +23,20 @@ export const PicturePopViewer = ({
   const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
   const currentImage = images[startIndex];
-  const ratioClass = useMemo(() => {
+  const ratioData = useMemo(() => {
     switch (ratio) {
       case '1:1':
-        return 'aspect-square';
+        return { style: { aspectRatio: '1 / 1' }, value: 1 };
       case '4:3':
-        return 'aspect-[4/3]';
+        return { style: { aspectRatio: '4 / 3' }, value: 4 / 3 };
       case '3:4':
-        return 'aspect-[3/4]';
+        return { style: { aspectRatio: '3 / 4' }, value: 3 / 4 };
       case '16:9':
-        return 'aspect-[16/9]';
+        return { style: { aspectRatio: '16 / 9' }, value: 16 / 9 };
       case '9:16':
-        return 'aspect-[9/16]';
+        return { style: { aspectRatio: '9 / 16' }, value: 9 / 16 };
       default:
-        return 'aspect-square';
+        return { style: { aspectRatio: '1 / 1' }, value: 1 };
     }
   }, [ratio]);
 
@@ -54,11 +54,15 @@ export const PicturePopViewer = ({
 
   return createPortal(
     <div
-      className={`inset-0 z-50 bg-black/80 flex justify-center items-end flex-col gap-2 px-7 ${pathname.startsWith('/editor') ? 'absolute' : 'fixed'}`}
+      className={`inset-0 z-50 bg-black/80 flex justify-center items-center flex-col gap-2 px-7 ${pathname.startsWith('/editor') ? 'absolute' : 'fixed'}`}
       onClick={onClose}
     >
       <div
-        className={cn('w-full max-h-[85%] relative', ratioClass)}
+        className={cn('w-full relative mx-auto')}
+        style={{
+          ...ratioData.style,
+          maxWidth: `calc(85vh * ${ratioData.value})`,
+        }}
         onClick={e => e.stopPropagation()}
       >
         <div className="relative w-full h-full">
