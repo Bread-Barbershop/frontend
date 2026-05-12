@@ -66,11 +66,17 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
                         ? 'URL 발행중...'
                         : error
                           ? 'URL 발행에 실패하였습니다.'
-                          : readinessBusy
-                            ? 'URL 발행 완료, 반영 중입니다.'
-                            : isReadyPending
-                              ? 'URL 발행 완료, 반영 지연 중입니다.'
-                            : '성공적으로 발행되었습니다.'}
+const getStatusMessage = () => {
+  if (busy) return 'URL 발행중...';
+  if (error) return 'URL 발행에 실패하였습니다.';
+  if (readinessBusy) return 'URL 발행 완료, 반영 중입니다.';
+  if (isReadyPending) return 'URL 발행 완료, 반영 지연 중입니다.';
+  return '성공적으로 발행되었습니다.';
+};
+
+<p className="font-semibold text-base">
+  {getStatusMessage()}
+</p>
                     </p>
                   </div>
                   <div>
