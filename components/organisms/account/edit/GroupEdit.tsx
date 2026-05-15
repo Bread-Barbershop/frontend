@@ -52,7 +52,7 @@ export const GroupEdit = ({
     <div className="flex flex-col gap-4 items-center w-full">
       {totalAccountList.map((group, i) => (
         <div key={i} className="flex flex-col gap-2 items-start w-full">
-          <div className="flex items-center justify-between w-full">
+          <div className="flex items-center justify-between w-full select-none">
             <p className="text-text-primary text-sm font-semibold">
               {i + 1}번 그룹
             </p>

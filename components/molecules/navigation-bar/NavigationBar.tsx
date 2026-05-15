@@ -23,7 +23,7 @@ export const NavigationBar = ({
         className
       )}
     >
-      <h3 className="font-semibold text-[14px] py-[13.5px] text-center">
+      <h3 className="select-none font-semibold text-[14px] py-[13.5px] text-center">
         {children}
       </h3>
       {action && (

@@ -16,8 +16,10 @@ import { cn } from '@/shared/utils/cn';
 
 type MenuPlacement = 'bottom-start' | 'bottom-end';
 
-interface ActionMenuButtonProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
+interface ActionMenuButtonProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'children'
+> {
   isOpen: boolean;
   onToggle: () => void;
   onClose: () => void;
@@ -124,9 +126,7 @@ export function ActionMenuButton({
               top: portalPosition.top,
               left: portalPosition.left,
               transform:
-                placement === 'bottom-end'
-                  ? 'translateX(-100%)'
-                  : undefined,
+                placement === 'bottom-end' ? 'translateX(-100%)' : undefined,
               ...menuStyle,
             }
           : menuStyle
@@ -143,7 +143,7 @@ export function ActionMenuButton({
         ref={buttonRef}
         type={type}
         className={cn(
-          'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg hover:bg-btn-hover active:bg-btn-pressed',
+          'select-none flex h-8 w-8 shrink-0 items-center justify-center rounded-lg hover:bg-btn-hover active:bg-btn-pressed',
           buttonClassName,
           className
         )}

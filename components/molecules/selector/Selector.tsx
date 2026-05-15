@@ -224,7 +224,7 @@ export const Selector = <T extends Option>({
             key={option.value}
             onClick={() => handleSelect(option)}
             className={cn(
-              'flex w-full items-center py-1 text-sm text-text-primary cursor-pointer hover:bg-bg-sub transition-colors',
+              'flex w-full items-center py-1 text-sm text-text-primary cursor-pointer hover:bg-bg-sub transition-colors select-none',
               showCheckbox ? 'pr-2' : 'px-2'
             )}
             role="option"
@@ -255,7 +255,7 @@ export const Selector = <T extends Option>({
         {onInputChange && (
           <li
             onClick={handleCustomMenuItemClick}
-            className="h-7 leading-7 px-1 py-0.5 text-[13px] hover:bg-bg-sub cursor-pointer"
+            className="h-7 leading-7 px-1 py-0.5 text-[13px] hover:bg-bg-sub cursor-pointer select-none"
           >
             직접입력
           </li>
