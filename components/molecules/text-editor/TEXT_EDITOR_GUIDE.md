@@ -16,16 +16,14 @@
 4. 렌더는 `messageHtml` 우선, 없으면 JSON 변환 fallback을 사용합니다.
 이유: 신규 데이터는 안정적으로 렌더하고, 구버전 데이터는 깨지지 않게 호환해야 합니다.
 
-5. 타이핑은 디바운스, 즉시 액션은 즉시 반영합니다.
-이유: 타이핑 중 과도한 상태 업데이트를 줄이되, 샘플 선택 같은 명시적 액션은 즉시 보여줘야 UX가 자연스럽습니다.
+5. 타이핑은 즉시 반영합니다.
+이유: 프리뷰가 늦게 따라오면 사용자가 입력 지연으로 느낄 수 있습니다.
 
 ## 2. 구현 순서
 
 1. 스키마에 `messageJson`, `messageHtml` 필드 정의
 2. `onChange`에서 JSON/HTML 동시 업데이트
-3. 타이핑 경로에 디바운스 적용
-4. 샘플 선택 같은 즉시 액션에서 `debounce.cancel()` 후 즉시 업데이트
-5. 프리뷰/게스트에서 `messageHtml` 우선 렌더 + fallback
+3. 프리뷰/게스트에서 `messageHtml` 우선 렌더 + fallback
 
 ## 3. 코드 템플릿
 
@@ -42,28 +40,14 @@ messageHtml: {
 },
 ```
 
-### 3-2) 입력 변경 처리 (디바운스)
+### 3-2) 입력 변경 처리
 
 ```ts
-const debouncedUpdateMessage = useMemo(
-  () =>
-    debounce((messageJson: JSONContent) => {
-      updateBlock(id, {
-        messageJson,
-        messageHtml: tiptapJsonToHtmlInBrowser(messageJson),
-      });
-    }, 300),
-  [id, updateBlock]
-);
-
-useEffect(() => {
-  return () => {
-    debouncedUpdateMessage.cancel();
-  };
-}, [debouncedUpdateMessage]);
-
 const handleEditorChange = (json: JSONContent) => {
-  debouncedUpdateMessage(json);
+  updateBlock(id, {
+    messageJson: json,
+    messageHtml: tiptapJsonToHtmlInBrowser(json),
+  });
 };
 ```
 
@@ -71,7 +55,6 @@ const handleEditorChange = (json: JSONContent) => {
 
 ```ts
 const handleSampleSelect = (text: string) => {
-  debouncedUpdateMessage.cancel();
   const messageJson = createParagraphJson(text);
 
   updateBlock(id, {
@@ -107,8 +90,8 @@ const html =
 2. 게스트 렌더에서 매번 JSON -> HTML 변환
 - SSR/hydration 환경에서 mismatch 가능성이 커집니다.
 
-3. 즉시 액션 전에 디바운스 취소를 안 함
-- 늦게 실행된 이전 타이머가 최신 상태를 덮어쓸 수 있습니다.
+3. `messageJson`과 `messageHtml` 중 하나만 갱신함
+- 프리뷰/게스트 렌더와 재편집 상태가 어긋날 수 있습니다.
 
 ## 6. 체크리스트
 
@@ -122,7 +105,6 @@ const html =
 
 1. `components/molecules/text-editor/TextEditor.tsx`
 2. `components/molecules/text-editor/utils/tiptapJsonToHtml.ts`
-3. `shared/utils/debounce.ts`
-4. `components/organisms/greeting/Greeting.schema.ts`
-5. `components/organisms/greeting/Greeting.tsx`
-6. `components/organisms/greeting/GreetingPreview.tsx`
+3. `components/organisms/greeting/Greeting.schema.ts`
+4. `components/organisms/greeting/Greeting.tsx`
+5. `components/organisms/greeting/GreetingPreview.tsx`

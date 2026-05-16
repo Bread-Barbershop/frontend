@@ -1,4 +1,4 @@
-import { useMemo, useEffect, ChangeEvent } from 'react';
+import { ChangeEvent } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { Divider } from '@/components/atoms/divider/Divider';
@@ -12,7 +12,6 @@ import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/ut
 import { TextField } from '@/components/molecules/text-field';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
-import { debounce } from '@/shared/utils/debounce';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
@@ -39,23 +38,6 @@ export const MyChild = ({ blockInfo, id }: Props) => {
     messageJson,
     image,
   } = blockInfo.props;
-  const debouncedUpdateMessage = useMemo(
-    () =>
-      debounce((messageJson: JSONContent) => {
-        updateBlock(id, {
-          messageJson,
-          messageHtml: tiptapJsonToHtmlInBrowser(messageJson),
-        });
-      }, 300),
-    [id, updateBlock]
-  );
-
-  useEffect(() => {
-    return () => {
-      debouncedUpdateMessage.cancel();
-    };
-  }, [debouncedUpdateMessage]);
-
   const handleStringChange = (
     type: 'title' | 'englishTitle' | 'name' | 'nickname',
     e: ChangeEvent<HTMLInputElement>
@@ -83,7 +65,10 @@ export const MyChild = ({ blockInfo, id }: Props) => {
   };
 
   const handleEditorChange = (json: JSONContent) => {
-    debouncedUpdateMessage(json);
+    updateBlock(id, {
+      messageJson: json,
+      messageHtml: tiptapJsonToHtmlInBrowser(json),
+    });
   };
 
   const handlePictureChange = (file: (File | string)[]) => {

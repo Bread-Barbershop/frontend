@@ -1,6 +1,7 @@
 import { JSONContent } from '@tiptap/react';
 
 import { Image } from '@/components/atoms/image';
+import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 
@@ -43,7 +44,7 @@ export const InformationPreview = ({
         {speaker.name}
       </p>
       <div
-        className="w-full px-5 text-sm text-center select-none"
+        className={`px-5 text-sm text-center select-none ${previewTextClassName}`}
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </div>

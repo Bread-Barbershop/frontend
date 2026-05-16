@@ -2,6 +2,7 @@
 import React from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { toStyle } from '@/shared/utils/toStyle';
 
@@ -14,7 +15,7 @@ export const PreviewBody = ({ html }: { html: string }) => {
 
   return (
     <div
-      className="text-sm w-full [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6"
+      className={`text-sm ${previewTextClassName}`}
       dangerouslySetInnerHTML={{ __html: html }}
       style={!bodyData.isDefault ? toStyle(bodyData, false) : undefined}
     />

@@ -26,6 +26,8 @@ interface SelectorProps<T extends Option> {
   placeholder?: string;
   className?: string;
   triggerClassName?: string;
+  openTriggerClassName?: string;
+  triggerButtonClassName?: string;
   labelClassName?: string;
   optionLabelClassName?: string;
   customInputClassName?: string;
@@ -43,6 +45,8 @@ export const Selector = <T extends Option>({
   placeholder = '선택',
   className,
   triggerClassName,
+  openTriggerClassName,
+  triggerButtonClassName,
   labelClassName,
   optionLabelClassName,
   customInputClassName,
@@ -89,8 +93,10 @@ export const Selector = <T extends Option>({
 
   const handleToggle = () => {
     if (isOpen) {
+      setIsOpen(false);
       popoverRef.current?.hidePopover();
     } else {
+      setIsOpen(true);
       updatePopoverPosition();
       popoverRef.current?.showPopover();
     }
@@ -139,7 +145,8 @@ export const Selector = <T extends Option>({
       <div
         className={cn(
           selectorVariants({ type, isOpen, hasValue }),
-          triggerClassName
+          triggerClassName,
+          isOpen && openTriggerClassName
         )}
       >
         {isCustomInput ? (
@@ -165,7 +172,8 @@ export const Selector = <T extends Option>({
           <button
             onClick={handleToggle}
             className={cn(
-              'flex items-center justify-between w-full py-1 pl-2 text-left cursor-pointer'
+              'flex items-center justify-between w-full py-1 pl-2 text-left cursor-pointer',
+              triggerButtonClassName
             )}
             aria-haspopup="listbox"
             aria-expanded={isOpen}
