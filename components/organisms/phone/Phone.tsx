@@ -139,6 +139,7 @@ function Phone({ blockInfo, id }: Props) {
           popupTitle="그룹 편집"
           onClose={() => setIsGroupPopupOpen(false)}
           wrapperClassName="w-[200px] pt-1 pb-4"
+          hideCloseButton
         >
           <PhoneGroupEdit
             groups={groups}

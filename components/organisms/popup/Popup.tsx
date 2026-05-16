@@ -13,6 +13,7 @@ interface Props {
   backgroundClassName?: string;
   wrapperClassName?: string;
   contentClassName?: string;
+  hideCloseButton?: boolean;
 }
 
 export const Popup = ({
@@ -22,6 +23,7 @@ export const Popup = ({
   backgroundClassName,
   wrapperClassName,
   contentClassName,
+  hideCloseButton = false,
 }: Props) => {
   const handleClosePopup = useCallback(() => {
     onClose?.();
@@ -67,14 +69,16 @@ export const Popup = ({
       >
         <NavigationBar
           action={
-            <UtilityButton
-              onClick={handleClosePopup}
-              variant="danger"
-              size="sm"
-              className="text-sm"
-            >
-              닫기
-            </UtilityButton>
+            hideCloseButton ? undefined : (
+              <UtilityButton
+                onClick={handleClosePopup}
+                variant="danger"
+                size="sm"
+                className="text-sm"
+              >
+                닫기
+              </UtilityButton>
+            )
           }
           className="text-sm"
         >
