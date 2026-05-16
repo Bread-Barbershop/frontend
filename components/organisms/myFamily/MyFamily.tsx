@@ -1,5 +1,5 @@
 import { JSONContent } from '@tiptap/core';
-import { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 
 import { UtilityButton } from '@/components/atoms/button';
 import { Divider } from '@/components/atoms/divider/Divider';
@@ -11,7 +11,6 @@ import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/ut
 import { TextField } from '@/components/molecules/text-field/TextField';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
-import { debounce } from '@/shared/utils/debounce';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
@@ -39,23 +38,6 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
   const handleMenuToggle = (index: number) => {
     setOpenMenuIndex(prev => (prev === index ? null : index));
   };
-
-  const debouncedUpdateMessage = useMemo(
-    () =>
-      debounce((messageJson: JSONContent) => {
-        updateBlock(id, {
-          messageJson,
-          messageHtml: tiptapJsonToHtmlInBrowser(messageJson),
-        });
-      }, 300),
-    [id, updateBlock]
-  );
-
-  useEffect(() => {
-    return () => {
-      debouncedUpdateMessage.cancel();
-    };
-  }, [debouncedUpdateMessage]);
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, {
@@ -95,7 +77,10 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
   };
 
   const handleEditorChange = (json: JSONContent) => {
-    debouncedUpdateMessage(json);
+    updateBlock(id, {
+      messageJson: json,
+      messageHtml: tiptapJsonToHtmlInBrowser(json),
+    });
   };
 
   const handleAddFamily = () => {
@@ -131,7 +116,6 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
       if (type === 'checkedEnglishTitle') {
         updateData.englishTitle = '';
       } else if (type === 'checkedMessage') {
-        debouncedUpdateMessage.cancel();
         updateData.messageJson = null;
         updateData.messageHtml = null;
       }

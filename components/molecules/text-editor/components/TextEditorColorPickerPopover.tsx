@@ -21,11 +21,11 @@ interface Props {
   isOpen: boolean;
   initialHex?: string;
   onClose?: () => void;
+  onColorChange?: (color: string) => void;
   containerRef?: RefObject<HTMLElement | null>;
 }
 
 const VIEWPORT_GAP = 12;
-const TRIGGER_GAP = 8;
 const PANEL_GAP = 12;
 const LEFT_PANEL_SELECTOR = '[data-editor-left-panel]';
 
@@ -34,6 +34,7 @@ export default function TextEditorColorPickerPopover({
   isOpen,
   initialHex = '#FF4D6D',
   onClose,
+  onColorChange,
   containerRef,
 }: Props) {
   const pickerRef = useRef<HTMLDivElement>(null);
@@ -65,17 +66,12 @@ export default function TextEditorColorPickerPopover({
         ? panelRect.right + PANEL_GAP
         : triggerRect.right - pickerWidth;
       const left = Math.min(Math.max(preferredLeft, VIEWPORT_GAP), maxLeft);
-      const preferredTop = panelRect
-        ? triggerRect.top
-        : triggerRect.bottom + TRIGGER_GAP;
-      const top =
-        preferredTop + pickerHeight <= window.innerHeight - VIEWPORT_GAP ||
-        triggerRect.top - pickerHeight - TRIGGER_GAP < VIEWPORT_GAP
-          ? Math.min(
-              preferredTop,
-              window.innerHeight - pickerHeight - VIEWPORT_GAP
-            )
-          : triggerRect.top - pickerHeight - TRIGGER_GAP;
+      const preferredTop = triggerRect.top;
+      const maxTop = window.innerHeight - pickerHeight - VIEWPORT_GAP;
+      const top = Math.max(
+        VIEWPORT_GAP,
+        Math.min(preferredTop, Math.max(VIEWPORT_GAP, maxTop))
+      );
 
       setPopoverStyle({
         position: 'fixed',
@@ -142,12 +138,10 @@ export default function TextEditorColorPickerPopover({
             defaultValue={initialHex}
             onChange={({ hsva }) => {
               const { r, g, b, a } = hsvaToRgba(hsva);
+              const nextColor = `rgba(${r}, ${g}, ${b}, ${a})`;
 
-              editor
-                ?.chain()
-                .focus()
-                .setColor(`rgba(${r}, ${g}, ${b}, ${a})`)
-                .run();
+              onColorChange?.(nextColor);
+              editor?.chain().focus().setColor(nextColor).run();
             }}
           />
         </motion.div>

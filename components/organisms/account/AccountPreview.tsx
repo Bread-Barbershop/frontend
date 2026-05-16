@@ -1,3 +1,4 @@
+import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { EditorBlock } from '@/shared/types/block';
 
@@ -41,7 +42,7 @@ export const AccountPreview = ({
       {...rest}
     >
       <div
-        className="text-sm text-text-tertiary"
+        className={`text-sm text-text-tertiary ${previewTextClassName}`}
         dangerouslySetInnerHTML={{ __html: html }}
       />
 

@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { Image } from '@/components/atoms/image';
+import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 import { cn } from '@/shared/utils/cn';
 
@@ -65,7 +66,7 @@ export const InterviewPreviewItem = ({
           >
             {hasAnswer ? (
               <div
-                className="text-sm text-center select-text"
+                className={`text-sm text-center select-text ${previewTextClassName}`}
                 dangerouslySetInnerHTML={{ __html: answerHtml }}
               />
             ) : (

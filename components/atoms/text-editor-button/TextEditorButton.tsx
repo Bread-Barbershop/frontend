@@ -2,12 +2,15 @@
 
 import { ReactNode, MouseEvent } from 'react';
 
+import { cn } from '@/shared/utils/cn';
+
 interface TextEditorButtonProps {
   active?: boolean;
   disabled?: boolean;
   onClick: () => void;
   icon: ReactNode;
   label: string;
+  className?: string;
 }
 
 function TextEditorButton({
@@ -16,6 +19,7 @@ function TextEditorButton({
   onClick,
   icon,
   label,
+  className,
 }: TextEditorButtonProps) {
   const handleMouseDown = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -29,13 +33,16 @@ function TextEditorButton({
       disabled={disabled}
       onMouseDown={handleMouseDown}
       onClick={onClick}
-      className="w-8 h-8
+      className={cn(
+        `w-8 h-8
         flex items-center justify-center
         transition-colors
         hover:bg-gray-200
         rounded-md
-        cursor-pointer
-        "
+        cursor-pointer`,
+        className,
+        active && 'text-primary'
+      )}
     >
       {icon}
     </button>
