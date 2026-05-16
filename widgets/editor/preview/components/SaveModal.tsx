@@ -26,7 +26,7 @@ const ModalFrame = forwardRef<
 >(({ children, isLoading, onMouseDown, onClose }, ref) => (
   <>
     <div
-      className="fixed inset-0 z-40 bg-black/20"
+      className="fixed inset-0 z-100 bg-black/20"
       onMouseDown={e => {
         onMouseDown?.(e);
         if (!isLoading) onClose();
@@ -34,7 +34,7 @@ const ModalFrame = forwardRef<
     />
     <div
       ref={ref}
-      className={`w-[335px] fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 h-[249px] rounded-xl backdrop-blur-sm bg-bg-base/12 shadow-[0_24px_60px_-20px_rgba(0,0,0,0.12),0_8px_24px_-8px_rgba(0,0,0,0.18),0_1px_8px_-2px_rgba(255,255,255,0.35)] flex flex-col items-center gap-8 ${isLoading ? 'justify-center' : ''}`}
+      className={`w-[335px] fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-100 h-[249px] rounded-xl backdrop-blur-sm bg-bg-base/12 shadow-[0_24px_60px_-20px_rgba(0,0,0,0.12),0_8px_24px_-8px_rgba(0,0,0,0.18),0_1px_8px_-2px_rgba(255,255,255,0.35)] flex flex-col items-center gap-8 ${isLoading ? 'justify-center' : ''}`}
     >
       {isLoading ? (
         <LoadingSpinner className="w-[84px] h-[84px] animate-spin" />

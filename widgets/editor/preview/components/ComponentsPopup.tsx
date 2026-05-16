@@ -49,7 +49,7 @@ function ComponentsPopup({ onPopClose }: Props) {
     setActive(english);
     sectionRefs.current[english]?.scrollIntoView({
       behavior: 'smooth',
-      block: 'end',
+      block: 'start',
     });
 
     // 스크롤 이동이 끝날 때까지 감지 일시 중단
