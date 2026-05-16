@@ -4,15 +4,15 @@ export const noticeSchema = {
   type: null,
   fields: {
     title: {
-      default: '',
+      default: '공지사항',
       required: true,
     },
     checkedEnglishTitle: {
-      default: false,
+      default: true,
       required: true,
     },
     englishTitle: {
-      default: '',
+      default: 'INFORMATION',
       required: false,
     },
     noticeList: {

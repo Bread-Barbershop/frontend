@@ -2,15 +2,15 @@ export const videoSchema = {
   type: null,
   fields: {
     title: {
-      default: '',
+      default: '동영상',
       required: true,
     },
     checkedEnglishTitle: {
-      default: false,
+      default: true,
       required: true,
     },
     englishTitle: {
-      default: '',
+      default: 'VIDEO',
       required: true,
     },
     videoUrl: {

@@ -25,7 +25,7 @@ function Greeting({ blockInfo, id }: Props) {
   const updateBlock = useEditorStore(state => state.updateBlock);
   const {
     title,
-    checkedEnglishTitle = false,
+    checkedEnglishTitle = true,
     englishTitle = DEFAULT_GREETING_ENGLISH_TITLE,
     messageJson,
   } = blockInfo.props;
@@ -82,12 +82,12 @@ function Greeting({ blockInfo, id }: Props) {
 
   return (
     <LeftEditorWrapper ariaLabel="인사말" className="gap-4">
-      <NavigationBar>인사말</NavigationBar>
+      <NavigationBar>인사말 편집 페이지</NavigationBar>
       <TextField
         key={`title-${id}`}
         label="제목"
         inputProps={{
-          placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+          placeholder: DEFAULT_GREETING_TITLE,
           defaultValue: title === DEFAULT_GREETING_TITLE ? '' : title,
           onChange: handleTitleChange,
         }}
@@ -98,7 +98,7 @@ function Greeting({ blockInfo, id }: Props) {
           key={`english-title-${id}`}
           label="영문제목"
           inputProps={{
-            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+            placeholder: DEFAULT_GREETING_ENGLISH_TITLE,
             defaultValue:
               englishTitle === DEFAULT_GREETING_ENGLISH_TITLE
                 ? ''

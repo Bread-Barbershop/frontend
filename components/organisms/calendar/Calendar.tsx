@@ -72,7 +72,7 @@ export function Calendar({ blockInfo, id }: Props) {
 
   return (
     <LeftEditorWrapper ariaLabel="행사 일시">
-      <NavigationBar>행사 일시</NavigationBar>
+      <NavigationBar>행사 일시 편집 페이지</NavigationBar>
       <div className="w-full flex flex-col gap-3">
         <TextField
           label="예식일"

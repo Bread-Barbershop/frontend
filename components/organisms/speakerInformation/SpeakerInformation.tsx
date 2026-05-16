@@ -68,7 +68,8 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
     key: 'title' | 'englishTitle',
     e: ChangeEvent<HTMLInputElement>
   ) => {
-    updateBlock(id, { [key]: e.target.value });
+    const fallback = key === 'title' ? '연사정보' : 'SPEAKER INFORMATION';
+    updateBlock(id, { [key]: e.target.value || fallback });
   };
 
   const handleCheckedChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -150,14 +151,14 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
         }
         direction="right"
       >
-        연사정보
+        연사정보 편집 페이지
       </NavigationBar>
       <div className="flex flex-col w-full -mb-3">
         <TextField
           label="제목"
           inputProps={{
-            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
-            value: title,
+            placeholder: '연사정보',
+            value: title === '연사정보' ? '' : title,
             onChange: e => handleValueChange('title', e),
           }}
           className="text-center w-full pb-3"
@@ -166,8 +167,9 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
           <TextField
             label="영문제목"
             inputProps={{
-              placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
-              value: englishTitle,
+              placeholder: 'SPEAKER INFORMATION',
+              value:
+                englishTitle === 'SPEAKER INFORMATION' ? '' : englishTitle,
               onChange: e => handleValueChange('englishTitle', e),
             }}
             className="text-center w-full mb-3"

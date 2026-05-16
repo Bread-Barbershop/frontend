@@ -16,6 +16,10 @@ import {
   formatPhoneNumber,
   normalizePhoneNumber,
 } from '@/shared/utils/phoneNumber';
+import {
+  getDefaultPlaceTitle,
+  isDefaultPlaceTitle,
+} from '@/shared/utils/placeTitle';
 
 import { Popup } from '../popup/Popup';
 
@@ -46,10 +50,12 @@ export function Place({ blockInfo, id }: Props) {
     checkedEnglishTitle,
     openMap,
     openNavi,
+    mapLocked,
     lng,
     lat,
     country,
   } = blockInfo.props;
+  const defaultTitle = getDefaultPlaceTitle(blockInfo.type);
 
   const searchAddress = (query: string) => {
     if (!isScriptLoaded || !window.naver) {
@@ -82,15 +88,16 @@ export function Place({ blockInfo, id }: Props) {
   return (
     <>
       <NaverMapScript onReady={() => setIsScriptLoaded(true)} />
-      <LeftEditorWrapper className="gap-4 pb-3" ariaLabel="오시는 길">
+      <LeftEditorWrapper className="gap-4 pb-3" ariaLabel={defaultTitle}>
         <div className="flex flex-col gap-1 w-full">
-          <NavigationBar>오시는 길</NavigationBar>
+          <NavigationBar>{defaultTitle} 편집 페이지</NavigationBar>
           <TextField
             label="제목"
             inputProps={{
-              placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
-              onChange: e => handleUpdateBlock('title', e.target.value),
-              value: title,
+              placeholder: defaultTitle,
+              onChange: e =>
+                handleUpdateBlock('title', e.target.value || defaultTitle),
+              value: isDefaultPlaceTitle(title, blockInfo.type) ? '' : title,
             }}
             className="w-full text-center"
           />
@@ -99,9 +106,10 @@ export function Place({ blockInfo, id }: Props) {
           <TextField
             label="영문제목"
             inputProps={{
-              placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
-              value: englishTitle,
-              onChange: e => handleUpdateBlock('englishTitle', e.target.value),
+              placeholder: 'LOCATION',
+              value: englishTitle === 'LOCATION' ? '' : englishTitle,
+              onChange: e =>
+                handleUpdateBlock('englishTitle', e.target.value || 'LOCATION'),
             }}
             className="text-center w-full"
           />
@@ -204,19 +212,36 @@ export function Place({ blockInfo, id }: Props) {
                 지도
               </Checkbox>
             </div>
-            <Checkbox
-              direction="right"
-              onChange={() => handleUpdateBlock('openNavi', !openNavi)}
-              checked={openNavi}
-            >
-              내비 앱 바로가기 버튼(카카오,티맵,네이버)
-            </Checkbox>
           </div>
         </section>
-        {openMap &&
-          isScriptLoaded &&
-          Number.isFinite(lng) &&
-          Number.isFinite(lat) && <PlaceMap lng={lng} lat={lat} />}
+        {openMap && (
+          <div className="flex w-full flex-col gap-1">
+            {isScriptLoaded && Number.isFinite(lng) && Number.isFinite(lat) && (
+              <PlaceMap lng={lng} lat={lat} locked={Boolean(mapLocked)} />
+            )}
+            <section className="flex flex-row gap-2 items-center w-full pb-2">
+              <Label className="font-semibold">추가기능</Label>
+              <div>
+                <Checkbox
+                  className="text-[13px]"
+                  direction="right"
+                  onChange={() => handleUpdateBlock('openNavi', !openNavi)}
+                  checked={openNavi}
+                >
+                  내비 앱 바로가기 버튼(카카오, 티맵, 네이버)
+                </Checkbox>
+                <Checkbox
+                  className="text-[13px]"
+                  direction="right"
+                  onChange={() => handleUpdateBlock('mapLocked', !mapLocked)}
+                  checked={Boolean(mapLocked)}
+                >
+                  위치 고정(지도가 움직이지 않아요.)
+                </Checkbox>
+              </div>
+            </section>
+          </div>
+        )}
       </LeftEditorWrapper>
     </>
   );

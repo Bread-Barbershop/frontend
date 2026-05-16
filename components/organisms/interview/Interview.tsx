@@ -155,14 +155,14 @@ export const Interview = ({ blockInfo, id }: Props) => {
         }
         direction="right"
       >
-        인터뷰
+        인터뷰 편집 페이지
       </NavigationBar>
       <TextField
         label="제목"
         inputProps={{
-          placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
-          value: title,
-          onChange: e => handleUpdateBlock('title', e.target.value),
+          placeholder: '인터뷰',
+          value: title === '인터뷰' ? '' : title,
+          onChange: e => handleUpdateBlock('title', e.target.value || '인터뷰'),
         }}
         className="w-full text-center"
       />
@@ -170,9 +170,10 @@ export const Interview = ({ blockInfo, id }: Props) => {
         <TextField
           label="영문제목"
           inputProps={{
-            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
-            value: englishTitle,
-            onChange: e => handleUpdateBlock('englishTitle', e.target.value),
+            placeholder: 'INTERVIEW',
+            value: englishTitle === 'INTERVIEW' ? '' : englishTitle,
+            onChange: e =>
+              handleUpdateBlock('englishTitle', e.target.value || 'INTERVIEW'),
           }}
           className="text-center w-full pt-1"
         />

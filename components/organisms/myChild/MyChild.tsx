@@ -60,7 +60,10 @@ export const MyChild = ({ blockInfo, id }: Props) => {
     type: 'title' | 'englishTitle' | 'name' | 'nickname',
     e: ChangeEvent<HTMLInputElement>
   ) => {
-    updateBlock(id, { [type]: e.target.value });
+    updateBlock(id, {
+      [type]:
+        type === 'englishTitle' ? e.target.value || 'MY CHILD' : e.target.value,
+    });
   };
 
   const handleBirthdayChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -98,12 +101,12 @@ export const MyChild = ({ blockInfo, id }: Props) => {
 
   return (
     <LeftEditorWrapper ariaLabel="아기 소개">
-      <NavigationBar>아기 소개</NavigationBar>
+      <NavigationBar>아기 소개 편집 페이지</NavigationBar>
       <section className="w-full flex flex-col gap-3 items-start">
         <TextField
           label="제목"
           inputProps={{
-            placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
+            placeholder: `${name || '아이'}의 첫번째 생일`,
             value: blockInfo.props.title,
             onChange: e => handleStringChange('title', e),
           }}
@@ -113,8 +116,8 @@ export const MyChild = ({ blockInfo, id }: Props) => {
           <TextField
             label="영문제목"
             inputProps={{
-              placeholder: '입력하지 않을 시 기본 문구로 작성됩니다.',
-              value: englishTitle,
+              placeholder: 'MY CHILD',
+              value: englishTitle === 'MY CHILD' ? '' : englishTitle,
               onChange: e => handleStringChange('englishTitle', e),
             }}
             className="text-center w-full"

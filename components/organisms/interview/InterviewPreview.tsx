@@ -58,7 +58,7 @@ export const InterviewPreview = ({
       enTitle={englishTitle}
       enTitleDefault="INTERVIEW"
       koTitle={title}
-      koTitleDefault="우리 둘의 이야기"
+      koTitleDefault="인터뷰"
       titleClassName={titleClassName}
       {...rest}
     >

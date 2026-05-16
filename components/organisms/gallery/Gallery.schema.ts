@@ -4,11 +4,11 @@ export const gallerySchema = {
   type: galleryTemplate,
   fields: {
     title: {
-      default: '',
+      default: '갤러리',
       required: true,
     },
     enTitle: {
-      default: '',
+      default: 'GALLERY',
       required: false,
     },
     images: {
@@ -28,7 +28,7 @@ export const gallerySchema = {
       required: true,
     },
     isEnglishTitle: {
-      default: false,
+      default: true,
       required: true,
     },
   },

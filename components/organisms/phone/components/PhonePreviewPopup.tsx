@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import CopyIcon from '@/shared/assets/icons/copy.svg';
@@ -41,6 +41,7 @@ const copyTextToClipboard = async (text: string) => {
 };
 
 function PhonePreviewPopup({ groups = [] }: Props) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [showCopyToast, setShowCopyToast] = useState(false);
   const [isCopyToastVisible, setIsCopyToastVisible] = useState(false);
@@ -55,6 +56,21 @@ function PhonePreviewPopup({ groups = [] }: Props) {
     }))
     .filter(group => group.name.trim().length > 0 || group.contacts.length > 0);
   const isEmpty = visibleGroups.length === 0;
+
+  useEffect(() => {
+    if (!isPopupOpen) return;
+
+    const dialog = dialogRef.current;
+    if (!dialog || dialog.open) return;
+
+    dialog.showModal();
+
+    return () => {
+      if (dialog.open) {
+        dialog.close();
+      }
+    };
+  }, [isPopupOpen]);
 
   useEffect(() => {
     if (copyToastKey === 0) return;
@@ -113,18 +129,25 @@ function PhonePreviewPopup({ groups = [] }: Props) {
 
       <AnimatePresence>
         {isPopupOpen && (
-          <motion.div
-            className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center"
+          <motion.dialog
+            ref={dialogRef}
+            aria-label="연락처"
+            className="m-0 h-dvh max-h-none w-dvw max-w-none border-0 bg-black/50 p-0 backdrop:bg-transparent open:flex open:items-center open:justify-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2, ease: 'easeInOut' }}
-            onClick={() => setIsPopupOpen(false)}
+            onCancel={event => {
+              event.preventDefault();
+              setIsPopupOpen(false);
+            }}
+            onClick={event => {
+              if (event.target === event.currentTarget) {
+                setIsPopupOpen(false);
+              }
+            }}
           >
             <motion.section
-              aria-label="연락처"
-              role="dialog"
-              aria-modal="true"
               className={`w-[280px] rounded-lg bg-white shadow-edit ${
                 isEmpty ? '' : 'pb-[14px]'
               }`}
@@ -202,7 +225,7 @@ function PhonePreviewPopup({ groups = [] }: Props) {
                 ))}
               </ul>
             </motion.section>
-          </motion.div>
+          </motion.dialog>
         )}
       </AnimatePresence>
     </>

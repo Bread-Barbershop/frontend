@@ -8,11 +8,11 @@ export const myChildSchema = {
       required: true,
     },
     checkedEnglishTitle: {
-      default: false,
+      default: true,
       required: true,
     },
     englishTitle: {
-      default: '',
+      default: 'MY CHILD',
       required: false,
     },
     name: {

@@ -30,7 +30,7 @@ export const coupleIntroductionSchema = {
       required: false,
     },
     checkedEnglishTitle: {
-      default: false,
+      default: true,
       required: false,
     },
     englishTitle: {

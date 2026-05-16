@@ -4,15 +4,15 @@ export const organizerInformationSchema = {
   type: null,
   fields: {
     title: {
-      default: '',
+      default: '주최사',
       required: true,
     },
     checkedEnglishTitle: {
-      default: false,
+      default: true,
       required: true,
     },
     englishTitle: {
-      default: '',
+      default: 'ORGANIZER INFORMATION',
       required: false,
     },
     organizer: {
