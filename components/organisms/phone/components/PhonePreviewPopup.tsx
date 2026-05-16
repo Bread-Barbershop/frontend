@@ -7,6 +7,7 @@ import { createPortal } from 'react-dom';
 import CopyIcon from '@/shared/assets/icons/copy.svg';
 import PhoneActionIcon from '@/shared/assets/icons/phone.svg';
 import PhoneIcon from '@/shared/assets/icons/phoneIcon.svg';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { formatPhoneNumber } from '@/shared/utils/phoneNumber';
 
 import { PhoneGroup } from '../utils/phone.types';
@@ -41,6 +42,7 @@ const copyTextToClipboard = async (text: string) => {
 };
 
 function PhonePreviewPopup({ groups = [] }: Props) {
+  const titleColor = useEditorStore(state => state.titleData.color);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [showCopyToast, setShowCopyToast] = useState(false);
@@ -172,11 +174,12 @@ function PhonePreviewPopup({ groups = [] }: Props) {
 
                 {visibleGroups.map((group, groupIndex) => (
                   <li key={group.id} className="flex flex-col gap-1.5">
-                    {(group.name || visibleGroups.length > 1) && (
-                      <p className="h-11 flex items-center justify-center px-3 text-sm font-bold text-text-secondary text-center">
-                        {group.name || `${groupIndex + 1}번 그룹`}
-                      </p>
-                    )}
+                    <p
+                      className="h-11 flex items-center justify-center px-3 text-sm font-bold text-text-secondary text-center"
+                      style={{ color: titleColor }}
+                    >
+                      {group.name.trim() || `그룹${groupIndex + 1}`}
+                    </p>
 
                     <ul className="flex flex-col gap-1.5">
                       {group.contacts.length === 0 && (
