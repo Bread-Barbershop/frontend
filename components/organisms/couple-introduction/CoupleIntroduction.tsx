@@ -196,7 +196,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
 
       {profileFields.map(profile => (
         <Fragment key={profile.key}>
-          <div className="flex flex-col gap-2 w-full">
+          <div className="flex flex-col gap-2 w-full pb-1">
             <TextField
               label={profile.label}
               inputProps={{
