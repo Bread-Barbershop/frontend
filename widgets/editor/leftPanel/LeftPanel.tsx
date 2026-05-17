@@ -15,7 +15,7 @@ function LeftPanel() {
 
   return (
     <div
-      className="w-93.75 max-h-[810px] ml-15 flex flex-col gap-4"
+      className="w-93.75 max-h-[810px] ml-5 min-[1540px]:ml-15 flex flex-col gap-4"
       data-editor-left-panel
     >
       <div className="w-full">

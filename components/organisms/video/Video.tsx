@@ -1,7 +1,6 @@
 import { useShallow } from 'zustand/react/shallow';
 
 import { Button } from '@/components/atoms/button';
-import { Divider } from '@/components/atoms/divider/Divider';
 import { Label } from '@/components/atoms/label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
@@ -21,13 +20,8 @@ interface Props {
 const ratioOptions = ['1:1', '3:4', '4:3', '9:16', '16:9'];
 
 export const Video = ({ blockInfo, id }: Props) => {
-  const {
-    title,
-    videoUrl,
-    checkThumbnail,
-    checkedEnglishTitle,
-    englishTitle,
-  } = blockInfo.props;
+  const { title, videoUrl, checkThumbnail, checkedEnglishTitle, englishTitle } =
+    blockInfo.props;
   const { updateBlock, updateImage } = useEditorStore(
     useShallow(state => ({
       updateBlock: state.updateBlock,
@@ -69,7 +63,7 @@ export const Video = ({ blockInfo, id }: Props) => {
           className="text-center w-full"
         />
       )}
-      <Divider className="w-full" />
+
       <TextField
         label="URL"
         inputProps={{

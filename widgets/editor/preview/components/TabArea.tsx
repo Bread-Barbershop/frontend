@@ -12,7 +12,7 @@ function TabArea({ active, tabClick, closeClick }: Props) {
         {componentCls.map((items, index) => (
           <li
             key={index}
-            className={`w-19 h-11 flex-center font-semibold text-sm ${active === items.english ? 'text-text-primary border-b' : 'text-text-secondary border-0'}`}
+            className={`w-19 h-11 cursor-pointer flex-center font-semibold text-sm ${active === items.english ? 'text-text-primary border-b' : 'text-text-secondary border-0'}`}
             onClick={() => tabClick(items.english)}
           >
             {items.korea}

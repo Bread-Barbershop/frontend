@@ -6,7 +6,7 @@ export function CalendarType4({
   monthText,
 }: CalendarTemplateProps) {
   return (
-    <div className="w-full flex flex-col items-center font-maruburi">
+    <div className="w-full flex flex-col items-center font-lineseed">
       <h3 className="h-[68px] text-[44px] text-[#111827] tracking-wide uppercase mb-1">
         {monthText}
       </h3>

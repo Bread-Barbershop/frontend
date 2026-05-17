@@ -44,7 +44,7 @@ function ContentsArea({ scrollContainerRef, sectionRefs }: Props) {
   };
   return (
     <div
-      className="overflow-y-auto px-5 mb-7.5 flex flex-col gap-5"
+      className="overflow-y-auto px-5 mb-7.5 flex flex-col gap-5 "
       ref={scrollContainerRef}
     >
       {componentCls.map((items, index) => (
@@ -55,7 +55,7 @@ function ContentsArea({ scrollContainerRef, sectionRefs }: Props) {
             sectionRefs.current[items.english] = el;
           }}
         >
-          <div className="font-semibold flex justify-between h-11">
+          <div className="font-semibold flex justify-between items-center h-11">
             <h2 className="text-sm font-semibold">{items.korea}</h2>
             <UtilityButton
               className="text-primary w-fit"
@@ -64,26 +64,28 @@ function ContentsArea({ scrollContainerRef, sectionRefs }: Props) {
               모두 추가하기
             </UtilityButton>
           </div>
-          <ul className="grid grid-cols-5 gap-x-7 gap-y-0.5">
-            {items.list.map((item, index) => (
-              <li
-                key={index}
-                className="w-25.25 h-11 flex items-center gap-0.5"
-                onClick={() =>
-                  handleAddComponent(items.english, item.component)
-                }
-              >
-                <span
-                  className={`shrink-0 text-white rounded-sm w-4.5 h-4.5 flex-center font-normal text-xs ${COLORS[items.english]}`}
+          <div className="min-h-34">
+            <ul className="grid grid-cols-5 gap-x-7 gap-y-0.5 ">
+              {items.list.map((item, index) => (
+                <li
+                  key={index}
+                  className="w-25.25 h-11 flex items-center gap-0.5 cursor-pointer"
+                  onClick={() =>
+                    handleAddComponent(items.english, item.component)
+                  }
                 >
-                  {index + 1}
-                </span>
-                <p className="font-normal text-[13px] flex-1 flex flex-wrap justify-center text-center break-keep">
-                  {item.contents}
-                </p>
-              </li>
-            ))}
-          </ul>
+                  <span
+                    className={`shrink-0 text-white rounded-sm w-4.5 h-4.5 flex-center font-normal text-xs ${COLORS[items.english]}`}
+                  >
+                    {index + 1}
+                  </span>
+                  <p className="font-normal text-[13px] flex-1 flex flex-wrap justify-center text-center break-keep">
+                    {item.contents}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       ))}
     </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 import { useInvitationUpload } from '../hooks/useInvitationUpload';
 
@@ -10,27 +10,11 @@ function UploadButton() {
   const modalRef = useRef<HTMLDivElement>(null);
   const { handleUpload, isLoading, isFail } = useInvitationUpload();
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        !isLoading &&
-        tabRef.current &&
-        !tabRef.current.contains(event.target as Node) &&
-        modalRef.current &&
-        !modalRef.current.contains(event.target as Node)
-      ) {
-        setIsModalOpen(false);
-      }
-    };
-
-    if (isModalOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+  const handleClose = () => {
+    if (!isLoading) {
+      setIsModalOpen(false);
     }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isModalOpen, isLoading]);
+  };
 
   return (
     <div ref={tabRef}>
@@ -45,7 +29,13 @@ function UploadButton() {
         저장하기
       </button>
       {isModalOpen && (
-        <SaveModal ref={modalRef} isLoading={isLoading} isFail={isFail} />
+        <SaveModal
+          ref={modalRef}
+          isLoading={isLoading}
+          isFail={isFail}
+          retry={handleUpload}
+          onClose={handleClose}
+        />
       )}
     </div>
   );

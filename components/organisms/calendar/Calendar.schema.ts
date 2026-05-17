@@ -1,14 +1,16 @@
+import { JSONContent } from '@tiptap/core';
+
 import { calendarTemplate } from '@/shared/data/template/componentTemplate';
 
 export const calendarSchema = {
   type: calendarTemplate,
   fields: {
     title: {
-      default: '예식 일시',
+      default: '',
       required: true,
     },
     englishTitle: {
-      default: 'THE WEDDING CEREMONY',
+      default: '',
       required: true,
     },
     date: {
@@ -41,6 +43,18 @@ export const calendarSchema = {
     showDday: {
       default: true,
       required: true,
+    },
+    messageJson: {
+      default: null as JSONContent | null,
+      required: false,
+    },
+    messageHtml: {
+      default: null as string | null,
+      required: false,
+    },
+    isEnglishTitle: {
+      default: false,
+      required: false,
     },
   },
 } as const;

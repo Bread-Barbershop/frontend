@@ -360,7 +360,7 @@ export const MainPosterPreview = () => {
           <div
             data-canvas="true"
             className={cn(
-              'absolute inset-0 z-10 w-full h-full ring-1 ring-inset ring-primary rounded-lg pointer-events-none'
+              'absolute inset-0 z-10 w-full h-full ring-1 ring-inset ring-primary pointer-events-none'
             )}
           />
         )}

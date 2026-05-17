@@ -1,6 +1,9 @@
 import { useEffect } from 'react';
 
+import { useConfirm } from './useConfirm';
+
 export function usePreventBack() {
+  const { confirm } = useConfirm();
   useEffect(() => {
     // 1. 탭 닫기 / 새로고침 방지
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -8,11 +11,13 @@ export function usePreventBack() {
     };
 
     // 2. 뒤로가기 방지
-    const handlePopState = () => {
-      const leave = window.confirm(
-        '수정된 내용이 저장되지 않을 수 있습니다.\n정말 나가시겠습니까?'
-      );
-      if (!leave) {
+    const handlePopState = async () => {
+      const isConfirm = await confirm({
+        message:
+          '수정된 내용이 저장되지 않을 수 있습니다.\n정말 나가시겠습니까?',
+        variant: 'white',
+      });
+      if (!isConfirm) {
         history.pushState(null, '', window.location.href);
         return;
       }
@@ -28,5 +33,5 @@ export function usePreventBack() {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('popstate', handlePopState);
     };
-  }, []);
+  }, [confirm]);
 }

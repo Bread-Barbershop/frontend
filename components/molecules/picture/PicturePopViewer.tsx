@@ -63,7 +63,7 @@ export const PicturePopViewer = ({
 
   return createPortal(
     <div
-      className={`inset-0 z-50 bg-black/80 flex justify-center items-center flex-col gap-2 px-7 ${pathname.startsWith('/editor') ? 'absolute' : 'fixed'}`}
+      className={`inset-0 z-50 bg-black/40 flex justify-center items-center flex-col gap-2 px-7 ${pathname.startsWith('/editor') ? 'absolute' : 'fixed'}`}
       onClick={onClose}
     >
       <div

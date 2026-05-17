@@ -2,7 +2,8 @@ import {
   DndContext,
   DragEndEvent,
   DragStartEvent,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
@@ -44,12 +45,14 @@ function OrderPanel() {
   );
 
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [isDrag, setIsDrag] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
+    useSensor(MouseSensor, {
+      activationConstraint: { delay: 300, tolerance: 5 }, // 500ms 롱프레스
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 300, tolerance: 5 },
     })
   );
   const [contextMenu, setContextMenu] = useState<{
@@ -85,6 +88,7 @@ function OrderPanel() {
   }, [contextMenu]);
 
   const handleDragEnd = (event: DragEndEvent) => {
+    setIsDrag(false);
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
@@ -96,6 +100,7 @@ function OrderPanel() {
   const handlePageSelect = (event: DragStartEvent) => {
     const active = event.active;
     const id = active.id as string;
+    setIsDrag(true);
     selectedBlock(id);
     setIsEdit(false);
   };
@@ -126,7 +131,7 @@ function OrderPanel() {
               axis: 'y',
               containScroll: 'trimSnaps',
               dragFree: true,
-              // watchDrag: false,
+              watchDrag: !isDrag,
             }}
             parentClassName="flex-col mb-2"
             onReset={() => {

@@ -11,6 +11,7 @@ import {
   PublishResult,
 } from '@/app/dashboard/types';
 import { DEFAULT_IMAGE_URL } from '@/app/guest/[id]/constants/constant';
+import { useToast } from '@/shared/hooks/useToast';
 import {
   DEFAULT_DESCRIPTION,
   DEFAULT_TITLE,
@@ -173,6 +174,7 @@ function useDashboardInvitations(
   options: UseDashboardInvitationsOptions = {}
 ) {
   const router = useRouter();
+  const { success: successToast, error: errorToast } = useToast();
   const loadOnMount = options.loadOnMount ?? initialInvites.length === 0;
 
   const [loading, setLoading] = useState(loadOnMount);
@@ -413,10 +415,12 @@ function useDashboardInvitations(
             ? `Publish failed: ${json.error}`
             : `Publish failed: ${res.status}`,
         }));
+        errorToast(json.error ?? '초대장 발행에 실패했습니다.');
         return;
       }
 
       setPublishResults(prev => ({ ...prev, [invitationFolderId]: json }));
+      successToast('초대장 발행 처리가 완료되었습니다.');
 
       if (json.ready === false) {
         void pollGuestReadiness(invitationFolderId, json);
@@ -427,6 +431,7 @@ function useDashboardInvitations(
         [invitationFolderId]:
           err instanceof Error ? err.message : 'Publish request failed.',
       }));
+      errorToast('초대장 발행 중 오류가 발생했습니다.');
     } finally {
       setPublishBusy(prev => ({ ...prev, [invitationFolderId]: false }));
     }
@@ -461,6 +466,7 @@ function useDashboardInvitations(
         setInvites(prev => prev.filter(invite => invite.folderId !== folderId));
         isDeleted = true;
         clearInvitationTransientState(folderId);
+        successToast('초대장이 삭제되었습니다.');
       } catch (err) {
         console.error(err);
         setDeleteErrors(prev => ({
@@ -468,6 +474,9 @@ function useDashboardInvitations(
           [folderId]:
             err instanceof Error ? err.message : '초대장 삭제에 실패했습니다.',
         }));
+        errorToast(
+          err instanceof Error ? err.message : '초대장 삭제에 실패했습니다.'
+        );
       } finally {
         setDeleteBusy(prev => {
           if (!isDeleted) {
@@ -505,8 +514,10 @@ function useDashboardInvitations(
 
       try {
         await navigator.clipboard.writeText(finalUrl);
+        successToast('링크가 클립보드에 복사되었습니다.');
       } catch (err) {
         console.error(err);
+        errorToast('링크 복사에 실패했습니다.');
       }
     },
     [origin, publishResults]
@@ -543,7 +554,7 @@ function useDashboardInvitations(
         shareInvitationWithKakao(shareData, origin);
       } catch (err) {
         console.error(err);
-        window.alert(
+        errorToast(
           err instanceof Error
             ? err.message
             : '카카오톡 공유 중 오류가 발생했습니다.'

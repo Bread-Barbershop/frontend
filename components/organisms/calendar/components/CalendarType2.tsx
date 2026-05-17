@@ -7,7 +7,7 @@ export function CalendarType2({
   headerDays,
 }: CalendarTemplateProps) {
   return (
-    <div className="w-full flex flex-col font-maruburi">
+    <div className="w-full flex flex-col font-lineseed">
       <div className="grid grid-cols-7 gap-y-4 gap-x-1">
         {headerDays.map((day, idx) => (
           <div

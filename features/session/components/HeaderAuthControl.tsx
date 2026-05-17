@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import React from 'react';
 
 import { useAuthGate } from '@/features/session/hooks/useAuthGate';
+import { useConfirm } from '@/shared/hooks/useConfirm';
 
 import LoginModal from './LoginModal';
 
@@ -26,13 +27,16 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
     runAfterAuth,
   } = useAuthGate({ initialIsLoggedIn });
   const pathname = usePathname();
+  const { confirm } = useConfirm();
 
-  const handleDashboardClick = (e: React.MouseEvent) => {
+  const handleDashboardClick = async (e: React.MouseEvent) => {
     if (pathname.startsWith('/editor')) {
-      const leave = window.confirm(
-        '수정된 내용이 저장되지 않을 수 있습니다.\n정말 나가시겠습니까?'
-      );
-      if (!leave) {
+      const isConfirm = await confirm({
+        message:
+          '수정된 내용이 저장되지 않을 수 있습니다.\n정말 나가시겠습니까?',
+        variant: 'white',
+      });
+      if (!isConfirm) {
         e.preventDefault();
         return;
       }

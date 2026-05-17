@@ -8,6 +8,7 @@ import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationB
 import { Picture } from '@/components/molecules/picture/Picture';
 import { TextField } from '@/components/molecules/text-field';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
+import { useToast } from '@/shared/hooks/useToast';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 
@@ -32,7 +33,7 @@ function Gallery({ blockInfo, id }: Props) {
       updateImage: state.updateImage,
     }))
   );
-
+  const { warning } = useToast();
   const handleOnChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { title: e.target.value || '갤러리' });
   };
@@ -43,7 +44,7 @@ function Gallery({ blockInfo, id }: Props) {
   const handlePictureChange = (file: (File | string)[]) => {
     const curerentImage = images.filter(img => img.id === id);
     if (curerentImage.length > 30 || curerentImage.length + file.length > 30) {
-      alert('갤러리 이미지는 최대 30개까지 추가할 수 있습니다.');
+      warning('갤러리 이미지는 최대 30개까지 추가할 수 있습니다.');
       return;
     }
     const currentBlock = block as EditorBlock<'gallery'>[];
@@ -83,7 +84,8 @@ function Gallery({ blockInfo, id }: Props) {
           inputProps={{
             placeholder: '갤러리',
             onChange: e => handleOnChangeTitle(e),
-            value: blockInfo.props.title === '갤러리' ? '' : blockInfo.props.title,
+            value:
+              blockInfo.props.title === '갤러리' ? '' : blockInfo.props.title,
           }}
         />
         {blockInfo.props.isEnglishTitle && (
