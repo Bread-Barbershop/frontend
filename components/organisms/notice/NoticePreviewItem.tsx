@@ -1,4 +1,5 @@
 import { Image } from '@/components/atoms/image';
+import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 import { cn } from '@/shared/utils/cn';
@@ -50,7 +51,7 @@ export const NoticePreviewItem = ({
           {notice.notice}
         </p>
         <div
-          className="text-sm text-center select-none"
+          className={`text-sm text-center select-none ${previewTextClassName}`}
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </div>

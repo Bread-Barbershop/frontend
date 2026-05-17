@@ -1,4 +1,5 @@
 import { Image } from '@/components/atoms/image';
+import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 import { cn } from '@/shared/utils/cn';
 
@@ -60,11 +61,11 @@ export const InterviewPreviewItem = ({
         <div key="interview-answer" className="w-full overflow-hidden">
           {hasAnswer ? (
             <div
-              className="text-sm text-center select-text"
+              className={`text-sm text-center select-text ${previewTextClassName}`}
               dangerouslySetInnerHTML={{ __html: answerHtml }}
             />
           ) : (
-            <p className="text-sm text-center text-text-secondary select-text">
+            <p className="text-sm text-center text-text-secondary select-text ">
               인터뷰 내용이 비어있습니다.
             </p>
           )}

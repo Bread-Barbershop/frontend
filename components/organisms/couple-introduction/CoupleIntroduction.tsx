@@ -1,4 +1,4 @@
-﻿import { Fragment, type ChangeEvent, useEffect, useMemo } from 'react';
+﻿import { Fragment, type ChangeEvent, useEffect } from 'react';
 
 import { Label } from '@/components/atoms/label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
@@ -10,7 +10,6 @@ import { TextField } from '@/components/molecules/text-field';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
-import { debounce } from '@/shared/utils/debounce';
 
 import type { JSONContent } from '@tiptap/core';
 
@@ -38,17 +37,6 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
     brideFirst = false,
   } = blockInfo.props;
 
-  const debouncedUpdateMessage = useMemo(
-    () =>
-      debounce((nextMessageJson: JSONContent) => {
-        updateBlock(id, {
-          messageJson: nextMessageJson,
-          messageHtml: tiptapJsonToHtmlInBrowser(nextMessageJson),
-        });
-      }, 300),
-    [id, updateBlock]
-  );
-
   useEffect(() => {
     if (title === '') {
       updateBlock(id, { title: DEFAULT_COUPLE_INTRODUCTION_TITLE });
@@ -62,12 +50,6 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
       });
     }
   }, [englishTitle, id, updateBlock]);
-
-  useEffect(() => {
-    return () => {
-      debouncedUpdateMessage.cancel();
-    };
-  }, [debouncedUpdateMessage]);
 
   const syncProfileImages = (
     nextGroomImage: { id: string; image: (File | string)[] },
@@ -121,7 +103,10 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
   };
 
   const handleEditorChange = (json: JSONContent) => {
-    debouncedUpdateMessage(json);
+    updateBlock(id, {
+      messageJson: json,
+      messageHtml: tiptapJsonToHtmlInBrowser(json),
+    });
   };
   const handleGroomDelete = () => {
     syncProfileImages({ id: groomImage.id, image: [] }, brideImage);
