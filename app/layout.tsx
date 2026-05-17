@@ -4,6 +4,8 @@ import localFont from 'next/font/local';
 import Script from 'next/script';
 import { ReactNode } from 'react';
 
+import { ToastContainer } from '@/components/molecules/toast/ToastContainer';
+
 import './styles/globals.css';
 
 const pretendard = localFont({
@@ -22,6 +24,13 @@ const notoSansKr = Noto_Sans_KR({
   variable: '--noto-kr',
   subsets: ['latin'],
   weight: ['400', '500', '700'],
+});
+
+const lineSeedKr = localFont({
+  src: '../public/font/LINESeedKR/LINESeedKR-Rg.woff2',
+  display: 'swap',
+  weight: '400',
+  variable: '--line-seed-kr',
 });
 
 const serviceName = 'Invia';
@@ -63,10 +72,11 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`${pretendard.variable} ${inter.variable} ${notoSansKr.variable}`}
+      className={`${pretendard.variable} ${inter.variable} ${notoSansKr.variable} ${lineSeedKr.variable}`}
     >
       <body className="antialiased font-pretendard">
         {children}
+        <ToastContainer />
         <Script
           src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.9/kakao.min.js"
           integrity="sha384-JpLApTkB8lPskhVMhT+m5Ln8aHlnS0bsIexhaak0jOhAkMYedQoVghPfSpjNi9K1"

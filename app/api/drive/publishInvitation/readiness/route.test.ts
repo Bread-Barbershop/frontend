@@ -8,7 +8,7 @@ const validGuestPayload = {
   bulkData: {
     backgroundColor: '#ffffff',
     titleData: {
-      font: 'font-maruburi',
+      font: 'font-lineseed',
       fontSize: '20px',
       color: '#FA7564',
       bold: false,
@@ -17,7 +17,7 @@ const validGuestPayload = {
       isDefault: false,
     },
     bodyData: {
-      font: 'font-maruburi',
+      font: 'font-lineseed',
       fontSize: '16px',
       color: '#222222',
       bold: false,

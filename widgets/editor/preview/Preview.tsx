@@ -42,7 +42,19 @@ function Preview() {
         style={{ backgroundColor }}
       >
         <div className="overflow-y-auto h-full w-full box-border scrollbar-hide">
-          <div className="flex flex-col min-h-full font-maruburi">
+          {block.length === 0 && !selectedId && (
+            <div className="absolute inset-0 z-50 bg-white flex-center flex-col font-pretendard text-base font-semibold pointer-events-none">
+              <div>
+                <span className="text-[#4285F4] font-bold">포스터</span>
+                <span>를 먼저 선택하신 후</span>
+              </div>
+              <div>
+                <span className="text-[#4285F4] font-bold">페이지 추가</span>
+                <span>를 통해 초대장을 꾸며보세요.</span>
+              </div>
+            </div>
+          )}
+          <div className="flex flex-col min-h-full font-lineseed">
             <MainPosterPreview />
             {block.map(comp => {
               const registryItem = blockRegistry[comp.component];

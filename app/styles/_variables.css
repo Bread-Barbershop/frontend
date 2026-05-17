@@ -2,8 +2,8 @@
   /* font-sans을 pretendard로 변경 */
   --font-sans: var(--font-pretendard), ui-sans-serif, system-ui, sans-serif;
   --font-pretendard: var(--pretendard), sans-serif;
-  --font-maruburi: 'MaruBuri', serif;
-  --font-serif: 'MaruBuri', serif;
+  --font-lineseed: var(--line-seed-kr), sans-serif;
+  --font-serif: var(--line-seed-kr), serif;
   --font-inter: var(--inter), sans-serif;
   --font-noto-kr: var(--noto-kr), sans-serif;
   /* text-base의 기본 크기를 13px로 변경 */

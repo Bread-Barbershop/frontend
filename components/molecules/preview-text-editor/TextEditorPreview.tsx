@@ -40,7 +40,7 @@ const FONT_FAMILY_OPTIONS: FontOption[] = [
   { label: 'Pretendard', value: 'font-pretendard' },
   { label: 'Noto Sans', value: 'font-noto-kr' },
   { label: 'Inter', value: 'font-inter' },
-  { label: '마루부리', value: 'font-maruburi' },
+  { label: 'LINESeedKR', value: 'font-lineseed' },
 ];
 
 const TEXT_ALIGN_OPTIONS: TextAlignOption[] = [

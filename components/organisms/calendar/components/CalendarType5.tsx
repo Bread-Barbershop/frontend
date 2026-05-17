@@ -12,7 +12,7 @@ export function CalendarType5({
   timeLabel,
 }: CalendarTemplateProps) {
   return (
-    <div className="w-full flex flex-col font-maruburi">
+    <div className="w-full flex flex-col font-lineseed">
       <div className="flex flex-col items-center">
         <span className="h-11 text-[#1f2937] mb-1">{currentYear}</span>
         <h3 className="h-16 text-[44px] font-bold text-[#1f2937] tracking-wider leading-none">

@@ -1,7 +1,7 @@
 import { BulkData } from '@/shared/types/block';
 
 export const TITLE_BULK_DATA: BulkData = {
-  font: 'font-maruburi',
+  font: 'font-lineseed',
   fontSize: '20px',
   color: '#FA7564',
   bold: true,
