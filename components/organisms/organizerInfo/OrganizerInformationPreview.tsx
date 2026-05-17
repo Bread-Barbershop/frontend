@@ -1,4 +1,5 @@
 import { Image } from '@/components/atoms/image';
+import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 import { EditorBlock } from '@/shared/types/block';
@@ -78,7 +79,7 @@ export const OrganizerInformationPreview = ({
       )}
       <p className="text-center text-[16px] font-semibold">{organizer}</p>
       <div
-        className="text-sm text-center select-none"
+        className={`text-sm text-center select-none ${previewTextClassName}`}
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </MiddlePreviewWrapper>

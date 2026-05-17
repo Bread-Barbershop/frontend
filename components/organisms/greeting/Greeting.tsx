@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useMemo } from 'react';
+import { ChangeEvent, useEffect } from 'react';
 
 import { Label } from '@/components/atoms/label/Label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
@@ -9,7 +9,6 @@ import { TextField } from '@/components/molecules/text-field';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
-import { debounce } from '@/shared/utils/debounce';
 
 import type { JSONContent } from '@tiptap/react';
 
@@ -29,17 +28,6 @@ function Greeting({ blockInfo, id }: Props) {
     englishTitle = DEFAULT_GREETING_ENGLISH_TITLE,
     messageJson,
   } = blockInfo.props;
-  const debouncedUpdateMessage = useMemo(
-    () =>
-      debounce((messageJson: JSONContent) => {
-        updateBlock(id, {
-          messageJson,
-          messageHtml: tiptapJsonToHtmlInBrowser(messageJson),
-        });
-      }, 300),
-    [id, updateBlock]
-  );
-
   useEffect(() => {
     if (title === '') {
       updateBlock(id, { title: DEFAULT_GREETING_TITLE });
@@ -51,12 +39,6 @@ function Greeting({ blockInfo, id }: Props) {
       updateBlock(id, { englishTitle: DEFAULT_GREETING_ENGLISH_TITLE });
     }
   }, [englishTitle, id, updateBlock]);
-
-  useEffect(() => {
-    return () => {
-      debouncedUpdateMessage.cancel();
-    };
-  }, [debouncedUpdateMessage]);
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const nextTitle = e.target.value;
@@ -77,7 +59,10 @@ function Greeting({ blockInfo, id }: Props) {
   };
 
   const handleEditorChange = (json: JSONContent) => {
-    debouncedUpdateMessage(json);
+    updateBlock(id, {
+      messageJson: json,
+      messageHtml: tiptapJsonToHtmlInBrowser(json),
+    });
   };
 
   return (

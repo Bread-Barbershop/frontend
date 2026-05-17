@@ -1,17 +1,17 @@
 import { AnyExtension } from '@tiptap/core';
 import Bold from '@tiptap/extension-bold';
-import BulletList from '@tiptap/extension-bullet-list';
 import Color from '@tiptap/extension-color';
 import Document from '@tiptap/extension-document';
+import HardBreak from '@tiptap/extension-hard-break';
 import Italic from '@tiptap/extension-italic';
 import Paragraph from '@tiptap/extension-paragraph';
 import Placeholder from '@tiptap/extension-placeholder';
 import Text from '@tiptap/extension-text';
 import TextAlign from '@tiptap/extension-text-align';
-import { FontSize, TextStyle } from '@tiptap/extension-text-style';
+import { FontFamily, FontSize, TextStyle } from '@tiptap/extension-text-style';
 import Underline from '@tiptap/extension-underline';
 
-import { customListItem } from './customListItem';
+import { FontWeight } from './fontWeight';
 
 /**
  * TextEditorBar에서 사용하는 TipTap extension 목록을 반환합니다.
@@ -24,13 +24,16 @@ export function createTextEditorBarExtensions(
     Document,
     Paragraph,
     Text,
+    HardBreak.configure({
+      keepMarks: true,
+    }),
     Bold,
     Italic,
     Underline,
     TextStyle,
     Color,
-    customListItem,
-    BulletList,
+    FontFamily,
+    FontWeight,
     FontSize,
     TextAlign.configure({
       types: ['paragraph'],

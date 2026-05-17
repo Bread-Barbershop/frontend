@@ -1,5 +1,5 @@
 import { JSONContent } from '@tiptap/core';
-import { useMemo, useEffect, ChangeEvent } from 'react';
+import { useCallback, useEffect, ChangeEvent } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
@@ -11,7 +11,6 @@ import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/ut
 import { TextField } from '@/components/molecules/text-field';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
-import { debounce } from '@/shared/utils/debounce';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
@@ -40,29 +39,22 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
   const { speakers, title, checkedEnglishTitle, englishTitle } =
     blockInfo.props;
 
-  const handleEditorChange = useMemo(
-    () =>
-      debounce((speakerId: string, json: JSONContent, speakers: Speaker[]) => {
-        updateBlock(id, {
-          speakers: speakers.map(speaker =>
-            speaker.id === speakerId
-              ? {
-                  ...speaker,
-                  messageJson: json,
-                  messageHtml: tiptapJsonToHtmlInBrowser(json),
-                }
-              : speaker
-          ),
-        });
-      }, 300),
+  const handleEditorChange = useCallback(
+    (speakerId: string, json: JSONContent, speakers: Speaker[]) => {
+      updateBlock(id, {
+        speakers: speakers.map(speaker =>
+          speaker.id === speakerId
+            ? {
+                ...speaker,
+                messageJson: json,
+                messageHtml: tiptapJsonToHtmlInBrowser(json),
+              }
+            : speaker
+        ),
+      });
+    },
     [id, updateBlock]
   );
-
-  useEffect(() => {
-    return () => {
-      handleEditorChange.cancel();
-    };
-  }, [handleEditorChange]);
 
   const handleValueChange = (
     key: 'title' | 'englishTitle',

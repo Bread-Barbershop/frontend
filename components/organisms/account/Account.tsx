@@ -1,5 +1,5 @@
 import { JSONContent } from '@tiptap/react';
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { Button } from '@/components/atoms/button/Button';
@@ -11,7 +11,6 @@ import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/ut
 import { TextField } from '@/components/molecules/text-field';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
-import { debounce } from '@/shared/utils/debounce';
 
 import { Popup } from '../popup/Popup';
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
@@ -39,23 +38,6 @@ export const Account = ({ blockInfo, id }: Props) => {
   );
   const [isGroupPopupOpen, setIsGroupPopupOpen] = useState(false);
   const { title, checkedEnglishTitle, englishTitle } = blockInfo.props;
-
-  const debouncedUpdateMessage = useMemo(
-    () =>
-      debounce((messageJson: JSONContent) => {
-        updateBlock(id, {
-          messageJson,
-          messageHtml: tiptapJsonToHtmlInBrowser(messageJson),
-        });
-      }, 300),
-    [id, updateBlock]
-  );
-
-  useEffect(() => {
-    return () => {
-      debouncedUpdateMessage.cancel();
-    };
-  }, [debouncedUpdateMessage]);
 
   const handleUpdateBlock = (
     key: string,
@@ -108,7 +90,10 @@ export const Account = ({ blockInfo, id }: Props) => {
   };
 
   const handleEditorChange = (json: JSONContent) => {
-    debouncedUpdateMessage(json);
+    updateBlock(id, {
+      messageJson: json,
+      messageHtml: tiptapJsonToHtmlInBrowser(json),
+    });
   };
 
   const handleAddGroup = () => {

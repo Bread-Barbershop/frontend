@@ -1,4 +1,5 @@
 import { Image } from '@/components/atoms/image';
+import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 import type { EditorBlock } from '@/shared/types/block';
@@ -57,7 +58,10 @@ export const MyChildPreview = ({
         </p>
         <p className="col-start-3">{birthday}</p>
       </section>
-      <div className="text-sm" dangerouslySetInnerHTML={{ __html: html }} />
+      <div
+        className={`text-sm ${previewTextClassName}`}
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
     </MiddlePreviewWrapper>
   );
 };
