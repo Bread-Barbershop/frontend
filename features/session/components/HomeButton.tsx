@@ -2,20 +2,33 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import React from 'react';
 
 import inviaLogo from '@/shared/assets/logo/Invia-logo.png';
+import { useConfirm } from '@/shared/hooks/useConfirm';
 
 function HomeButton() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { confirm } = useConfirm();
 
-  const handleHomeClick = (e: React.MouseEvent) => {
+  const handleHomeClick = async (e: React.MouseEvent) => {
     if (pathname.startsWith('/editor')) {
-      const leave = window.confirm(
-        '수정된 내용이 저장되지 않을 수 있습니다.\n정말 나가시겠습니까?'
-      );
-      if (!leave) e.preventDefault();
+      // 1. 비동기 작업 전에 즉시 기본 브라우저/Next.js 이동 방지
+      e.preventDefault();
+
+      // 2. 모달 승인 대기
+      const isConfirm = await confirm({
+        message:
+          '수정된 내용이 저장되지 않을 수 있습니다.\n정말 나가시겠습니까?',
+        variant: 'white',
+      });
+
+      // 3. 승인 시 수동으로 이동 처리
+      if (isConfirm) {
+        router.push('/');
+      }
     }
   };
 

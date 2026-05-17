@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import React, { forwardRef, useState } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
@@ -118,80 +118,124 @@ const PublishStepView = ({
   statusMessage: string;
   finalGuestUrl: string | null;
   onPublish: () => void;
-}) => (
-  <>
-    <div className="pt-5">
-      <p className="font-semibold text-base">{statusMessage}</p>
-    </div>
-    <div>
-      {busy || readinessBusy ? (
-        <LoadingSpinner className="w-[84px] h-[84px] animate-spin" />
-      ) : error ? (
-        <Image
-          src="/images/saveFail.png"
-          alt="저장 실패 이미지"
-          width={84}
-          height={84}
-        />
-      ) : (
-        <Image
-          src="/images/saveSuccess.png"
-          alt="저장 성공 이미지"
-          width={84}
-          height={84}
-        />
-      )}
-    </div>
-    <div>
-      {busy ? (
-        <div className="font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[295px] h-[44px]">
-          <span className="flex items-center">
-            발행중
-            <span className="ml-1 flex">
-              <span className="animate-bounce [animation-delay:-0.3s]">.</span>
-              <span className="animate-bounce [animation-delay:-0.15s]">.</span>
-              <span className="animate-bounce">.</span>
+}) => {
+  const [showCopyToast, setShowCopyToast] = useState(false);
+  const [isCopyToastVisible, setIsCopyToastVisible] = useState(false);
+  const [copyToastKey, setCopyToastKey] = useState(0);
+
+  useEffect(() => {
+    if (copyToastKey === 0) return;
+
+    const fadeTimer = window.setTimeout(() => {
+      setIsCopyToastVisible(false);
+    }, 1500);
+    const unmountTimer = window.setTimeout(() => {
+      setShowCopyToast(false);
+    }, 2000);
+
+    return () => {
+      window.clearTimeout(fadeTimer);
+      window.clearTimeout(unmountTimer);
+    };
+  }, [copyToastKey]);
+
+  const copyToast =
+    showCopyToast && typeof document !== 'undefined'
+      ? createPortal(
+          <div
+            className={`fixed left-1/2 top-[calc(env(safe-area-inset-top)+16px)] z-[9999] -translate-x-1/2 transition-opacity duration-500 ${
+              isCopyToastVisible ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            <div className="w-fit whitespace-nowrap rounded-xl bg-white p-5 text-center text-sm font-semibold text-text-primary shadow-[0_8px_24px_-8px_rgba(0,0,0,0.18),0_24px_60px_-20px_rgba(0,0,0,0.12)]">
+              복사가 완료되었어요!
+            </div>
+          </div>,
+          document.body
+        )
+      : null;
+  return (
+    <>
+      {copyToast}
+      <div className="pt-5">
+        <p className="font-semibold text-base">{statusMessage}</p>
+      </div>
+      <div>
+        {busy || readinessBusy ? (
+          <LoadingSpinner className="w-[84px] h-[84px] animate-spin" />
+        ) : error ? (
+          <Image
+            src="/images/saveFail.png"
+            alt="저장 실패 이미지"
+            width={84}
+            height={84}
+          />
+        ) : (
+          <Image
+            src="/images/saveSuccess.png"
+            alt="저장 성공 이미지"
+            width={84}
+            height={84}
+          />
+        )}
+      </div>
+      <div>
+        {busy ? (
+          <div className="font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[295px] h-[44px]">
+            <span className="flex items-center">
+              발행중
+              <span className="ml-1 flex">
+                <span className="animate-bounce [animation-delay:-0.3s]">
+                  .
+                </span>
+                <span className="animate-bounce [animation-delay:-0.15s]">
+                  .
+                </span>
+                <span className="animate-bounce">.</span>
+              </span>
             </span>
-          </span>
-        </div>
-      ) : (
-        <div className="px-2 font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[295px] h-[44px] gap-1">
-          {!finalGuestUrl || error ? (
-            <button
-              type="button"
-              className="text-white truncate w-[215px] hover:bg-white/30 rounded-lg p-1"
-              onClick={onPublish}
-            >
-              초대장 URL 다시 발행하기
-            </button>
-          ) : (
-            <>
-              <a
-                className="text-white truncate w-[215px] hover:bg-white/30 rounded-lg p-1"
-                href={finalGuestUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {finalGuestUrl}
-              </a>
+          </div>
+        ) : (
+          <div className="px-2 font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[295px] h-[44px] gap-1">
+            {!finalGuestUrl || error ? (
               <button
                 type="button"
-                className="text-[#38BDF8] text-[13px] font-semibold px-1 py-2 hover:bg-white/30 rounded-lg"
-                onClick={e => {
-                  e.stopPropagation();
-                  navigator.clipboard.writeText(finalGuestUrl);
-                  alert('복사되었습니다.');
-                }}
+                className="text-white truncate w-[215px] hover:bg-white/30 rounded-lg p-1"
+                onClick={onPublish}
               >
-                복사하기
+                초대장 URL 다시 발행하기
               </button>
-            </>
-          )}
-        </div>
-      )}
-    </div>
-  </>
-);
+            ) : (
+              <>
+                <a
+                  className="text-white truncate w-[215px] hover:bg-white/30 rounded-lg p-1"
+                  href={finalGuestUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {finalGuestUrl}
+                </a>
+                <button
+                  type="button"
+                  className="text-[#38BDF8] text-[13px] font-semibold px-1 py-2 hover:bg-white/30 rounded-lg"
+                  onClick={e => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(finalGuestUrl);
+                    setShowCopyToast(true);
+                    setIsCopyToastVisible(true);
+                    setCopyToastKey(prev => prev + 1);
+                  }}
+                >
+                  복사하기
+                </button>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </>
+  );
+};
 
 export const SaveModal = forwardRef<HTMLDivElement, Props>(
   ({ isLoading, isFail, retry, onClose }: Props, ref) => {

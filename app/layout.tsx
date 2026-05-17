@@ -4,6 +4,7 @@ import localFont from 'next/font/local';
 import Script from 'next/script';
 import { ReactNode } from 'react';
 
+import { ConfirmContainer } from '@/components/molecules/confirm/ConfirmContainer';
 import { ToastContainer } from '@/components/molecules/toast/ToastContainer';
 
 import './styles/globals.css';
@@ -77,6 +78,7 @@ export default function RootLayout({
       <body className="antialiased font-pretendard">
         {children}
         <ToastContainer />
+        <ConfirmContainer />
         <Script
           src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.9/kakao.min.js"
           integrity="sha384-JpLApTkB8lPskhVMhT+m5Ln8aHlnS0bsIexhaak0jOhAkMYedQoVghPfSpjNi9K1"
