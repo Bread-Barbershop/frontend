@@ -1,6 +1,7 @@
 'use client';
 
 import { PreviewTitle } from '@/components/atoms/preview-title/PreviewTitle';
+import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
 import { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
@@ -66,7 +67,11 @@ export function CalendarPreview({
       {/* Title */}
       <PreviewTitle
         isKoTitle={true}
-        enTitle={englishTitle || defaultEnglishTitle}
+        enTitle={
+          blockInfo.props.isEnglishTitle
+            ? englishTitle || defaultEnglishTitle
+            : ''
+        }
         koTitle={title || defaultTitle}
         titleClassName={titleClassName}
       />
@@ -106,7 +111,16 @@ export function CalendarPreview({
       )}
 
       {/* D-Day Countdown Display */}
-      {showDday && <DDayCountdown date={date} time={time} />}
+      {showDday && (
+        <DDayCountdown
+          date={date}
+          time={time}
+          messageJson={
+            blockInfo.props.messageHtml ??
+            tiptapJsonToHtmlUniversal(blockInfo.props.messageJson)
+          }
+        />
+      )}
     </div>
   );
 }

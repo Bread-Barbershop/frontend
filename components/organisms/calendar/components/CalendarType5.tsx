@@ -20,7 +20,7 @@ export function CalendarType5({
         </h3>
       </div>
 
-      <div className="w-full flex flex-col">
+      <div className="w-full flex flex-col gap-2">
         {calendarDays.map((dayObj, idx) => {
           const isTarget = dayObj.isTargetDate;
           return (

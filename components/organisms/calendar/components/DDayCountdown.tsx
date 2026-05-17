@@ -1,13 +1,15 @@
 import { useEffect, useState, useMemo } from 'react';
 
+import { PreviewBody } from '@/components/atoms/preview-body/PreviewBody';
 import { cn } from '@/shared/utils/cn';
 
 interface Props {
   date: string;
+  messageJson?: string;
   time?: string;
 }
 
-export function DDayCountdown({ date, time }: Props) {
+export function DDayCountdown({ date, time, messageJson }: Props) {
   const [timeLeft, setTimeLeft] = useState<{
     days: number;
     hours: number;
@@ -116,9 +118,12 @@ export function DDayCountdown({ date, time }: Props) {
           </span>
         </div>
       </div>
-      <div className="text-[#8e8e8e] text-sm tracking-tight w-full text-center">
-        {timeLeft.days}일 남았습니다.
-      </div>
+      {messageJson && <PreviewBody html={messageJson} />}
+      {!messageJson && (
+        <div className="text-[#8e8e8e] text-sm tracking-tight w-full text-center">
+          {timeLeft.days}일 남았습니다.
+        </div>
+      )}
     </div>
   );
 }
