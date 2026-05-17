@@ -1,4 +1,3 @@
-import { Plus } from 'lucide-react';
 import { ChangeEvent, forwardRef } from 'react';
 
 import { cn } from '@/shared/utils/cn';
@@ -17,7 +16,9 @@ export const ImageUploadButton = forwardRef<HTMLInputElement, Props>(
         style={{ width: size, height: size }}
         onClick={onButtonClick}
       >
-        <Plus size={16} />
+        <p className="font-semibold text-base">
+          이곳을 클릭하여 사진을 추가해주세요.
+        </p>
         <input
           type="file"
           accept="image/*"
