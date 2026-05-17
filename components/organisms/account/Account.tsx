@@ -1,5 +1,5 @@
 import { JSONContent } from '@tiptap/react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { Button } from '@/components/atoms/button/Button';
@@ -37,6 +37,7 @@ export const Account = ({ blockInfo, id }: Props) => {
     }))
   );
   const [isGroupPopupOpen, setIsGroupPopupOpen] = useState(false);
+  const groupPopupTriggerRef = useRef<HTMLDivElement>(null);
   const { title, checkedEnglishTitle, englishTitle } = blockInfo.props;
 
   const handleUpdateBlock = (
@@ -163,6 +164,7 @@ export const Account = ({ blockInfo, id }: Props) => {
           accountList={blockInfo.props.accountList[i]}
           handleUpdateBlock={handleUpdateBlock}
           onOpenGroupPopup={() => setIsGroupPopupOpen(true)}
+          groupPopupTriggerRef={groupPopupTriggerRef}
         />
       ))}
       <Button
@@ -176,9 +178,11 @@ export const Account = ({ blockInfo, id }: Props) => {
       {isGroupPopupOpen && (
         <Popup
           popupTitle="그룹 편집"
+          variant="floating"
           onClose={() => setIsGroupPopupOpen(false)}
           wrapperClassName="w-[200px] pt-1 pb-4"
           hideCloseButton
+          triggerRef={groupPopupTriggerRef}
         >
           <GroupEdit
             handleUpdateBlock={handleUpdateBlock}

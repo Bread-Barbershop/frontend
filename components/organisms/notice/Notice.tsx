@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
@@ -32,6 +32,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
     }))
   );
   const [isNoticeListOpen, setIsNoticeListOpen] = useState(false);
+  const noticeListTriggerRef = useRef<HTMLDivElement>(null);
   const [editorResetKey, setEditorResetKey] = useState(0);
 
   const { noticeList, title, checkedEnglishTitle, englishTitle } =
@@ -144,13 +145,15 @@ export const Notice = ({ blockInfo, id }: Props) => {
     <LeftEditorWrapper ariaLabel="공지사항" className="gap-3 pb-3">
       <NavigationBar
         action={
-          <UtilityButton
-            size="md"
-            variant="primary"
-            onClick={() => setIsNoticeListOpen(true)}
-          >
-            항목추가
-          </UtilityButton>
+          <div ref={noticeListTriggerRef}>
+            <UtilityButton
+              size="md"
+              variant="primary"
+              onClick={() => setIsNoticeListOpen(true)}
+            >
+              항목추가
+            </UtilityButton>
+          </div>
         }
         direction="right"
       >
@@ -222,6 +225,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
           options={NOTICE_LIST}
           onSelect={handleNoticeListSelect}
           onClose={() => setIsNoticeListOpen(false)}
+          triggerRef={noticeListTriggerRef}
           listClassName="justify-center items-center"
           textClassName="bg-bg-sub rounded-xl flex items-center px-4 h-13"
         />

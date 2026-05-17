@@ -1,5 +1,5 @@
 import { JSONContent } from '@tiptap/core';
-import { useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
@@ -30,6 +30,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
     }))
   );
   const [isQuestionListOpen, setIsQuestionListOpen] = useState(false);
+  const questionListTriggerRef = useRef<HTMLDivElement>(null);
   const [editorResetKey, setEditorResetKey] = useState(0);
   const { title, questions, checkedEnglishTitle, englishTitle } =
     blockInfo.props;
@@ -145,13 +146,15 @@ export const Interview = ({ blockInfo, id }: Props) => {
     <LeftEditorWrapper ariaLabel="인터뷰" className="gap-3 pb-3">
       <NavigationBar
         action={
-          <UtilityButton
-            size="md"
-            variant="primary"
-            onClick={() => setIsQuestionListOpen(true)}
-          >
-            항목추가
-          </UtilityButton>
+          <div ref={questionListTriggerRef}>
+            <UtilityButton
+              size="md"
+              variant="primary"
+              onClick={() => setIsQuestionListOpen(true)}
+            >
+              항목추가
+            </UtilityButton>
+          </div>
         }
         direction="right"
       >
@@ -221,6 +224,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
           options={QUESTION_LIST}
           onSelect={handleQuestionListSelect}
           onClose={() => setIsQuestionListOpen(false)}
+          triggerRef={questionListTriggerRef}
           listClassName="justify-center items-center"
           textClassName="bg-bg-sub rounded-xl flex items-center px-4 h-13"
         />
