@@ -3,6 +3,7 @@ import React, { forwardRef, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
+import { useToast } from '@/shared/hooks/useToast';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import { useInvitationPublish } from '../hooks/useInvitationPublish';
@@ -122,7 +123,7 @@ const PublishStepView = ({
   const [showCopyToast, setShowCopyToast] = useState(false);
   const [isCopyToastVisible, setIsCopyToastVisible] = useState(false);
   const [copyToastKey, setCopyToastKey] = useState(0);
-
+  const { error: errorToast } = useToast();
   useEffect(() => {
     if (copyToastKey === 0) return;
 
@@ -218,12 +219,16 @@ const PublishStepView = ({
                 <button
                   type="button"
                   className="text-[#38BDF8] text-[13px] font-semibold px-1 py-2 hover:bg-white/30 rounded-lg"
-                  onClick={e => {
+                  onClick={async e => {
                     e.stopPropagation();
-                    navigator.clipboard.writeText(finalGuestUrl);
-                    setShowCopyToast(true);
-                    setIsCopyToastVisible(true);
-                    setCopyToastKey(prev => prev + 1);
+                    try {
+                      await navigator.clipboard.writeText(finalGuestUrl);
+                      setShowCopyToast(true);
+                      setIsCopyToastVisible(true);
+                      setCopyToastKey(prev => prev + 1);
+                    } catch {
+                      errorToast('복사하기에 실패했습니다.');
+                    }
                   }}
                 >
                   복사하기

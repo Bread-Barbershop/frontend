@@ -40,7 +40,7 @@ const Confirm = forwardRef<HTMLDivElement, ConfirmProps>(
           ref={ref}
           role="dialog"
           aria-modal="true"
-          aria-labelledby="delete-modal-title"
+          aria-label={message}
           onKeyDown={e => {
             if (e.key === 'Escape') onClose();
           }}
