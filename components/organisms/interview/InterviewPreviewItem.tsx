@@ -58,7 +58,7 @@ export const InterviewPreviewItem = ({
           isOpen ? 'accordion-motion-open' : 'accordion-motion-close'
         )}
       >
-        <div key="interview-answer" className="w-full overflow-hidden">
+        <div className="w-full overflow-hidden">
           {hasAnswer ? (
             <div
               className={`text-sm text-center select-text ${previewTextClassName}`}

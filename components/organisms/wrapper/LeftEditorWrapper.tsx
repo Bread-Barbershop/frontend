@@ -17,7 +17,7 @@ export const LeftEditorWrapper = ({
     <div className="animate-grow-height grid">
       <section
         className={cn(
-          'flex flex-col items-center gap-1 px-5 pb-1.5 w-93.75 h-fit max-h-[750px] overflow-y-auto scrollbar-hide transition-all animate-grow-height min-h-0',
+          'flex flex-col items-center gap-1 px-5 pb-1.5 w-93.75 h-fit max-h-[750px] overflow-y-auto scrollbar-hide transition-all min-h-0',
           className
         )}
         aria-label={ariaLabel}
