@@ -1,6 +1,7 @@
 import { Canvas, Textbox, IText } from 'fabric';
 
 import { getTemplateJson } from '@/app/api/template/utils';
+import { useToast } from '@/shared/hooks/useToast';
 
 import { CUSTOM_FONTS } from '../constants/fonts';
 
@@ -76,6 +77,7 @@ export const useTemplate = () => {
    * @param canvas Fabric 캔버스 인스턴스
    * @param jsonUrl 템플릿 JSON URL
    */
+  const { error: errorToast } = useToast();
   const applyTemplateToCanvas = async (
     canvas: Canvas | null,
     jsonUrl: string
@@ -137,6 +139,7 @@ export const useTemplate = () => {
         canvas.requestRenderAll();
       }, 100);
     } catch (error) {
+      errorToast('템플릿 적용 중 오류가 발생했습니다.');
       console.error('템플릿 적용 중 오류 발생:', error);
       throw error;
     }

@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { TemplateItem } from '@/app/api/template/types';
 import { getTemplateManifest } from '@/app/api/template/utils';
 import { Image } from '@/components/atoms/image';
+import { useToast } from '@/shared/hooks/useToast';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 function PosterPanel() {
@@ -12,7 +13,7 @@ function PosterPanel() {
   const [templates, setTemplates] = useState<TemplateItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const { error: errorToast } = useToast();
   useEffect(() => {
     const fetchManifest = async () => {
       try {
@@ -20,6 +21,7 @@ function PosterPanel() {
         const data = await getTemplateManifest();
         setTemplates(data.templates);
       } catch (err) {
+        errorToast('템플릿 목록 로드에 실패했습니다.');
         console.error('템플릿 목록 로드 실패:', err);
         setError('템플릿 목록을 불러오는 중 오류가 발생했습니다.');
       } finally {
@@ -35,6 +37,7 @@ function PosterPanel() {
       await applyTemplateToCanvas(canvas, template.jsonUrl);
       saveHistory();
     } catch (err) {
+      errorToast('템플릿을 적용하는 중 오류가 발생했습니다.');
       console.error('템플릿을 적용하는 중 오류가 발생했습니다.', err);
     }
   };

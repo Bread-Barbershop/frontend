@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { useToast } from '@/shared/hooks/useToast';
+
 type UseAuthGateOptions = {
   initialIsLoggedIn?: boolean;
 };
@@ -46,6 +48,7 @@ async function fetchSessionState() {
 export function useAuthGate(options: UseAuthGateOptions = {}) {
   const { initialIsLoggedIn = false } = options;
   const router = useRouter();
+  const { success } = useToast();
 
   const [isLoggedIn, setIsLoggedIn] = useState(initialIsLoggedIn);
   const [isBusy, setIsBusy] = useState(false);
@@ -82,6 +85,8 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
     setIsLoginOpen(false);
     setIsLoggedIn(true);
 
+    success('로그인에 성공했습니다.');
+
     const pendingAction = pendingActionRef.current;
     pendingActionRef.current = null;
 
@@ -91,7 +96,7 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
     }
 
     router.refresh();
-  }, [router]);
+  }, [router, success]);
 
   useEffect(() => {
     setIsLoggedIn(initialIsLoggedIn);
