@@ -3,6 +3,7 @@
 import { JSONContent } from '@tiptap/core';
 import React, { useCallback } from 'react';
 
+import { Divider } from '@/components/atoms/divider';
 import { Label } from '@/components/atoms/label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
@@ -135,10 +136,7 @@ export function Calendar({ blockInfo, id }: Props) {
           />
         )}
 
-        <div className="w-15 flex flex-col items-center gap-1">
-          <div className="w-0.5 h-1.5 rounded-sm bg-text-secondary" />
-          <div className="w-0.5 h-2 rounded-sm bg-text-secondary" />
-        </div>
+        <Divider className="w-full" />
         <TextField
           label={blockInfo.type === 'wedding' ? '예식일' : '행사일'}
           className="w-full"

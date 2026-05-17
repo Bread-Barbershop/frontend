@@ -35,7 +35,7 @@ function Preview() {
   return (
     <div
       id="preview-container"
-      className="w-93.75 h-[812px] flex flex-col relative shrink-0"
+      className={`w-93.75 h-[812px] flex flex-col relative shrink-0`}
     >
       <div
         className="h-full bg-white overflow-hidden"

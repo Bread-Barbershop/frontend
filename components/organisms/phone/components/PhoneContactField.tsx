@@ -43,7 +43,7 @@ export function PhoneContactField({
           type: 'tel',
           inputMode: 'numeric',
           className: 'flex-1',
-          placeholder: '번호를 기입해 주세요.',
+          placeholder: '051-000-0000',
           value: formatPhoneNumber(contact.number),
           onChange: e => onNumberChange(e.target.value),
         }}

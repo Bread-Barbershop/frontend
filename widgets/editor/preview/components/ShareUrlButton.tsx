@@ -180,7 +180,7 @@ const KakaoShareUrlView = ({
       </main>
 
       {/* 하단바 (입력창) */}
-      <footer className="bg-white pt-2 pb-5 px-2">
+      <footer className="bg-white pt-2 pb-1 px-2">
         <div className="flex items-center gap-[6px] mb-2">
           <div className="flex-center size-[28px] rounded-full bg-[#F2F2F2]">
             <PlusIcon />
@@ -189,8 +189,8 @@ const KakaoShareUrlView = ({
             카카오 초대장 썸네일 미리보기입니다.
           </div>
         </div>
-        <div className="flex justify-center pt-[10px] h-[34px]">
-          <div className="bg-black h-[5px] w-[134px] rounded-full" />
+        <div className="flex justify-center h-[34px]">
+          <div className="bg-black h-[5px] mt-[21px] w-[134px] rounded-full" />
         </div>
       </footer>
     </div>
