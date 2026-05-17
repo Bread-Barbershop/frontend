@@ -1,5 +1,3 @@
-import { AnimatePresence, motion } from 'framer-motion';
-
 import { Image } from '@/components/atoms/image';
 import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
@@ -54,29 +52,25 @@ export const InterviewPreviewItem = ({
       <p className="text-sm text-center font-semibold select-text">
         {question}
       </p>
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            key="interview-answer"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="w-full overflow-hidden"
-          >
-            {hasAnswer ? (
-              <div
-                className={`text-sm text-center select-text ${previewTextClassName}`}
-                dangerouslySetInnerHTML={{ __html: answerHtml }}
-              />
-            ) : (
-              <p className="text-sm text-center text-text-secondary select-text">
-                인터뷰 내용이 비어있습니다.
-              </p>
-            )}
-          </motion.div>
+      <div
+        className={cn(
+          'accordion-motion w-full',
+          isOpen ? 'accordion-motion-open' : 'accordion-motion-close'
         )}
-      </AnimatePresence>
+      >
+        <div className="w-full overflow-hidden">
+          {hasAnswer ? (
+            <div
+              className={`text-sm text-center select-text ${previewTextClassName}`}
+              dangerouslySetInnerHTML={{ __html: answerHtml }}
+            />
+          ) : (
+            <p className="text-sm text-center text-text-secondary select-text ">
+              인터뷰 내용이 비어있습니다.
+            </p>
+          )}
+        </div>
+      </div>
       <button
         type="button"
         className="flex justify-center items-center py-2 px-10 rounded-lg border border-[#e5e5e8] hover:bg-gray-50 hover:border-gray-300 cursor-pointer select-none [-webkit-tap-highlight-color:transparent]"

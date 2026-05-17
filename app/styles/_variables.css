@@ -65,4 +65,24 @@
   --color-btn-hover: #fafafb;
   --color-btn-active: #dbe8fc;
   --color-btn-inactive: #f3f3f3;
+
+  /* --- Animation --- */
+  --ease-grow-height: ease-in-out;
+  --ease-expand: ease-in-out;
+  --ease-accordion: ease-in-out;
+
+  --duration-grow-height: 0.3s;
+  --duration-expand: 0.3s;
+  --duration-accordion: 0.3s;
+  --duration-fade: 0.3s;
+  --duration-default: 0.3s;
+
+  --transition-accordion-properties: grid-template-rows, opacity;
+
+  --transition-fade: opacity var(--duration-fade) ease-in-out;
+  --transition-default: all var(--duration-default) ease-in-out;
+
+  --animate-grow-height: grow-height var(--duration-grow-height)
+    var(--ease-grow-height);
+  --animate-expand: expand var(--duration-expand) var(--ease-expand);
 }

@@ -47,7 +47,7 @@ function BackGroundEdit({
               }
             />
           </div>
-          <p className="font-semibold text-sm">색상</p>
+          <p className="font-semibold text-sm select-none">색상</p>
           <div className="flex items-center gap-2">
             <div
               className="w-11 h-11 border border-[#E5E5E8]"

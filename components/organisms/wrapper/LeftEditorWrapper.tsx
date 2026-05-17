@@ -14,14 +14,16 @@ export const LeftEditorWrapper = ({
   ariaLabel,
 }: Props) => {
   return (
-    <section
-      className={cn(
-        'flex flex-col items-center gap-1 px-5 pb-1.5 w-93.75 h-fit max-h-[750px] overflow-y-auto scrollbar-hide',
-        className
-      )}
-      aria-label={ariaLabel}
-    >
-      {children}
-    </section>
+    <div className="animate-grow-height grid">
+      <section
+        className={cn(
+          'flex flex-col items-center gap-1 px-5 pb-1.5 w-93.75 h-fit max-h-[750px] overflow-y-auto scrollbar-hide transition-all min-h-0',
+          className
+        )}
+        aria-label={ariaLabel}
+      >
+        {children}
+      </section>
+    </div>
   );
 };

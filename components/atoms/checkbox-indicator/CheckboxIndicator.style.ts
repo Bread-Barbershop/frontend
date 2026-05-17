@@ -1,7 +1,7 @@
 import { cva } from 'class-variance-authority';
 
 const commonStyles =
-  'peer-disabled:opacity-50 peer-disabled:cursor-not-allowed cursor-pointer';
+  'peer-disabled:opacity-50 peer-disabled:cursor-not-allowed select-none cursor-pointer';
 
 export const sizeVariants = cva(
   `flex-center rounded-sm bg-border-neutral peer-checked:bg-primary ${commonStyles}`,

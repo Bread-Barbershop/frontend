@@ -57,7 +57,7 @@ export const Group = ({
       )}
 
       <ActionField
-        className="mb-2 text-center"
+        className="mb-2 text-center "
         label="그룹명"
         inputProps={{
           placeholder: '그룹명',
@@ -118,7 +118,7 @@ export const Group = ({
             }}
           />
           <div className="flex items-center gap-2 w-full">
-            <p className="text-sm font-semibold px-1">추가기능</p>
+            <p className="text-sm font-semibold px-1 select-none">추가기능</p>
             <Checkbox
               aria-label="간편 송금(카카오페이)"
               direction="right"

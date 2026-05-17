@@ -60,7 +60,7 @@ function PosterPanel() {
             src={template.thumbnailUrl}
             alt={template.name}
             fill
-            className="object-cover transition-transform group-hover:scale-105"
+            className="object-cover"
           />
           <div className="absolute inset-x-0 bottom-0 bg-black/50 text-white text-xs p-1 opacity-0 group-hover:opacity-100 transition-opacity">
             {template.name}

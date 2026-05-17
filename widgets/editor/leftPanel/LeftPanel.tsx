@@ -1,6 +1,5 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
 import { useShallow } from 'zustand/shallow';
 
 import SectionArrow from '@/shared/assets/icons/sectionArrow.svg';
@@ -22,48 +21,36 @@ function LeftPanel() {
       <div className="w-full">
         <button
           type="button"
-          className={`flex-center relative bg-white rounded-lg ${isEdit ? 'rounded-b-none border-b-0' : 'shadow-edit'} border border-black/5 w-full h-11 transition-all duration-300 ease-in-out`}
+          className={`flex-center relative bg-white rounded-lg ${isEdit ? 'rounded-b-none border-b-0' : 'shadow-edit'} border border-black/5 w-full h-11 transition-default`}
           onClick={() => setIsEdit(!isEdit)}
         >
           <p className="font-semibold">일괄 편집</p>
           <div
-            className={`absolute right-6 ${isEdit ? 'rotate-180' : ''} transition-all duration-300 ease-in-out`}
+            className={`absolute right-6 ${isEdit ? 'rotate-180' : ''} transition-default`}
           >
             <SectionArrow className="w-[14px] h-[7px]" />
           </div>
         </button>
 
-        <AnimatePresence>
-          {isEdit && (
-            <motion.div
-              key="bulk-edit-container"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="overflow-hidden"
-            >
-              <BulkEdit />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div
+          key={`bulk-edit-${isEdit}`}
+          className={`grid ${isEdit ? 'animate-grow-height opacity-100 mt-0' : 'grid-rows-[0fr] opacity-0'}`}
+        >
+          <div className="overflow-hidden">
+            <BulkEdit />
+          </div>
+        </div>
       </div>
 
-      <div className="flex flex-col bg-white rounded-lg shadow-edit border border-black/5 transition-all duration-300 ease-in-out">
-        <AnimatePresence mode="wait">
-          {!isEdit && (
-            <motion.div
-              key="edit-container"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="w-full overflow-hidden max-h-[750px]"
-            >
-              <Edit />
-            </motion.div>
-          )}
-        </AnimatePresence>
+      <div className="flex flex-col bg-white rounded-lg shadow-edit border border-black/5 transition-default">
+        <div
+          key={`edit-${isEdit}`}
+          className={`grid ${!isEdit ? 'animate-grow-height opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+        >
+          <div className="w-full overflow-hidden max-h-[750px]">
+            <Edit />
+          </div>
+        </div>
       </div>
     </div>
   );
