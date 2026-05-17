@@ -15,7 +15,7 @@ function BulkEdit() {
     useState<BulkColorPickerId | null>(null);
 
   return (
-    <div className="w-full bg-white rounded-b-lg shadow-edit border border-t-0 border-black/5 transition-all duration-300 ease-in-out">
+    <div className="w-full bg-white rounded-b-lg shadow-edit border border-t-0 border-black/5 transition-default">
       <LeftEditorWrapper className="overflow-x-hidden">
         <TitleEdit
           activeColorPickerId={activeColorPickerId}

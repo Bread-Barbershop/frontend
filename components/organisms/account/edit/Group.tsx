@@ -57,7 +57,7 @@ export const Group = ({
       )}
 
       <ActionField
-        className="mb-2 text-center"
+        className="mb-2 text-center "
         label="그룹명"
         inputProps={{
           placeholder: '그룹명',
