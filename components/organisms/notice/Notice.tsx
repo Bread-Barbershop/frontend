@@ -142,7 +142,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
   }, [id]);
 
   return (
-    <LeftEditorWrapper ariaLabel="공지사항" className="gap-3 pb-3">
+    <LeftEditorWrapper ariaLabel="공지사항" className="pb-3">
       <NavigationBar
         action={
           <div ref={noticeListTriggerRef}>
@@ -167,7 +167,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
           onChange: e =>
             handleUpdateBlock('title', e.target.value || '공지사항'),
         }}
-        className="w-full text-center"
+        className="w-full py-1.5 text-center"
       />
       {checkedEnglishTitle && (
         <TextField
@@ -181,10 +181,10 @@ export const Notice = ({ blockInfo, id }: Props) => {
                 e.target.value || 'INFORMATION'
               ),
           }}
-          className="text-center w-full pt-1"
+          className="w-full py-1.5 text-center"
         />
       )}
-      <section className="flex flex-row gap-2 items-center w-full">
+      <section className="flex flex-row gap-2 items-center w-full py-1.5">
         <Label className="font-semibold">추가기능</Label>
         <Checkbox
           onChange={e =>
@@ -196,10 +196,10 @@ export const Notice = ({ blockInfo, id }: Props) => {
         </Checkbox>
       </section>
 
-      <div className="flex flex-col gap-2 w-full">
+      <div className="flex flex-col gap-1 w-full">
         {(noticeList || []).map((notice, index) => (
           <div key={notice.id} className="flex flex-col gap-1">
-            {index !== 0 && <Divider />}
+            {index !== 0 && <Divider className="w-full" />}
             <NoticeItem
               id={id}
               notice={notice}

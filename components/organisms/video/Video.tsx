@@ -46,7 +46,7 @@ export const Video = ({ blockInfo, id }: Props) => {
     updateImage(id, []);
   };
   return (
-    <LeftEditorWrapper className="gap-4 pb-3" ariaLabel="동영상">
+    <LeftEditorWrapper className="pb-3" ariaLabel="동영상">
       <NavigationBar className="-mb-2">동영상 편집 페이지</NavigationBar>
       <TextField
         label="제목"
@@ -55,7 +55,7 @@ export const Video = ({ blockInfo, id }: Props) => {
           onChange: e => handleUpdateBlock('title', e.target.value || '동영상'),
           value: title === '동영상' ? '' : title,
         }}
-        className="w-full text-center"
+        className="w-full py-1.5 text-center"
       />
       {checkedEnglishTitle && (
         <TextField
@@ -66,7 +66,7 @@ export const Video = ({ blockInfo, id }: Props) => {
             onChange: e =>
               handleUpdateBlock('englishTitle', e.target.value || 'VIDEO'),
           }}
-          className="text-center w-full"
+          className="w-full py-1.5 text-center"
         />
       )}
       <Divider className="w-full" />
@@ -77,9 +77,9 @@ export const Video = ({ blockInfo, id }: Props) => {
           onChange: e => handleUpdateBlock('videoUrl', e.target.value),
           value: videoUrl,
         }}
-        className="w-full text-center"
+        className="w-full py-1.5 text-center"
       />
-      <section className="flex gap-2 w-full">
+      <section className="flex gap-2 w-full py-1.5">
         <Label className="text-center font-semibold">비율</Label>
         <div className="flex w-full justify-between">
           {ratioOptions.map(ratio => (
@@ -98,7 +98,7 @@ export const Video = ({ blockInfo, id }: Props) => {
           ))}
         </div>
       </section>
-      <section className="flex gap-2 w-full">
+      <section className="flex gap-2 w-full py-1.5">
         <Label className="text-center font-semibold">추가기능</Label>
         <Checkbox
           className="text-[13px]"
@@ -123,7 +123,7 @@ export const Video = ({ blockInfo, id }: Props) => {
       {checkThumbnail && (
         <Picture
           label="썸네일"
-          className="w-full"
+          className="w-full py-1.5"
           multiple={false}
           value={blockInfo.props.image}
           onChange={file => handlePictureChange(file)}

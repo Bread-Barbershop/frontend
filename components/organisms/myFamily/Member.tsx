@@ -42,8 +42,8 @@ export const Member = ({
   onToggle,
 }: Props) => {
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-row gap-2">
+    <div className="flex flex-col gap-1">
+      <div className="flex flex-row gap-2 py-1.5">
         <Label id={`family${index}`} className="text-center font-semibold">
           소개{index + 1}
         </Label>
@@ -93,7 +93,7 @@ export const Member = ({
       </div>
       <Picture
         label="사진"
-        className="w-full text-center"
+        className="w-full py-1.5 text-center"
         multiple={false}
         value={member.image}
         onChange={value => onImageChange(index, value)}

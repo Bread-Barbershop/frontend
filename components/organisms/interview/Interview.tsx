@@ -143,7 +143,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
   }, [id]);
 
   return (
-    <LeftEditorWrapper ariaLabel="인터뷰" className="gap-3 pb-3">
+    <LeftEditorWrapper ariaLabel="인터뷰" className="pb-3">
       <NavigationBar
         action={
           <div ref={questionListTriggerRef}>
@@ -167,7 +167,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
           value: title === '인터뷰' ? '' : title,
           onChange: e => handleUpdateBlock('title', e.target.value || '인터뷰'),
         }}
-        className="w-full text-center"
+        className="w-full py-1.5 text-center"
       />
       {checkedEnglishTitle && (
         <TextField
@@ -178,10 +178,10 @@ export const Interview = ({ blockInfo, id }: Props) => {
             onChange: e =>
               handleUpdateBlock('englishTitle', e.target.value || 'INTERVIEW'),
           }}
-          className="text-center w-full pt-1"
+          className="w-full py-1.5 text-center"
         />
       )}
-      <section className="flex flex-row gap-2 items-center w-full">
+      <section className="flex flex-row gap-2 items-center w-full py-1.5">
         <Label className="font-semibold">추가기능</Label>
         <Checkbox
           onChange={e =>
@@ -193,10 +193,10 @@ export const Interview = ({ blockInfo, id }: Props) => {
         </Checkbox>
       </section>
 
-      <div className="flex flex-col gap-2 w-full">
+      <div className="flex flex-col gap-1 w-full">
         {(questions || []).map((question, index) => (
           <div key={question.id} className="flex flex-col gap-1">
-            {index !== 0 && <Divider />}
+            {index !== 0 && <Divider className="w-full" />}
             <InterviewItem
               id={id}
               question={question}

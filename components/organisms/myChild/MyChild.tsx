@@ -87,7 +87,7 @@ export const MyChild = ({ blockInfo, id }: Props) => {
   return (
     <LeftEditorWrapper ariaLabel="아기 소개">
       <NavigationBar>아기 소개 편집 페이지</NavigationBar>
-      <section className="w-full flex flex-col gap-3 items-start">
+      <section className="w-full flex flex-col gap-1 items-start">
         <TextField
           label="제목"
           inputProps={{
@@ -95,7 +95,7 @@ export const MyChild = ({ blockInfo, id }: Props) => {
             value: blockInfo.props.title,
             onChange: e => handleStringChange('title', e),
           }}
-          className="text-center w-full"
+          className="w-full py-1.5 text-center"
         />
         {checkedEnglishTitle && (
           <TextField
@@ -105,7 +105,7 @@ export const MyChild = ({ blockInfo, id }: Props) => {
               value: englishTitle === 'MY CHILD' ? '' : englishTitle,
               onChange: e => handleStringChange('englishTitle', e),
             }}
-            className="text-center w-full"
+            className="w-full py-1.5 text-center"
           />
         )}
         <Divider className="w-full" />
@@ -116,7 +116,7 @@ export const MyChild = ({ blockInfo, id }: Props) => {
             value: name,
             onChange: e => handleStringChange('name', e),
           }}
-          className="text-center w-full"
+          className="w-full py-1.5 text-center"
         />
         <TextField
           label="애칭"
@@ -125,9 +125,9 @@ export const MyChild = ({ blockInfo, id }: Props) => {
             value: nickname,
             onChange: e => handleStringChange('nickname', e),
           }}
-          className="text-center w-full"
+          className="w-full py-1.5 text-center"
         />
-        <div className="w-full flex items-center gap-1">
+        <div className="w-full flex items-center gap-1 py-1.5">
           <Label
             htmlFor="birthday"
             className="font-semibold shrink-0 text-center"
@@ -152,7 +152,7 @@ export const MyChild = ({ blockInfo, id }: Props) => {
         onChange={handleEditorChange}
       />
 
-      <div className="mt-2 w-full">
+      <div className="w-full py-1.5">
         <Picture
           label="사진"
           className="w-full text-center"

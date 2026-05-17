@@ -42,7 +42,7 @@ export const Information = ({
           value: speaker.name,
           onChange: e => onStringChange('name', e),
         }}
-        className="w-full text-center"
+        className="w-full py-1.5 text-center"
         buttonProps={{
           onClick: onDelete,
           children: <p className="text-red-500">삭제</p>,
@@ -60,7 +60,7 @@ export const Information = ({
         onChange={onEditorChange}
       />
 
-      <div className="mt-1 w-full">
+      <div className="w-full py-1.5">
         <Picture
           label="사진"
           className="w-full text-center"

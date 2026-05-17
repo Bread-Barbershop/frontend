@@ -40,7 +40,7 @@ export const NoticeItem = ({
   onDelete,
 }: Props) => {
   return (
-    <div className="flex flex-col gap-4 relative group">
+    <div className="flex flex-col gap-1 relative group">
       <ActionField
         label="공지제목"
         inputProps={{
@@ -48,7 +48,7 @@ export const NoticeItem = ({
           value: notice.notice,
           onChange: onNoticeChange,
         }}
-        className="w-full text-center"
+        className="w-full py-1.5 text-center"
         buttonProps={{
           onClick: onDelete,
           children: <p className="text-red-500">삭제</p>,
@@ -57,7 +57,7 @@ export const NoticeItem = ({
           ),
         }}
       />
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1">
         <NavigationBar className="min-h-auto h-8">내용</NavigationBar>
         <TextEditor
           key={`${id}-${notice.id}-${editorResetKey}`}
@@ -68,7 +68,7 @@ export const NoticeItem = ({
         />
         <Picture
           label="배너사진"
-          className="w-full text-center"
+          className="w-full py-1.5 text-center"
           multiple={false}
           value={notice.image}
           onChange={onPictureChange}
