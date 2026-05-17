@@ -15,7 +15,12 @@ interface Props {
   groups?: PhoneGroup[];
 }
 
-const getPhoneHrefNumber = (number: string) => number.replace(/[^\d+]/g, '');
+const getPhoneHrefNumber = (number: string) => {
+  const trimmed = number.trim();
+  const digits = trimmed.replace(/\D/g, '');
+
+  return trimmed.startsWith('+') ? `+${digits}` : digits;
+};
 
 function PhonePreviewPopup({ groups = [] }: Props) {
   const titleColor = useEditorStore(state => state.titleData.color);
