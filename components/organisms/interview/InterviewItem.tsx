@@ -39,7 +39,7 @@ export const InterviewItem = ({
   onDelete,
 }: Props) => {
   return (
-    <div className="flex flex-col gap-4 relative group">
+    <div className="flex flex-col gap-1 relative group">
       <ActionField
         label="인터뷰"
         inputProps={{
@@ -47,7 +47,7 @@ export const InterviewItem = ({
           value: question.question,
           onChange: onQuestionChange,
         }}
-        className="w-full text-center"
+        className="w-full py-1.5 text-center"
         buttonProps={{
           onClick: onDelete,
           children: <p className="text-red-500">삭제</p>,
@@ -56,7 +56,7 @@ export const InterviewItem = ({
           ),
         }}
       />
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1">
         <NavigationBar className="min-h-auto h-8">내용</NavigationBar>
         <TextEditor
           key={`${id}-${question.id}-${editorResetKey}`}
@@ -67,7 +67,7 @@ export const InterviewItem = ({
         />
         <Picture
           label="배너사진"
-          className="w-full text-center"
+          className="w-full py-1.5 text-center"
           multiple={false}
           value={question.image}
           onChange={onPictureChange}

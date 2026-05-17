@@ -33,6 +33,7 @@ function Phone({ blockInfo, id }: Props) {
   const [openContactMenuId, setOpenContactMenuId] = useState<string | null>(
     null
   );
+  const groupPopupTriggerRef = useRef<HTMLDivElement>(null);
   const fallbackGroupsByIdRef = useRef<Record<string, PhoneGroup[]>>({});
   const storedGroups = blockInfo.props.groups;
   const groups =
@@ -95,13 +96,15 @@ function Phone({ blockInfo, id }: Props) {
     <LeftEditorWrapper ariaLabel="연락처">
       <NavigationBar
         action={
-          <UtilityButton
-            size="md"
-            variant="primary"
-            onClick={() => setIsGroupPopupOpen(true)}
-          >
-            그룹편집
-          </UtilityButton>
+          <div ref={groupPopupTriggerRef}>
+            <UtilityButton
+              size="md"
+              variant="primary"
+              onClick={() => setIsGroupPopupOpen(true)}
+            >
+              그룹편집
+            </UtilityButton>
+          </div>
         }
         direction="right"
       >
@@ -137,8 +140,11 @@ function Phone({ blockInfo, id }: Props) {
       {isGroupPopupOpen && (
         <Popup
           popupTitle="그룹 편집"
+          variant="floating"
           onClose={() => setIsGroupPopupOpen(false)}
           wrapperClassName="w-[200px] pt-1 pb-4"
+          hideCloseButton
+          triggerRef={groupPopupTriggerRef}
         >
           <PhoneGroupEdit
             groups={groups}

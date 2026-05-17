@@ -158,7 +158,7 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
   }, [id, family, updateBlock]);
 
   return (
-    <LeftEditorWrapper ariaLabel="가족 소개" className="gap-3 min-h-60">
+    <LeftEditorWrapper ariaLabel="가족 소개" className="min-h-60">
       <NavigationBar
         action={
           <UtilityButton size="md" variant="primary" onClick={handleAddFamily}>
@@ -176,7 +176,7 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
           value: title === '저희 가족을 소개합니다.' ? '' : title,
           onChange: handleTitleChange,
         }}
-        className="text-center w-full"
+        className="w-full py-1.5 text-center"
       />
       {checkedEnglishTitle && (
         <TextField
@@ -186,14 +186,14 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
             value: englishTitle === 'MY FAMILY' ? '' : englishTitle,
             onChange: handleEnglishTitleChange,
           }}
-          className="text-center w-full"
+          className="w-full py-1.5 text-center"
         />
       )}
       <Divider className="w-full" />
-      <section className="flex flex-col gap-3 w-full">
+      <section className="flex flex-col gap-1 w-full">
         {(family || []).map((member, index) => (
-          <div key={index} className="flex flex-col gap-2 w-full">
-            {index !== 0 && <Divider />}
+          <div key={member.id} className="flex flex-col gap-1 w-full">
+            {index !== 0 && <Divider className="w-full" />}
             <Member
               index={index}
               member={member}

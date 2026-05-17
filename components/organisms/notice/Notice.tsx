@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
@@ -32,6 +32,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
     }))
   );
   const [isNoticeListOpen, setIsNoticeListOpen] = useState(false);
+  const noticeListTriggerRef = useRef<HTMLDivElement>(null);
   const [editorResetKey, setEditorResetKey] = useState(0);
 
   const { noticeList, title, checkedEnglishTitle, englishTitle } =
@@ -141,16 +142,18 @@ export const Notice = ({ blockInfo, id }: Props) => {
   }, [id]);
 
   return (
-    <LeftEditorWrapper ariaLabel="공지사항" className="gap-3 pb-3">
+    <LeftEditorWrapper ariaLabel="공지사항" className="pb-3">
       <NavigationBar
         action={
-          <UtilityButton
-            size="md"
-            variant="primary"
-            onClick={() => setIsNoticeListOpen(true)}
-          >
-            항목추가
-          </UtilityButton>
+          <div ref={noticeListTriggerRef}>
+            <UtilityButton
+              size="md"
+              variant="primary"
+              onClick={() => setIsNoticeListOpen(true)}
+            >
+              항목추가
+            </UtilityButton>
+          </div>
         }
         direction="right"
       >
@@ -164,7 +167,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
           onChange: e =>
             handleUpdateBlock('title', e.target.value || '공지사항'),
         }}
-        className="w-full text-center"
+        className="w-full py-1.5 text-center"
       />
       {checkedEnglishTitle && (
         <TextField
@@ -178,10 +181,10 @@ export const Notice = ({ blockInfo, id }: Props) => {
                 e.target.value || 'INFORMATION'
               ),
           }}
-          className="text-center w-full pt-1"
+          className="w-full py-1.5 text-center"
         />
       )}
-      <section className="flex flex-row gap-2 items-center w-full">
+      <section className="flex flex-row gap-2 items-center w-full py-1.5">
         <Label className="font-semibold">추가기능</Label>
         <Checkbox
           onChange={e =>
@@ -193,10 +196,10 @@ export const Notice = ({ blockInfo, id }: Props) => {
         </Checkbox>
       </section>
 
-      <div className="flex flex-col gap-2 w-full">
+      <div className="flex flex-col gap-1 w-full">
         {(noticeList || []).map((notice, index) => (
           <div key={notice.id} className="flex flex-col gap-1">
-            {index !== 0 && <Divider />}
+            {index !== 0 && <Divider className="w-full" />}
             <NoticeItem
               id={id}
               notice={notice}
@@ -222,6 +225,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
           options={NOTICE_LIST}
           onSelect={handleNoticeListSelect}
           onClose={() => setIsNoticeListOpen(false)}
+          triggerRef={noticeListTriggerRef}
           listClassName="justify-center items-center"
           textClassName="bg-bg-sub rounded-xl flex items-center px-4 h-13"
         />

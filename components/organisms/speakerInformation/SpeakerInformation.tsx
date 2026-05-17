@@ -134,7 +134,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
   }, [handleAddSpeaker, speakers]);
 
   return (
-    <LeftEditorWrapper ariaLabel="연사 정보" className="gap-3">
+    <LeftEditorWrapper ariaLabel="연사 정보">
       <NavigationBar
         action={
           <UtilityButton size="md" variant="primary" onClick={handleAddSpeaker}>
@@ -145,7 +145,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
       >
         연사정보 편집 페이지
       </NavigationBar>
-      <div className="flex flex-col w-full -mb-3">
+      <div className="flex flex-col gap-1 w-full">
         <TextField
           label="제목"
           inputProps={{
@@ -153,7 +153,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
             value: title === '연사정보' ? '' : title,
             onChange: e => handleValueChange('title', e),
           }}
-          className="text-center w-full pb-3"
+          className="w-full py-1.5 text-center"
         />
         {checkedEnglishTitle && (
           <TextField
@@ -164,16 +164,16 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
                 englishTitle === 'SPEAKER INFORMATION' ? '' : englishTitle,
               onChange: e => handleValueChange('englishTitle', e),
             }}
-            className="text-center w-full mb-3"
+            className="w-full py-1.5 text-center"
           />
         )}
       </div>
       {speakers?.map((speaker, index) => (
         <section
           key={`${speaker.id}-${index}`}
-          className="w-full flex flex-col gap-2"
+          className="w-full flex flex-col gap-1"
         >
-          {index !== 0 && <Divider />}
+          {index !== 0 && <Divider className="w-full" />}
           <Information
             speakerLength={speakers?.length}
             id={speaker.id}
@@ -190,7 +190,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
           />
         </section>
       ))}
-      <section className="flex items-center gap-2 w-full">
+      <section className="flex items-center gap-2 w-full py-1.5">
         <Label className="font-semibold">추가기능</Label>
 
         <Checkbox

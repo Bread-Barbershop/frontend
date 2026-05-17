@@ -5,6 +5,8 @@ import { MultiField } from '@/components/molecules/multi-field';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { TextField } from '@/components/molecules/text-field';
 
+import type { RefObject } from 'react';
+
 interface Props {
   groupIndex: number;
   groupName: string;
@@ -25,6 +27,7 @@ interface Props {
       | { name: string; bank: string; account: string; kakao: boolean }[][]
   ) => void;
   onOpenGroupPopup: () => void;
+  groupPopupTriggerRef: RefObject<HTMLDivElement | null>;
 }
 
 export const Group = ({
@@ -33,19 +36,22 @@ export const Group = ({
   groupName,
   accountList,
   onOpenGroupPopup,
+  groupPopupTriggerRef,
 }: Props) => {
   return (
     <div className="w-full flex flex-col gap-2">
       {groupIndex === 0 ? (
         <NavigationBar
           action={
-            <UtilityButton
-              size="md"
-              variant="primary"
-              onClick={onOpenGroupPopup}
-            >
-              그룹편집
-            </UtilityButton>
+            <div ref={groupPopupTriggerRef}>
+              <UtilityButton
+                size="md"
+                variant="primary"
+                onClick={onOpenGroupPopup}
+              >
+                그룹편집
+              </UtilityButton>
+            </div>
           }
           direction="right"
           className="w-full"

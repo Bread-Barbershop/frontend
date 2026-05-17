@@ -46,7 +46,7 @@ export const NoticePreview = ({
 
   const autoscrollOptions = useMemo(
     () => ({
-      speed: 1,
+      speed: 0.5,
       stopOnInteraction: false,
       stopOnMouseEnter: false,
       stopOnFocusIn: false,

@@ -2,11 +2,11 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 
-import CopyIcon from '@/shared/assets/icons/copy.svg';
+import MessageIcon from '@/shared/assets/icons/message.svg';
 import PhoneActionIcon from '@/shared/assets/icons/phone.svg';
 import PhoneIcon from '@/shared/assets/icons/phoneIcon.svg';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { formatPhoneNumber } from '@/shared/utils/phoneNumber';
 
 import { PhoneGroup } from '../utils/phone.types';
@@ -15,37 +15,17 @@ interface Props {
   groups?: PhoneGroup[];
 }
 
-const copyTextToClipboard = async (text: string) => {
-  if (navigator.clipboard?.writeText && window.isSecureContext) {
-    await navigator.clipboard.writeText(text);
-    return;
-  }
+const getPhoneHrefNumber = (number: string) => {
+  const trimmed = number.trim();
+  const digits = trimmed.replace(/\D/g, '');
 
-  const textarea = document.createElement('textarea');
-  textarea.value = text;
-  textarea.setAttribute('readonly', '');
-  textarea.style.position = 'fixed';
-  textarea.style.top = '-9999px';
-  textarea.style.left = '-9999px';
-
-  document.body.appendChild(textarea);
-  textarea.select();
-  textarea.setSelectionRange(0, textarea.value.length);
-
-  const isCopied = document.execCommand('copy');
-  document.body.removeChild(textarea);
-
-  if (!isCopied) {
-    throw new Error('Failed to copy phone number');
-  }
+  return trimmed.startsWith('+') ? `+${digits}` : digits;
 };
 
 function PhonePreviewPopup({ groups = [] }: Props) {
+  const titleColor = useEditorStore(state => state.titleData.color);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [showCopyToast, setShowCopyToast] = useState(false);
-  const [isCopyToastVisible, setIsCopyToastVisible] = useState(false);
-  const [copyToastKey, setCopyToastKey] = useState(0);
   const visibleGroups = groups
     .map(group => ({
       ...group,
@@ -72,52 +52,8 @@ function PhonePreviewPopup({ groups = [] }: Props) {
     };
   }, [isPopupOpen]);
 
-  useEffect(() => {
-    if (copyToastKey === 0) return;
-
-    const fadeTimer = window.setTimeout(() => {
-      setIsCopyToastVisible(false);
-    }, 1500);
-    const unmountTimer = window.setTimeout(() => {
-      setShowCopyToast(false);
-    }, 2000);
-
-    return () => {
-      window.clearTimeout(fadeTimer);
-      window.clearTimeout(unmountTimer);
-    };
-  }, [copyToastKey]);
-
-  const handleCopyPhoneNumber = async (number: string) => {
-    try {
-      await copyTextToClipboard(number);
-      setShowCopyToast(true);
-      setIsCopyToastVisible(true);
-      setCopyToastKey(prev => prev + 1);
-    } catch (error) {
-      console.error('copy failed:', error);
-    }
-  };
-
-  const copyToast =
-    showCopyToast && typeof document !== 'undefined'
-      ? createPortal(
-          <div
-            className={`fixed left-1/2 top-[calc(env(safe-area-inset-top)+16px)] z-[9999] -translate-x-1/2 transition-opacity duration-500 ${
-              isCopyToastVisible ? 'opacity-100' : 'opacity-0'
-            }`}
-          >
-            <div className="w-fit whitespace-nowrap rounded-xl bg-white p-5 text-center text-sm font-semibold text-text-primary shadow-[0_8px_24px_-8px_rgba(0,0,0,0.18),0_24px_60px_-20px_rgba(0,0,0,0.12)]">
-              복사가 완료되었어요!
-            </div>
-          </div>,
-          document.body
-        )
-      : null;
-
   return (
     <>
-      {copyToast}
       <button
         type="button"
         className="flex justify-center items-center py-2 px-10 rounded-lg border border-[#e5e5e8] hover:bg-gray-50 hover:border-gray-300 cursor-pointer"
@@ -172,11 +108,12 @@ function PhonePreviewPopup({ groups = [] }: Props) {
 
                 {visibleGroups.map((group, groupIndex) => (
                   <li key={group.id} className="flex flex-col gap-1.5">
-                    {(group.name || visibleGroups.length > 1) && (
-                      <p className="h-11 flex items-center justify-center px-3 text-sm font-bold text-text-secondary text-center">
-                        {group.name || `${groupIndex + 1}번 그룹`}
-                      </p>
-                    )}
+                    <p
+                      className="h-11 flex items-center justify-center px-3 text-sm font-bold text-text-secondary text-center"
+                      style={{ color: titleColor }}
+                    >
+                      {group.name.trim() || `그룹${groupIndex + 1}`}
+                    </p>
 
                     <ul className="flex flex-col gap-1.5">
                       {group.contacts.length === 0 && (
@@ -191,27 +128,24 @@ function PhonePreviewPopup({ groups = [] }: Props) {
                           className="h-11 flex items-center justify-between gap-3 pl-5 pr-[7px]"
                         >
                           <div className="min-w-0 flex flex-col justify-center gap-1.5 text-left">
-                            <p className="truncate text-[13px] font-semibold leading-[13px] text-[#444444]">
+                            <p className="truncate text-[13px] font-semibold leading-[13px] text-black">
                               {contact.label || `연락처 ${contactIndex + 1}`}
                             </p>
-                            <p className="truncate text-[13px] font-semibold leading-[13px] text-[#444444]">
+                            <p className="truncate text-[13px] font-semibold leading-[13px] text-black">
                               {formatPhoneNumber(contact.number)}
                             </p>
                           </div>
 
                           <div className="flex shrink-0 items-center">
-                            <button
-                              type="button"
-                              aria-label="전화번호 복사"
-                              className="flex items-center justify-center size-11 rounded-full text-[#787878] hover:bg-black/5 active:bg-black/10 transition-colors cursor-pointer"
-                              onClick={() =>
-                                handleCopyPhoneNumber(contact.number)
-                              }
-                            >
-                              <CopyIcon />
-                            </button>
                             <a
-                              href={`tel:${contact.number}`}
+                              href={`sms:${getPhoneHrefNumber(contact.number)}`}
+                              aria-label="문자 보내기"
+                              className="flex items-center justify-center size-11 rounded-full text-[#787878] hover:bg-black/5 active:bg-black/10 transition-colors"
+                            >
+                              <MessageIcon />
+                            </a>
+                            <a
+                              href={`tel:${getPhoneHrefNumber(contact.number)}`}
                               aria-label="전화 걸기"
                               className="flex items-center justify-center size-11 rounded-full text-[#787878] hover:bg-black/5 active:bg-black/10 transition-colors"
                             >
