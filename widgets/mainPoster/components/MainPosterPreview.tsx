@@ -354,7 +354,7 @@ export const MainPosterPreview = () => {
           setIsEdit(false);
           selectedBlock('mainPoster');
         }}
-        className={cn('relative w-[375px] h-[750px] shrink-0')}
+        className={cn('relative w-[375px] h-[812px] shrink-0')}
       >
         {selectedId === 'mainPoster' && (
           <div
