@@ -8,6 +8,9 @@ import homeBackgroundImage from '@/shared/assets/images/home/home-background.png
 import HeaderAuthControl from './HeaderAuthControl';
 import HomeButton from './HomeButton';
 
+const HEADER_NAV_LINK_CLASS =
+  'h-full px-8 flex items-center text-[16px] font-semibold text-[#121212] hover:text-black transition-colors';
+
 export default async function DashboardShell({
   children,
 }: Readonly<{
@@ -24,17 +27,17 @@ export default async function DashboardShell({
         <HomeButton />
 
         <div className="flex items-center h-full">
+          <HeaderAuthControl initialIsLoggedIn={session.isLoggedIn} />
+
           {DASHBOARD_SHELL_NAV_MENU.map(menu => (
             <Link
               key={`${menu.title}-${menu.href}`}
               href={menu.href}
-              className="text-text-secondary h-full px-8 flex items-center text-[14px] font-semibold hover:text-black transition-colors"
+              className={HEADER_NAV_LINK_CLASS}
             >
               {menu.title}
             </Link>
           ))}
-
-          <HeaderAuthControl initialIsLoggedIn={session.isLoggedIn} />
         </div>
       </header>
 
