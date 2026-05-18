@@ -15,6 +15,10 @@ interface GuestBgmProps {
 
 const USER_BGM_ID = 'user-bgm';
 
+function driveAudioUrl(fileId: string) {
+  return `https://drive.usercontent.google.com/download?id=${encodeURIComponent(fileId)}&export=download`;
+}
+
 function proxyAudioUrl(fileId: string) {
   return `/api/drive/guestBgm?fileId=${encodeURIComponent(fileId)}`;
 }
@@ -58,17 +62,52 @@ function GuestBgm({ bgm }: GuestBgmProps) {
   const [isOn, setIsOn] = useState(false);
   const [isHintDismissed, setIsHintDismissed] = useState(false);
   const [isPosterReady, setIsPosterReady] = useState(false);
+  const [directFailedUserBgmFileId, setDirectFailedUserBgmFileId] = useState<
+    string | null
+  >(null);
+  const [requestedAudioKey, setRequestedAudioKey] = useState<string | null>(
+    null
+  );
 
-  const src = useMemo(() => {
+  const isUserBgm = bgm.selectedBgmId === USER_BGM_ID;
+  const shouldUseProxyForUserBgm =
+    isUserBgm &&
+    bgm.userBgmFileId !== null &&
+    directFailedUserBgmFileId === bgm.userBgmFileId;
+
+  const selectedAudioKey = useMemo(() => {
     if (!bgm.selectedBgmId) return null;
 
-    if (bgm.selectedBgmId === USER_BGM_ID) {
+    if (isUserBgm) {
       if (!bgm.userBgmFileId) return null;
-      return proxyAudioUrl(bgm.userBgmFileId);
+      return `${USER_BGM_ID}:${bgm.userBgmFileId}`;
+    }
+
+    return bgm.selectedBgmId;
+  }, [bgm.selectedBgmId, bgm.userBgmFileId, isUserBgm]);
+
+  const selectedAudioSrc = useMemo(() => {
+    if (!bgm.selectedBgmId) return null;
+
+    if (isUserBgm) {
+      if (!bgm.userBgmFileId) return null;
+      return shouldUseProxyForUserBgm
+        ? proxyAudioUrl(bgm.userBgmFileId)
+        : driveAudioUrl(bgm.userBgmFileId);
     }
 
     return BGM_LIST.find(item => item.id === bgm.selectedBgmId)?.src ?? null;
-  }, [bgm.selectedBgmId, bgm.userBgmFileId]);
+  }, [
+    bgm.selectedBgmId,
+    bgm.userBgmFileId,
+    isUserBgm,
+    shouldUseProxyForUserBgm,
+  ]);
+
+  const src =
+    selectedAudioKey !== null && requestedAudioKey === selectedAudioKey
+      ? selectedAudioSrc
+      : null;
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -84,8 +123,10 @@ function GuestBgm({ bgm }: GuestBgmProps) {
 
     if (!src) {
       audio.pause();
-      audio.removeAttribute('src');
-      audio.load();
+      if (audio.hasAttribute('src')) {
+        audio.removeAttribute('src');
+        audio.load();
+      }
       return;
     }
 
@@ -93,6 +134,26 @@ function GuestBgm({ bgm }: GuestBgmProps) {
     audio.src = src;
     audio.load();
   }, [src]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleError = () => {
+      if (isUserBgm && bgm.userBgmFileId && !shouldUseProxyForUserBgm) {
+        setDirectFailedUserBgmFileId(bgm.userBgmFileId);
+        return;
+      }
+
+      setIsOn(false);
+    };
+
+    audio.addEventListener('error', handleError);
+
+    return () => {
+      audio.removeEventListener('error', handleError);
+    };
+  }, [bgm.userBgmFileId, isUserBgm, shouldUseProxyForUserBgm]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -138,14 +199,17 @@ function GuestBgm({ bgm }: GuestBgmProps) {
   }, []);
 
   const handleToggle = () => {
+    if (!selectedAudioKey) return;
+
     setIsHintDismissed(true);
+    setRequestedAudioKey(selectedAudioKey);
     setIsOn(prev => !prev);
   };
 
   return (
     <>
       <audio ref={audioRef} preload="none" />
-      {src && (
+      {selectedAudioSrc && (
         <>
           {isPosterReady && <BgmPlaybackHint isDismissed={isHintDismissed} />}
           <BgmToggleButton isOn={isOn} onToggle={handleToggle} />
