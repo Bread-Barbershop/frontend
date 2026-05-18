@@ -1,17 +1,20 @@
 'use client';
 
-import { CircleUserRound } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import React from 'react';
 
 import { useAuthGate } from '@/features/session/hooks/useAuthGate';
 import { useConfirm } from '@/shared/hooks/useConfirm';
 
 import LoginModal from './LoginModal';
 
+import type { MouseEvent } from 'react';
+
 type HeaderAuthControlProps = {
   initialIsLoggedIn: boolean;
 };
+
+const HEADER_ACTION_CLASS =
+  'h-full px-8 flex items-center text-[16px] font-semibold text-[#121212] hover:text-black transition-colors disabled:opacity-50 cursor-pointer';
 
 function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
   const router = useRouter();
@@ -29,7 +32,7 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
   const pathname = usePathname();
   const { confirm } = useConfirm();
 
-  const handleDashboardClick = async (e: React.MouseEvent) => {
+  const handleDashboardClick = async (e: MouseEvent) => {
     if (pathname.startsWith('/editor')) {
       const isConfirm = await confirm({
         message:
@@ -53,18 +56,18 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
           type="button"
           onClick={logout}
           disabled={isBusy}
-          className="text-text-secondary h-full px-8 flex items-center text-[14px] font-semibold hover:text-black transition-colors disabled:opacity-50 cursor-pointer"
+          className={HEADER_ACTION_CLASS}
         >
-          LOGOUT
+          Logout
         </button>
         <button
           type="button"
           onClick={handleDashboardClick}
           disabled={isBusy}
           aria-label="Go to dashboard"
-          className="ml-4 flex h-10 w-10 items-center justify-center bg-transparent cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-50"
+          className={HEADER_ACTION_CLASS}
         >
-          <CircleUserRound size={40} strokeWidth={1.2} color="#838383" />
+          My Page
         </button>
       </>
     );
@@ -76,9 +79,9 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
         type="button"
         onClick={login}
         disabled={isBusy}
-        className="text-text-secondary h-full px-8 flex items-center text-[16px] font-semibold hover:text-black transition-colors disabled:opacity-50 cursor-pointer"
+        className={HEADER_ACTION_CLASS}
       >
-        LOGIN
+        Login
       </button>
       <LoginModal
         open={isLoginOpen}

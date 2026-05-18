@@ -1,5 +1,4 @@
-import Image from 'next/image';
-
+/* eslint-disable @next/next/no-img-element -- Tiny bundled app icons render faster without Next image optimization. */
 import {
   openKakaoMap,
   openNaverMap,
@@ -9,6 +8,10 @@ import { Button } from '@/components/atoms/button';
 import kakaoMapIcon from '@/shared/assets/icons/kakao-map.png';
 import naverMapIcon from '@/shared/assets/icons/naver-map.png';
 import tmapIcon from '@/shared/assets/icons/tmap.png';
+
+const NAVIGATION_ICON_CLASS =
+  'block size-3.5 shrink-0 self-center object-contain align-middle';
+const NAVIGATION_LABEL_CLASS = 'relative top-px text-sm text-text-tertiary';
 
 interface Props {
   lat: number;
@@ -43,29 +46,50 @@ export function Navigation({ lat, lng, name }: Props) {
         <Button
           variant="bordered"
           size="sm"
-          className="h-auto w-26.5 shadow-btn-drop-black"
+          className="h-[38px] w-26.5 shadow-btn-drop-black"
           onClick={() => handleNavigation('naver')}
         >
-          <Image src={naverMapIcon} alt="" width={22} height={22} />
-          <p className="text-sm text-text-tertiary">네이버지도</p>
+          <img
+            src={naverMapIcon.src}
+            alt=""
+            width={14}
+            height={14}
+            decoding="async"
+            className={NAVIGATION_ICON_CLASS}
+          />
+          <p className={NAVIGATION_LABEL_CLASS}>네이버지도</p>
         </Button>
         <Button
           variant="bordered"
           size="sm"
-          className="h-auto w-26.5 gap-[6px] shadow-btn-drop-black"
+          className="h-[38px] w-26.5 gap-[6px] shadow-btn-drop-black"
           onClick={() => handleNavigation('kakao')}
         >
-          <Image src={kakaoMapIcon} alt="" width={22} height={22} />
-          <p className="text-sm text-text-tertiary">카카오맵</p>
+          <img
+            src={kakaoMapIcon.src}
+            alt=""
+            width={14}
+            height={14}
+            decoding="async"
+            className={NAVIGATION_ICON_CLASS}
+          />
+          <p className={NAVIGATION_LABEL_CLASS}>카카오맵</p>
         </Button>
         <Button
           variant="bordered"
           size="sm"
-          className="h-auto w-26.5 shadow-btn-drop-black"
+          className="h-[38px] w-26.5 shadow-btn-drop-black"
           onClick={() => handleNavigation('tmap')}
         >
-          <Image src={tmapIcon} alt="" width={22} height={22} />
-          <p className="text-sm text-text-tertiary">티맵</p>
+          <img
+            src={tmapIcon.src}
+            alt=""
+            width={14}
+            height={14}
+            decoding="async"
+            className={NAVIGATION_ICON_CLASS}
+          />
+          <p className={NAVIGATION_LABEL_CLASS}>티맵</p>
         </Button>
       </div>
     </div>
