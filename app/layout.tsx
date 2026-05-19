@@ -28,9 +28,24 @@ const notoSansKr = Noto_Sans_KR({
 });
 
 const lineSeedKr = localFont({
-  src: '../public/font/LINESeedKR/LINESeedKR-Rg.woff2',
+  src: [
+    {
+      path: '../public/font/LINESeedKR/LINESeedKR-Th.woff2',
+      weight: '300',
+      style: 'normal',
+    },
+    {
+      path: '../public/font/LINESeedKR/LINESeedKR-Rg.woff2',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../public/font/LINESeedKR/LINESeedKR-Bd.woff2',
+      weight: '700',
+      style: 'normal',
+    },
+  ],
   display: 'swap',
-  weight: '400',
   variable: '--line-seed-kr',
 });
 

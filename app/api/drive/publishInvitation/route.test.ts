@@ -68,8 +68,10 @@ const validGuestPayload = {
     titleData: {
       font: 'font-lineseed',
       fontSize: '20px',
+      fontWeight: '700',
       color: '#FA7564',
       bold: false,
+      underline: false,
       italic: false,
       align: 'center',
       isDefault: false,
@@ -77,8 +79,10 @@ const validGuestPayload = {
     bodyData: {
       font: 'font-lineseed',
       fontSize: '16px',
+      fontWeight: '500',
       color: '#222222',
       bold: false,
+      underline: false,
       italic: false,
       align: 'left',
       isDefault: false,

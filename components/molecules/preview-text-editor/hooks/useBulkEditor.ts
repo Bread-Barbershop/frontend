@@ -13,6 +13,15 @@ export function useBulkEditor(
       fontSize: selected.value,
     });
   };
+  const handleFontWeightSelect = (
+    option: FontOption | { label: string; value: string }
+  ) => {
+    const selected = option;
+    onBulkChange({
+      ...bulkData,
+      fontWeight: selected.value,
+    });
+  };
   const handleFontFamilySelect = (
     option: FontOption | { label: string; value: string }
   ) => {
@@ -45,5 +54,6 @@ export function useBulkEditor(
     handleFontFamilySelect,
     handleTextAlignSelect,
     handleTextColorSelect,
+    handleFontWeightSelect,
   };
 }

@@ -26,7 +26,7 @@ function UploadButton() {
           setIsModalOpen(true);
         }}
       >
-        저장하기
+        모두 저장하기
       </button>
       {isModalOpen && (
         <SaveModal
