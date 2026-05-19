@@ -58,6 +58,13 @@ export const FONT_FAMILY_OPTIONS: FontFamilyOption[] = [
     defaultWeight: '400',
   },
   {
+    label: 'LINESeedKR',
+    value: 'var(--font-lineseed)',
+    weights: ['300', '400', '700'],
+    defaultWeight: '400',
+    style: { fontFamily: 'var(--font-lineseed)' },
+  },
+  {
     label: 'Pretendard',
     value: 'var(--font-pretendard)',
     weights: VARIABLE_FONT_WEIGHTS,

@@ -79,9 +79,11 @@ function isBulkData(x: unknown): x is BulkData {
   return (
     typeof x.font === 'string' &&
     typeof x.fontSize === 'string' &&
+    (x.fontWeight === undefined || typeof x.fontWeight === 'string') &&
     typeof x.color === 'string' &&
     typeof x.bold === 'boolean' &&
     typeof x.italic === 'boolean' &&
+    (x.underline === undefined || typeof x.underline === 'boolean') &&
     (x.align === 'left' || x.align === 'center' || x.align === 'right') &&
     typeof x.isDefault === 'boolean'
   );

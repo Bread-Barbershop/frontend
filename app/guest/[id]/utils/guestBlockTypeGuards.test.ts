@@ -54,8 +54,10 @@ const validPayload = {
     titleData: {
       font: 'font-lineseed',
       fontSize: '20px',
+      fontWeight: '700',
       color: '#FA7564',
       bold: false,
+      underline: false,
       italic: false,
       align: 'center',
       isDefault: false,
@@ -63,8 +65,10 @@ const validPayload = {
     bodyData: {
       font: 'font-lineseed',
       fontSize: '16px',
+      fontWeight: '500',
       color: '#000000',
       bold: false,
+      underline: false,
       italic: false,
       align: 'center',
       isDefault: false,
