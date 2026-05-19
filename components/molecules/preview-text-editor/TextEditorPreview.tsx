@@ -191,7 +191,7 @@ export function TextEditorPreview({
                   active={active}
                   className={cn(
                     'h-[30px] w-[30px] rounded-[5px] hover:bg-[#FAFAFB] active:bg-[#F5F8FF] aria-pressed:bg-white aria-pressed:shadow-sm',
-                    !active && 'bg-1 shadow-none'
+                    !active && 'bg-white shadow-none'
                   )}
                   onClick={() => handleTextAlignSelect(option)}
                 />
