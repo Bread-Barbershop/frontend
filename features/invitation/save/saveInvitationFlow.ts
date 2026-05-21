@@ -12,8 +12,19 @@ import {
   DEFAULT_TITLE,
 } from '@/shared/utils/shareUrlDefaults';
 
+import {
+  getPreparedInvitation,
+  invalidatePreparedInvitation,
+  isPreparedTokenValid,
+  normalizeExpiresAt,
+  runPrepareOnce,
+  setPreparedInvitation,
+  updatePreparedAccessToken,
+  type PreparedInvitationSave,
+} from './prepareCache';
 import { retryFailedOnce } from './retryFailedOnce';
 import { retryPatchFailedOnce } from './retryPatchFailedOnce';
+import { shouldPrepareFallback } from './saveFallback';
 import { updateFileToDrive } from './updateFileToDrive';
 import {
   uploadAllSettled,
@@ -74,6 +85,7 @@ type StepResult = {
 
 type TokenState = {
   currentToken: string;
+  currentExpiresAt: number;
   refreshedToken: boolean;
   refreshAccessToken: () => Promise<string>;
 };
@@ -90,11 +102,18 @@ type CommitResult = {
   thumbnailSaveFailed: boolean;
 };
 
-// prepare: 저장에 필요한 Drive 폴더, data.json, access token을 준비한다.
-// 이 단계는 사용자 콘텐츠를 확정 저장하지 않고, 이후 upload/commit이 가능한 상태만 만든다.
-async function prepare(
+function toPreparedInvitationSave(
+  response: SaveInvitationPrepareResponse
+): PreparedInvitationSave {
+  return {
+    ...response,
+    expiresAt: normalizeExpiresAt(response.expiresAt),
+  };
+}
+
+async function requestPrepare(
   invitationUuid: string | undefined
-): Promise<SaveInvitationPrepareResponse> {
+): Promise<PreparedInvitationSave> {
   const prepRes = await fetch('/api/drive/saveInvitation', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -105,14 +124,36 @@ async function prepare(
     throw new Error(`saveInvitation prepare failed: ${prepRes.status}`);
   }
 
-  return (await prepRes.json()) as SaveInvitationPrepareResponse;
+  return toPreparedInvitationSave(
+    (await prepRes.json()) as SaveInvitationPrepareResponse
+  );
+}
+
+// prepare: 저장에 필요한 Drive 폴더, data.json, access token을 준비한다.
+// 캐시된 Drive 구조가 있으면 재사용하고, token만 만료되었으면 token만 갱신한다.
+async function prepare(
+  invitationUuid: string | undefined
+): Promise<PreparedInvitationSave> {
+  const cached = getPreparedInvitation(invitationUuid);
+
+  if (cached) {
+    return isPreparedTokenValid(cached)
+      ? cached
+      : await getFreshPreparedAccessToken(cached);
+  }
+
+  return runPrepareOnce({
+    invitationUuid,
+    run: () => requestPrepare(invitationUuid),
+  });
 }
 
 // upload/commit 단계에서 같은 토큰 상태를 공유한다.
 // 401 재시도 중 토큰이 갱신되면 이후 단계도 갱신된 토큰을 사용한다.
-function createTokenState(prep: SaveInvitationPrepareResponse): TokenState {
+function createTokenState(prep: PreparedInvitationSave): TokenState {
   const token: TokenState = {
     currentToken: prep.accessToken,
+    currentExpiresAt: prep.expiresAt,
     refreshedToken: false,
     refreshAccessToken: async () => {
       const r = await fetch('/api/drive/getToken', { method: 'POST' });
@@ -120,7 +161,15 @@ function createTokenState(prep: SaveInvitationPrepareResponse): TokenState {
       const j = await r.json();
 
       token.currentToken = j.accessToken as string;
+      token.currentExpiresAt = normalizeExpiresAt(
+        j.expiresAt as string | number
+      );
       token.refreshedToken = true;
+      updatePreparedAccessToken({
+        invitationUuid: prep.invitationUuid,
+        accessToken: token.currentToken,
+        expiresAt: token.currentExpiresAt,
+      });
 
       return token.currentToken;
     },
@@ -132,7 +181,7 @@ function createTokenState(prep: SaveInvitationPrepareResponse): TokenState {
 // upload: 현재 저장에 필요한 이미지와 오디오 파일을 Drive에 업로드한다.
 // 아직 기존 fileId 재사용 판단은 하지 않고, 전달받은 파일 업로드와 재시도만 담당한다.
 async function upload(params: {
-  prep: SaveInvitationPrepareResponse;
+  prep: PreparedInvitationSave;
   images: UploadTask[];
   audio: File | null;
   token: TokenState;
@@ -213,7 +262,7 @@ async function upload(params: {
 // commit: 업로드 결과를 현재 에디터 데이터에 반영하고 data.json을 최종 업데이트한다.
 // 현재는 기존 동작 유지를 위해 공유 데이터와 썸네일 저장도 이 단계에서 함께 처리한다.
 async function commit(params: {
-  prep: SaveInvitationPrepareResponse;
+  prep: PreparedInvitationSave;
   token: TokenState;
   uploadResult: UploadResult;
   bulkData: BulkJson;
@@ -397,6 +446,34 @@ async function commit(params: {
   };
 }
 
+async function getFreshPreparedAccessToken(
+  prepared: PreparedInvitationSave
+): Promise<PreparedInvitationSave> {
+  const r = await fetch('/api/drive/getToken', { method: 'POST' });
+  if (!r.ok) throw new Error(`refresh-token failed: ${r.status}`);
+  const j = await r.json();
+
+  return (
+    updatePreparedAccessToken({
+      invitationUuid: prepared.invitationUuid,
+      accessToken: j.accessToken as string,
+      expiresAt: j.expiresAt as string | number,
+    }) ?? {
+      ...prepared,
+      accessToken: j.accessToken as string,
+      expiresAt: normalizeExpiresAt(j.expiresAt as string | number),
+    }
+  );
+}
+
+async function prepareFallback(invitationUuid: string) {
+  invalidatePreparedInvitation(invitationUuid);
+  return runPrepareOnce({
+    invitationUuid,
+    run: () => requestPrepare(invitationUuid),
+  });
+}
+
 // saveInvitationFlow: 저장 버튼에서 호출되는 최상위 오케스트레이션 함수다.
 // prepare -> upload -> commit 순서로 실행하고, 기존 UI가 기대하는 결과 형태를 그대로 반환한다.
 export async function saveInvitationFlow(
@@ -414,10 +491,10 @@ export async function saveInvitationFlow(
     invitationThumbnail,
   } = params;
 
-  const prep = await prepare(invitationUuid);
-  const token = createTokenState(prep);
-  const uploadResult = await upload({ prep, images, audio, token });
-  const commitResult = await commit({
+  let prep = await prepare(invitationUuid);
+  let token = createTokenState(prep);
+  let uploadResult = await upload({ prep, images, audio, token });
+  let commitResult = await commit({
     prep,
     token,
     uploadResult,
@@ -428,6 +505,36 @@ export async function saveInvitationFlow(
     bgmData,
     mainPoster,
     invitationThumbnail,
+  });
+
+  if (
+    shouldPrepareFallback({
+      imageFailures: uploadResult.imagesStep.final.fail,
+      audioFailures: uploadResult.audioStep.final.fail,
+      dataFailures: commitResult.dataStep.final.fail,
+    })
+  ) {
+    prep = await prepareFallback(prep.invitationUuid);
+    token = createTokenState(prep);
+    uploadResult = await upload({ prep, images, audio, token });
+    commitResult = await commit({
+      prep,
+      token,
+      uploadResult,
+      bulkData,
+      images,
+      data,
+      shareUrl,
+      bgmData,
+      mainPoster,
+      invitationThumbnail,
+    });
+  }
+
+  setPreparedInvitation({
+    ...prep,
+    accessToken: token.currentToken,
+    expiresAt: token.currentExpiresAt,
   });
 
   // 기존 반환 정책을 유지한다. 이미지/오디오/data/썸네일 중 실패가 있으면 success=false다.

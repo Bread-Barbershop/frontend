@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
+import { hasPreparedInvitation } from '@/features/invitation/save/prepareCache';
 import { saveInvitationFlow } from '@/features/invitation/save/saveInvitationFlow';
 import {
   selectUploadData,
@@ -101,7 +102,9 @@ export const useInvitationUpload = () => {
         });
         applySaveResult(saveResult);
       } else {
-        const result = await trashFolder();
+        const result = hasPreparedInvitation(editorData.invitationUuid)
+          ? true
+          : await trashFolder();
         //실패 토스트 알람 표시
         if (!result) {
           setIsLoading(false);
