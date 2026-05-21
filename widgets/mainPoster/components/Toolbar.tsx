@@ -2,13 +2,16 @@ import { useShallow } from 'zustand/shallow';
 
 import { Button } from '@/components/atoms/button';
 import AddDrawing from '@/shared/assets/icons/add-drawing.svg';
+import AddEraser from '@/shared/assets/icons/add-eraser.svg';
 import AddImage from '@/shared/assets/icons/add-image.svg';
+import AddPencil from '@/shared/assets/icons/add-pencil.svg';
 import AddText from '@/shared/assets/icons/add-text.svg';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 function Toolbar() {
-  const { canvas, createTextBox } = useFabricContext();
+  const { canvas, createTextBox, setDrawingType, drawingType } =
+    useFabricContext();
   const { activeTab, setActiveTab } = useEditorStore(
     useShallow(state => ({
       activeTab: state.activeTab,
@@ -37,12 +40,13 @@ function Toolbar() {
       active: activeTab === 'image',
     },
     {
-      id: 'diagram',
+      id: 'graphic',
       icon: <AddDrawing width={14} height={14} />,
       onClick: () => {
-        setActiveTab('diagram');
+        setActiveTab('graphic');
+        setDrawingType('pen');
       },
-      active: activeTab === 'diagram',
+      active: activeTab === 'graphic' && drawingType === 'pen',
     },
   ];
 
@@ -62,6 +66,30 @@ function Toolbar() {
           {item.icon}
         </Button>
       ))}
+      {activeTab === 'graphic' && (
+        <div className="absolute top-full mt-3 flex flex-col gap-3 items-center">
+          <Button
+            className="size-8"
+            variant="bordered"
+            active={drawingType === 'pencil'}
+            onClick={() => {
+              setDrawingType('pencil');
+            }}
+          >
+            <AddPencil width={14} height={14} />
+          </Button>
+          <Button
+            className="size-8"
+            variant="bordered"
+            active={drawingType === 'eraser'}
+            onClick={() => {
+              setDrawingType('eraser');
+            }}
+          >
+            <AddEraser width={14} height={14} />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

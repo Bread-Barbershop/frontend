@@ -122,3 +122,18 @@ export interface ActiveObject {
   filters?: any;
   styles: Record<string, any>;
 }
+
+export type DrawingTool = 'pen' | 'pencil' | 'eraser';
+
+export type PencilConfig = {
+  width: number;
+  density: number;
+  dotWidth: number;
+  dotWidthVariance: number;
+  randomOpacity: boolean;
+  optimizeOverlapping: boolean;
+};
+
+export type PenConfig = {
+  width: number;
+};

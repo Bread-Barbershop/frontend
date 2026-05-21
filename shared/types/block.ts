@@ -77,9 +77,9 @@ export interface UISlice {
   setIsEdit: (isEdit: boolean) => void;
   selectedId: string | null;
   selectedBlock: (id: string | null) => void;
-  activeTab: 'text' | 'image' | 'diagram' | 'background' | null;
+  activeTab: 'text' | 'image' | 'graphic' | 'background' | null;
   setActiveTab: (
-    tab: 'text' | 'image' | 'diagram' | 'background' | null
+    tab: 'text' | 'image' | 'graphic' | 'background' | null
   ) => void;
   drawingConfig: DrawingConfig;
   setDrawingConfig: (config: Partial<DrawingConfig>) => void;
