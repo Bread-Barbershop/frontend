@@ -90,6 +90,8 @@ type CommitResult = {
   thumbnailSaveFailed: boolean;
 };
 
+// prepare: 저장에 필요한 Drive 폴더, data.json, access token을 준비한다.
+// 이 단계는 사용자 콘텐츠를 확정 저장하지 않고, 이후 upload/commit이 가능한 상태만 만든다.
 async function prepare(
   invitationUuid: string | undefined
 ): Promise<SaveInvitationPrepareResponse> {
@@ -106,6 +108,8 @@ async function prepare(
   return (await prepRes.json()) as SaveInvitationPrepareResponse;
 }
 
+// upload/commit 단계에서 같은 토큰 상태를 공유한다.
+// 401 재시도 중 토큰이 갱신되면 이후 단계도 갱신된 토큰을 사용한다.
 function createTokenState(prep: SaveInvitationPrepareResponse): TokenState {
   const token: TokenState = {
     currentToken: prep.accessToken,
@@ -125,6 +129,8 @@ function createTokenState(prep: SaveInvitationPrepareResponse): TokenState {
   return token;
 }
 
+// upload: 현재 저장에 필요한 이미지와 오디오 파일을 Drive에 업로드한다.
+// 아직 기존 fileId 재사용 판단은 하지 않고, 전달받은 파일 업로드와 재시도만 담당한다.
 async function upload(params: {
   prep: SaveInvitationPrepareResponse;
   images: UploadTask[];
@@ -133,6 +139,7 @@ async function upload(params: {
 }): Promise<UploadResult> {
   const { prep, images, audio, token } = params;
 
+  // 공통 업로드 실행기: 1차 업로드 후 실패한 파일만 1회 재시도한다.
   const runUploadStep = async (step: {
     folderId: string;
     originFile: UploadTask[];
@@ -203,6 +210,8 @@ async function upload(params: {
   };
 }
 
+// commit: 업로드 결과를 현재 에디터 데이터에 반영하고 data.json을 최종 업데이트한다.
+// 현재는 기존 동작 유지를 위해 공유 데이터와 썸네일 저장도 이 단계에서 함께 처리한다.
 async function commit(params: {
   prep: SaveInvitationPrepareResponse;
   token: TokenState;
@@ -231,6 +240,7 @@ async function commit(params: {
 
   const invitationUrl = `${window.location.origin}/guest/${prep.dataJsonFileId}`;
 
+  // 공유 URL 메타데이터가 비어 있으면 기본 문구로 보정한다.
   const normalizedShareUrl: ShareUrlState = {
     ...shareUrl,
     title: shareUrl.title?.trim() || DEFAULT_TITLE,
@@ -239,6 +249,7 @@ async function commit(params: {
     urlDescription: shareUrl.urlDescription?.trim() || DEFAULT_DESCRIPTION,
   };
 
+  // 에디터 상태 안에 남아 있는 File 객체를 Drive fileId로 치환한다.
   const replaceFiles = (obj: unknown): unknown => {
     if (obj instanceof File) {
       const fileId = fileToId.get(obj);
@@ -262,6 +273,8 @@ async function commit(params: {
   };
 
   const replacedShareUrl = replaceFiles(normalizedShareUrl) as ShareUrlState;
+
+  // block props 내부의 File도 같은 기준으로 치환해 data.json에 직렬화 가능한 값만 남긴다.
   const newData = data.map(item => ({
     ...item,
     props: replaceFiles(item.props) as typeof item.props,
@@ -289,6 +302,7 @@ async function commit(params: {
     type: 'application/json',
   });
 
+  // data.json PATCH가 저장 완료의 핵심 단계다. 실패하면 401/5xx에 한해 1회 재시도한다.
   const dataFirstAttempt: BatchResult = await (async () => {
     try {
       const result = await updateFileToDrive(
@@ -324,6 +338,7 @@ async function commit(params: {
     usedAccessToken: token.currentToken,
   };
 
+  // 공유 데이터 저장 실패는 기존 정책대로 전체 저장 실패로 보지 않는다.
   try {
     const primaryImage =
       normalizedShareUrl.images?.[0] ?? normalizedShareUrl.urlImage?.[0];
@@ -356,6 +371,7 @@ async function commit(params: {
   }
 
   let thumbnailSaveFailed = false;
+  // 썸네일 저장은 현재 success 계산에 포함된다. 이후 별도 단계로 분리할 수 있다.
   if (invitationThumbnail && invitationThumbnail.dataUrl) {
     try {
       const thumbnailResponse = await fetch('/api/drive/thumbnail', {
@@ -381,6 +397,8 @@ async function commit(params: {
   };
 }
 
+// saveInvitationFlow: 저장 버튼에서 호출되는 최상위 오케스트레이션 함수다.
+// prepare -> upload -> commit 순서로 실행하고, 기존 UI가 기대하는 결과 형태를 그대로 반환한다.
 export async function saveInvitationFlow(
   params: SaveInvitationFlowParams
 ): Promise<SaveInvitationFlowResult> {
@@ -412,6 +430,7 @@ export async function saveInvitationFlow(
     invitationThumbnail,
   });
 
+  // 기존 반환 정책을 유지한다. 이미지/오디오/data/썸네일 중 실패가 있으면 success=false다.
   const totalFailed =
     uploadResult.imagesStep.final.fail.length +
     uploadResult.audioStep.final.fail.length +
