@@ -1,11 +1,12 @@
-import {
-  SerializedTextboxProps,
-  SerializedImageProps,
-  SerializedObjectProps,
-} from 'fabric';
-
-import { BulkData, PersistedEditorBlock } from '@/shared/types/block';
-import type { ShareUrlState } from '@/shared/types/block';
+import type { PersistedEditorBlock, ShareUrlState } from '@/shared/types/block';
+import type {
+  BgmData,
+  BulkJson,
+  InvitationPayload,
+  InvitationThumbnail,
+  MainPosterData,
+  UploadTask,
+} from '@/shared/types/invitationSave';
 import {
   DEFAULT_DESCRIPTION,
   DEFAULT_TITLE,
@@ -34,66 +35,19 @@ type SaveInvitationPrepareResponse = {
 
 type BatchResult = { ok: UploadOk[]; fail: UploadFail[] };
 
-type UploadTask = {
-  id: string;
-  file: File;
-};
-
-export type BgmData = {
-  selectedBgmId: string | null;
-  isLoop: boolean;
-  volume: number;
-  userBgmTitle: string | null;
-  userBgmDuration: string | null;
-  userBgmFileId: string | null;
-};
-
-export type MainPosterData = {
-  version: string;
-  objects: (
-    | SerializedTextboxProps
-    | SerializedImageProps
-    | SerializedObjectProps
-  )[];
-  background?: string;
-};
-
-type InvitationPayload = {
-  bulkData: BulkJson;
-  blocks: PersistedEditorBlock[];
-  shareUrl: ShareUrlState;
-  bgm: BgmData;
-  mainPoster: MainPosterData;
-  invitationImage: UploadTask[];
-};
-
-type BulkJson = {
-  backgroundColor: string;
-  titleData: BulkData;
-  bodyData: BulkData;
-  isZoom: boolean;
-};
-
-type InvitationThumbnail = {
-  name: string;
-  mimeType: string;
-  dataUrl: string;
-  width: number;
-  height: number;
-  createdAt: string;
-};
-
-export async function saveInvitationFlow(params: {
+type SaveInvitationFlowParams = {
   bulkData: BulkJson;
   images: UploadTask[];
   audio: File | null;
-  data: PersistedEditorBlock[]; // 블록 데이터(shareUrl 제외)
+  data: PersistedEditorBlock[];
   shareUrl: ShareUrlState;
   bgmData: BgmData;
-  invitationUuid?: string; // 수정 진입이면 해당 파라미터가 존재함.
+  invitationUuid?: string;
   mainPoster: MainPosterData;
   invitationThumbnail: InvitationThumbnail;
-}): Promise<{
+};
+
+type SaveInvitationFlowResult = {
   success: boolean;
   invitationUuid: string;
   results: {
@@ -111,20 +65,34 @@ export async function saveInvitationFlow(params: {
     refreshedToken: boolean;
     usedAccessToken: string;
   };
-}> {
-  const {
-    bulkData,
-    images,
-    audio,
-    data,
-    shareUrl,
-    bgmData,
-    invitationUuid,
-    mainPoster,
-    invitationThumbnail,
-  } = params;
+};
 
-  // 1) 서버에서 폴더 구조 + fresh 토큰 받기
+type StepResult = {
+  final: BatchResult;
+  usedAccessToken: string;
+};
+
+type TokenState = {
+  currentToken: string;
+  refreshedToken: boolean;
+  refreshAccessToken: () => Promise<string>;
+};
+
+type UploadResult = {
+  imagesStep: StepResult;
+  audioStep: StepResult;
+  fileToId: Map<File, string>;
+  uploadedAudioFileId: string | null;
+};
+
+type CommitResult = {
+  dataStep: StepResult;
+  thumbnailSaveFailed: boolean;
+};
+
+async function prepare(
+  invitationUuid: string | undefined
+): Promise<SaveInvitationPrepareResponse> {
   const prepRes = await fetch('/api/drive/saveInvitation', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -135,37 +103,52 @@ export async function saveInvitationFlow(params: {
     throw new Error(`saveInvitation prepare failed: ${prepRes.status}`);
   }
 
-  const prep = (await prepRes.json()) as SaveInvitationPrepareResponse;
+  return (await prepRes.json()) as SaveInvitationPrepareResponse;
+}
 
-  let currentToken = prep.accessToken;
-  let refreshedToken = false;
+function createTokenState(prep: SaveInvitationPrepareResponse): TokenState {
+  const token: TokenState = {
+    currentToken: prep.accessToken,
+    refreshedToken: false,
+    refreshAccessToken: async () => {
+      const r = await fetch('/api/drive/getToken', { method: 'POST' });
+      if (!r.ok) throw new Error(`refresh-token failed: ${r.status}`);
+      const j = await r.json();
 
-  // 401일 때만 호출될 “토큰 재발급 함수”
-  const refreshAccessToken = async () => {
-    const r = await fetch('/api/drive/getToken', { method: 'POST' });
-    if (!r.ok) throw new Error(`refresh-token failed: ${r.status}`);
-    const j = await r.json();
+      token.currentToken = j.accessToken as string;
+      token.refreshedToken = true;
 
-    currentToken = j.accessToken as string;
-    refreshedToken = true;
-
-    return currentToken;
+      return token.currentToken;
+    },
   };
 
-  // 공통 실행 패턴: 1차 업로드 → 실패만 1회 재시도
+  return token;
+}
+
+async function upload(params: {
+  prep: SaveInvitationPrepareResponse;
+  images: UploadTask[];
+  audio: File | null;
+  token: TokenState;
+}): Promise<UploadResult> {
+  const { prep, images, audio, token } = params;
+
   const runUploadStep = async (step: {
     folderId: string;
     originFile: UploadTask[];
-    concurrency?: number; // 1회 업로드시 파일 개수 제한 옵션.
-  }): Promise<{ final: BatchResult; usedAccessToken: string }> => {
+    concurrency?: number;
+  }): Promise<StepResult> => {
     if (step.originFile.length === 0) {
-      return { final: { ok: [], fail: [] }, usedAccessToken: currentToken };
+      return {
+        final: { ok: [], fail: [] },
+        usedAccessToken: token.currentToken,
+      };
     }
 
     const firstAttempt = await uploadAllSettled({
       originFile: step.originFile,
       folderId: step.folderId,
-      accessToken: currentToken,
+      accessToken: token.currentToken,
       concurrency: step.concurrency,
     });
 
@@ -173,19 +156,18 @@ export async function saveInvitationFlow(params: {
       ? await retryFailedOnce({
           failures: firstAttempt.fail,
           folderId: step.folderId,
-          accessToken: currentToken,
-          refreshAccessToken,
+          accessToken: token.currentToken,
+          refreshAccessToken: token.refreshAccessToken,
         })
       : {
           ok: [],
           fail: [],
           refreshedToken: false,
-          usedAccessToken: currentToken,
+          usedAccessToken: token.currentToken,
         };
 
-    // retry에서 새 토큰을 썼으면 이후 단계도 그 토큰으로 간다
     if (retryAttempt.refreshedToken) {
-      currentToken = retryAttempt.usedAccessToken;
+      token.currentToken = retryAttempt.usedAccessToken;
     }
 
     return {
@@ -193,22 +175,59 @@ export async function saveInvitationFlow(params: {
         ok: [...firstAttempt.ok, ...retryAttempt.ok],
         fail: retryAttempt.fail,
       },
-      usedAccessToken: currentToken,
+      usedAccessToken: token.currentToken,
     };
   };
 
-  // 2) 이미지 업로드
   const imagesStep = await runUploadStep({
     originFile: images,
     folderId: prep.imageFolderId,
-    concurrency: 5, // 이미지는 5장씩만 끊어서 전송.
+    concurrency: 5,
   });
 
-  // 매핑용 Map: File 객체 참조 -> 업로드된 fileId
   const fileToId = new Map<File, string>();
   imagesStep.final.ok.forEach(ok => {
     fileToId.set(ok.file, ok.fileId);
   });
+
+  const audioStep = await runUploadStep({
+    originFile: audio ? [{ id: 'bgm', file: audio }] : [],
+    folderId: prep.audioFolderId,
+  });
+
+  return {
+    imagesStep,
+    audioStep,
+    fileToId,
+    uploadedAudioFileId: audioStep.final.ok[0]?.fileId ?? null,
+  };
+}
+
+async function commit(params: {
+  prep: SaveInvitationPrepareResponse;
+  token: TokenState;
+  uploadResult: UploadResult;
+  bulkData: BulkJson;
+  images: UploadTask[];
+  data: PersistedEditorBlock[];
+  shareUrl: ShareUrlState;
+  bgmData: BgmData;
+  mainPoster: MainPosterData;
+  invitationThumbnail: InvitationThumbnail;
+}): Promise<CommitResult> {
+  const {
+    prep,
+    token,
+    uploadResult,
+    bulkData,
+    images,
+    data,
+    shareUrl,
+    bgmData,
+    mainPoster,
+    invitationThumbnail,
+  } = params;
+  const { fileToId, uploadedAudioFileId } = uploadResult;
 
   const invitationUrl = `${window.location.origin}/guest/${prep.dataJsonFileId}`;
 
@@ -222,7 +241,7 @@ export async function saveInvitationFlow(params: {
 
   const replaceFiles = (obj: unknown): unknown => {
     if (obj instanceof File) {
-      const fileId = fileToId.get(obj); // 기존 변수명 fileToId 사용
+      const fileId = fileToId.get(obj);
       if (!fileId) {
         console.warn('File not uploaded, skipping:', obj.name);
         throw new Error(`not Found Image FileId: ${obj.name}`);
@@ -241,20 +260,13 @@ export async function saveInvitationFlow(params: {
     }
     return obj;
   };
-  const replacedShareUrl = replaceFiles(normalizedShareUrl) as ShareUrlState;
 
+  const replacedShareUrl = replaceFiles(normalizedShareUrl) as ShareUrlState;
   const newData = data.map(item => ({
     ...item,
     props: replaceFiles(item.props) as typeof item.props,
   }));
 
-  // 3) 오디오 업로드(있으면)
-  const audioStep = await runUploadStep({
-    originFile: audio ? [{ id: 'bgm', file: audio }] : [],
-    folderId: prep.audioFolderId,
-  });
-
-  const uploadedAudioFileId = audioStep.final.ok[0]?.fileId ?? null;
   const isUserBgmSelected = bgmData.selectedBgmId === 'user-bgm';
 
   const finalBgm: BgmData = {
@@ -265,26 +277,24 @@ export async function saveInvitationFlow(params: {
   };
 
   const payload: InvitationPayload = {
-    bulkData: bulkData,
+    bulkData,
     blocks: newData,
     shareUrl: replacedShareUrl,
     bgm: finalBgm,
-    mainPoster: mainPoster,
+    mainPoster,
     invitationImage: images,
   };
 
-  // 편집 데이터가 기록될 json 파일 생성.
   const dataFile = new File([JSON.stringify(payload)], 'data.json', {
     type: 'application/json',
   });
 
-  // 4) data.json PATCH 전용 재시도
   const dataFirstAttempt: BatchResult = await (async () => {
     try {
       const result = await updateFileToDrive(
         dataFile,
         prep.dataJsonFileId,
-        currentToken
+        token.currentToken
       );
       return {
         ok: [{ file: dataFile, ...result } satisfies UploadOk],
@@ -297,25 +307,23 @@ export async function saveInvitationFlow(params: {
 
   const dataRetryAttempt = await retryPatchFailedOnce({
     failures: dataFirstAttempt.fail,
-    fileId: prep.dataJsonFileId, // PATCH 대상 fileId
-    accessToken: currentToken,
-    refreshAccessToken,
+    fileId: prep.dataJsonFileId,
+    accessToken: token.currentToken,
+    refreshAccessToken: token.refreshAccessToken,
   });
 
-  // retry에서 새 토큰을 썼으면 이후 단계도 그 토큰으로 간다
   if (dataRetryAttempt.refreshedToken) {
-    currentToken = dataRetryAttempt.usedAccessToken;
+    token.currentToken = dataRetryAttempt.usedAccessToken;
   }
 
-  const dataStep: { final: BatchResult; usedAccessToken: string } = {
+  const dataStep: StepResult = {
     final: {
       ok: [...dataFirstAttempt.ok, ...dataRetryAttempt.ok],
       fail: dataRetryAttempt.fail,
     },
-    usedAccessToken: currentToken,
+    usedAccessToken: token.currentToken,
   };
 
-  // 5) 공유 데이터 저장 (최상위 shareUrl store 기준)
   try {
     const primaryImage =
       normalizedShareUrl.images?.[0] ?? normalizedShareUrl.urlImage?.[0];
@@ -344,12 +352,10 @@ export async function saveInvitationFlow(params: {
       }),
     });
   } catch (error) {
-    // 공유 데이터 저장 실패는 전체 저장 실패로 간주하지 않음
-    console.error('공유 데이터 저장 실패:', error);
+    console.error('Share data save failed:', error);
   }
 
   let thumbnailSaveFailed = false;
-  // 6) 초대장 썸네일 데이터 저장
   if (invitationThumbnail && invitationThumbnail.dataUrl) {
     try {
       const thumbnailResponse = await fetch('/api/drive/thumbnail', {
@@ -365,23 +371,60 @@ export async function saveInvitationFlow(params: {
       }
     } catch (error) {
       thumbnailSaveFailed = true;
-      console.error('초대장 썸네일 데이터 저장 실패:', error);
+      console.error('Thumbnail save failed:', error);
     }
   }
 
+  return {
+    dataStep,
+    thumbnailSaveFailed,
+  };
+}
+
+export async function saveInvitationFlow(
+  params: SaveInvitationFlowParams
+): Promise<SaveInvitationFlowResult> {
+  const {
+    bulkData,
+    images,
+    audio,
+    data,
+    shareUrl,
+    bgmData,
+    invitationUuid,
+    mainPoster,
+    invitationThumbnail,
+  } = params;
+
+  const prep = await prepare(invitationUuid);
+  const token = createTokenState(prep);
+  const uploadResult = await upload({ prep, images, audio, token });
+  const commitResult = await commit({
+    prep,
+    token,
+    uploadResult,
+    bulkData,
+    images,
+    data,
+    shareUrl,
+    bgmData,
+    mainPoster,
+    invitationThumbnail,
+  });
+
   const totalFailed =
-    imagesStep.final.fail.length +
-    audioStep.final.fail.length +
-    dataStep.final.fail.length +
-    (thumbnailSaveFailed ? 1 : 0);
+    uploadResult.imagesStep.final.fail.length +
+    uploadResult.audioStep.final.fail.length +
+    commitResult.dataStep.final.fail.length +
+    (commitResult.thumbnailSaveFailed ? 1 : 0);
 
   return {
     success: totalFailed === 0,
     invitationUuid: prep.invitationUuid,
     results: {
-      images: imagesStep.final,
-      audio: audioStep.final,
-      data: dataStep.final,
+      images: uploadResult.imagesStep.final,
+      audio: uploadResult.audioStep.final,
+      data: commitResult.dataStep.final,
     },
     folders: {
       workspaceFolderId: prep.workspaceFolderId,
@@ -390,8 +433,8 @@ export async function saveInvitationFlow(params: {
       audioFolderId: prep.audioFolderId,
     },
     debug: {
-      refreshedToken,
-      usedAccessToken: currentToken,
+      refreshedToken: token.refreshedToken,
+      usedAccessToken: token.currentToken,
     },
   };
 }

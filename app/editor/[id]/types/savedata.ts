@@ -1,10 +1,10 @@
 import { DriveListResponse } from '@/app/api/drive/_lib/getSaveDataFetch';
-import { BgmData } from '@/app/oauthTest/utils/saveInvitationFlow';
 import {
   BulkData,
   PersistedEditorBlock,
   ShareUrlState,
 } from '@/shared/types/block';
+import type { BgmData } from '@/shared/types/invitationSave';
 
 export interface BgmFile {
   bgmInfo: BgmData | null;

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
-import { saveInvitationFlow } from '@/app/oauthTest/utils/saveInvitationFlow';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
+import { saveInvitationFlow } from '@/features/invitation/save/saveInvitationFlow';
 import {
   selectUploadData,
   useEditorStore,

@@ -1,9 +1,6 @@
-import { uploadFileToDrive } from '@/app/oauthTest/utils/uploadFileToDrive';
+import type { UploadTask } from '@/shared/types/invitationSave';
 
-type ImageTask = {
-  id: string;
-  file: File;
-};
+import { uploadFileToDrive } from './uploadFileToDrive';
 export type UploadOk = {
   file: File;
   fileId: string;
@@ -12,11 +9,11 @@ export type UploadOk = {
 };
 
 export type UploadFail = {
-  file: ImageTask | File;
+  file: UploadTask | File;
   error: unknown;
 };
 export async function uploadAllSettled(params: {
-  originFile: ImageTask[];
+  originFile: UploadTask[];
   folderId: string;
   accessToken: string;
   concurrency?: number; // 동시 업로드 개수 옵션. 호출할 때 지정하면서 테스트.
