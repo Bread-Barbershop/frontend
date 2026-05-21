@@ -9,6 +9,7 @@ import { Button } from '@/components/atoms/button';
 import kakaoMapIcon from '@/shared/assets/icons/kakao-map.png';
 import naverMapIcon from '@/shared/assets/icons/naver-map.png';
 import tmapIcon from '@/shared/assets/icons/tmap.png';
+import { useConfirm } from '@/shared/hooks/useConfirm';
 
 interface Props {
   lat: number;
@@ -17,10 +18,19 @@ interface Props {
 }
 
 export function Navigation({ lat, lng, name }: Props) {
-  const handleNavigation = (type: 'naver' | 'kakao' | 'tmap') => {
+  const { confirm } = useConfirm();
+  const handleNavigation = async(type: 'naver' | 'kakao' | 'tmap') => {
+          const isConfirm = await confirm({
+        message:
+          '편집 내역이 저장되지 않았습니다.\n길안내를 시작하시겠습니까?',
+        variant: 'white',
+        xPosition : 'center',
+        yPosition : 'center'
+      });
+
     if (
       // 추후 수정되거나 삭제될 부분
-      confirm('편집 내역이 저장되지 않았습니다. 길안내를 시작하시겠습니까?')
+      isConfirm
     ) {
       switch (type) {
         case 'naver':

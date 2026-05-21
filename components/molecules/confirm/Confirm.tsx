@@ -47,7 +47,7 @@ const Confirm = forwardRef<HTMLDivElement, ConfirmProps>(
           className={cn(confirmVariants({ variant }))}
         >
           <div className="pt-5">
-            <p className="w-full text-sm font-semibold text-text-primary font-pretendard text-center">
+            <p className="w-full text-sm font-semibold text-text-primary font-pretendard text-center whitespace-pre-line">
               {message}
             </p>
           </div>
