@@ -28,15 +28,17 @@ interface ButtonsType {
   component: ReactNode;
 }
 
+type activeStyle = {
+  fontWeight: string | undefined;
+  fontStyle: string | undefined;
+  underline: boolean | undefined;
+};
+
 export const RichTextPanel = () => {
   const { getRichStyles, canvas, applyRichStyle } = useFabricContext();
   const activeObject = canvas?.getActiveObject() as Textbox;
 
-  const [activeStyles, setActiveStyles] = useState<{
-    fontWeight: string;
-    fontStyle: string;
-    underline: boolean;
-  }>({
+  const [activeStyles, setActiveStyles] = useState<activeStyle>({
     fontWeight: '400',
     fontStyle: 'normal',
     underline: false,
@@ -73,11 +75,23 @@ export const RichTextPanel = () => {
 
   if (!canvas) return null;
 
+  const changeWeight = (weight: string): string => {
+    const currentWeight = Number(weight) || 400;
+
+    if (currentWeight >= 600) {
+      const newWeight = Math.max(currentWeight - 200, 100);
+      return String(newWeight);
+    }
+
+    const newWeight = Math.min(currentWeight + 200, 900);
+    return String(newWeight);
+  };
+
   const BUTTONS: ButtonsType[] = [
     {
       id: 'bold',
       style: {
-        fontWeight: activeStyles.fontWeight === '700' ? '400' : '700',
+        fontWeight: changeWeight(activeStyles.fontWeight || '400'),
       },
       component: <BoldIcon />,
     },
@@ -98,7 +112,7 @@ export const RichTextPanel = () => {
   const checkIsActive = (id: string) => {
     switch (id) {
       case 'bold':
-        return activeStyles.fontWeight === '700';
+        return Number(activeStyles.fontWeight) >= 600;
       case 'italic':
         return activeStyles.fontStyle === 'italic';
       case 'underline':
@@ -125,7 +139,22 @@ export const RichTextPanel = () => {
               <button
                 key={id}
                 type="button"
-                onClick={() => applyRichStyle({ ...style }, canvas)}
+                onClick={() => {
+                  applyRichStyle({ ...style }, canvas);
+                  const s = style as activeStyle;
+                  setActiveStyles(prev => {
+                    if (id === 'bold' && s.fontWeight !== undefined) {
+                      return { ...prev, fontWeight: String(s.fontWeight) };
+                    }
+                    if (id === 'italic' && s.fontStyle !== undefined) {
+                      return { ...prev, fontStyle: s.fontStyle };
+                    }
+                    if (id === 'underline' && s.underline !== undefined) {
+                      return { ...prev, underline: s.underline };
+                    }
+                    return prev;
+                  });
+                }}
                 className={cn(
                   'w-8 h-8 flex p-1 justify-center items-center rounded-sm transition-colors bg-transparent',
                   isActive

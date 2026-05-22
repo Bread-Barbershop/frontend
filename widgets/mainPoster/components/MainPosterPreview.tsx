@@ -157,7 +157,7 @@ export const MainPosterPreview = () => {
       } else if (isActiveImage || isCropZone) {
         setActiveTab('image');
       } else if (isActiveDiagram) {
-        setActiveTab('diagram');
+        setActiveTab('graphic');
       } else {
         setActiveTab('background');
       }
@@ -179,7 +179,7 @@ export const MainPosterPreview = () => {
   useEffect(() => {
     if (!canvas) return;
 
-    if (activeTab !== 'diagram') {
+    if (activeTab !== 'graphic') {
       if (canvas.isDrawingMode) {
         toggleDrawingMode(canvas, { enable: false });
         setActiveTab('background');
@@ -354,7 +354,7 @@ export const MainPosterPreview = () => {
           setIsEdit(false);
           selectedBlock('mainPoster');
         }}
-        className={cn('relative w-[375px] h-[750px] shrink-0')}
+        className={cn('relative w-[375px] h-[812px] shrink-0')}
       >
         {selectedId === 'mainPoster' && (
           <div
