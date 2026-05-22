@@ -61,4 +61,5 @@ export type GuestMainPosterData = {
     | SerializedObjectProps
   )[];
   background?: string;
+  thumbnailFileId?: string;
 };

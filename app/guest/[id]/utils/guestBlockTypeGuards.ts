@@ -69,7 +69,8 @@ function isGuestMainPosterData(x: unknown): x is GuestMainPosterData {
     typeof x.version === 'string' &&
     Array.isArray(x.objects) &&
     x.objects.every(isRecord) &&
-    (x.background === undefined || typeof x.background === 'string')
+    (x.background === undefined || typeof x.background === 'string') &&
+    (x.thumbnailFileId === undefined || typeof x.thumbnailFileId === 'string')
   );
 }
 

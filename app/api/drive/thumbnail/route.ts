@@ -152,7 +152,7 @@ async function createThumbnailFile(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: THUMBNAIL_NAME,
-        mimeType: 'application/json',
+        mimeType: 'image/png',
         parents: [invitationFolderId],
         appProperties: {
           app_id: APP_IDENTIFIER,
@@ -198,14 +198,17 @@ async function updateThumbnailFile(
   fileId: string,
   thumbnailData: ThumbnailPayload
 ): Promise<string> {
+  const base64Data = thumbnailData.dataUrl.replace(/^data:image\/\w+;base64,/, '');
+  const buffer = Buffer.from(base64Data, 'base64');
+
   const uploadRes = await googleFetch(
     `https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(
       fileId
     )}?uploadType=media&supportsAllDrives=true`,
     {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json; charset=UTF-8' },
-      body: JSON.stringify(thumbnailData),
+      headers: { 'Content-Type': 'image/png' },
+      body: buffer,
     }
   );
 

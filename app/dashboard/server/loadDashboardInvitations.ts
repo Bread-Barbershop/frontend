@@ -34,16 +34,7 @@ type DriveSearchResponse = {
   error?: unknown;
 };
 
-function isThumbnailPayload(value: unknown): value is {
-  dataUrl: string;
-} {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'dataUrl' in value &&
-    typeof value.dataUrl === 'string'
-  );
-}
+
 
 function isPublishedPayload(value: unknown): value is {
   guestUrl: string;
@@ -150,19 +141,7 @@ async function loadThumbnailUrl(
       return null;
     }
 
-    const contentRes = await googleFetch(
-      `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(
-        thumbnailFileId
-      )}?alt=media`,
-      { cache: 'no-store' }
-    );
-
-    if (!contentRes.ok) {
-      return null;
-    }
-
-    const content = (await contentRes.json().catch(() => null)) as unknown;
-    return isThumbnailPayload(content) ? content.dataUrl : null;
+    return `https://lh3.googleusercontent.com/d/${thumbnailFileId}`;
   } catch {
     return null;
   }

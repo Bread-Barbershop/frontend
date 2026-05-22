@@ -56,6 +56,7 @@ export type MainPosterData = {
     | SerializedObjectProps
   )[];
   background?: string;
+  thumbnailFileId?: string;
 };
 
 type InvitationPayload = {
@@ -264,12 +265,42 @@ export async function saveInvitationFlow(params: {
       : null,
   };
 
+  let thumbnailFileId: string | undefined = undefined;
+  let thumbnailSaveFailed = false;
+
+  // 3.5) 초대장 썸네일 데이터 먼저 저장하여 URL 확보
+  if (invitationThumbnail && invitationThumbnail.dataUrl) {
+    try {
+      const thumbnailResponse = await fetch('/api/drive/thumbnail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invitationFolderId: prep.invitationFolderId,
+          thumbnailData: invitationThumbnail,
+        }),
+      });
+      if (!thumbnailResponse.ok) {
+        throw new Error(`thumbnail save failed: ${thumbnailResponse.status}`);
+      }
+      const thumbnailResult = await thumbnailResponse.json();
+      thumbnailFileId = thumbnailResult.thumbnailFileId;
+    } catch (error) {
+      thumbnailSaveFailed = true;
+      console.error('초대장 썸네일 데이터 저장 실패:', error);
+    }
+  }
+
+  const finalMainPoster: MainPosterData = {
+    ...mainPoster,
+    thumbnailFileId,
+  };
+
   const payload: InvitationPayload = {
     bulkData: bulkData,
     blocks: newData,
     shareUrl: replacedShareUrl,
     bgm: finalBgm,
-    mainPoster: mainPoster,
+    mainPoster: finalMainPoster,
     invitationImage: images,
   };
 
@@ -348,26 +379,7 @@ export async function saveInvitationFlow(params: {
     console.error('공유 데이터 저장 실패:', error);
   }
 
-  let thumbnailSaveFailed = false;
-  // 6) 초대장 썸네일 데이터 저장
-  if (invitationThumbnail && invitationThumbnail.dataUrl) {
-    try {
-      const thumbnailResponse = await fetch('/api/drive/thumbnail', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          invitationFolderId: prep.invitationFolderId,
-          thumbnailData: invitationThumbnail,
-        }),
-      });
-      if (!thumbnailResponse.ok) {
-        throw new Error(`thumbnail save failed: ${thumbnailResponse.status}`);
-      }
-    } catch (error) {
-      thumbnailSaveFailed = true;
-      console.error('초대장 썸네일 데이터 저장 실패:', error);
-    }
-  }
+
 
   const totalFailed =
     imagesStep.final.fail.length +
