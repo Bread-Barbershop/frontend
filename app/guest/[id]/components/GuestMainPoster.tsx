@@ -5,6 +5,7 @@ import { useRef } from 'react';
 
 import { Image } from '@/components/atoms/image';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
+// import { PerformanceTimer } from '@/shared/utils/performance';
 
 export const GuestMainPoster = ({
   thumbnailFileId,
@@ -14,6 +15,12 @@ export const GuestMainPoster = ({
   const resolvedSrc = useResolvedImageSource(thumbnailFileId);
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  // const timerRef = useRef<PerformanceTimer | null>(null);
+
+  // eslint-disable-next-line react-hooks/refs
+  // if (!timerRef.current && resolvedSrc) {
+  //   timerRef.current = new PerformanceTimer('GuestMainPoster Image Load');
+  // }
 
   if (resolvedSrc) {
     return (
@@ -25,6 +32,7 @@ export const GuestMainPoster = ({
           unoptimized
           className="object-cover"
           onLoad={() => {
+            // timerRef.current?.end();
             window.dispatchEvent(new Event('guest-main-poster-ready'));
           }}
         />
