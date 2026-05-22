@@ -60,10 +60,11 @@ export const useFabricGraphic = () => {
           ...config,
         };
         setBrushProperties(canvas, 'pencil', color, pencilConfig);
-      } else {
-        // 지우개인경우
-        setBrushProperties(canvas, 'pen', color, { width: 5 });
       }
+      // else {
+      //   // 지우개인경우
+      //   setBrushProperties(canvas, 'pen', color, { width: 5 });
+      // }
 
       if (autoDisable) {
         const disableDrawingAfterPath = () => {

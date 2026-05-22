@@ -50,7 +50,8 @@ export function GraphicPanel() {
       // 패널 나갈 때 그리기 모드 해제
       toggleDrawingMode(canvas, { enable: false });
     };
-  }, [canvas, toggleDrawingMode, drawingConfig, drawingType]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canvas, toggleDrawingMode, drawingConfig]);
 
   if (!canvas) return null;
 

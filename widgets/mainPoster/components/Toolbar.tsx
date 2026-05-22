@@ -2,7 +2,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { Button } from '@/components/atoms/button';
 import AddDrawing from '@/shared/assets/icons/add-drawing.svg';
-import AddEraser from '@/shared/assets/icons/add-eraser.svg';
+// import AddEraser from '@/shared/assets/icons/add-eraser.svg';
 import AddImage from '@/shared/assets/icons/add-image.svg';
 import AddPencil from '@/shared/assets/icons/add-pencil.svg';
 import AddText from '@/shared/assets/icons/add-text.svg';
@@ -78,7 +78,7 @@ function Toolbar() {
           >
             <AddPencil width={14} height={14} />
           </Button>
-          <Button
+          {/* <Button
             className="size-8"
             variant="bordered"
             active={drawingType === 'eraser'}
@@ -87,7 +87,7 @@ function Toolbar() {
             }}
           >
             <AddEraser width={14} height={14} />
-          </Button>
+          </Button> */}
         </div>
       )}
     </div>
