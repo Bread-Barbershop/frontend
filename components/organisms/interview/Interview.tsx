@@ -16,7 +16,7 @@ import PopupOptions from '../popup/PopupOptions';
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
 import { InterviewItem } from './InterviewItem';
-import { QUESTION_LIST } from './interviewList';
+import { createInterviewQuestion, QUESTION_LIST } from './interviewList';
 
 interface Props {
   blockInfo: EditorBlock<'interview'>;
@@ -40,7 +40,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
   };
 
   const handleQuestionChange = (
-    question: string | null,
+    question: string,
     questionId: string
   ) => {
     const newQuestions = (questions || []).map(q =>
@@ -55,18 +55,8 @@ export const Interview = ({ blockInfo, id }: Props) => {
   };
 
   const handleQuestionListSelect = (content: string, _index?: number) => {
-    const newQuestion = {
-      id: crypto.randomUUID(),
-      question: content,
-      answer: {
-        messageJson: null,
-        messageHtml: null,
-      },
-      image: [] as (File | string)[],
-    };
-
     updateBlock(id, {
-      questions: [...(questions || []), newQuestion],
+      questions: [...(questions || []), createInterviewQuestion(content)],
     });
     setEditorResetKey(prev => prev + 1);
     setIsQuestionListOpen(false);
@@ -129,16 +119,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
 
   useEffect(() => {
     if ((questions || []).length === 0) {
-      const initQuestions = {
-        id: crypto.randomUUID(),
-        question: '',
-        answer: {
-          messageJson: null,
-          messageHtml: null,
-        },
-        image: [] as (File | string)[],
-      };
-      updateBlock(id, { questions: [initQuestions] });
+      updateBlock(id, { questions: [createInterviewQuestion()] });
     }
   }, [id]);
 

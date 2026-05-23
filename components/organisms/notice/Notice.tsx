@@ -15,7 +15,7 @@ import PopupOptions from '../popup/PopupOptions';
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
 import { NoticeItem } from './NoticeItem';
-import { NOTICE_LIST } from './noticeList';
+import { createNoticeItem, NOTICE_LIST } from './noticeList';
 
 import type { JSONContent } from '@tiptap/react';
 
@@ -42,7 +42,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
     updateBlock(id, { [key]: value });
   };
 
-  const handleNoticeChange = (notice: string | null, noticeId: string) => {
+  const handleNoticeChange = (notice: string, noticeId: string) => {
     const newNoticeList = (noticeList || []).map(n =>
       n.id === noticeId
         ? {
@@ -55,18 +55,8 @@ export const Notice = ({ blockInfo, id }: Props) => {
   };
 
   const handleNoticeListSelect = (content: string, _index?: number) => {
-    const newNotice = {
-      id: crypto.randomUUID(),
-      notice: content,
-      content: {
-        messageJson: null,
-        messageHtml: null,
-      },
-      image: [] as (File | string)[],
-    };
-
     updateBlock(id, {
-      noticeList: [...(noticeList || []), newNotice],
+      noticeList: [...(noticeList || []), createNoticeItem(content)],
     });
     setEditorResetKey(prev => prev + 1);
     setIsNoticeListOpen(false);
@@ -128,16 +118,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
 
   useEffect(() => {
     if ((noticeList || []).length === 0) {
-      const initNotice = {
-        id: crypto.randomUUID(),
-        notice: '',
-        content: {
-          messageJson: null,
-          messageHtml: null,
-        },
-        image: [] as (File | string)[],
-      };
-      updateBlock(id, { noticeList: [initNotice] });
+      updateBlock(id, { noticeList: [createNoticeItem()] });
     }
   }, [id]);
 
