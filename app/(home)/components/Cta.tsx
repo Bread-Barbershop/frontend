@@ -60,12 +60,12 @@ function Cta({ initialIsLoggedIn }: CtaProps) {
           onClick={handleStart}
           disabled={isBusy}
           className="
-          ml-8 flex h-13.25 w-43.25 items-center justify-center rounded-full
+          flex h-13.25 w-53.5 items-center justify-center rounded-full
           bg-[#121212] text-2xl font-medium text-white
           transition-all hover:bg-[#202020] active:scale-95 active:bg-[#0D0D0D] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed
         "
         >
-          만들러 가기
+          무료로 제작하기
         </button>
       </section>
       <LoginModal
