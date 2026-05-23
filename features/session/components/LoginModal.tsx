@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useState } from 'react';
 
 import inviaLogo from '@/shared/assets/logo/Invia-logo.png';
 
@@ -11,25 +12,45 @@ interface LoginModalProps {
   onGoogleLogin: () => void;
 }
 
+const FADE_OUT_MS = 180;
+
 function LoginModal({
   open,
   isLoading,
   onClose,
   onGoogleLogin,
 }: LoginModalProps) {
-  if (!open) return null;
+  const [isClosing, setIsClosing] = useState(false);
+
+  const closeWithFade = () => {
+    if (isClosing) return;
+
+    setIsClosing(true);
+    window.setTimeout(() => {
+      onClose();
+      setIsClosing(false);
+    }, FADE_OUT_MS);
+  };
+
+  if (!open && !isClosing) return null;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      onClick={onClose}
+      className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-200 ${
+        isClosing ? 'opacity-0' : 'animate-[fade-in_180ms_ease-out] opacity-100'
+      }`}
+      onClick={closeWithFade}
       role="dialog"
       aria-modal="true"
     >
       <div className="absolute inset-0 bg-[rgb(0_0_0_/_8%)]" />
 
       <div
-        className="relative w-98 rounded-xl border border-white/22 bg-white/72 p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%),0_1px_8px_-2px_rgb(255_255_255_/_35%)] backdrop-blur-xl flex flex-col items-center gap-6"
+        className={`relative w-98 rounded-xl border border-white/22 bg-white/72 p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%),0_1px_8px_-2px_rgb(255_255_255_/_35%)] backdrop-blur-xl flex flex-col items-center gap-6 transition-all duration-200 ${
+          isClosing
+            ? 'scale-[0.98] opacity-0'
+            : 'animate-[fade-in_180ms_ease-out] scale-100 opacity-100'
+        }`}
         onClick={e => e.stopPropagation()}
       >
         <div className="flex h-27.25 w-56 items-center justify-center">
