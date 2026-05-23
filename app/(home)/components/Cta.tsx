@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import LoginModal from '@/features/session/components/LoginModal';
 import PrivacyNoticeModal from '@/features/session/components/PrivacyNoticeModal';
 import { useAuthGate } from '@/features/session/hooks/useAuthGate';
+import { useViewportScale } from '@/shared/hooks/useViewportScale';
 
 type CtaProps = {
   initialIsLoggedIn: boolean;
@@ -12,6 +13,7 @@ type CtaProps = {
 
 function Cta({ initialIsLoggedIn }: CtaProps) {
   const router = useRouter();
+  const ctaScale = useViewportScale();
   const {
     isBusy,
     isLoginOpen,
@@ -31,7 +33,10 @@ function Cta({ initialIsLoggedIn }: CtaProps) {
 
   return (
     <>
-      <section className="flex flex-col gap-10 border-none">
+      <section
+        className="flex origin-top-left flex-col gap-10 border-none"
+        style={{ transform: `scale(${ctaScale})` }}
+      >
         <div
           className="
           inline-flex w-fit flex-col gap-2 rounded-4xl p-8
