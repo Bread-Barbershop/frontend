@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 
 import LoginModal from '@/features/session/components/LoginModal';
+import PrivacyNoticeModal from '@/features/session/components/PrivacyNoticeModal';
 import { useAuthGate } from '@/features/session/hooks/useAuthGate';
 
 type CtaProps = {
@@ -15,7 +16,9 @@ function Cta({ initialIsLoggedIn }: CtaProps) {
     isBusy,
     isLoginOpen,
     isLoginPending,
+    isPrivacyNoticeOpen,
     closeLogin,
+    closePrivacyNotice,
     loginWithGoogle,
     runAfterAuth,
   } = useAuthGate({ initialIsLoggedIn });
@@ -73,6 +76,10 @@ function Cta({ initialIsLoggedIn }: CtaProps) {
         isLoading={isLoginPending}
         onClose={closeLogin}
         onGoogleLogin={loginWithGoogle}
+      />
+      <PrivacyNoticeModal
+        open={isPrivacyNoticeOpen}
+        onClose={closePrivacyNotice}
       />
     </>
   );

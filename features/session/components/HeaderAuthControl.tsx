@@ -6,6 +6,7 @@ import { useAuthGate } from '@/features/session/hooks/useAuthGate';
 import { useConfirm } from '@/shared/hooks/useConfirm';
 
 import LoginModal from './LoginModal';
+import PrivacyNoticeModal from './PrivacyNoticeModal';
 
 import type { MouseEvent } from 'react';
 
@@ -23,14 +24,30 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
     isBusy,
     isLoginOpen,
     isLoginPending,
+    isPrivacyNoticeOpen,
     login,
     closeLogin,
+    closePrivacyNotice,
     loginWithGoogle,
     logout,
     runAfterAuth,
   } = useAuthGate({ initialIsLoggedIn });
   const pathname = usePathname();
   const { confirm } = useConfirm();
+  const modals = (
+    <>
+      <LoginModal
+        open={isLoginOpen}
+        isLoading={isLoginPending}
+        onClose={closeLogin}
+        onGoogleLogin={loginWithGoogle}
+      />
+      <PrivacyNoticeModal
+        open={isPrivacyNoticeOpen}
+        onClose={closePrivacyNotice}
+      />
+    </>
+  );
 
   const handleDashboardClick = async (e: MouseEvent) => {
     if (pathname.startsWith('/editor')) {
@@ -69,6 +86,7 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
         >
           My Page
         </button>
+        {modals}
       </>
     );
   }
@@ -83,12 +101,7 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
       >
         Login
       </button>
-      <LoginModal
-        open={isLoginOpen}
-        isLoading={isLoginPending}
-        onClose={closeLogin}
-        onGoogleLogin={loginWithGoogle}
-      />
+      {modals}
     </>
   );
 }

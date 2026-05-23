@@ -26,8 +26,10 @@ function LoginModal({
       role="dialog"
       aria-modal="true"
     >
+      <div className="absolute inset-0 bg-[rgb(0_0_0_/_8%)]" />
+
       <div
-        className="w-98 rounded-xl border border-white/22 bg-white/72 p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%),0_1px_8px_-2px_rgb(255_255_255_/_35%)] backdrop-blur-xl flex flex-col items-center gap-6"
+        className="relative w-98 rounded-xl border border-white/22 bg-white/72 p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%),0_1px_8px_-2px_rgb(255_255_255_/_35%)] backdrop-blur-xl flex flex-col items-center gap-6"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex h-27.25 w-56 items-center justify-center">
