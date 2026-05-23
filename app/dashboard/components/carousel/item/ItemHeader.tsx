@@ -23,12 +23,7 @@ function ItemHeader({ createdTime, isPublished }: ItemHeaderProps) {
       style={{
         width: dashboardCarouselLayout.cardWidth,
         height: dashboardCarouselLayout.headerHeight,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        border: '1px solid rgba(255, 255, 255, 0.3)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        boxShadow:
-          'inset 4px 4px 18px rgba(0, 0, 0, 0.06), inset -4px -4px 18px rgba(255, 255, 255, 0.75)',
+        backgroundColor: '#FFFFFF',
       }}
     >
       <p>{formatCreatedDate(createdTime)}</p>

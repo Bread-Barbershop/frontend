@@ -6,6 +6,7 @@ import Carousel from '@/features/EmblaCarousel/Carousel/Carousel';
 import { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 
+import { getNoticeDefaultImage } from './noticeList';
 import { NoticePreviewItem } from './NoticePreviewItem';
 
 import type { HTMLAttributes } from 'react';
@@ -88,8 +89,7 @@ export const NoticePreview = ({
             >
               <NoticePreviewItem
                 notice={notice}
-                images={notice.image}
-                index={index % (noticeList?.length || 1)}
+                defaultImage={getNoticeDefaultImage(notice)}
                 className={isSingleNotice ? 'w-full' : 'w-70'}
               />
             </div>
