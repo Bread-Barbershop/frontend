@@ -399,7 +399,7 @@ async function commit(params: {
           ? fileToId.get(primaryImage)
           : undefined;
 
-    await fetch('/api/drive/shareUrl', {
+    const shareRes = await fetch('/api/drive/shareUrl', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -415,6 +415,9 @@ async function commit(params: {
         },
       }),
     });
+    if (!shareRes.ok) {
+      throw new Error(`shareUrl save failed: ${shareRes.status}`);
+    }
   } catch (error) {
     console.error('Share data save failed:', error);
   }
