@@ -149,3 +149,65 @@ export async function ensureDataJsonFile(
 
   return { dataJsonFileId: created.id, reused: false };
 }
+
+export async function createDataJsonFile(
+  invitationFolderId: string
+): Promise<EnsureDataJsonFileResult> {
+  if (!invitationFolderId) {
+    throw new DriveHttpError('invitationFolderId is required', 400, {
+      invitationFolderId,
+    });
+  }
+
+  const createRes = await googleFetch(
+    'https://www.googleapis.com/drive/v3/files',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: DATA_JSON_NAME,
+        mimeType: 'application/json',
+        parents: [invitationFolderId],
+        appProperties: {
+          app_id: APP_IDENTIFIER,
+          kind: DATA_JSON_KIND,
+        },
+      }),
+    }
+  );
+
+  const created = (await createRes.json().catch(() => ({}))) as {
+    id?: string;
+    error?: unknown;
+  };
+
+  if (!createRes.ok || !created.id) {
+    throw new DriveHttpError(
+      'data.json create failed',
+      createRes.status,
+      created
+    );
+  }
+
+  const initRes = await googleFetch(
+    `https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(
+      created.id
+    )}?uploadType=media&supportsAllDrives=true`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+      body: JSON.stringify(DEFAULT_DATA_JSON_PAYLOAD),
+    }
+  );
+
+  if (!initRes.ok) {
+    const initDetails = await initRes.json().catch(() => undefined);
+    throw new DriveHttpError(
+      'data.json default payload init failed',
+      initRes.status,
+      initDetails
+    );
+  }
+
+  return { dataJsonFileId: created.id, reused: false };
+}

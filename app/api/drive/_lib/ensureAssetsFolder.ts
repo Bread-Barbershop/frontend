@@ -155,3 +155,58 @@ export async function ensureAssetsFolder(
     },
   };
 }
+
+export async function createAssetsFolders(
+  invitationFolderId: string
+): Promise<EnsureAssetsFolderResult> {
+  if (!invitationFolderId) {
+    throw new DriveHttpError('invitationFolderId가 필요합니다.', 400, {
+      invitationFolderId,
+    });
+  }
+
+  const createFolder = async (params: { name: string; kind: string }) => {
+    const res = await googleFetch('https://www.googleapis.com/drive/v3/files', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: params.name,
+        mimeType: 'application/vnd.google-apps.folder',
+        parents: [invitationFolderId],
+        appProperties: {
+          app_id: APP_IDENTIFIER,
+          kind: params.kind,
+        },
+      }),
+    });
+
+    const data = (await res.json().catch(() => ({}))) as {
+      id?: string;
+      error?: unknown;
+    };
+
+    if (!res.ok || !data.id) {
+      throw new DriveHttpError(
+        `${params.name} 폴더 생성 실패`,
+        res.status,
+        data
+      );
+    }
+
+    return data.id;
+  };
+
+  const [imageFolderId, audioFolderId] = await Promise.all([
+    createFolder({ name: IMAGES_FOLDER_NAME, kind: IMAGES_KIND }),
+    createFolder({ name: AUDIOS_FOLDER_NAME, kind: AUDIOS_KIND }),
+  ]);
+
+  return {
+    imageFolderId,
+    audioFolderId,
+    meta: {
+      imageReused: false,
+      audioReused: false,
+    },
+  };
+}

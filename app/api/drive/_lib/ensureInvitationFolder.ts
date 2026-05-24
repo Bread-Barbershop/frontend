@@ -129,3 +129,55 @@ export async function ensureInvitationFolder(params: {
     reused: false,
   };
 }
+
+export async function createInvitationFolder(params: {
+  workspaceFolderId: string;
+  invitationUuid?: string;
+}): Promise<EnsureInvitationFolderResult> {
+  const { workspaceFolderId } = params;
+
+  if (!workspaceFolderId) {
+    throw new DriveHttpError('workspaceFolderId가 필요합니다.', 400, {
+      workspaceFolderId,
+    });
+  }
+
+  const invitationUuid = params.invitationUuid ?? generateUuid();
+
+  const createRes = await googleFetch(
+    'https://www.googleapis.com/drive/v3/files',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: INVITATION_FOLDER_NAME,
+        mimeType: 'application/vnd.google-apps.folder',
+        parents: [workspaceFolderId],
+        appProperties: {
+          app_id: APP_IDENTIFIER,
+          kind: INVITATION_KIND,
+          inv_id: invitationUuid,
+        },
+      }),
+    }
+  );
+
+  const created = (await createRes.json().catch(() => ({}))) as {
+    id?: string;
+    error?: unknown;
+  };
+
+  if (!createRes.ok || !created.id) {
+    throw new DriveHttpError(
+      '초대장 폴더(uuid) 생성 실패',
+      createRes.status,
+      created
+    );
+  }
+
+  return {
+    invitationFolderId: created.id,
+    invitationUuid,
+    reused: false,
+  };
+}
