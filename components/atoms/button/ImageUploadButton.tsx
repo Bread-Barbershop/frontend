@@ -16,8 +16,9 @@ export const ImageUploadButton = forwardRef<HTMLInputElement, Props>(
         style={{ width: size, height: size }}
         onClick={onButtonClick}
       >
-        <p className="font-semibold text-base">
-          이곳을 클릭하여 사진을 추가해주세요.
+        <p className="text-base font-[500] text-black">
+          <span className="font-[600] text-[#1F72EF]">이곳</span>을
+          클릭하여 사진을 추가해주세요.
         </p>
         <input
           type="file"
