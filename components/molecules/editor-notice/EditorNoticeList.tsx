@@ -17,8 +17,10 @@ function EditorNoticeList({ notices, className }: EditorNoticeListProps) {
   return (
     <div className={cn('flex w-full flex-col gap-1', className)}>
       {notices.map(({ id, text, colorClass = 'text-[#838383]' }) => {
+        const normalizedColorClass = colorClass.toLowerCase();
         const isBlueNotice =
-          colorClass.includes('#1F72EF') || colorClass.includes('blue');
+          normalizedColorClass.includes('#1f72ef') ||
+          normalizedColorClass.includes('blue');
 
         return (
           <p

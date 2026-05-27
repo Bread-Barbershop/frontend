@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import PrivacyNoticeModal from './PrivacyNoticeModal';
 
@@ -9,6 +9,9 @@ const HEADER_PRIVACY_BUTTON_CLASS =
 
 function HeaderPrivacyNoticeButton() {
   const [isOpen, setIsOpen] = useState(false);
+  const handleClose = useCallback(() => {
+    setIsOpen(false);
+  }, []);
 
   return (
     <>
@@ -19,7 +22,7 @@ function HeaderPrivacyNoticeButton() {
       >
         개인정보 걱정 없어요.
       </button>
-      <PrivacyNoticeModal open={isOpen} onClose={() => setIsOpen(false)} />
+      <PrivacyNoticeModal open={isOpen} onClose={handleClose} />
     </>
   );
 }
