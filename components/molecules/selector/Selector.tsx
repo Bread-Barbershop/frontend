@@ -3,6 +3,7 @@ import {
   useState,
   useRef,
   useEffect,
+  useCallback,
   ChangeEvent,
   useId,
   CSSProperties,
@@ -39,6 +40,11 @@ interface SelectorProps<T extends Option> {
   searchable?: boolean;
 }
 
+const VIEWPORT_GAP = 12;
+
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), Math.max(min, max));
+
 export const Selector = <T extends Option>({
   type = 'editor',
   options,
@@ -70,16 +76,31 @@ export const Selector = <T extends Option>({
   // 실제 값이 있는지 확인 (객체 내부의 value나 label 체크)
   const hasValue = !!(selected?.value || selected?.label);
 
-  const updatePopoverPosition = () => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setPopoverPos({
-        top: rect.bottom + window.scrollY,
-        left: rect.left + window.scrollX,
-        width: rect.width,
-      });
-    }
-  };
+  const updatePopoverPosition = useCallback(() => {
+    const container = containerRef.current;
+    if (!container || typeof window === 'undefined') return;
+
+    const rect = container.getBoundingClientRect();
+    const width = rect.width + addPopWidth;
+    const popoverHeight = popoverRef.current?.offsetHeight ?? 0;
+    const maxLeft = window.innerWidth - width - VIEWPORT_GAP;
+    const left = clamp(rect.left, VIEWPORT_GAP, maxLeft);
+    const belowTop = rect.bottom;
+    const aboveTop = rect.top - popoverHeight;
+    const maxTop = window.innerHeight - popoverHeight - VIEWPORT_GAP;
+    const preferredTop =
+      popoverHeight > 0 &&
+      belowTop + popoverHeight > window.innerHeight - VIEWPORT_GAP &&
+      aboveTop >= VIEWPORT_GAP
+        ? aboveTop
+        : belowTop;
+
+    setPopoverPos({
+      top: clamp(preferredTop, VIEWPORT_GAP, maxTop),
+      left,
+      width: rect.width,
+    });
+  }, [addPopWidth]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     onInputChange?.(e.target.value);
@@ -99,6 +120,7 @@ export const Selector = <T extends Option>({
       setIsOpen(true);
       updatePopoverPosition();
       popoverRef.current?.showPopover();
+      window.requestAnimationFrame(updatePopoverPosition);
     }
   };
 
@@ -130,7 +152,31 @@ export const Selector = <T extends Option>({
 
     el.addEventListener('toggle', handleToggleEvent);
     return () => el.removeEventListener('toggle', handleToggleEvent);
-  }, []);
+  }, [updatePopoverPosition]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (typeof window === 'undefined') return;
+
+    updatePopoverPosition();
+    const animationFrameId = window.requestAnimationFrame(
+      updatePopoverPosition
+    );
+
+    window.addEventListener('resize', updatePopoverPosition);
+    window.addEventListener('scroll', updatePopoverPosition, true);
+
+    const resizeObserver = new ResizeObserver(updatePopoverPosition);
+    if (containerRef.current) resizeObserver.observe(containerRef.current);
+    if (popoverRef.current) resizeObserver.observe(popoverRef.current);
+
+    return () => {
+      window.cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', updatePopoverPosition);
+      window.removeEventListener('scroll', updatePopoverPosition, true);
+      resizeObserver.disconnect();
+    };
+  }, [isOpen, updatePopoverPosition]);
 
   const filteredOptions = searchable
     ? options.filter(opt => {
