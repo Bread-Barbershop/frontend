@@ -6,6 +6,7 @@ import { UtilityButton } from '@/components/atoms/button';
 import { Divider } from '@/components/atoms/divider/Divider';
 import { Label } from '@/components/atoms/label/Label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
+import { EditorNoticeList } from '@/components/molecules/editor-notice';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
@@ -198,6 +199,19 @@ export const Interview = ({ blockInfo, id }: Props) => {
           </div>
         ))}
       </div>
+      <EditorNoticeList
+        notices={[
+          {
+            id: 'interview-default-image',
+            text: '배너사진을 추가하지 않으실 경우, 기본 이미지로 제공됩니다.',
+            colorClass: 'text-[#1F72EF]',
+          },
+          {
+            id: 'interview-animation',
+            text: '항목이 2개 이상일 경우, 애니메이션 효과가 적용됩니다.',
+          },
+        ]}
+      />
 
       {isQuestionListOpen && (
         <PopupOptions

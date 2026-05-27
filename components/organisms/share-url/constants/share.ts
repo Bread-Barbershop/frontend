@@ -2,7 +2,7 @@ export const SHARE_NOTICES = [
   {
     id: 1,
     text: '* 해당 초대장을 공유 시 반영되는 기능입니다.',
-    colorClass: 'text-blue-500',
+    colorClass: 'text-[#1F72EF]',
   },
   {
     id: 2,
