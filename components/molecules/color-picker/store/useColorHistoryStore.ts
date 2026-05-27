@@ -5,8 +5,10 @@ type ColorHistoryState = {
   addColorHistory: (hex: string, maxCount: number) => void;
 };
 
+const DEFAULT_COLOR_HISTORY = ['#000000', '#FFFFFF'];
+
 export const useColorHistoryStore = create<ColorHistoryState>(set => ({
-  colorHistory: [],
+  colorHistory: DEFAULT_COLOR_HISTORY,
   addColorHistory: (hex, maxCount) =>
     set(state => ({
       colorHistory: [

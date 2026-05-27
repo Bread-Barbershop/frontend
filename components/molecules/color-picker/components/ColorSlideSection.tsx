@@ -6,6 +6,7 @@ import Hue from '@uiw/react-color-hue';
 import { GlassPointer } from './GlassPointer';
 
 import type { GlassPointerSize } from './GlassPointer';
+import type { PointerEventHandler } from 'react';
 
 /**
  * 색상환 기준의 Hue 값을 조절하는 슬라이더입니다.
@@ -17,13 +18,15 @@ export function ColorSlideSection({
   hue,
   pointerSize,
   onChange,
+  onPointerDown,
 }: {
   hue: number;
   pointerSize?: GlassPointerSize;
   onChange: (hue: number) => void;
+  onPointerDown?: PointerEventHandler<HTMLDivElement>;
 }) {
   return (
-    <div className="w-full">
+    <div className="w-full" onPointerDown={onPointerDown}>
       <Hue
         hue={hue}
         width="100%"
