@@ -60,7 +60,7 @@ function PrivacyNoticeModal({ open, onClose }: PrivacyNoticeModalProps) {
       }}
     >
       <div
-        className={`max-w-[calc(100vw-40px)] rounded-xl border border-white/22 bg-white/72 p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%),0_1px_8px_-2px_rgb(255_255_255_/_35%)] backdrop-blur-xl transition-all duration-200 ${
+        className={`max-w-[calc(100vw-40px)] rounded-xl border border-black/5 bg-white p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%)] transition-all duration-200 ${
           isClosing ? 'scale-[0.98] opacity-0' : 'scale-100 opacity-100'
         }`}
       >
