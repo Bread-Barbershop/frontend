@@ -55,7 +55,13 @@ function Preview() {
             </div>
           )}
           <div className="flex flex-col min-h-full font-lineseed">
-            <MainPosterPreview />
+            <div
+              ref={el => {
+                blockRefs.current.mainPoster = el;
+              }}
+            >
+              <MainPosterPreview />
+            </div>
             {block.map(comp => {
               const registryItem = blockRegistry[comp.component];
 

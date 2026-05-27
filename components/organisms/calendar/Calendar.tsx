@@ -6,6 +6,7 @@ import React, { useCallback } from 'react';
 import { Divider } from '@/components/atoms/divider';
 import { Label } from '@/components/atoms/label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
+import { EditorNoticeList } from '@/components/molecules/editor-notice';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { TextEditor } from '@/components/molecules/text-editor';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
@@ -202,6 +203,15 @@ export function Calendar({ blockInfo, id }: Props) {
             </div>
           </div>
         </div>
+        <EditorNoticeList
+          notices={[
+            {
+              id: 'calendar-dday',
+              text: '디데이 버튼 클릭 시 (D-Day)가 추가되며, (D-Day)에 남은 일수가 표시됩니다.',
+              colorClass: 'text-[#1F72EF]',
+            },
+          ]}
+        />
       </div>
     </LeftEditorWrapper>
   );

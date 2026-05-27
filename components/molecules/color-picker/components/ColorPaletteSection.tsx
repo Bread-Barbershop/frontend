@@ -7,6 +7,7 @@ import { GlassPointer } from './GlassPointer';
 
 import type { PickerHsva } from './colorPicker.types';
 import type { GlassPointerSize } from './GlassPointer';
+import type { PointerEventHandler } from 'react';
 
 /**
  * 채도와 명도를 동시에 조절하는 메인 컬러 팔레트 영역입니다.
@@ -19,14 +20,16 @@ export function ColorPaletteSection({
   className = 'aspect-square w-full',
   pointerSize,
   onChange,
+  onPointerDown,
 }: {
   hsva: PickerHsva;
   className?: string;
   pointerSize?: GlassPointerSize;
   onChange: (nextColor: Partial<PickerHsva>) => void;
+  onPointerDown?: PointerEventHandler<HTMLDivElement>;
 }) {
   return (
-    <div className={`${className} overflow-visible`}>
+    <div className={`${className} overflow-visible`} onPointerDown={onPointerDown}>
       <Saturation
         hsva={hsva}
         radius={12}

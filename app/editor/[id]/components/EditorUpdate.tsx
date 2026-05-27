@@ -46,7 +46,7 @@ function EditorUpdate({ folderId, uuid }: Props) {
   if (error) notFound();
   if (loading || !savedData) {
     return (
-      <div className="w-screen h-full flex justify-center items-center bg-[#E7E9EB]">
+      <div className="w-full h-full flex justify-center items-center bg-[#E7E9EB]">
         <LoadingSpinner className="w-20 h-20 animate-spin" />
       </div>
     );
@@ -54,7 +54,7 @@ function EditorUpdate({ folderId, uuid }: Props) {
 
   return (
     <FabricProvider initialData={savedData?.mainPoster}>
-      <div className="w-screen h-full bg-[#E7E9EB] flex flex-col gap-13 justify-center overflow-hidden">
+      <div className="w-full h-full bg-[#E7E9EB] flex flex-col gap-13 justify-center overflow-hidden">
         <div className="min-w-[1340px] flex justify-between items-center">
           <LeftPanel />
           <div className="flex gap-[clamp(20px,calc(20px+(32-20)*((100vw-1340px)/(1920-1340))),32px)] items-center">

@@ -179,7 +179,7 @@ export function TextEditorPreview({
             }}
           />
 
-          <div className="flex h-8 items-center rounded-md bg-[#f3f3f3] p-px">
+          <div className="flex h-8 items-center gap-1 rounded-md bg-[#f3f3f3] p-px">
             {TEXT_ALIGN_OPTIONS.map(option => {
               const active = textAlignSelected.value === option.value;
 
