@@ -6,6 +6,7 @@ import { DASHBOARD_SHELL_NAV_MENU } from '@/features/session/config/dashboardShe
 import homeBackgroundImage from '@/shared/assets/images/home/home-background.png';
 
 import HeaderAuthControl from './HeaderAuthControl';
+import HeaderPrivacyNoticeButton from './HeaderPrivacyNoticeButton';
 import HomeButton from './HomeButton';
 
 const HEADER_NAV_LINK_CLASS =
@@ -42,9 +43,7 @@ export default async function DashboardShell({
           </nav>
         </div>
 
-        <div className="h-full px-2 flex items-center text-[16px] font-semibold text-[#121212]">
-          개인정보 걱정 없어요.
-        </div>
+        <HeaderPrivacyNoticeButton />
       </header>
 
       <main className="relative max-w-480 w-full mx-auto min-h-0 flex flex-col justify-end">
