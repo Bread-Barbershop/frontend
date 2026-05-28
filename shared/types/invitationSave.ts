@@ -32,6 +32,7 @@ export type MainPosterData = {
     | SerializedObjectProps
   )[];
   background?: string;
+  thumbnailFileId?: string;
 };
 
 export type BulkJson = {

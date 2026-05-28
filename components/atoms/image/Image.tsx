@@ -10,6 +10,7 @@ interface ImageProps extends Omit<NextImageProps, 'onLoad' | 'alt'> {
   alt?: string;
   loadingClassName?: string;
   draggable?: boolean;
+  onLoad?: () => void;
 }
 
 export const Image = ({
@@ -18,6 +19,7 @@ export const Image = ({
   className,
   loadingClassName,
   draggable = false,
+  onLoad,
   ...rest
 }: ImageProps) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -111,7 +113,10 @@ export const Image = ({
             unoptimized={rest.unoptimized || isBlob || isGoogleDrive}
             sizes={rest.sizes || defaultSizes}
             className={cn(className, imageVariants({ loading: isLoading }))}
-            onLoad={() => setIsLoading(false)}
+            onLoad={() => {
+              setIsLoading(false);
+              onLoad?.();
+            }}
             onError={() => setIsLoading(false)}
             draggable={false}
             style={{
@@ -131,7 +136,10 @@ export const Image = ({
           unoptimized={rest.unoptimized || isBlob || isGoogleDrive}
           sizes={rest.sizes || defaultSizes}
           className={cn(className, imageVariants({ loading: isLoading }))}
-          onLoad={() => setIsLoading(false)}
+          onLoad={() => {
+            setIsLoading(false);
+            onLoad?.();
+          }}
           onError={() => setIsLoading(false)}
         />
       )}

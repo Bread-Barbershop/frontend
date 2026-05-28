@@ -14,7 +14,7 @@ import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
 import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissionWithRetry';
 
 /**
- * POST: 초대장 썸네일 데이터를 invitation-thumbnail.json에 저장합니다.
+ * POST: 초대장 썸네일 데이터를 invitation-thumbnail.png에 저장합니다.
  *
  * Body: { invitationFolderId: string, thumbnailData: ThumbnailPayload }
  */
@@ -79,7 +79,7 @@ export async function POST(req: Request) {
 }
 
 /**
- * GET: invitationFolderId로 invitation-thumbnail.json을 조회합니다.
+ * GET: invitationFolderId로 invitation-thumbnail.png을 조회합니다.
  */
 export async function GET(req: Request) {
   try {
@@ -152,7 +152,7 @@ async function createThumbnailFile(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: THUMBNAIL_NAME,
-        mimeType: 'application/json',
+        mimeType: 'image/png',
         parents: [invitationFolderId],
         appProperties: {
           app_id: APP_IDENTIFIER,
@@ -198,14 +198,20 @@ async function updateThumbnailFile(
   fileId: string,
   thumbnailData: ThumbnailPayload
 ): Promise<string> {
+  const base64Data = thumbnailData.dataUrl.replace(
+    /^data:image\/\w+;base64,/,
+    ''
+  );
+  const buffer = Buffer.from(base64Data, 'base64');
+
   const uploadRes = await googleFetch(
     `https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(
       fileId
     )}?uploadType=media&supportsAllDrives=true`,
     {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json; charset=UTF-8' },
-      body: JSON.stringify(thumbnailData),
+      headers: { 'Content-Type': 'image/png' },
+      body: buffer,
     }
   );
 

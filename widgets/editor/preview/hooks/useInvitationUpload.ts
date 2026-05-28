@@ -75,7 +75,7 @@ export const useInvitationUpload = () => {
         bodyData: editorData.bodyData,
         isZoom: editorData.isZoom,
       };
-      // 포스터 아예 없는 경우 여기서 처리하면 될듯
+
       const mainPoster = exportIntersectedJSON() ?? {
         version: '7.1.0',
         objects: [],

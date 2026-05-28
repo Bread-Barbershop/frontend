@@ -338,12 +338,45 @@ async function commit(params: {
       : null,
   };
 
+  let thumbnailFileId: string | undefined = undefined;
+  let thumbnailSaveFailed = false;
+
+  // 초대장 썸네일 데이터 먼저 저장하여 URL(fileId) 확보
+  if (invitationThumbnail && invitationThumbnail.dataUrl) {
+    try {
+      const thumbnailResponse = await fetch('/api/drive/thumbnail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invitationFolderId: prep.invitationFolderId,
+          thumbnailData: invitationThumbnail,
+        }),
+      });
+      if (!thumbnailResponse.ok) {
+        throw new Error(`thumbnail save failed: ${thumbnailResponse.status}`);
+      }
+      const thumbnailResult = await thumbnailResponse.json();
+      if (typeof thumbnailResult?.thumbnailFileId !== 'string') {
+        throw new Error('thumbnail save response missing thumbnailFileId');
+      }
+      thumbnailFileId = thumbnailResult.thumbnailFileId;
+    } catch (error) {
+      thumbnailSaveFailed = true;
+      console.error('초대장 썸네일 데이터 저장 실패:', error);
+    }
+  }
+
+  const finalMainPoster: MainPosterData = {
+    ...mainPoster,
+    thumbnailFileId: thumbnailFileId ?? mainPoster.thumbnailFileId,
+  };
+
   const payload: InvitationPayload = {
     bulkData,
     blocks: newData,
     shareUrl: replacedShareUrl,
     bgm: finalBgm,
-    mainPoster,
+    mainPoster: finalMainPoster,
     invitationImage: images,
   };
 
@@ -420,27 +453,6 @@ async function commit(params: {
     }
   } catch (error) {
     console.error('Share data save failed:', error);
-  }
-
-  let thumbnailSaveFailed = false;
-  // 썸네일 저장은 현재 success 계산에 포함된다. 이후 별도 단계로 분리할 수 있다.
-  if (invitationThumbnail && invitationThumbnail.dataUrl) {
-    try {
-      const thumbnailResponse = await fetch('/api/drive/thumbnail', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          invitationFolderId: prep.invitationFolderId,
-          thumbnailData: invitationThumbnail,
-        }),
-      });
-      if (!thumbnailResponse.ok) {
-        throw new Error(`thumbnail save failed: ${thumbnailResponse.status}`);
-      }
-    } catch (error) {
-      thumbnailSaveFailed = true;
-      console.error('Thumbnail save failed:', error);
-    }
   }
 
   return {
