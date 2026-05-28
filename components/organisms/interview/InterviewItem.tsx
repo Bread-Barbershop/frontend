@@ -7,17 +7,11 @@ import { Picture } from '@/components/molecules/picture/Picture';
 import { TextEditor } from '@/components/molecules/text-editor';
 import { cn } from '@/shared/utils/cn';
 
+import type { InterviewQuestion } from './interviewList';
+
 interface Props {
   id: string;
-  question: {
-    id: string;
-    question: string;
-    answer: {
-      messageJson: JSONContent | null;
-      messageHtml: string | null;
-    };
-    image: (File | string)[];
-  };
+  question: InterviewQuestion;
   questionLength: number;
   editorResetKey: number;
   onQuestionChange: (e: ChangeEvent<HTMLInputElement>) => void;

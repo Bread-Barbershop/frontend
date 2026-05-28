@@ -1,13 +1,17 @@
-import { uploadFileToDrive } from '@/app/oauthTest/utils/uploadFileToDrive';
+import { updateFileToDrive } from './updateFileToDrive';
 
 import type { UploadFail, UploadOk } from './uploadAllSettled';
 
 // error에서 HTTP status(401, 500 등)를 뽑아내는 함수
 function getStatus(err: unknown): number | null {
   if (err instanceof Error) {
-    // 해당 메시지는 추후에 확인 필요. (아래 콘솔 로그 형식이 아닐 수 있음.)
-    const m = err.message.match(/Drive upload failed:\s*(\d{3})/);
+    // PATCH용 에러 메시지 형식. (아래 콘솔 로그 형식이 아닐 수 있음.)
+    const m = err.message.match(/Drive update failed:\s*(\d{3})/);
     if (m?.[1]) return Number(m[1]);
+
+    // 기존 upload 에러 메시지도 같이 커버 (재사용성)
+    const m2 = err.message.match(/Drive upload failed:\s*(\d{3})/);
+    if (m2?.[1]) return Number(m2[1]);
   }
   // 다른 형태(라이브러리/원인 객체)의 에러 탐색.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,9 +31,9 @@ function is5xx(err: unknown) {
   return s !== null && s >= 500 && s <= 599;
 }
 
-export async function retryFailedOnce(params: {
+export async function retryPatchFailedOnce(params: {
   failures: UploadFail[];
-  folderId: string;
+  fileId: string; // PATCH 대상 fileId (dataJsonFileId)
   accessToken: string;
   refreshAccessToken: () => Promise<string>;
 }): Promise<{
@@ -38,7 +42,7 @@ export async function retryFailedOnce(params: {
   refreshedToken: boolean;
   usedAccessToken: string;
 }> {
-  const { failures, folderId, accessToken, refreshAccessToken } = params;
+  const { failures, fileId, accessToken, refreshAccessToken } = params;
 
   // 실패가 없으면 바로 끝
   if (failures.length === 0) {
@@ -69,16 +73,20 @@ export async function retryFailedOnce(params: {
     ? await refreshAccessToken()
     : accessToken;
 
-  // 3 재시도 실행
+  // 3 재시도 실행 (PATCH)
   const tasks = retryTargets.map(async ({ file }) => {
-    const uploadTarget = file instanceof File ? file : file.file;
-    const taskId = file instanceof File ? undefined : file.id;
-    const { fileId, name } = await uploadFileToDrive(
-      uploadTarget,
-      folderId,
+    const patchTarget = file instanceof File ? file : file.file;
+    const { fileId: updatedFileId, name } = await updateFileToDrive(
+      patchTarget,
+      fileId,
       usedAccessToken
     );
-    return { file: uploadTarget, fileId, name, id: taskId } satisfies UploadOk;
+    // update 결과의 id는 보통 입력 fileId와 동일하지만, 응답을 신뢰해서 넣어줌
+    return {
+      file: patchTarget,
+      fileId: updatedFileId,
+      name,
+    } satisfies UploadOk;
   });
 
   const settled = await Promise.allSettled(tasks);

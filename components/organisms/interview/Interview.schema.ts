@@ -1,4 +1,4 @@
-import type { JSONContent } from '@tiptap/react';
+import type { InterviewQuestion } from './interviewList';
 
 export const interviewSchema = {
   type: null,
@@ -16,15 +16,7 @@ export const interviewSchema = {
       required: false,
     },
     questions: {
-      default: [] as {
-        id: string;
-        question: string;
-        answer: {
-          messageJson: JSONContent | null;
-          messageHtml: string | null;
-        };
-        image: (File | string)[];
-      }[],
+      default: [] as InterviewQuestion[],
       required: false,
     },
   },

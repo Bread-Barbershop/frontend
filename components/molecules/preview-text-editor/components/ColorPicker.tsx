@@ -11,11 +11,17 @@ import {
 import { createPortal } from 'react-dom';
 
 import SmallColorPicker from '@/components/molecules/color-picker/SmallColorPicker';
+import {
+  clampFloatingValue,
+  resolveFloatingTop,
+  type FloatingPlacementMode,
+} from '@/shared/utils/floatingPosition';
 
 interface Props {
   initialHex?: string;
   onClose?: () => void;
   containerRef?: RefObject<HTMLElement | null>;
+  placementMode?: FloatingPlacementMode;
   onChange: (hex: string) => void;
 }
 
@@ -24,13 +30,11 @@ const TRIGGER_GAP = 8;
 const PANEL_GAP = 12;
 const LEFT_PANEL_SELECTOR = '[data-editor-left-panel]';
 
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(Math.max(value, min), Math.max(min, max));
-
 export default function BulkColorPicker({
   initialHex = '#FF4D6D',
   onClose,
   containerRef,
+  placementMode = 'center',
   onChange,
 }: Props) {
   const pickerRef = useRef<HTMLDivElement>(null);
@@ -65,24 +69,16 @@ export default function BulkColorPicker({
         : triggerRect
           ? triggerRect.right - pickerWidth
           : (window.innerWidth - pickerWidth) / 2;
-      const left = clamp(preferredLeft, VIEWPORT_GAP, maxLeft);
-
-      const maxTop = window.innerHeight - pickerHeight - VIEWPORT_GAP;
-      const preferredTop = triggerRect
-        ? triggerRect.top
-        : panelRect
-          ? panelRect.top + (panelRect.height - pickerHeight) / 2
-          : (window.innerHeight - pickerHeight) / 2;
-      const top = triggerRect
-        ? preferredTop + pickerHeight <= window.innerHeight - VIEWPORT_GAP ||
-          triggerRect.top - pickerHeight - TRIGGER_GAP < VIEWPORT_GAP
-          ? clamp(preferredTop, VIEWPORT_GAP, maxTop)
-          : clamp(
-              triggerRect.top - pickerHeight - TRIGGER_GAP,
-              VIEWPORT_GAP,
-              maxTop
-            )
-        : clamp(preferredTop, VIEWPORT_GAP, maxTop);
+      const left = clampFloatingValue(preferredLeft, VIEWPORT_GAP, maxLeft);
+      const top = resolveFloatingTop({
+        mode: placementMode,
+        floatingHeight: pickerHeight,
+        triggerRect,
+        containerRect: panelRect,
+        viewportGap: VIEWPORT_GAP,
+        triggerGap: TRIGGER_GAP,
+        flipSticky: true,
+      });
 
       setPopoverStyle({
         position: 'fixed',
@@ -111,7 +107,7 @@ export default function BulkColorPicker({
       window.removeEventListener('scroll', updatePosition, true);
       resizeObserver.disconnect();
     };
-  }, [containerRef]);
+  }, [containerRef, placementMode]);
 
   if (typeof document === 'undefined') return null;
 

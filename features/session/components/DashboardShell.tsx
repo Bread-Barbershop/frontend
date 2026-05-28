@@ -6,10 +6,11 @@ import { DASHBOARD_SHELL_NAV_MENU } from '@/features/session/config/dashboardShe
 import homeBackgroundImage from '@/shared/assets/images/home/home-background.png';
 
 import HeaderAuthControl from './HeaderAuthControl';
+import HeaderPrivacyNoticeButton from './HeaderPrivacyNoticeButton';
 import HomeButton from './HomeButton';
 
 const HEADER_NAV_LINK_CLASS =
-  'h-full px-8 flex items-center text-[16px] font-semibold text-[#121212] hover:text-black transition-colors';
+  'flex items-center border-b border-transparent px-2 py-[6.5px] text-[16px] font-semibold text-[#121212] transition-colors hover:border-black hover:text-black';
 
 export default async function DashboardShell({
   children,
@@ -24,21 +25,25 @@ export default async function DashboardShell({
       style={{ backgroundImage: `url(${homeBackgroundImage.src})` }}
     >
       <header className="h-15.5 bg-white flex items-center justify-between px-10">
-        <HomeButton />
+        <div className="flex h-full items-center gap-8">
+          <HomeButton />
 
-        <div className="flex items-center h-full">
-          <HeaderAuthControl initialIsLoggedIn={session.isLoggedIn} />
+          <nav className="flex h-full items-center gap-6">
+            <HeaderAuthControl initialIsLoggedIn={session.isLoggedIn} />
 
-          {DASHBOARD_SHELL_NAV_MENU.map(menu => (
-            <Link
-              key={`${menu.title}-${menu.href}`}
-              href={menu.href}
-              className={HEADER_NAV_LINK_CLASS}
-            >
-              {menu.title}
-            </Link>
-          ))}
+            {DASHBOARD_SHELL_NAV_MENU.map(menu => (
+              <Link
+                key={`${menu.title}-${menu.href}`}
+                href={menu.href}
+                className={HEADER_NAV_LINK_CLASS}
+              >
+                {menu.title}
+              </Link>
+            ))}
+          </nav>
         </div>
+
+        <HeaderPrivacyNoticeButton />
       </header>
 
       <main className="relative max-w-480 w-full mx-auto min-h-0 flex flex-col justify-end">

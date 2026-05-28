@@ -6,19 +6,12 @@ import { Picture } from '@/components/molecules/picture/Picture';
 import { TextEditor } from '@/components/molecules/text-editor';
 import { cn } from '@/shared/utils/cn';
 
+import type { NoticeListItem } from './noticeList';
 import type { JSONContent } from '@tiptap/react';
 
 interface Props {
   id: string;
-  notice: {
-    id: string;
-    notice: string;
-    content: {
-      messageJson: JSONContent | null;
-      messageHtml: string | null;
-    };
-    image: (File | string)[];
-  };
+  notice: NoticeListItem;
   noticeLength: number;
   editorResetKey: number;
   onNoticeChange: (e: ChangeEvent<HTMLInputElement>) => void;

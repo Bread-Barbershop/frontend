@@ -3,10 +3,13 @@ import { previewTextClassName } from '@/components/molecules/text-editor/utils/p
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 import { cn } from '@/shared/utils/cn';
 
+import type { StaticImageData } from 'next/image';
+
 export const InterviewPreviewItem = ({
   question,
   answerHtml,
   image,
+  defaultImage,
   isOpen,
   className,
   onToggle,
@@ -14,13 +17,13 @@ export const InterviewPreviewItem = ({
   question: string;
   answerHtml: string;
   image?: (File | string)[];
+  defaultImage?: StaticImageData;
   isOpen: boolean;
   className?: string;
   onToggle: () => void;
 }) => {
-  const preview = useResolvedImageSource(
-    image && image.length > 0 ? image[0] : null
-  );
+  const customPreview = useResolvedImageSource(image?.[0]);
+  const preview = customPreview ?? defaultImage;
   const hasAnswer =
     answerHtml
       .replace(/<[^>]*>/g, '')

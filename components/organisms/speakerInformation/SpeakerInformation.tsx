@@ -6,6 +6,7 @@ import { UtilityButton } from '@/components/atoms/button';
 import { Divider } from '@/components/atoms/divider/Divider';
 import { Label } from '@/components/atoms/label/Label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
+import { EditorNoticeList } from '@/components/molecules/editor-notice';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
@@ -201,6 +202,14 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
           영문 제목 추가
         </Checkbox>
       </section>
+      <EditorNoticeList
+        notices={[
+          {
+            id: 'speaker-animation',
+            text: '항목이 2개 이상일 경우, 애니메이션 효과가 적용됩니다.',
+          },
+        ]}
+      />
     </LeftEditorWrapper>
   );
 };

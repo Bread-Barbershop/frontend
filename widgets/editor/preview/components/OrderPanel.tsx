@@ -140,7 +140,7 @@ function OrderPanel() {
           >
             <button
               type="button"
-              className={`flex-center px-3 py-2 w-24 rounded-sm ${selectedId === 'mainPoster' ? 'bg-[#DBE8FC]' : ''}`}
+              className={`flex-center px-3 py-2 w-24 cursor-pointer rounded-sm ${selectedId === 'mainPoster' ? 'bg-[#DBE8FC]' : ''}`}
               onPointerDown={() => handleSelect('mainPoster')}
             >
               포스터

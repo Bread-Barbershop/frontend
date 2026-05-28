@@ -54,9 +54,13 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
   const [isBusy, setIsBusy] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isLoginPending, setIsLoginPending] = useState(false);
+  const [isPrivacyNoticeOpen, setIsPrivacyNoticeOpen] = useState(false);
 
   const popupRef = useRef<Window | null>(null);
   const pendingActionRef = useRef<(() => void | Promise<void>) | null>(null);
+  const postNoticeActionRef = useRef<(() => void | Promise<void>) | null>(
+    null
+  );
 
   const releaseLoginPending = useCallback(() => {
     popupRef.current = null;
@@ -89,14 +93,23 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
 
     const pendingAction = pendingActionRef.current;
     pendingActionRef.current = null;
+    postNoticeActionRef.current = pendingAction;
+    setIsPrivacyNoticeOpen(true);
+  }, [success]);
 
-    if (pendingAction) {
-      void Promise.resolve(pendingAction()).catch(console.error);
+  const closePrivacyNotice = useCallback(() => {
+    setIsPrivacyNoticeOpen(false);
+
+    const postNoticeAction = postNoticeActionRef.current;
+    postNoticeActionRef.current = null;
+
+    if (postNoticeAction) {
+      void Promise.resolve(postNoticeAction()).catch(console.error);
       return;
     }
 
     router.refresh();
-  }, [router, success]);
+  }, [router]);
 
   useEffect(() => {
     setIsLoggedIn(initialIsLoggedIn);
@@ -105,6 +118,7 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
+      if (!popupRef.current) return;
 
       if (event.data?.type === 'GOOGLE_OAUTH_SUCCESS') {
         completeLoginSuccess();
@@ -167,8 +181,10 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
 
       if (!isSessionValid) {
         pendingActionRef.current = null;
+        postNoticeActionRef.current = null;
         setIsLoggedIn(false);
         setIsLoginOpen(false);
+        setIsPrivacyNoticeOpen(false);
         router.replace('/');
         router.refresh();
         return false;
@@ -193,6 +209,8 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
       }
 
       setIsLoggedIn(false);
+      setIsPrivacyNoticeOpen(false);
+      postNoticeActionRef.current = null;
       router.replace('/');
       router.refresh();
     } catch (err) {
@@ -229,8 +247,10 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
     isBusy,
     isLoginOpen,
     isLoginPending,
+    isPrivacyNoticeOpen,
     login,
     closeLogin,
+    closePrivacyNotice,
     loginWithGoogle,
     logout,
     runAfterAuth,

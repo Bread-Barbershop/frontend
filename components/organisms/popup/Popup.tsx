@@ -15,6 +15,11 @@ import { createPortal } from 'react-dom';
 import { UtilityButton } from '@/components/atoms/button';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { cn } from '@/shared/utils/cn';
+import {
+  clampFloatingValue,
+  resolveFloatingTop,
+  type FloatingPlacementMode,
+} from '@/shared/utils/floatingPosition';
 
 interface Props {
   children: ReactNode;
@@ -26,14 +31,12 @@ interface Props {
   contentClassName?: string;
   hideCloseButton?: boolean;
   triggerRef?: RefObject<HTMLElement | null>;
+  placementMode?: FloatingPlacementMode;
 }
 
 const VIEWPORT_GAP = 12;
 const PANEL_GAP = 12;
 const LEFT_PANEL_SELECTOR = '[data-editor-left-panel]';
-
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(Math.max(value, min), Math.max(min, max));
 
 export const Popup = ({
   children,
@@ -45,6 +48,7 @@ export const Popup = ({
   contentClassName,
   hideCloseButton = false,
   triggerRef,
+  placementMode = 'sticky',
 }: Props) => {
   const popupRef = useRef<HTMLDivElement>(null);
   const [popupStyle, setPopupStyle] = useState<CSSProperties>({
@@ -76,23 +80,22 @@ export const Popup = ({
       const popupWidth = popup.offsetWidth;
       const popupHeight = popup.offsetHeight;
       const maxLeft = window.innerWidth - popupWidth - VIEWPORT_GAP;
-      const maxTop = window.innerHeight - popupHeight - VIEWPORT_GAP;
 
       const preferredLeft = panelRect
         ? panelRect.right + PANEL_GAP
         : triggerRect
           ? triggerRect.right + PANEL_GAP
           : (window.innerWidth - popupWidth) / 2;
-      const preferredTop = triggerRect
-        ? triggerRect.top
-        : panelRect
-          ? panelRect.top
-          : (window.innerHeight - popupHeight) / 2;
-
       setPopupStyle({
         position: 'fixed',
-        left: clamp(preferredLeft, VIEWPORT_GAP, maxLeft),
-        top: clamp(preferredTop, VIEWPORT_GAP, maxTop),
+        left: clampFloatingValue(preferredLeft, VIEWPORT_GAP, maxLeft),
+        top: resolveFloatingTop({
+          mode: placementMode,
+          floatingHeight: popupHeight,
+          triggerRect,
+          containerRect: panelRect,
+          viewportGap: VIEWPORT_GAP,
+        }),
         visibility: 'visible',
         zIndex: 1000,
       });
@@ -116,7 +119,7 @@ export const Popup = ({
       window.removeEventListener('scroll', updatePosition, true);
       resizeObserver.disconnect();
     };
-  }, [triggerRef, variant]);
+  }, [placementMode, triggerRef, variant]);
 
   useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {

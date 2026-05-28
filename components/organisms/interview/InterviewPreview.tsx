@@ -6,6 +6,7 @@ import Carousel from '@/features/EmblaCarousel/Carousel/Carousel';
 import { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 
+import { getInterviewDefaultImage } from './interviewList';
 import { InterviewPreviewItem } from './InterviewPreviewItem';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -83,6 +84,7 @@ export const InterviewPreview = ({
                 question={question.question}
                 answerHtml={question.answer.messageHtml || ''}
                 image={question.image}
+                defaultImage={getInterviewDefaultImage(question)}
                 isOpen={openQuestionIds[question.id] ?? false}
                 className={isMultiple ? 'w-70' : 'w-full'}
                 onToggle={() => handleToggleOpen(question.id)}
