@@ -356,6 +356,9 @@ async function commit(params: {
         throw new Error(`thumbnail save failed: ${thumbnailResponse.status}`);
       }
       const thumbnailResult = await thumbnailResponse.json();
+      if (typeof thumbnailResult?.thumbnailFileId !== 'string') {
+        throw new Error('thumbnail save response missing thumbnailFileId');
+      }
       thumbnailFileId = thumbnailResult.thumbnailFileId;
     } catch (error) {
       thumbnailSaveFailed = true;
@@ -365,7 +368,7 @@ async function commit(params: {
 
   const finalMainPoster: MainPosterData = {
     ...mainPoster,
-    thumbnailFileId,
+    thumbnailFileId: thumbnailFileId ?? mainPoster.thumbnailFileId,
   };
 
   const payload: InvitationPayload = {

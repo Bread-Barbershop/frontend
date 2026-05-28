@@ -140,7 +140,7 @@ async function loadThumbnailUrl(
       return null;
     }
 
-    return `https://lh3.googleusercontent.com/d/${thumbnailFileId}`;
+    return `https://lh3.googleusercontent.com/d/${encodeURIComponent(thumbnailFileId)}`;
   } catch {
     return null;
   }
@@ -157,81 +157,77 @@ async function hasKakaoShareData(invitationFolderId: string): Promise<boolean> {
 
 export async function loadDashboardInvitations(): Promise<LoadInvitationResponse> {
   // return measureAsync('Dashboard Load Total', async () => {
-    const workspaceFolderId = await findWorkspaceFolderId();
+  const workspaceFolderId = await findWorkspaceFolderId();
 
-    if (!workspaceFolderId) {
-      return {
-        workspaceFolderId: null,
-        invites: [],
-        nextPageToken: null,
-      };
-    }
-
-    const q = [
-      `'${escapeDriveQueryValue(workspaceFolderId)}' in parents`,
-      `mimeType='application/vnd.google-apps.folder'`,
-      `trashed=false`,
-      `appProperties has { key='app_id' and value='${escapeDriveQueryValue(
-        APP_IDENTIFIER
-      )}' }`,
-      `appProperties has { key='kind' and value='${escapeDriveQueryValue(
-        INVITATION_KIND
-      )}' }`,
-    ].join(' and ');
-
-    const url = new URL('https://www.googleapis.com/drive/v3/files');
-    url.searchParams.set('q', q);
-    url.searchParams.set('spaces', 'drive');
-    url.searchParams.set('orderBy', 'createdTime desc');
-    url.searchParams.set('pageSize', '100');
-    url.searchParams.set(
-      'fields',
-      'files(id,name,createdTime,appProperties),nextPageToken'
-    );
-
-    const listRes = await googleFetch(url.toString(), { cache: 'no-store' });
-    const listData = (await listRes
-      .json()
-      .catch(() => ({}))) as DriveListResponse;
-
-    if (!listRes.ok) {
-      throw new DriveHttpError(
-        '초대장 목록 조회 실패',
-        listRes.status,
-        listData
-      );
-    }
-
-    const invitationFolders: InviteListItem[] = (listData.files ?? [])
-      .filter(f => f.id && f.name)
-      .map(f => ({
-        folderId: f.id!,
-        name: f.name!,
-        createdTime: f.createdTime,
-        invitationUuid: f.appProperties?.inv_id,
-      }))
-      .filter(x => Boolean(x.invitationUuid));
-
-    const invites = await Promise.all(
-      invitationFolders.map(async invite => {
-        const [publishedUrl, thumbnailUrl, hasShareData] = await Promise.all([
-          loadPublishedUrl(invite.folderId),
-          loadThumbnailUrl(invite.folderId),
-          hasKakaoShareData(invite.folderId),
-        ]);
-        return {
-          ...invite,
-          publishedUrl,
-          thumbnailUrl,
-          hasKakaoShareData: hasShareData,
-        };
-      })
-    );
-
+  if (!workspaceFolderId) {
     return {
-      workspaceFolderId,
-      invites,
-      nextPageToken: listData.nextPageToken ?? null,
+      workspaceFolderId: null,
+      invites: [],
+      nextPageToken: null,
     };
+  }
+
+  const q = [
+    `'${escapeDriveQueryValue(workspaceFolderId)}' in parents`,
+    `mimeType='application/vnd.google-apps.folder'`,
+    `trashed=false`,
+    `appProperties has { key='app_id' and value='${escapeDriveQueryValue(
+      APP_IDENTIFIER
+    )}' }`,
+    `appProperties has { key='kind' and value='${escapeDriveQueryValue(
+      INVITATION_KIND
+    )}' }`,
+  ].join(' and ');
+
+  const url = new URL('https://www.googleapis.com/drive/v3/files');
+  url.searchParams.set('q', q);
+  url.searchParams.set('spaces', 'drive');
+  url.searchParams.set('orderBy', 'createdTime desc');
+  url.searchParams.set('pageSize', '100');
+  url.searchParams.set(
+    'fields',
+    'files(id,name,createdTime,appProperties),nextPageToken'
+  );
+
+  const listRes = await googleFetch(url.toString(), { cache: 'no-store' });
+  const listData = (await listRes
+    .json()
+    .catch(() => ({}))) as DriveListResponse;
+
+  if (!listRes.ok) {
+    throw new DriveHttpError('초대장 목록 조회 실패', listRes.status, listData);
+  }
+
+  const invitationFolders: InviteListItem[] = (listData.files ?? [])
+    .filter(f => f.id && f.name)
+    .map(f => ({
+      folderId: f.id!,
+      name: f.name!,
+      createdTime: f.createdTime,
+      invitationUuid: f.appProperties?.inv_id,
+    }))
+    .filter(x => Boolean(x.invitationUuid));
+
+  const invites = await Promise.all(
+    invitationFolders.map(async invite => {
+      const [publishedUrl, thumbnailUrl, hasShareData] = await Promise.all([
+        loadPublishedUrl(invite.folderId),
+        loadThumbnailUrl(invite.folderId),
+        hasKakaoShareData(invite.folderId),
+      ]);
+      return {
+        ...invite,
+        publishedUrl,
+        thumbnailUrl,
+        hasKakaoShareData: hasShareData,
+      };
+    })
+  );
+
+  return {
+    workspaceFolderId,
+    invites,
+    nextPageToken: listData.nextPageToken ?? null,
+  };
   // });
 }
