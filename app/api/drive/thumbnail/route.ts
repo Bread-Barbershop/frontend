@@ -14,7 +14,7 @@ import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
 import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissionWithRetry';
 
 /**
- * POST: 초대장 썸네일 데이터를 invitation-thumbnail.json에 저장합니다.
+ * POST: 초대장 썸네일 데이터를 invitation-thumbnail.png에 저장합니다.
  *
  * Body: { invitationFolderId: string, thumbnailData: ThumbnailPayload }
  */
@@ -79,7 +79,7 @@ export async function POST(req: Request) {
 }
 
 /**
- * GET: invitationFolderId로 invitation-thumbnail.json을 조회합니다.
+ * GET: invitationFolderId로 invitation-thumbnail.png을 조회합니다.
  */
 export async function GET(req: Request) {
   try {
@@ -198,7 +198,10 @@ async function updateThumbnailFile(
   fileId: string,
   thumbnailData: ThumbnailPayload
 ): Promise<string> {
-  const base64Data = thumbnailData.dataUrl.replace(/^data:image\/\w+;base64,/, '');
+  const base64Data = thumbnailData.dataUrl.replace(
+    /^data:image\/\w+;base64,/,
+    ''
+  );
   const buffer = Buffer.from(base64Data, 'base64');
 
   const uploadRes = await googleFetch(

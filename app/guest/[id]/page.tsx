@@ -98,8 +98,6 @@ export default async function GuestPage({
     notFound();
   }
 
-  console.log({ payload });
-
   return (
     <main className="min-h-screen bg-neutral-50">
       <div

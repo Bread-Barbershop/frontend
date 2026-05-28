@@ -24,7 +24,7 @@ export type EnsureThumbnailFileResult = {
 };
 
 /**
- * invitation 폴더 내에 단일 invitation-thumbnail.json 파일이 존재하는지 확인합니다.
+ * invitation 폴더 내에 단일 invitation-thumbnail.png 파일이 존재하는지 확인합니다.
  */
 export async function ensureThumbnailFile(
   invitationFolderId: string
