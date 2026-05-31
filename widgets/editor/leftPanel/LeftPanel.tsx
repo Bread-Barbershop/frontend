@@ -42,15 +42,29 @@ function LeftPanel() {
         </div>
       </div>
 
-      <div className="flex flex-col bg-white rounded-lg shadow-edit border border-black/5 transition-default">
-        <div
-          key={`edit-${isEdit}`}
-          className={`grid ${!isEdit ? 'animate-grow-height opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
-        >
-          <div className="w-full overflow-hidden max-h-[750px]">
-            <Edit />
+      <div
+        className={`flex flex-col bg-white rounded-lg shadow-edit border border-black/5 transition-default ${
+          isEdit ? 'h-11' : ''
+        }`}
+      >
+        {isEdit ? (
+          <button
+            type="button"
+            className="flex-center relative w-full h-full font-semibold"
+            onClick={() => setIsEdit(false)}
+          >
+            상세 편집
+          </button>
+        ) : (
+          <div
+            key={`edit-${isEdit}`}
+            className={`grid ${!isEdit ? 'animate-grow-height opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+          >
+            <div className="w-full overflow-hidden max-h-[750px]">
+              <Edit />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
