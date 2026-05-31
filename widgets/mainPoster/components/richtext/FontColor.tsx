@@ -1,7 +1,13 @@
 import { hsvaToHex } from '@uiw/color-convert';
 import { Textbox } from 'fabric';
 import { ChevronDown } from 'lucide-react';
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from 'react';
 
 import {
   ColorPickerValue,
@@ -9,9 +15,17 @@ import {
 } from '@/components/molecules/color-picker/components/colorPicker.types';
 import SmallColorPicker from '@/components/molecules/color-picker/SmallColorPicker';
 import { cn } from '@/shared/utils/cn';
+import {
+  clampFloatingValue,
+  resolveFloatingTop,
+} from '@/shared/utils/floatingPosition';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import { convertFabricColor } from '../../utils/fabricUtils';
+
+const VIEWPORT_GAP = 12;
+const PANEL_GAP = 12;
+const LEFT_PANEL_SELECTOR = '[data-editor-left-panel]';
 
 const ColorIcon = ({ color }: { color: string }) => (
   <svg
@@ -46,15 +60,31 @@ function FontColor() {
   const baseId = useId();
   const popoverId = `color-picker-${baseId}`;
 
-  const updatePopoverPosition = () => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setPopoverPos({
-        top: rect.bottom + window.scrollY,
-        left: rect.left + window.scrollX,
-      });
-    }
-  };
+  const updatePopoverPosition = useCallback(() => {
+    const container = containerRef.current;
+    if (!container || typeof window === 'undefined') return;
+
+    const triggerRect = container.getBoundingClientRect();
+    const panel = container.closest(LEFT_PANEL_SELECTOR);
+    const panelRect = panel?.getBoundingClientRect();
+    const popoverWidth = popoverRef.current?.offsetWidth ?? 0;
+    const popoverHeight = popoverRef.current?.offsetHeight ?? 0;
+    const maxLeft = window.innerWidth - popoverWidth - VIEWPORT_GAP;
+    const preferredLeft = panelRect
+      ? panelRect.right + PANEL_GAP
+      : triggerRect.right - popoverWidth;
+
+    setPopoverPos({
+      top: resolveFloatingTop({
+        mode: 'center',
+        floatingHeight: popoverHeight,
+        triggerRect,
+        containerRect: panelRect,
+        viewportGap: VIEWPORT_GAP,
+      }),
+      left: clampFloatingValue(preferredLeft, VIEWPORT_GAP, maxLeft),
+    });
+  }, []);
 
   const handleColorPickerToggle = () => {
     if (openFontColor) {
@@ -62,6 +92,7 @@ function FontColor() {
     } else {
       updatePopoverPosition();
       popoverRef.current?.showPopover();
+      window.requestAnimationFrame(updatePopoverPosition);
     }
   };
 
@@ -89,7 +120,33 @@ function FontColor() {
 
     el.addEventListener('toggle', handleToggleEvent);
     return () => el.removeEventListener('toggle', handleToggleEvent);
-  }, []);
+  }, [updatePopoverPosition]);
+
+  useEffect(() => {
+    if (!openFontColor) return;
+    if (typeof window === 'undefined') return;
+
+    updatePopoverPosition();
+    const animationFrameId = window.requestAnimationFrame(
+      updatePopoverPosition
+    );
+
+    window.addEventListener('resize', updatePopoverPosition);
+    window.addEventListener('scroll', updatePopoverPosition, true);
+
+    const resizeObserver = new ResizeObserver(updatePopoverPosition);
+    const panel = document.querySelector(LEFT_PANEL_SELECTOR);
+    if (containerRef.current) resizeObserver.observe(containerRef.current);
+    if (popoverRef.current) resizeObserver.observe(popoverRef.current);
+    if (panel) resizeObserver.observe(panel);
+
+    return () => {
+      window.cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', updatePopoverPosition);
+      window.removeEventListener('scroll', updatePopoverPosition, true);
+      resizeObserver.disconnect();
+    };
+  }, [openFontColor, updatePopoverPosition]);
 
   useEffect(() => {
     if (!activeObject) {
@@ -154,7 +211,7 @@ function FontColor() {
         popover="auto"
         className="z-9999 border-none p-0 m-0 fixed bg-transparent overflow-visible"
         style={{
-          top: `${popoverPos.top + 4}px`,
+          top: `${popoverPos.top}px`,
           left: `${popoverPos.left}px`,
           inset: 'auto',
           touchAction: 'none',

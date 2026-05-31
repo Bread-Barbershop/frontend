@@ -46,20 +46,32 @@ jest.mock('@/app/api/drive/_lib/getFreshAccessToken', () => ({
 
 jest.mock('@/app/api/drive/_lib/ensureInvitationFolder', () => ({
   ensureInvitationFolder: jest.fn(),
+  createInvitationFolder: jest.fn(),
 }));
 
 jest.mock('@/app/api/drive/_lib/ensureDataJsonFile', () => ({
   ensureDataJsonFile: jest.fn(),
+  createDataJsonFile: jest.fn(),
 }));
 
 jest.mock('@/app/api/drive/_lib/ensureAssetsFolder', () => ({
   ensureAssetsFolder: jest.fn(),
+  createAssetsFolders: jest.fn(),
 }));
 
 import { POST } from '@/app/api/drive/saveInvitation/route';
-import { ensureAssetsFolder } from '@/app/api/drive/_lib/ensureAssetsFolder';
-import { ensureDataJsonFile } from '@/app/api/drive/_lib/ensureDataJsonFile';
-import { ensureInvitationFolder } from '@/app/api/drive/_lib/ensureInvitationFolder';
+import {
+  createAssetsFolders,
+  ensureAssetsFolder,
+} from '@/app/api/drive/_lib/ensureAssetsFolder';
+import {
+  createDataJsonFile,
+  ensureDataJsonFile,
+} from '@/app/api/drive/_lib/ensureDataJsonFile';
+import {
+  createInvitationFolder,
+  ensureInvitationFolder,
+} from '@/app/api/drive/_lib/ensureInvitationFolder';
 import {
   ensureWorkspace,
   DriveHttpError,
@@ -94,7 +106,7 @@ describe('saveInvitation Route Handler 테스트', () => {
     (ensureInvitationFolder as jest.Mock).mockResolvedValue({
       invitationFolderId: 'invitation-folder-id',
       invitationUuid: 'invitation-uuid-123',
-      reused: false,
+      reused: true,
     });
 
     (ensureDataJsonFile as jest.Mock).mockResolvedValue({
@@ -137,7 +149,7 @@ describe('saveInvitation Route Handler 테스트', () => {
       expiresAt: 1760000000000,
       meta: {
         workspaceReused: true,
-        invitationReused: false,
+        invitationReused: true,
         dataJsonReused: true,
         assets: {
           imageReused: true,
@@ -156,9 +168,89 @@ describe('saveInvitation Route Handler 테스트', () => {
       workspaceFolderId: 'workspace-folder-id',
       invitationUuid: 'existing-invitation-uuid',
     });
+    expect(createInvitationFolder).not.toHaveBeenCalled();
 
     expect(ensureDataJsonFile).toHaveBeenCalledWith('invitation-folder-id');
     expect(ensureAssetsFolder).toHaveBeenCalledWith('invitation-folder-id');
+    expect(createDataJsonFile).not.toHaveBeenCalled();
+    expect(createAssetsFolders).not.toHaveBeenCalled();
+  });
+
+  it('신규 초대장 폴더가 생성되면 하위 리소스를 검색하지 않고 바로 생성한다', async () => {
+    (getFreshAccessToken as jest.Mock).mockResolvedValue({
+      accessToken: 'fresh-access-token',
+      expiresAt: 1760000000000,
+    });
+
+    (ensureWorkspace as jest.Mock).mockResolvedValue({
+      folderId: 'workspace-folder-id',
+      reused: true,
+    });
+
+    (createInvitationFolder as jest.Mock).mockResolvedValue({
+      invitationFolderId: 'new-invitation-folder-id',
+      invitationUuid: 'new-invitation-uuid-123',
+      reused: false,
+    });
+
+    (createDataJsonFile as jest.Mock).mockResolvedValue({
+      dataJsonFileId: 'new-data-json-file-id',
+      reused: false,
+    });
+
+    (createAssetsFolders as jest.Mock).mockResolvedValue({
+      imageFolderId: 'new-image-folder-id',
+      audioFolderId: 'new-audio-folder-id',
+      meta: {
+        imageReused: false,
+        audioReused: false,
+      },
+    });
+
+    const req = new Request('http://localhost:3000/api/drive/saveInvitation', {
+      method: 'POST',
+      body: JSON.stringify({}),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const res = await POST(req);
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json).toEqual({
+      workspaceFolderId: 'workspace-folder-id',
+      invitationFolderId: 'new-invitation-folder-id',
+      invitationUuid: 'new-invitation-uuid-123',
+      imageFolderId: 'new-image-folder-id',
+      audioFolderId: 'new-audio-folder-id',
+      dataJsonFileId: 'new-data-json-file-id',
+      accessToken: 'fresh-access-token',
+      expiresAt: 1760000000000,
+      meta: {
+        workspaceReused: true,
+        invitationReused: false,
+        dataJsonReused: false,
+        assets: {
+          imageReused: false,
+          audioReused: false,
+        },
+      },
+    });
+
+    expect(createDataJsonFile).toHaveBeenCalledWith(
+      'new-invitation-folder-id'
+    );
+    expect(createAssetsFolders).toHaveBeenCalledWith(
+      'new-invitation-folder-id'
+    );
+    expect(ensureDataJsonFile).not.toHaveBeenCalled();
+    expect(ensureAssetsFolder).not.toHaveBeenCalled();
+    expect(ensureInvitationFolder).not.toHaveBeenCalled();
+    expect(createInvitationFolder).toHaveBeenCalledWith({
+      workspaceFolderId: 'workspace-folder-id',
+    });
   });
 
   it('auth_required 에러면 401을 반환한다', async () => {
@@ -193,6 +285,7 @@ describe('saveInvitation Route Handler 테스트', () => {
      */
     expect(ensureWorkspace).not.toHaveBeenCalled();
     expect(ensureInvitationFolder).not.toHaveBeenCalled();
+    expect(createInvitationFolder).not.toHaveBeenCalled();
     expect(ensureDataJsonFile).not.toHaveBeenCalled();
     expect(ensureAssetsFolder).not.toHaveBeenCalled();
   });
@@ -265,7 +358,7 @@ describe('saveInvitation Route Handler 테스트', () => {
 
     const req = new Request('http://localhost:3000/api/drive/saveInvitation', {
       method: 'POST',
-      body: JSON.stringify({}),
+      body: JSON.stringify({ invitationUuid: 'existing-invitation-uuid' }),
       headers: {
         'Content-Type': 'application/json',
       },

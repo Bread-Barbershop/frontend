@@ -1,7 +1,7 @@
 import { cva, VariantProps } from 'class-variance-authority';
 
 export const selectorVariants = cva(
-  'flex items-center justify-between w-full text-sm transition-all overflow-hidden',
+  'flex items-center justify-between w-full text-sm transition-all overflow-hidden select-none',
   {
     variants: {
       type: {
@@ -9,8 +9,7 @@ export const selectorVariants = cva(
         editor: '',
       },
       isOpen: {
-        true:
-          'rounded-t-lg border-b-transparent shadow-[0_-3px_8px_rgba(0,0,0,0.08)]',
+        true: 'rounded-t-lg border-b-transparent shadow-[0_-3px_8px_rgba(0,0,0,0.08)]',
         false: 'rounded-lg',
       },
       hasValue: {

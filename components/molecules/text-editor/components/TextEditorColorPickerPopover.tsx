@@ -13,6 +13,11 @@ import {
 import { createPortal } from 'react-dom';
 
 import SmallColorPicker from '@/components/molecules/color-picker/SmallColorPicker';
+import {
+  clampFloatingValue,
+  resolveFloatingTop,
+  type FloatingPlacementMode,
+} from '@/shared/utils/floatingPosition';
 
 import type { Editor } from '@tiptap/react';
 
@@ -23,6 +28,7 @@ interface Props {
   onClose?: () => void;
   onColorChange?: (color: string) => void;
   containerRef?: RefObject<HTMLElement | null>;
+  placementMode?: FloatingPlacementMode;
 }
 
 const VIEWPORT_GAP = 12;
@@ -36,6 +42,7 @@ export default function TextEditorColorPickerPopover({
   onClose,
   onColorChange,
   containerRef,
+  placementMode = 'center',
 }: Props) {
   const pickerRef = useRef<HTMLDivElement>(null);
   const [popoverStyle, setPopoverStyle] = useState<CSSProperties>({
@@ -65,13 +72,14 @@ export default function TextEditorColorPickerPopover({
       const preferredLeft = panelRect
         ? panelRect.right + PANEL_GAP
         : triggerRect.right - pickerWidth;
-      const left = Math.min(Math.max(preferredLeft, VIEWPORT_GAP), maxLeft);
-      const preferredTop = triggerRect.top;
-      const maxTop = window.innerHeight - pickerHeight - VIEWPORT_GAP;
-      const top = Math.max(
-        VIEWPORT_GAP,
-        Math.min(preferredTop, Math.max(VIEWPORT_GAP, maxTop))
-      );
+      const left = clampFloatingValue(preferredLeft, VIEWPORT_GAP, maxLeft);
+      const top = resolveFloatingTop({
+        mode: placementMode,
+        floatingHeight: pickerHeight,
+        triggerRect,
+        containerRect: panelRect,
+        viewportGap: VIEWPORT_GAP,
+      });
 
       setPopoverStyle({
         position: 'fixed',
@@ -98,7 +106,7 @@ export default function TextEditorColorPickerPopover({
       window.removeEventListener('scroll', updatePosition, true);
       resizeObserver.disconnect();
     };
-  }, [containerRef, isOpen]);
+  }, [containerRef, isOpen, placementMode]);
 
   useEffect(() => {
     if (!isOpen) return;

@@ -70,12 +70,10 @@ function SkeletonSideActions() {
 function SkeletonHeader() {
   return (
     <div
-      className="absolute left-0 top-0 flex items-center justify-between rounded-t-lg bg-white/15 px-2 backdrop-blur-md"
+      className="absolute left-0 top-0 flex items-center justify-between rounded-t-lg bg-white px-2"
       style={{
         width: dashboardCarouselLayout.cardWidth,
         height: dashboardCarouselLayout.headerHeight,
-        boxShadow:
-          'inset 4px 4px 18px rgba(0, 0, 0, 0.06), inset -4px -4px 18px rgba(255, 255, 255, 0.75)',
       }}
     >
       <div className="h-2.5 w-18 rounded-full bg-white/45" />

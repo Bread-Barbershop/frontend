@@ -30,6 +30,6 @@ function Edit() {
     blockInfo: typeof block;
     id: string;
   }>;
-  return <EditInfo blockInfo={block} id={selectedId} />;
+  return <EditInfo key={selectedId} blockInfo={block} id={selectedId} />;
 }
 export default Edit;

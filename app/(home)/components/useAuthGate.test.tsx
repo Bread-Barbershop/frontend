@@ -154,7 +154,41 @@ describe('useAuthGate 테스트', () => {
 
     expect(result.current.isLoginPending).toBe(false);
     expect(result.current.isLoginOpen).toBe(false);
+    expect(result.current.isPrivacyNoticeOpen).toBe(true);
+    expect(refreshMock).not.toHaveBeenCalled();
+
+    act(() => {
+      result.current.closePrivacyNotice();
+    });
+
+    expect(result.current.isPrivacyNoticeOpen).toBe(false);
     expect(refreshMock).toHaveBeenCalled();
+  });
+
+  it('OAuth popup을 연 hook 인스턴스만 성공 메시지를 처리한다', async () => {
+    const headerGate = renderHook(() =>
+      useAuthGate({ initialIsLoggedIn: false })
+    );
+    const ctaGate = renderHook(() => useAuthGate({ initialIsLoggedIn: false }));
+
+    act(() => {
+      ctaGate.result.current.loginWithGoogle();
+    });
+
+    act(() => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          origin: window.location.origin,
+          data: { type: 'GOOGLE_OAUTH_SUCCESS' },
+        })
+      );
+    });
+
+    await waitFor(() => {
+      expect(ctaGate.result.current.isPrivacyNoticeOpen).toBe(true);
+    });
+
+    expect(headerGate.result.current.isPrivacyNoticeOpen).toBe(false);
   });
 
   it('로그인된 상태에서 runAfterAuth() 실행 후 session이 401이면 루트로 이동한다', async () => {

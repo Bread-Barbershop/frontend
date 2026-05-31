@@ -1,11 +1,12 @@
 import { JSONContent } from '@tiptap/core';
-import { useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
 import { Divider } from '@/components/atoms/divider/Divider';
 import { Label } from '@/components/atoms/label/Label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
+import { EditorNoticeList } from '@/components/molecules/editor-notice';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
@@ -16,7 +17,7 @@ import PopupOptions from '../popup/PopupOptions';
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
 import { InterviewItem } from './InterviewItem';
-import { QUESTION_LIST } from './interviewList';
+import { createInterviewQuestion, QUESTION_LIST } from './interviewList';
 
 interface Props {
   blockInfo: EditorBlock<'interview'>;
@@ -30,6 +31,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
     }))
   );
   const [isQuestionListOpen, setIsQuestionListOpen] = useState(false);
+  const questionListTriggerRef = useRef<HTMLDivElement>(null);
   const [editorResetKey, setEditorResetKey] = useState(0);
   const { title, questions, checkedEnglishTitle, englishTitle } =
     blockInfo.props;
@@ -39,7 +41,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
   };
 
   const handleQuestionChange = (
-    question: string | null,
+    question: string,
     questionId: string
   ) => {
     const newQuestions = (questions || []).map(q =>
@@ -54,18 +56,8 @@ export const Interview = ({ blockInfo, id }: Props) => {
   };
 
   const handleQuestionListSelect = (content: string, _index?: number) => {
-    const newQuestion = {
-      id: crypto.randomUUID(),
-      question: content,
-      answer: {
-        messageJson: null,
-        messageHtml: null,
-      },
-      image: [] as (File | string)[],
-    };
-
     updateBlock(id, {
-      questions: [...(questions || []), newQuestion],
+      questions: [...(questions || []), createInterviewQuestion(content)],
     });
     setEditorResetKey(prev => prev + 1);
     setIsQuestionListOpen(false);
@@ -128,30 +120,23 @@ export const Interview = ({ blockInfo, id }: Props) => {
 
   useEffect(() => {
     if ((questions || []).length === 0) {
-      const initQuestions = {
-        id: crypto.randomUUID(),
-        question: '',
-        answer: {
-          messageJson: null,
-          messageHtml: null,
-        },
-        image: [] as (File | string)[],
-      };
-      updateBlock(id, { questions: [initQuestions] });
+      updateBlock(id, { questions: [createInterviewQuestion()] });
     }
   }, [id]);
 
   return (
-    <LeftEditorWrapper ariaLabel="인터뷰" className="gap-3 pb-3">
+    <LeftEditorWrapper ariaLabel="인터뷰" className="pb-3">
       <NavigationBar
         action={
-          <UtilityButton
-            size="md"
-            variant="primary"
-            onClick={() => setIsQuestionListOpen(true)}
-          >
-            항목추가
-          </UtilityButton>
+          <div ref={questionListTriggerRef}>
+            <UtilityButton
+              size="md"
+              variant="primary"
+              onClick={() => setIsQuestionListOpen(true)}
+            >
+              항목추가
+            </UtilityButton>
+          </div>
         }
         direction="right"
       >
@@ -164,7 +149,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
           value: title === '인터뷰' ? '' : title,
           onChange: e => handleUpdateBlock('title', e.target.value || '인터뷰'),
         }}
-        className="w-full text-center"
+        className="w-full py-1.5 text-center"
       />
       {checkedEnglishTitle && (
         <TextField
@@ -175,10 +160,10 @@ export const Interview = ({ blockInfo, id }: Props) => {
             onChange: e =>
               handleUpdateBlock('englishTitle', e.target.value || 'INTERVIEW'),
           }}
-          className="text-center w-full pt-1"
+          className="w-full py-1.5 text-center"
         />
       )}
-      <section className="flex flex-row gap-2 items-center w-full">
+      <section className="flex flex-row gap-2 items-center w-full py-1.5">
         <Label className="font-semibold">추가기능</Label>
         <Checkbox
           onChange={e =>
@@ -190,10 +175,10 @@ export const Interview = ({ blockInfo, id }: Props) => {
         </Checkbox>
       </section>
 
-      <div className="flex flex-col gap-2 w-full">
+      <div className="flex flex-col gap-1 w-full">
         {(questions || []).map((question, index) => (
           <div key={question.id} className="flex flex-col gap-1">
-            {index !== 0 && <Divider />}
+            {index !== 0 && <Divider className="w-full" />}
             <InterviewItem
               id={id}
               question={question}
@@ -214,6 +199,19 @@ export const Interview = ({ blockInfo, id }: Props) => {
           </div>
         ))}
       </div>
+      <EditorNoticeList
+        notices={[
+          {
+            id: 'interview-default-image',
+            text: '배너사진을 추가하지 않으실 경우, 기본 이미지로 제공됩니다.',
+            colorClass: 'text-[#1F72EF]',
+          },
+          {
+            id: 'interview-animation',
+            text: '항목이 2개 이상일 경우, 애니메이션 효과가 적용됩니다.',
+          },
+        ]}
+      />
 
       {isQuestionListOpen && (
         <PopupOptions
@@ -221,6 +219,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
           options={QUESTION_LIST}
           onSelect={handleQuestionListSelect}
           onClose={() => setIsQuestionListOpen(false)}
+          triggerRef={questionListTriggerRef}
           listClassName="justify-center items-center"
           textClassName="bg-bg-sub rounded-xl flex items-center px-4 h-13"
         />

@@ -1,4 +1,4 @@
-import type { JSONContent } from '@tiptap/react';
+import type { NoticeListItem } from './noticeList';
 
 export const noticeSchema = {
   type: null,
@@ -16,15 +16,7 @@ export const noticeSchema = {
       required: false,
     },
     noticeList: {
-      default: [] as {
-        id: string;
-        notice: string;
-        content: {
-          messageJson: JSONContent | null;
-          messageHtml: string | null;
-        };
-        image: (File | string)[];
-      }[],
+      default: [] as NoticeListItem[],
       required: false,
     },
   },

@@ -10,7 +10,7 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 export function GraphicPanel() {
-  const { canvas, toggleDrawingMode } = useFabricContext();
+  const { canvas, toggleDrawingMode, drawingType } = useFabricContext();
   const { drawingConfig, setDrawingConfig } = useEditorStore(
     useShallow(state => ({
       drawingConfig: state.drawingConfig,
@@ -25,23 +25,32 @@ export function GraphicPanel() {
     if (canvas.isDrawingMode) {
       toggleDrawingMode(canvas, {
         enable: true,
-        ...drawingConfig,
+        type: drawingType,
+        color: drawingConfig.color,
+        config: {
+          width: drawingConfig.width,
+        },
       });
     }
-  }, [canvas, drawingConfig, toggleDrawingMode]);
+  }, [canvas, drawingConfig, drawingType, toggleDrawingMode]);
 
   // 패널 진입 시 그리기 모드 강제 활성화 (사용자 편의)
   useEffect(() => {
     if (!canvas) return;
     toggleDrawingMode(canvas, {
       enable: true,
-      ...drawingConfig,
+      type: drawingType,
+      color: drawingConfig.color,
+      config: {
+        width: drawingConfig.width,
+      },
     });
 
     return () => {
       // 패널 나갈 때 그리기 모드 해제
       toggleDrawingMode(canvas, { enable: false });
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canvas, toggleDrawingMode, drawingConfig]);
 
   if (!canvas) return null;

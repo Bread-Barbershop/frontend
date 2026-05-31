@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
-import { saveInvitationFlow } from '@/app/oauthTest/utils/saveInvitationFlow';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
+import { hasPreparedInvitation } from '@/features/invitation/save/prepareCache';
+import { saveInvitationFlow } from '@/features/invitation/save/saveInvitationFlow';
 import {
   selectUploadData,
   useEditorStore,
@@ -74,7 +75,7 @@ export const useInvitationUpload = () => {
         bodyData: editorData.bodyData,
         isZoom: editorData.isZoom,
       };
-      // 포스터 아예 없는 경우 여기서 처리하면 될듯
+
       const mainPoster = exportIntersectedJSON() ?? {
         version: '7.1.0',
         objects: [],
@@ -101,7 +102,9 @@ export const useInvitationUpload = () => {
         });
         applySaveResult(saveResult);
       } else {
-        const result = await trashFolder();
+        const result = hasPreparedInvitation(editorData.invitationUuid)
+          ? true
+          : await trashFolder();
         //실패 토스트 알람 표시
         if (!result) {
           setIsLoading(false);

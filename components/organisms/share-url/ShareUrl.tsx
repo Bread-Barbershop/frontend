@@ -4,6 +4,7 @@ import { useShallow } from 'zustand/shallow';
 import { MultiRowInput } from '@/components/atoms/input/MultiRowInput';
 import { Label } from '@/components/atoms/label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
+import { EditorNoticeList } from '@/components/molecules/editor-notice';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { Picture } from '@/components/molecules/picture/Picture';
 import { TextField } from '@/components/molecules/text-field';
@@ -166,11 +167,7 @@ function ShareUrl() {
             </div>
           </div>
         )}
-        {SHARE_NOTICES.map(({ id, text, colorClass }) => (
-          <p key={id} className={`text-xs ${colorClass} break-keep`}>
-            {text}
-          </p>
-        ))}
+        <EditorNoticeList notices={SHARE_NOTICES} />
       </div>
     </LeftEditorWrapper>
   );

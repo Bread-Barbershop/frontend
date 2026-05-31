@@ -29,7 +29,7 @@ export const weddingComponents: ListType[] = [
   { contents: '공지사항', component: 'notice', isType: false },
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
-  { contents: '세례명', component: null, isType: false },
+  // { contents: '세례명', component: null, isType: false },
 ];
 export const firstBirthdayComponents: ListType[] = [
   { contents: '인사말', component: 'greeting', isType: false },

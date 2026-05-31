@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import { ImageUploadButton } from '@/components/atoms/button/ImageUploadButton';
+import { EditorNoticeList } from '@/components/molecules/editor-notice';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
@@ -164,6 +165,15 @@ export const ImagePanel = () => {
         )}
       </div>
       <AspectRatioSelector startCrop={handleStartCrop} />
+      <EditorNoticeList
+        notices={[
+          {
+            id: 'poster-image-crop',
+            text: '자르기 실행 후 원하는 형태로 자르기 하신 뒤 아무곳이나 클릭하시면 적용됩니다.',
+            colorClass: 'text-[#1F72EF]',
+          },
+        ]}
+      />
     </LeftEditorWrapper>
   );
 };

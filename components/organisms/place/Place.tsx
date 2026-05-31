@@ -3,6 +3,7 @@ import { useState } from 'react';
 import DaumPostcode from 'react-daum-postcode';
 import { useShallow } from 'zustand/shallow';
 
+import { Divider } from '@/components/atoms/divider';
 import { Input } from '@/components/atoms/input';
 import { Label } from '@/components/atoms/label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
@@ -88,7 +89,7 @@ export function Place({ blockInfo, id }: Props) {
   return (
     <>
       <NaverMapScript onReady={() => setIsScriptLoaded(true)} />
-      <LeftEditorWrapper className="gap-4 pb-3" ariaLabel={defaultTitle}>
+      <LeftEditorWrapper className="pb-3" ariaLabel={defaultTitle}>
         <div className="flex flex-col gap-1 w-full">
           <NavigationBar>{defaultTitle} 편집 페이지</NavigationBar>
           <TextField
@@ -99,7 +100,7 @@ export function Place({ blockInfo, id }: Props) {
                 handleUpdateBlock('title', e.target.value || defaultTitle),
               value: isDefaultPlaceTitle(title, blockInfo.type) ? '' : title,
             }}
-            className="w-full text-center"
+            className="w-full py-1.5 text-center"
           />
         </div>
         {checkedEnglishTitle && (
@@ -111,10 +112,11 @@ export function Place({ blockInfo, id }: Props) {
               onChange: e =>
                 handleUpdateBlock('englishTitle', e.target.value || 'LOCATION'),
             }}
-            className="text-center w-full"
+            className="w-full py-1.5 text-center"
           />
         )}
-        <section className="flex flex-row gap-2 w-full">
+        <Divider className="w-full" />
+        <section className="flex flex-row gap-2 w-full py-1.5">
           <Label
             htmlFor="address"
             className="font-semibold shrink-0 text-center"
@@ -166,7 +168,7 @@ export function Place({ blockInfo, id }: Props) {
             onChange: e => handleUpdateBlock('placeName', e.target.value),
             value: placeName,
           }}
-          className="w-full text-center"
+          className="w-full py-1.5 text-center"
         />
         <TextField
           label="층과 홀"
@@ -175,7 +177,7 @@ export function Place({ blockInfo, id }: Props) {
             onChange: e => handleUpdateBlock('placeDetail', e.target.value),
             value: placeDetail,
           }}
-          className="w-full text-center"
+          className="w-full py-1.5 text-center"
         />
         <TextField
           label="연락처"
@@ -190,9 +192,9 @@ export function Place({ blockInfo, id }: Props) {
               ),
             value: formatPhoneNumber(placeTel),
           }}
-          className="w-full text-center"
+          className="w-full py-1.5 text-center"
         />
-        <section className="flex flex-row gap-2 items-center w-full">
+        <section className="flex flex-row gap-2 items-center w-full py-1.5">
           <Label className="font-semibold">추가기능</Label>
           <div>
             <div className="flex flex-row gap-2 items-center">
@@ -219,7 +221,7 @@ export function Place({ blockInfo, id }: Props) {
             {isScriptLoaded && Number.isFinite(lng) && Number.isFinite(lat) && (
               <PlaceMap lng={lng} lat={lat} locked={Boolean(mapLocked)} />
             )}
-            <section className="flex flex-row gap-2 items-center w-full pb-2">
+            <section className="flex flex-row gap-2 items-center w-full py-1.5">
               <Label className="font-semibold">추가기능</Label>
               <div>
                 <Checkbox

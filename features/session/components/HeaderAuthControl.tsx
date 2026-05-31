@@ -1,17 +1,21 @@
 'use client';
 
-import { CircleUserRound } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import React from 'react';
 
 import { useAuthGate } from '@/features/session/hooks/useAuthGate';
 import { useConfirm } from '@/shared/hooks/useConfirm';
 
 import LoginModal from './LoginModal';
+import PrivacyNoticeModal from './PrivacyNoticeModal';
+
+import type { MouseEvent } from 'react';
 
 type HeaderAuthControlProps = {
   initialIsLoggedIn: boolean;
 };
+
+const HEADER_ACTION_CLASS =
+  'flex items-center border-b border-transparent px-2 py-[6.5px] text-[16px] font-semibold text-[#121212] transition-colors enabled:hover:border-black enabled:hover:text-black disabled:opacity-50 cursor-pointer';
 
 function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
   const router = useRouter();
@@ -20,23 +24,38 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
     isBusy,
     isLoginOpen,
     isLoginPending,
+    isPrivacyNoticeOpen,
     login,
     closeLogin,
+    closePrivacyNotice,
     loginWithGoogle,
     logout,
     runAfterAuth,
   } = useAuthGate({ initialIsLoggedIn });
   const pathname = usePathname();
   const { confirm } = useConfirm();
+  const modals = (
+    <>
+      <LoginModal
+        open={isLoginOpen}
+        isLoading={isLoginPending}
+        onClose={closeLogin}
+        onGoogleLogin={loginWithGoogle}
+      />
+      <PrivacyNoticeModal
+        open={isPrivacyNoticeOpen}
+        onClose={closePrivacyNotice}
+      />
+    </>
+  );
 
-  const handleDashboardClick = async (e: React.MouseEvent) => {
+  const handleDashboardClick = async (e: MouseEvent) => {
     if (pathname.startsWith('/editor')) {
       const isConfirm = await confirm({
         message:
           '수정된 내용이 저장되지 않을 수 있습니다.\n정말 나가시겠습니까?',
         variant: 'white',
-        xPosition : 'center',
-        yPosition : 'center'
+        yPosition: 'center',
       });
       if (!isConfirm) {
         e.preventDefault();
@@ -48,26 +67,42 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
     }
   };
 
+  const handleLogoutClick = async () => {
+    if (pathname.startsWith('/editor')) {
+      const isConfirm = await confirm({
+        message:
+          '수정된 내용이 저장되지 않을 수 있습니다.\n정말 나가시겠습니까?',
+        variant: 'white',
+        yPosition: 'center',
+      });
+
+      if (!isConfirm) return;
+    }
+
+    await logout();
+  };
+
   if (isLoggedIn) {
     return (
       <>
         <button
           type="button"
-          onClick={logout}
+          onClick={handleLogoutClick}
           disabled={isBusy}
-          className="text-text-secondary h-full px-8 flex items-center text-[14px] font-semibold hover:text-black transition-colors disabled:opacity-50 cursor-pointer"
+          className={HEADER_ACTION_CLASS}
         >
-          LOGOUT
+          Logout
         </button>
         <button
           type="button"
           onClick={handleDashboardClick}
           disabled={isBusy}
           aria-label="Go to dashboard"
-          className="ml-4 flex h-10 w-10 items-center justify-center bg-transparent cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-50"
+          className={HEADER_ACTION_CLASS}
         >
-          <CircleUserRound size={40} strokeWidth={1.2} color="#838383" />
+          My Page
         </button>
+        {modals}
       </>
     );
   }
@@ -78,16 +113,11 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
         type="button"
         onClick={login}
         disabled={isBusy}
-        className="text-text-secondary h-full px-8 flex items-center text-[16px] font-semibold hover:text-black transition-colors disabled:opacity-50 cursor-pointer"
+        className={HEADER_ACTION_CLASS}
       >
-        LOGIN
+        Login
       </button>
-      <LoginModal
-        open={isLoginOpen}
-        isLoading={isLoginPending}
-        onClose={closeLogin}
-        onGoogleLogin={loginWithGoogle}
-      />
+      {modals}
     </>
   );
 }

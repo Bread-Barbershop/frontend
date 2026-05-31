@@ -6,8 +6,8 @@ import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
 import { escapeDriveQueryValue } from './escapeQueryValue';
 
 export const APP_IDENTIFIER = 'Bread-Barbershop';
-export const THUMBNAIL_NAME = 'invitation-thumbnail.json';
-export const THUMBNAIL_KIND = 'invitation_thumbnail_json';
+export const THUMBNAIL_NAME = 'invitation-thumbnail.png';
+export const THUMBNAIL_KIND = 'invitation_thumbnail_png';
 
 export type ThumbnailPayload = {
   name: string;
@@ -24,7 +24,7 @@ export type EnsureThumbnailFileResult = {
 };
 
 /**
- * invitation 폴더 내에 단일 invitation-thumbnail.json 파일이 존재하는지 확인합니다.
+ * invitation 폴더 내에 단일 invitation-thumbnail.png 파일이 존재하는지 확인합니다.
  */
 export async function ensureThumbnailFile(
   invitationFolderId: string

@@ -43,14 +43,7 @@ export function PhoneGroupSection({
 }: PhoneGroupSectionProps) {
   return (
     <Fragment>
-      {groupIndex > 0 && (
-        <div className="w-full flex py-1.5">
-          <Divider
-            className="w-14.25 -translate-x-2 items-center"
-            padding="none"
-          />
-        </div>
-      )}
+      {groupIndex > 0 && <Divider className="w-full" />}
 
       <ActionField
         label="그룹명"

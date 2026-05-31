@@ -23,8 +23,7 @@ function HomeButton() {
         message:
           '수정된 내용이 저장되지 않을 수 있습니다.\n정말 나가시겠습니까?',
         variant: 'white',
-        xPosition : 'center',
-        yPosition : 'center'
+        yPosition: 'center',
       });
 
       // 3. 승인 시 수동으로 이동 처리
@@ -37,11 +36,18 @@ function HomeButton() {
   return (
     <Link
       href="/"
-      className="flex items-center"
+      className="flex h-full max-h-full items-center px-6"
       onClick={handleHomeClick}
       aria-label="Invia 홈으로 이동"
     >
-      <Image src={inviaLogo} alt="Invia" width={92} height={18} priority />
+      <Image
+        src={inviaLogo}
+        alt="Invia"
+        width={92}
+        height={18}
+        className="h-[18px] w-auto"
+        priority
+      />
     </Link>
   );
 }

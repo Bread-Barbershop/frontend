@@ -16,8 +16,7 @@ export function usePreventBack() {
         message:
           '수정된 내용이 저장되지 않을 수 있습니다.\n정말 나가시겠습니까?',
         variant: 'white',
-        xPosition : 'center',
-        yPosition : 'center'
+        yPosition: 'center',
       });
       if (!isConfirm) {
         history.pushState(null, '', window.location.href);

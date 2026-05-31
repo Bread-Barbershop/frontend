@@ -3,7 +3,9 @@
 import { useRouter } from 'next/navigation';
 
 import LoginModal from '@/features/session/components/LoginModal';
+import PrivacyNoticeModal from '@/features/session/components/PrivacyNoticeModal';
 import { useAuthGate } from '@/features/session/hooks/useAuthGate';
+import { useViewportScale } from '@/shared/hooks/useViewportScale';
 
 type CtaProps = {
   initialIsLoggedIn: boolean;
@@ -11,11 +13,14 @@ type CtaProps = {
 
 function Cta({ initialIsLoggedIn }: CtaProps) {
   const router = useRouter();
+  const ctaScale = useViewportScale();
   const {
     isBusy,
     isLoginOpen,
     isLoginPending,
+    isPrivacyNoticeOpen,
     closeLogin,
+    closePrivacyNotice,
     loginWithGoogle,
     runAfterAuth,
   } = useAuthGate({ initialIsLoggedIn });
@@ -28,7 +33,10 @@ function Cta({ initialIsLoggedIn }: CtaProps) {
 
   return (
     <>
-      <section className="flex flex-col gap-10 border-none">
+      <section
+        className="flex origin-top-left flex-col gap-10 border-none"
+        style={{ transform: `scale(${ctaScale})` }}
+      >
         <div
           className="
           inline-flex w-fit flex-col gap-2 rounded-4xl p-8
@@ -60,12 +68,12 @@ function Cta({ initialIsLoggedIn }: CtaProps) {
           onClick={handleStart}
           disabled={isBusy}
           className="
-          ml-8 flex h-13.25 w-43.25 items-center justify-center rounded-full
+          flex h-13.25 w-53.5 items-center justify-center rounded-full
           bg-[#121212] text-2xl font-medium text-white
           transition-all hover:bg-[#202020] active:scale-95 active:bg-[#0D0D0D] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed
         "
         >
-          만들러 가기
+          무료로 제작하기
         </button>
       </section>
       <LoginModal
@@ -73,6 +81,10 @@ function Cta({ initialIsLoggedIn }: CtaProps) {
         isLoading={isLoginPending}
         onClose={closeLogin}
         onGoogleLogin={loginWithGoogle}
+      />
+      <PrivacyNoticeModal
+        open={isPrivacyNoticeOpen}
+        onClose={closePrivacyNotice}
       />
     </>
   );

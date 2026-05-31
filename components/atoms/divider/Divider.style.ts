@@ -1,6 +1,6 @@
 import { cva, VariantProps } from 'class-variance-authority';
 
-export const dividerVariants = cva('flex flex-col gap-1.5', {
+export const dividerVariants = cva('flex flex-col gap-1.5 py-0.25', {
   variants: {
     padding: {
       left: 'pl-7',

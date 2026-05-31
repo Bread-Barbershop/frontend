@@ -75,7 +75,7 @@ export const MainPoster = () => {
       {activeTab === 'image' && <ImagePanel />}
 
       {/* 도형 */}
-      {activeTab === 'diagram' && <GraphicPanel />}
+      {activeTab === 'graphic' && <GraphicPanel />}
 
       {/* 배경 */}
       {(activeTab === 'background' || !activeTab) && <BackgroundPanel />}

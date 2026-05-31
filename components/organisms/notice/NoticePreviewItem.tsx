@@ -4,34 +4,23 @@ import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/ut
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 import { cn } from '@/shared/utils/cn';
 
-import type { JSONContent } from '@tiptap/react';
+import type { NoticeListItem } from './noticeList';
+import type { StaticImageData } from 'next/image';
 
 export const NoticePreviewItem = ({
   notice,
-  images,
-  index,
+  defaultImage,
   className,
 }: {
-  notice: {
-    id: string;
-    notice: string;
-    content: {
-      messageJson: JSONContent | null;
-      messageHtml: string | null;
-    };
-    image: (File | string)[];
-  };
-  images?: (File | string)[];
-  index: number;
+  notice: NoticeListItem;
+  defaultImage?: StaticImageData;
   className?: string;
 }) => {
   const html =
     notice.content.messageHtml ??
     tiptapJsonToHtmlUniversal(notice.content.messageJson);
-  const preview = useResolvedImageSource(
-    (images && images[index]) ||
-      (notice.image && notice.image.length > 0 ? notice.image[0] : null)
-  );
+  const customPreview = useResolvedImageSource(notice.image?.[0]);
+  const preview = customPreview ?? defaultImage;
 
   return (
     <div className={cn('flex flex-col gap-6 overflow-hidden', className)}>

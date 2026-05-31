@@ -90,6 +90,24 @@
     font-size: 20px;
     font-weight: 600;
   }
+
+  .accordion-motion {
+    display: grid;
+    overflow: hidden;
+    transition-property: var(--transition-accordion-properties);
+    transition-duration: var(--duration-accordion);
+    transition-timing-function: var(--ease-accordion);
+  }
+
+  .accordion-motion-open {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  .accordion-motion-close {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
 }
 
 @keyframes equalize {
@@ -135,6 +153,33 @@
   }
   72% {
     background-color: rgb(92 92 92 / 38%);
+  }
+}
+
+@keyframes grow-height {
+  from {
+    grid-template-rows: 0.5fr;
+  }
+  to {
+    grid-template-rows: 1fr;
+  }
+}
+
+@keyframes expand {
+  from {
+    max-height: 0;
+  }
+  to {
+    max-height: 100%;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 

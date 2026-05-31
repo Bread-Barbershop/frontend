@@ -2,9 +2,18 @@ import 'server-only';
 
 import { NextResponse } from 'next/server';
 
-import { ensureAssetsFolder } from '@/app/api/drive/_lib/ensureAssetsFolder';
-import { ensureDataJsonFile } from '@/app/api/drive/_lib/ensureDataJsonFile';
-import { ensureInvitationFolder } from '@/app/api/drive/_lib/ensureInvitationFolder';
+import {
+  createAssetsFolders,
+  ensureAssetsFolder,
+} from '@/app/api/drive/_lib/ensureAssetsFolder';
+import {
+  createDataJsonFile,
+  ensureDataJsonFile,
+} from '@/app/api/drive/_lib/ensureDataJsonFile';
+import {
+  createInvitationFolder,
+  ensureInvitationFolder,
+} from '@/app/api/drive/_lib/ensureInvitationFolder';
 import {
   ensureWorkspace,
   DriveHttpError,
@@ -26,22 +35,26 @@ export async function POST(req: Request) {
     const { folderId: workspaceFolderId, reused: workspaceReused } =
       await ensureWorkspace();
 
-    // 2) 초대장 폴더 보장 (workspace 하위, uuid 기반)
+    const invitation = invitationUuid
+      ? await ensureInvitationFolder({
+          workspaceFolderId,
+          invitationUuid,
+        })
+      : await createInvitationFolder({ workspaceFolderId });
+
     const {
       invitationFolderId,
       invitationUuid: finalInvitationUuid,
       reused: invitationReused,
-    } = await ensureInvitationFolder({
-      workspaceFolderId,
-      invitationUuid,
-    });
+    } = invitation;
 
-    // 2.5) data.json 파일 보장 (invitation 하위)
-    const { dataJsonFileId, reused: dataJsonReused } =
-      await ensureDataJsonFile(invitationFolderId);
+    const dataJson = invitationReused
+      ? await ensureDataJsonFile(invitationFolderId)
+      : await createDataJsonFile(invitationFolderId);
 
-    // 3) 에셋 폴더(이미지/오디오) 보장 (invitation 하위)
-    const assets = await ensureAssetsFolder(invitationFolderId);
+    const assets = invitationReused
+      ? await ensureAssetsFolder(invitationFolderId)
+      : await createAssetsFolders(invitationFolderId);
 
     return NextResponse.json({
       workspaceFolderId,
@@ -50,7 +63,7 @@ export async function POST(req: Request) {
       imageFolderId: assets.imageFolderId,
       audioFolderId: assets.audioFolderId,
 
-      dataJsonFileId,
+      dataJsonFileId: dataJson.dataJsonFileId,
 
       accessToken,
       expiresAt,
@@ -59,7 +72,7 @@ export async function POST(req: Request) {
         workspaceReused, // 재사용 여부
         invitationReused, // 재사용 여부
 
-        dataJsonReused, // 재사용 여부
+        dataJsonReused: dataJson.reused, // 재사용 여부
 
         assets: assets.meta, // imageReused/audioReused
       },

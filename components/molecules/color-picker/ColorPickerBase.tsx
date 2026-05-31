@@ -1,7 +1,7 @@
 'use client';
 
 import { hexToHsva, hsvaToHex, validHex } from '@uiw/color-convert';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ColorConverterSection } from './components/ColorConverterSection';
 import { ColorHistorySection } from './components/ColorHistorySection';
@@ -47,6 +47,8 @@ function ColorPickerBase({
     resolvedDefaultValue ?? { h: 0, s: 0, v: 68, a: 1 };
   const [internalHsva, setInternalHsva] = useState<PickerHsva>(initialHsva);
   const [inputMode, setInputMode] = useState<InputMode>('hex');
+  const hsvaRef = useRef<PickerHsva>(initialHsva);
+  const removePointerEndListenersRef = useRef<(() => void) | null>(null);
   const colorHistory = useColorHistoryStore(state => state.colorHistory);
   const addColorHistory = useColorHistoryStore(state => state.addColorHistory);
   const controlledHsva = resolvedControlledValue;
@@ -55,6 +57,8 @@ function ColorPickerBase({
   const hex = hsvaToHex(hsva).toUpperCase();
 
   const applyHsva = (nextHsva: PickerHsva) => {
+    hsvaRef.current = nextHsva;
+
     if (!controlledHsva) {
       setInternalHsva(nextHsva);
     }
@@ -70,14 +74,37 @@ function ColorPickerBase({
   };
 
   useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      addColorHistory(hex, maxHistoryCount);
-    }, 250);
+    hsvaRef.current = hsva;
+  }, [hsva]);
 
-    return () => {
-      window.clearTimeout(timeoutId);
+  const commitColorHistory = useCallback(() => {
+    addColorHistory(hsvaToHex(hsvaRef.current).toUpperCase(), maxHistoryCount);
+  }, [addColorHistory, maxHistoryCount]);
+
+  const clearPointerEndListeners = useCallback(() => {
+    removePointerEndListenersRef.current?.();
+    removePointerEndListenersRef.current = null;
+  }, []);
+
+  const handleColorControlPointerDown = useCallback(() => {
+    if (typeof window === 'undefined') return;
+
+    clearPointerEndListeners();
+
+    const handlePointerEnd = () => {
+      commitColorHistory();
+      clearPointerEndListeners();
     };
-  }, [addColorHistory, hex, maxHistoryCount]);
+
+    window.addEventListener('pointerup', handlePointerEnd);
+    window.addEventListener('pointercancel', handlePointerEnd);
+    removePointerEndListenersRef.current = () => {
+      window.removeEventListener('pointerup', handlePointerEnd);
+      window.removeEventListener('pointercancel', handlePointerEnd);
+    };
+  }, [clearPointerEndListeners, commitColorHistory]);
+
+  useEffect(() => clearPointerEndListeners, [clearPointerEndListeners]);
 
   return (
     <>
@@ -85,6 +112,7 @@ function ColorPickerBase({
         hsva={hsva}
         className={paletteClassName}
         pointerSize={pointerSize}
+        onPointerDown={handleColorControlPointerDown}
         onChange={nextColor => {
           mergeHsva(nextColor);
         }}
@@ -93,6 +121,7 @@ function ColorPickerBase({
       <ColorSlideSection
         hue={hsva.h}
         pointerSize={pointerSize}
+        onPointerDown={handleColorControlPointerDown}
         onChange={hue => {
           mergeHsva({ h: hue });
         }}
@@ -102,6 +131,7 @@ function ColorPickerBase({
         hsva={hsva}
         transparencyPercent={transparencyPercent}
         pointerSize={pointerSize}
+        onPointerDown={handleColorControlPointerDown}
         onChange={alpha => {
           mergeHsva({ a: alpha });
         }}

@@ -10,6 +10,7 @@ import { escapeDriveQueryValue } from '@/app/api/drive/_lib/escapeQueryValue';
 import { findWorkspaceFolderId } from '@/app/api/drive/_lib/findWorkspaceFolderId';
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
 import { InviteListItem, LoadInvitationResponse } from '@/app/dashboard/types';
+// import { measureAsync } from '@/shared/utils/performance';
 
 const APP_IDENTIFIER = 'Bread-Barbershop';
 const INVITATION_KIND = 'invitation';
@@ -33,17 +34,6 @@ type DriveSearchResponse = {
   }>;
   error?: unknown;
 };
-
-function isThumbnailPayload(value: unknown): value is {
-  dataUrl: string;
-} {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'dataUrl' in value &&
-    typeof value.dataUrl === 'string'
-  );
-}
 
 function isPublishedPayload(value: unknown): value is {
   guestUrl: string;
@@ -150,19 +140,7 @@ async function loadThumbnailUrl(
       return null;
     }
 
-    const contentRes = await googleFetch(
-      `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(
-        thumbnailFileId
-      )}?alt=media`,
-      { cache: 'no-store' }
-    );
-
-    if (!contentRes.ok) {
-      return null;
-    }
-
-    const content = (await contentRes.json().catch(() => null)) as unknown;
-    return isThumbnailPayload(content) ? content.dataUrl : null;
+    return `https://lh3.googleusercontent.com/d/${encodeURIComponent(thumbnailFileId)}`;
   } catch {
     return null;
   }
@@ -178,6 +156,7 @@ async function hasKakaoShareData(invitationFolderId: string): Promise<boolean> {
 }
 
 export async function loadDashboardInvitations(): Promise<LoadInvitationResponse> {
+  // return measureAsync('Dashboard Load Total', async () => {
   const workspaceFolderId = await findWorkspaceFolderId();
 
   if (!workspaceFolderId) {
@@ -250,4 +229,5 @@ export async function loadDashboardInvitations(): Promise<LoadInvitationResponse
     invites,
     nextPageToken: listData.nextPageToken ?? null,
   };
+  // });
 }

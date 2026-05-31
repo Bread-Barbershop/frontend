@@ -1,5 +1,6 @@
 ﻿import { Fragment, type ChangeEvent, useEffect } from 'react';
 
+import { Divider } from '@/components/atoms/divider';
 import { Label } from '@/components/atoms/label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
@@ -188,15 +189,11 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
         />
       )}
 
-      <div className="w-15 flex flex-col items-center gap-1">
-        <div className="w-0.5 h-1.5 rounded-sm bg-text-secondary" />
-        <div className="w-0.5 h-2 rounded-sm bg-text-secondary" />
-        <div className="w-0.5 h-1.5 rounded-sm bg-text-secondary" />
-      </div>
+      <Divider className="w-full" />
 
       {profileFields.map(profile => (
         <Fragment key={profile.key}>
-          <div className="flex flex-col gap-2 w-full">
+          <div className="flex flex-col gap-1 w-full pb-1">
             <TextField
               label={profile.label}
               inputProps={{

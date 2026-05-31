@@ -157,7 +157,7 @@ export const MainPosterPreview = () => {
       } else if (isActiveImage || isCropZone) {
         setActiveTab('image');
       } else if (isActiveDiagram) {
-        setActiveTab('diagram');
+        setActiveTab('graphic');
       } else {
         setActiveTab('background');
       }
@@ -179,7 +179,7 @@ export const MainPosterPreview = () => {
   useEffect(() => {
     if (!canvas) return;
 
-    if (activeTab !== 'diagram') {
+    if (activeTab !== 'graphic') {
       if (canvas.isDrawingMode) {
         toggleDrawingMode(canvas, { enable: false });
         setActiveTab('background');
@@ -214,7 +214,7 @@ export const MainPosterPreview = () => {
       const isBackground = targetId === 'background-layer';
       const isLocked = (target as any)?.isLocked;
 
-      const getKoreanType = (obj: any) => {
+      const getType = (obj: any) => {
         if (!obj) return '빈 공간';
         if (obj.get('id') === 'background-layer') return '배경';
         if (obj.isType('textbox') || obj.isType('itext') || obj.isType('text'))
@@ -231,7 +231,7 @@ export const MainPosterPreview = () => {
       };
 
       console.log(
-        `[Fabric] 마우스 다운: ${getKoreanType(target)} (ID: ${targetId}, 잠금: ${isLocked})`
+        `[Fabric] 마우스 다운: ${getType(target)} (ID: ${targetId}, 잠금: ${isLocked})`
       );
 
       // 잠긴 객체가 잡혔을 때, 그 위치에 있는 다른 (잠기지 않은) 객체를 찾아서 선택해줌
@@ -248,9 +248,7 @@ export const MainPosterPreview = () => {
             !(obj as any).isLocked &&
             obj.containsPoint(pointer)
           ) {
-            console.log(
-              `[Fabric] 잠긴 객체 투과 -> ${getKoreanType(obj)} 선택`
-            );
+            console.log(`[Fabric] 잠긴 객체 투과 -> ${getType(obj)} 선택`);
 
             fabricCanvas.setActiveObject(obj);
             target = obj; // 타겟 교체
@@ -356,7 +354,7 @@ export const MainPosterPreview = () => {
           setIsEdit(false);
           selectedBlock('mainPoster');
         }}
-        className={cn('relative w-[375px] h-[750px] shrink-0')}
+        className={cn('relative w-[375px] h-[812px] shrink-0')}
       >
         {selectedId === 'mainPoster' && (
           <div

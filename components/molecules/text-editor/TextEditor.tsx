@@ -143,6 +143,12 @@ export function TextEditor({
     onTransaction() {
       forceUpdate();
     },
+    onFocus() {
+      forceUpdate();
+    },
+    onBlur() {
+      forceUpdate();
+    },
     onDestroy() {
       editorRef.current = null;
     },
@@ -157,6 +163,7 @@ export function TextEditor({
       : selectedColor;
   const italicActive = isTextMarkFullyActive(editor, 'italic');
   const underlineActive = isTextMarkFullyActive(editor, 'underline');
+  const editorFocused = editor.isFocused;
   const inlineButtonClassName =
     'bg-white hover:bg-[#FAFAFB] active:bg-[#F5F8FF] aria-pressed:bg-[#F5F8FF] aria-pressed:text-[#1F72EF]';
 
@@ -328,7 +335,7 @@ export function TextEditor({
             onClick={handleUnderlineToggle}
           />
 
-          <div className="flex h-8 items-center rounded-md bg-[#f3f3f3] p-px">
+          <div className="flex h-8 items-center gap-1 rounded-md bg-[#f3f3f3] p-px">
             {TEXT_ALIGN_OPTIONS.map(option => {
               const active = textAlignSelected.value === option.value;
 
@@ -350,7 +357,15 @@ export function TextEditor({
         </div>
       </div>
 
-      <div className="bg-border-neutral rounded-lg py-3 px-4">
+      <div
+        data-state={editorFocused ? 'focused' : 'default'}
+        className={cn(
+          'rounded-lg border px-4 py-3 transition-colors duration-150',
+          editorFocused
+            ? 'border-primary bg-bg-base'
+            : 'border-transparent bg-border-neutral'
+        )}
+      >
         <EditorContent editor={editor} />
       </div>
     </div>
