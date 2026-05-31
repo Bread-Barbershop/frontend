@@ -1,5 +1,7 @@
 import React, { useRef, useState } from 'react';
 
+import { useConfirm } from '@/shared/hooks/useConfirm';
+
 import { useInvitationUpload } from '../hooks/useInvitationUpload';
 
 import { SaveModal } from './SaveModal';
@@ -9,6 +11,7 @@ function UploadButton() {
   const tabRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const { handleUpload, isLoading, isFail } = useInvitationUpload();
+  const { confirm } = useConfirm();
 
   const handleClose = () => {
     if (!isLoading) {
@@ -21,7 +24,15 @@ function UploadButton() {
       <button
         type="button"
         className="w-full h-11 bg-white rounded-lg shadow-edit flex-center text-sm font-semibold"
-        onClick={() => {
+        onClick={async () => {
+          const isConfirm = await confirm({
+            message:
+              '저장하시겠습니까?\n다소 시간이 소요될 수 있습니다.',
+            variant: 'white',
+            xPosition : 'center',
+            yPosition : 'center'
+          });
+          if(!isConfirm) return;
           handleUpload();
           setIsModalOpen(true);
         }}

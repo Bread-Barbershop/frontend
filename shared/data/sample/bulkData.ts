@@ -12,7 +12,7 @@ export const TITLE_BULK_DATA: BulkData = {
   isDefault: false,
 };
 export const BODY_BULK_DATA: BulkData = {
-  font: 'font-pretendard',
+  font: 'font-lineseed',
   fontSize: '14px',
   color: '#000000',
   fontWeight: '500',

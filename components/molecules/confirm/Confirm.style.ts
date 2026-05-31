@@ -12,7 +12,7 @@ export const confirmVariants = cva(
     },
   }
 );
-export const confirmPositionVariants = cva('fixed inset-0 z-50 flex', {
+export const confirmPositionVariants = cva('fixed inset-0 z-9999 flex', {
   variants: {
     xPosition: {
       left: 'justify-start pl-5',

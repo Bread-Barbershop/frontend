@@ -2,6 +2,8 @@
 import { Canvas, FabricObject, Textbox, IText, ActiveSelection } from 'fabric';
 import { useCallback, useRef, useState } from 'react';
 
+import { useConfirm } from '@/shared/hooks/useConfirm';
+
 import { ActiveObject } from '../types/fabric';
 export const useFabric = () => {
   const [canvas, setCanvas] = useState<Canvas | null>(null);
@@ -18,6 +20,7 @@ export const useFabric = () => {
   const redoStack = useRef<string[]>([]);
   const isUpdating = useRef<boolean>(false);
   const isDeleting = useRef<boolean>(false);
+  const { confirm } = useConfirm();
   const MAX_STACK_SIZE = 30;
 
   const saveHistory = useCallback(() => {
@@ -104,7 +107,7 @@ export const useFabric = () => {
   };
 
   const handleDeleteShape = useCallback(
-    (canvas: Canvas, e?: KeyboardEvent, flag?: boolean) => {
+    async(canvas: Canvas, e?: KeyboardEvent, flag?: boolean) => {
       if (e?.repeat) return;
 
       const activeObjects = [...canvas.getActiveObjects()];
@@ -138,13 +141,18 @@ export const useFabric = () => {
       }
 
       if (e?.key === 'Backspace') {
-        const checkGoToBack = confirm(
-          '정말 뒤돌아가시겠습니까? 저장되지 않은 내역은 모두 사라집니다'
-        );
+              const isConfirm = await confirm({
+        message:
+          '정말 뒤돌아가시겠습니까?\n 저장되지 않은 내역은 모두 사라집니다',
+        variant: 'white',
+        xPosition : 'center',
+        yPosition : 'center'
+      });
+      if (!isConfirm) {
+        e.preventDefault();
+        return;
+      }
 
-        if (!checkGoToBack) {
-          e?.preventDefault();
-        }
       }
     },
     [saveHistory]

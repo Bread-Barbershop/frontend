@@ -11,6 +11,7 @@ import {
   PublishResult,
 } from '@/app/dashboard/types';
 import { DEFAULT_IMAGE_URL } from '@/app/guest/[id]/constants/constant';
+import { useConfirm } from '@/shared/hooks/useConfirm';
 import { useToast } from '@/shared/hooks/useToast';
 import {
   DEFAULT_DESCRIPTION,
@@ -174,6 +175,7 @@ function useDashboardInvitations(
   options: UseDashboardInvitationsOptions = {}
 ) {
   const router = useRouter();
+  const { confirm } = useConfirm();
   const { success: successToast, error: errorToast } = useToast();
   const loadOnMount = options.loadOnMount ?? initialInvites.length === 0;
 
@@ -441,8 +443,15 @@ function useDashboardInvitations(
     async (folderId: string) => {
       if (!folderId) return;
 
-      const shouldDelete = window.confirm('초대장을 삭제하시겠습니까?');
-      if (!shouldDelete) return;
+      const isConfirm = await confirm({
+        message:
+          '초대장을 삭제하시겠습니까?',
+        variant: 'white',
+        xPosition : 'center',
+        yPosition : 'center'
+      });
+      
+      if (!isConfirm) return;
 
       let isDeleted = false;
       setDeleteErrors(prev => ({ ...prev, [folderId]: null }));
