@@ -7,6 +7,7 @@ import { blockRegistry } from '@/shared/data/registry/registry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { MainPoster } from '@/widgets/mainPoster/components/MainPoster';
 
+
 function Edit() {
   const { block, selectedId } = useEditorStore(
     useShallow(state => ({

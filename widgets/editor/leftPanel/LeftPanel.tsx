@@ -10,10 +10,10 @@ import BulkEdit from './components/BulkEdit';
 import Edit from './components/Edit';
 
 function LeftPanel() {
-  const { isEdit, setIsEdit } = useEditorStore(
+  const { isEdit, setIsEdit} = useEditorStore(
     useShallow(state => ({ isEdit: state.isEdit, setIsEdit: state.setIsEdit }))
   );
-
+  
   return (
     <div
       className="w-93.75 max-h-[810px] ml-5 min-[1540px]:ml-15 flex flex-col gap-4"
@@ -49,9 +49,27 @@ function LeftPanel() {
         </AnimatePresence>
       </div>
 
-      <div className="flex flex-col bg-white rounded-lg shadow-edit border border-black/5 transition-all duration-300 ease-in-out">
+      <div
+        className={`flex flex-col bg-white rounded-lg shadow-edit border border-black/5 transition-all duration-300 ease-in-out ${
+          isEdit ? 'h-11' : ''
+        }`}
+      >
         <AnimatePresence mode="wait">
-          {!isEdit && (
+          {isEdit ? (
+            <motion.button
+              key="detail-edit-placeholder"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              type="button"
+              className="flex-center relative w-full h-full"
+              onClick={() => setIsEdit(false)}
+            >
+              <p className="font-semibold">상세 편집</p>
+              
+            </motion.button>
+          ) : (
             <motion.div
               key="edit-container"
               initial={{ height: 0, opacity: 0 }}
