@@ -7,5 +7,5 @@ export default function EditorLayout({
 }: Readonly<{
   children: ReactNode;
 }>) {
-  return <DashboardShell>{children}</DashboardShell>;
+  return <DashboardShell variant="editor">{children}</DashboardShell>;
 }
