@@ -10,6 +10,7 @@ import CarouselBase from './CarouselBase';
 import { dashboardCarouselLayout } from './carouselLayout';
 import { CarouselCardItem } from './carouselTypes';
 import DashboardCarouselSkeleton from './DashboardCarouselSkeleton';
+import EmptyInvitationCard from './EmptyInvitationCard';
 
 type CarouselWrapperProps = {
   initialInvites?: InviteListItem[];
@@ -56,6 +57,10 @@ function CarouselWrapper({
 
   if (loading) {
     return <DashboardCarouselSkeleton />;
+  }
+
+  if (items.length === 0) {
+    return <EmptyInvitationCard />;
   }
 
   return (
