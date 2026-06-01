@@ -107,13 +107,15 @@ export default async function GuestPage({
           backgroundColor: payload.bulkData.backgroundColor,
         }}
       >
+        <div className="sticky top-0 z-50 h-0">
+          <GuestBgm bgm={payload.bgm} />
+        </div>
         <GuestMainPoster
           thumbnailFileId={payload.mainPoster.thumbnailFileId ?? ''}
         />
         <div className="mx-auto w-full">
           <GuestRenderer blocks={payload.blocks} bulkData={payload.bulkData} />
         </div>
-        <GuestBgm bgm={payload.bgm} />
       </div>
     </main>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, type ChangeEvent } from 'react';
+import { type ChangeEvent } from 'react';
 
 import { Label } from '@/components/atoms/label';
 import { Radio } from '@/components/atoms/radio/Radio';
@@ -9,25 +9,16 @@ import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationB
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 
 import { PlayToggleButton } from './components/PlayToggleButton';
+import { useEditorBgmPlayer } from './context/EditorBgmPlayerContext';
 import { BGM_LIST } from './data/bgmList';
-import { useBgmPlayer } from './hooks/useBgmPlayer';
 import { USER_BGM_ID, useUserBgmUpload } from './hooks/useUserBgmUpload';
-import { useBgmStore } from './store/useBgmStore';
 
 export default function Bgm() {
-  const { selectedBgmId } = useBgmStore();
   const { fileInputRef, openFilePicker, uploadUserBgm, userBgm } =
     useUserBgmUpload();
 
-  // 선택된 id로부터 재생할 src를 직접 resolve — bgmList를 훅에 넘기지 않음
-  const currentSrc = useMemo(() => {
-    if (!selectedBgmId) return null;
-    if (selectedBgmId === USER_BGM_ID) return userBgm?.src ?? null;
-    return BGM_LIST.find(b => b.id === selectedBgmId)?.src ?? null;
-  }, [selectedBgmId, userBgm?.src]);
-
   const { isLoop, isPlaying, selectedBgm, selectBgm, setIsLoop, togglePlay } =
-    useBgmPlayer(currentSrc);
+    useEditorBgmPlayer();
 
   const isUserBgmSelected = selectedBgm === USER_BGM_ID;
 
@@ -74,6 +65,7 @@ export default function Bgm() {
           >
             <div className="p-1.5">
               <Radio
+                id={`bgm-${bgm.id}`}
                 name="bgm"
                 value={bgm.id}
                 checked={selectedBgm === bgm.id}
@@ -81,7 +73,12 @@ export default function Bgm() {
               />
             </div>
 
-            <p className="truncate font-medium">{bgm.title}</p>
+            <label
+              htmlFor={`bgm-${bgm.id}`}
+              className="truncate font-medium cursor-pointer"
+            >
+              {bgm.title}
+            </label>
             <p className="font-medium">{bgm.duration}</p>
 
             {/* 선택된 항목에만 버튼 표시 */}
@@ -94,6 +91,7 @@ export default function Bgm() {
         <div className="flex items-center gap-2 text-text-secondary has-[input:checked]:text-black px-1">
           <div className="p-1.5">
             <Radio
+              id={`bgm-${USER_BGM_ID}`}
               name="bgm"
               value={USER_BGM_ID}
               checked={isUserBgmSelected}
@@ -102,7 +100,12 @@ export default function Bgm() {
           </div>
 
           {userBgm ? (
-            <p className="truncate font-medium">{userBgm.title}</p>
+            <label
+              htmlFor={`bgm-${USER_BGM_ID}`}
+              className="truncate font-medium cursor-pointer"
+            >
+              {userBgm.title}
+            </label>
           ) : (
             <button
               type="button"
