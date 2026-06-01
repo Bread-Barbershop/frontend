@@ -2,6 +2,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import { EditorBgmOverlay } from '@/components/organisms/bgm/components/EditorBgmOverlay';
 import { blockRegistry } from '@/shared/data/registry/registry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { MainPosterPreview } from '@/widgets/mainPoster/components/MainPosterPreview';
@@ -37,6 +38,7 @@ function Preview() {
       id="preview-container"
       className={`w-93.75 h-[812px] flex flex-col relative shrink-0`}
     >
+      <EditorBgmOverlay />
       <div
         className="h-full bg-white overflow-hidden"
         style={{ backgroundColor }}

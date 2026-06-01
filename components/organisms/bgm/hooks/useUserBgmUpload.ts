@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
+import { useMemo, useRef, type ChangeEvent } from 'react';
 
 import { useBgmStore } from '../store/useBgmStore';
 import { formatDuration } from '../utils/formatDuration';
@@ -9,32 +9,13 @@ import type { BgmItem } from '../data/bgmList';
 export const USER_BGM_ID = 'user-bgm';
 
 export function useUserBgmUpload() {
-  const { userFile, userFileName, userDuration, setUserFile } = useBgmStore();
+  const { userFile, userFileSrc, userFileName, userDuration, setUserFile } =
+    useBgmStore();
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Object URL은 File에서 파생되는 로컬 상태 (스토어에 넣지 않음)
-  // 마운트 시 스토어에 File이 있으면 URL 재생성, 언마운트 시 revoke
-  const [objectUrl, setObjectUrl] = useState<string | null>(null);
-
-  // 스토어의 userFile이 바뀔 때마다 Object URL 재생성
-  useEffect(() => {
-    if (!userFile) {
-      setObjectUrl(null);
-      return;
-    }
-
-    const url = URL.createObjectURL(userFile);
-    setObjectUrl(url);
-
-    return () => {
-      URL.revokeObjectURL(url);
-    };
-  }, [userFile]);
-
-  // 스토어에 File이 있으면 BgmItem 형태로 조립 (컴포넌트가 사용하기 좋은 형태)
   const userBgm: BgmItem | null = useMemo(() => {
-    if (!userFile || !objectUrl || !userFileName || !userDuration) {
+    if (!userFile || !userFileSrc || !userFileName || !userDuration) {
       return null;
     }
 
@@ -42,9 +23,9 @@ export function useUserBgmUpload() {
       id: USER_BGM_ID,
       title: userFileName,
       duration: userDuration,
-      src: objectUrl,
+      src: userFileSrc,
     };
-  }, [objectUrl, userDuration, userFile, userFileName]);
+  }, [userDuration, userFile, userFileName, userFileSrc]);
 
   const openFilePicker = () => {
     fileInputRef.current?.click();
@@ -70,7 +51,6 @@ export function useUserBgmUpload() {
       return false;
     }
 
-    // duration 계산을 위해 임시 URL 사용 (setUserFile 전에 생성)
     const tempUrl = URL.createObjectURL(file);
     let duration = '00:00';
 
@@ -83,8 +63,6 @@ export function useUserBgmUpload() {
       URL.revokeObjectURL(tempUrl);
     }
 
-    // File과 메타데이터를 스토어에 저장
-    // → useEffect가 File 변경을 감지해 재생용 Object URL을 새로 생성
     setUserFile(file, file.name, duration);
 
     return true;

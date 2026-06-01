@@ -3,6 +3,8 @@
 import { notFound } from 'next/navigation';
 import { useEffect } from 'react';
 
+import { EditorBgmPlayerProvider } from '@/components/organisms/bgm/context/EditorBgmPlayerContext';
+import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
 import { usePreventBack } from '@/shared/hooks/usePreventBack';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
@@ -28,12 +30,14 @@ function EditorUpdate({ folderId, uuid }: Props) {
     invitationFolderId: folderId,
   });
   const reset = useEditorStore(state => state.reset);
+  const resetBgm = useBgmStore(state => state.reset);
 
   useEffect(() => {
     return () => {
       reset();
+      resetBgm();
     };
-  }, [reset]);
+  }, [reset, resetBgm]);
 
   useEffect(() => {
     if (savedData) {
@@ -54,18 +58,20 @@ function EditorUpdate({ folderId, uuid }: Props) {
 
   return (
     <FabricProvider initialData={savedData?.mainPoster}>
-      <div className="w-full h-full bg-[#E7E9EB] flex flex-col gap-13 justify-center overflow-hidden">
-        <div className="min-w-[1340px] flex justify-between items-center">
-          <LeftPanel />
-          <div className="flex gap-[clamp(20px,calc(20px+(32-20)*((100vw-1340px)/(1920-1340))),32px)] items-center">
-            <div className="pl-[clamp(0px,calc(144*((100vw-1340px)/(1920-1340))),144px)]">
-              <Preview />
+      <EditorBgmPlayerProvider>
+        <div className="w-full h-full bg-[#E7E9EB] flex flex-col gap-13 justify-center overflow-x-auto overflow-y-hidden">
+          <div className="min-w-[1340px] flex justify-between items-center">
+            <LeftPanel />
+            <div className="flex gap-[clamp(20px,calc(20px+(32-20)*((100vw-1340px)/(1920-1340))),32px)] items-center">
+              <div className="pl-[clamp(0px,calc(144*((100vw-1340px)/(1920-1340))),144px)]">
+                <Preview />
+              </div>
+              <MenuPanel />
             </div>
-            <MenuPanel />
+            <RightPanel />
           </div>
-          <RightPanel />
         </div>
-      </div>
+      </EditorBgmPlayerProvider>
     </FabricProvider>
   );
 }

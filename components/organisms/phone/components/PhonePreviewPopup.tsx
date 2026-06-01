@@ -8,6 +8,7 @@ import PhoneActionIcon from '@/shared/assets/icons/phone.svg';
 import PhoneIcon from '@/shared/assets/icons/phoneIcon.svg';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { formatPhoneNumber } from '@/shared/utils/phoneNumber';
+import { toStyle } from '@/shared/utils/toStyle';
 
 import { PhoneGroup } from '../utils/phone.types';
 
@@ -24,6 +25,9 @@ const getPhoneHrefNumber = (number: string) => {
 
 function PhonePreviewPopup({ groups = [] }: Props) {
   const titleColor = useEditorStore(state => state.titleData.color);
+  const bodyFontFamily = useEditorStore(
+    state => toStyle(state.bodyData, false).fontFamily
+  );
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const visibleGroups = groups
@@ -87,6 +91,7 @@ function PhonePreviewPopup({ groups = [] }: Props) {
               className={`w-[280px] rounded-lg bg-white shadow-edit ${
                 isEmpty ? '' : 'pb-[14px]'
               }`}
+              style={{ fontFamily: bodyFontFamily }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -109,7 +114,7 @@ function PhonePreviewPopup({ groups = [] }: Props) {
                 {visibleGroups.map((group, groupIndex) => (
                   <li key={group.id} className="flex flex-col gap-1.5">
                     <p
-                      className="h-11 flex items-center justify-center px-3 text-sm font-bold text-text-secondary text-center"
+                      className="h-11 flex items-center justify-center px-3 text-sm font-normal text-text-secondary text-center"
                       style={{ color: titleColor }}
                     >
                       {group.name.trim() || `그룹${groupIndex + 1}`}
@@ -128,10 +133,10 @@ function PhonePreviewPopup({ groups = [] }: Props) {
                           className="h-11 flex items-center justify-between gap-3 pl-5 pr-[7px]"
                         >
                           <div className="min-w-0 flex flex-col justify-center gap-1.5 text-left">
-                            <p className="truncate text-[13px] font-semibold leading-[13px] text-black">
+                            <p className="truncate text-[13px] font-normal leading-[13px] text-black">
                               {contact.label || `연락처 ${contactIndex + 1}`}
                             </p>
-                            <p className="truncate text-[13px] font-semibold leading-[13px] text-black">
+                            <p className="truncate text-xs font-normal leading-3 text-black">
                               {formatPhoneNumber(contact.number)}
                             </p>
                           </div>
