@@ -8,6 +8,7 @@ import PhoneActionIcon from '@/shared/assets/icons/phone.svg';
 import PhoneIcon from '@/shared/assets/icons/phoneIcon.svg';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { formatPhoneNumber } from '@/shared/utils/phoneNumber';
+import { toStyle } from '@/shared/utils/toStyle';
 
 import { PhoneGroup } from '../utils/phone.types';
 
@@ -24,6 +25,9 @@ const getPhoneHrefNumber = (number: string) => {
 
 function PhonePreviewPopup({ groups = [] }: Props) {
   const titleColor = useEditorStore(state => state.titleData.color);
+  const bodyFontFamily = useEditorStore(
+    state => toStyle(state.bodyData, false).fontFamily
+  );
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const visibleGroups = groups
@@ -87,6 +91,7 @@ function PhonePreviewPopup({ groups = [] }: Props) {
               className={`w-[280px] rounded-lg bg-white shadow-edit ${
                 isEmpty ? '' : 'pb-[14px]'
               }`}
+              style={{ fontFamily: bodyFontFamily }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
