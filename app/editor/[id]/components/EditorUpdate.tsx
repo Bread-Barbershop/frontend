@@ -59,7 +59,7 @@ function EditorUpdate({ folderId, uuid }: Props) {
   return (
     <FabricProvider initialData={savedData?.mainPoster}>
       <EditorBgmPlayerProvider>
-        <div className="w-full h-full bg-[#E7E9EB] flex flex-col gap-13 justify-center overflow-hidden">
+        <div className="w-full h-full bg-[#E7E9EB] flex flex-col gap-13 justify-center overflow-x-auto overflow-y-hidden">
           <div className="min-w-[1340px] flex justify-between items-center">
             <LeftPanel />
             <div className="flex gap-[clamp(20px,calc(20px+(32-20)*((100vw-1340px)/(1920-1340))),32px)] items-center">

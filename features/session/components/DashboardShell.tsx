@@ -25,7 +25,9 @@ export default async function DashboardShell({
   return (
     <div
       className={`min-h-dvh grid grid-rows-[auto_1fr_auto] ${
-        isEditor ? 'bg-[#E7E9EB]' : 'bg-center bg-cover bg-no-repeat'
+        isEditor
+          ? 'overflow-x-hidden bg-[#E7E9EB]'
+          : 'bg-center bg-cover bg-no-repeat'
       }`}
       style={
         isEditor
