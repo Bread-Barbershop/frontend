@@ -1,14 +1,15 @@
 'use client';
 
 import { JSONContent } from '@tiptap/core';
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 
+import { UtilityButton } from '@/components/atoms/button';
 import { Divider } from '@/components/atoms/divider';
 import { Label } from '@/components/atoms/label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { EditorNoticeList } from '@/components/molecules/editor-notice';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
-import { TextEditor } from '@/components/molecules/text-editor';
+import { TextEditor, type TextEditorRef } from '@/components/molecules/text-editor';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
 import { TimeSelector } from '@/components/molecules/time-selector';
@@ -26,6 +27,12 @@ interface Props {
 
 export function Calendar({ blockInfo, id }: Props) {
   const updateBlock = useEditorStore(state => state.updateBlock);
+  const textEditorRef = useRef<TextEditorRef>(null);
+
+  const handleInsertDday = useCallback(() => {
+    textEditorRef.current?.insertText('(D-Day)');
+  }, []);
+
   const defaultTitle =
     blockInfo.type === 'wedding'
       ? '예식 일시 편집 페이지'
@@ -160,11 +167,17 @@ export function Calendar({ blockInfo, id }: Props) {
             />
           </div>
         </div>
-        <NavigationBar>디데이&카운트다운</NavigationBar>
+        <NavigationBar
+          action={<UtilityButton size="sm" onClick={handleInsertDday}>디데이</UtilityButton>}
+          direction="right"
+        >
+          디데이&카운트다운
+        </NavigationBar>
         <div className="flex flex-col items-center gap-2 w-full ">
           <div>
             <TextEditor
               key={id}
+              ref={textEditorRef}
               value={blockInfo.props.messageJson}
               defaultText={
                 blockInfo.type === 'wedding'
