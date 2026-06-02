@@ -7,13 +7,15 @@ import {
   useEditor,
 } from '@tiptap/react';
 import { ChevronDown } from 'lucide-react';
-import {
+import React, {
   type CSSProperties,
   useEffect,
   useMemo,
   useReducer,
   useRef,
   useState,
+  forwardRef,
+  useImperativeHandle,
 } from 'react';
 
 import TextEditorButton from '@/components/atoms/text-editor-button/TextEditorButton';
@@ -48,6 +50,12 @@ interface TextEditorProps {
   defaultText?: string;
   defaultAlign?: TextAlignValue;
   onChange?: (json: JSONContent) => void;
+  additionalSlot?: React.ReactNode;
+}
+
+export interface TextEditorRef {
+  insertText: (text: string) => void;
+  getEditor: () => Editor | null;
 }
 
 const TEXT_ALIGN_OPTIONS: TextAlignOption[] = [
@@ -64,12 +72,13 @@ const DEFAULT_FONT_SIZE_OPTION = FONT_SIZE_OPTIONS[0];
 const DEFAULT_TEXT_ALIGN_OPTION = TEXT_ALIGN_OPTIONS[1];
 const DEFAULT_EDITOR_TEXT = '내용을 입력해주세요';
 
-export function TextEditor({
+export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(({
   value,
   defaultText = DEFAULT_EDITOR_TEXT,
   defaultAlign = DEFAULT_TEXT_ALIGN_OPTION.value,
   onChange,
-}: TextEditorProps) {
+  additionalSlot = null,
+}, ref) => {
   const [, forceUpdate] = useReducer((count: number) => count + 1, 0);
   const [fontFamilySelected, setFontFamilySelected] =
     useState<FontFamilyOption>(DEFAULT_FONT_FAMILY_OPTION);
@@ -153,6 +162,15 @@ export function TextEditor({
       editorRef.current = null;
     },
   });
+
+  useImperativeHandle(ref, () => ({
+    insertText: (text: string) => {
+      if (editor) {
+        editor.chain().focus().insertContent(text).run();
+      }
+    },
+    getEditor: () => editor,
+  }), [editor]);
 
   if (!editor) return null;
 
@@ -245,7 +263,7 @@ export function TextEditor({
             onSelect={handleFontFamilySelect}
             placeholder="Font"
             className="w-[210px] font-semibold"
-            triggerClassName="h-8 bg-white border border-[#eaeaea]"
+            triggerClassName="h-8 bg-white border border-border"
             triggerButtonClassName="pl-3 pr-1"
             labelClassName="justify-start text-left text-sm"
             optionLabelClassName="justify-start text-left text-sm"
@@ -258,12 +276,13 @@ export function TextEditor({
             onSelect={handleFontWeightSelect}
             placeholder="Weight"
             className="w-[112px] font-semibold"
-            triggerClassName="h-8 bg-white border border-[#eaeaea]"
+            triggerClassName="h-8 bg-white border border-[#eaeaea] "
             triggerButtonClassName="pl-3 pr-1"
             labelClassName="justify-start text-left text-sm"
             optionLabelClassName="justify-start text-left text-sm"
             showCheckbox={false}
           />
+          {additionalSlot}
         </div>
 
         <div className="flex h-8 items-center justify-between">
@@ -370,4 +389,6 @@ export function TextEditor({
       </div>
     </div>
   );
-}
+});
+
+TextEditor.displayName = 'TextEditor';
