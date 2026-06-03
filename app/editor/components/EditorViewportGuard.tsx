@@ -139,6 +139,10 @@ function EditorViewportGuard({ children }: { children: ReactNode }) {
   const isWideEnough =
     viewportWidth !== null && viewportWidth >= DESKTOP_CONTENT_MIN_WIDTH;
 
+  if (viewportWidth === null) {
+    return null;
+  }
+
   return (
     <>
       {hasMountedEditor && children}
