@@ -141,6 +141,8 @@ function FaqContent() {
 
                       <div
                         id={answerId}
+                        aria-hidden={!isOpened}
+                        inert={!isOpened ? true : undefined}
                         className={`grid transition-[grid-template-rows,opacity] duration-300 ${
                           isOpened
                             ? 'grid-rows-[1fr] opacity-100'

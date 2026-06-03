@@ -118,16 +118,12 @@ function EditorDesktopNotice({
 
 function EditorViewportGuard({ children }: { children: ReactNode }) {
   const [viewportWidth, setViewportWidth] = useState<number | null>(null);
-  const [hasMountedEditor, setHasMountedEditor] = useState(false);
 
   useEffect(() => {
     const updateViewportWidth = () => {
       const nextViewportWidth = window.innerWidth;
 
       setViewportWidth(nextViewportWidth);
-      if (nextViewportWidth >= DESKTOP_CONTENT_MIN_WIDTH) {
-        setHasMountedEditor(true);
-      }
     };
 
     updateViewportWidth();
@@ -145,8 +141,11 @@ function EditorViewportGuard({ children }: { children: ReactNode }) {
 
   return (
     <>
-      {hasMountedEditor && children}
-      {!isWideEnough && <EditorDesktopNotice viewportWidth={viewportWidth} />}
+      {isWideEnough ? (
+        children
+      ) : (
+        <EditorDesktopNotice viewportWidth={viewportWidth} />
+      )}
     </>
   );
 }
