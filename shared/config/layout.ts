@@ -1,0 +1,1 @@
+export const DESKTOP_CONTENT_MIN_WIDTH = 1340;

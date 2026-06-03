@@ -1,8 +1,7 @@
-import Image from 'next/image';
-import Link from 'next/link';
+import { ShieldCheck } from 'lucide-react';
 
-import Arrow from '@/shared/assets/icons/arrow.svg';
-import inviaLogo from '@/shared/assets/logo/Invia-logo.png';
+import ContactEmailActions from '@/features/contact/components/ContactEmailActions';
+import DashboardShell from '@/features/session/components/DashboardShell';
 
 import type { ReactNode } from 'react';
 
@@ -338,7 +337,7 @@ const policySections: PolicySection[] = [
 function PolicyContentBlock({ content }: { content: PolicyContent }) {
   if (content.type === 'list') {
     return (
-      <ul className="ml-5 list-disc space-y-2 text-base leading-7 text-black/75">
+      <ul className="ml-5 list-disc space-y-2 text-sm leading-7 text-black/65 marker:text-black/30 sm:text-base sm:leading-8">
         {content.items.map((item, index) => (
           <li key={`${content.id}-${index}`}>{item}</li>
         ))}
@@ -348,13 +347,17 @@ function PolicyContentBlock({ content }: { content: PolicyContent }) {
 
   if (content.type === 'subtitle') {
     return (
-      <h3 className="pt-2 text-lg font-semibold leading-8 text-black/85">
+      <h3 className="pt-3 text-base font-semibold leading-7 tracking-[-0.02em] text-black/85 sm:text-lg sm:leading-8">
         {content.content}
       </h3>
     );
   }
 
-  return <p className="text-base leading-8 text-black/75">{content.content}</p>;
+  return (
+    <p className="text-sm leading-7 text-black/65 sm:text-base sm:leading-8">
+      {content.content}
+    </p>
+  );
 }
 
 function PolicySectionCard({
@@ -365,11 +368,19 @@ function PolicySectionCard({
   sectionNumber: number;
 }) {
   return (
-    <section className="w-full rounded-lg border border-black/10 bg-white px-6 py-7 shadow-sm sm:px-8">
-      <h2 className="text-xl font-semibold leading-8 text-black">
-        {sectionNumber}. {section.title}
-      </h2>
-      <div className="mt-4 flex flex-col gap-2">
+    <section
+      id={section.id}
+      className="scroll-mt-8 border-b border-black/15 py-8 first:pt-6 sm:py-10 sm:first:pt-8"
+    >
+      <div className="flex items-start gap-4 sm:gap-7">
+        <span className="pt-1 text-xs font-bold tabular-nums tracking-[0.16em] text-black/35">
+          {String(sectionNumber).padStart(2, '0')}
+        </span>
+        <h2 className="text-xl font-semibold leading-8 tracking-[-0.04em] text-black sm:text-2xl">
+          {section.title}
+        </h2>
+      </div>
+      <div className="mt-5 flex flex-col gap-3 pl-8 sm:mt-6 sm:gap-4 sm:pl-14">
         {section.contents.map(content => (
           <PolicyContentBlock key={content.id} content={content} />
         ))}
@@ -380,59 +391,100 @@ function PolicySectionCard({
 
 function Policy() {
   return (
-    <main className="min-h-screen bg-[#fafafa] px-4 py-12 text-black sm:px-6">
-      <article className="mx-auto flex w-full max-w-3xl flex-col gap-10">
-        <header className="flex flex-col items-center gap-6 text-center">
-          <Link
-            href="/"
-            className="inline-flex cursor-pointer items-center gap-2.5 rounded-md border border-black/30 px-4 py-2 text-sm transition-colors hover:bg-black hover:text-white"
-          >
-            <Arrow className="h-2.5 w-2 rotate-90 font-light" />
-            <span>메인으로 돌아가기</span>
-          </Link>
+    <DashboardShell>
+      <article className="w-full px-5 pb-16 pt-12 text-[#171717] sm:px-8 lg:px-12 lg:pb-20 lg:pt-16">
+        <div className="mx-auto max-w-6xl">
+          <section className="grid gap-8 border-b border-black/15 pb-10 lg:grid-cols-[1fr_360px] lg:items-end lg:gap-16 lg:pb-14">
+            <div>
+              <p className="mb-5 text-xs font-bold tracking-[0.24em] text-black/45">
+                PRIVACY & DATA
+              </p>
+              <h1 className="max-w-3xl text-[clamp(3.4rem,8vw,7rem)] font-semibold leading-[0.9] tracking-[-0.09em]">
+                Privacy,
+                <br />
+                clearly.
+              </h1>
+              <p className="mt-7 text-base font-semibold leading-7 tracking-[-0.03em] sm:text-lg sm:leading-8">
+                {policyInfo.title}
+              </p>
+            </div>
 
-          <div className="flex flex-col items-center gap-3">
-            <Image
-              src={inviaLogo}
-              alt={policyInfo.serviceName}
-              width={4096}
-              height={821}
-              className="h-6 w-auto"
-              priority
-            />
-            <h1 className="text-4xl font-semibold tracking-widest">
-              {policyInfo.title}
-            </h1>
-            <div className="flex max-w-2xl flex-col gap-2 text-base leading-7 text-black/70">
-              {policyInfo.descriptions.map(description => (
-                <p key={description}>{description}</p>
+            <div className="border-t border-black pt-5">
+              <div className="flex items-center gap-2 text-xs font-bold tracking-[0.16em] text-black/45">
+                <ShieldCheck className="h-4 w-4" />
+                EFFECTIVE DATE
+              </div>
+              <p className="mt-4 text-lg font-semibold tracking-[-0.03em]">
+                {policyInfo.effectiveDate}
+              </p>
+              <p className="mt-1 text-sm leading-6 text-black/50">
+                최종 수정일 {policyInfo.lastUpdated}
+              </p>
+            </div>
+          </section>
+
+          <section className="grid gap-10 py-10 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-20 lg:py-14">
+            <aside className="lg:sticky lg:top-8 lg:self-start">
+              <p className="text-xs font-bold tracking-[0.2em] text-black/40">
+                OVERVIEW
+              </p>
+              <div className="mt-5 flex flex-col gap-2 text-sm leading-7 text-black/60">
+                {policyInfo.descriptions.map(description => (
+                  <p key={description}>{description}</p>
+                ))}
+              </div>
+
+              <nav className="mt-9 hidden border-t border-black/15 pt-5 lg:block">
+                <p className="text-xs font-bold tracking-[0.2em] text-black/40">
+                  CONTENTS
+                </p>
+                <ol className="mt-4 flex flex-col gap-2.5">
+                  {policySections.map((section, index) => (
+                    <li key={section.id}>
+                      <a
+                        href={`#${section.id}`}
+                        className="group inline-flex cursor-pointer items-start gap-2 text-xs leading-5 text-black/45 transition-colors hover:text-black"
+                      >
+                        <span className="tabular-nums text-black/30 group-hover:text-black/60">
+                          {String(index + 1).padStart(2, '0')}
+                        </span>
+                        <span>{section.title}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </nav>
+            </aside>
+
+            <div className="border-t border-black">
+              {policySections.map((section, index) => (
+                <PolicySectionCard
+                  key={section.id}
+                  section={section}
+                  sectionNumber={index + 1}
+                />
               ))}
             </div>
-          </div>
+          </section>
 
-          <div className="my-2 flex items-center gap-4 anim-fade-5">
-            <div className="h-px w-[60px] bg-gradient-to-r from-transparent via-black/50 to-transparent" />
-            <div className="h-1.5 w-1.5 rotate-45 bg-black" />
-            <div className="h-px w-[60px] bg-gradient-to-r from-transparent via-black/50 to-transparent" />
-          </div>
+          <section className="mb-16 grid gap-7 rounded-[2rem] bg-[#171717] px-7 py-8 text-white sm:px-10 sm:py-10 lg:grid-cols-[1fr_auto] lg:items-end">
+            <div>
+              <p className="text-xs font-bold tracking-[0.2em] text-white/45">
+                PRIVACY QUESTIONS
+              </p>
+              <h2 className="mt-4 text-3xl font-semibold tracking-[-0.06em] sm:text-4xl">
+                궁금한 점이 있나요?
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-white/60 sm:text-base">
+                개인정보 처리와 관련된 문의를 이메일로 남겨주세요.
+              </p>
+            </div>
 
-          <p className="text-base leading-7 text-black/70 sm:text-lg">
-            시행일: {policyInfo.effectiveDate} &nbsp;|&nbsp; 최종 수정:{' '}
-            {policyInfo.lastUpdated}
-          </p>
-        </header>
-
-        <div className="flex flex-col gap-5 pb-12">
-          {policySections.map((section, index) => (
-            <PolicySectionCard
-              key={section.id}
-              section={section}
-              sectionNumber={index + 1}
-            />
-          ))}
+            <ContactEmailActions />
+          </section>
         </div>
       </article>
-    </main>
+    </DashboardShell>
   );
 }
 

@@ -9,10 +9,10 @@ import BulkEdit from './components/BulkEdit';
 import Edit from './components/Edit';
 
 function LeftPanel() {
-  const { isEdit, setIsEdit } = useEditorStore(
+  const { isEdit, setIsEdit} = useEditorStore(
     useShallow(state => ({ isEdit: state.isEdit, setIsEdit: state.setIsEdit }))
   );
-
+  
   return (
     <div
       className="w-93.75 max-h-[810px] ml-5 min-[1540px]:ml-15 flex flex-col gap-4"
@@ -42,15 +42,29 @@ function LeftPanel() {
         </div>
       </div>
 
-      <div className="flex flex-col bg-white rounded-lg shadow-edit border border-black/5 transition-default">
-        <div
-          key={`edit-${isEdit}`}
-          className={`grid ${!isEdit ? 'animate-grow-height opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
-        >
-          <div className="w-full overflow-hidden max-h-[750px]">
-            <Edit />
+      <div
+        className={`flex flex-col bg-white rounded-lg shadow-edit border border-black/5 transition-default ${
+          isEdit ? 'h-11' : ''
+        }`}
+      >
+        {isEdit ? (
+          <button
+            type="button"
+            className="flex-center relative w-full h-full font-semibold"
+            onClick={() => setIsEdit(false)}
+          >
+            상세 편집
+          </button>
+        ) : (
+          <div
+            key={`edit-${isEdit}`}
+            className={`grid ${!isEdit ? 'animate-grow-height opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+          >
+            <div className="w-full overflow-hidden max-h-[750px]">
+              <Edit />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

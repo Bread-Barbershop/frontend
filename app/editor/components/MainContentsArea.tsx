@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react';
 
+import { EditorBgmPlayerProvider } from '@/components/organisms/bgm/context/EditorBgmPlayerContext';
+import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import { usePreventBack } from '@/shared/hooks/usePreventBack';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import LeftPanel from '@/widgets/editor/leftPanel/LeftPanel';
@@ -12,24 +14,30 @@ import RightPanel from '@/widgets/editor/rightPanel/RightPanel';
 function MainContentsArea() {
   usePreventBack();
   const reset = useEditorStore(state => state.reset);
+  const resetBgm = useBgmStore(state => state.reset);
 
   useEffect(() => {
+    resetBgm();
+
     return () => {
       reset();
+      resetBgm();
     };
-  }, [reset]);
+  }, [reset, resetBgm]);
   return (
-    <div className="min-w-[1340px] h-full flex justify-between items-center">
-      <LeftPanel />
-      <div className="flex gap-[clamp(20px,calc(20px+(32-20)*((100vw-1340px)/(1920-1340))),32px)] items-center">
-        <div className="pl-[clamp(0px,calc(144*((100vw-1340px)/(1920-1340))),144px)]">
-          <Preview />
+    <EditorBgmPlayerProvider>
+      <div className="min-w-[1340px] h-full flex justify-between items-center">
+        <LeftPanel />
+        <div className="flex gap-[clamp(20px,calc(20px+(32-20)*((100vw-1340px)/(1920-1340))),32px)] items-center">
+          <div className="pl-[clamp(0px,calc(144*((100vw-1340px)/(1920-1340))),144px)]">
+            <Preview />
+          </div>
+          <MenuPanel />
         </div>
-        <MenuPanel />
-      </div>
 
-      <RightPanel />
-    </div>
+        <RightPanel />
+      </div>
+    </EditorBgmPlayerProvider>
   );
 }
 

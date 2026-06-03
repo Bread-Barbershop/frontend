@@ -38,12 +38,17 @@ export function useBgmPlayer(currentSrc: string | null) {
 
   // currentSrc가 실제로 바뀔 때만 src 교체
   useEffect(() => {
-    if (!currentSrc) return;
-
     const audio = audioRef.current;
     if (!audio) return;
 
     audio.pause();
+    if (!currentSrc) {
+      audio.removeAttribute('src');
+      audio.load();
+      setIsPlaying(false);
+      return;
+    }
+
     audio.src = currentSrc;
     audio.load();
     setIsPlaying(false);

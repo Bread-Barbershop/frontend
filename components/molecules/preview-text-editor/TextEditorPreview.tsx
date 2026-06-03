@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, type ReactNode } from 'react';
+import { ChevronDown } from 'lucide-react';
+import { CSSProperties, useMemo, type ReactNode } from 'react';
 
 import TextEditorButton from '@/components/atoms/text-editor-button/TextEditorButton';
 import AlignCenterIcon from '@/shared/assets/icons/alignCenter.svg';
@@ -131,11 +132,33 @@ export function TextEditorPreview({
           />
 
           <div className="relative">
-            <TextEditorButton
-              icon={<FontColorIcon />}
-              label="글자색"
+            <button
+              type="button"
+              aria-label="Font color"
+              aria-pressed={colorPickerOpen}
+              onMouseDown={event => event.preventDefault()}
               onClick={handleColorPickerToggle}
-            />
+              className={cn(
+                'flex h-8 w-[50px] items-center justify-between overflow-hidden rounded-lg bg-white py-1 pl-2 text-text-primary shadow-[inset_0_0_0_1px_#eaeaea] transition-colors hover:bg-[#FAFAFB] active:bg-[#F5F8FF]',
+                colorPickerOpen && 'bg-[#F5F8FF]'
+              )}
+            >
+              <FontColorIcon
+                style={
+                  {
+                    '--text-editor-color-indicator': value.color,
+                  } as CSSProperties
+                }
+              />
+              <div
+                className={cn(
+                  'flex-center size-6 shrink-0 transition-transform duration-200',
+                  colorPickerOpen && 'rotate-180'
+                )}
+              >
+                <ChevronDown size={12} />
+              </div>
+            </button>
 
             {colorPickerOpen && (
               <BulkColorPicker

@@ -14,17 +14,29 @@ const HEADER_NAV_LINK_CLASS =
 
 export default async function DashboardShell({
   children,
+  variant = 'default',
+  minimumWidth,
 }: Readonly<{
   children: ReactNode;
+  variant?: 'default' | 'editor';
+  minimumWidth?: number;
 }>) {
   const session = await getAuthSession();
+  const isEditor = variant === 'editor';
 
   return (
     <div
-      className="min-h-dvh grid grid-rows-[auto_1fr_auto] bg-center bg-cover bg-no-repeat"
-      style={{ backgroundImage: `url(${homeBackgroundImage.src})` }}
+      className={`min-h-dvh grid grid-rows-[auto_1fr_auto] ${
+        minimumWidth ? 'overflow-x-auto' : 'overflow-x-hidden'
+      } ${isEditor ? 'bg-[#E7E9EB]' : 'bg-center bg-cover bg-no-repeat'}`}
+      style={{
+        ...(isEditor
+          ? {}
+          : { backgroundImage: `url(${homeBackgroundImage.src})` }),
+        ...(minimumWidth ? { minWidth: `${minimumWidth}px` } : {}),
+      }}
     >
-      <header className="h-15.5 bg-white flex items-center justify-between px-10">
+      <header className="h-14 bg-transparent flex items-center justify-between px-10">
         <div className="flex h-full items-center gap-8">
           <HomeButton />
 
