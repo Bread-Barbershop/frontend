@@ -92,14 +92,7 @@ function FontColor() {
 
   const getIconColor = (color: ColorPickerValue) => {
     if (typeof color === 'string') return color;
-
     return hsvaToHex(color as PickerHsva);
-  };
-
-  const startPickingColor = (e: React.PointerEvent<HTMLDivElement>) => {
-    e.stopPropagation();
-    isPickingColorRef.current = true;
-    e.currentTarget.setPointerCapture(e.pointerId);
   };
 
   useEffect(() => {
@@ -210,7 +203,9 @@ function FontColor() {
           inset: 'auto',
           touchAction: 'none',
         }}
-        onPointerDownCapture={startPickingColor}
+        onPointerDown={() => {
+          isPickingColorRef.current = true;
+        }}
       >
         <SmallColorPicker
           showHeader={true}
