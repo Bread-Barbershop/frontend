@@ -3,6 +3,8 @@
 import useEmblaCarousel from 'embla-carousel-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { DESKTOP_CONTENT_MIN_WIDTH } from '@/features/session/config/dashboardShell.config';
+
 import { dashboardCarouselLayout } from './carouselLayout';
 import CarouselTrack from './CarouselTrack';
 import { CarouselCardItem } from './carouselTypes';
@@ -124,7 +126,7 @@ function CarouselBase({
   return (
     <section
       className="relative left-1/2 w-screen -translate-x-1/2"
-      style={{ height: stageHeight }}
+      style={{ height: stageHeight, minWidth: DESKTOP_CONTENT_MIN_WIDTH }}
     >
       <CarouselTrack
         emblaRef={emblaRef}
