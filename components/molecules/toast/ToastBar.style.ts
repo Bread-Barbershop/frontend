@@ -1,16 +1,17 @@
 import { cva } from 'class-variance-authority';
 
 export const toastBarVariants = cva(
-  'relative flex-center max-w-[375px] w-full rounded-lg px-10  py-1.5 border text-sm font-bold',
+  'relative inline-flex h-8 w-fit items-center justify-center rounded-lg border bg-white pl-[70px] pr-[60px] font-pretendard text-[14px] font-bold leading-5',
   {
     variants: {
       variant: {
         success:
-          'border-status-success text-status-success bg-status-success-bg',
-        error: 'border-status-error text-status-error bg-status-error-bg',
+          'border-[#2DB400] text-[#2DB400] shadow-[0_8px_24px_0_rgba(45,180,0,0.08),0_2px_10px_0_rgba(45,180,0,0.1)]',
+        error:
+          'border-[#FF0000] text-[#FF0000] shadow-[0_8px_24px_0_rgba(255,0,0,0.08),0_2px_10px_0_rgba(255,0,0,0.1)]',
         warning:
-          'border-status-warning text-status-warning bg-status-warning-bg',
-        info: 'border-status-info text-status-info bg-status-info-bg',
+          'border-[#FF8C00] text-[#FF8C00] shadow-[0_8px_24px_0_rgba(255,140,0,0.08),0_2px_10px_0_rgba(255,140,0,0.1)]',
+        info: 'border-[#1C7ED6] text-[#1C7ED6] shadow-[0_8px_24px_0_rgba(28,126,214,0.08),0_2px_10px_0_rgba(28,126,214,0.1)]',
       },
     },
   }

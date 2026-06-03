@@ -1,10 +1,9 @@
 import { VariantProps } from 'class-variance-authority';
-import {
-  CheckCircleIcon,
-  CircleXIcon,
-  InfoIcon,
-  TriangleAlertIcon,
-} from 'lucide-react';
+
+import SuccessIcon from '@/shared/assets/icons/check.svg';
+import ErrorIcon from '@/shared/assets/icons/error.svg';
+import InfoIcon from '@/shared/assets/icons/Info.svg';
+import WarningIcon from '@/shared/assets/icons/warning.svg';
 
 import { toastBarVariants } from './ToastBar.style';
 
@@ -13,17 +12,21 @@ interface ToastBarProps extends VariantProps<typeof toastBarVariants> {
 }
 
 const toastBarIcons = {
-  success: <CheckCircleIcon size={20} />,
-  error: <CircleXIcon size={20} />,
-  warning: <TriangleAlertIcon size={20} />,
-  info: <InfoIcon size={20} />,
+  success: <SuccessIcon />,
+  error: <ErrorIcon />,
+  warning: <WarningIcon />,
+  info: <InfoIcon />,
 };
 
 export const ToastBar = ({ variant = 'success', message }: ToastBarProps) => {
+  const currentVariant = variant ?? 'success';
+
   return (
-    <div className={toastBarVariants({ variant })}>
-      <div className="absolute left-2">{variant && toastBarIcons[variant]}</div>
-      {message}
+    <div className={toastBarVariants({ variant: currentVariant })}>
+      <div className="absolute left-2 flex size-6 items-center justify-center">
+        {toastBarIcons[currentVariant]}
+      </div>
+      <span className="whitespace-nowrap text-center">{message}</span>
     </div>
   );
 };

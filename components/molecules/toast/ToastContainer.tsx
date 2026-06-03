@@ -13,7 +13,7 @@ export const ToastContainer = () => {
 
   return createPortal(
     <div
-      className={`fixed top-10 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-[375px] transition-all duration-300 pointer-events-none ${
+      className={`fixed left-1/2 top-10 z-[1000] flex w-fit -translate-x-1/2 justify-center transition-all duration-300 pointer-events-none ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
       }`}
     >
