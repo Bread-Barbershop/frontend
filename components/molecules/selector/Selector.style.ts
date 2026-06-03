@@ -9,7 +9,7 @@ export const selectorVariants = cva(
         editor: '',
       },
       isOpen: {
-        true: 'rounded-t-lg border-t border-l border-r',
+        true: 'rounded-t-lg border border-b-bg-base',
         false: 'rounded-lg border border-transparent',
       },
       hasValue: {
@@ -22,7 +22,7 @@ export const selectorVariants = cva(
       {
         type: 'normal',
         isOpen: true,
-        className: 'bg-bg-base',
+        className: 'bg-bg-base shadow-btn-drop-black border-bg-base',
       },
       {
         type: 'normal',
@@ -50,6 +50,21 @@ export const selectorVariants = cva(
 );
 
 export type SelectorVariants = VariantProps<typeof selectorVariants>;
+
+export const popoverVariants = cva(
+  'z-10 rounded-b-lg max-h-72 p-0 m-0 fixed list-none edit-custom-scrollbar',
+  {
+    variants: {
+      type: {
+        normal: 'shadow-btn-drop-black border-none',
+        editor: 'shadow-lg border-x border-border-neutral',
+      },
+    },
+    defaultVariants: {
+      type: 'editor',
+    },
+  }
+);
 
 export const selectorStyles = {
   fontFamily: {

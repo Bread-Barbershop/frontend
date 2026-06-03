@@ -17,6 +17,7 @@ import {
   selectorVariants,
   selectorStyles,
   SelectorVariantType,
+  popoverVariants,
 } from './Selector.style';
 
 interface Option {
@@ -211,7 +212,8 @@ export const Selector = <T extends Option>({
           isOpen &&
             (variantStyles && 'openTrigger' in variantStyles
               ? variantStyles.openTrigger
-              : openTriggerClassName)
+              : openTriggerClassName),
+          isOpen && 'border-b-bg-base'
         )}
       >
         {isCustomInput ? (
@@ -272,7 +274,7 @@ export const Selector = <T extends Option>({
         ref={popoverRef}
         popover="auto"
         className={cn(
-          'z-10 rounded-b-lg max-h-72 shadow-lg border-l border-r border-border-neutral p-0 m-0 fixed list-none edit-custom-scrollbar',
+          popoverVariants({ type }),
           selected ? 'bg-bg-base' : 'bg-border-neutral'
         )}
         style={{
