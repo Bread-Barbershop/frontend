@@ -57,60 +57,54 @@ function LineHeight() {
   };
 
   return (
-    <section className="relative w-full py-2">
-      <div className="bg-bg-base">
-        <div className="mb-2 text-center text-[13px] font-semibold text-text-primary">
-          행간
-        </div>
-
-        <div className="flex items-center gap-1.5 w-full">
-          {/* 중앙 슬라이더 */}
-          <div className="flex-1 px-1">
-            <input
-              type="range"
-              id="lineHeight"
-              min={-20}
-              max={20}
-              step={1}
-              value={value}
-              onChange={e => {
-                const d = Number(e.target.value);
-                applyValue(d);
-              }}
-              className="h-1 w-full cursor-pointer appearance-none rounded-full bg-[#E5E7EB] accent-[#3B82F6] 
+    <div className="bg-bg-base w-full py-1 flex items-center gap-4">
+      <p className="px-2 text-center text-sm font-semibold text-text-primary">
+        행간
+      </p>
+      <div className="flex-1 px-1">
+        <input
+          type="range"
+          id="lineHeight"
+          min={-20}
+          max={20}
+          step={1}
+          value={value}
+          onChange={e => {
+            const d = Number(e.target.value);
+            applyValue(d);
+          }}
+          className="h-1 w-full cursor-pointer appearance-none rounded-full bg-[#E5E7EB] accent-[#3B82F6] 
                 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:size-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#3B82F6]
                 [&::-moz-range-thumb]:size-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#3B82F6] [&::-moz-range-thumb]:border-none"
-            />
-          </div>
-
-          {/* 우측 값 표시 */}
-          <input
-            type="text"
-            value={showValue}
-            onChange={e => {
-              const value = e.target.value;
-              const numericValue = value.replace(/[^0-9.-]/g, '');
-              if (numericValue !== '' && !/^-?\d*\.?\d*$/.test(numericValue))
-                return;
-
-              setShowValue(numericValue);
-
-              const num = Number(numericValue);
-              if (numericValue !== '' && !isNaN(num)) {
-                applyValue(num);
-              }
-            }}
-            onBlur={() => {
-              const num = Number(showValue);
-              const next = isNaN(num) ? value : clamp(num, -20, 20);
-              setShowValue(String(next));
-              applyValue(next);
-            }}
-            className="flex items-center justify-center text-center w-[47px] h-[32px] text-xs bg-bg-base border border-border-neutral rounded-lg focus:outline-none focus:border-primary"
-          />
-        </div>
+        />
       </div>
-    </section>
+
+      {/* 우측 값 표시 */}
+      <input
+        type="text"
+        value={showValue}
+        onChange={e => {
+          const value = e.target.value;
+          const numericValue = value.replace(/[^0-9.-]/g, '');
+          if (numericValue !== '' && !/^-?\d*\.?\d*$/.test(numericValue))
+            return;
+
+          setShowValue(numericValue);
+
+          const num = Number(numericValue);
+          if (numericValue !== '' && !isNaN(num)) {
+            applyValue(num);
+          }
+        }}
+        onBlur={() => {
+          const num = Number(showValue);
+          const next = isNaN(num) ? value : clamp(num, -20, 20);
+          setShowValue(String(next));
+          applyValue(next);
+        }}
+        className="flex items-center justify-center text-center w-[47px] h-[32px] text-xs bg-bg-base border border-border-neutral rounded-lg focus:outline-none focus:border-primary"
+      />
+    </div>
   );
 }
 

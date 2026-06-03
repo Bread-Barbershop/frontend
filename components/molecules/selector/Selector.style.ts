@@ -9,8 +9,8 @@ export const selectorVariants = cva(
         editor: '',
       },
       isOpen: {
-        true: 'rounded-t-lg border-b-transparent shadow-[0_-3px_8px_rgba(0,0,0,0.08)]',
-        false: 'rounded-lg',
+        true: 'rounded-t-lg border-t border-l border-r',
+        false: 'rounded-lg border border-transparent',
       },
       hasValue: {
         true: '',
@@ -50,3 +50,30 @@ export const selectorVariants = cva(
 );
 
 export type SelectorVariants = VariantProps<typeof selectorVariants>;
+
+export const selectorStyles = {
+  fontFamily: {
+    container: 'w-[210px] font-semibold',
+    trigger: 'h-8 bg-white border-[#eaeaea]',
+    triggerButton: 'pl-3 pr-1',
+    label: 'justify-start text-left text-sm',
+    optionLabel: 'justify-start text-left text-sm',
+  },
+  fontWeight: {
+    container: 'w-[112px] font-semibold',
+    trigger: 'h-8 bg-white border-[#eaeaea]',
+    triggerButton: 'pl-3 pr-1',
+    label: 'justify-start text-left text-sm',
+    optionLabel: 'justify-start text-left text-sm',
+  },
+  fontSize: {
+    container: 'w-[78px] font-semibold',
+    trigger: 'h-8 bg-[#f3f3f3] rounded-sm',
+    openTrigger: 'bg-white border-[#eaeaea]',
+    triggerButton: 'pl-3 pr-1',
+    label: 'justify-start text-left text-sm',
+    optionLabel: 'justify-start text-left text-sm',
+  },
+} as const;
+
+export type SelectorVariantType = keyof typeof selectorStyles;

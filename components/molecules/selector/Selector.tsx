@@ -13,7 +13,11 @@ import {
 import { Input } from '@/components/atoms/input';
 import { cn } from '@/shared/utils/cn';
 
-import { selectorVariants } from './Selector.style';
+import {
+  selectorVariants,
+  selectorStyles,
+  SelectorVariantType,
+} from './Selector.style';
 
 interface Option {
   label: string | ReactNode;
@@ -23,6 +27,7 @@ interface Option {
 
 interface SelectorProps<T extends Option> {
   type?: 'normal' | 'editor';
+  variant?: SelectorVariantType;
   options: T[];
   placeholder?: string;
   className?: string;
@@ -47,6 +52,7 @@ const clamp = (value: number, min: number, max: number) =>
 
 export const Selector = <T extends Option>({
   type = 'editor',
+  variant,
   options,
   placeholder = '선택',
   className,
@@ -186,13 +192,26 @@ export const Selector = <T extends Option>({
       })
     : options;
 
+  const variantStyles = variant ? selectorStyles[variant] : null;
+
   return (
-    <div ref={containerRef} className={cn('relative text-center', className)}>
+    <div
+      ref={containerRef}
+      className={cn(
+        'relative text-center',
+        variantStyles?.container,
+        className
+      )}
+    >
       <div
         className={cn(
           selectorVariants({ type, isOpen, hasValue }),
+          variantStyles?.trigger,
           triggerClassName,
-          isOpen && openTriggerClassName
+          isOpen &&
+            (variantStyles && 'openTrigger' in variantStyles
+              ? variantStyles.openTrigger
+              : openTriggerClassName)
         )}
       >
         {isCustomInput ? (
@@ -219,6 +238,7 @@ export const Selector = <T extends Option>({
             onClick={handleToggle}
             className={cn(
               'flex items-center justify-between w-full py-1 pl-2 text-left cursor-pointer',
+              variantStyles?.triggerButton,
               triggerButtonClassName
             )}
             aria-haspopup="listbox"
@@ -227,6 +247,7 @@ export const Selector = <T extends Option>({
             <span
               className={cn(
                 'h-6 text-text-primary truncate flex-1 min-w-0 flex items-center justify-center',
+                variantStyles?.label,
                 labelClassName
               )}
               style={selected?.style}
@@ -251,7 +272,7 @@ export const Selector = <T extends Option>({
         ref={popoverRef}
         popover="auto"
         className={cn(
-          'z-10 rounded-b-lg max-h-72 shadow-lg border-none p-0 m-0 fixed list-none edit-custom-scrollbar',
+          'z-10 rounded-b-lg max-h-72 shadow-lg border-l border-r border-border-neutral p-0 m-0 fixed list-none edit-custom-scrollbar',
           selected ? 'bg-bg-base' : 'bg-border-neutral'
         )}
         style={{
@@ -279,7 +300,7 @@ export const Selector = <T extends Option>({
             onClick={() => handleSelect(option)}
             className={cn(
               'flex w-full items-center py-1 text-sm text-text-primary cursor-pointer hover:bg-bg-sub transition-colors select-none',
-              showCheckbox ? 'pr-2' : 'px-2'
+              showCheckbox ? 'pr-2' : 'px-3'
             )}
             role="option"
             aria-selected={selected?.value === option.value}
@@ -297,6 +318,7 @@ export const Selector = <T extends Option>({
             <span
               className={cn(
                 'h-7 leading-7 flex-1 truncate min-w-0 flex-center',
+                variantStyles?.optionLabel,
                 optionLabelClassName
               )}
               style={option.style}

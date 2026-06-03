@@ -1,13 +1,7 @@
 import { hsvaToHex } from '@uiw/color-convert';
 import { Textbox } from 'fabric';
 import { ChevronDown } from 'lucide-react';
-import React, {
-  useCallback,
-  useEffect,
-  useId,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 
 import {
   ColorPickerValue,
@@ -191,13 +185,13 @@ function FontColor() {
     <section className="relative" ref={containerRef}>
       <button
         type="button"
-        className="h-8 flex justify-center items-center pl-2 bg-bg-base text-text-primary enabled:hover:bg-btn-hover enabled:active:bg-btn-pressed disabled:text-btn-disabled rounded-sm"
+        className="px-1 flex h-8 w-[50px] items-center justify-between overflow-hidden rounded-sm bg-white py-1 pl-3 text-text-primary shadow-[inset_0_0_0_1px_#eaeaea] transition-colors hover:bg-[#FAFAFB] active:bg-[#F5F8FF]"
         onClick={handleColorPickerToggle}
       >
         <ColorIcon color={getIconColor(pickerColor) || 'black'} />
         <div
           className={cn(
-            'flex-center size-7 transition-transform duration-200 shrink-0',
+            'flex-center size-6 transition-transform duration-200 shrink-0',
             openFontColor && 'rotate-180'
           )}
         >
@@ -219,7 +213,7 @@ function FontColor() {
         onPointerDownCapture={startPickingColor}
       >
         <SmallColorPicker
-          showHeader={false}
+          showHeader={true}
           value={pickerColor || '#000000'}
           onChange={color => {
             setPickerColor(color.hsva);
