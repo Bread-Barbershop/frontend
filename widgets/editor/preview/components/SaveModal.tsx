@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import React, { forwardRef, useEffect, useState } from 'react';
+import React, { forwardRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
@@ -120,44 +120,9 @@ const PublishStepView = ({
   finalGuestUrl: string | null;
   onPublish: () => void;
 }) => {
-  const [showCopyToast, setShowCopyToast] = useState(false);
-  const [isCopyToastVisible, setIsCopyToastVisible] = useState(false);
-  const [copyToastKey, setCopyToastKey] = useState(0);
-  const { error: errorToast } = useToast();
-  useEffect(() => {
-    if (copyToastKey === 0) return;
-
-    const fadeTimer = window.setTimeout(() => {
-      setIsCopyToastVisible(false);
-    }, 1500);
-    const unmountTimer = window.setTimeout(() => {
-      setShowCopyToast(false);
-    }, 2000);
-
-    return () => {
-      window.clearTimeout(fadeTimer);
-      window.clearTimeout(unmountTimer);
-    };
-  }, [copyToastKey]);
-
-  const copyToast =
-    showCopyToast && typeof document !== 'undefined'
-      ? createPortal(
-          <div
-            className={`fixed left-1/2 top-[calc(env(safe-area-inset-top)+16px)] z-[9999] -translate-x-1/2 transition-opacity duration-500 ${
-              isCopyToastVisible ? 'opacity-100' : 'opacity-0'
-            }`}
-          >
-            <div className="w-fit whitespace-nowrap rounded-xl bg-white p-5 text-center text-sm font-semibold text-text-primary shadow-[0_8px_24px_-8px_rgba(0,0,0,0.18),0_24px_60px_-20px_rgba(0,0,0,0.12)]">
-              복사가 완료되었어요!
-            </div>
-          </div>,
-          document.body
-        )
-      : null;
+  const { success: successToast, error: errorToast } = useToast();
   return (
     <>
-      {copyToast}
       <div className="pt-5">
         <p className="font-semibold text-base">{statusMessage}</p>
       </div>
@@ -223,9 +188,10 @@ const PublishStepView = ({
                     e.stopPropagation();
                     try {
                       await navigator.clipboard.writeText(finalGuestUrl);
-                      setShowCopyToast(true);
-                      setIsCopyToastVisible(true);
-                      setCopyToastKey(prev => prev + 1);
+                      successToast('복사가 완료되었어요!', {
+                        placement: 'save-modal-bottom',
+                        animation: 'fade',
+                      });
                     } catch {
                       errorToast('복사하기에 실패했습니다.');
                     }
