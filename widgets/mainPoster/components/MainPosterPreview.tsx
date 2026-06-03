@@ -145,10 +145,12 @@ export const MainPosterPreview = () => {
       const isActiveText =
         activeObj instanceof Textbox || activeObj instanceof IText;
       const isActiveImage = activeObj instanceof FabricImage;
-      const isActiveDiagram =
+      const isActiveShape =
         activeObj instanceof Rect ||
         activeObj instanceof Circle ||
-        activeObj instanceof Triangle;
+        activeObj instanceof Triangle ||
+        activeObj.isType('line');
+      const isActiveGraphic = activeObj.isType('path');
       const isCropZone =
         (activeObj as FabricObject & { name?: string })?.name === 'crop-zone';
 
@@ -156,8 +158,10 @@ export const MainPosterPreview = () => {
         setActiveTab('text');
       } else if (isActiveImage || isCropZone) {
         setActiveTab('image');
-      } else if (isActiveDiagram) {
+      } else if (isActiveGraphic) {
         setActiveTab('graphic');
+      } else if (isActiveShape) {
+        setActiveTab('shape');
       } else {
         setActiveTab('background');
       }
