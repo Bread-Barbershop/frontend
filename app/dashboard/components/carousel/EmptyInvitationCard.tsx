@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
+
 import {
   dashboardCarouselLayout,
   dashboardCarouselVars,
@@ -11,7 +13,10 @@ function EmptyInvitationCard() {
   return (
     <section
       className="relative left-1/2 w-screen -translate-x-1/2"
-      style={{ height: dashboardCarouselLayout.dashboardStageHeight }}
+      style={{
+        height: dashboardCarouselLayout.dashboardStageHeight,
+        minWidth: DESKTOP_CONTENT_MIN_WIDTH,
+      }}
     >
       <div
         className="h-full w-full overflow-hidden"
