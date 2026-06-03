@@ -3,7 +3,7 @@
 import { Minus, Plus, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-import ContactEmailActions from '@/components/molecules/contact-email-actions/ContactEmailActions';
+import ContactEmailActions from '@/features/contact/components/ContactEmailActions';
 
 import { FAQ_CATEGORIES, FAQ_ITEMS, type FaqCategoryId } from '../data';
 

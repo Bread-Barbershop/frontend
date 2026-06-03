@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-import { DESKTOP_CONTENT_MIN_WIDTH } from '@/features/session/config/dashboardShell.config';
+import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 
 import {
   dashboardCarouselLayout,

@@ -1,6 +1,6 @@
 import { ShieldCheck } from 'lucide-react';
 
-import ContactEmailActions from '@/components/molecules/contact-email-actions/ContactEmailActions';
+import ContactEmailActions from '@/features/contact/components/ContactEmailActions';
 import DashboardShell from '@/features/session/components/DashboardShell';
 
 import type { ReactNode } from 'react';

@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 
 import HeaderPrivacyNoticeButton from '@/features/session/components/HeaderPrivacyNoticeButton';
 import HomeButton from '@/features/session/components/HomeButton';
-import { DESKTOP_CONTENT_MIN_WIDTH } from '@/features/session/config/dashboardShell.config';
+import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 
 import type { ReactNode } from 'react';
 

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { DESKTOP_CONTENT_MIN_WIDTH } from '@/features/session/config/dashboardShell.config';
+import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 
 import {
   dashboardCarouselLayout,

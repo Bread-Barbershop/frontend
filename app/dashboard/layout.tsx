@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 
 import DashboardShell from '@/features/session/components/DashboardShell';
-import { DESKTOP_CONTENT_MIN_WIDTH } from '@/features/session/config/dashboardShell.config';
+import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 
 import type { Metadata } from 'next';
 

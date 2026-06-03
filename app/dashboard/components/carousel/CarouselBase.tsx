@@ -3,7 +3,7 @@
 import useEmblaCarousel from 'embla-carousel-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { DESKTOP_CONTENT_MIN_WIDTH } from '@/features/session/config/dashboardShell.config';
+import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 
 import { dashboardCarouselLayout } from './carouselLayout';
 import CarouselTrack from './CarouselTrack';
