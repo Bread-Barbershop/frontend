@@ -45,8 +45,6 @@ const ItalicUnderline = ({
 
   const checkIsActive = (id: string) => {
     switch (id) {
-      case 'bold':
-        return Number(activeStyles.fontWeight) >= 600;
       case 'italic':
         return activeStyles.fontStyle === 'italic';
       case 'underline':
@@ -66,6 +64,8 @@ const ItalicUnderline = ({
           <button
             key={id}
             type="button"
+            aria-label={id}
+            aria-pressed={isActive}
             onClick={() => {
               applyRichStyle({ ...style }, canvas);
               const s = style as activeStyle;

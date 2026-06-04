@@ -31,7 +31,7 @@ function TextAlign() {
   const { getRichStyles, canvas, applyRichStyle } = useFabricContext();
   const activeObject = canvas?.getActiveObject() as Textbox;
 
-  const [selectedAlign, setSelectedAlign] = useState(ALIGN_OPTIONS[0].value);
+  const [selectedAlign, setSelectedAlign] = useState('right');
 
   useEffect(() => {
     if (!activeObject) return;

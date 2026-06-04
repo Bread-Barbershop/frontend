@@ -119,7 +119,7 @@ export function Place({ blockInfo, id }: Props) {
         <section className="flex flex-row gap-2 w-full py-1.5">
           <Label
             htmlFor="address"
-            className="font-semibold shrink-0 text-center "
+            className="font-semibold shrink-0 text-center"
           >
             주소
           </Label>
