@@ -1,7 +1,7 @@
 import { cva, VariantProps } from 'class-variance-authority';
 
 export const selectorVariants = cva(
-  'flex items-center justify-between w-full text-sm transition-all overflow-hidden select-none',
+  'flex items-center justify-between w-full h-8 text-sm transition-all overflow-hidden select-none',
   {
     variants: {
       type: {
@@ -51,12 +51,13 @@ export const selectorVariants = cva(
 
 export type SelectorVariants = VariantProps<typeof selectorVariants>;
 
+// 옵션 리스트 스타일
 export const popoverVariants = cva(
   'z-10 rounded-b-lg max-h-72 p-0 m-0 fixed list-none edit-custom-scrollbar',
   {
     variants: {
       type: {
-        normal: 'shadow-btn-drop-black border-none',
+        normal: 'shadow-btn-drop-black-lrb border-none',
         editor: 'shadow-lg border-x border-border-neutral',
       },
     },
@@ -66,6 +67,7 @@ export const popoverVariants = cva(
   }
 );
 
+// 폰트전용 셀렉터 스타일
 export const selectorStyles = {
   fontFamily: {
     container: 'w-[210px] font-semibold',

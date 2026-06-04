@@ -126,6 +126,7 @@ export function Place({ blockInfo, id }: Props) {
           <Selector
             type="normal"
             className="w-[63px]"
+            optionContainerClassName="scrollbar-hide"
             placeholder="국내"
             options={[
               { value: '국내', label: '국내' },
