@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 
 import HeaderPrivacyNoticeButton from '@/features/session/components/HeaderPrivacyNoticeButton';
 import HomeButton from '@/features/session/components/HomeButton';
+import homeBackgroundImage from '@/shared/assets/images/home/home-background.png';
 import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 
 import type { ReactNode } from 'react';
@@ -19,10 +20,12 @@ function EditorDesktopNotice({
   viewportWidth: number | null;
 }) {
   return (
-    <div className="fixed inset-0 z-[100] grid min-h-dvh grid-rows-[auto_1fr_auto] overflow-y-auto bg-[#f7f7f3] text-[#171717]">
-      <div className="pointer-events-none absolute inset-0 opacity-70 [background-image:linear-gradient(to_right,rgba(23,23,23,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(23,23,23,0.045)_1px,transparent_1px)] [background-size:72px_72px]" />
-      <div className="pointer-events-none absolute -right-36 -top-36 h-[34rem] w-[34rem] rounded-full bg-white/80 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-52 -left-40 h-[36rem] w-[36rem] rounded-full bg-[#e7ebef]/80 blur-3xl" />
+    <div className="fixed inset-0 isolate z-[100] grid min-h-dvh grid-rows-[auto_1fr_auto] overflow-y-auto text-[#171717]">
+      <div
+        aria-hidden="true"
+        className="fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${homeBackgroundImage.src})` }}
+      />
 
       <header className="relative flex h-14 items-center justify-between bg-transparent px-10">
         <div className="flex h-full items-center gap-8">
@@ -43,7 +46,7 @@ function EditorDesktopNotice({
           <p className="text-xs font-bold tracking-[0.24em] text-black/45">
             WIDER WORKSPACE REQUIRED
           </p>
-          <h1 className="mt-6 max-w-3xl text-[clamp(4rem,9vw,8.8rem)] font-semibold leading-[0.88] tracking-[-0.11em]">
+          <h1 className="mt-6 max-w-3xl text-[clamp(4rem,9vw,8.8rem)] font-semibold leading-[0.88]">
             Create on
             <br />
             desktop.

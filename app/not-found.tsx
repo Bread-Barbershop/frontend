@@ -2,6 +2,7 @@ import { ArrowUpRight, Home, Search } from 'lucide-react';
 import Link from 'next/link';
 
 import HeaderPrivacyNoticeButton from '@/features/session/components/HeaderPrivacyNoticeButton';
+import homeBackgroundImage from '@/shared/assets/images/home/home-background.png';
 import InviaLogo from '@/shared/assets/logo/invia-logo.svg';
 
 const HEADER_NAV_LINK_CLASS =
@@ -24,10 +25,12 @@ const QUICK_LINKS = [
 
 function NotFound() {
   return (
-    <div className="relative grid min-h-dvh grid-rows-[auto_1fr_auto] overflow-hidden bg-[#f7f7f3] text-[#171717]">
-      <div className="pointer-events-none absolute inset-0 opacity-70 [background-image:linear-gradient(to_right,rgba(23,23,23,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(23,23,23,0.045)_1px,transparent_1px)] [background-size:72px_72px]" />
-      <div className="pointer-events-none absolute -right-36 -top-36 h-[34rem] w-[34rem] rounded-full bg-white/80 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-52 -left-40 h-[36rem] w-[36rem] rounded-full bg-[#e7ebef]/80 blur-3xl" />
+    <div className="relative isolate grid min-h-dvh grid-rows-[auto_1fr_auto] overflow-hidden text-[#171717]">
+      <div
+        aria-hidden="true"
+        className="fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${homeBackgroundImage.src})` }}
+      />
 
       <header className="relative flex h-14 items-center justify-between bg-transparent px-10">
         <div className="flex h-full items-center gap-8">
@@ -58,7 +61,7 @@ function NotFound() {
           <p className="text-xs font-bold tracking-[0.24em] text-black/45">
             PAGE NOT FOUND
           </p>
-          <h1 className="mt-6 max-w-3xl text-[clamp(4rem,9vw,8.8rem)] font-semibold leading-[0.88] tracking-[-0.11em]">
+          <h1 className="mt-6 max-w-3xl text-[clamp(4rem,9vw,8.8rem)] font-semibold leading-[0.88]">
             Lost,
             <br />
             not gone.
@@ -75,7 +78,7 @@ function NotFound() {
             <span className="text-xs font-bold tracking-[0.2em] text-black/40">
               STATUS CODE
             </span>
-            <span className="text-[clamp(5.5rem,18vw,11rem)] font-semibold leading-[0.72] tracking-[-0.12em]">
+            <span className="text-[clamp(5.5rem,18vw,11rem)] font-semibold leading-[0.72]">
               404
             </span>
           </div>
@@ -94,7 +97,7 @@ function NotFound() {
                   <span className="block text-base font-semibold tracking-[-0.02em]">
                     {label}
                   </span>
-                  <span className="mt-1 block text-sm leading-6 text-black/50">
+                  <span className="mt-1 block text-[15px] leading-6 text-black/50">
                     {description}
                   </span>
                 </span>

@@ -26,16 +26,21 @@ export default async function DashboardShell({
 
   return (
     <div
-      className={`min-h-dvh grid grid-rows-[auto_1fr_auto] ${
+      className={`relative isolate min-h-dvh grid grid-rows-[auto_1fr_auto] ${
         minimumWidth ? 'overflow-x-auto' : 'overflow-x-hidden'
-      } ${isEditor ? 'bg-[#E7E9EB]' : 'bg-center bg-cover bg-no-repeat'}`}
+      } ${isEditor ? 'bg-[#E7E9EB]' : 'bg-transparent'}`}
       style={{
-        ...(isEditor
-          ? {}
-          : { backgroundImage: `url(${homeBackgroundImage.src})` }),
         ...(minimumWidth ? { minWidth: `${minimumWidth}px` } : {}),
       }}
     >
+      {!isEditor && (
+        <div
+          aria-hidden="true"
+          className="fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${homeBackgroundImage.src})` }}
+        />
+      )}
+
       <header className="h-14 bg-transparent flex items-center justify-between px-10">
         <div className="flex h-full items-center gap-8">
           <HomeButton />

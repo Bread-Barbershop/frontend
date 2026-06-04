@@ -399,7 +399,7 @@ function Policy() {
               <p className="mb-5 text-xs font-bold tracking-[0.24em] text-black/45">
                 PRIVACY & DATA
               </p>
-              <h1 className="max-w-3xl text-[clamp(3.4rem,8vw,7rem)] font-semibold leading-[0.9] tracking-[-0.09em]">
+              <h1 className="max-w-3xl text-[clamp(3.4rem,8vw,7rem)] font-semibold leading-[0.9]">
                 Privacy,
                 <br />
                 clearly.
@@ -435,7 +435,7 @@ function Policy() {
               </div>
 
               <nav className="mt-9 hidden border-t border-black/15 pt-5 lg:block">
-                <p className="text-xs font-bold tracking-[0.2em] text-black/40">
+                <p className="text-[13px] font-bold tracking-[0.2em] text-black/40">
                   CONTENTS
                 </p>
                 <ol className="mt-4 flex flex-col gap-2.5">
@@ -443,7 +443,7 @@ function Policy() {
                     <li key={section.id}>
                       <a
                         href={`#${section.id}`}
-                        className="group inline-flex cursor-pointer items-start gap-2 text-xs leading-5 text-black/45 transition-colors hover:text-black"
+                        className="group inline-flex cursor-pointer items-start gap-2 text-[13px] leading-5 text-black/45 transition-colors hover:text-black"
                       >
                         <span className="tabular-nums text-black/30 group-hover:text-black/60">
                           {String(index + 1).padStart(2, '0')}
