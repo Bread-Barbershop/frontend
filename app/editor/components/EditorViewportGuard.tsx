@@ -140,7 +140,13 @@ function EditorViewportGuard({ children }: { children: ReactNode }) {
 
   return (
     <>
-      {children}
+      <div
+        className="h-full w-full"
+        inert={shouldShowDesktopNotice ? true : undefined}
+        aria-hidden={shouldShowDesktopNotice ? true : undefined}
+      >
+        {children}
+      </div>
       {shouldShowDesktopNotice && (
         <EditorDesktopNotice viewportWidth={viewportWidth} />
       )}
