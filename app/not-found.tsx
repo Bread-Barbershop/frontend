@@ -1,9 +1,8 @@
 import { ArrowUpRight, Home, Search } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 
 import HeaderPrivacyNoticeButton from '@/features/session/components/HeaderPrivacyNoticeButton';
-import inviaLogo from '@/shared/assets/logo/Invia-logo.png';
+import InviaLogo from '@/shared/assets/logo/invia-logo.svg';
 
 const HEADER_NAV_LINK_CLASS =
   'flex items-center border-b border-transparent px-2 py-[6.5px] text-[16px] font-semibold text-[#121212] transition-colors hover:border-black hover:text-black';
@@ -37,13 +36,10 @@ function NotFound() {
             aria-label="Invia 홈으로 이동"
             className="flex h-full max-h-full cursor-pointer items-center px-6"
           >
-            <Image
-              src={inviaLogo}
-              alt="Invia"
-              width={92}
-              height={18}
-              className="h-[18px] w-auto"
-              priority
+            <InviaLogo
+              className="block h-[23px] w-[92px] shrink-0"
+              aria-label="Invia"
+              role="img"
             />
           </Link>
 
