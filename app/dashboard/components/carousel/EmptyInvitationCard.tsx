@@ -1,9 +1,5 @@
-'use client';
-
-import { motion, useAnimationControls } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRef } from 'react';
 
 import emptyCardImage from '@/shared/assets/images/dashboard/empty-card.png';
 import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
@@ -12,32 +8,9 @@ import {
   dashboardCarouselLayout,
   dashboardCarouselVars,
 } from './carouselLayout';
-import CarouselController from './controller/CarouselController';
 
 function EmptyInvitationCard() {
   const selectedLift = `calc(${dashboardCarouselLayout.dashboardSelectedLift} + ${dashboardCarouselLayout.headerHeight})`;
-  const cardControls = useAnimationControls();
-  const isAnimatingRef = useRef(false);
-
-  const handleBlockedMove = async (direction: 'left' | 'right') => {
-    if (isAnimatingRef.current) return;
-
-    isAnimatingRef.current = true;
-    cardControls.stop();
-
-    try {
-      await cardControls.start({
-        x: direction === 'left' ? -14 : 14,
-        transition: { duration: 0.12, ease: 'easeOut' },
-      });
-      await cardControls.start({
-        x: 0,
-        transition: { duration: 0.22, ease: [0.22, 1, 0.36, 1] },
-      });
-    } finally {
-      isAnimatingRef.current = false;
-    }
-  };
 
   return (
     <section
@@ -52,7 +25,7 @@ function EmptyInvitationCard() {
         style={{
           ...dashboardCarouselVars,
           paddingTop: 'var(--carousel-safe-top)',
-          paddingBottom: `calc(var(--carousel-safe-bottom) + ${dashboardCarouselLayout.controllerClearance})`,
+          paddingBottom: 'var(--carousel-safe-bottom)',
         }}
       >
         <div
@@ -62,8 +35,7 @@ function EmptyInvitationCard() {
             transform: `translateY(calc(-1 * ${selectedLift}))`,
           }}
         >
-          <motion.div
-            animate={cardControls}
+          <div
             className="flex flex-col items-center rounded-xl bg-white/90 pt-[160px] text-center"
             style={{
               width: dashboardCarouselLayout.cardWidth,
@@ -90,15 +62,8 @@ function EmptyInvitationCard() {
             >
               무료로 제작하기
             </Link>
-          </motion.div>
+          </div>
         </div>
-      </div>
-      <div className="absolute inset-x-0 bottom-0 z-10">
-        <CarouselController
-          onMove={direction => {
-            void handleBlockedMove(direction);
-          }}
-        />
       </div>
     </section>
   );

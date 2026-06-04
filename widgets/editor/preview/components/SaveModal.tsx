@@ -8,6 +8,11 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import { useInvitationPublish } from '../hooks/useInvitationPublish';
 
+const PUBLISHED_URL_ACTION_CLASS =
+  'w-[215px] truncate rounded-lg bg-transparent px-3 py-[6px] font-normal text-white hover:bg-white/12';
+const COPY_URL_ACTION_CLASS =
+  'rounded-lg bg-transparent px-1 py-2 text-[13px] font-semibold text-[#38BDF8] hover:bg-[#38BDF8]/12 cursor-pointer';
+
 interface Props {
   isLoading: boolean;
   isFail: boolean;
@@ -162,11 +167,11 @@ const PublishStepView = ({
             </span>
           </div>
         ) : (
-          <div className="px-2 font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[295px] h-[44px] gap-1">
+          <div className="px-2 py-1.5 font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[295px] h-[44px] gap-1">
             {!finalGuestUrl || error ? (
               <button
                 type="button"
-                className="text-white truncate w-[215px] hover:bg-white/30 rounded-lg p-1"
+                className={PUBLISHED_URL_ACTION_CLASS}
                 onClick={onPublish}
               >
                 초대장 URL 다시 발행하기
@@ -174,7 +179,7 @@ const PublishStepView = ({
             ) : (
               <>
                 <a
-                  className="text-white truncate w-[215px] hover:bg-white/30 rounded-lg p-1"
+                  className={PUBLISHED_URL_ACTION_CLASS}
                   href={finalGuestUrl}
                   target="_blank"
                   rel="noreferrer"
@@ -183,7 +188,7 @@ const PublishStepView = ({
                 </a>
                 <button
                   type="button"
-                  className="text-[#38BDF8] text-[13px] font-semibold px-1 py-2 hover:bg-white/30 rounded-lg"
+                  className={COPY_URL_ACTION_CLASS}
                   onClick={async e => {
                     e.stopPropagation();
                     try {

@@ -1,11 +1,10 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React from 'react';
 
-import inviaLogo from '@/shared/assets/logo/Invia-logo.png';
+import InviaLogo from '@/shared/assets/logo/invia-logo.svg';
 import { useConfirm } from '@/shared/hooks/useConfirm';
 
 function HomeButton() {
@@ -40,13 +39,10 @@ function HomeButton() {
       onClick={handleHomeClick}
       aria-label="Invia 홈으로 이동"
     >
-      <Image
-        src={inviaLogo}
-        alt="Invia"
-        width={92}
-        height={18}
-        className="h-[18px] w-auto"
-        priority
+      <InviaLogo
+        className="block h-[23px] w-[92px] shrink-0"
+        aria-label="Invia"
+        role="img"
       />
     </Link>
   );
