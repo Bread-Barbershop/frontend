@@ -135,18 +135,13 @@ function EditorViewportGuard({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('resize', updateViewportWidth);
   }, []);
 
-  const isWideEnough =
-    viewportWidth !== null && viewportWidth >= DESKTOP_CONTENT_MIN_WIDTH;
-
-  if (viewportWidth === null) {
-    return null;
-  }
+  const shouldShowDesktopNotice =
+    viewportWidth !== null && viewportWidth < DESKTOP_CONTENT_MIN_WIDTH;
 
   return (
     <>
-      {isWideEnough ? (
-        children
-      ) : (
+      {children}
+      {shouldShowDesktopNotice && (
         <EditorDesktopNotice viewportWidth={viewportWidth} />
       )}
     </>
