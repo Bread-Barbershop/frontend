@@ -1,8 +1,8 @@
 import { VariantProps } from 'class-variance-authority';
 
-import SuccessIcon from '@/shared/assets/icons/check.svg';
 import ErrorIcon from '@/shared/assets/icons/error.svg';
 import InfoIcon from '@/shared/assets/icons/Info.svg';
+import SuccessIcon from '@/shared/assets/icons/toastcheck.svg';
 import WarningIcon from '@/shared/assets/icons/warning.svg';
 
 import { toastBarVariants } from './ToastBar.style';
