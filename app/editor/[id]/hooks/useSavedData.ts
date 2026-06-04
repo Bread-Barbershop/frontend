@@ -25,6 +25,18 @@ const normalizePersistedBlocks = (blocks: unknown): PersistedEditorBlock[] => {
   );
 };
 
+const setAudioFile = async (
+  audioFile: { id: string; name: string; mimeType: string }[] | null,
+  signal: AbortSignal
+) => {
+  if (audioFile && audioFile.length > 0) {
+    const audioFiles = await fetchAudioFiles(audioFile, signal);
+    return audioFiles.length > 0 ? audioFiles[0].file : null;
+  } else {
+    return null;
+  }
+};
+
 export const useSavedData = (folderId: string): UseSavedDataReturn => {
   const [savedData, setSavedData] = useState<SavedData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -33,51 +45,6 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
   // 이전 요청 취소용
   const abortRef = useRef<AbortController | null>(null);
 
-  const setImageFile = async (
-    blocks: PersistedEditorBlock[],
-    imageFile: { id: string; name: string; mimeType: string }[] | null,
-    signal: AbortSignal
-  ) => {
-    if (!imageFile || imageFile.length === 0) return blocks;
-
-    const imageFiles = await fetchImageFiles(imageFile, signal);
-    const idToFileMap = new Map<string, File>();
-    imageFiles.forEach(item => idToFileMap.set(item.id, item.file));
-
-    const mapIdsToFiles = (obj: unknown): unknown => {
-      if (typeof obj === 'string') {
-        return idToFileMap.get(obj) || obj;
-      }
-      if (Array.isArray(obj)) {
-        return obj.map(mapIdsToFiles);
-      }
-      if (obj !== null && typeof obj === 'object') {
-        const newObj: Record<string, unknown> = {};
-        for (const [key, value] of Object.entries(obj)) {
-          newObj[key] = mapIdsToFiles(value);
-        }
-        return newObj;
-      }
-      return obj;
-    };
-
-    return blocks.map(block => ({
-      ...block,
-      props: mapIdsToFiles(block.props) as typeof block.props,
-    }));
-  };
-
-  const setAudioFile = async (
-    audioFile: { id: string; name: string; mimeType: string }[],
-    signal: AbortSignal
-  ) => {
-    if (audioFile && audioFile.length > 0) {
-      const audioFiles = await fetchAudioFiles(audioFile, signal);
-      return audioFiles.length > 0 ? audioFiles[0].file : null;
-    } else {
-      return null;
-    }
-  };
   useEffect(() => {
     if (!folderId) return;
 
@@ -116,11 +83,39 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
           bodyData: BODY_BULK_DATA,
           isZoom: false,
         };
-        const updatedBlocksWithImages = await setImageFile(
-          updatedBlocks,
-          data.images.files ?? null,
-          controller.signal
-        );
+
+        // 이미지 파일 다운로드 및 ID -> File 객체 맵핑 생성
+        const imageFiles = data.images.files && data.images.files.length > 0
+          ? await fetchImageFiles(data.images.files, controller.signal)
+          : [];
+        const idToFileMap = new Map<string, File>();
+        imageFiles.forEach(item => idToFileMap.set(item.id, item.file));
+
+        const mapIdsToFiles = (obj: unknown): unknown => {
+          if (typeof obj === 'string') {
+            return idToFileMap.get(obj) || obj;
+          }
+          if (Array.isArray(obj)) {
+            return obj.map(mapIdsToFiles);
+          }
+          if (obj !== null && typeof obj === 'object') {
+            const newObj: Record<string, unknown> = {};
+            for (const [key, value] of Object.entries(obj)) {
+              newObj[key] = mapIdsToFiles(value);
+            }
+            return newObj;
+          }
+          return obj;
+        };
+
+        const updatedBlocksWithImages = updatedBlocks.map(block => ({
+          ...block,
+          props: mapIdsToFiles(block.props) as typeof block.props,
+        }));
+
+        const updatedShareUrl = data.config.shareUrl
+          ? (mapIdsToFiles(data.config.shareUrl) as typeof data.config.shareUrl)
+          : createDefaultShareUrlState();
 
         const audioFiles = await setAudioFile(
           data.audios.files ?? null,
@@ -134,7 +129,7 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
             bgmInfo: data.config.bgm,
             bgmFile: audioFiles,
           },
-          shareUrl: data.config.shareUrl ?? createDefaultShareUrlState(),
+          shareUrl: updatedShareUrl,
           imageFolderId: data.imageFolderId,
           audioFolderId: data.audioFolderId,
           invitationImage: data.config.invitationImage,
