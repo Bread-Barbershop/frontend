@@ -1,14 +1,43 @@
-import Link from 'next/link';
+'use client';
 
+import { motion, useAnimationControls } from 'framer-motion';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRef } from 'react';
+
+import emptyCardImage from '@/shared/assets/images/dashboard/empty-card.png';
 import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 
 import {
   dashboardCarouselLayout,
   dashboardCarouselVars,
 } from './carouselLayout';
+import CarouselController from './controller/CarouselController';
 
 function EmptyInvitationCard() {
   const selectedLift = `calc(${dashboardCarouselLayout.dashboardSelectedLift} + ${dashboardCarouselLayout.headerHeight})`;
+  const cardControls = useAnimationControls();
+  const isAnimatingRef = useRef(false);
+
+  const handleBlockedMove = async (direction: 'left' | 'right') => {
+    if (isAnimatingRef.current) return;
+
+    isAnimatingRef.current = true;
+    cardControls.stop();
+
+    try {
+      await cardControls.start({
+        x: direction === 'left' ? -14 : 14,
+        transition: { duration: 0.12, ease: 'easeOut' },
+      });
+      await cardControls.start({
+        x: 0,
+        transition: { duration: 0.22, ease: [0.22, 1, 0.36, 1] },
+      });
+    } finally {
+      isAnimatingRef.current = false;
+    }
+  };
 
   return (
     <section
@@ -33,28 +62,43 @@ function EmptyInvitationCard() {
             transform: `translateY(calc(-1 * ${selectedLift}))`,
           }}
         >
-          <div
-            className="flex flex-col items-center justify-center rounded-xl bg-white/90 px-5 text-center"
+          <motion.div
+            animate={cardControls}
+            className="flex flex-col items-center rounded-xl bg-white/90 pt-[160px] text-center"
             style={{
               width: dashboardCarouselLayout.cardWidth,
               height: dashboardCarouselLayout.selectedVisualHeight,
               boxShadow: dashboardCarouselLayout.sideActionShadow,
             }}
           >
-            <p className="text-lg font-semibold text-[#121212]">
+            <Image
+              src={emptyCardImage}
+              alt=""
+              width={120}
+              height={120}
+              priority
+            />
+            <p className="mt-5 font-pretendard text-[16px] font-semibold leading-5 text-[#121212]">
               아직 만든 초대장이 없어요.
             </p>
-            <p className="mt-2 text-sm text-[#6B7280]">
-              첫 초대장을 만들어보세요.
+            <p className="mt-[99px] font-pretendard text-[13px] font-medium leading-[18px] text-[#121212]">
+              첫 초대장을 만들어 보세요.
             </p>
             <Link
               href="/editor"
-              className="mt-6 flex h-8 w-[180px] items-center justify-center rounded-lg bg-[#121212] text-[13px] font-semibold text-white transition-colors hover:bg-[#202020] active:bg-[#0D0D0D]"
+              className="mt-1.5 flex h-8 w-[217px] items-center justify-center rounded-lg bg-[#121212] font-pretendard text-[14px] font-semibold leading-5 text-white transition-colors hover:bg-[#202020] active:bg-[#0D0D0D]"
             >
-              초대장 만들러 가기
+              무료로 제작하기
             </Link>
-          </div>
+          </motion.div>
         </div>
+      </div>
+      <div className="absolute inset-x-0 bottom-0 z-10">
+        <CarouselController
+          onMove={direction => {
+            void handleBlockedMove(direction);
+          }}
+        />
       </div>
     </section>
   );
