@@ -34,6 +34,7 @@ export const useFabricGraphic = () => {
     canvas.isDrawingMode = enable;
     canvas.defaultCursor = enable ? 'crosshair' : 'default';
     canvas.hoverCursor = enable ? 'crosshair' : 'move';
+    canvas.includeDefaultValues = false;
 
     // 기존 리스너 제거
     if (drawingListenerRef.current) {
@@ -52,10 +53,10 @@ export const useFabricGraphic = () => {
       } else if (type === 'pencil') {
         const pencilConfig: PencilConfig = {
           width: 5,
-          density: 15,
+          density: 10,
           dotWidth: 2,
           dotWidthVariance: 2,
-          randomOpacity: true,
+          randomOpacity: false,
           optimizeOverlapping: true,
           ...config,
         };
