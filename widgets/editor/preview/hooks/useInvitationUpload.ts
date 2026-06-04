@@ -56,9 +56,18 @@ export const useInvitationUpload = () => {
     try {
       setIsLoading(true);
       setIsFail(false);
-      const task = editorData.images.flatMap(item =>
-        item.file.map(file => ({ id: item.id, file }))
-      );
+      const task = editorData.images.flatMap(item => {
+        const fileData = item.file as unknown;
+        if (Array.isArray(fileData)) {
+          return fileData
+            .filter((file): file is File => file instanceof File)
+            .map(file => ({ id: item.id, file }));
+        }
+        if (fileData instanceof File) {
+          return [{ id: item.id, file: fileData }];
+        }
+        return [];
+      });
 
       const bgmData = {
         selectedBgmId: selectedBgmId ?? null,
