@@ -1,13 +1,21 @@
-import { useToastStore } from '../store/useToastStore';
+import {
+  useToastStore,
+  type ToastXPosition,
+  type ToastYPosition,
+} from '../store/useToastStore';
 
 export const useToast = () => {
   const showToast = useToastStore(state => state.showToast);
   const hideToast = useToastStore(state => state.hideToast);
 
-  const success = (message: string) => showToast(message, 'success');
-  const error = (message: string) => showToast(message, 'error');
-  const warning = (message: string) => showToast(message, 'warning');
-  const info = (message: string) => showToast(message, 'info');
+  const success = (message: string, xPosition?: ToastXPosition, yPosition?: ToastYPosition) =>
+    showToast(message, 'success', xPosition, yPosition);
+  const error = (message: string, xPosition?: ToastXPosition, yPosition?: ToastYPosition) =>
+    showToast(message, 'error', xPosition, yPosition);
+  const warning = (message: string, xPosition?: ToastXPosition, yPosition?: ToastYPosition) =>
+    showToast(message, 'warning', xPosition, yPosition);
+  const info = (message: string, xPosition?: ToastXPosition, yPosition?: ToastYPosition) =>
+    showToast(message, 'info', xPosition, yPosition);
 
   return {
     showToast,
