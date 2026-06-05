@@ -39,7 +39,7 @@ function FaqContent() {
             <p className="mb-5 text-xs font-bold tracking-[0.24em] text-black/45">
               HELP CENTER
             </p>
-            <h1 className="max-w-3xl text-[clamp(3.4rem,8vw,7rem)] font-semibold leading-[0.9] tracking-[-0.09em]">
+            <h1 className="max-w-3xl text-[clamp(3.4rem,8vw,7rem)] font-semibold leading-[0.9]">
               Frequently
               <br />
               asked.
@@ -65,7 +65,7 @@ function FaqContent() {
 
         <div className="grid gap-10 py-10 lg:grid-cols-[220px_1fr] lg:gap-16 lg:py-14">
           <aside>
-            <p className="mb-4 text-xs font-bold tracking-[0.18em] text-black/40">
+            <p className="mb-4 text-[13px] font-bold tracking-[0.18em] text-black/40">
               CATEGORY
             </p>
             <div className="flex flex-wrap gap-2 lg:flex-col lg:items-start">
@@ -77,7 +77,7 @@ function FaqContent() {
                     key={category.id}
                     type="button"
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`cursor-pointer rounded-full px-3.5 py-2 text-sm transition-colors lg:rounded-none lg:px-0 lg:py-1 ${
+                    className={`cursor-pointer rounded-full px-3.5 py-2 text-[15px] transition-colors lg:rounded-none lg:px-0 lg:py-1 ${
                       isSelected
                         ? 'bg-black font-semibold text-white lg:bg-transparent lg:text-black'
                         : 'bg-black/5 text-black/55 hover:bg-black/10 hover:text-black lg:bg-transparent lg:hover:bg-transparent'

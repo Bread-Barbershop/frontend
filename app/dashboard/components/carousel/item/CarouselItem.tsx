@@ -188,6 +188,7 @@ function CarouselItem({
               alt={item.alt}
               fill
               sizes="260px"
+              unoptimized
               draggable={false}
               className="object-cover"
             />

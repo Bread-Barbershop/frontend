@@ -21,8 +21,24 @@ const getPositionClasses = (xPosition: string, yPosition: string): string => {
   return `${xClasses[xPosition as keyof typeof xClasses] || xClasses.center} ${yClasses[yPosition as keyof typeof yClasses] || yClasses.top}`;
 };
 
+const toastPlacementClass = {
+  top: 'top-10',
+  'save-modal-bottom': 'top-[calc(50%+200.5px)]',
+};
+
+const getToastVisibilityClass = (
+  isVisible: boolean,
+  animation: 'slide' | 'fade'
+) => {
+  if (animation === 'fade') {
+    return isVisible ? 'opacity-100' : 'opacity-0';
+  }
+
+  return isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4';
+};
+
 export const ToastContainer = () => {
-  const { message, variant, isVisible, xPosition, yPosition } = useToastStore();
+  const { message, variant, isVisible, options, xPosition, yPosition } = useToastStore();
 
   if (!message) return null;
 
@@ -30,9 +46,8 @@ export const ToastContainer = () => {
 
   return createPortal(
     <div
-      className={`fixed z-[1000] w-full max-w-[375px] transition-all duration-300 pointer-events-none ${positionClasses} ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
-      }`}
+      className={`fixed z-[1000] w-full max-w-[375px] transition-all duration-300 pointer-events-none ${positionClasses} 
+       ${toastPlacementClass[options.placement]} ${getToastVisibilityClass(isVisible, options.animation)}`}
     >
       <ToastBar message={message} variant={variant} />
     </div>,

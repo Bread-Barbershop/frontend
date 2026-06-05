@@ -10,19 +10,20 @@ import { useFabricContext } from '../../context/FabricContext';
 
 const ALIGN_OPTIONS = [
   {
-    Icon: AlignLeftIcon,
-    value: 'left',
-    label: '왼쪽 정렬',
+    Icon: AlignRightIcon,
+    value: 'right',
+    label: '오른쪽 정렬',
   },
   {
     Icon: AlignCenterIcon,
     value: 'center',
     label: '가운데 정렬',
   },
+
   {
-    Icon: AlignRightIcon,
-    value: 'right',
-    label: '오른쪽 정렬',
+    Icon: AlignLeftIcon,
+    value: 'left',
+    label: '왼쪽 정렬',
   },
 ];
 
@@ -30,7 +31,7 @@ function TextAlign() {
   const { getRichStyles, canvas, applyRichStyle } = useFabricContext();
   const activeObject = canvas?.getActiveObject() as Textbox;
 
-  const [selectedAlign, setSelectedAlign] = useState(ALIGN_OPTIONS[0].value);
+  const [selectedAlign, setSelectedAlign] = useState('right');
 
   useEffect(() => {
     if (!activeObject) return;
@@ -55,7 +56,7 @@ function TextAlign() {
   if (!canvas) return null;
 
   return (
-    <div className="w-24 p-0.5 -ml-1 flex flex-row gap-0.5 bg-btn-inactive rounded-sm">
+    <div className="w-24 h-8 flex flex-row items-center justify-center p-0.5 gap-0.5 bg-btn-inactive rounded-sm">
       {ALIGN_OPTIONS.map(option => {
         const isSelected = selectedAlign === option.value;
         const Icon = option.Icon;

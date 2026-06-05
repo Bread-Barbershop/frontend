@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useState } from 'react';
 
-import inviaLogo from '@/shared/assets/logo/Invia-logo.png';
+import InviaLogo from '@/shared/assets/logo/invia-logo.svg';
 
 interface LoginModalProps {
   open: boolean;
@@ -53,14 +53,11 @@ function LoginModal({
         }`}
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex h-27.25 w-56 items-center justify-center">
-          <Image
-            src={inviaLogo}
-            alt="Invia"
-            width={4096}
-            height={821}
-            className="h-7.25 w-auto"
-            priority
+        <div className="flex w-fit items-center justify-center p-10">
+          <InviaLogo
+            className="block h-[29px] w-[116px] shrink-0"
+            aria-label="Invia"
+            role="img"
           />
         </div>
 

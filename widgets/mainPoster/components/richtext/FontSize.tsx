@@ -66,11 +66,7 @@ function FontSize() {
   if (!canvas) return null;
   return (
     <Selector
-      type="editor"
-      className="w-[78px] "
-      triggerClassName="bg-bg-base"
-      labelClassName="justify-start pl-1"
-      optionLabelClassName="justify-start pl-1"
+      variant="fontSize"
       placeholder="16px"
       options={fontSize}
       onSelect={option => {

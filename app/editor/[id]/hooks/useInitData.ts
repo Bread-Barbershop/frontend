@@ -114,6 +114,14 @@ export const useInitData = ({
     }
     if (shareUrl) {
       setShareUrl(shareUrl);
+      const shareFiles = [
+        ...(shareUrl.images ?? []),
+        ...(shareUrl.urlImage ?? []),
+      ].filter((f): f is File => f instanceof File);
+
+      if (shareFiles.length > 0) {
+        updateImage('shareUrl', shareFiles);
+      }
     }
     selectedBlock('mainPoster');
   }, [

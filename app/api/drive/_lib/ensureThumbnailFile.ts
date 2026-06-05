@@ -63,7 +63,7 @@ export async function ensureThumbnailFile(
 
   if (!searchRes.ok) {
     throw new DriveHttpError(
-      'invitation-thumbnail.json search failed',
+      'invitation-thumbnail.png search failed',
       searchRes.status,
       searchData
     );

@@ -244,11 +244,7 @@ export function TextEditor({
             selected={fontFamilySelected}
             onSelect={handleFontFamilySelect}
             placeholder="Font"
-            className="w-[210px] font-semibold"
-            triggerClassName="h-8 bg-white border border-[#eaeaea]"
-            triggerButtonClassName="pl-3 pr-1"
-            labelClassName="justify-start text-left text-sm"
-            optionLabelClassName="justify-start text-left text-sm"
+            variant="fontFamily"
             showCheckbox={false}
           />
 
@@ -257,11 +253,7 @@ export function TextEditor({
             selected={fontWeightSelected}
             onSelect={handleFontWeightSelect}
             placeholder="Weight"
-            className="w-[112px] font-semibold"
-            triggerClassName="h-8 bg-white border border-[#eaeaea]"
-            triggerButtonClassName="pl-3 pr-1"
-            labelClassName="justify-start text-left text-sm"
-            optionLabelClassName="justify-start text-left text-sm"
+            variant="fontWeight"
             showCheckbox={false}
           />
         </div>
@@ -272,12 +264,7 @@ export function TextEditor({
             selected={fontSizeSelected}
             onSelect={handleFontSizeSelect}
             placeholder="Size"
-            className="w-[78px] font-semibold"
-            triggerClassName="h-8 bg-[#f3f3f3]"
-            openTriggerClassName="bg-white"
-            triggerButtonClassName="pl-3 pr-1"
-            labelClassName="justify-start text-left text-sm"
-            optionLabelClassName="justify-start text-left text-sm"
+            variant="fontSize"
             showCheckbox={false}
           />
 
@@ -346,7 +333,7 @@ export function TextEditor({
                   label={`Align ${option.value}`}
                   active={active}
                   className={cn(
-                    'h-[30px] w-[30px] rounded-[5px] hover:bg-[#FAFAFB] active:bg-[#F5F8FF] aria-pressed:bg-white aria-pressed:shadow-sm',
+                    'h-[30px] w-[30px] rounded-[5px] hover:bg-[#FAFAFB] active:bg-[#F5F8FF] aria-pressed:bg-white aria-pressed:shadow-sm text-text-primary',
                     !active && 'bg-transparent shadow-none'
                   )}
                   onClick={() => handleTextAlignSelect(option)}

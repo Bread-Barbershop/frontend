@@ -1,11 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 
 import { openAccountApp } from '@/app/api/account/openAccountApp';
 import { Button } from '@/components/atoms/button';
 import CopyIcon from '@/shared/assets/icons/copy.svg';
 import KakaoIcon from '@/shared/assets/icons/kakao.svg';
+import { useToast } from '@/shared/hooks/useToast';
 
 type Account = {
   name: string;
@@ -46,32 +45,12 @@ export const AccountsPerGroupPreview = ({
   isOpenAccount: boolean;
   accountList: Account[];
 }) => {
-  const [showCopyToast, setShowCopyToast] = useState(false);
-  const [isCopyToastVisible, setIsCopyToastVisible] = useState(false);
-  const [copyToastKey, setCopyToastKey] = useState(0);
-
-  useEffect(() => {
-    if (copyToastKey === 0) return;
-
-    const fadeTimer = window.setTimeout(() => {
-      setIsCopyToastVisible(false);
-    }, 1500);
-    const unmountTimer = window.setTimeout(() => {
-      setShowCopyToast(false);
-    }, 2000);
-
-    return () => {
-      window.clearTimeout(fadeTimer);
-      window.clearTimeout(unmountTimer);
-    };
-  }, [copyToastKey]);
+  const { success: successToast } = useToast();
 
   const handleCopyAccount = async (bank: string, account: string) => {
     try {
       await copyTextToClipboard(`${bank} ${account}`);
-      setShowCopyToast(true);
-      setIsCopyToastVisible(true);
-      setCopyToastKey(prev => prev + 1);
+      successToast('복사가 완료되었어요!');
       return true;
     } catch (error) {
       console.error('copy failed:', error);
@@ -83,93 +62,73 @@ export const AccountsPerGroupPreview = ({
     openAccountApp();
   };
 
-  const copyToast =
-    showCopyToast && typeof document !== 'undefined'
-      ? createPortal(
-          <div
-            className={`fixed left-1/2 top-[calc(env(safe-area-inset-top)+16px)] z-[9999] -translate-x-1/2 transition-opacity duration-500 ${
-              isCopyToastVisible ? 'opacity-100' : 'opacity-0'
-            }`}
-          >
-            <div className="w-fit whitespace-nowrap rounded-xl bg-white p-5 text-center text-sm font-semibold text-text-primary shadow-[0_8px_24px_-8px_rgba(0,0,0,0.18),0_24px_60px_-20px_rgba(0,0,0,0.12)]">
-              복사가 완료되었어요!
-            </div>
-          </div>,
-          document.body
-        )
-      : null;
-
   return (
-    <>
-      {copyToast}
-      <AnimatePresence initial={false}>
-        {isOpenAccount && (
-          <motion.div
-            key="account-list"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="overflow-hidden"
-          >
-            <div className="flex flex-col gap-2 pb-[11px] pt-2">
-              {accountList.map((account: Account, j: number) => {
-                const displayName = account.name.trim() || '예금주';
-                const displayBank = account.bank.trim() || '은행';
-                const displayAccount =
-                  account.account.trim() || '000-000-000000';
+    <AnimatePresence initial={false}>
+      {isOpenAccount && (
+        <motion.div
+          key="account-list"
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.25, ease: 'easeInOut' }}
+          className="overflow-hidden"
+        >
+          <div className="flex flex-col gap-2 pb-[11px] pt-2">
+            {accountList.map((account: Account, j: number) => {
+              const displayName = account.name.trim() || '예금주';
+              const displayBank = account.bank.trim() || '은행';
+              const displayAccount = account.account.trim() || '000-000-000000';
 
-                return (
-                  <div
-                    key={j}
-                    className="flex min-h-13 w-full shrink-0 items-center gap-2 pl-3 pr-2"
-                  >
-                    <div className="flex h-full w-full flex-col justify-center text-start">
-                      <p className="text-[13px] text-start font-semibold text-border-liner">
-                        {displayName}
-                      </p>
-                      <p className="text-[13px] font-normal text-border-liner">
-                        {displayBank}
-                      </p>
-                      <p className="text-[13px] font-normal text-border-liner">
-                        {displayAccount}
-                      </p>
-                    </div>
-                    <div className="flex shrink-0 items-center justify-start gap-0.5">
+              return (
+                <div
+                  key={j}
+                  className="flex min-h-13 w-full shrink-0 items-center gap-2 pl-3 pr-2"
+                >
+                  <div className="flex h-full w-full flex-col justify-center text-start">
+                    <p className="text-[13px] text-start font-semibold text-border-liner">
+                      {displayName}
+                    </p>
+                    <p className="text-[13px] font-normal text-border-liner">
+                      {displayBank}
+                    </p>
+                    <p className="text-[13px] font-normal text-border-liner">
+                      {displayAccount}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center justify-start gap-0.5">
+                    <Button
+                      type="button"
+                      variant="borderless"
+                      className="size-11 flex-center"
+                      onClick={() =>
+                        handleCopyAccount(displayBank, displayAccount)
+                      }
+                    >
+                      <CopyIcon />
+                    </Button>
+                    {account.kakao === true && (
                       <Button
                         type="button"
                         variant="borderless"
                         className="size-11 flex-center"
-                        onClick={() =>
-                          handleCopyAccount(displayBank, displayAccount)
-                        }
+                        onClick={async () => {
+                          const success = await handleCopyAccount(
+                            displayBank,
+                            displayAccount
+                          );
+                          if (success) handleOpenKakao();
+                        }}
                       >
-                        <CopyIcon />
+                        <KakaoIcon width={36} height={36} />
                       </Button>
-                      {account.kakao === true && (
-                        <Button
-                          type="button"
-                          variant="borderless"
-                          className="size-11 flex-center"
-                          onClick={async () => {
-                            const success = await handleCopyAccount(
-                              displayBank,
-                              displayAccount
-                            );
-                            if (success) handleOpenKakao();
-                          }}
-                        >
-                          <KakaoIcon width={36} height={36} />
-                        </Button>
-                      )}
-                    </div>
+                    )}
                   </div>
-                );
-              })}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+                </div>
+              );
+            })}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };

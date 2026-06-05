@@ -11,7 +11,7 @@ import {
 } from '@/app/api/drive/_lib/ensureThumbnailFile';
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
-import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissionWithRetry';
+// import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissionWithRetry';
 
 /**
  * POST: 초대장 썸네일 데이터를 invitation-thumbnail.png에 저장합니다.
@@ -51,8 +51,8 @@ export async function POST(req: Request) {
       await deleteThumbnailFile(thumbnailFileId);
     }
 
-    // 3) 공개 권한 설정
-    await publishPermissionWithRetry(finalFileId);
+    // // 3) 공개 권한 설정
+    // await publishPermissionWithRetry(finalFileId);
 
     const publicUrl = `https://drive.google.com/uc?export=download&id=${finalFileId}`;
 
