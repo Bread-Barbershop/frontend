@@ -20,14 +20,21 @@ export const fetchImageFiles = async (
 
   // id와 file을 같이 반환하도록 수정
   const files = await Promise.all(
-    images.map(async img => ({
-      id: img.id,
-      file: await blobToFile({
+    images.map(async img => {
+      const file = await blobToFile({
         name: img.name,
         mimeType: img.mimeType,
         dataUrl: img.dataUrl,
-      }),
-    }))
+      });
+      // Drive fileId를 File 객체에 심어 두어 나중에 캐시 매핑에 활용한다.
+      Object.defineProperty(file, 'driveFileId', {
+        value: img.id,
+        writable: false,
+        configurable: true,
+        enumerable: false, // JSON 직렬화 대상에서 제외
+      });
+      return { id: img.id, file };
+    })
   );
 
   return files;
@@ -51,14 +58,19 @@ export const fetchAudioFiles = async (
 
   const files = await Promise.all(
     audios.audio.map(async audio => {
-      return {
-        id: audio.id,
-        file: await blobToFile({
-          name: audio.name,
-          mimeType: audio.mimeType,
-          dataUrl: audio.dataUrl,
-        }),
-      };
+      const file = await blobToFile({
+        name: audio.name,
+        mimeType: audio.mimeType,
+        dataUrl: audio.dataUrl,
+      });
+      // Drive fileId를 File 객체에 심어 두어 나중에 캐시 매핑에 활용한다.
+      Object.defineProperty(file, 'driveFileId', {
+        value: audio.id,
+        writable: false,
+        configurable: true,
+        enumerable: false, // JSON 직렬화 대상에서 제외
+      });
+      return { id: audio.id, file };
     })
   );
   return files;

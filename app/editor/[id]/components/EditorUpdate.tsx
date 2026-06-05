@@ -29,6 +29,7 @@ function EditorUpdate({ folderId, uuid }: Props) {
     uuid,
     invitationFolderId: folderId,
   });
+
   const reset = useEditorStore(state => state.reset);
   const resetBgm = useBgmStore(state => state.reset);
 
@@ -41,9 +42,11 @@ function EditorUpdate({ folderId, uuid }: Props) {
 
   useEffect(() => {
     if (savedData) {
-      initBulkData();
-      initEditStore();
-      initBgmStore();
+      (async () => {
+        initBulkData();
+        await initEditStore();
+        initBgmStore();
+      })();
     }
   }, [savedData, initEditStore, initBgmStore, initBulkData]);
   usePreventBack();

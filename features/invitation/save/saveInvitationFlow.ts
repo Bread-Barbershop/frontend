@@ -56,6 +56,7 @@ type SaveInvitationFlowParams = {
   invitationUuid?: string;
   mainPoster: MainPosterData;
   invitationThumbnail: InvitationThumbnail;
+  uploadImages?: UploadTask[];
 };
 
 type SaveInvitationFlowResult = {
@@ -234,7 +235,7 @@ async function upload(params: {
       usedAccessToken: token.currentToken,
     };
   };
-
+ 
   const imagesStep = await runUploadStep({
     originFile: images,
     folderId: prep.imageFolderId,
@@ -244,6 +245,13 @@ async function upload(params: {
   const fileToId = new Map<File, string>();
   imagesStep.final.ok.forEach(ok => {
     fileToId.set(ok.file, ok.fileId);
+    // 업로드된 File 객체에 driveFileId 속성 설정 (commit에서 사용)
+    Object.defineProperty(ok.file, 'driveFileId', {
+      value: ok.fileId,
+      writable: false,
+      configurable: true,
+      enumerable: false,
+    });
   });
 
   const audioStep = await runUploadStep({
@@ -267,6 +275,7 @@ async function commit(params: {
   uploadResult: UploadResult;
   bulkData: BulkJson;
   images: UploadTask[];
+  uploadImages?: UploadTask[];
   data: PersistedEditorBlock[];
   shareUrl: ShareUrlState;
   bgmData: BgmData;
@@ -279,6 +288,7 @@ async function commit(params: {
     uploadResult,
     bulkData,
     images,
+    uploadImages,
     data,
     shareUrl,
     bgmData,
@@ -286,6 +296,11 @@ async function commit(params: {
     invitationThumbnail,
   } = params;
   const { fileToId, uploadedAudioFileId } = uploadResult;
+
+  // uploadImages의 imageId -> File 매핑 (중복 이미지 처리용)
+  const uploadImagesByImageId = new Map(
+    (uploadImages ?? []).map(task => [task.id, task.file as File])
+  );
 
   const invitationUrl = `${window.location.origin}/guest/${prep.dataJsonFileId}`;
 
@@ -298,12 +313,40 @@ async function commit(params: {
     urlDescription: shareUrl.urlDescription?.trim() || DEFAULT_DESCRIPTION,
   };
 
+  // images의 File 객체들을 위해 imageId -> fileId 매핑 생성
+  // (중복 이미지의 경우 imageId를 기반으로 찾음)
+  const imageIdToFileId = new Map<string, string>();
+  images.forEach(task => {
+    if (task.file instanceof File) {
+      // 1차: uploadImages에 있는 같은 File을 찾기
+      const uploadedFile = uploadImagesByImageId.get(task.id);
+      if (uploadedFile && fileToId.has(uploadedFile)) {
+        imageIdToFileId.set(task.id, fileToId.get(uploadedFile)!);
+      } else if (fileToId.has(task.file)) {
+        // 2차: fileToId에 직접 있는지 확인
+        imageIdToFileId.set(task.id, fileToId.get(task.file)!);
+      } else if ((task.file as any).driveFileId) {
+        // 3차: 기존 driveFileId 속성 사용
+        imageIdToFileId.set(task.id, (task.file as any).driveFileId);
+      } else {
+        console.warn(
+          `File not uploaded and no driveFileId for image ${task.id}: ${task.file.name}`
+        );
+      }
+    }
+  });
+
   // 에디터 상태 안에 남아 있는 File 객체를 Drive fileId로 치환한다.
+  // 문제: 중복 이미지의 경우 File 객체 참조가 다를 수 있으므로,
+  // replaceFiles에서는 fileToId에 없는 File도 발생 가능
+  // 해결: 발생하면 driveFileId 속성을 확인하고, 없으면 경고만 출력하고 진행
   const replaceFiles = (obj: unknown): unknown => {
     if (obj instanceof File) {
-      const fileId = fileToId.get(obj);
+      const fileId = fileToId.get(obj) ?? (obj as any).driveFileId;
       if (!fileId) {
-        console.warn('File not uploaded, skipping:', obj.name);
+        console.warn('File not uploaded and no driveFileId found:', obj.name);
+        // 에러 대신 더 이상 진행하지 않음 (다시 시도할 기회 없음)
+        // 대신 imageId 기반 매핑에서 찾을 수 있도록 위에서 처리
         throw new Error(`not Found Image FileId: ${obj.name}`);
       }
       return fileId;
@@ -320,9 +363,8 @@ async function commit(params: {
     }
     return obj;
   };
-
   const replacedShareUrl = replaceFiles(normalizedShareUrl) as ShareUrlState;
-
+  
   // block props 내부의 File도 같은 기준으로 치환해 data.json에 직렬화 가능한 값만 남긴다.
   const newData = data.map(item => ({
     ...item,
@@ -379,6 +421,7 @@ async function commit(params: {
     mainPoster: finalMainPoster,
     invitationImage: images,
   };
+
 
   const dataFile = new File([JSON.stringify(payload)], 'data.json', {
     type: 'application/json',
@@ -508,13 +551,14 @@ export async function saveInvitationFlow(
 
   let prep = await prepare(invitationUuid);
   let token = createTokenState(prep);
-  let uploadResult = await upload({ prep, images, audio, token });
+  let uploadResult = await upload({ prep, images: params.uploadImages ?? images, audio, token });
   let commitResult = await commit({
     prep,
     token,
     uploadResult,
     bulkData,
     images,
+    uploadImages: params.uploadImages,
     data,
     shareUrl,
     bgmData,
@@ -531,13 +575,14 @@ export async function saveInvitationFlow(
   ) {
     prep = await prepareFallback(prep.invitationUuid);
     token = createTokenState(prep);
-    uploadResult = await upload({ prep, images, audio, token });
+    uploadResult = await upload({ prep, images: params.uploadImages ?? images, audio, token });
     commitResult = await commit({
       prep,
       token,
       uploadResult,
       bulkData,
       images,
+      uploadImages: params.uploadImages,
       data,
       shareUrl,
       bgmData,

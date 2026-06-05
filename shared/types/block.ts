@@ -92,6 +92,12 @@ export interface DriveSlice {
   invitationUuid: string;
   audioFolderId: string;
   imageFolderId: string;
+  hashFiles: string[];
+  cleanUpFiles: string[];
+  setHashFiles: (hash: string) => void;
+  setCleanUpFiles: (fileId: string) => void;
+  clearHashFiles: () => void;
+  clearCleanUpFiles: () => void;
   setInvitationFolderId: (id: string) => void;
   setInvitationUuid: (uuid: string) => void;
   setAudioFolderId: (id: string) => void;
