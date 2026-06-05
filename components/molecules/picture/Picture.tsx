@@ -51,22 +51,31 @@ export const Picture = ({
     const prev = previewRef.current;
 
     // 1. 새로운 상태 계산 (기존 아이템 재사용)
-    const newPreview = (value ?? []).map(file => {
+    // 같은 파일이 여러 번 추가될 때 각각 고유한 id를 생성하기 위해
+    // 파일 참조 + 인덱스 조합으로 id를 생성
+    const newPreview = (value ?? []).map((file, index) => {
       const existing = prev.find(p => p.file === file);
+
+      // 이미 존재하는 파일이면 기존 데이터 재사용하되,
+      // 인덱스를 포함한 고유한 id 생성 (중복 방지)
       if (existing) {
-        return existing;
+        return {
+          id: `${file.toString()}-${index}`,
+          src: existing.src,
+          file,
+        };
       }
 
       if (typeof file === 'string') {
         return {
-          id: crypto.randomUUID(),
+          id: `${file}-${index}`,
           src: file,
           file,
         };
       }
 
       return {
-        id: crypto.randomUUID(),
+        id: `${(file as File).name}-${(file as File).size}-${(file as File).lastModified}-${index}`,
         src: URL.createObjectURL(file), // 새 파일이면 URL 생성
         file,
       };
