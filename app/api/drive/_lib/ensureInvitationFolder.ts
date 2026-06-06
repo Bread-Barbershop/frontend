@@ -19,9 +19,88 @@ export type EnsureInvitationFolderResult = {
   reused: boolean;
 };
 
-const INVITATION_FOLDER_NAME = '초대장'; // 추후 초대장 이름은 유저로부터 받을것.
+const DEFAULT_INVITATION_FOLDER_BASE_NAME = '초대장';
+const INVITATION_FOLDER_TIME_ZONE = 'Asia/Seoul';
 const APP_IDENTIFIER = 'Bread-Barbershop';
 const INVITATION_KIND = 'invitation';
+
+function padDatePart(value: number): string {
+  return String(value).padStart(2, '0');
+}
+
+function formatInvitationCreatedAt(createdAt: Date): string {
+  const parts = new Intl.DateTimeFormat('ko-KR', {
+    timeZone: INVITATION_FOLDER_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(createdAt);
+
+  const partMap = Object.fromEntries(
+    parts.map(part => [part.type, part.value])
+  ) as Partial<Record<Intl.DateTimeFormatPartTypes, string>>;
+
+  const year = partMap.year ?? String(createdAt.getFullYear());
+  const month = partMap.month ?? padDatePart(createdAt.getMonth() + 1);
+  const day = partMap.day ?? padDatePart(createdAt.getDate());
+  const hour = partMap.hour ?? padDatePart(createdAt.getHours());
+  const minute = partMap.minute ?? padDatePart(createdAt.getMinutes());
+
+  return `${year}년 ${month}월 ${day}일 ${hour}시 ${minute}분`;
+}
+
+export function buildInvitationFolderName(params?: {
+  baseName?: string | null;
+  createdAt?: Date;
+}): string {
+  const baseName =
+    params?.baseName?.trim() || DEFAULT_INVITATION_FOLDER_BASE_NAME;
+  const createdAt = params?.createdAt ?? new Date();
+
+  return `${baseName} - ${formatInvitationCreatedAt(createdAt)}`;
+}
+
+async function createDriveInvitationFolder(params: {
+  workspaceFolderId: string;
+  invitationUuid: string;
+  baseName?: string | null;
+}): Promise<string> {
+  const createRes = await googleFetch(
+    'https://www.googleapis.com/drive/v3/files',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: buildInvitationFolderName({ baseName: params.baseName }),
+        mimeType: 'application/vnd.google-apps.folder',
+        parents: [params.workspaceFolderId],
+        appProperties: {
+          app_id: APP_IDENTIFIER,
+          kind: INVITATION_KIND,
+          inv_id: params.invitationUuid,
+        },
+      }),
+    }
+  );
+
+  const created = (await createRes.json().catch(() => ({}))) as {
+    id?: string;
+    error?: unknown;
+  };
+
+  if (!createRes.ok || !created.id) {
+    throw new DriveHttpError(
+      '초대장 폴더(uuid) 생성 실패',
+      createRes.status,
+      created
+    );
+  }
+
+  return created.id;
+}
 
 /**
  * 초대장 폴더를 uuid 기준으로 보장한다.
@@ -32,6 +111,7 @@ const INVITATION_KIND = 'invitation';
 export async function ensureInvitationFolder(params: {
   workspaceFolderId: string;
   invitationUuid?: string;
+  baseName?: string | null;
 }): Promise<EnsureInvitationFolderResult> {
   const { workspaceFolderId } = params;
 
@@ -92,39 +172,14 @@ export async function ensureInvitationFolder(params: {
   }
 
   // 2) 없으면 생성
-  const createRes = await googleFetch(
-    'https://www.googleapis.com/drive/v3/files',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: INVITATION_FOLDER_NAME,
-        mimeType: 'application/vnd.google-apps.folder',
-        parents: [workspaceFolderId],
-        appProperties: {
-          app_id: APP_IDENTIFIER,
-          kind: INVITATION_KIND,
-          inv_id: invitationUuid,
-        },
-      }),
-    }
-  );
-
-  const created = (await createRes.json().catch(() => ({}))) as {
-    id?: string;
-    error?: unknown;
-  };
-
-  if (!createRes.ok || !created.id) {
-    throw new DriveHttpError(
-      '초대장 폴더(uuid) 생성 실패',
-      createRes.status,
-      created
-    );
-  }
+  const invitationFolderId = await createDriveInvitationFolder({
+    workspaceFolderId,
+    invitationUuid,
+    baseName: params.baseName,
+  });
 
   return {
-    invitationFolderId: created.id,
+    invitationFolderId,
     invitationUuid,
     reused: false,
   };
@@ -133,6 +188,7 @@ export async function ensureInvitationFolder(params: {
 export async function createInvitationFolder(params: {
   workspaceFolderId: string;
   invitationUuid?: string;
+  baseName?: string | null;
 }): Promise<EnsureInvitationFolderResult> {
   const { workspaceFolderId } = params;
 
@@ -144,39 +200,14 @@ export async function createInvitationFolder(params: {
 
   const invitationUuid = params.invitationUuid ?? generateUuid();
 
-  const createRes = await googleFetch(
-    'https://www.googleapis.com/drive/v3/files',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: INVITATION_FOLDER_NAME,
-        mimeType: 'application/vnd.google-apps.folder',
-        parents: [workspaceFolderId],
-        appProperties: {
-          app_id: APP_IDENTIFIER,
-          kind: INVITATION_KIND,
-          inv_id: invitationUuid,
-        },
-      }),
-    }
-  );
-
-  const created = (await createRes.json().catch(() => ({}))) as {
-    id?: string;
-    error?: unknown;
-  };
-
-  if (!createRes.ok || !created.id) {
-    throw new DriveHttpError(
-      '초대장 폴더(uuid) 생성 실패',
-      createRes.status,
-      created
-    );
-  }
+  const invitationFolderId = await createDriveInvitationFolder({
+    workspaceFolderId,
+    invitationUuid,
+    baseName: params.baseName,
+  });
 
   return {
-    invitationFolderId: created.id,
+    invitationFolderId,
     invitationUuid,
     reused: false,
   };
