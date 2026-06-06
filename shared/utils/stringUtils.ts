@@ -14,5 +14,5 @@ export const sanitizeEnglishTitleInput = (target: HTMLInputElement) => {
     target.value = sanitizedValue;
   }
 
-  return sanitizedValue;
+  return sanitizedValue.trim();
 };
