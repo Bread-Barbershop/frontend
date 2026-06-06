@@ -14,6 +14,7 @@ import { TextField } from '@/components/molecules/text-field';
 import { TimeSelector } from '@/components/molecules/time-selector';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
@@ -91,8 +92,8 @@ export function Calendar({ blockInfo, id }: Props) {
     [id, updateBlock]
   );
   const handleEnglishTitleChange = useCallback(
-    ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
-      updateBlock(id, { englishTitle: value });
+    ({ target }: React.ChangeEvent<HTMLInputElement>) => {
+      updateBlock(id, { englishTitle: sanitizeEnglishTitleInput(target) });
     },
     [id, updateBlock]
   );

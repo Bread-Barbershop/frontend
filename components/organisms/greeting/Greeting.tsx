@@ -9,6 +9,7 @@ import { TextField } from '@/components/molecules/text-field';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import type { JSONContent } from '@tiptap/react';
 
@@ -46,7 +47,7 @@ function Greeting({ blockInfo, id }: Props) {
   };
 
   const handleEnglishTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const nextEnglishTitle = e.target.value;
+    const nextEnglishTitle = sanitizeEnglishTitleInput(e.target);
     updateBlock(id, {
       englishTitle: nextEnglishTitle || DEFAULT_GREETING_ENGLISH_TITLE,
     });
