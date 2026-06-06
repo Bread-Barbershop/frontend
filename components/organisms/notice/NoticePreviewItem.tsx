@@ -1,6 +1,7 @@
 import { Image } from '@/components/atoms/image';
 import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
+import { useBodyFontFamily } from '@/shared/hooks/useBodyFontFamily';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 import { cn } from '@/shared/utils/cn';
 
@@ -21,6 +22,7 @@ export const NoticePreviewItem = ({
     tiptapJsonToHtmlUniversal(notice.content.messageJson);
   const customPreview = useResolvedImageSource(notice.image?.[0]);
   const preview = customPreview ?? defaultImage;
+  const bodyFontFamily = useBodyFontFamily();
 
   return (
     <div className={cn('flex flex-col gap-6 overflow-hidden', className)}>
@@ -36,7 +38,10 @@ export const NoticePreviewItem = ({
         </div>
       )}
       <div className="flex flex-col gap-6">
-        <p className="text-sm text-center font-semibold select-none">
+        <p
+          className="text-sm text-center font-semibold select-none"
+          style={{ fontFamily: bodyFontFamily }}
+        >
           {notice.notice}
         </p>
         <div

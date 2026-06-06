@@ -8,6 +8,7 @@ import { Picture } from '@/components/molecules/picture';
 import { TextField } from '@/components/molecules/text-field';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
@@ -48,7 +49,9 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
   };
 
   const handleOnchangeEnglishTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { englishTitle: e.target.value || 'OUR SPONSORS' });
+    updateBlock(id, {
+      englishTitle: sanitizeEnglishTitleInput(e.target) || 'OUR SPONSORS',
+    });
   };
   return (
     <LeftEditorWrapper ariaLabel="후원 정보">

@@ -1,6 +1,6 @@
 'use client';
 import { JSONContent } from '@tiptap/core';
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useEffect } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { Label } from '@/components/atoms/label';
@@ -12,8 +12,11 @@ import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/ut
 import { TextField } from '@/components/molecules/text-field';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
+
+const DEFAULT_ENGLISH_TITLE = 'PICTURE';
 
 interface Props {
   blockInfo: EditorBlock<'picture'>;
@@ -21,12 +24,20 @@ interface Props {
 }
 
 function PictureBlock({ blockInfo, id }: Props) {
+  const englishTitle = blockInfo.props.enTitle || DEFAULT_ENGLISH_TITLE;
   const { updateBlock, updateImage } = useEditorStore(
     useShallow(state => ({
       updateBlock: state.updateBlock,
       updateImage: state.updateImage,
     }))
   );
+
+  useEffect(() => {
+    if (!blockInfo.props.enTitle) {
+      updateBlock(id, { enTitle: DEFAULT_ENGLISH_TITLE });
+    }
+  }, [blockInfo.props.enTitle, id, updateBlock]);
+
   const handlePictureChange = (file: (File | string)[]) => {
     updateBlock(id, { image: file });
     updateImage(id, file);
@@ -37,7 +48,8 @@ function PictureBlock({ blockInfo, id }: Props) {
   };
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { isTitle: e.target.checked });
+    const checked = e.target.checked;
+    updateBlock(id, { isTitle: checked, isEnglishTitle: checked });
   };
   const handleEngTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { isEnglishTitle: e.target.checked });
@@ -50,7 +62,9 @@ function PictureBlock({ blockInfo, id }: Props) {
     updateBlock(id, { title: e.target.value || '사진' });
   };
   const handleOnChangeEngTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { enTitle: e.target.value || 'PICTURE' });
+    updateBlock(id, {
+      enTitle: sanitizeEnglishTitleInput(e.target) || DEFAULT_ENGLISH_TITLE,
+    });
   };
   const handleEditorChange = (json: JSONContent) => {
     updateBlock(id, {
@@ -83,7 +97,7 @@ function PictureBlock({ blockInfo, id }: Props) {
             }}
           />
         )}
-        {blockInfo.props.isEnglishTitle && (
+        {blockInfo.props.isTitle && blockInfo.props.isEnglishTitle && (
           <TextField
             label="영문 제목"
             className="py-1.5 text-center"
@@ -91,9 +105,9 @@ function PictureBlock({ blockInfo, id }: Props) {
               placeholder: 'PICTURE',
               onChange: e => handleOnChangeEngTitle(e),
               value:
-                blockInfo.props.enTitle === 'PICTURE'
+                englishTitle === DEFAULT_ENGLISH_TITLE
                   ? ''
-                  : blockInfo.props.enTitle,
+                  : englishTitle,
             }}
           />
         )}
@@ -118,6 +132,7 @@ function PictureBlock({ blockInfo, id }: Props) {
               제목 추가
             </Checkbox>
             <Checkbox
+              className={!blockInfo.props.isTitle ? 'hidden' : undefined}
               checked={blockInfo.props.isEnglishTitle}
               onChange={handleEngTitleChange}
             >

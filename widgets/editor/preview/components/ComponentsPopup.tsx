@@ -2,6 +2,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
+
 import ContentsArea from './ContentsArea';
 import TabArea from './TabArea';
 
@@ -15,6 +17,20 @@ function ComponentsPopup({ onPopClose }: Props) {
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isManualScrolling = useRef(false);
+
+  useEffect(() => {
+    const closeIfViewportGuardActive = () => {
+      if (window.innerWidth < DESKTOP_CONTENT_MIN_WIDTH) {
+        onPopClose();
+      }
+    };
+
+    closeIfViewportGuardActive();
+    window.addEventListener('resize', closeIfViewportGuardActive);
+
+    return () =>
+      window.removeEventListener('resize', closeIfViewportGuardActive);
+  }, [onPopClose]);
 
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -60,9 +76,12 @@ function ComponentsPopup({ onPopClose }: Props) {
   };
 
   return createPortal(
-    <>
-      <div className="fixed inset-0 z-4" onClick={onPopClose} />
-      <div className="fixed z-50 bottom-12 left-1/2 -translate-x-1/2 w-164 h-99.5 shadow-edit bg-white rounded-md flex flex-col gap-3">
+    <div className="fixed inset-0 z-[90] pointer-events-none">
+      <div
+        className="absolute inset-0 pointer-events-auto"
+        onClick={onPopClose}
+      />
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-164 h-99.5 shadow-edit bg-white rounded-md flex flex-col gap-3 pointer-events-auto">
         <div>
           <TabArea
             active={active}
@@ -75,7 +94,7 @@ function ComponentsPopup({ onPopClose }: Props) {
           sectionRefs={sectionRefs}
         />
       </div>
-    </>,
+    </div>,
     document.body
   );
 }

@@ -11,6 +11,7 @@ import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/ut
 import { TextField } from '@/components/molecules/text-field';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
+import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
@@ -87,7 +88,8 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
               handleValueChange(
                 'englishTitle',
                 undefined,
-                e.target.value || 'ORGANIZER INFORMATION'
+                sanitizeEnglishTitleInput(e.target) ||
+                  'ORGANIZER INFORMATION'
               ),
           }}
           className="text-center w-full"

@@ -47,12 +47,12 @@ function PictureBlockPreview({ blockInfo, className, ...rest }: Props) {
           )}
         </div>
         {!preview && (
-          <div className="w-full aspect-square flex-center bg-border-neutral">
+          <div className="w-full aspect-square flex-center bg-border-neutral rounded-3xl">
             <p className="text-text-secondary text-sm">사진을 추가해주세요.</p>
           </div>
         )}
         {preview && (
-          <div className="relative w-full aspect-square">
+          <div className="relative w-full aspect-square rounded-3xl overflow-hidden">
             <Image
               src={preview}
               alt="사진 컴포넌트 이미지"

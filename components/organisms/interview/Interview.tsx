@@ -12,6 +12,7 @@ import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/ut
 import { TextField } from '@/components/molecules/text-field';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
+import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import PopupOptions from '../popup/PopupOptions';
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
@@ -158,7 +159,10 @@ export const Interview = ({ blockInfo, id }: Props) => {
             placeholder: 'INTERVIEW',
             value: englishTitle === 'INTERVIEW' ? '' : englishTitle,
             onChange: e =>
-              handleUpdateBlock('englishTitle', e.target.value || 'INTERVIEW'),
+              handleUpdateBlock(
+                'englishTitle',
+                sanitizeEnglishTitleInput(e.target) || 'INTERVIEW'
+              ),
           }}
           className="w-full py-1.5 text-center"
         />

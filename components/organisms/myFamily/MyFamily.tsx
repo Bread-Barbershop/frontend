@@ -11,6 +11,7 @@ import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/ut
 import { TextField } from '@/components/molecules/text-field/TextField';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
@@ -46,7 +47,9 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
   };
 
   const handleEnglishTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { englishTitle: e.target.value || 'MY FAMILY' });
+    updateBlock(id, {
+      englishTitle: sanitizeEnglishTitleInput(e.target) || 'MY FAMILY',
+    });
   };
 
   const handleRelationChange = (index: number, value: string) => {

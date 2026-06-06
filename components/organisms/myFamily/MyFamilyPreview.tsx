@@ -1,5 +1,6 @@
 import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
+import { useBodyFontFamily } from '@/shared/hooks/useBodyFontFamily';
 import type { EditorBlock } from '@/shared/types/block';
 
 import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
@@ -28,6 +29,7 @@ export const MyFamilyPreview = ({
   } = blockInfo.props;
   const html =
     messageHtml ?? tiptapJsonToHtmlUniversal(messageJson ?? undefined);
+  const bodyFontFamily = useBodyFontFamily();
 
   return (
     <MiddlePreviewWrapper
@@ -47,12 +49,13 @@ export const MyFamilyPreview = ({
             key={index}
             className="flex flex-col items-center gap-4.5 w-[calc(50%-9px)] max-w-[158.5px]"
           >
-            <MemberPreview member={member} />
+            <MemberPreview member={member} fontFamily={bodyFontFamily} />
           </div>
         ))}
       </div>
       <div
         className={`text-sm ${previewTextClassName}`}
+        style={{ fontFamily: bodyFontFamily }}
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </MiddlePreviewWrapper>
