@@ -11,6 +11,7 @@ import {
   Textbox,
   IText,
 } from 'fabric';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { useShallow } from 'zustand/shallow';
 
@@ -28,6 +29,8 @@ import { ContextMenu } from './context-menu/ContextMenu';
 import Toolbar from './Toolbar';
 
 export const MainPosterPreview = () => {
+  const searchParams = useSearchParams();
+  const isAdmin = searchParams.get('type') === 'admin';
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isMouseInCanvasRef = useRef(false);
 
@@ -150,7 +153,6 @@ export const MainPosterPreview = () => {
         activeObj instanceof Circle ||
         activeObj instanceof Triangle ||
         activeObj.isType('line');
-      const isActiveGraphic = activeObj.isType('path');
       const isCropZone =
         (activeObj as FabricObject & { name?: string })?.name === 'crop-zone';
 
@@ -158,9 +160,7 @@ export const MainPosterPreview = () => {
         setActiveTab('text');
       } else if (isActiveImage || isCropZone) {
         setActiveTab('image');
-      } else if (isActiveGraphic) {
-        setActiveTab('graphic');
-      } else if (isActiveShape) {
+      } else if (isActiveShape && isAdmin) {
         setActiveTab('shape');
       } else {
         setActiveTab('background');
