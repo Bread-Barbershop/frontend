@@ -17,6 +17,13 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 
 const ThemeColor = 'white';
 
+const youtubeIframeSecurityProps = {
+  allow: 'autoplay; encrypted-media; picture-in-picture',
+  allowFullScreen: true,
+  referrerPolicy: 'strict-origin-when-cross-origin' as const,
+  sandbox: 'allow-scripts allow-same-origin allow-presentation',
+};
+
 const ratioVariants = cva('', {
   variants: {
     ratio: {
@@ -73,8 +80,7 @@ export const VideoPreview = ({ blockInfo, className, ...rest }: Props) => {
           <iframe
             src={embedUrl as string}
             className="absolute inset-0 w-full h-full border-0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
+            {...youtubeIframeSecurityProps}
             title="동영상 플레이어"
           />
         ) : !thumbnail ? (
@@ -89,8 +95,7 @@ export const VideoPreview = ({ blockInfo, className, ...rest }: Props) => {
           <iframe
             src={embedUrl as string}
             className="absolute inset-0 w-full h-full border-0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
+            {...youtubeIframeSecurityProps}
             title="동영상 플레이어"
           />
         ) : (
