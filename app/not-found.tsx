@@ -1,67 +1,123 @@
-'use client';
+import { ArrowUpRight, Home, Search } from 'lucide-react';
 import Link from 'next/link';
 
-import Arrow from '@/shared/assets/icons/arrow.svg';
+import HeaderPrivacyNoticeButton from '@/features/session/components/HeaderPrivacyNoticeButton';
+import homeBackgroundImage from '@/shared/assets/images/home/home-background.png';
+import InviaLogo from '@/shared/assets/logo/invia-logo.svg';
+
+const HEADER_NAV_LINK_CLASS =
+  'flex items-center border-b border-transparent px-2 py-[6.5px] text-[16px] font-semibold text-[#121212] transition-colors hover:border-black hover:text-black';
+
+const QUICK_LINKS = [
+  {
+    href: '/',
+    label: '홈으로 돌아가기',
+    description: 'Invia 메인 페이지로 이동합니다.',
+    icon: Home,
+  },
+  {
+    href: '/faq',
+    label: 'FAQ 살펴보기',
+    description: '자주 묻는 질문에서 답변을 찾아보세요.',
+    icon: Search,
+  },
+] as const;
 
 function NotFound() {
   return (
-    <div className="min-h-screen w-full flex-center flex-col overflow-hidden relative bg-bg-base font-maruburi">
+    <div className="relative isolate grid min-h-dvh grid-rows-[auto_1fr_auto] overflow-hidden text-[#171717]">
       <div
-        className="
-          flex w-185 flex-col gap-2 rounded-4xl p-8
-          bg-white/6 backdrop-blur-xs
-          border-x border-white/30
-          shadow-2xl
-          supports-backdrop-filter:bg-white/6
-        "
-        style={{
-          boxShadow: 'inset 8px 8px 16px 5px rgba(0, 0, 0, 0.06)',
-        }}
-      >
-        <div className="relative flex flex-col items-center px-10 py-14 sm:px-[72px] sm:py-[60px]">
-          <div className="relative">
-            <div className="font-light text-6xl">404</div>
-          </div>
+        aria-hidden="true"
+        className="fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${homeBackgroundImage.src})` }}
+      />
 
-          <div className="flex items-center gap-4 my-7 anim-fade-5">
-            <div
-              className="h-px w-[60px]"
-              style={{
-                background:
-                  'linear-gradient(90deg, transparent, rgba(0,0,0,0.5), transparent)',
-              }}
-            />
-            <div className="w-1.5 h-1.5 rotate-45 bg-black" />
-            <div
-              className="h-px w-[60px]"
-              style={{
-                background:
-                  'linear-gradient(90deg, transparent, rgba(0,0,0,0.5), transparent)',
-              }}
-            />
-          </div>
-
-          <p className="font-normal text-2xl italic text-center">
-            페이지가 존재하지 않습니다.
-          </p>
-
-          <p className="font-light text-center mt-4">Page Not Found</p>
-          <p className="font-normal text-center mt-3">
-            찾으시는 페이지가 존재하지 않거나 이동되었습니다
-          </p>
-
+      <header className="relative flex h-14 items-center justify-between bg-transparent px-10">
+        <div className="flex h-full items-center gap-8">
           <Link
             href="/"
-            className="inline-flex items-center gap-2.5 relative overflow-hidden mt-12 cursor-pointer border border-black/30 rounded-md px-4 py-2"
+            aria-label="Invia 홈으로 이동"
+            className="flex h-full max-h-full cursor-pointer items-center px-6"
           >
-            <Arrow className="w-2 h-[10px] text-black rotate-90 font-light" />
-            <span>메인으로 돌아가기</span>
+            <InviaLogo
+              className="block h-[23px] w-[92px] shrink-0"
+              aria-label="Invia"
+              role="img"
+            />
           </Link>
-        </div>
-      </div>
 
-      {/* Bottom branding */}
-      <span className="absolute bottom-7">Invia</span>
+          <nav className="flex h-full items-center gap-6">
+            <Link href="/faq" className={HEADER_NAV_LINK_CLASS}>
+              FAQ
+            </Link>
+          </nav>
+        </div>
+
+        <HeaderPrivacyNoticeButton />
+      </header>
+
+      <main className="relative mx-auto grid w-full max-w-7xl items-center gap-12 px-5 py-14 sm:px-8 lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.72fr)] lg:gap-20 lg:px-12 lg:py-20">
+        <section>
+          <p className="text-xs font-bold tracking-[0.24em] text-black/45">
+            PAGE NOT FOUND
+          </p>
+          <h1 className="mt-6 max-w-3xl text-[clamp(4rem,9vw,8.8rem)] font-semibold leading-[0.88]">
+            Lost,
+            <br />
+            not gone.
+          </h1>
+          <p className="mt-8 max-w-lg text-base leading-7 text-black/60 sm:text-lg sm:leading-8">
+            요청하신 페이지를 찾을 수 없습니다.
+            <br />
+            주소가 변경되었거나 삭제된 페이지일 수 있습니다.
+          </p>
+        </section>
+
+        <section className="border-t border-black lg:border-t-0">
+          <div className="flex items-end justify-between border-b border-black/15 py-6">
+            <span className="text-xs font-bold tracking-[0.2em] text-black/40">
+              STATUS CODE
+            </span>
+            <span className="text-[clamp(5.5rem,18vw,11rem)] font-semibold leading-[0.72]">
+              404
+            </span>
+          </div>
+
+          <div>
+            {QUICK_LINKS.map(({ href, label, description, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                className="group flex cursor-pointer items-center gap-4 border-b border-black/15 py-5 transition-colors hover:border-black"
+              >
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-black/15 transition-colors group-hover:bg-black group-hover:text-white">
+                  <Icon className="h-4 w-4" />
+                </span>
+                <span className="flex-1">
+                  <span className="block text-base font-semibold tracking-[-0.02em]">
+                    {label}
+                  </span>
+                  <span className="mt-1 block text-[15px] leading-6 text-black/50">
+                    {description}
+                  </span>
+                </span>
+                <ArrowUpRight className="h-5 w-5 text-black/40 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-black" />
+              </Link>
+            ))}
+          </div>
+        </section>
+      </main>
+
+      <footer className="relative flex h-10 items-center justify-between bg-transparent px-10">
+        <Link href="/policy" className="text-text-secondary">
+          개인정보 처리방침
+        </Link>
+
+        <div className="text-text-secondary">
+          © {new Date().getFullYear()}{' '}
+          <span className="font-semibold">Invia</span>. All rights reserved.
+        </div>
+      </footer>
     </div>
   );
 }

@@ -87,7 +87,7 @@ export async function GET(
       }
 
       // // 2. JSON 파일인 경우: 설정값(Config)으로 파싱해서 저장
-      else if (file.mimeType?.includes('json')) {
+      else if (file.mimeType?.includes('json') && file.name?.toLowerCase() === 'data.json') {
         const fileContent = await downloadFiles(file.id!);
         // 데이터 호환성 처리 (block vs blocks)
         if (fileContent) {

@@ -1,4 +1,4 @@
-import { ChevronDown, Check } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import {
   useState,
   useRef,
@@ -11,9 +11,15 @@ import {
 } from 'react';
 
 import { Input } from '@/components/atoms/input';
+import CheckIcon from '@/shared/assets/icons/check.svg';
 import { cn } from '@/shared/utils/cn';
 
-import { selectorVariants } from './Selector.style';
+import {
+  selectorVariants,
+  selectorStyles,
+  SelectorVariantType,
+  popoverVariants,
+} from './Selector.style';
 
 interface Option {
   label: string | ReactNode;
@@ -23,6 +29,7 @@ interface Option {
 
 interface SelectorProps<T extends Option> {
   type?: 'normal' | 'editor';
+  variant?: SelectorVariantType;
   options: T[];
   placeholder?: string;
   className?: string;
@@ -30,6 +37,7 @@ interface SelectorProps<T extends Option> {
   openTriggerClassName?: string;
   triggerButtonClassName?: string;
   labelClassName?: string;
+  optionContainerClassName?: string;
   optionLabelClassName?: string;
   customInputClassName?: string;
   onInputChange?: (value: string) => void;
@@ -47,6 +55,7 @@ const clamp = (value: number, min: number, max: number) =>
 
 export const Selector = <T extends Option>({
   type = 'editor',
+  variant,
   options,
   placeholder = '선택',
   className,
@@ -54,6 +63,7 @@ export const Selector = <T extends Option>({
   openTriggerClassName,
   triggerButtonClassName,
   labelClassName,
+  optionContainerClassName,
   optionLabelClassName,
   customInputClassName,
   onSelect,
@@ -186,13 +196,27 @@ export const Selector = <T extends Option>({
       })
     : options;
 
+  const variantStyles = variant ? selectorStyles[variant] : null;
+
   return (
-    <div ref={containerRef} className={cn('relative text-center', className)}>
+    <div
+      ref={containerRef}
+      className={cn(
+        'relative text-center',
+        variantStyles?.container,
+        className
+      )}
+    >
       <div
         className={cn(
           selectorVariants({ type, isOpen, hasValue }),
+          variantStyles?.trigger,
           triggerClassName,
-          isOpen && openTriggerClassName
+          isOpen &&
+            (variantStyles && 'openTrigger' in variantStyles
+              ? variantStyles.openTrigger
+              : openTriggerClassName),
+          isOpen && 'border-b-bg-base'
         )}
       >
         {isCustomInput ? (
@@ -219,6 +243,7 @@ export const Selector = <T extends Option>({
             onClick={handleToggle}
             className={cn(
               'flex items-center justify-between w-full py-1 pl-2 text-left cursor-pointer',
+              variantStyles?.triggerButton,
               triggerButtonClassName
             )}
             aria-haspopup="listbox"
@@ -227,6 +252,7 @@ export const Selector = <T extends Option>({
             <span
               className={cn(
                 'h-6 text-text-primary truncate flex-1 min-w-0 flex items-center justify-center',
+                variantStyles?.label,
                 labelClassName
               )}
               style={selected?.style}
@@ -251,8 +277,9 @@ export const Selector = <T extends Option>({
         ref={popoverRef}
         popover="auto"
         className={cn(
-          'z-10 rounded-b-lg max-h-72 shadow-lg border-none p-0 m-0 fixed list-none edit-custom-scrollbar',
-          selected ? 'bg-bg-base' : 'bg-border-neutral'
+          popoverVariants({ type }),
+          selected ? 'bg-bg-base' : 'bg-border-neutral',
+          optionContainerClassName
         )}
         style={{
           top: `${popoverPos.top}px`,
@@ -278,8 +305,8 @@ export const Selector = <T extends Option>({
             key={option.value}
             onClick={() => handleSelect(option)}
             className={cn(
-              'flex w-full items-center py-1 text-sm text-text-primary cursor-pointer hover:bg-bg-sub transition-colors select-none',
-              showCheckbox ? 'pr-2' : 'px-2'
+              'flex w-full items-center min-h-8 gap-1 text-sm text-text-primary cursor-pointer hover:bg-bg-sub transition-colors select-none',
+              showCheckbox ? 'pr-1' : 'px-3'
             )}
             role="option"
             aria-selected={selected?.value === option.value}
@@ -287,16 +314,17 @@ export const Selector = <T extends Option>({
             {showCheckbox && (
               <div
                 className={cn(
-                  'flex-center w-7 shrink-0 text-primary',
+                  'flex-center w-6 pl-2 shrink-0 text-primary',
                   selected?.value !== option.value && 'invisible'
                 )}
               >
-                <Check size={12} />
+                <CheckIcon width={12} height={12} />
               </div>
             )}
             <span
               className={cn(
-                'h-7 leading-7 flex-1 truncate min-w-0 flex-center',
+                'h-7 leading-7 truncate min-w-0 flex-center',
+                variantStyles?.optionLabel,
                 optionLabelClassName
               )}
               style={option.style}

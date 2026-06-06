@@ -1,5 +1,6 @@
-
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+
+import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 
 import {
   dashboardCarouselLayout,
@@ -212,7 +213,7 @@ function DashboardCarouselSkeleton({
   return (
     <section
       className="relative left-1/2 w-screen -translate-x-1/2"
-      style={{ height: stageHeight }}
+      style={{ height: stageHeight, minWidth: DESKTOP_CONTENT_MIN_WIDTH }}
       aria-hidden="true"
     >
       <div

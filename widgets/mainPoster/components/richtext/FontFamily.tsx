@@ -126,10 +126,8 @@ function FontFamily() {
   return (
     <div className="flex gap-3">
       <Selector<FontOption>
-        className="w-[211px]"
-        labelClassName="justify-start pl-1"
-        optionLabelClassName="justify-start pl-1"
         placeholder="폰트 패밀리"
+        variant="fontFamily"
         options={FAMILY_OPTIONS}
         onSelect={async option => {
           const newFamily = option.value;
@@ -175,10 +173,8 @@ function FontFamily() {
       />
 
       <Selector<FontOption>
-        className="w-[112px]"
-        labelClassName="justify-start pl-1"
-        optionLabelClassName="justify-start pl-1"
         placeholder="굵기"
+        variant="fontWeight"
         options={weightOptions}
         onSelect={async option => {
           const nextWeight = option.value;

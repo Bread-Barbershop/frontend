@@ -40,8 +40,8 @@ function TextEditorButton({
         hover:bg-gray-200
         rounded-md
         cursor-pointer`,
-        className,
-        active && 'text-primary'
+        active && 'text-primary',
+        className
       )}
     >
       {icon}
