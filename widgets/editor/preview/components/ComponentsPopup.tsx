@@ -2,6 +2,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
+
 import ContentsArea from './ContentsArea';
 import TabArea from './TabArea';
 
@@ -15,6 +17,20 @@ function ComponentsPopup({ onPopClose }: Props) {
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isManualScrolling = useRef(false);
+
+  useEffect(() => {
+    const closeIfViewportGuardActive = () => {
+      if (window.innerWidth < DESKTOP_CONTENT_MIN_WIDTH) {
+        onPopClose();
+      }
+    };
+
+    closeIfViewportGuardActive();
+    window.addEventListener('resize', closeIfViewportGuardActive);
+
+    return () =>
+      window.removeEventListener('resize', closeIfViewportGuardActive);
+  }, [onPopClose]);
 
   useEffect(() => {
     const container = scrollContainerRef.current;
