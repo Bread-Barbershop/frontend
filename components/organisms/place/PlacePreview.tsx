@@ -3,6 +3,7 @@
 import { HTMLAttributes, useState } from 'react';
 
 import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
+import { useBodyFontFamily } from '@/shared/hooks/useBodyFontFamily';
 import type { EditorBlock } from '@/shared/types/block';
 import { formatPhoneNumber } from '@/shared/utils/phoneNumber';
 import {
@@ -38,6 +39,7 @@ export const PlacePreview = ({
     mapLocked,
   } = blockInfo.props;
   const defaultTitle = getDefaultPlaceTitle(blockInfo.type);
+  const bodyFontFamily = useBodyFontFamily();
 
   return (
     <MiddlePreviewWrapper
@@ -52,11 +54,14 @@ export const PlacePreview = ({
       {...rest}
     >
       <NaverMapScript onReady={() => setIsScriptLoaded(true)} />
-      <section className="flex flex-col justify-center items-center text-text-primary">
-        <p className="font-semibold text-[16px]">
+      <section
+        className="flex flex-col justify-center items-center text-text-primary"
+        style={{ fontFamily: bodyFontFamily }}
+      >
+        <p className="font-normal text-[16px]">
           {placeName} {placeDetail}
         </p>
-        <p className="font-semibold text-sm">{placeAddress}</p>
+        <p className="font-normal text-[16px]">{placeAddress}</p>
       </section>
       <p className="font-normal text-text-tertiary">
         TEL. {formatPhoneNumber(placeTel)}

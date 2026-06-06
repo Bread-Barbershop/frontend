@@ -60,9 +60,12 @@ function ComponentsPopup({ onPopClose }: Props) {
   };
 
   return createPortal(
-    <>
-      <div className="fixed inset-0 z-4" onClick={onPopClose} />
-      <div className="fixed z-50 bottom-12 left-1/2 -translate-x-1/2 w-164 h-99.5 shadow-edit bg-white rounded-md flex flex-col gap-3">
+    <div className="fixed inset-0 z-[90] pointer-events-none">
+      <div
+        className="absolute inset-0 pointer-events-auto"
+        onClick={onPopClose}
+      />
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-164 h-99.5 shadow-edit bg-white rounded-md flex flex-col gap-3 pointer-events-auto">
         <div>
           <TabArea
             active={active}
@@ -75,7 +78,7 @@ function ComponentsPopup({ onPopClose }: Props) {
           sectionRefs={sectionRefs}
         />
       </div>
-    </>,
+    </div>,
     document.body
   );
 }

@@ -64,7 +64,7 @@ function ContentsArea({ scrollContainerRef, sectionRefs }: Props) {
               모두 추가하기
             </UtilityButton>
           </div>
-          <div className="min-h-34">
+          <div>
             <ul className="grid grid-cols-5 gap-x-7 gap-y-0.5 ">
               {items.list.map((item, index) => (
                 <li
