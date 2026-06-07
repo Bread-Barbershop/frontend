@@ -2,28 +2,22 @@
 
 import { createPortal } from 'react-dom';
 
-import { useToastStore } from '@/shared/store/useToastStore';
+import { useToastStore, type ToastPlacement } from '@/shared/store/useToastStore';
 
 import { ToastBar } from './ToastBar';
 
-const getPositionClasses = (xPosition: string, yPosition: string): string => {
-  const xClasses = {
-    left: 'left-4',
-    center: 'left-1/2 -translate-x-1/2',
-    right: 'right-4',
+const getPositionClasses = (placement: ToastPlacement): string => {
+  const placementClasses: Record<ToastPlacement, string> = {
+    'top-left': 'top-10 left-4',
+    'top-center': 'top-10 left-1/2 -translate-x-1/2',
+    'top-right': 'top-10 right-4',
+    'bottom-left': 'bottom-10 left-4',
+    'bottom-center': 'bottom-10 left-1/2 -translate-x-1/2',
+    'bottom-right': 'bottom-10 right-4',
+    'save-modal-bottom': 'top-[calc(50%+200.5px)] left-1/2 -translate-x-1/2',
   };
 
-  const yClasses = {
-    top: 'top-10',
-    bottom: 'bottom-10',
-  };
-
-  return `${xClasses[xPosition as keyof typeof xClasses] || xClasses.center} ${yClasses[yPosition as keyof typeof yClasses] || yClasses.top}`;
-};
-
-const toastPlacementClass = {
-  top: 'top-10',
-  'save-modal-bottom': 'top-[calc(50%+200.5px)]',
+  return placementClasses[placement];
 };
 
 const getToastVisibilityClass = (
@@ -38,16 +32,15 @@ const getToastVisibilityClass = (
 };
 
 export const ToastContainer = () => {
-  const { message, variant, isVisible, options, xPosition, yPosition } = useToastStore();
+  const { message, variant, isVisible, options } = useToastStore();
 
   if (!message) return null;
 
-  const positionClasses = getPositionClasses(xPosition, yPosition);
+  const positionClasses = getPositionClasses(options.placement);
 
   return createPortal(
     <div
-      className={`fixed z-[1000] w-full max-w-[375px] transition-all duration-300 pointer-events-none ${positionClasses} 
-       ${toastPlacementClass[options.placement]} ${getToastVisibilityClass(isVisible, options.animation)}`}
+      className={`fixed z-[1000] w-full max-w-[375px] transition-all duration-300 pointer-events-none ${positionClasses} ${getToastVisibilityClass(isVisible, options.animation)}`}
     >
       <ToastBar message={message} variant={variant} />
     </div>,

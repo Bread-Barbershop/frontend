@@ -120,7 +120,7 @@ export const useInvitationUpload = () => {
 
     setIsCleaningUp(true);
     console.log('[cleanup] isCleaningUp=true, 토스트 표시 시작');
-    info('파일 정리 중...', 'right', 'top');
+    info('파일 정리 중...', { placement: 'top-right' });
 
     try {
       console.log('[cleanup] DELETE 요청 시작:', fileIds.length, 'items');
@@ -136,7 +136,7 @@ export const useInvitationUpload = () => {
       const fulfilled = results.filter(r => r.status === 'fulfilled').length;
       const rejected = results.filter(r => r.status === 'rejected').length;
       console.log('[cleanup] DELETE 완료 - 성공:', fulfilled, ', 실패:', rejected);
-      success('파일 정리가 완료되었습니다.', 'right', 'top');
+      success('파일 정리가 완료되었습니다.', { placement: 'top-right' });
     } catch (error) {
       console.error('[cleanup] DELETE 중 오류:', error);
     } finally {
