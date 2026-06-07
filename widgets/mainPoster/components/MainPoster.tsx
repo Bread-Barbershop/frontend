@@ -9,6 +9,7 @@ import { BackgroundPanel } from './background/BackgroundPanel';
 import { GraphicPanel } from './graphic/GraphicPanel';
 import { ImagePanel } from './image/ImagePanel';
 import { RichTextPanel } from './richtext/RichTextPanel';
+import { ShapePanel } from './shape/ShapePanel';
 
 export const MainPoster = () => {
   const { activeTab } = useEditorStore(
@@ -76,6 +77,9 @@ export const MainPoster = () => {
 
       {/* 도형 */}
       {activeTab === 'graphic' && <GraphicPanel />}
+
+      {/* 도형(Shape) 추가 패널 */}
+      {activeTab === 'shape' && <ShapePanel />}
 
       {/* 배경 */}
       {(activeTab === 'background' || !activeTab) && <BackgroundPanel />}

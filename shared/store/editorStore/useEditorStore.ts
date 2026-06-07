@@ -30,6 +30,11 @@ export const useEditorStore = create<EditorState>()(
           selectedId: null,
           activeTab: null,
           drawingConfig: { width: 5, color: { h: 0, s: 0, v: 0, a: 1 } },
+          shapeConfig: {
+            strokeWidth: 2,
+            strokeColor: { h: 0, s: 0, v: 0, a: 1 },
+            fillColor: { h: 0, s: 0, v: 0, a: 0 },
+          },
           invitationFolderId: '',
           invitationUuid: '',
           audioFolderId: '',

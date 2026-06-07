@@ -143,10 +143,10 @@ const KakaoShareUrlView = ({
                 <img
                   src={imageUrl}
                   alt="thumbnail"
-                  className="w-full aspect-square object-cover rounded-t-lg"
+                  className="w-full aspect-[4/3] object-cover rounded-t-lg"
                 />
               ) : (
-                <div className="checkerboard checker-size aspect-square w-full rounded-t-lg" />
+                <div className="checkerboard checker-size aspect-[4/3] w-full rounded-t-lg" />
               )}
             </div>
 

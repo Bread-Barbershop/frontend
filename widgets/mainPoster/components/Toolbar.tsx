@@ -1,3 +1,5 @@
+import { useSearchParams } from 'next/navigation';
+import React from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { Button } from '@/components/atoms/button';
@@ -18,10 +20,21 @@ function Toolbar() {
       setActiveTab: state.setActiveTab,
     }))
   );
+  const searchParams = useSearchParams();
+  const isAdmin = searchParams.get('type') === 'admin';
 
   if (!canvas) return null;
 
-  const TOOLBAR_ITEMS = [
+  type ToolbarItem = {
+    id: string;
+    icon: React.ReactNode;
+    onClick: () => void;
+    active: boolean;
+    className?: string;
+    variant?: 'bordered' | 'solid' | 'flat' | 'ghost' | 'light';
+  };
+
+  const TOOLBAR_ITEMS: ToolbarItem[] = [
     {
       id: 'text',
       icon: <AddText width={14} height={14} />,
@@ -50,6 +63,33 @@ function Toolbar() {
     },
   ];
 
+  if (isAdmin) {
+    TOOLBAR_ITEMS.unshift({
+      id: 'shape',
+      icon: (
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        </svg>
+      ),
+      onClick: () => {
+        setActiveTab('shape');
+      },
+      active: activeTab === 'shape',
+      className:
+        activeTab === 'shape' ? '' : 'bg-[#10B981] text-white border-none',
+      variant: activeTab === 'shape' ? 'bordered' : 'solid',
+    });
+  }
+
   return (
     <div
       className="absolute top-1/2 -translate-y-1/2 -left-6 -translate-x-full flex flex-col gap-3 items-center"
@@ -58,9 +98,9 @@ function Toolbar() {
       {TOOLBAR_ITEMS.map(item => (
         <Button
           key={item.id}
-          className="size-8"
+          className={`size-8 ${item.className || ''}`}
           onClick={item.onClick}
-          variant="bordered"
+          variant={'bordered'}
           active={item.active}
         >
           {item.icon}

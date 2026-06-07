@@ -75,9 +75,10 @@ function shareInvitationWithKakao(shareData: KakaoShareData, origin: string) {
     throw new Error('NEXT_PUBLIC_KAKAO_JS_KEY가 설정되지 않았습니다.');
   }
 
-  if (!shareData.showShareButton) {
-    throw new Error('이 초대장은 카카오톡 공유가 비활성화되어 있습니다.');
-  }
+  // TODO: 에러 설정이 잘못 됨
+  // if (!shareData.showShareButton) {
+  //   throw new Error('이 초대장은 카카오톡 공유가 비활성화되어 있습니다.');
+  // }
 
   const safeLinkUrl = shareData.invitationUrl || window.location.href;
   if (!safeLinkUrl) {
@@ -88,8 +89,9 @@ function shareInvitationWithKakao(shareData: KakaoShareData, origin: string) {
     window.Kakao.init(kakaoJsKey);
   }
 
+  // 초대장 보러가기 버튼 우선 삽입
   const messageButtons = [
-    {
+    shareData.showShareButton && {
       title: '보러가기',
       link: {
         mobileWebUrl: safeLinkUrl,
@@ -98,6 +100,7 @@ function shareInvitationWithKakao(shareData: KakaoShareData, origin: string) {
     },
   ];
 
+  // 위치보기 버튼 추가
   if (shareData.showLocationButton && shareData.locationInfo) {
     const kakaoMapUrl = `https://map.kakao.com/link/map/${encodeURIComponent(
       shareData.locationInfo.placeName
@@ -123,6 +126,8 @@ function shareInvitationWithKakao(shareData: KakaoShareData, origin: string) {
       title: shareData.title || DEFAULT_TITLE,
       description: shareData.description || DEFAULT_DESCRIPTION,
       imageUrl: resolveShareImageUrl(shareData.imageFileId, origin),
+      imageWidth: 800,
+      imageHeight: 600,
       link: {
         mobileWebUrl: safeLinkUrl,
         webUrl: safeLinkUrl,
@@ -391,66 +396,68 @@ function useDashboardInvitations(
     [abortReadinessPolling]
   );
 
-  const handlePublish = useCallback(async (invitationFolderId: string) => {
-    if (!invitationFolderId) return;
+  const handlePublish = useCallback(
+    async (invitationFolderId: string) => {
+      if (!invitationFolderId) return;
 
-    setPublishErrors(prev => ({ ...prev, [invitationFolderId]: null }));
-    setPublishResults(prev => ({ ...prev, [invitationFolderId]: null }));
-    setPublishBusy(prev => ({ ...prev, [invitationFolderId]: true }));
-    abortReadinessPolling(invitationFolderId);
-    setReadinessPolling(prev => ({ ...prev, [invitationFolderId]: false }));
+      setPublishErrors(prev => ({ ...prev, [invitationFolderId]: null }));
+      setPublishResults(prev => ({ ...prev, [invitationFolderId]: null }));
+      setPublishBusy(prev => ({ ...prev, [invitationFolderId]: true }));
+      abortReadinessPolling(invitationFolderId);
+      setReadinessPolling(prev => ({ ...prev, [invitationFolderId]: false }));
 
-    try {
-      const res = await fetch('/api/drive/publishInvitation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ invitationFolderId }),
-      });
+      try {
+        const res = await fetch('/api/drive/publishInvitation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ invitationFolderId }),
+        });
 
-      const json = (await res.json().catch(() => ({}))) as PublishResult;
+        const json = (await res.json().catch(() => ({}))) as PublishResult;
 
-      if (!res.ok || json.ok === false) {
+        if (!res.ok || json.ok === false) {
+          setPublishResults(prev => ({ ...prev, [invitationFolderId]: json }));
+          setPublishErrors(prev => ({
+            ...prev,
+            [invitationFolderId]: json.error
+              ? `Publish failed: ${json.error}`
+              : `Publish failed: ${res.status}`,
+          }));
+          errorToast(json.error ?? '초대장 발행에 실패했습니다.');
+          return;
+        }
+
         setPublishResults(prev => ({ ...prev, [invitationFolderId]: json }));
+        successToast('초대장 발행 처리가 완료되었습니다.');
+
+        if (json.ready === false) {
+          void pollGuestReadiness(invitationFolderId, json);
+        }
+      } catch (err) {
         setPublishErrors(prev => ({
           ...prev,
-          [invitationFolderId]: json.error
-            ? `Publish failed: ${json.error}`
-            : `Publish failed: ${res.status}`,
+          [invitationFolderId]:
+            err instanceof Error ? err.message : 'Publish request failed.',
         }));
-        errorToast(json.error ?? '초대장 발행에 실패했습니다.');
-        return;
+        errorToast('초대장 발행 중 오류가 발생했습니다.');
+      } finally {
+        setPublishBusy(prev => ({ ...prev, [invitationFolderId]: false }));
       }
-
-      setPublishResults(prev => ({ ...prev, [invitationFolderId]: json }));
-      successToast('초대장 발행 처리가 완료되었습니다.');
-
-      if (json.ready === false) {
-        void pollGuestReadiness(invitationFolderId, json);
-      }
-    } catch (err) {
-      setPublishErrors(prev => ({
-        ...prev,
-        [invitationFolderId]:
-          err instanceof Error ? err.message : 'Publish request failed.',
-      }));
-      errorToast('초대장 발행 중 오류가 발생했습니다.');
-    } finally {
-      setPublishBusy(prev => ({ ...prev, [invitationFolderId]: false }));
-    }
-  }, [abortReadinessPolling, pollGuestReadiness]);
+    },
+    [abortReadinessPolling, pollGuestReadiness]
+  );
 
   const handleDelete = useCallback(
     async (folderId: string) => {
       if (!folderId) return;
 
       const isConfirm = await confirm({
-        message:
-          '초대장을 삭제하시겠습니까?',
+        message: '초대장을 삭제하시겠습니까?',
         variant: 'white',
-        xPosition : 'center',
-        yPosition : 'center'
+        xPosition: 'center',
+        yPosition: 'center',
       });
-      
+
       if (!isConfirm) return;
 
       let isDeleted = false;
