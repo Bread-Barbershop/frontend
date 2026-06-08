@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useState } from 'react';
 
-import InviaLogo from '@/shared/assets/logo/invia-logo.svg';
+import InviaSimpleLogo3d from '@/shared/assets/logo/invia-simple-logo-3d.png';
 
 interface LoginModalProps {
   open: boolean;
@@ -46,26 +46,27 @@ function LoginModal({
       <div className="absolute inset-0 bg-[rgb(0_0_0_/_8%)]" />
 
       <div
-        className={`relative w-98 rounded-xl border border-white/22 bg-white/72 p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%),0_1px_8px_-2px_rgb(255_255_255_/_35%)] backdrop-blur-xl flex flex-col items-center gap-6 transition-all duration-200 ${
+        className={`relative flex w-fit flex-col items-center gap-6 rounded-xl border border-white/22 bg-white/72 p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%),0_1px_8px_-2px_rgb(255_255_255_/_35%)] backdrop-blur-xl transition-all duration-200 ${
           isClosing
             ? 'scale-[0.98] opacity-0'
             : 'animate-[fade-in_180ms_ease-out] scale-100 opacity-100'
         }`}
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex w-fit items-center justify-center p-10">
-          <InviaLogo
-            className="block h-[29px] w-[116px] shrink-0"
-            aria-label="Invia"
-            role="img"
-          />
-        </div>
+        <Image
+          src={InviaSimpleLogo3d}
+          alt="Invia"
+          width={120}
+          height={120}
+          className="block h-[120px] w-[120px] shrink-0"
+          priority
+        />
 
         <button
           type="button"
           onClick={onGoogleLogin}
           disabled={isLoading}
-          className="relative flex h-11 w-full items-center justify-center rounded-lg border border-[#e5e7eb] bg-white px-2 py-1.5 text-[15px] font-medium text-[#111827] enabled:hover:bg-[#FAFAFB] enabled:active:bg-[#F5F8FF] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+          className="relative flex h-11 w-[352px] cursor-pointer items-center justify-center rounded-lg border border-[#e5e7eb] bg-white px-2 py-1.5 text-[15px] font-medium text-[#111827] enabled:hover:bg-[#FAFAFB] enabled:active:bg-[#F5F8FF] disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Image
             src="/assets/icons/google-icon.svg"
