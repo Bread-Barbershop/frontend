@@ -1,5 +1,6 @@
 import { Image } from '@/components/atoms/image';
 import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
+import { useBodyFontFamily } from '@/shared/hooks/useBodyFontFamily';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 import { cn } from '@/shared/utils/cn';
 
@@ -24,6 +25,7 @@ export const InterviewPreviewItem = ({
 }) => {
   const customPreview = useResolvedImageSource(image?.[0]);
   const preview = customPreview ?? defaultImage;
+  const bodyFontFamily = useBodyFontFamily();
   const hasAnswer =
     answerHtml
       .replace(/<[^>]*>/g, '')
@@ -52,7 +54,10 @@ export const InterviewPreviewItem = ({
           />
         </div>
       )}
-      <p className="text-sm text-center font-semibold select-text">
+      <p
+        className="text-sm text-center font-semibold select-text"
+        style={{ fontFamily: bodyFontFamily }}
+      >
         {question}
       </p>
       <div

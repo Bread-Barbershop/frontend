@@ -21,6 +21,7 @@ import {
   getDefaultPlaceTitle,
   isDefaultPlaceTitle,
 } from '@/shared/utils/placeTitle';
+import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { Popup } from '../popup/Popup';
 
@@ -110,7 +111,10 @@ export function Place({ blockInfo, id }: Props) {
               placeholder: 'LOCATION',
               value: englishTitle === 'LOCATION' ? '' : englishTitle,
               onChange: e =>
-                handleUpdateBlock('englishTitle', e.target.value || 'LOCATION'),
+                handleUpdateBlock(
+                  'englishTitle',
+                  sanitizeEnglishTitleInput(e.target) || 'LOCATION'
+                ),
             }}
             className="w-full py-1.5 text-center"
           />

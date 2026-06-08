@@ -11,6 +11,7 @@ import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrap
 import { useToast } from '@/shared/hooks/useToast';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { ASPECT_RATIO_OPTIONS } from './constants/AspectRatio';
 
@@ -38,7 +39,9 @@ function Gallery({ blockInfo, id }: Props) {
     updateBlock(id, { title: e.target.value || '갤러리' });
   };
   const handleOnChangeEngTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { enTitle: e.target.value || 'GALLERY' });
+    updateBlock(id, {
+      enTitle: sanitizeEnglishTitleInput(e.target) || 'GALLERY',
+    });
   };
 
   const handlePictureChange = (file: (File | string)[]) => {

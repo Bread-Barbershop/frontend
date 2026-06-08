@@ -44,6 +44,25 @@ export function DDayCountdown({ date, time, messageJson }: Props) {
     return new Date(year, month - 1, day, h, m, 0, 0);
   }, [date, time]);
 
+  // D-Day 텍스트 계산 (ex: D-5, D-Day, D+3)
+  const ddayString = useMemo(() => {
+    if (!targetDate) return '(D-Day)';
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    
+    const target = new Date(targetDate);
+    target.setHours(0, 0, 0, 0);
+
+    const diffDays = Math.round((target.getTime() - now.getTime()) / 86400000);
+    return Math.abs(diffDays).toString();
+  }, [targetDate]);
+
+  // (D-Day) 문구를 실제 D-Day 카운트로 치환
+  const processedMessageHtml = useMemo(() => {
+    if (!messageJson) return '';
+    return messageJson.replace(/\(D-Day\)/g, ddayString);
+  }, [messageJson, ddayString]);
+
   // 2. 카운트다운 타이머 동작 (타겟 날짜가 있을 때만 실행)
   useEffect(() => {
     if (!targetDate) {
@@ -118,7 +137,7 @@ export function DDayCountdown({ date, time, messageJson }: Props) {
           </span>
         </div>
       </div>
-      {messageJson && <PreviewBody html={messageJson} />}
+      {messageJson && <PreviewBody html={processedMessageHtml} />}
       {!messageJson && (
         <div className="text-[#8e8e8e] text-sm tracking-tight w-full text-center">
           {timeLeft.days}일 남았습니다.

@@ -16,7 +16,7 @@ function EditorNoticeList({ notices, className }: EditorNoticeListProps) {
 
   return (
     <div className={cn('flex w-full flex-col gap-1', className)}>
-      {notices.map(({ id, text, colorClass = 'text-[#838383]' }) => {
+      {notices.map(({ id, text, colorClass = 'text-text-secondary' }) => {
         const normalizedColorClass = colorClass.toLowerCase();
         const isBlueNotice =
           normalizedColorClass.includes('#1f72ef') ||
@@ -28,7 +28,7 @@ function EditorNoticeList({ notices, className }: EditorNoticeListProps) {
             className={cn(
               'grid grid-cols-[auto_1fr] gap-x-2 break-keep text-[13px]',
               isBlueNotice ? 'font-medium' : 'font-normal',
-              colorClass,
+              colorClass
             )}
           >
             <span aria-hidden="true">·</span>

@@ -74,17 +74,25 @@ export interface DrawingConfig {
   color: PickerHsva;
 }
 
+export interface ShapeConfig {
+  strokeWidth: number;
+  strokeColor: PickerHsva;
+  fillColor: PickerHsva;
+}
+
 export interface UISlice {
   isEdit: boolean;
   setIsEdit: (isEdit: boolean) => void;
   selectedId: string | null;
   selectedBlock: (id: string | null) => void;
-  activeTab: 'text' | 'image' | 'graphic' | 'background' | null;
+  activeTab: 'text' | 'image' | 'graphic' | 'background' | 'shape' | null;
   setActiveTab: (
-    tab: 'text' | 'image' | 'graphic' | 'background' | null
+    tab: 'text' | 'image' | 'graphic' | 'background' | 'shape' | null
   ) => void;
   drawingConfig: DrawingConfig;
   setDrawingConfig: (config: Partial<DrawingConfig>) => void;
+  shapeConfig: ShapeConfig;
+  setShapeConfig: (config: Partial<ShapeConfig>) => void;
 }
 
 export interface DriveSlice {

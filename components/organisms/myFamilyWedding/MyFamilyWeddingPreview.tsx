@@ -1,4 +1,5 @@
 import Flower from '@/shared/assets/icons/flower.svg';
+import { useBodyFontFamily } from '@/shared/hooks/useBodyFontFamily';
 import type { EditorBlock } from '@/shared/types/block';
 
 import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
@@ -16,6 +17,7 @@ export const MyFamilyWeddingPreview = ({
   ...rest
 }: Props) => {
   const { brideFamily, groomFamily } = blockInfo.props;
+  const bodyFontFamily = useBodyFontFamily();
 
   return (
     <MiddlePreviewWrapper
@@ -26,7 +28,10 @@ export const MyFamilyWeddingPreview = ({
       childClassName="w-full flex flex-col gap-1"
       {...rest}
     >
-      <div className="flex flex-row items-center gap-1">
+      <div
+        className="flex flex-row items-center gap-1"
+        style={{ fontFamily: bodyFontFamily }}
+      >
         {brideFamily?.map((member, index) => (
           <p key={index} className="flex items-center">
             {brideFamily.length > 1 && index !== 0 && '•'}
@@ -36,7 +41,10 @@ export const MyFamilyWeddingPreview = ({
         ))}
         <span>의 딸</span>
       </div>
-      <div className="flex flex-row items-center gap-1">
+      <div
+        className="flex flex-row items-center gap-1"
+        style={{ fontFamily: bodyFontFamily }}
+      >
         {groomFamily?.map((member, index) => (
           <p key={index} className="flex items-center">
             {groomFamily.length > 1 && index !== 0 && '•'}

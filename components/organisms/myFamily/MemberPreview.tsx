@@ -2,6 +2,8 @@ import { Image } from '@/components/atoms/image';
 import Flower from '@/shared/assets/icons/flower.svg';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 
+import type { CSSProperties } from 'react';
+
 interface Props {
   member: {
     relation: string;
@@ -9,9 +11,10 @@ interface Props {
     image: (File | string)[];
     flower: boolean;
   };
+  fontFamily?: CSSProperties['fontFamily'];
 }
 
-export const MemberPreview = ({ member }: Props) => {
+export const MemberPreview = ({ member, fontFamily }: Props) => {
   const { image, relation, name, flower } = member;
   const preview = useResolvedImageSource(
     image && image.length > 0 ? image[0] : null
@@ -23,7 +26,10 @@ export const MemberPreview = ({ member }: Props) => {
           <Image src={preview} alt="가족 사진" fill className="object-cover" />
         </div>
       )}
-      <p className="flex items-center gap-1 text-[16px] font-semibold text-center">
+      <p
+        className="flex items-center gap-1 text-[16px] font-semibold text-center"
+        style={{ fontFamily }}
+      >
         {relation} {flower ? <Flower /> : ''} {name}
       </p>
     </>

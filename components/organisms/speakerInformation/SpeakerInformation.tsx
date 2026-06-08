@@ -12,6 +12,7 @@ import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/ut
 import { TextField } from '@/components/molecules/text-field';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
@@ -62,7 +63,12 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
     e: ChangeEvent<HTMLInputElement>
   ) => {
     const fallback = key === 'title' ? '연사정보' : 'SPEAKER INFORMATION';
-    updateBlock(id, { [key]: e.target.value || fallback });
+    const value =
+      key === 'englishTitle'
+        ? sanitizeEnglishTitleInput(e.target)
+        : e.target.value;
+
+    updateBlock(id, { [key]: value || fallback });
   };
 
   const handleCheckedChange = (e: ChangeEvent<HTMLInputElement>) => {

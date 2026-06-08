@@ -1,1 +1,1 @@
-export { TextEditor } from './TextEditor';
+export { TextEditor, type TextEditorRef } from './TextEditor';

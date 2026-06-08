@@ -9,6 +9,7 @@ import { TextField } from '@/components/molecules/text-field';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
+import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
@@ -58,7 +59,10 @@ export const Video = ({ blockInfo, id }: Props) => {
             placeholder: 'VIDEO',
             value: englishTitle === 'VIDEO' ? '' : englishTitle,
             onChange: e =>
-              handleUpdateBlock('englishTitle', e.target.value || 'VIDEO'),
+              handleUpdateBlock(
+                'englishTitle',
+                sanitizeEnglishTitleInput(e.target) || 'VIDEO'
+              ),
           }}
           className="w-full py-1.5 text-center"
         />

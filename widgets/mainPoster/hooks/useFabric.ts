@@ -54,6 +54,7 @@ export const useFabric = () => {
         'fill',
         'stroke',
         'strokeWidth',
+        'strokeUniform',
         'shadow',
         'paintFirst',
       ])
@@ -542,6 +543,7 @@ export const useFabric = () => {
       'fill',
       'stroke',
       'strokeWidth',
+      'strokeUniform',
       'shadow',
       'paintFirst',
     ];
