@@ -76,7 +76,7 @@ function ComponentsPopup({ onPopClose }: Props) {
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[90] pointer-events-none">
+    <div className="fixed inset-0 z-[30000] pointer-events-none">
       <div
         className="absolute inset-0 pointer-events-auto"
         onClick={onPopClose}

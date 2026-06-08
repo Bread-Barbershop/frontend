@@ -8,6 +8,7 @@ import HeaderPrivacyNoticeButton from '@/features/session/components/HeaderPriva
 import HomeButton from '@/features/session/components/HomeButton';
 import homeBackgroundImage from '@/shared/assets/images/home/home-background.png';
 import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
+import { useEditorCalloutStore } from '@/shared/store/useEditorCalloutStore';
 
 import type { ReactNode } from 'react';
 
@@ -20,7 +21,7 @@ function EditorDesktopNotice({
   viewportWidth: number | null;
 }) {
   return (
-    <div className="fixed inset-0 isolate z-[100] grid min-h-dvh grid-rows-[auto_1fr_auto] overflow-y-auto text-[#171717]">
+    <div className="fixed inset-0 isolate z-[40000] grid min-h-dvh grid-rows-[auto_1fr_auto] overflow-y-auto text-[#171717]">
       <div
         aria-hidden="true"
         className="fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat"
@@ -121,6 +122,7 @@ function EditorDesktopNotice({
 
 function EditorViewportGuard({ children }: { children: ReactNode }) {
   const [viewportWidth, setViewportWidth] = useState<number | null>(null);
+  const hideAllCallouts = useEditorCalloutStore(state => state.hideAllCallouts);
 
   useEffect(() => {
     const updateViewportWidth = () => {
@@ -137,6 +139,12 @@ function EditorViewportGuard({ children }: { children: ReactNode }) {
 
   const shouldShowDesktopNotice =
     viewportWidth !== null && viewportWidth < DESKTOP_CONTENT_MIN_WIDTH;
+
+  useEffect(() => {
+    if (!shouldShowDesktopNotice) return;
+
+    hideAllCallouts();
+  }, [hideAllCallouts, shouldShowDesktopNotice]);
 
   return (
     <>

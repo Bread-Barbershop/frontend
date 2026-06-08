@@ -14,7 +14,9 @@ import {
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import { EditorCallout } from '@/components/molecules/editor-callout';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { useEditorCalloutStore } from '@/shared/store/useEditorCalloutStore';
 import ChipCarousel from '@/widgets/editor/preview/components/ChipCarousel';
 
 import DeleteModal from './DeleteModal';
@@ -42,6 +44,9 @@ function OrderPanel() {
       setIsEdit: state.setIsEdit,
       deleteBlock: state.deleteBlock,
     }))
+  );
+  const isOrderCalloutOpen = useEditorCalloutStore(
+    state => state.callouts['order-panel']
   );
 
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
@@ -187,6 +192,14 @@ function OrderPanel() {
           </ul>
         )}
       </div>
+      <EditorCallout
+        targetRef={containerRef}
+        open={isOrderCalloutOpen}
+        arrowSide="bottom"
+        targetAnchor={{ x: 0.5, y: 0 }}
+        offset={0}
+        text="우클릭으로 삭제 혹은 꾹 누른 상태로 순서를 변경할 수 있어요!"
+      />
       {deleteTargetId && (
         <DeleteModal
           onDelete={() => {
