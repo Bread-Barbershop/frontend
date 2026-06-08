@@ -50,7 +50,7 @@ export const useInvitationUpload = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isFail, setIsFail] = useState(false);
   const [isCleaningUp, setIsCleaningUp] = useState(false);
-  const { info, success } = useToast();
+  const { info, success, error: showError } = useToast();
 
   const applySaveResult = async (
     saveResult: Awaited<ReturnType<typeof saveInvitationFlow>>,
@@ -123,20 +123,34 @@ export const useInvitationUpload = () => {
     info('파일 정리 중...', { placement: 'top-right' });
 
     try {
-      console.log('[cleanup] DELETE 요청 시작:', fileIds.length, 'items');
-      const results = await Promise.allSettled(
-        fileIds.map(id =>
-          fetch('/api/drive/deleteInvitation', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ folderId: id }),
-          })
-        )
-      );
-      const fulfilled = results.filter(r => r.status === 'fulfilled').length;
-      const rejected = results.filter(r => r.status === 'rejected').length;
-      console.log('[cleanup] DELETE 완료 - 성공:', fulfilled, ', 실패:', rejected);
-      success('파일 정리가 완료되었습니다.', { placement: 'top-right' });
+      const deleteFolder = (id: string) =>
+        fetch('/api/drive/deleteInvitation', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ folderId: id }),
+        });
+
+      const attempt = async (ids: string[]) => {
+        console.log('[cleanup] DELETE 요청 시작:', ids.length, 'items');
+        const results = await Promise.allSettled(ids.map(deleteFolder));
+        return ids.filter((id, idx) => {
+          const result = results[idx];
+          return result.status === 'rejected' || !result.value.ok;
+        });
+      };
+
+      let failedIds = await attempt(fileIds);
+      if (failedIds.length > 0) {
+        console.warn('[cleanup] 실패 항목 재시도:', failedIds);
+        failedIds = await attempt(failedIds);
+      }
+
+      if (failedIds.length > 0) {
+        console.error('[cleanup] 재시도 후에도 삭제 실패:', failedIds);
+        showError('파일 정리에 실패했습니다.', { placement: 'top-right' });
+      } else {
+        success('파일 정리가 완료되었습니다.', { placement: 'top-right' });
+      }
     } catch (error) {
       console.error('[cleanup] DELETE 중 오류:', error);
     } finally {
@@ -244,16 +258,6 @@ export const useInvitationUpload = () => {
         console.log('[uploadFlow] saveInvitationFlow 완료');
         await applySaveResult(saveResult, allTasks);
         console.log('[uploadFlow] applySaveResult 완료');
-
-        // 클린업 대상 계산 및 실행 (non-blocking)
-        const newHashFileIds = new Set(
-          useEditorStore.getState().hashFiles.map(h => h.split('::')[1]).filter(Boolean)
-        );
-        console.log('[uploadFlow] newHashFileIds (저장 후):', Array.from(newHashFileIds));
-        const toCleanIds = [...oldHashFileIds].filter(id => !newHashFileIds.has(id));
-        console.log('[uploadFlow] 삭제 대상 fileIds:', toCleanIds);
-        toCleanIds.forEach(id => setCleanUpFiles(id));
-        performCleanup(toCleanIds);
       } else {
         console.log('[uploadFlow] 재저장 (invitationUuid:', editorData.invitationUuid, ')');
         const result = hasPreparedInvitation(editorData.invitationUuid)
