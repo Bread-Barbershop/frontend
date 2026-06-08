@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { Button } from '@/components/atoms/button';
 import { Label } from '@/components/atoms/label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
+import { EditorNoticeList } from '@/components/molecules/editor-notice';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { Picture } from '@/components/molecules/picture/Picture';
 import { TextField } from '@/components/molecules/text-field';
@@ -128,6 +129,14 @@ export const Video = ({ blockInfo, id }: Props) => {
           onDelete={handlePictureDelete}
         />
       )}
+      <EditorNoticeList
+        notices={[
+          {
+            id: 'video-youtube-url',
+            text: 'URL은 Youtube 링크만 사용 가능합니다.',
+          },
+        ]}
+      />
     </LeftEditorWrapper>
   );
 };
