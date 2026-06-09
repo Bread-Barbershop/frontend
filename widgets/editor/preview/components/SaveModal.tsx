@@ -1,12 +1,12 @@
-import Image from 'next/image';
 import React, { forwardRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
 import { useToast } from '@/shared/hooks/useToast';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import { useInvitationPublish } from '../hooks/useInvitationPublish';
+
+import { SaveLottie } from './SaveLottie';
 
 const PUBLISHED_URL_ACTION_CLASS =
   'w-[215px] truncate rounded-lg bg-transparent px-3 py-[6px] font-normal text-white hover:bg-white/12';
@@ -40,19 +40,14 @@ const ModalFrame = forwardRef<
     />
     <div
       ref={ref}
-      className={`fixed top-1/2 left-1/2 z-[101] flex h-[249px] w-[335px] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-8 rounded-xl border border-white/22 bg-white/72 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%),0_1px_8px_-2px_rgb(255_255_255_/_35%)] backdrop-blur-xl ${isLoading ? 'justify-center' : ''}`}
+      className={`fixed top-1/2 left-1/2 z-[101] flex w-[335px] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-6 rounded-xl border border-white/22 bg-white/72 p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%),0_1px_8px_-2px_rgb(255_255_255_/_35%)] backdrop-blur-xl ${isLoading ? 'justify-center' : ''}`}
     >
-      {isLoading ? (
-        <LoadingSpinner className="w-[84px] h-[84px] animate-spin" />
-      ) : (
-        children
-      )}
+      {isLoading ? <SaveLottie variant="loading" loop /> : children}
     </div>
   </>
 ));
 ModalFrame.displayName = 'ModalFrame';
 
-// 2. 저장 결과 단계 뷰
 const SaveStepView = ({
   isFail,
   onPublish,
@@ -65,18 +60,13 @@ const SaveStepView = ({
   onClose: () => void;
 }) => (
   <>
-    <div className="pt-5">
-      <p className="font-semibold text-base">
+    <div>
+      <p className="text-sm font-semibold">
         {isFail ? '파일 저장에 실패했습니다.' : '성공적으로 저장되었습니다!'}
       </p>
     </div>
     <div>
-      <Image
-        src={isFail ? '/images/saveFail.png' : '/images/saveSuccess.png'}
-        alt={isFail ? '저장 실패 이미지' : '저장 성공 이미지'}
-        width={84}
-        height={84}
-      />
+      <SaveLottie variant={isFail ? 'fail' : 'success'} />
     </div>
     <div className="flex items-center gap-2">
       {isFail ? (
@@ -109,7 +99,6 @@ const SaveStepView = ({
   </>
 );
 
-// 3. 발행 상태 단계 뷰
 const PublishStepView = ({
   busy,
   error,
@@ -128,26 +117,16 @@ const PublishStepView = ({
   const { success: successToast, error: errorToast } = useToast();
   return (
     <>
-      <div className="pt-5">
-        <p className="font-semibold text-base">{statusMessage}</p>
+      <div>
+        <p className="text-sm font-semibold">{statusMessage}</p>
       </div>
       <div>
         {busy || readinessBusy ? (
-          <LoadingSpinner className="w-[84px] h-[84px] animate-spin" />
+          <SaveLottie variant="loading" loop />
         ) : error ? (
-          <Image
-            src="/images/saveFail.png"
-            alt="저장 실패 이미지"
-            width={84}
-            height={84}
-          />
+          <SaveLottie variant="fail" />
         ) : (
-          <Image
-            src="/images/saveSuccess.png"
-            alt="저장 성공 이미지"
-            width={84}
-            height={84}
-          />
+          <SaveLottie variant="success" />
         )}
       </div>
       <div>
