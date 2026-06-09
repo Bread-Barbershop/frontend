@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { MultiRowInput } from '@/components/atoms/input/MultiRowInput';
@@ -18,24 +18,32 @@ import { SHARE_NOTICES } from './constants/share';
 const SHARE_URL_IMAGE_ID = 'shareUrl';
 
 function ShareUrl() {
-  const { block, shareUrl, updateShareUrl, updateImage } = useEditorStore(
-    useShallow(state => ({
-      block: state.block,
-      shareUrl: state.shareUrl,
-      updateShareUrl: state.updateShareUrl,
-      updateImage: state.updateImage,
-    }))
-  );
+  const { block, shareUrl, shareUrlTab, setShareUrlTab, updateShareUrl, updateImage } =
+    useEditorStore(
+      useShallow(state => ({
+        block: state.block,
+        shareUrl: state.shareUrl,
+        shareUrlTab: state.shareUrlTab,
+        setShareUrlTab: state.setShareUrlTab,
+        updateShareUrl: state.updateShareUrl,
+        updateImage: state.updateImage,
+      }))
+    );
 
-  // 행사 장소 블록의 장소명과 주소 설정 여부 확인
   const placeBlock = block.find(
     (b): b is EditorBlock<'place'> => b.component === 'place'
   );
   const hasValidLocation = Boolean(
     placeBlock &&
-    typeof placeBlock.props.lat === 'number' &&
-    typeof placeBlock.props.lng === 'number'
+      typeof placeBlock.props.lat === 'number' &&
+      typeof placeBlock.props.lng === 'number'
   );
+
+  useEffect(() => {
+    if (hasValidLocation || !shareUrl.showLocationButton) return;
+
+    updateShareUrl({ showLocationButton: false, locationInfo: undefined });
+  }, [hasValidLocation, shareUrl.showLocationButton, updateShareUrl]);
 
   const handleChange = ({
     target: { name, value },
@@ -56,15 +64,11 @@ function ShareUrl() {
           placeName: placeBlock.props.placeName,
         },
       });
-    } else if (name === 'showShareButton') {
-      updateShareUrl({ showShareButton: checked });
     }
   };
 
-  const activeTab = shareUrl.activeTab ?? 'url';
-
   const handlePictureChange = (newFiles: (File | string)[]) => {
-    const isKakaoTab = activeTab === 'kakao';
+    const isKakaoTab = shareUrlTab === 'kakao';
 
     // 각 탭의 이미지 리스트 결정 (현재 탭인 경우 새 파일 합산)
     const kakaoImages = isKakaoTab ? newFiles : (shareUrl.images ?? []);
@@ -88,9 +92,9 @@ function ShareUrl() {
       <NavigationBar>공유 썸네일</NavigationBar>
       <nav className="flex justify-center items-center mb-2 cursor-pointer">
         <div
-          onClick={() => updateShareUrl({ activeTab: 'url' })}
+          onClick={() => setShareUrlTab('url')}
           className={`w-[53px] h-8 flex justify-center items-center text-center ${
-            activeTab === 'url'
+            shareUrlTab === 'url'
               ? 'border-b-2 border-black font-semibold'
               : 'text-gray-500 hover:text-black font-normal'
           }`}
@@ -98,9 +102,9 @@ function ShareUrl() {
           URL
         </div>
         <div
-          onClick={() => updateShareUrl({ activeTab: 'kakao' })}
+          onClick={() => setShareUrlTab('kakao')}
           className={`w-[53px] h-8 flex justify-center items-center text-center ${
-            activeTab === 'kakao'
+            shareUrlTab === 'kakao'
               ? 'border-b-2 border-black font-semibold'
               : 'text-gray-500 hover:text-black font-normal'
           }`}
@@ -110,42 +114,42 @@ function ShareUrl() {
       </nav>
       <div className="w-full flex flex-col gap-1 mb-2">
         <TextField
-          key={`title-${activeTab}`}
+          key={`title-${shareUrlTab}`}
           label="제목"
           className="py-1.5"
           inputProps={{
-            name: activeTab === 'kakao' ? 'title' : 'urlTitle',
+            name: shareUrlTab === 'kakao' ? 'title' : 'urlTitle',
             placeholder: DEFAULT_TITLE,
             onChange: handleChange,
-            value: activeTab === 'kakao' ? shareUrl.title : shareUrl.urlTitle,
+            value: shareUrlTab === 'kakao' ? shareUrl.title : shareUrl.urlTitle,
           }}
         />
         <div className="flex flex-col gap-1.5 py-1.5">
           <Label className="font-semibold text-center">내용</Label>
           <MultiRowInput
-            key={`desc-${activeTab}`}
+            key={`desc-${shareUrlTab}`}
             size="full"
             className="text-center py-[46px]"
-            name={activeTab === 'kakao' ? 'description' : 'urlDescription'}
+            name={shareUrlTab === 'kakao' ? 'description' : 'urlDescription'}
             placeholder="내용을 입력해 주세요."
             onChange={handleChange}
             value={
-              activeTab === 'kakao'
+              shareUrlTab === 'kakao'
                 ? shareUrl.description
                 : shareUrl.urlDescription
             }
           />
         </div>
         <Picture
-          key={`pic-${activeTab}`}
+          key={`pic-${shareUrlTab}`}
           label="사진"
           className="py-1"
           multiple={false}
-          value={activeTab === 'kakao' ? shareUrl.images : shareUrl.urlImage}
+          value={shareUrlTab === 'kakao' ? shareUrl.images : shareUrl.urlImage}
           onChange={handlePictureChange}
           onDelete={() => handlePictureChange([])}
         />
-        {activeTab === 'kakao' && (
+        {shareUrlTab === 'kakao' && (
           <div className="flex gap-2 py-2">
             <Label className="font-semibold shrink-0">추가기능</Label>
             <div className="flex flex-col gap-1">

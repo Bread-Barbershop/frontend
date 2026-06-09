@@ -12,7 +12,7 @@ import MicIcon from '@/shared/assets/images/share-url/mic-icon.svg';
 import PlusCircleIcon from '@/shared/assets/images/share-url/plus-icon.svg';
 import ProfileAvatarIcon from '@/shared/assets/images/share-url/profile-avatar.svg';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
-import { ShareUrlState } from '@/shared/types/block';
+import { EditorBlock, ShareUrlState } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 import {
   resolveShareDescription,
@@ -54,14 +54,16 @@ export const ShareUrlButton = () => {
     null
   );
 
-  const { shareUrl, selectedId, selectedBlock, setIsEdit } = useEditorStore(
-    useShallow(state => ({
-      shareUrl: state.shareUrl,
-      selectedId: state.selectedId,
-      selectedBlock: state.selectedBlock,
-      setIsEdit: state.setIsEdit,
-    }))
-  );
+  const { shareUrl, shareUrlTab, selectedId, selectedBlock, setIsEdit } =
+    useEditorStore(
+      useShallow(state => ({
+        shareUrl: state.shareUrl,
+        shareUrlTab: state.shareUrlTab,
+        selectedId: state.selectedId,
+        selectedBlock: state.selectedBlock,
+        setIsEdit: state.setIsEdit,
+      }))
+    );
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -98,7 +100,7 @@ export const ShareUrlButton = () => {
       {isOpen &&
         previewContainer &&
         createPortal(
-          (shareUrl.activeTab ?? 'url') === 'kakao' ? (
+          shareUrlTab === 'kakao' ? (
             <KakaoShareUrlView shareUrl={shareUrl} />
           ) : (
             <UrlShareUrlView shareUrl={shareUrl} />
@@ -238,12 +240,20 @@ const UrlShareUrlView = ({ shareUrl }: { shareUrl: ShareUrlState }) => {
 
 // --- 하위 컴포넌트: 카카오톡 공유 썸네일 미리보기 UI ---
 const KakaoShareUrlView = ({ shareUrl }: { shareUrl: ShareUrlState }) => {
+  const block = useEditorStore(state => state.block);
+  const placeBlock = block.find(
+    (b): b is EditorBlock<'place'> => b.component === 'place'
+  );
+  const hasValidLocation = Boolean(
+    placeBlock &&
+      typeof placeBlock.props.lat === 'number' &&
+      typeof placeBlock.props.lng === 'number'
+  );
   const {
     title,
     description,
     images = [],
     showLocationButton = false,
-    showShareButton = true,
   } = shareUrl;
 
   const displayTitle = resolveShareTitle(title);
@@ -303,20 +313,16 @@ const KakaoShareUrlView = ({ shareUrl }: { shareUrl: ShareUrlState }) => {
             </div>
 
             {/* 하단 버튼 영역 */}
-            {(showShareButton || showLocationButton) && (
-              <div className="flex gap-2 px-2.5">
-                {showShareButton && (
-                  <button className="bg-[#F2F2F2] rounded-[4px] py-[5px] text-[12px] leading-[18px] flex-1 text-[#1A1A1A] transition-colors hover:bg-[#E5E5E5]">
-                    보러가기
-                  </button>
-                )}
-                {showLocationButton && (
-                  <button className="bg-[#F2F2F2] rounded-[4px] py-[5px] text-[12px] leading-[18px] flex-1 text-[#1A1A1A] transition-colors hover:bg-[#E5E5E5]">
-                    위치보기
-                  </button>
-                )}
-              </div>
-            )}
+            <div className="flex gap-2 px-2.5">
+              <button className="bg-[#F2F2F2] rounded-[4px] py-[5px] text-[12px] leading-[18px] flex-1 text-[#1A1A1A] transition-colors hover:bg-[#E5E5E5]">
+                보러가기
+              </button>
+              {hasValidLocation && showLocationButton && (
+                <button className="bg-[#F2F2F2] rounded-[4px] py-[5px] text-[12px] leading-[18px] flex-1 text-[#1A1A1A] transition-colors hover:bg-[#E5E5E5]">
+                  위치보기
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </main>

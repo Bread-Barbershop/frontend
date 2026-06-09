@@ -69,11 +69,6 @@ function shareInvitationWithKakao(shareData: KakaoShareData) {
     throw new Error('NEXT_PUBLIC_KAKAO_JS_KEY가 설정되지 않았습니다.');
   }
 
-  // TODO: 에러 설정이 잘못 됨
-  // if (!shareData.showShareButton) {
-  //   throw new Error('이 초대장은 카카오톡 공유가 비활성화되어 있습니다.');
-  // }
-
   const safeLinkUrl = shareData.invitationUrl || window.location.href;
   if (!safeLinkUrl) {
     throw new Error('공유할 초대장 링크가 없습니다.');
@@ -85,7 +80,7 @@ function shareInvitationWithKakao(shareData: KakaoShareData) {
 
   // 초대장 보러가기 버튼 우선 삽입
   const messageButtons = [
-    shareData.showShareButton && {
+    {
       title: '보러가기',
       link: {
         mobileWebUrl: safeLinkUrl,
@@ -117,10 +112,6 @@ function shareInvitationWithKakao(shareData: KakaoShareData) {
     shareData.imageFileId,
     window.location.origin
   );
-  const buttons = messageButtons.filter(
-    (button): button is NonNullable<(typeof messageButtons)[number]> =>
-      Boolean(button)
-  );
 
   window.Kakao.Share.sendDefault({
     objectType: 'feed',
@@ -135,7 +126,7 @@ function shareInvitationWithKakao(shareData: KakaoShareData) {
         webUrl: safeLinkUrl,
       },
     },
-    buttons,
+    buttons: messageButtons,
   });
 }
 

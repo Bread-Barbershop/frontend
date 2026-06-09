@@ -1,4 +1,4 @@
-import type { PersistedEditorBlock, ShareUrlState } from '@/shared/types/block';
+import type { EditorBlock, PersistedEditorBlock, ShareUrlState } from '@/shared/types/block';
 import type {
   BgmData,
   BulkJson,
@@ -432,6 +432,17 @@ async function commit(params: {
           ? fileToId.get(primaryImage)
           : undefined;
 
+    const placeBlock = data.find(
+      (item): item is EditorBlock<'place'> => item.component === 'place'
+    );
+    const hasValidLocation = Boolean(
+      placeBlock &&
+        typeof placeBlock.props.lat === 'number' &&
+        typeof placeBlock.props.lng === 'number'
+    );
+    const showLocationButton =
+      hasValidLocation && normalizedShareUrl.showLocationButton;
+
     const shareRes = await fetch('/api/drive/shareUrl', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -441,10 +452,11 @@ async function commit(params: {
           title: normalizedShareUrl.title,
           description: normalizedShareUrl.description,
           imageFileId,
-          showLocationButton: normalizedShareUrl.showLocationButton,
-          showShareButton: true, // TODO: 이제는 무조거 true기 떄문에 추후에 삭제 예정
+          showLocationButton,
           invitationUrl,
-          locationInfo: normalizedShareUrl.locationInfo,
+          locationInfo: showLocationButton
+            ? normalizedShareUrl.locationInfo
+            : undefined,
         },
       }),
     });
