@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { MultiRowInput } from '@/components/atoms/input/MultiRowInput';
@@ -11,13 +11,13 @@ import { TextField } from '@/components/molecules/text-field';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+import { DEFAULT_TITLE } from '@/shared/utils/shareUrlDefaults';
 
 import { SHARE_NOTICES } from './constants/share';
 
 const SHARE_URL_IMAGE_ID = 'shareUrl';
 
 function ShareUrl() {
-  const [activeTab, setActiveTab] = useState<'url' | 'kakao'>('url');
   const { block, shareUrl, updateShareUrl, updateImage } = useEditorStore(
     useShallow(state => ({
       block: state.block,
@@ -61,6 +61,8 @@ function ShareUrl() {
     }
   };
 
+  const activeTab = shareUrl.activeTab ?? 'url';
+
   const handlePictureChange = (newFiles: (File | string)[]) => {
     const isKakaoTab = activeTab === 'kakao';
 
@@ -86,7 +88,7 @@ function ShareUrl() {
       <NavigationBar>공유 썸네일</NavigationBar>
       <nav className="flex justify-center items-center mb-2 cursor-pointer">
         <div
-          onClick={() => setActiveTab('url')}
+          onClick={() => updateShareUrl({ activeTab: 'url' })}
           className={`w-[53px] h-8 flex justify-center items-center text-center ${
             activeTab === 'url'
               ? 'border-b-2 border-black font-semibold'
@@ -96,7 +98,7 @@ function ShareUrl() {
           URL
         </div>
         <div
-          onClick={() => setActiveTab('kakao')}
+          onClick={() => updateShareUrl({ activeTab: 'kakao' })}
           className={`w-[53px] h-8 flex justify-center items-center text-center ${
             activeTab === 'kakao'
               ? 'border-b-2 border-black font-semibold'
@@ -113,7 +115,7 @@ function ShareUrl() {
           className="py-1.5"
           inputProps={{
             name: activeTab === 'kakao' ? 'title' : 'urlTitle',
-            placeholder: '소중한 분들을 초대합니다.',
+            placeholder: DEFAULT_TITLE,
             onChange: handleChange,
             value: activeTab === 'kakao' ? shareUrl.title : shareUrl.urlTitle,
           }}
@@ -123,8 +125,9 @@ function ShareUrl() {
           <MultiRowInput
             key={`desc-${activeTab}`}
             size="full"
+            className="text-center py-[46px]"
             name={activeTab === 'kakao' ? 'description' : 'urlDescription'}
-            placeholder="뜻깊은 날, 귀한 걸음으로 저희와 함께해 주세요."
+            placeholder="내용을 입력해 주세요."
             onChange={handleChange}
             value={
               activeTab === 'kakao'
@@ -140,6 +143,7 @@ function ShareUrl() {
           multiple={false}
           value={activeTab === 'kakao' ? shareUrl.images : shareUrl.urlImage}
           onChange={handlePictureChange}
+          onDelete={() => handlePictureChange([])}
         />
         {activeTab === 'kakao' && (
           <div className="flex gap-2 py-2">
@@ -152,16 +156,7 @@ function ShareUrl() {
                 name="showLocationButton"
               >
                 <p className="font-normal text-text-secondary text-[13px]">
-                  위치보기 버튼 (행사 장소 컴포넌트 연동)
-                </p>
-              </Checkbox>
-              <Checkbox
-                onChange={handleCheckboxChange}
-                checked={shareUrl.showShareButton}
-                name="showShareButton"
-              >
-                <p className="font-normal text-text-secondary text-[13px]">
-                  초대장 내 카카오톡 공유하기 버튼 노출
+                  위치보기 버튼 추가
                 </p>
               </Checkbox>
             </div>

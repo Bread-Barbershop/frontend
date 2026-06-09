@@ -117,6 +117,7 @@ export interface BulkSlice {
 }
 
 export interface ShareUrlState {
+  activeTab: 'url' | 'kakao';
   title: string;
   description: string;
   images: (File | string)[];

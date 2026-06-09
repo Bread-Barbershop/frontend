@@ -6,8 +6,30 @@ import CapacityIcon from '@/shared/assets/icons/capacity.svg';
 import CellularConnectionIcon from '@/shared/assets/icons/cellular-connection.svg';
 import PlusIcon from '@/shared/assets/icons/plus.svg';
 import WifiIcon from '@/shared/assets/icons/wifi.svg';
+import BackArrowIcon from '@/shared/assets/images/share-url/back-arrow.svg';
+import BubbleTailIcon from '@/shared/assets/images/share-url/bubble-tail.svg';
+import MicIcon from '@/shared/assets/images/share-url/mic-icon.svg';
+import PlusCircleIcon from '@/shared/assets/images/share-url/plus-icon.svg';
+import ProfileAvatarIcon from '@/shared/assets/images/share-url/profile-avatar.svg';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { ShareUrlState } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
+import {
+  resolveShareDescription,
+  resolveShareTitle,
+} from '@/shared/utils/shareUrlDefaults';
+
+const GLASS_SHADOW_CLASS =
+  'border border-white shadow-[0px_8px_40px_0px_rgba(0,0,0,0.06),0px_2px_32px_0px_rgba(0,0,0,0.06)]';
+
+const GLASS_BACKGROUND_STYLE = {
+  backgroundImage: [
+    'linear-gradient(180deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.058) 100%)',
+    'linear-gradient(0deg, rgba(255, 255, 255, 0.518) 0%, rgba(255, 255, 255, 0.72) 100%)',
+    'linear-gradient(180deg, rgba(255, 255, 255, 0.36) 0%, rgba(255, 255, 255, 0.13) 100%)',
+    'linear-gradient(0deg, rgba(255, 255, 255, 0.014) 0%, rgba(255, 255, 255, 0.12) 100%)',
+  ].join(', '),
+};
 
 const useImageObjectUrl = (image?: File | string) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -76,25 +98,146 @@ export const ShareUrlButton = () => {
       {isOpen &&
         previewContainer &&
         createPortal(
-          <KakaoShareUrlView shareUrl={shareUrl} />,
+          (shareUrl.activeTab ?? 'url') === 'kakao' ? (
+            <KakaoShareUrlView shareUrl={shareUrl} />
+          ) : (
+            <UrlShareUrlView shareUrl={shareUrl} />
+          ),
           previewContainer
         )}
     </>
   );
 };
 
+// --- 하위 컴포넌트: URL 공유 썸네일 미리보기 UI ---
+const UrlShareUrlView = ({ shareUrl }: { shareUrl: ShareUrlState }) => {
+  const { urlTitle, urlDescription, urlImage = [] } = shareUrl;
+
+  const displayTitle = resolveShareTitle(urlTitle);
+  const displayDescription = resolveShareDescription(urlDescription);
+  const imageUrl = useImageObjectUrl(urlImage[0]);
+
+  return (
+    <div className="absolute top-0 left-0 z-50 size-full overflow-hidden bg-[#FEFFFF]">
+      {/* Status bar */}
+      <div className="flex h-10 items-center justify-between px-[29px] pl-[49px]">
+        <span className="text-[17px] font-semibold">9:41</span>
+        <div className="flex items-center gap-[7px]">
+          <CellularConnectionIcon />
+          <WifiIcon />
+          <CapacityIcon />
+        </div>
+      </div>
+
+      {/* Back button */}
+      <div
+        className={cn(
+          'absolute left-4 top-10 flex h-[38px] w-[78px] items-center justify-center gap-[9px] overflow-hidden rounded-[24px]',
+          GLASS_SHADOW_CLASS
+        )}
+        style={GLASS_BACKGROUND_STYLE}
+      >
+        <div className="flex h-[15.5px] w-[8.5px] items-center justify-center">
+          <BackArrowIcon className="h-[8.5px] w-[15.5px] rotate-90" />
+        </div>
+        <span className="flex h-[18px] w-8 items-center justify-center rounded-[10px] bg-[#191919] px-[5px] py-[3px] text-[11px] font-medium leading-none text-white">
+          320
+        </span>
+      </div>
+
+      {/* Profile avatar — Figma 54px 앵커 + negative inset으로 그림자 포함 실제 렌더 크기 맞춤 */}
+      <div className="absolute left-[161px] top-10 size-[54px]">
+        <div className="absolute inset-[-59.26%_-74.07%_-88.89%_-74.07%] z-1">
+          <ProfileAvatarIcon className="size-full" />
+        </div>
+      </div>
+
+      {/* Header title pill */}
+      <div
+        className={cn(
+          'absolute left-[99px] top-[89px] flex h-[30px] w-[177px] items-center justify-center overflow-hidden rounded-[24px]',
+          GLASS_SHADOW_CLASS
+        )}
+        style={GLASS_BACKGROUND_STYLE}
+      >
+        <span className="text-[13px] font-bold leading-[22px] text-black">
+          미리보기
+        </span>
+      </div>
+
+      {/* SMS metadata */}
+      <div className="absolute left-[128px] top-[143px] flex w-[120px] flex-col items-center gap-1 text-center text-[11px] font-medium tracking-[0.44px] text-[#89898D]">
+        <p className="leading-none">
+          <span>문자 메세지</span>
+          <span>ㆍ</span>
+          <span>SMS</span>
+        </p>
+        <p className="leading-none">(오늘) 오전 9:00</p>
+      </div>
+
+      {/* Link preview card */}
+      <div className="absolute left-4 top-[181px] flex w-[256px] flex-col items-center">
+        <div className="h-[341px] w-[256px] shrink-0 overflow-hidden rounded-t-[16px]">
+          {imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={imageUrl}
+              alt="thumbnail"
+              className="size-full object-cover"
+            />
+          ) : (
+            <div className="checkerboard checker-size size-full" />
+          )}
+        </div>
+
+        <div className="relative w-[256px]">
+          <div className="flex w-[256px] flex-col gap-0.5 rounded-b-[16px] bg-[#AAAAAA] py-2 pl-3">
+            <p className="w-full truncate text-[14px] font-semibold leading-[22px] tracking-[0.14px] text-black">
+              {displayTitle}
+            </p>
+            <p className="w-full line-clamp-2 text-[11px] font-normal leading-[22px] text-black">
+              {displayDescription}
+            </p>
+          </div>
+          <div className="absolute left-[6px] top-[57px] flex h-[10px] w-[12.936px] -scale-y-100 rotate-180 items-center justify-center">
+            <BubbleTailIcon className="size-full" />
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom input bar */}
+      <div className="absolute left-[23px] top-[750px] flex items-center gap-3">
+        <div
+          className={cn(
+            'flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-[99px]',
+            GLASS_SHADOW_CLASS
+          )}
+          style={GLASS_BACKGROUND_STYLE}
+        >
+          <PlusCircleIcon className="size-[14px]" />
+        </div>
+        <div
+          className={cn(
+            'flex h-[38px] w-[281px] items-center overflow-hidden rounded-[20px] py-[7px] pl-[14px] pr-[11px]',
+            GLASS_SHADOW_CLASS
+          )}
+          style={GLASS_BACKGROUND_STYLE}
+        >
+          <span className="min-w-0 flex-1 truncate text-[16px] tracking-[0.64px] text-[#C4C4C6]">
+            미리보기 예시입니다.
+          </span>
+          <MicIcon className="size-[17px] shrink-0" />
+        </div>
+      </div>
+
+      {/* Home indicator */}
+      <div className="absolute bottom-[8px] left-1/2 h-[5px] w-[134px] -translate-x-1/2 rounded-full bg-black" />
+    </div>
+  );
+};
+
 // --- 하위 컴포넌트: 카카오톡 공유 썸네일 미리보기 UI ---
-const KakaoShareUrlView = ({
-  shareUrl,
-}: {
-  shareUrl: {
-    title: string;
-    description: string;
-    images: (File | string)[];
-    showLocationButton: boolean;
-    showShareButton: boolean;
-  };
-}) => {
+const KakaoShareUrlView = ({ shareUrl }: { shareUrl: ShareUrlState }) => {
   const {
     title,
     description,
@@ -103,9 +246,8 @@ const KakaoShareUrlView = ({
     showShareButton = true,
   } = shareUrl;
 
-  const displayTitle = title || '소중한 분들을 초대합니다.';
-  const displayDescription =
-    description || '뜻깊은 날, 귀한 걸음으로 저희와 함께해 주세요.';
+  const displayTitle = resolveShareTitle(title);
+  const displayDescription = resolveShareDescription(description);
 
   const imageUrl = useImageObjectUrl(images[0]);
 
