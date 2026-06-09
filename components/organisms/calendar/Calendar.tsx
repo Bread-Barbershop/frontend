@@ -9,7 +9,10 @@ import { Label } from '@/components/atoms/label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { EditorNoticeList } from '@/components/molecules/editor-notice';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
-import { TextEditor, type TextEditorRef } from '@/components/molecules/text-editor';
+import {
+  TextEditor,
+  type TextEditorRef,
+} from '@/components/molecules/text-editor';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
 import { TimeSelector } from '@/components/molecules/time-selector';
@@ -169,7 +172,11 @@ export function Calendar({ blockInfo, id }: Props) {
           </div>
         </div>
         <NavigationBar
-          action={<UtilityButton size="sm" onClick={handleInsertDday}>디데이</UtilityButton>}
+          action={
+            <UtilityButton size="sm" onClick={handleInsertDday}>
+              디데이
+            </UtilityButton>
+          }
           direction="right"
         >
           디데이&카운트다운
