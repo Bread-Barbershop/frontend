@@ -1,4 +1,4 @@
-import type { PersistedEditorBlock, ShareUrlState } from '@/shared/types/block';
+import type { EditorBlock, PersistedEditorBlock, ShareUrlState } from '@/shared/types/block';
 import type {
   BgmData,
   BulkJson,
@@ -8,8 +8,8 @@ import type {
   UploadTask,
 } from '@/shared/types/invitationSave';
 import {
-  DEFAULT_DESCRIPTION,
-  DEFAULT_TITLE,
+  resolveShareDescription,
+  resolveShareTitle,
 } from '@/shared/utils/shareUrlDefaults';
 
 import {
@@ -307,10 +307,10 @@ async function commit(params: {
   // 공유 URL 메타데이터가 비어 있으면 기본 문구로 보정한다.
   const normalizedShareUrl: ShareUrlState = {
     ...shareUrl,
-    title: shareUrl.title?.trim() || DEFAULT_TITLE,
-    description: shareUrl.description?.trim() || DEFAULT_DESCRIPTION,
-    urlTitle: shareUrl.urlTitle?.trim() || DEFAULT_TITLE,
-    urlDescription: shareUrl.urlDescription?.trim() || DEFAULT_DESCRIPTION,
+    title: resolveShareTitle(shareUrl.title), // 카카오톡 공유 타이틀
+    description: resolveShareDescription(shareUrl.description), // 카카오톡 공유 설명
+    urlTitle: resolveShareTitle(shareUrl.urlTitle), // 썸네일 (메타데이터) 공유 타이틀
+    urlDescription: resolveShareDescription(shareUrl.urlDescription), // 썸네일 (메타데이터) 공유 설명
   };
 
   // images의 File 객체들을 위해 imageId -> fileId 매핑 생성
@@ -466,14 +466,25 @@ async function commit(params: {
   // 공유 데이터 저장 실패는 기존 정책대로 전체 저장 실패로 보지 않는다.
   try {
     const primaryImage =
-      normalizedShareUrl.images?.[0] ?? normalizedShareUrl.urlImage?.[0];
+      replacedShareUrl.images?.[0] ?? replacedShareUrl.urlImage?.[0];
 
     const imageFileId =
       typeof primaryImage === 'string'
-        ? primaryImage
+        ? primaryImage.trim() || undefined
         : primaryImage instanceof File
           ? fileToId.get(primaryImage)
           : undefined;
+
+    const placeBlock = data.find(
+      (item): item is EditorBlock<'place'> => item.component === 'place'
+    );
+    const hasValidLocation = Boolean(
+      placeBlock &&
+        typeof placeBlock.props.lat === 'number' &&
+        typeof placeBlock.props.lng === 'number'
+    );
+    const showLocationButton =
+      hasValidLocation && normalizedShareUrl.showLocationButton;
 
     const shareRes = await fetch('/api/drive/shareUrl', {
       method: 'POST',
@@ -484,10 +495,11 @@ async function commit(params: {
           title: normalizedShareUrl.title,
           description: normalizedShareUrl.description,
           imageFileId,
-          showLocationButton: normalizedShareUrl.showLocationButton,
-          showShareButton: normalizedShareUrl.showShareButton,
+          showLocationButton,
           invitationUrl,
-          locationInfo: normalizedShareUrl.locationInfo,
+          locationInfo: showLocationButton
+            ? normalizedShareUrl.locationInfo
+            : undefined,
         },
       }),
     });

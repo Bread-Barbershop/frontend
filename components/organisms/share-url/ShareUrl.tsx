@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { MultiRowInput } from '@/components/atoms/input/MultiRowInput';
@@ -11,31 +11,39 @@ import { TextField } from '@/components/molecules/text-field';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+import { DEFAULT_TITLE } from '@/shared/utils/shareUrlDefaults';
 
 import { SHARE_NOTICES } from './constants/share';
 
 const SHARE_URL_IMAGE_ID = 'shareUrl';
 
 function ShareUrl() {
-  const [activeTab, setActiveTab] = useState<'url' | 'kakao'>('url');
-  const { block, shareUrl, updateShareUrl, updateImage } = useEditorStore(
-    useShallow(state => ({
-      block: state.block,
-      shareUrl: state.shareUrl,
-      updateShareUrl: state.updateShareUrl,
-      updateImage: state.updateImage,
-    }))
-  );
+  const { block, shareUrl, shareUrlTab, setShareUrlTab, updateShareUrl, updateImage } =
+    useEditorStore(
+      useShallow(state => ({
+        block: state.block,
+        shareUrl: state.shareUrl,
+        shareUrlTab: state.shareUrlTab,
+        setShareUrlTab: state.setShareUrlTab,
+        updateShareUrl: state.updateShareUrl,
+        updateImage: state.updateImage,
+      }))
+    );
 
-  // 행사 장소 블록의 장소명과 주소 설정 여부 확인
   const placeBlock = block.find(
     (b): b is EditorBlock<'place'> => b.component === 'place'
   );
   const hasValidLocation = Boolean(
     placeBlock &&
-    typeof placeBlock.props.lat === 'number' &&
-    typeof placeBlock.props.lng === 'number'
+      typeof placeBlock.props.lat === 'number' &&
+      typeof placeBlock.props.lng === 'number'
   );
+
+  useEffect(() => {
+    if (hasValidLocation || !shareUrl.showLocationButton) return;
+
+    updateShareUrl({ showLocationButton: false, locationInfo: undefined });
+  }, [hasValidLocation, shareUrl.showLocationButton, updateShareUrl]);
 
   const handleChange = ({
     target: { name, value },
@@ -56,13 +64,11 @@ function ShareUrl() {
           placeName: placeBlock.props.placeName,
         },
       });
-    } else if (name === 'showShareButton') {
-      updateShareUrl({ showShareButton: checked });
     }
   };
 
   const handlePictureChange = (newFiles: (File | string)[]) => {
-    const isKakaoTab = activeTab === 'kakao';
+    const isKakaoTab = shareUrlTab === 'kakao';
 
     // 각 탭의 이미지 리스트 결정 (현재 탭인 경우 새 파일 합산)
     const kakaoImages = isKakaoTab ? newFiles : (shareUrl.images ?? []);
@@ -86,9 +92,9 @@ function ShareUrl() {
       <NavigationBar>공유 썸네일</NavigationBar>
       <nav className="flex justify-center items-center mb-2 cursor-pointer">
         <div
-          onClick={() => setActiveTab('url')}
+          onClick={() => setShareUrlTab('url')}
           className={`w-[53px] h-8 flex justify-center items-center text-center ${
-            activeTab === 'url'
+            shareUrlTab === 'url'
               ? 'border-b-2 border-black font-semibold'
               : 'text-gray-500 hover:text-black font-normal'
           }`}
@@ -96,9 +102,9 @@ function ShareUrl() {
           URL
         </div>
         <div
-          onClick={() => setActiveTab('kakao')}
+          onClick={() => setShareUrlTab('kakao')}
           className={`w-[53px] h-8 flex justify-center items-center text-center ${
-            activeTab === 'kakao'
+            shareUrlTab === 'kakao'
               ? 'border-b-2 border-black font-semibold'
               : 'text-gray-500 hover:text-black font-normal'
           }`}
@@ -108,40 +114,42 @@ function ShareUrl() {
       </nav>
       <div className="w-full flex flex-col gap-1 mb-2">
         <TextField
-          key={`title-${activeTab}`}
+          key={`title-${shareUrlTab}`}
           label="제목"
           className="py-1.5"
           inputProps={{
-            name: activeTab === 'kakao' ? 'title' : 'urlTitle',
-            placeholder: '소중한 분들을 초대합니다.',
+            name: shareUrlTab === 'kakao' ? 'title' : 'urlTitle',
+            placeholder: DEFAULT_TITLE,
             onChange: handleChange,
-            value: activeTab === 'kakao' ? shareUrl.title : shareUrl.urlTitle,
+            value: shareUrlTab === 'kakao' ? shareUrl.title : shareUrl.urlTitle,
           }}
         />
         <div className="flex flex-col gap-1.5 py-1.5">
           <Label className="font-semibold text-center">내용</Label>
           <MultiRowInput
-            key={`desc-${activeTab}`}
+            key={`desc-${shareUrlTab}`}
             size="full"
-            name={activeTab === 'kakao' ? 'description' : 'urlDescription'}
-            placeholder="뜻깊은 날, 귀한 걸음으로 저희와 함께해 주세요."
+            className="text-center py-[46px]"
+            name={shareUrlTab === 'kakao' ? 'description' : 'urlDescription'}
+            placeholder="내용을 입력해 주세요."
             onChange={handleChange}
             value={
-              activeTab === 'kakao'
+              shareUrlTab === 'kakao'
                 ? shareUrl.description
                 : shareUrl.urlDescription
             }
           />
         </div>
         <Picture
-          key={`pic-${activeTab}`}
+          key={`pic-${shareUrlTab}`}
           label="사진"
           className="py-1"
           multiple={false}
-          value={activeTab === 'kakao' ? shareUrl.images : shareUrl.urlImage}
+          value={shareUrlTab === 'kakao' ? shareUrl.images : shareUrl.urlImage}
           onChange={handlePictureChange}
+          onDelete={() => handlePictureChange([])}
         />
-        {activeTab === 'kakao' && (
+        {shareUrlTab === 'kakao' && (
           <div className="flex gap-2 py-2">
             <Label className="font-semibold shrink-0">추가기능</Label>
             <div className="flex flex-col gap-1">
@@ -152,16 +160,7 @@ function ShareUrl() {
                 name="showLocationButton"
               >
                 <p className="font-normal text-text-secondary text-[13px]">
-                  위치보기 버튼 (행사 장소 컴포넌트 연동)
-                </p>
-              </Checkbox>
-              <Checkbox
-                onChange={handleCheckboxChange}
-                checked={shareUrl.showShareButton}
-                name="showShareButton"
-              >
-                <p className="font-normal text-text-secondary text-[13px]">
-                  초대장 내 카카오톡 공유하기 버튼 노출
+                  위치보기 버튼 추가
                 </p>
               </Checkbox>
             </div>

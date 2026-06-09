@@ -3,14 +3,14 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import {
-  DEFAULT_DESCRIPTION,
-  DEFAULT_TITLE,
+  resolveShareDescription,
+  resolveShareImageUrl,
+  resolveShareTitle,
 } from '@/shared/utils/shareUrlDefaults';
 
 import GuestBgm from './components/GuestBgm';
 import { GuestMainPoster } from './components/GuestMainPoster';
 import GuestRenderer from './components/GuestRenderer';
-import { DEFAULT_IMAGE_URL } from './constants/constant';
 import { isGuestPayload } from './utils/guestBlockTypeGuards';
 
 export const dynamic = 'force-static';
@@ -42,9 +42,9 @@ export async function generateMetadata({
     }
 
     const topLevelShare = payload.shareUrl;
-    const title = topLevelShare?.urlTitle || DEFAULT_TITLE;
-    const description = topLevelShare?.urlDescription || DEFAULT_DESCRIPTION;
-    const rawImageUrl = topLevelShare?.urlImage?.[0];
+    const title = resolveShareTitle(topLevelShare?.urlTitle);
+    const description = resolveShareDescription(topLevelShare?.urlDescription);
+    const imageUrl = resolveShareImageUrl(topLevelShare?.urlImage?.[0]);
 
     return {
       title,
@@ -52,17 +52,13 @@ export async function generateMetadata({
       openGraph: {
         title,
         description,
-        images: rawImageUrl
-          ? `https://lh3.googleusercontent.com/d/${rawImageUrl}`
-          : DEFAULT_IMAGE_URL,
+        images: imageUrl,
       },
       twitter: {
         card: 'summary_large_image',
         title,
         description,
-        images: rawImageUrl
-          ? `https://lh3.googleusercontent.com/d/${rawImageUrl}`
-          : DEFAULT_IMAGE_URL,
+        images: imageUrl,
       },
       icons: {
         icon: '/favicon.ico',

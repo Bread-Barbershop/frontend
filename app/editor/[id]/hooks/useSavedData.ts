@@ -114,7 +114,10 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
         }));
 
         const updatedShareUrl = data.config.shareUrl
-          ? (mapIdsToFiles(data.config.shareUrl) as typeof data.config.shareUrl)
+          ? {
+              ...createDefaultShareUrlState(),
+              ...(mapIdsToFiles(data.config.shareUrl) as typeof data.config.shareUrl),
+            }
           : createDefaultShareUrlState();
 
         const audioFiles = await setAudioFile(

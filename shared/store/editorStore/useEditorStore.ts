@@ -46,6 +46,7 @@ export const useEditorStore = create<EditorState>()(
           shareUrl: createDefaultShareUrlState(),
           hashFiles: [],
           cleanUpFiles: [],
+          shareUrlTab: 'url',
         }),
     };
   })

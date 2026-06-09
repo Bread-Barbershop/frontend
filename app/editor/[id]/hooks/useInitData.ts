@@ -5,6 +5,7 @@ import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { extractFileGroups } from '@/shared/utils/extractFileGroups';
 import { getFileKey } from '@/shared/utils/fileUtils';
+import { createDefaultShareUrlState } from '@/shared/utils/shareUrlDefaults';
 
 import { SavedData } from '../types/savedata';
 
@@ -113,7 +114,7 @@ export const useInitData = ({
       setInvitationFolderId(invitationFolderId);
     }
     if (shareUrl) {
-      setShareUrl(shareUrl);
+      setShareUrl({ ...createDefaultShareUrlState(), ...shareUrl });
       const shareFiles = [
         ...(shareUrl.images ?? []),
         ...(shareUrl.urlImage ?? []),
