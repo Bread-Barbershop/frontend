@@ -1,7 +1,14 @@
 import { create } from 'zustand';
 
 export type ToastVariant = 'success' | 'error' | 'warning' | 'info';
-export type ToastPlacement = 'top' | 'save-modal-bottom';
+export type ToastPlacement =
+  | 'top-left'
+  | 'top-center'
+  | 'top-right'
+  | 'bottom-left'
+  | 'bottom-center'
+  | 'bottom-right'
+  | 'save-modal-bottom';
 export type ToastAnimation = 'slide' | 'fade';
 
 export interface ToastOptions {
@@ -10,7 +17,7 @@ export interface ToastOptions {
 }
 
 const defaultToastOptions: Required<ToastOptions> = {
-  placement: 'top',
+  placement: 'top-center',
   animation: 'slide',
 };
 
@@ -37,7 +44,7 @@ export const useToastStore = create<ToastState>(set => ({
       message,
       variant,
       options: { ...defaultToastOptions, ...options },
-      isVisible: true,
+      isVisible: true
     });
 
     // 3초 후 자동으로 숨김

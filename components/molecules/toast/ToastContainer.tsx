@@ -2,13 +2,22 @@
 
 import { createPortal } from 'react-dom';
 
-import { useToastStore } from '@/shared/store/useToastStore';
+import { useToastStore, type ToastPlacement } from '@/shared/store/useToastStore';
 
 import { ToastBar } from './ToastBar';
 
-const toastPlacementClass = {
-  top: 'top-10',
-  'save-modal-bottom': 'top-[calc(50%+200.5px)]',
+const getPositionClasses = (placement: ToastPlacement): string => {
+  const placementClasses: Record<ToastPlacement, string> = {
+    'top-left': 'top-10 left-4',
+    'top-center': 'top-10 left-1/2 -translate-x-1/2',
+    'top-right': 'top-10 right-4',
+    'bottom-left': 'bottom-10 left-4',
+    'bottom-center': 'bottom-10 left-1/2 -translate-x-1/2',
+    'bottom-right': 'bottom-10 right-4',
+    'save-modal-bottom': 'top-[calc(50%+200.5px)] left-1/2 -translate-x-1/2',
+  };
+
+  return placementClasses[placement];
 };
 
 const getToastVisibilityClass = (
@@ -27,11 +36,11 @@ export const ToastContainer = () => {
 
   if (!message) return null;
 
+  const positionClasses = getPositionClasses(options.placement);
+
   return createPortal(
     <div
-      className={`fixed left-1/2 z-[1000] flex w-fit -translate-x-1/2 justify-center transition-all duration-300 pointer-events-none ${
-        toastPlacementClass[options.placement]
-      } ${getToastVisibilityClass(isVisible, options.animation)}`}
+      className={`fixed z-[1000] w-full max-w-[375px] transition-all duration-300 pointer-events-none ${positionClasses} ${getToastVisibilityClass(isVisible, options.animation)}`}
     >
       <ToastBar message={message} variant={variant} />
     </div>,

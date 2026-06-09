@@ -3,8 +3,8 @@ import { EditorBlock } from '../types/block';
 export function extractFileGroups(
   block: EditorBlock[],
   imageList: { id: string; file: any }[]
-) {
-  if (!block || !imageList || imageList.length === 0) return;
+): Map<string, { id: string; file: File[] }> {
+  if (!block || !imageList || imageList.length === 0) return new Map();
 
   // 빠른 조회를 위해 imageList를 Map으로 변환
   const imageMap = new Map(imageList.map(item => [item.id, item]));

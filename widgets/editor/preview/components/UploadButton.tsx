@@ -10,10 +10,11 @@ function UploadButton() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const tabRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
-  const { handleUpload, isLoading, isFail } = useInvitationUpload();
+  const { handleUpload, isLoading, isFail, isCleaningUp } = useInvitationUpload();
   const { confirm } = useConfirm();
 
   const handleClose = () => {
+    
     if (!isLoading) {
       setIsModalOpen(false);
     }
@@ -23,8 +24,10 @@ function UploadButton() {
     <div ref={tabRef}>
       <button
         type="button"
-        className="w-full h-11 bg-white rounded-lg shadow-edit flex-center text-sm font-semibold"
+        disabled={isLoading || isCleaningUp}
+        className="w-full h-11 bg-white rounded-lg shadow-edit flex-center text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
         onClick={async () => {
+          
           const isConfirm = await confirm({
             message:
               '저장하시겠습니까?\n다소 시간이 소요될 수 있습니다.',
@@ -32,7 +35,11 @@ function UploadButton() {
             xPosition : 'center',
             yPosition : 'center'
           });
-          if(!isConfirm) return;
+          if(!isConfirm) {
+            
+            return;
+          }
+          
           handleUpload();
           setIsModalOpen(true);
         }}
