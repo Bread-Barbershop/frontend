@@ -6,6 +6,7 @@ import { EditorBgmPlayerProvider } from '@/components/organisms/bgm/context/Edit
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import { usePreventBack } from '@/shared/hooks/usePreventBack';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { useEditorCalloutStore } from '@/shared/store/useEditorCalloutStore';
 import LeftPanel from '@/widgets/editor/leftPanel/LeftPanel';
 import MenuPanel from '@/widgets/editor/menuPanel/OrderPanel';
 import Preview from '@/widgets/editor/preview/Preview';
@@ -15,15 +16,21 @@ function MainContentsArea() {
   usePreventBack();
   const reset = useEditorStore(state => state.reset);
   const resetBgm = useBgmStore(state => state.reset);
+  const showAllCalloutsFor = useEditorCalloutStore(
+    state => state.showAllCalloutsFor
+  );
+  const hideAllCallouts = useEditorCalloutStore(state => state.hideAllCallouts);
 
   useEffect(() => {
     resetBgm();
+    showAllCalloutsFor(6000);
 
     return () => {
       reset();
       resetBgm();
+      hideAllCallouts();
     };
-  }, [reset, resetBgm]);
+  }, [hideAllCallouts, reset, resetBgm, showAllCalloutsFor]);
   return (
     <EditorBgmPlayerProvider>
       <div className="min-w-[1340px] h-full flex justify-between items-center">

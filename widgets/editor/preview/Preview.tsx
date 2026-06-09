@@ -2,16 +2,26 @@
 import React, { useEffect, useRef } from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import { EditorCallout } from '@/components/molecules/editor-callout';
 import { EditorBgmOverlay } from '@/components/organisms/bgm/components/EditorBgmOverlay';
+import CalloutIcon from '@/shared/assets/icons/callout.svg';
 import { blockRegistry } from '@/shared/data/registry/registry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { useEditorCalloutStore } from '@/shared/store/useEditorCalloutStore';
 import { MainPosterPreview } from '@/widgets/mainPoster/components/MainPosterPreview';
 
 import { previewTitleVariants } from './previewTitle.style';
 
 function Preview() {
+  const previewContainerRef = useRef<HTMLDivElement>(null);
   const blockRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const { block, selectedId, selectedBlock, setIsEdit, backgroundColor } =
+  const {
+    block,
+    selectedId,
+    selectedBlock,
+    setIsEdit,
+    backgroundColor,
+  } =
     useEditorStore(
       useShallow(state => ({
         block: state.block,
@@ -21,6 +31,12 @@ function Preview() {
         backgroundColor: state.backgroundColor,
       }))
     );
+  const isPreviewCalloutOpen = useEditorCalloutStore(
+    state => state.callouts['preview-panel']
+  );
+  const showAllCalloutsFor = useEditorCalloutStore(
+    state => state.showAllCalloutsFor
+  );
 
   useEffect(() => {
     if (!selectedId) return;
@@ -36,6 +52,7 @@ function Preview() {
   return (
     <div
       id="preview-container"
+      ref={previewContainerRef}
       className={`w-93.75 h-[812px] flex flex-col relative shrink-0`}
     >
       <EditorBgmOverlay />
@@ -99,6 +116,30 @@ function Preview() {
           </div>
         </div>
       </div>
+      <EditorCallout
+        targetRef={previewContainerRef}
+        open={isPreviewCalloutOpen}
+        arrowSide="left"
+        targetAnchor={{ x: 1, y: 0.75 }}
+        offset={0}
+        text="변경하고 싶은 요소를 우클릭하면 편집메뉴가 나와요!"
+      />
+      <button
+        type="button"
+        aria-label="도움말 보기"
+        className="absolute left-[-24px] top-[95%] z-[20000] flex h-8 w-8 -translate-x-full -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-black/5 bg-white text-[#111827] shadow-[0_8px_24px_0_rgb(0_0_0_/_6%),0_2px_10px_0_rgb(0_0_0_/_8%)] transition-colors enabled:hover:bg-[#FAFAFB] enabled:active:bg-[#F5F8FF]"
+        onClick={event => {
+          event.stopPropagation();
+          showAllCalloutsFor(6000);
+        }}
+      >
+        <CalloutIcon
+          width={18}
+          height={18}
+          className="-translate-x-px"
+          aria-hidden="true"
+        />
+      </button>
     </div>
   );
 }
