@@ -8,8 +8,8 @@ import type {
   UploadTask,
 } from '@/shared/types/invitationSave';
 import {
-  DEFAULT_DESCRIPTION,
-  DEFAULT_TITLE,
+  resolveShareDescription,
+  resolveShareTitle,
 } from '@/shared/utils/shareUrlDefaults';
 
 import {
@@ -292,10 +292,10 @@ async function commit(params: {
   // 공유 URL 메타데이터가 비어 있으면 기본 문구로 보정한다.
   const normalizedShareUrl: ShareUrlState = {
     ...shareUrl,
-    title: shareUrl.title?.trim() || DEFAULT_TITLE,
-    description: shareUrl.description?.trim() || DEFAULT_DESCRIPTION,
-    urlTitle: shareUrl.urlTitle?.trim() || DEFAULT_TITLE,
-    urlDescription: shareUrl.urlDescription?.trim() || DEFAULT_DESCRIPTION,
+    title: resolveShareTitle(shareUrl.title), // 카카오톡 공유 타이틀
+    description: resolveShareDescription(shareUrl.description), // 카카오톡 공유 설명
+    urlTitle: resolveShareTitle(shareUrl.urlTitle), // 썸네일 (메타데이터) 공유 타이틀
+    urlDescription: resolveShareDescription(shareUrl.urlDescription), // 썸네일 (메타데이터) 공유 설명
   };
 
   // 에디터 상태 안에 남아 있는 File 객체를 Drive fileId로 치환한다.
@@ -423,11 +423,11 @@ async function commit(params: {
   // 공유 데이터 저장 실패는 기존 정책대로 전체 저장 실패로 보지 않는다.
   try {
     const primaryImage =
-      normalizedShareUrl.images?.[0] ?? normalizedShareUrl.urlImage?.[0];
+      replacedShareUrl.images?.[0] ?? replacedShareUrl.urlImage?.[0];
 
     const imageFileId =
       typeof primaryImage === 'string'
-        ? primaryImage
+        ? primaryImage.trim() || undefined
         : primaryImage instanceof File
           ? fileToId.get(primaryImage)
           : undefined;
@@ -442,7 +442,7 @@ async function commit(params: {
           description: normalizedShareUrl.description,
           imageFileId,
           showLocationButton: normalizedShareUrl.showLocationButton,
-          showShareButton: normalizedShareUrl.showShareButton,
+          showShareButton: true, // TODO: 이제는 무조거 true기 떄문에 추후에 삭제 예정
           invitationUrl,
           locationInfo: normalizedShareUrl.locationInfo,
         },
