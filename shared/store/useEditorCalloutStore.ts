@@ -32,19 +32,11 @@ const clearAutoHideTimer = () => {
   autoHideTimer = null;
 };
 
-const createClosedCallouts = (): EditorCalloutState =>
+const createCallouts = (open: boolean): EditorCalloutState =>
   Object.fromEntries(
     (Object.keys(DEFAULT_EDITOR_CALLOUTS) as EditorCalloutId[]).map(id => [
       id,
-      false,
-    ])
-  ) as EditorCalloutState;
-
-const createOpenCallouts = (): EditorCalloutState =>
-  Object.fromEntries(
-    (Object.keys(DEFAULT_EDITOR_CALLOUTS) as EditorCalloutId[]).map(id => [
-      id,
-      true,
+      open,
     ])
   ) as EditorCalloutState;
 
@@ -78,7 +70,7 @@ export const useEditorCalloutStore = create<EditorCalloutStore>()(
         clearAutoHideTimer();
         set(
           {
-            callouts: createOpenCallouts(),
+            callouts: createCallouts(true),
           },
           false,
           'editorCallout/showAll'
@@ -88,7 +80,7 @@ export const useEditorCalloutStore = create<EditorCalloutStore>()(
         clearAutoHideTimer();
         set(
           {
-            callouts: createOpenCallouts(),
+            callouts: createCallouts(true),
           },
           false,
           'editorCallout/showAllFor'
@@ -97,7 +89,7 @@ export const useEditorCalloutStore = create<EditorCalloutStore>()(
           autoHideTimer = null;
           set(
             {
-              callouts: createClosedCallouts(),
+              callouts: createCallouts(false),
             },
             false,
             'editorCallout/autoHideAll'
@@ -120,7 +112,7 @@ export const useEditorCalloutStore = create<EditorCalloutStore>()(
         set(
           {
             callouts: {
-              ...createClosedCallouts(),
+              ...createCallouts(false),
               [id]: true,
             },
           },
@@ -132,7 +124,7 @@ export const useEditorCalloutStore = create<EditorCalloutStore>()(
         clearAutoHideTimer();
         set(
           {
-            callouts: createClosedCallouts(),
+            callouts: createCallouts(false),
           },
           false,
           'editorCallout/hideAll'

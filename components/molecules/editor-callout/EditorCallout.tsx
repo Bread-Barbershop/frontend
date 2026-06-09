@@ -196,7 +196,6 @@ function EditorCallout({
     };
 
     updatePosition();
-    const animationFrameId = window.requestAnimationFrame(updatePosition);
 
     window.addEventListener('resize', updatePosition);
     window.addEventListener('scroll', updatePosition, true);
@@ -206,7 +205,6 @@ function EditorCallout({
     if (bubbleRef.current) resizeObserver.observe(bubbleRef.current);
 
     return () => {
-      window.cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', updatePosition);
       window.removeEventListener('scroll', updatePosition, true);
       resizeObserver.disconnect();
@@ -226,7 +224,7 @@ function EditorCallout({
             className,
             'border-0 outline-none ring-0'
           )}
-          style={{ ...style, border: 'none', outline: 'none' }}
+          style={style}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
