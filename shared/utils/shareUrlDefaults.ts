@@ -39,7 +39,6 @@ export function resolveShareImageUrl(
 }
 
 export const createDefaultShareUrlState = (): ShareUrlState => ({
-  activeTab: 'url',
   title: '',
   description: '',
   images: [],
@@ -47,7 +46,6 @@ export const createDefaultShareUrlState = (): ShareUrlState => ({
   urlDescription: '',
   urlImage: [],
   showLocationButton: false,
-  showShareButton: true,
   locationInfo: {
     lat: 0,
     lng: 0,

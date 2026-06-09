@@ -117,7 +117,6 @@ export interface BulkSlice {
 }
 
 export interface ShareUrlState {
-  activeTab: 'url' | 'kakao';
   title: string;
   description: string;
   images: (File | string)[];
@@ -125,7 +124,6 @@ export interface ShareUrlState {
   urlDescription: string;
   urlImage: (File | string)[];
   showLocationButton: boolean;
-  showShareButton: boolean;
   locationInfo?: {
     lat: number;
     lng: number;
@@ -135,8 +133,10 @@ export interface ShareUrlState {
 
 export interface ShareUrlSlice {
   shareUrl: ShareUrlState;
+  shareUrlTab: 'url' | 'kakao';
   updateShareUrl: (data: Partial<ShareUrlState>) => void;
   setShareUrl: (data: ShareUrlState) => void;
+  setShareUrlTab: (tab: 'url' | 'kakao') => void;
 }
 
 export type EditorState = BlockSlice &

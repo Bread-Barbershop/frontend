@@ -44,6 +44,7 @@ export const useEditorStore = create<EditorState>()(
           bodyData: BODY_BULK_DATA,
           isZoom: false,
           shareUrl: createDefaultShareUrlState(),
+          shareUrlTab: 'url',
         }),
     };
   })

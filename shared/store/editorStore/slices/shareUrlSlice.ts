@@ -10,6 +10,8 @@ export const createShareUrlSlice: StateCreator<
   ShareUrlSlice
 > = set => ({
   shareUrl: createDefaultShareUrlState(),
+  shareUrlTab: 'url',
+  setShareUrlTab: tab => set({ shareUrlTab: tab }),
   updateShareUrl: data =>
     set(state => ({
       shareUrl: {

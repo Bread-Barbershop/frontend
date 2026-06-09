@@ -35,7 +35,6 @@ export type GuestPayload = {
     urlDescription: string;
     urlImage: string[];
     showLocationButton: boolean;
-    showShareButton: boolean;
     locationInfo?: {
       lat: number;
       lng: number;

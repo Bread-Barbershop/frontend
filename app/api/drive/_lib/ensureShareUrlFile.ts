@@ -14,7 +14,6 @@ export type ShareUrlPayload = {
   description: string;
   imageFileId?: string;
   showLocationButton: boolean;
-  showShareButton: boolean;
   invitationUrl?: string;
   locationInfo?: {
     lat: number;
