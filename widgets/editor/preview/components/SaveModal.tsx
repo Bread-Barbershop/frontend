@@ -1,8 +1,9 @@
-import React, { forwardRef, useState } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { useToast } from '@/shared/hooks/useToast';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { trapFocus, disableBodyScroll, getHiddenRoot, removeHiddenRoot } from '@/shared/utils/focusTrap';
 
 import { useInvitationPublish } from '../hooks/useInvitationPublish';
 
@@ -40,6 +41,10 @@ const ModalFrame = forwardRef<
     />
     <div
       ref={ref}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="save-modal-title"
+      tabIndex={-1}
       className={`fixed top-1/2 left-1/2 z-[101] flex w-[335px] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-6 rounded-xl border border-white/22 bg-white/72 p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%),0_1px_8px_-2px_rgb(255_255_255_/_35%)] backdrop-blur-xl ${isLoading ? 'justify-center' : ''}`}
     >
       {isLoading ? <SaveLottie variant="loading" loop /> : children}
@@ -72,7 +77,7 @@ const SaveStepView = ({
       {isFail ? (
         <button
           type="button"
-          className="font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[295px] h-[44px]"
+          className="font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[295px] h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
           onClick={onUpload}
         >
           다시 저장하기
@@ -81,14 +86,14 @@ const SaveStepView = ({
         <>
           <button
             type="button"
-            className="font-semibold text-sm border border-white/12 rounded-lg bg-white text-black flex-center w-[143px] h-[44px]"
+            className="font-semibold text-sm border border-white/12 rounded-lg bg-white text-black flex-center w-[143px] h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             onClick={onClose}
           >
             다시 수정하기
           </button>
           <button
             type="button"
-            className="font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[143px] h-[44px]"
+            className="font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[143px] h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
             onClick={onPublish}
           >
             초대장 URL 만들기
@@ -150,7 +155,7 @@ const PublishStepView = ({
             {!finalGuestUrl || error ? (
               <button
                 type="button"
-                className={PUBLISHED_URL_ACTION_CLASS}
+                className={`${PUBLISHED_URL_ACTION_CLASS} focus:outline-none focus:ring-2 focus:ring-blue-400`}
                 onClick={onPublish}
               >
                 초대장 URL 다시 발행하기
@@ -158,7 +163,7 @@ const PublishStepView = ({
             ) : (
               <>
                 <a
-                  className={PUBLISHED_URL_ACTION_CLASS}
+                  className={`${PUBLISHED_URL_ACTION_CLASS} focus:outline-none focus:ring-2 focus:ring-blue-400`}
                   href={finalGuestUrl}
                   target="_blank"
                   rel="noreferrer"
@@ -167,7 +172,7 @@ const PublishStepView = ({
                 </a>
                 <button
                   type="button"
-                  className={COPY_URL_ACTION_CLASS}
+                  className={`${COPY_URL_ACTION_CLASS} focus:outline-none focus:ring-2 focus:ring-blue-300`}
                   onClick={async e => {
                     e.stopPropagation();
                     try {
@@ -194,6 +199,36 @@ const PublishStepView = ({
 
 export const SaveModal = forwardRef<HTMLDivElement, Props>(
   ({ isLoading, isFail, retry, onClose }: Props, ref) => {
+    useEffect(() => {
+      const enableRestore = disableBodyScroll();
+      getHiddenRoot();
+
+      // 포커스를 모달로 이동
+      const timer = setTimeout(() => {
+        if (ref && 'current' in ref && ref.current) {
+          ref.current.focus();
+        }
+      }, 0);
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          onClose();
+        }
+        if (ref && 'current' in ref && ref.current) {
+          trapFocus(e, ref.current);
+        }
+      };
+
+      document.addEventListener('keydown', handleKeyDown);
+
+      return () => {
+        clearTimeout(timer);
+        document.removeEventListener('keydown', handleKeyDown);
+        enableRestore();
+        removeHiddenRoot();
+      };
+    }, [onClose, ref]);
+
     const invitationFolderId = useEditorStore(
       state => state.invitationFolderId
     );

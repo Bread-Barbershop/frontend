@@ -1,9 +1,16 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 import InviaSimpleLogo3d from '@/shared/assets/logo/invia-simple-logo-3d.png';
+import {
+  trapFocus,
+  disableBodyScroll,
+  getHiddenRoot,
+  removeHiddenRoot,
+} from '@/shared/utils/focusTrap';
 
 interface LoginModalProps {
   open: boolean;
@@ -21,6 +28,8 @@ function LoginModal({
   onGoogleLogin,
 }: LoginModalProps) {
   const [isClosing, setIsClosing] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const googleButtonRef = useRef<HTMLButtonElement>(null);
 
   const closeWithFade = () => {
     if (isClosing) return;
@@ -32,16 +41,49 @@ function LoginModal({
     }, FADE_OUT_MS);
   };
 
+  useEffect(() => {
+    if (!open || isClosing) return;
+
+    const enableRestore = disableBodyScroll();
+    getHiddenRoot();
+
+    // 포커스를 Google 버튼으로 이동
+    const timer = setTimeout(() => {
+      googleButtonRef.current?.focus();
+    }, 0);
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeWithFade();
+      }
+      if (modalRef.current) {
+        trapFocus(e, modalRef.current);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('keydown', handleKeyDown);
+      enableRestore();
+      removeHiddenRoot();
+    };
+  }, [open, isClosing]);
+
   if (!open && !isClosing) return null;
 
-  return (
+  return createPortal(
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-200 ${
+      ref={modalRef}
+      className={`fixed inset-0 z-9999 flex items-center justify-center transition-opacity duration-200 ${
         isClosing ? 'opacity-0' : 'animate-[fade-in_180ms_ease-out] opacity-100'
       }`}
       onClick={closeWithFade}
       role="dialog"
       aria-modal="true"
+      aria-labelledby="login-modal-title"
+      tabIndex={-1}
     >
       <div className="absolute inset-0 bg-[rgb(0_0_0_/_8%)]" />
 
@@ -63,10 +105,11 @@ function LoginModal({
         />
 
         <button
+          ref={googleButtonRef}
           type="button"
           onClick={onGoogleLogin}
           disabled={isLoading}
-          className="relative flex h-11 w-[352px] cursor-pointer items-center justify-center rounded-lg border border-[#e5e7eb] bg-white px-2 py-1.5 text-[15px] font-medium text-[#111827] enabled:hover:bg-[#FAFAFB] enabled:active:bg-[#F5F8FF] disabled:cursor-not-allowed disabled:opacity-60"
+          className="relative flex h-11 w-[352px] cursor-pointer items-center justify-center rounded-lg border border-[#e5e7eb] bg-white px-2 py-1.5 text-[15px] font-medium text-[#111827] enabled:hover:bg-[#FAFAFB] enabled:active:bg-[#F5F8FF] disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           <Image
             src="/assets/icons/google-icon.svg"
@@ -78,7 +121,8 @@ function LoginModal({
           <p>{isLoading ? '로그인중..' : 'Google로 계속하기'}</p>
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
