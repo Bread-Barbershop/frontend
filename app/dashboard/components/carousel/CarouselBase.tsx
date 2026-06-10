@@ -20,15 +20,11 @@ type CarouselBaseProps = {
   selectedLift?: string;
   onDelete?: (folderId: string) => void | Promise<void>;
   onUpdate?: (folderId: string, uuid?: string) => void;
-  onPublish?: (folderId: string) => void;
   onCopyUrl?: (folderId: string) => void;
   onShare?: (folderId: string) => Promise<void>;
   getPublishedUrl?: (folderId: string) => string | null;
   isDeleting?: (folderId: string) => boolean;
   isSharing?: (folderId: string) => boolean;
-  isPublishing?: (folderId: string) => boolean;
-  isPublishReadinessPolling?: (folderId: string) => boolean;
-  isPublishReadyPending?: (folderId: string) => boolean;
 };
 
 function CarouselBase({
@@ -41,15 +37,11 @@ function CarouselBase({
   selectedLift,
   onDelete,
   onUpdate,
-  onPublish,
   onCopyUrl,
   onShare,
   getPublishedUrl,
   isDeleting,
   isSharing,
-  isPublishing,
-  isPublishReadinessPolling,
-  isPublishReadyPending,
 }: CarouselBaseProps) {
   const [selectedIndex, setSelectedIndex] = useState(startIndex);
   const hasHandledInitialLayoutRef = useRef(false);
@@ -140,15 +132,11 @@ function CarouselBase({
         onSelect={handleSelect}
         onDelete={onDelete}
         onUpdate={onUpdate}
-        onPublish={onPublish}
         onCopyUrl={onCopyUrl}
         onShare={onShare}
         getPublishedUrl={getPublishedUrl}
         isDeleting={isDeleting}
         isSharing={isSharing}
-        isPublishing={isPublishing}
-        isPublishReadinessPolling={isPublishReadinessPolling}
-        isPublishReadyPending={isPublishReadyPending}
       />
       <div className="absolute inset-x-0 bottom-0 z-10">
         <CarouselController onMove={handleMove} />

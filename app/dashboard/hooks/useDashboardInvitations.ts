@@ -515,7 +515,7 @@ function useDashboardInvitations(
 
       try {
         await navigator.clipboard.writeText(finalUrl);
-        successToast('링크가 클립보드에 복사되었습니다.');
+        successToast('복사가 완료되었어요!');
       } catch (err) {
         console.error(err);
         errorToast('링크 복사에 실패했습니다.');

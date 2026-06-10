@@ -1,14 +1,15 @@
 import Image from 'next/image';
 import { KeyboardEvent, MouseEvent, useState } from 'react';
 
+import EditIcon from '@/shared/assets/icons/edit.svg';
+import KakaoIcon from '@/shared/assets/icons/kakao2.svg';
+import LinkIcon from '@/shared/assets/icons/link.svg';
+
 import { dashboardCarouselLayout } from '../carouselLayout';
 import { CarouselCardItem } from '../carouselTypes';
 
+import DashboardActionButton from './actions/DashboardActionButton';
 import DeleteButton from './actions/DeleteButton';
-import PublishButton from './actions/PublishButton';
-import PublishedUrlActions from './actions/PublishedUrlActions';
-import ReEditButton from './actions/ReEditButton';
-import ShareButton from './actions/ShareButton';
 import ItemHeader from './ItemHeader';
 
 type CarouselItemProps = {
@@ -22,15 +23,11 @@ type CarouselItemProps = {
   onSelect: (index: number) => void;
   onDelete?: (folderId: string) => void | Promise<void>;
   onUpdate?: (folderId: string, uuid?: string) => void;
-  onPublish?: (folderId: string) => void;
   onCopyUrl?: (folderId: string) => void;
   onShare?: (folderId: string) => Promise<void>;
   publishedUrl: string | null;
   isDeleting: boolean;
   isSharing: boolean;
-  isPublishing: boolean;
-  isPublishReadinessPolling: boolean;
-  isPublishReadyPending: boolean;
 };
 
 function CarouselItem({
@@ -44,17 +41,14 @@ function CarouselItem({
   onSelect,
   onDelete,
   onUpdate,
-  onPublish,
   onCopyUrl,
   onShare,
   publishedUrl,
   isDeleting,
   isSharing,
-  isPublishing,
-  isPublishReadinessPolling,
-  isPublishReadyPending,
 }: CarouselItemProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [isUrlActionExpanded, setIsUrlActionExpanded] = useState(false);
   const invite = item.invite;
   const canShare = Boolean(invite?.hasKakaoShareData);
   const showSelectedOverlay =
@@ -117,7 +111,7 @@ function CarouselItem({
               top: dashboardCarouselLayout.actionTop,
               right: dashboardCarouselLayout.actionRight,
               gap: dashboardCarouselLayout.sideActionGap,
-              minHeight: `calc(${dashboardCarouselLayout.sideActionSize} * 2 + ${dashboardCarouselLayout.sideActionGap})`,
+              minHeight: dashboardCarouselLayout.sideActionSize,
             }}
           >
             <button
@@ -135,21 +129,6 @@ function CarouselItem({
             >
               <DeleteButton />
             </button>
-            {canShare && (
-              <button
-                type="button"
-                disabled={isSharing}
-                onClick={event => {
-                  handleActionClick(event);
-                  if (isSharing) return;
-                  void onShare?.(invite.folderId);
-                }}
-                className={isSharing ? 'cursor-not-allowed' : 'cursor-pointer'}
-                aria-disabled={isSharing}
-              >
-                <ShareButton disabled={isSharing} />
-              </button>
-            )}
           </div>
         )}
 
@@ -199,32 +178,82 @@ function CarouselItem({
             />
             {isSelected && showCenterActions && invite && (
               <div
-                className="absolute inset-0 z-10 flex flex-col items-center justify-center"
-                style={{ gap: dashboardCarouselLayout.centerActionGap }}
+                className="absolute inset-x-0 bottom-0 z-10 flex flex-col items-center"
+                style={{
+                  gap: dashboardCarouselLayout.centerActionGap,
+                  paddingBottom:
+                    dashboardCarouselLayout.centerActionBottomPadding,
+                }}
               >
-                {publishedUrl && (
-                  <PublishedUrlActions
-                    publishedUrl={publishedUrl}
-                    onCopy={() => onCopyUrl?.(invite.folderId)}
-                  />
+                <DashboardActionButton
+                  icon={KakaoIcon}
+                  variant="kakao"
+                  disabled={isSharing}
+                  onClick={event => {
+                    handleActionClick(event);
+                    if (!canShare) return;
+                    void onShare?.(invite.folderId);
+                  }}
+                >
+                  카카오톡 공유하기
+                </DashboardActionButton>
+                {isUrlActionExpanded ? (
+                  <div
+                    className="flex items-center gap-0.5 rounded-lg bg-[#121212] px-2 py-1.5"
+                    style={{
+                      flex: '0 0 auto',
+                      width: dashboardCarouselLayout.primaryActionWidth,
+                      minWidth: dashboardCarouselLayout.primaryActionWidth,
+                      maxWidth: dashboardCarouselLayout.primaryActionWidth,
+                      height: dashboardCarouselLayout.primaryActionHeight,
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={event => {
+                        handleActionClick(event);
+                        onCopyUrl?.(invite.folderId);
+                      }}
+                      className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg font-pretendard text-[13px] font-semibold leading-[18px] text-[#38BDF8] transition-colors hover:bg-[rgba(56,189,248,0.12)]"
+                    >
+                      복사
+                    </button>
+                    <a
+                      href={publishedUrl ?? undefined}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={event => {
+                        event.stopPropagation();
+                      }}
+                      className="flex h-8 min-w-0 flex-1 items-center rounded-lg px-1.5 font-pretendard text-[14px] font-normal leading-5 text-white transition-colors hover:bg-[rgba(255,255,255,0.12)]"
+                    >
+                      <span className="block min-w-0 flex-1 truncate">
+                        {publishedUrl ?? 'URL 링크 준비 중'}
+                      </span>
+                    </a>
+                  </div>
+                ) : (
+                  <DashboardActionButton
+                    icon={LinkIcon}
+                    variant="url"
+                    onClick={event => {
+                      handleActionClick(event);
+                      setIsUrlActionExpanded(true);
+                    }}
+                  >
+                    URL 링크 공유하기
+                  </DashboardActionButton>
                 )}
-                <PublishButton
-                  isPublished={Boolean(publishedUrl)}
-                  isPublishing={isPublishing}
-                  isReadinessPolling={isPublishReadinessPolling}
-                  isReadyPending={isPublishReadyPending}
-                  onPublish={() => onPublish?.(invite.folderId)}
-                />
-                <button
-                  type="button"
+                <DashboardActionButton
+                  icon={EditIcon}
+                  variant="outline"
                   onClick={event => {
                     handleActionClick(event);
                     onUpdate?.(invite.folderId, invite.invitationUuid);
                   }}
-                  className="cursor-pointer"
                 >
-                  <ReEditButton />
-                </button>
+                  재편집하기
+                </DashboardActionButton>
               </div>
             )}
           </div>

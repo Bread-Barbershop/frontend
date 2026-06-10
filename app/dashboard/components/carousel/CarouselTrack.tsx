@@ -17,15 +17,11 @@ type CarouselTrackProps = {
   onSelect: (index: number) => void;
   onDelete?: (folderId: string) => void | Promise<void>;
   onUpdate?: (folderId: string, uuid?: string) => void;
-  onPublish?: (folderId: string) => void;
   onCopyUrl?: (folderId: string) => void;
   onShare?: (folderId: string) => Promise<void>;
   getPublishedUrl?: (folderId: string) => string | null;
   isDeleting?: (folderId: string) => boolean;
   isSharing?: (folderId: string) => boolean;
-  isPublishing?: (folderId: string) => boolean;
-  isPublishReadinessPolling?: (folderId: string) => boolean;
-  isPublishReadyPending?: (folderId: string) => boolean;
 };
 
 function CarouselTrack({
@@ -40,15 +36,11 @@ function CarouselTrack({
   onSelect,
   onDelete,
   onUpdate,
-  onPublish,
   onCopyUrl,
   onShare,
   getPublishedUrl,
   isDeleting,
   isSharing,
-  isPublishing,
-  isPublishReadinessPolling,
-  isPublishReadyPending,
 }: CarouselTrackProps) {
   return (
     <div
@@ -82,7 +74,6 @@ function CarouselTrack({
             onSelect={onSelect}
             onDelete={onDelete}
             onUpdate={onUpdate}
-            onPublish={onPublish}
             onCopyUrl={onCopyUrl}
             onShare={onShare}
             publishedUrl={
@@ -97,21 +88,6 @@ function CarouselTrack({
             }
             isSharing={
               item.invite && isSharing ? isSharing(item.invite.folderId) : false
-            }
-            isPublishing={
-              item.invite && isPublishing
-                ? isPublishing(item.invite.folderId)
-                : false
-            }
-            isPublishReadinessPolling={
-              item.invite && isPublishReadinessPolling
-                ? isPublishReadinessPolling(item.invite.folderId)
-                : false
-            }
-            isPublishReadyPending={
-              item.invite && isPublishReadyPending
-                ? isPublishReadyPending(item.invite.folderId)
-                : false
             }
           />
         ))}

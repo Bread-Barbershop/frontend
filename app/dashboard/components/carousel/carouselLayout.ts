@@ -27,19 +27,20 @@ export const dashboardCarouselLayout = {
   cardWidth: '260px',
   cardHeight: carouselCardHeight,
   // 선택된 카드 위에 붙는 헤더 높이
-  headerHeight: '32px',
+  headerHeight: '44px',
   // 선택 상태에서 헤더와 카드가 합쳐졌을 때의 전체 시각 높이
-  selectedVisualHeight: `calc(${carouselCardHeight} + 32px)`,
+  selectedVisualHeight: `calc(${carouselCardHeight} + 44px)`,
   // 선택된 카드 우측 상단 액션 버튼 묶음 위치 보정값
-  actionTop: '36px',
+  actionTop: '16px',
   actionRight: '-24px',
   // 카드 중앙 액션 버튼 묶음 사이 간격
   centerActionGap: '8px',
+  centerActionBottomPadding: '40px',
   // 카드 우측 상단 액션 버튼 묶음 사이 간격
   sideActionGap: '8px',
   // 중앙 액션 버튼 공통 크기
   primaryActionWidth: '220px',
-  primaryActionHeight: '32px',
+  primaryActionHeight: '44px',
   // 우측 상단 작은 액션 버튼 공통 크기
   sideActionSize: '32px',
   // 우측 상단 아이콘 크기
