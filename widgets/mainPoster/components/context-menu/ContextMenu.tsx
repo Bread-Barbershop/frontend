@@ -11,6 +11,7 @@ import { ActiveStyle, DisabledShortCutStyle, DisabledStyle } from './style';
 import { UndoRedo } from './UndoRedo';
 
 export function ContextMenu() {
+  const CONTEXT_MENU_MAX_HEIGHT = 400;
   const { canvas, handleDeleteShape, activeInfo } = useFabricContext();
   const hasActiveObject = activeInfo.type !== null;
   const [open, setOpen] = useState(false);
@@ -62,11 +63,19 @@ export function ContextMenu() {
   }, [open]);
 
   if (!open) return null;
+
+  const shouldOpenUpward =
+    window.innerHeight - pos.y <= CONTEXT_MENU_MAX_HEIGHT;
+
   return (
     <div
       ref={menuRef}
-      className="fixed z-9999 font-pretendard w-55 flex flex-col gap-3 p-3 bg-white border border-gray-200 rounded-md shadow-lg"
-      style={{ top: pos.y, left: pos.x }}
+      className="fixed z-9999 font-pretendard w-55 max-h-[360px] overflow-y-auto flex flex-col gap-3 p-3 bg-white border border-gray-200 rounded-md shadow-lg"
+      style={
+        shouldOpenUpward
+          ? { bottom: window.innerHeight - pos.y, left: pos.x }
+          : { top: pos.y, left: pos.x }
+      }
       onContextMenu={e => e.preventDefault()}
     >
       <CopyAndPaste onClick={() => setOpen(false)} />
