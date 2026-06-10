@@ -120,6 +120,7 @@ export const MainPosterPreview = () => {
     const fabricCanvas = new Canvas(canvasRef.current, {
       width: 375,
       height: 812,
+      backgroundColor: '#ffffff',
       fireRightClick: true,
       stopContextMenu: true,
     });
