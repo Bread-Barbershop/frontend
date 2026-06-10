@@ -93,6 +93,8 @@ export interface UISlice {
   setDrawingConfig: (config: Partial<DrawingConfig>) => void;
   shapeConfig: ShapeConfig;
   setShapeConfig: (config: Partial<ShapeConfig>) => void;
+  isDirty: boolean;
+  setIsDirty: (isDirty: boolean) => void;
 }
 
 export interface DriveSlice {

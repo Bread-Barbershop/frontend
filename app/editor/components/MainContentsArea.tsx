@@ -12,6 +12,8 @@ import MenuPanel from '@/widgets/editor/menuPanel/OrderPanel';
 import Preview from '@/widgets/editor/preview/Preview';
 import RightPanel from '@/widgets/editor/rightPanel/RightPanel';
 
+import { useEditorDirtyTracker } from '../hooks/useEditorDirtyTracker';
+
 function MainContentsArea() {
   usePreventBack();
   const reset = useEditorStore(state => state.reset);
@@ -20,6 +22,8 @@ function MainContentsArea() {
     state => state.showAllCalloutsFor
   );
   const hideAllCallouts = useEditorCalloutStore(state => state.hideAllCallouts);
+
+  useEditorDirtyTracker(true);
 
   useEffect(() => {
     resetBgm();
