@@ -1,17 +1,8 @@
-import React, { forwardRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import React, { forwardRef } from 'react';
 import { createPortal } from 'react-dom';
 
-import { useToast } from '@/shared/hooks/useToast';
-import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
-
-import { useInvitationPublish } from '../hooks/useInvitationPublish';
-
 import { SaveLottie } from './SaveLottie';
-
-const PUBLISHED_URL_ACTION_CLASS =
-  'w-[215px] truncate rounded-lg bg-transparent px-3 py-[6px] font-normal text-white hover:bg-white/12';
-const COPY_URL_ACTION_CLASS =
-  'rounded-lg bg-transparent px-1 py-2 text-[13px] font-semibold text-[#38BDF8] hover:bg-[#38BDF8]/12 cursor-pointer';
 
 interface Props {
   isLoading: boolean;
@@ -20,21 +11,18 @@ interface Props {
   onClose: () => void;
 }
 
-// 1. 공통 모달 프레임
 const ModalFrame = forwardRef<
   HTMLDivElement,
   {
     children: React.ReactNode;
     isLoading?: boolean;
-    onMouseDown?: (e: React.MouseEvent) => void;
     onClose: () => void;
   }
->(({ children, isLoading, onMouseDown, onClose }, ref) => (
+>(({ children, isLoading, onClose }, ref) => (
   <>
     <div
       className="fixed inset-0 z-[100] bg-[rgb(0_0_0_/_8%)]"
-      onMouseDown={e => {
-        onMouseDown?.(e);
+      onMouseDown={() => {
         if (!isLoading) onClose();
       }}
     />
@@ -50,14 +38,14 @@ ModalFrame.displayName = 'ModalFrame';
 
 const SaveStepView = ({
   isFail,
-  onPublish,
-  onUpload,
+  onRetry,
   onClose,
+  onExit,
 }: {
   isFail: boolean;
-  onPublish: () => void;
-  onUpload: () => void;
+  onRetry: () => void;
   onClose: () => void;
+  onExit: () => void;
 }) => (
   <>
     <div>
@@ -73,7 +61,7 @@ const SaveStepView = ({
         <button
           type="button"
           className="font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[295px] h-[44px]"
-          onClick={onUpload}
+          onClick={onRetry}
         >
           다시 저장하기
         </button>
@@ -81,17 +69,17 @@ const SaveStepView = ({
         <>
           <button
             type="button"
-            className="font-semibold text-sm border border-white/12 rounded-lg bg-white text-black flex-center w-[143px] h-[44px]"
+            className="font-semibold text-sm border border-[#EAEAEA] rounded-lg bg-white text-black flex-center w-[143px] h-[44px] cursor-pointer transition-colors hover:bg-[#FAFAFB] active:bg-[#F5F8FF]"
             onClick={onClose}
           >
             다시 수정하기
           </button>
           <button
             type="button"
-            className="font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[143px] h-[44px]"
-            onClick={onPublish}
+            className="font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[143px] h-[44px] cursor-pointer transition-colors hover:bg-[#202020] active:bg-[#0D0D0D]"
+            onClick={onExit}
           >
-            초대장 URL 만들기
+            여기서 나가기
           </button>
         </>
       )}
@@ -99,166 +87,22 @@ const SaveStepView = ({
   </>
 );
 
-const PublishStepView = ({
-  busy,
-  error,
-  readinessBusy,
-  statusMessage,
-  finalGuestUrl,
-  onPublish,
-}: {
-  busy: boolean;
-  error: string | null;
-  readinessBusy: boolean;
-  statusMessage: string;
-  finalGuestUrl: string | null;
-  onPublish: () => void;
-}) => {
-  const { success: successToast, error: errorToast } = useToast();
-  return (
-    <>
-      <div>
-        <p className="text-sm font-semibold">{statusMessage}</p>
-      </div>
-      <div>
-        {busy || readinessBusy ? (
-          <SaveLottie variant="loading" loop />
-        ) : error ? (
-          <SaveLottie variant="fail" />
-        ) : (
-          <SaveLottie variant="success" />
-        )}
-      </div>
-      <div>
-        {busy ? (
-          <div className="font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[295px] h-[44px]">
-            <span className="flex items-center">
-              발행중
-              <span className="ml-1 flex">
-                <span className="animate-bounce [animation-delay:-0.3s]">
-                  .
-                </span>
-                <span className="animate-bounce [animation-delay:-0.15s]">
-                  .
-                </span>
-                <span className="animate-bounce">.</span>
-              </span>
-            </span>
-          </div>
-        ) : (
-          <div className="px-2 py-1.5 font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[295px] h-[44px] gap-1">
-            {!finalGuestUrl || error ? (
-              <button
-                type="button"
-                className={PUBLISHED_URL_ACTION_CLASS}
-                onClick={onPublish}
-              >
-                초대장 URL 다시 발행하기
-              </button>
-            ) : (
-              <>
-                <a
-                  className={PUBLISHED_URL_ACTION_CLASS}
-                  href={finalGuestUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {finalGuestUrl}
-                </a>
-                <button
-                  type="button"
-                  className={COPY_URL_ACTION_CLASS}
-                  onClick={async e => {
-                    e.stopPropagation();
-                    try {
-                      await navigator.clipboard.writeText(finalGuestUrl);
-                      successToast('복사가 완료되었어요!', {
-                        placement: 'save-modal-bottom',
-                        animation: 'fade',
-                      });
-                    } catch {
-                      errorToast('복사하기에 실패했습니다.');
-                    }
-                  }}
-                >
-                  복사하기
-                </button>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-    </>
-  );
-};
-
 export const SaveModal = forwardRef<HTMLDivElement, Props>(
   ({ isLoading, isFail, retry, onClose }: Props, ref) => {
-    const invitationFolderId = useEditorStore(
-      state => state.invitationFolderId
-    );
-    const [origin] = useState(() =>
-      typeof window !== 'undefined' ? window.location.origin : ''
-    );
-    const {
-      handlePublish,
-      publishResults,
-      publishBusy,
-      readinessPolling,
-      publishErrors,
-      isPublish,
-    } = useInvitationPublish({ invitationFolderId });
+    const router = useRouter();
 
-    const result = publishResults[invitationFolderId];
-    const busy = Boolean(publishBusy[invitationFolderId]);
-    const readinessBusy = Boolean(readinessPolling[invitationFolderId]);
-    const error = publishErrors[invitationFolderId];
-    const isReadyPending = !error && result?.ready === false;
-    const finalGuestUrl =
-      result?.guestUrl && result.guestUrl.startsWith('http')
-        ? result.guestUrl
-        : result?.guestUrl && origin
-          ? `${origin}${result.guestUrl}`
-          : (result?.guestUrl ?? null);
-
-    const getStatusMessage = () => {
-      if (busy) return 'URL 발행중...';
-      if (error) return 'URL 발행에 실패했습니다.';
-      if (readinessBusy) return 'URL 발행 완료, 반영 중입니다.';
-      if (isReadyPending) return 'URL 발행 완료, 반영 지연 중입니다.';
-      return '성공적으로 발행되었습니다.';
-    };
-
-    const handleMouseDown = (e: React.MouseEvent) => {
-      if (isLoading || busy || readinessBusy) {
-        e.stopPropagation();
-      }
+    const handleExit = () => {
+      router.replace('/dashboard');
     };
 
     return createPortal(
-      <ModalFrame
-        ref={ref}
-        isLoading={isLoading}
-        onMouseDown={handleMouseDown}
-        onClose={onClose}
-      >
-        {isPublish ? (
-          <PublishStepView
-            busy={busy}
-            error={error}
-            readinessBusy={readinessBusy}
-            statusMessage={getStatusMessage()}
-            finalGuestUrl={finalGuestUrl}
-            onPublish={handlePublish}
-          />
-        ) : (
-          <SaveStepView
-            isFail={isFail}
-            onPublish={handlePublish}
-            onUpload={retry}
-            onClose={onClose}
-          />
-        )}
+      <ModalFrame ref={ref} isLoading={isLoading} onClose={onClose}>
+        <SaveStepView
+          isFail={isFail}
+          onRetry={retry}
+          onClose={onClose}
+          onExit={handleExit}
+        />
       </ModalFrame>,
       document.body
     );
