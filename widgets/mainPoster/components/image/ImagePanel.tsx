@@ -164,7 +164,9 @@ export const ImagePanel = () => {
           />
         )}
       </div>
-      <AspectRatioSelector startCrop={handleStartCrop} />
+      <div data-crop-controls="true">
+        <AspectRatioSelector startCrop={handleStartCrop} />
+      </div>
       <EditorNoticeList
         notices={[
           {
