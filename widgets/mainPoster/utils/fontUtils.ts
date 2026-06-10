@@ -1,5 +1,7 @@
 import { CSSProperties } from 'react';
 
+import { getFontFallbackStack } from '@/shared/fonts/fontRegistry';
+
 export const MIXED_VALUE = 'Mixed';
 
 export type FontOption = {
@@ -54,7 +56,7 @@ export const createFontStyle = (
   }
 
   return {
-    fontFamily: `"${family}", Pretendard, sans-serif`,
+    fontFamily: getFontFallbackStack(family),
     fontWeight,
   };
 };

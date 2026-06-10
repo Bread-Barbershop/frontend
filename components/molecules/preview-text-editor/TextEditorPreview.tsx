@@ -10,6 +10,8 @@ import AlignRightIcon from '@/shared/assets/icons/alignRight.svg';
 import FontColorIcon from '@/shared/assets/icons/color.svg';
 import ItalicIcon from '@/shared/assets/icons/italic.svg';
 import UnderlineIcon from '@/shared/assets/icons/underline.svg';
+import { FontFamilyOption, FontWeightOption } from '@/shared/fonts/fontOptions';
+import { resolveFontFamily } from '@/shared/fonts/fontRegistry';
 import { BulkData } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 
@@ -19,9 +21,7 @@ import {
   FONT_FAMILY_OPTIONS,
   FONT_SIZE_OPTIONS,
   getDefaultFontWeightOption,
-  type FontFamilyOption,
   type FontSizeOption,
-  type FontWeightOption,
   type TextAlignOption,
 } from '../text-editor/utils/textEditorOptions';
 
@@ -65,8 +65,9 @@ export function TextEditorPreview({
     DEFAULT_FONT_SIZE_OPTION;
 
   const fontFamilySelected =
-    FONT_FAMILY_OPTIONS.find(option => option.value === value.font) ??
-    DEFAULT_FONT_FAMILY_OPTION;
+    FONT_FAMILY_OPTIONS.find(
+      option => option.value === resolveFontFamily(value.font)
+    ) ?? DEFAULT_FONT_FAMILY_OPTION;
 
   const textAlignSelected =
     TEXT_ALIGN_OPTIONS.find(option => option.value === value.align) ??
