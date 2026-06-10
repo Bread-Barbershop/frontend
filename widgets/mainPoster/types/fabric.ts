@@ -6,6 +6,7 @@ import {
 } from 'fabric';
 
 import { PhotoPresetOptions } from '@/components/molecules/image-editor';
+import { ImageSlotMeta } from '@/widgets/mainPoster/utils/imageSlot';
 
 export type ShapeType = 'image' | 'text';
 
@@ -19,6 +20,7 @@ export interface TextboxWithLock extends OriginalTextbox {
 
 export interface FabricImageWithLock extends OriginalFabricImage {
   isLocked?: boolean;
+  slot?: ImageSlotMeta;
 }
 
 export interface BaseShape {

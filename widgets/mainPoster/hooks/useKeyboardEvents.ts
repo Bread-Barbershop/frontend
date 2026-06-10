@@ -22,6 +22,8 @@ export const useKeyboardEvents = (
     redo,
     handleDeleteShape,
     toggleDrawingMode,
+    convertActiveRectToSlot,
+    unregisterActiveSlot,
   } = useFabricContext();
 
   const { setActiveTab } = useEditorStore(
@@ -38,6 +40,28 @@ export const useKeyboardEvents = (
       if (!isMouseInCanvasRef.current && !hasActiveObj) return;
 
       const mod = e.ctrlKey || e.metaKey;
+
+      // 슬롯 설정 ctrl + p
+      if (mod && e.code === 'KeyP') {
+        const activeObj = canvas.getActiveObject();
+        const isEditingText =
+          activeObj && 'isEditing' in activeObj && activeObj.isEditing;
+        if (activeObj && !isEditingText) {
+          e.preventDefault();
+          convertActiveRectToSlot();
+        }
+      }
+
+      // 슬롯 해제 ctrl + shift + p
+      if (mod && e.shiftKey && e.code === 'KeyP') {
+        const activeObj = canvas.getActiveObject();
+        const isEditingText =
+          activeObj && 'isEditing' in activeObj && activeObj.isEditing;
+        if (activeObj && !isEditingText) {
+          e.preventDefault();
+          unregisterActiveSlot();
+        }
+      }
 
       // 복사 ctrl + c
       if (mod && e.code === 'KeyC') {

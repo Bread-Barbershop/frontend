@@ -1,18 +1,20 @@
 import { TPointerEvent, TPointerEventInfo } from 'fabric';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
-import { cn } from '@/shared/utils/cn';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import ControlZindex from './ControlZindex';
 import CopyAndPaste from './CopyAndPaste';
+import { DeleteObject } from './DeleteObject';
 import { LockObject } from './LockObject';
-import { ActiveStyle, DisabledShortCutStyle, DisabledStyle } from './style';
+import { RegisterSlot } from './RegisterSlot';
 import { UndoRedo } from './UndoRedo';
 
 export function ContextMenu() {
-  const { canvas, handleDeleteShape, activeInfo } = useFabricContext();
-  const hasActiveObject = activeInfo.type !== null;
+  const { canvas } = useFabricContext();
+  const searchParams = useSearchParams();
+  const isAdmin = searchParams.get('type') === 'admin';
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
@@ -69,23 +71,11 @@ export function ContextMenu() {
       style={{ top: pos.y, left: pos.x }}
       onContextMenu={e => e.preventDefault()}
     >
+      {isAdmin && <RegisterSlot onClick={() => setOpen(false)} />}
       <CopyAndPaste onClick={() => setOpen(false)} />
       <ControlZindex onClick={() => setOpen(false)} />
       <UndoRedo onClick={() => setOpen(false)} />
-      <button
-        type="button"
-        disabled={!hasActiveObject}
-        className={cn(ActiveStyle, !hasActiveObject && DisabledStyle)}
-        onClick={() => {
-          if (canvas && hasActiveObject) {
-            handleDeleteShape(canvas, undefined, true);
-          }
-          setOpen(false);
-        }}
-      >
-        <p className={cn(!hasActiveObject && DisabledStyle)}>삭제하기</p>
-        <p className={cn(!hasActiveObject && DisabledShortCutStyle)}>Delete</p>
-      </button>
+      <DeleteObject onClick={() => setOpen(false)} />
       <LockObject onClick={() => setOpen(false)} />
     </div>
   );

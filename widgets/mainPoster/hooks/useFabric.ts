@@ -57,6 +57,7 @@ export const useFabric = () => {
         'strokeUniform',
         'shadow',
         'paintFirst',
+        'slot',
       ])
     );
 
@@ -546,6 +547,7 @@ export const useFabric = () => {
       'strokeUniform',
       'shadow',
       'paintFirst',
+      'slot',
     ];
     const json = canvas.toObject(propertiesToInclude);
     json.objects = filteredData.map(obj => obj.toObject(propertiesToInclude));

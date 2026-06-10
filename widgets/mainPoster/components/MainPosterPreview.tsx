@@ -24,6 +24,12 @@ import { useSetFabricControls } from '../hooks/useSetFabricControls';
 import { preloadFonts } from '../hooks/useTemplate';
 import { initAligningGuidelines } from '../libs/aligning-guidelines';
 import { FabricObjectWithLock } from '../types/fabric';
+import {
+  isFilledSlotImage,
+  isReplaceableSlotImage,
+  isReplaceableSlotTarget,
+  SlotTargetObject,
+} from '../utils/imageSlot';
 
 import { ContextMenu } from './context-menu/ContextMenu';
 import Toolbar from './Toolbar';
@@ -33,6 +39,8 @@ export const MainPosterPreview = () => {
   const isAdmin = searchParams.get('type') === 'admin';
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isMouseInCanvasRef = useRef(false);
+  const slotInputRef = useRef<HTMLInputElement>(null);
+  const pendingSlotRef = useRef<SlotTargetObject | null>(null);
 
   const { activeTab, selectedId, selectedBlock, setActiveTab, setIsEdit } =
     useEditorStore(
@@ -54,10 +62,17 @@ export const MainPosterPreview = () => {
     isCropping,
     initialData,
     toggleDrawingMode,
+    compressImage,
+    replaceSlotImage,
   } = useFabricContext();
 
   useSetFabricControls();
   useKeyboardEvents(canvas, isMouseInCanvasRef);
+
+  const openSlotFilePicker = (target: SlotTargetObject) => {
+    pendingSlotRef.current = target;
+    slotInputRef.current?.click();
+  };
 
   useEffect(() => {
     if (!canvas || !initialData) return;
@@ -158,8 +173,16 @@ export const MainPosterPreview = () => {
 
       if (isActiveText) {
         setActiveTab('text');
+      } else if (isReplaceableSlotImage(activeObj)) {
+        setActiveTab('template');
       } else if (isActiveImage || isCropZone) {
         setActiveTab('image');
+      } else if (
+        isAdmin &&
+        activeObj.get('name') === 'slot-placeholder' &&
+        !(activeObj instanceof FabricImage)
+      ) {
+        setActiveTab('slot');
       } else if (isActiveShape && isAdmin) {
         setActiveTab('shape');
       } else {
@@ -202,6 +225,7 @@ export const MainPosterPreview = () => {
       if (
         options.target &&
         options.target instanceof FabricImage &&
+        !isReplaceableSlotImage(options.target) &&
         !isCropping
       ) {
         startCrop(fabricCanvas);
@@ -281,7 +305,7 @@ export const MainPosterPreview = () => {
       }
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (options: TPointerEventInfo) => {
       if (typeof window !== 'undefined') {
         console.log('[Fabric] 마우스 업: 선택 가능 상태 복구');
       }
@@ -292,6 +316,19 @@ export const MainPosterPreview = () => {
           target.set({ selectable: true });
         }
       });
+
+      if (isCropping) return;
+
+      if (isReplaceableSlotTarget(options.target)) {
+        fabricCanvas.setActiveObject(options.target);
+        setActiveTab(
+          options.target instanceof FabricImage ? 'template' : 'slot'
+        );
+
+        if (!isAdmin && !isFilledSlotImage(options.target)) {
+          openSlotFilePicker(options.target);
+        }
+      }
     };
 
     fabricCanvas.on('mouse:dblclick', handleDoubleClick);
@@ -306,11 +343,13 @@ export const MainPosterPreview = () => {
     };
   }, [
     canvas,
+    compressImage,
     handleDeleteEmptyShape,
+    isCropping,
+    replaceSlotImage,
     setActiveTab,
     setupEventListeners,
     startCrop,
-    isCropping,
   ]);
 
   // 마우스가 캔버스에 들어왔는지 나갔는지 확인
@@ -353,6 +392,30 @@ export const MainPosterPreview = () => {
 
   return (
     <>
+      <input
+        ref={slotInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={async event => {
+          const file = event.target.files?.[0];
+          const slotTarget = pendingSlotRef.current;
+          event.target.value = '';
+
+          if (!file || !canvas || !slotTarget) return;
+
+          const reader = new FileReader();
+          reader.onload = async loadEvent => {
+            const base64 = loadEvent.target?.result;
+            if (typeof base64 !== 'string') return;
+
+            const compressed = await compressImage(base64);
+            await replaceSlotImage(slotTarget, compressed);
+            pendingSlotRef.current = null;
+          };
+          reader.readAsDataURL(file);
+        }}
+      />
       <div
         onClick={() => {
           setIsEdit(false);

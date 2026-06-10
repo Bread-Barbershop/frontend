@@ -12,7 +12,7 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 function Toolbar() {
-  const { canvas, createTextBox, setDrawingType, drawingType } =
+  const { canvas, createTextBox, setDrawingType, drawingType, addSlotRect } =
     useFabricContext();
   const { activeTab, setActiveTab } = useEditorStore(
     useShallow(state => ({
@@ -64,6 +64,34 @@ function Toolbar() {
   ];
 
   if (isAdmin) {
+    TOOLBAR_ITEMS.unshift({
+      id: 'slot',
+      icon: (
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <path d="M3 9h18"></path>
+          <path d="M9 3v18"></path>
+        </svg>
+      ),
+      onClick: () => {
+        setActiveTab('slot');
+        addSlotRect();
+      },
+      active: activeTab === 'slot',
+      className:
+        activeTab === 'slot' ? '' : 'bg-[#0F766E] text-white border-none',
+      variant: activeTab === 'slot' ? 'bordered' : 'solid',
+    });
+
     TOOLBAR_ITEMS.unshift({
       id: 'shape',
       icon: (

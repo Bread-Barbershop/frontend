@@ -1,15 +1,18 @@
+import { useSearchParams } from 'next/navigation';
 import { useShallow } from 'zustand/shallow';
 
-// import { UtilityButton } from '@/components/atoms/button';
-// import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
+import { UtilityButton } from '@/components/atoms/button';
+import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import { BackgroundPanel } from './background/BackgroundPanel';
 import { GraphicPanel } from './graphic/GraphicPanel';
 import { ImagePanel } from './image/ImagePanel';
+import { TemplateImagePanel } from './image/TemplateImagePanel';
 import { RichTextPanel } from './richtext/RichTextPanel';
 import { ShapePanel } from './shape/ShapePanel';
+import { SlotPanel } from './slot/SlotPanel';
 
 export const MainPoster = () => {
   const { activeTab } = useEditorStore(
@@ -17,32 +20,33 @@ export const MainPoster = () => {
       activeTab: state.activeTab,
     }))
   );
-  const { canvas } = useFabricContext();
-  // const { canvas, exportCanvasPreview, exportIntersectedJSON } =
-  //   useFabricContext();
+  const searchParams = useSearchParams();
+  const isAdmin = searchParams.get('type') === 'admin';
+  const { canvas, exportCanvasPreview, exportIntersectedJSON } =
+    useFabricContext();
 
-  // const handleDownloadImage = () => {
-  //   const preview = exportCanvasPreview();
-  //   if (!preview) return;
-  //   const link = document.createElement('a');
-  //   link.href = preview.dataUrl;
-  //   link.download = preview.name;
-  //   link.click();
-  // };
+  const handleDownloadImage = () => {
+    const preview = exportCanvasPreview();
+    if (!preview) return;
+    const link = document.createElement('a');
+    link.href = preview.dataUrl;
+    link.download = preview.name;
+    link.click();
+  };
 
-  // const handleDownloadJSON = () => {
-  //   const json = exportIntersectedJSON();
-  //   if (!json) return;
-  //   const blob = new Blob([JSON.stringify(json, null, 2)], {
-  //     type: 'application/json',
-  //   });
-  //   const url = URL.createObjectURL(blob);
-  //   const link = document.createElement('a');
-  //   link.href = url;
-  //   link.download = 'template.json';
-  //   link.click();
-  //   URL.revokeObjectURL(url);
-  // };
+  const handleDownloadJSON = () => {
+    const json = exportIntersectedJSON();
+    if (!json) return;
+    const blob = new Blob([JSON.stringify(json, null, 2)], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'template.json';
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   if (!canvas) return null;
 
@@ -51,37 +55,40 @@ export const MainPoster = () => {
       className="flex flex-col pb-3.5 px-5 items-center w-full max-h-[812px] overflow-y-scroll overflow-x-hidden scrollbar-hide"
       data-canvas="true"
     >
-      {/* <NavigationBar>포스터 프리뷰(개발용)</NavigationBar> */}
-      {/* <div className="flex gap-2 w-full mb-4">
-        <UtilityButton
-          size="sm"
-          className="flex-1"
-          onClick={handleDownloadImage}
-        >
-          이미지 다운로드
-        </UtilityButton>
-        <UtilityButton
-          size="sm"
-          className="flex-1"
-          onClick={handleDownloadJSON}
-        >
-          데이터 다운로드
-        </UtilityButton>
-      </div> */}
+      {isAdmin && (
+        <>
+          <NavigationBar>포스터 프리뷰(개발용)</NavigationBar>
+          <div className="flex gap-2 w-full mb-4">
+            <UtilityButton
+              size="sm"
+              className="flex-1"
+              onClick={handleDownloadImage}
+            >
+              이미지 다운로드
+            </UtilityButton>
+            <UtilityButton
+              size="sm"
+              className="flex-1"
+              onClick={handleDownloadJSON}
+            >
+              데이터 다운로드
+            </UtilityButton>
+          </div>
+        </>
+      )}
 
-      {/* 텍스트 */}
       {activeTab === 'text' && <RichTextPanel />}
 
-      {/* 이미지 */}
       {activeTab === 'image' && <ImagePanel />}
 
-      {/* 도형 */}
+      {activeTab === 'template' && <TemplateImagePanel />}
+
+      {activeTab === 'slot' && <SlotPanel />}
+
       {activeTab === 'graphic' && <GraphicPanel />}
 
-      {/* 도형(Shape) 추가 패널 */}
       {activeTab === 'shape' && <ShapePanel />}
 
-      {/* 배경 */}
       {(activeTab === 'background' || !activeTab) && <BackgroundPanel />}
     </div>
   );

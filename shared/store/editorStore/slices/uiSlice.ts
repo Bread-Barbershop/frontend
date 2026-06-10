@@ -16,7 +16,17 @@ export const createUISlice: StateCreator<
       selectedId: id,
     }),
   activeTab: null,
-  setActiveTab: (tab: 'text' | 'image' | 'graphic' | 'background' | 'shape' | null) =>
+  setActiveTab: (
+    tab:
+      | 'text'
+      | 'image'
+      | 'template'
+      | 'slot'
+      | 'graphic'
+      | 'background'
+      | 'shape'
+      | null
+  ) =>
     set({ activeTab: tab }),
   drawingConfig: {
     width: 5,

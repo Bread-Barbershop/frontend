@@ -7,12 +7,14 @@ import { useFabricBackground } from '../hooks/useFabricBackground';
 import { useFabricGraphic } from '../hooks/useFabricGraphic';
 import { useFabricImage } from '../hooks/useFabricImage';
 import { useFabricShape } from '../hooks/useFabricShape';
+import { useFabricSlot } from '../hooks/useFabricSlot';
 import { useFabricText } from '../hooks/useFabricText';
 import { useTemplate } from '../hooks/useTemplate';
 
 type FabricContextType = ReturnType<typeof useFabric> &
   ReturnType<typeof useFabricGraphic> &
   ReturnType<typeof useFabricImage> &
+  ReturnType<typeof useFabricSlot> &
   ReturnType<typeof useFabricBackground> &
   ReturnType<typeof useFabricText> &
   ReturnType<typeof useFabricShape> &
@@ -46,6 +48,12 @@ export const FabricProvider = ({
     saveHistory: fabricValues.saveHistory,
   });
 
+  const fabricSlotValues = useFabricSlot({
+    canvas: fabricValues.canvas,
+    syncActiveObjectInfo: fabricValues.syncActiveObjectInfo,
+    saveHistory: fabricValues.saveHistory,
+  });
+
   const fabricBackgroundValues = useFabricBackground({
     canvas: fabricValues.canvas,
     saveHistory: fabricValues.saveHistory,
@@ -60,6 +68,7 @@ export const FabricProvider = ({
       ...fabricValues,
       ...fabricDiagramValues,
       ...fabricImageValues,
+      ...fabricSlotValues,
       ...fabricTextValues,
       ...fabricBackgroundValues,
       ...fabricShapeValues,
@@ -70,6 +79,7 @@ export const FabricProvider = ({
       fabricValues,
       fabricDiagramValues,
       fabricImageValues,
+      fabricSlotValues,
       fabricTextValues,
       fabricBackgroundValues,
       fabricShapeValues,

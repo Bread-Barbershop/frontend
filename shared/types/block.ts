@@ -85,9 +85,25 @@ export interface UISlice {
   setIsEdit: (isEdit: boolean) => void;
   selectedId: string | null;
   selectedBlock: (id: string | null) => void;
-  activeTab: 'text' | 'image' | 'graphic' | 'background' | 'shape' | null;
+  activeTab:
+    | 'text'
+    | 'image'
+    | 'template'
+    | 'slot'
+    | 'graphic'
+    | 'background'
+    | 'shape'
+    | null;
   setActiveTab: (
-    tab: 'text' | 'image' | 'graphic' | 'background' | 'shape' | null
+    tab:
+      | 'text'
+      | 'image'
+      | 'template'
+      | 'slot'
+      | 'graphic'
+      | 'background'
+      | 'shape'
+      | null
   ) => void;
   drawingConfig: DrawingConfig;
   setDrawingConfig: (config: Partial<DrawingConfig>) => void;

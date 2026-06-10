@@ -6,6 +6,7 @@ import { FilterType } from '@/components/molecules/image-editor';
 import { PhotoPreset } from '../libs/customImage-filter';
 import { PhotoPresetOptions, FabricImageWithLock } from '../types/fabric';
 import { updateCropRatio } from '../utils/fabricUtils';
+import { SlotImageObject } from '../utils/imageSlot';
 
 interface Props {
   syncActiveObjectInfo?: (canvas: Canvas) => void;
@@ -23,6 +24,7 @@ export const useFabricImage = ({
   const autoCropHandlerRef = useRef<((opt: TPointerEventInfo) => void) | null>(
     null
   );
+
   const escKeyHandlerRef = useRef<((e: KeyboardEvent) => void) | null>(null);
   const documentClickHandlerRef = useRef<((e: MouseEvent) => void) | null>(
     null
@@ -99,8 +101,14 @@ export const useFabricImage = ({
     setIsCropping(true);
 
     const img = activeObject;
+    const slot = (img as SlotImageObject).slot;
+    const slotRatio =
+      slot?.replaceable && img.getScaledHeight()
+        ? img.getScaledWidth() / img.getScaledHeight()
+        : null;
     // 이전에 적용되었던 비율 정보가 있다면 사용하고, 없다면 'free' 적용
     const activeRatio =
+      slotRatio ||
       ratio ||
       (img as FabricImage & { customCropRatio?: string | number })
         .customCropRatio ||
@@ -354,6 +362,11 @@ export const useFabricImage = ({
 
     // 캔버스 완전 외부 클릭 시 크롭 취소
     const onDocumentMouseDown = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('[data-crop-controls="true"]')) {
+        return;
+      }
+
       const canvasEl = canvas.getElement();
       const container =
         canvasEl.parentElement || canvasEl.closest('.canvas-container');
@@ -461,6 +474,12 @@ export const useFabricImage = ({
 
     canvas.discardActiveObject();
     canvas.renderAll();
+
+    if (syncActiveObjectInfo) {
+      syncActiveObjectInfo(canvas);
+    }
+
+    saveHistory();
   };
 
   // 크롭 취소/정리
