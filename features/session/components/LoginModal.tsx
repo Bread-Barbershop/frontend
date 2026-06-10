@@ -4,9 +4,13 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import { trapFocus, disableBodyScroll, getHiddenRoot, removeHiddenRoot } from '@/shared/utils/focusTrap';
-
 import InviaSimpleLogo3d from '@/shared/assets/logo/invia-simple-logo-3d.png';
+import {
+  trapFocus,
+  disableBodyScroll,
+  getHiddenRoot,
+  removeHiddenRoot,
+} from '@/shared/utils/focusTrap';
 
 interface LoginModalProps {
   open: boolean;
