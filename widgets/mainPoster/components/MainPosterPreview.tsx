@@ -120,6 +120,7 @@ export const MainPosterPreview = () => {
     const fabricCanvas = new Canvas(canvasRef.current, {
       width: 375,
       height: 812,
+      backgroundColor: '#ffffff',
       fireRightClick: true,
       stopContextMenu: true,
     });
@@ -234,10 +235,6 @@ export const MainPosterPreview = () => {
         return obj.type;
       };
 
-      console.log(
-        `[Fabric] 마우스 다운: ${getType(target)} (ID: ${targetId}, 잠금: ${isLocked})`
-      );
-
       // 잠긴 객체가 잡혔을 때, 그 위치에 있는 다른 (잠기지 않은) 객체를 찾아서 선택해줌
       if (target && isLocked && !isBackground) {
         const pointer =
@@ -282,9 +279,6 @@ export const MainPosterPreview = () => {
     };
 
     const handleMouseUp = () => {
-      if (typeof window !== 'undefined') {
-        console.log('[Fabric] 마우스 업: 선택 가능 상태 복구');
-      }
       // 드래그 종료 시 (또는 클릭 종료 시) 잠긴 객체와 배경 레이어의 selectable 다시 복구
       fabricCanvas.getObjects().forEach(obj => {
         const target = obj as FabricObjectWithLock;

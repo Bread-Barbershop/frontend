@@ -9,7 +9,7 @@ import { useToast } from '@/shared/hooks/useToast';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 function PosterPanel() {
-  const { canvas, applyTemplateToCanvas, saveHistory } = useFabricContext();
+  const { canvas, applyTemplateToCanvas } = useFabricContext();
   const [templates, setTemplates] = useState<TemplateItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +35,6 @@ function PosterPanel() {
   const handleSelectTemplate = async (template: TemplateItem) => {
     try {
       await applyTemplateToCanvas(canvas, template.jsonUrl);
-      saveHistory();
     } catch (err) {
       errorToast('템플릿을 적용하는 중 오류가 발생했습니다.');
       console.error('템플릿을 적용하는 중 오류가 발생했습니다.', err);
