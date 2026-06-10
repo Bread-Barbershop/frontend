@@ -15,7 +15,6 @@ function HomeButton() {
   const isDirty = useEditorStore(state => state.isDirty);
 
   const handleHomeClick = async (e: React.MouseEvent) => {
-    console.log('isDirty', isDirty);
     if (pathname.startsWith('/editor') && isDirty) {
       e.preventDefault();
 

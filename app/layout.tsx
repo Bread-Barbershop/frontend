@@ -91,7 +91,7 @@ export default function RootLayout({
       className={`${pretendard.variable} ${inter.variable} ${notoSansKr.variable} ${lineSeedKr.variable}`}
     >
       <body className="antialiased font-pretendard">
-        {children}
+        <div id="app-root">{children}</div>
         <ToastContainer />
         <ConfirmContainer />
         <Script
