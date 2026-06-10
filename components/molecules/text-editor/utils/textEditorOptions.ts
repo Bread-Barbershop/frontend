@@ -1,18 +1,11 @@
-import type { CSSProperties, ReactNode } from 'react';
+import {
+  createFontFamilyOptions,
+  createFontWeightOptions as buildFontWeightOptions,
+  type FontFamilyOption,
+  type FontWeightOption,
+} from '@/shared/fonts/fontOptions';
 
-export type FontFamilyOption = {
-  label: string;
-  value: string;
-  weights: string[];
-  defaultWeight: string;
-  style?: CSSProperties;
-};
-
-export type FontWeightOption = {
-  label: string;
-  value: string;
-  style?: CSSProperties;
-};
+import type { ReactNode } from 'react';
 
 export type FontSizeOption = {
   label: string;
@@ -26,73 +19,7 @@ export type TextAlignOption = {
   value: TextAlignValue;
 };
 
-const VARIABLE_FONT_WEIGHTS = [
-  '100',
-  '200',
-  '300',
-  '400',
-  '500',
-  '600',
-  '700',
-  '800',
-  '900',
-];
-
-const FONT_WEIGHT_LABELS: Record<string, string> = {
-  '100': 'Thin',
-  '200': 'ExtraLight',
-  '300': 'Light',
-  '400': 'Regular',
-  '500': 'Medium',
-  '600': 'SemiBold',
-  '700': 'Bold',
-  '800': 'ExtraBold',
-  '900': 'Black',
-};
-
-export const FONT_FAMILY_OPTIONS: FontFamilyOption[] = [
-  {
-    label: 'Default',
-    value: '',
-    weights: VARIABLE_FONT_WEIGHTS,
-    defaultWeight: '400',
-  },
-  {
-    label: 'LINESeedKR',
-    value: 'var(--font-lineseed)',
-    weights: ['300', '400', '700'],
-    defaultWeight: '400',
-    style: { fontFamily: 'var(--font-lineseed)' },
-  },
-  {
-    label: 'Pretendard',
-    value: 'var(--font-pretendard)',
-    weights: VARIABLE_FONT_WEIGHTS,
-    defaultWeight: '400',
-    style: { fontFamily: 'var(--font-pretendard)' },
-  },
-  {
-    label: 'Noto Sans',
-    value: 'var(--font-noto-kr)',
-    weights: ['400', '500', '700'],
-    defaultWeight: '400',
-    style: { fontFamily: 'var(--font-noto-kr)' },
-  },
-  {
-    label: 'Inter',
-    value: 'var(--font-inter)',
-    weights: ['400', '500', '700'],
-    defaultWeight: '400',
-    style: { fontFamily: 'var(--font-inter)' },
-  },
-  {
-    label: 'MaruBuri',
-    value: 'var(--font-maruburi)',
-    weights: ['200', '300', '400', '600', '700'],
-    defaultWeight: '400',
-    style: { fontFamily: 'var(--font-maruburi)' },
-  },
-];
+export const FONT_FAMILY_OPTIONS: FontFamilyOption[] = createFontFamilyOptions();
 
 export const FONT_SIZE_OPTIONS: FontSizeOption[] = [
   { label: '14', value: '14px' },
@@ -106,16 +33,7 @@ export const FONT_SIZE_OPTIONS: FontSizeOption[] = [
 export function createFontWeightOptions(
   fontFamily: FontFamilyOption
 ): FontWeightOption[] {
-  const fontFamilyStyle = fontFamily.value || 'var(--font-pretendard)';
-
-  return fontFamily.weights.map(weight => ({
-    label: FONT_WEIGHT_LABELS[weight] ?? weight,
-    value: weight,
-    style: {
-      fontFamily: fontFamilyStyle,
-      fontWeight: weight,
-    },
-  }));
+  return buildFontWeightOptions(fontFamily);
 }
 
 export function findFontWeightOption(

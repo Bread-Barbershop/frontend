@@ -1,3 +1,5 @@
+import { getFallbackWeight } from '@/shared/fonts/fontOptions';
+import { resolveFontFamily } from '@/shared/fonts/fontRegistry';
 import { BulkData, FontOption, TextAlignOption } from '@/shared/types/block';
 
 export function useBulkEditor(
@@ -26,9 +28,12 @@ export function useBulkEditor(
     option: FontOption | { label: string; value: string }
   ) => {
     const selected = option;
+    const nextFamily = resolveFontFamily(selected.value);
+
     onBulkChange({
       ...bulkData,
-      font: selected.value,
+      font: nextFamily,
+      fontWeight: getFallbackWeight(nextFamily, bulkData.fontWeight),
     });
   };
 

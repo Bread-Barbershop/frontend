@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { getFontFallbackStack, resolveFontFamily } from '@/shared/fonts/fontRegistry';
+
 import { BulkData } from '../types/block';
 
 export const toStyle = (
@@ -9,11 +11,7 @@ export const toStyle = (
 ): React.CSSProperties => ({
   fontSize: isEng ? '13px' : data.fontSize,
   fontFamily: data.font
-    ? data.font.startsWith('var(--')
-      ? data.font
-      : data.font.startsWith('font-')
-        ? `var(--${data.font})`
-        : data.font
+    ? getFontFallbackStack(resolveFontFamily(data.font))
     : undefined,
   fontWeight: data.fontWeight || (data.bold ? '600' : '400'),
   fontStyle: data.italic ? 'italic' : 'normal',
