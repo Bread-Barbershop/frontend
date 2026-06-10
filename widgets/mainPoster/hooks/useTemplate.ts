@@ -1,9 +1,8 @@
 import { Canvas, Textbox, IText } from 'fabric';
 
 import { getTemplateJson } from '@/app/api/template/utils';
+import { CUSTOM_FONTS } from '@/shared/fonts/fonts';
 import { useToast } from '@/shared/hooks/useToast';
-
-import { CUSTOM_FONTS } from '../constants/fonts';
 
 /**
  * 템플릿 JSON에서 모든 fontFamily를 추출하여 로드합니다.

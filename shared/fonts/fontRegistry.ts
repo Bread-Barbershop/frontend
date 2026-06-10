@@ -1,4 +1,4 @@
-import { CUSTOM_FONTS } from '@/widgets/mainPoster/constants/fonts';
+import { CUSTOM_FONTS } from '@/shared/fonts/fonts';
 
 export type AppFontFace = {
   family: string;
