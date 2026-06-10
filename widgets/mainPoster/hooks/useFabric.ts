@@ -389,10 +389,7 @@ export const useFabric = () => {
     const activeObjects = canvas.getActiveObjects();
 
     if (activeObjects.length === 0) {
-      if (
-        typeof window !== 'undefined' &&
-        window.location.pathname.startsWith('/editor?type=admin')
-      ) {
+      if (shouldLogSelection) {
         console.log('[Fabric] 선택 해제됨');
       }
       setActiveInfo({ type: null, isLocked: false, filters: [], styles: {} });
@@ -412,11 +409,7 @@ export const useFabric = () => {
       return obj.type;
     };
 
-    const isDev =
-      typeof window !== 'undefined' &&
-      window.location.pathname.startsWith('/editor?type=admin');
-
-    if (isDev) {
+    if (shouldLogSelection) {
       console.log(`[Fabric] 객체 활성화: ${getKoreanType(primaryObject)}`, {
         id: primaryObject.get('id'),
         isLocked: (primaryObject as any).isLocked,
