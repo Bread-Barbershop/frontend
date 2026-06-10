@@ -40,4 +40,6 @@ export const createUISlice: StateCreator<
     set(state => ({
       shapeConfig: { ...state.shapeConfig, ...config },
     })),
+  isDirty: false,
+  setIsDirty: (isDirty: boolean) => set({ isDirty }),
 });

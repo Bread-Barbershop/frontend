@@ -6,18 +6,19 @@ import React from 'react';
 
 import InviaLogo from '@/shared/assets/logo/invia-logo.svg';
 import { useConfirm } from '@/shared/hooks/useConfirm';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 function HomeButton() {
   const pathname = usePathname();
   const router = useRouter();
   const { confirm } = useConfirm();
+  const isDirty = useEditorStore(state => state.isDirty);
 
   const handleHomeClick = async (e: React.MouseEvent) => {
-    if (pathname.startsWith('/editor')) {
-      // 1. 비동기 작업 전에 즉시 기본 브라우저/Next.js 이동 방지
+    console.log('isDirty', isDirty);
+    if (pathname.startsWith('/editor') && isDirty) {
       e.preventDefault();
 
-      // 2. 모달 승인 대기
       const isConfirm = await confirm({
         message:
           '수정된 내용이 저장되지 않을 수 있습니다.\n정말 나가시겠습니까?',
@@ -25,7 +26,6 @@ function HomeButton() {
         yPosition: 'center',
       });
 
-      // 3. 승인 시 수동으로 이동 처리
       if (isConfirm) {
         router.push('/');
       }

@@ -33,6 +33,7 @@ export const MainPosterPreview = () => {
   const isAdmin = searchParams.get('type') === 'admin';
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isMouseInCanvasRef = useRef(false);
+  const isInitialLoadDoneRef = useRef(false);
 
   const { activeTab, selectedId, selectedBlock, setActiveTab, setIsEdit } =
     useEditorStore(
@@ -60,7 +61,15 @@ export const MainPosterPreview = () => {
   useKeyboardEvents(canvas, isMouseInCanvasRef);
 
   useEffect(() => {
-    if (!canvas || !initialData) return;
+    if (!canvas) {
+      isInitialLoadDoneRef.current = true;
+      return;
+    }
+
+    if (!initialData) {
+      isInitialLoadDoneRef.current = true;
+      return;
+    }
 
     const loadData = async () => {
       try {
@@ -106,8 +115,10 @@ export const MainPosterPreview = () => {
 
         await new Promise(resolve => requestAnimationFrame(resolve));
         canvas.requestRenderAll();
+        isInitialLoadDoneRef.current = true;
       } catch (error) {
         console.error('Fabric load Error:', error);
+        isInitialLoadDoneRef.current = true;
       }
     };
 
@@ -190,6 +201,24 @@ export const MainPosterPreview = () => {
       }
     }
   }, [canvas, activeTab, toggleDrawingMode, setActiveTab]);
+
+  useEffect(() => {
+    const fabricCanvas = canvas;
+    if (!fabricCanvas) return;
+
+    const markDirty = () => {
+      if (isInitialLoadDoneRef.current) {
+        useEditorStore.getState().setIsDirty(true);
+      }
+    };
+
+    const events = ['object:added', 'object:modified', 'object:removed'] as const;
+    events.forEach(event => fabricCanvas.on(event, markDirty));
+
+    return () => {
+      events.forEach(event => fabricCanvas.off(event, markDirty));
+    };
+  }, [canvas]);
 
   useEffect(() => {
     const fabricCanvas = canvas;

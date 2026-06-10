@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
+import { devtools, subscribeWithSelector } from 'zustand/middleware';
 
 import { BODY_BULK_DATA, TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
 import { EditorState } from '@/shared/types/block';
@@ -13,15 +13,16 @@ import { createShareUrlSlice } from './slices/shareUrlSlice';
 import { createUISlice } from './slices/uiSlice';
 
 export const useEditorStore = create<EditorState>()(
-  devtools((...a) => {
-    const [set] = a;
-    return {
-      ...createBlockSlice(...a),
-      ...createImageSlice(...a),
-      ...createUISlice(...a),
-      ...createDriveSlice(...a),
-      ...createBulkSlice(...a),
-      ...createShareUrlSlice(...a),
+  devtools(
+    subscribeWithSelector((...a) => {
+      const [set] = a;
+      return {
+        ...createBlockSlice(...a),
+        ...createImageSlice(...a),
+        ...createUISlice(...a),
+        ...createDriveSlice(...a),
+        ...createBulkSlice(...a),
+        ...createShareUrlSlice(...a),
       reset: () =>
         set({
           block: [],
@@ -47,9 +48,11 @@ export const useEditorStore = create<EditorState>()(
           hashFiles: [],
           cleanUpFiles: [],
           shareUrlTab: 'url',
+          isDirty: false,
         }),
-    };
-  })
+      };
+    })
+  )
 );
 
 export const selectUploadData = (state: EditorState) => ({
