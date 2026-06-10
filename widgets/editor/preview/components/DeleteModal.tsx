@@ -1,6 +1,12 @@
 import React, { forwardRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { trapFocus, disableBodyScroll, getHiddenRoot, removeHiddenRoot } from '@/shared/utils/focusTrap';
+
+import {
+  trapFocus,
+  disableBodyScroll,
+  getHiddenRoot,
+  removeHiddenRoot,
+} from '@/shared/utils/focusTrap';
 
 interface DeleteModalProps {
   setIsDeleteModal: (isDeleteModal: boolean) => void;
@@ -52,7 +58,10 @@ const DeleteModal = forwardRef<HTMLDivElement, DeleteModalProps>(
       "
         >
           <div className="pt-5">
-            <p id="delete-modal-title" className="w-full text-sm font-semibold text-text-primary font-pretendard text-center">
+            <p
+              id="delete-modal-title"
+              className="w-full text-sm font-semibold text-text-primary font-pretendard text-center"
+            >
               해당 페이지를 삭제하시겠습니까?
             </p>
           </div>
