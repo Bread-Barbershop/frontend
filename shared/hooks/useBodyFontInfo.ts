@@ -22,6 +22,7 @@ export const useBodyFontInfo = () => {
       textDecoration: style.textDecoration || undefined,
       fontSize: style.fontSize || undefined,
       color: style.color || undefined,
+      textAlign: style.textAlign || undefined,
     };
   }, [bodyData]);
 };
