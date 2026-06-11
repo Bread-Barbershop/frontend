@@ -135,7 +135,7 @@ export default function TextEditorColorPickerPopover({
       {isOpen && (
         <motion.div
           ref={pickerRef}
-          className="overflow-hidden rounded-lg bg-white shadow-xl"
+          className="rounded-lg shadow-xl"
           style={popoverStyle}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
