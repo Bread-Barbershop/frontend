@@ -43,13 +43,13 @@ function GalleryPreview({
 
   return (
     <MiddlePreviewWrapper
-      className={cn(className, 'px-1')}
+      className={cn(className, 'px-0')}
       checkedEnglishTitle={blockInfo.props.isEnglishTitle}
       enTitle={blockInfo.props.enTitle}
       enTitleDefault="GALLERY"
       koTitle={blockInfo.props.title}
       koTitleDefault="갤러리"
-      titleClassName={titleClassName}
+      titleClassName={cn('px-5', titleClassName)}
       {...rest}
     >
       {preview.length === 0 && <ImageDefault />}

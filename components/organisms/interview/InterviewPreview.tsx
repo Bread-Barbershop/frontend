@@ -60,7 +60,7 @@ export const InterviewPreview = ({
       enTitleDefault="INTERVIEW"
       koTitle={title}
       koTitleDefault="인터뷰"
-      titleClassName={titleClassName}
+      titleClassName={cn('px-5', titleClassName)}
       {...rest}
     >
       <div className="w-full flex justify-center relative overflow-hidden px-px">

@@ -59,7 +59,7 @@ export const SpeakerInformationPreview = ({
       enTitleDefault="SPEAKER INFORMATION"
       koTitle={title}
       koTitleDefault="연사정보"
-      titleClassName={titleClassName}
+      titleClassName={cn('px-5', titleClassName)}
       {...rest}
     >
       <div className="w-full flex justify-center relative overflow-hidden px-px">
