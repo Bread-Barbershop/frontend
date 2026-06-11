@@ -2,8 +2,16 @@ import { Textbox } from 'fabric';
 import { CSSProperties, useEffect, useMemo, useState } from 'react';
 
 import { Selector } from '@/components/molecules/selector';
+import {
+  createFontFamilyOptions,
+  getFallbackWeight,
+} from '@/shared/fonts/fontOptions';
+import {
+  getDefaultFontWeight,
+  getFontFallbackStack,
+  getFontWeights,
+} from '@/shared/fonts/fontRegistry';
 
-import { CUSTOM_FONTS } from '../../constants/fonts';
 import { useFabricContext } from '../../context/FabricContext';
 import {
   loadCustomFont,
@@ -66,7 +74,7 @@ function FontFamily() {
                   label: fontFamily,
                   value: fontFamily,
                   style: {
-                    fontFamily: `"${fontFamily}", Pretendard`,
+                    fontFamily: getFontFallbackStack(fontFamily),
                     fontWeight: 400,
                   },
                 }
@@ -80,8 +88,8 @@ function FontFamily() {
                   value: fontWeight,
                   style: {
                     fontFamily: isMixedFontFamily
-                      ? 'Pretendard'
-                      : `"${fontFamily}", Pretendard`,
+                      ? getFontFallbackStack('Pretendard')
+                      : getFontFallbackStack(fontFamily),
                     fontWeight,
                   },
                 }
@@ -101,25 +109,18 @@ function FontFamily() {
     };
   }, [activeObject, getRichStyles]);
 
-  const FAMILIES = Array.from(new Set(CUSTOM_FONTS.map(f => f.family)));
-  const FAMILY_OPTIONS = FAMILIES.map(family => createFontOption(family, 400));
+  const FAMILY_OPTIONS = createFontFamilyOptions().map(option =>
+    createFontOption(option.value, 400)
+  );
 
   const weightOptions = useMemo(() => {
-    const available = CUSTOM_FONTS.filter(f => f.family === selectedFont.value);
-    return Array.from(new Set(available.map(f => f.weight)))
-      .sort((a, b) => Number(a) - Number(b))
+    return getFontWeights(selectedFont.value)
       .map(weight => ({
         label: weightToLabel(weight),
         value: weight,
         style: createFontStyle(selectedFont.value, weight),
       }));
   }, [selectedFont.value]);
-
-  const getFallbackWeight = (weights: string[], currentWeight: string) => {
-    if (weights.includes(currentWeight)) return currentWeight;
-    if (weights.includes('400')) return '400';
-    return weights[0] ?? '400';
-  };
 
   if (!canvas) return null;
 
@@ -132,19 +133,18 @@ function FontFamily() {
         onSelect={async option => {
           const newFamily = option.value;
 
-          const weights = CUSTOM_FONTS.filter(f => f.family === newFamily).map(
-            f => String(f.weight)
-          );
-
           const currentWeight =
             selectedWeight.value === MIXED_VALUE ? '400' : selectedWeight.value;
 
-          const nextWeight = getFallbackWeight(weights, currentWeight);
+          const nextWeight = getFallbackWeight(newFamily, currentWeight) ?? getDefaultFontWeight(newFamily);
 
           const nextSelectedWeight = {
             label: weightToLabel(nextWeight),
             value: nextWeight,
-            style: { fontFamily: 'Pretendard', fontWeight: 400 },
+            style: {
+              fontFamily: getFontFallbackStack(newFamily),
+              fontWeight: nextWeight,
+            },
           };
 
           await preloadFontFamilyWeights(newFamily);
@@ -153,7 +153,7 @@ function FontFamily() {
             label: newFamily,
             value: newFamily,
             style: {
-              fontFamily: `"${newFamily}", Pretendard`,
+              fontFamily: getFontFallbackStack(newFamily),
               fontWeight: 400,
             },
           });
@@ -183,7 +183,7 @@ function FontFamily() {
             label: weightToLabel(nextWeight),
             value: nextWeight,
             style: {
-              fontFamily: `'${selectedFont.value}', Pretendard`,
+              fontFamily: getFontFallbackStack(selectedFont.value),
               fontWeight: `${nextWeight}`,
             },
           });

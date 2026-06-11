@@ -297,6 +297,7 @@ export const useInvitationUpload = () => {
         console.log('[uploadFlow] saveInvitationFlow 완료');
         await applySaveResult(saveResult, allTasks);
         console.log('[uploadFlow] applySaveResult 완료');
+        useEditorStore.getState().setIsDirty(false);
       } else {
         console.log(
           '[uploadFlow] 재저장 (invitationUuid:',
@@ -329,6 +330,7 @@ export const useInvitationUpload = () => {
         console.log('[uploadFlow] saveInvitationFlow 완료');
         await applySaveResult(saveResult, allTasks);
         console.log('[uploadFlow] applySaveResult 완료');
+        useEditorStore.getState().setIsDirty(false);
 
         // 클린업 대상 계산 및 실행 (non-blocking)
         const newHashFileIds = new Set(

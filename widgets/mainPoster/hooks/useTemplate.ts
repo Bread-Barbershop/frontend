@@ -1,9 +1,8 @@
 import { Canvas, Textbox, IText } from 'fabric';
 
 import { getTemplateJson } from '@/app/api/template/utils';
+import { CUSTOM_FONTS } from '@/shared/fonts/fonts';
 import { useToast } from '@/shared/hooks/useToast';
-
-import { CUSTOM_FONTS } from '../constants/fonts';
 
 /**
  * 템플릿 JSON에서 모든 fontFamily를 추출하여 로드합니다.
@@ -71,7 +70,14 @@ export const preloadFonts = async (templateJson: any) => {
   await document.fonts.ready;
 };
 
-export const useTemplate = () => {
+interface UseTemplateProps {
+  runHistoryTransaction?: (
+    task: () => Promise<void> | void,
+    options?: { save?: boolean }
+  ) => Promise<void>;
+}
+
+export const useTemplate = ({ runHistoryTransaction }: UseTemplateProps = {}) => {
   /**
    * 템플릿 JSON을 가져와서 캔버스에 적용합니다.
    * @param canvas Fabric 캔버스 인스턴스
@@ -91,7 +97,45 @@ export const useTemplate = () => {
       await preloadFonts(templateJson);
 
       // 2. JSON 로드
-      await canvas.loadFromJSON(templateJson);
+      const prepareTextObjects = () => {
+        const objects = canvas.getObjects();
+        for (const obj of objects) {
+          if (
+            obj.isType('textbox') ||
+            obj.isType('itext') ||
+            obj.isType('text')
+          ) {
+            const textObj = obj as Textbox | IText;
+
+            textObj.set({
+              dirty: true,
+              objectCaching: false,
+            });
+
+            if ('_initDimensions' in textObj) {
+              (textObj as any)._initDimensions();
+            } else if ('initDimensions' in textObj) {
+              (textObj as any).initDimensions();
+            }
+
+            textObj.setCoords();
+          }
+        }
+      };
+
+      if (runHistoryTransaction) {
+        await runHistoryTransaction(
+          async () => {
+            await canvas.loadFromJSON(templateJson);
+            prepareTextObjects();
+            await new Promise(resolve => requestAnimationFrame(resolve));
+          },
+          { save: true }
+        );
+      } else {
+        await canvas.loadFromJSON(templateJson);
+        prepareTextObjects();
+      }
 
       // 3. 개체별 보정 및 렌더링 최적화
       const objects = canvas.getObjects();

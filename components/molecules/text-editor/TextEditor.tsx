@@ -25,6 +25,11 @@ import AlignRightIcon from '@/shared/assets/icons/alignRight.svg';
 import FontColorIcon from '@/shared/assets/icons/color.svg';
 import ItalicIcon from '@/shared/assets/icons/italic.svg';
 import UnderlineIcon from '@/shared/assets/icons/underline.svg';
+import {
+  loadCustomFont,
+  preloadFontFamilyWeights,
+} from '@/shared/fonts/fontLoader';
+import { FontFamilyOption, FontWeightOption } from '@/shared/fonts/fontOptions';
 import { cn } from '@/shared/utils/cn';
 
 import { Selector } from '../selector';
@@ -37,9 +42,7 @@ import {
   FONT_FAMILY_OPTIONS,
   FONT_SIZE_OPTIONS,
   getDefaultFontWeightOption,
-  type FontFamilyOption,
   type FontSizeOption,
-  type FontWeightOption,
   type TextAlignOption,
   type TextAlignValue,
 } from './utils/textEditorOptions';
@@ -202,16 +205,17 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       setFontFamilySelected(selected);
       setFontWeightSelected(nextWeight);
 
-      const command = editor.chain().focus();
-      if (!selected.value) {
-        command.unsetFontFamily().setFontWeight(nextWeight.value).run();
-        return;
-      }
+      void (async () => {
+        await preloadFontFamilyWeights(selected.value);
+        await loadCustomFont(selected.value, nextWeight.value);
 
-      command
-        .setFontFamily(selected.value)
-        .setFontWeight(nextWeight.value)
-        .run();
+        editor
+          .chain()
+          .focus()
+          .setFontFamily(selected.value)
+          .setFontWeight(nextWeight.value)
+          .run();
+      })();
     };
 
     const handleFontWeightSelect = (
@@ -219,7 +223,10 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
     ) => {
       const selected = option as FontWeightOption;
       setFontWeightSelected(selected);
-      editor.chain().focus().setFontWeight(selected.value).run();
+      void (async () => {
+        await loadCustomFont(fontFamilySelected.value, selected.value);
+        editor.chain().focus().setFontWeight(selected.value).run();
+      })();
     };
 
     const handleFontSizeSelect = (

@@ -1,7 +1,7 @@
 'use client';
 
 import { notFound } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { EditorBgmPlayerProvider } from '@/components/organisms/bgm/context/EditorBgmPlayerContext';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
@@ -14,6 +14,7 @@ import Preview from '@/widgets/editor/preview/Preview';
 import RightPanel from '@/widgets/editor/rightPanel/RightPanel';
 import { FabricProvider } from '@/widgets/mainPoster/context/FabricContext';
 
+import { useEditorDirtyTracker } from '../../hooks/useEditorDirtyTracker';
 import { useInitData } from '../hooks/useInitData';
 import { useSavedData } from '../hooks/useSavedData';
 
@@ -29,6 +30,8 @@ function EditorUpdate({ folderId, uuid }: Props) {
     uuid,
     invitationFolderId: folderId,
   });
+
+  const [isStoreReady, setIsStoreReady] = useState(false);
 
   const reset = useEditorStore(state => state.reset);
   const resetBgm = useBgmStore(state => state.reset);
@@ -46,9 +49,12 @@ function EditorUpdate({ folderId, uuid }: Props) {
         initBulkData();
         await initEditStore();
         initBgmStore();
+        setIsStoreReady(true);
       })();
     }
   }, [savedData, initEditStore, initBgmStore, initBulkData]);
+  console.log('isStoreReady', isStoreReady);
+  useEditorDirtyTracker(isStoreReady);
   usePreventBack();
   if (error) notFound();
   if (loading || !savedData) {

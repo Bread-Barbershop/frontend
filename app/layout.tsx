@@ -1,3 +1,5 @@
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Metadata } from 'next';
 import { Inter, Noto_Sans_KR } from 'next/font/google';
 import localFont from 'next/font/local';
@@ -6,6 +8,7 @@ import { ReactNode } from 'react';
 
 import { ConfirmContainer } from '@/components/molecules/confirm/ConfirmContainer';
 import { ToastContainer } from '@/components/molecules/toast/ToastContainer';
+import ClarityInit from '@/features/monitoring/ClarityInit';
 
 import './styles/globals.css';
 
@@ -91,7 +94,10 @@ export default function RootLayout({
       className={`${pretendard.variable} ${inter.variable} ${notoSansKr.variable} ${lineSeedKr.variable}`}
     >
       <body className="antialiased font-pretendard">
-        {children}
+        <div id="app-root">{children}</div>
+        <Analytics />
+        <SpeedInsights />
+        <ClarityInit />
         <ToastContainer />
         <ConfirmContainer />
         <Script

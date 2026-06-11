@@ -1,4 +1,4 @@
-import { CUSTOM_FONTS } from '../constants/fonts';
+import { getFontFaces, getFontFamilies } from '@/shared/fonts/fontRegistry';
 
 const loadingFontMap = new Map<string, Promise<void>>();
 
@@ -24,12 +24,8 @@ export const loadCustomFont = async (
   style = 'normal'
 ) => {
   const normalizedWeight = String(weight);
-
-  const font = CUSTOM_FONTS.find(
-    font =>
-      font.family === family &&
-      String(font.weight) === normalizedWeight &&
-      font.style === style
+  const font = getFontFaces(family).find(
+    face => String(face.weight) === normalizedWeight && face.style === style
   );
 
   if (!font) {
@@ -60,18 +56,13 @@ export const loadCustomFont = async (
 };
 
 export const getPreviewFonts = () => {
-  const familyMap = new Map<string, (typeof CUSTOM_FONTS)[number][]>();
+  return getFontFamilies()
+    .map(fontFamily => {
+      const regular = fontFamily.faces.find(face => String(face.weight) === '400');
 
-  CUSTOM_FONTS.forEach(font => {
-    const fonts = familyMap.get(font.family) ?? [];
-    familyMap.set(font.family, [...fonts, font]);
-  });
-
-  return Array.from(familyMap.values()).map(fonts => {
-    const regular = fonts.find(font => String(font.weight) === '400');
-
-    return regular ?? fonts[0];
-  });
+      return regular ?? fontFamily.faces[0];
+    })
+    .filter(Boolean);
 };
 
 export const preloadPreviewFonts = async () => {
@@ -88,9 +79,7 @@ export const preloadFontFamilyWeights = async (
   family: string,
   style = 'normal'
 ) => {
-  const fonts = CUSTOM_FONTS.filter(
-    font => font.family === family && font.style === style
-  );
+  const fonts = getFontFaces(family).filter(face => face.style === style);
 
   await Promise.allSettled(
     fonts.map(font =>

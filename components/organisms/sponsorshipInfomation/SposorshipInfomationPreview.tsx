@@ -11,12 +11,14 @@ interface Props {
   blockInfo: EditorBlock<'sponsorshipInfomation'>;
   className: string;
   titleClassName?: string;
+  isGuestPage?: boolean;
   onClick: () => void;
 }
 
 function SponsorshipInfomationPreview({
   blockInfo,
   className,
+  isGuestPage = false,
   ...rest
 }: Props) {
   const preview = useResolvedImageSources(blockInfo.props.images);
@@ -35,12 +37,16 @@ function SponsorshipInfomationPreview({
       koTitleDefault="후원사"
       {...rest}
     >
-      <AutoScrollCarousel className="h-21 w-full" carouselClassName="gap-10">
-        {displayPreview.map((item, index) => (
-          <div
-            key={index}
-            className={`min-w-0 flex-[0_0_26%] rounded-lg ${index === 0 ? 'ml-10' : ''}`}
-          >
+      {(!displayPreview || displayPreview.length === 0) && !isGuestPage && (
+        <div className="w-full flex justify-between">
+          <div className="w-21 h-21 bg-border-neutral rounded-lg" />
+          <div className="w-21 h-21 bg-border-neutral rounded-lg" />
+          <div className="w-21 h-21 bg-border-neutral rounded-lg" />
+        </div>
+      )}
+      {displayPreview.length === 1 &&
+        displayPreview.map((item, index) => (
+          <div key={index} className={`w-21 h-21 flex-center`}>
             <Image
               src={item}
               alt="후원사 로고 이미지"
@@ -49,7 +55,23 @@ function SponsorshipInfomationPreview({
             />
           </div>
         ))}
-      </AutoScrollCarousel>
+      {displayPreview.length > 1 && (
+        <AutoScrollCarousel className="h-21 w-full" carouselClassName="gap-10">
+          {displayPreview.map((item, index) => (
+            <div
+              key={index}
+              className={`min-w-0 flex-[0_0_26%] ${index === 0 ? 'ml-10' : ''}`}
+            >
+              <Image
+                src={item}
+                alt="후원사 로고 이미지"
+                fill
+                className="object-cover rounded-lg"
+              />
+            </div>
+          ))}
+        </AutoScrollCarousel>
+      )}
     </MiddlePreviewWrapper>
   );
 }
