@@ -4,6 +4,7 @@ import { openAccountApp } from '@/app/api/account/openAccountApp';
 import { Button } from '@/components/atoms/button';
 import CopyIcon from '@/shared/assets/icons/copy.svg';
 import KakaoIcon from '@/shared/assets/icons/kakao.svg';
+import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { useToast } from '@/shared/hooks/useToast';
 
 type Account = {
@@ -46,6 +47,7 @@ export const AccountsPerGroupPreview = ({
   accountList: Account[];
 }) => {
   const { success: successToast } = useToast();
+  const { fontFamily } = useBodyFontInfo();
 
   const handleCopyAccount = async (bank: string, account: string) => {
     try {
@@ -73,7 +75,7 @@ export const AccountsPerGroupPreview = ({
           transition={{ duration: 0.25, ease: 'easeInOut' }}
           className="overflow-hidden"
         >
-          <div className="flex flex-col gap-2 pb-[11px] pt-2">
+          <div className="flex flex-col gap-2 pb-[11px] pt-2 bg-white">
             {accountList.map((account: Account, j: number) => {
               const displayName = account.name.trim() || '예금주';
               const displayBank = account.bank.trim() || '은행';
@@ -84,7 +86,10 @@ export const AccountsPerGroupPreview = ({
                   key={j}
                   className="flex min-h-13 w-full shrink-0 items-center gap-2 pl-3 pr-2"
                 >
-                  <div className="flex h-full w-full flex-col justify-center text-start">
+                  <div
+                    className="flex h-full w-full flex-col justify-center text-start"
+                    style={{ fontFamily }}
+                  >
                     <p className="text-[13px] text-start font-semibold text-border-liner">
                       {displayName}
                     </p>

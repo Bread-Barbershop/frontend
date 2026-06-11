@@ -4,6 +4,7 @@ import { Image } from '@/components/atoms/image';
 import { PreviewBody } from '@/components/atoms/preview-body/PreviewBody';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
+import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import {
   useResolvedImageSource,
   type ResolvableImageSource,
@@ -19,12 +20,14 @@ function pickResolvableImageSource(value: unknown): ResolvableImageSource {
 interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'coupleIntroduction'>;
   titleClassName?: string;
+  isGuestPage?: boolean;
 }
 
 function CoupleIntroductionPreview({
   blockInfo,
   className = '',
   titleClassName,
+  isGuestPage = false,
   ...rest
 }: Props) {
   const {
@@ -40,6 +43,7 @@ function CoupleIntroductionPreview({
     showContent = false,
     brideFirst = false,
   } = blockInfo.props;
+  const { fontFamily } = useBodyFontInfo();
 
   const hasGroomImageSlot =
     Array.isArray(groomImage.image) && groomImage.image.length > 0;
@@ -126,11 +130,13 @@ function CoupleIntroductionPreview({
                 />
               </div>
             ) : (
-              <div className="flex aspect-square w-full items-center justify-center rounded-3xl bg-border-neutral">
-                <p>사진을 추가해 주세요.</p>
-              </div>
+              !isGuestPage && (
+                <div className="flex aspect-square w-full items-center justify-center rounded-3xl bg-border-neutral">
+                  <p>사진을 추가해 주세요.</p>
+                </div>
+              )
             )}
-            <p className="text-[16px] font-semibold">
+            <p className="text-[16px] font-medium" style={{ fontFamily }}>
               {profile.name || '성함'}
             </p>
           </div>

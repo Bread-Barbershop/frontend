@@ -1,4 +1,8 @@
-import type { EditorBlock, PersistedEditorBlock, ShareUrlState } from '@/shared/types/block';
+import type {
+  EditorBlock,
+  PersistedEditorBlock,
+  ShareUrlState,
+} from '@/shared/types/block';
 import type {
   BgmData,
   BulkJson,
@@ -62,10 +66,15 @@ type SaveInvitationFlowParams = {
 type SaveInvitationFlowResult = {
   success: boolean;
   invitationUuid: string;
+  guestUrl: string;
   results: {
     images: BatchResult;
     audio: BatchResult;
     data: BatchResult;
+  };
+  files: {
+    dataJsonFileId: string;
+    thumbnailFileId?: string;
   };
   folders: {
     workspaceFolderId: string;
@@ -76,6 +85,14 @@ type SaveInvitationFlowResult = {
   debug: {
     refreshedToken: boolean;
     usedAccessToken: string;
+  };
+  visibility: {
+    attempted: boolean;
+    ok: boolean;
+    published: boolean;
+    ready?: boolean;
+    error?: string;
+    status?: number;
   };
 };
 
@@ -101,7 +118,21 @@ type UploadResult = {
 type CommitResult = {
   dataStep: StepResult;
   thumbnailSaveFailed: boolean;
+  metaSaveFailed: boolean;
+  thumbnailFileId?: string;
 };
+
+type VisibilityResponsePayload = {
+  ok?: boolean;
+  published?: boolean;
+  ready?: boolean;
+  guestUrl?: string;
+  dataJsonFileId?: string;
+  error?: string;
+  status?: number;
+};
+
+type InitialVisibilityResult = SaveInvitationFlowResult['visibility'];
 
 function toPreparedInvitationSave(
   response: SaveInvitationPrepareResponse
@@ -235,7 +266,7 @@ async function upload(params: {
       usedAccessToken: token.currentToken,
     };
   };
- 
+
   const imagesStep = await runUploadStep({
     originFile: images,
     folderId: prep.imageFolderId,
@@ -364,7 +395,7 @@ async function commit(params: {
     return obj;
   };
   const replacedShareUrl = replaceFiles(normalizedShareUrl) as ShareUrlState;
-  
+
   // block props 내부의 File도 같은 기준으로 치환해 data.json에 직렬화 가능한 값만 남긴다.
   const newData = data.map(item => ({
     ...item,
@@ -422,7 +453,6 @@ async function commit(params: {
     invitationImage: images,
   };
 
-
   const dataFile = new File([JSON.stringify(payload)], 'data.json', {
     type: 'application/json',
   });
@@ -464,6 +494,8 @@ async function commit(params: {
   };
 
   // 공유 데이터 저장 실패는 기존 정책대로 전체 저장 실패로 보지 않는다.
+  let metaSaveFailed = false;
+
   try {
     const primaryImage =
       replacedShareUrl.images?.[0] ?? replacedShareUrl.urlImage?.[0];
@@ -480,8 +512,8 @@ async function commit(params: {
     );
     const hasValidLocation = Boolean(
       placeBlock &&
-        typeof placeBlock.props.lat === 'number' &&
-        typeof placeBlock.props.lng === 'number'
+      typeof placeBlock.props.lat === 'number' &&
+      typeof placeBlock.props.lng === 'number'
     );
     const showLocationButton =
       hasValidLocation && normalizedShareUrl.showLocationButton;
@@ -491,6 +523,7 @@ async function commit(params: {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         invitationFolderId: prep.invitationFolderId,
+        dataJsonFileId: prep.dataJsonFileId,
         shareData: {
           title: normalizedShareUrl.title,
           description: normalizedShareUrl.description,
@@ -507,12 +540,15 @@ async function commit(params: {
       throw new Error(`shareUrl save failed: ${shareRes.status}`);
     }
   } catch (error) {
+    metaSaveFailed = true;
     console.error('Share data save failed:', error);
   }
 
   return {
     dataStep,
     thumbnailSaveFailed,
+    metaSaveFailed,
+    thumbnailFileId: finalMainPoster.thumbnailFileId,
   };
 }
 
@@ -544,6 +580,51 @@ async function prepareFallback(invitationUuid: string) {
   });
 }
 
+async function requestInitialPublicVisibility(
+  invitationFolderId: string
+): Promise<InitialVisibilityResult> {
+  try {
+    const res = await fetch('/api/drive/invitationVisibility', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        invitationFolderId,
+        visible: true,
+      }),
+    });
+    const payload = (await res
+      .json()
+      .catch(() => ({}))) as VisibilityResponsePayload;
+
+    if (!res.ok || payload.ok === false) {
+      return {
+        attempted: true,
+        ok: false,
+        published: false,
+        ready: false,
+        error: payload.error ?? `visibility_publish_failed:${res.status}`,
+        status: payload.status ?? res.status,
+      };
+    }
+
+    return {
+      attempted: true,
+      ok: true,
+      published: payload.published ?? true,
+      ready: payload.ready,
+      status: payload.status ?? res.status,
+    };
+  } catch (error) {
+    return {
+      attempted: true,
+      ok: false,
+      published: false,
+      ready: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
 // saveInvitationFlow: 저장 버튼에서 호출되는 최상위 오케스트레이션 함수다.
 // prepare -> upload -> commit 순서로 실행하고, 기존 UI가 기대하는 결과 형태를 그대로 반환한다.
 export async function saveInvitationFlow(
@@ -563,7 +644,12 @@ export async function saveInvitationFlow(
 
   let prep = await prepare(invitationUuid);
   let token = createTokenState(prep);
-  let uploadResult = await upload({ prep, images: params.uploadImages ?? images, audio, token });
+  let uploadResult = await upload({
+    prep,
+    images: params.uploadImages ?? images,
+    audio,
+    token,
+  });
   let commitResult = await commit({
     prep,
     token,
@@ -587,7 +673,12 @@ export async function saveInvitationFlow(
   ) {
     prep = await prepareFallback(prep.invitationUuid);
     token = createTokenState(prep);
-    uploadResult = await upload({ prep, images: params.uploadImages ?? images, audio, token });
+    uploadResult = await upload({
+      prep,
+      images: params.uploadImages ?? images,
+      audio,
+      token,
+    });
     commitResult = await commit({
       prep,
       token,
@@ -603,26 +694,48 @@ export async function saveInvitationFlow(
     });
   }
 
+  const saveFailedBeforeVisibility =
+    uploadResult.imagesStep.final.fail.length +
+    uploadResult.audioStep.final.fail.length +
+    commitResult.dataStep.final.fail.length +
+    (commitResult.thumbnailSaveFailed ? 1 : 0) +
+    (commitResult.metaSaveFailed ? 1 : 0);
+  const visibility =
+    saveFailedBeforeVisibility === 0
+      ? await requestInitialPublicVisibility(prep.invitationFolderId)
+      : {
+          attempted: false,
+          ok: false,
+          published: false,
+          ready: false,
+        };
+
   setPreparedInvitation({
     ...prep,
     accessToken: token.currentToken,
     expiresAt: token.currentExpiresAt,
   });
 
-  // 기존 반환 정책을 유지한다. 이미지/오디오/data/썸네일 중 실패가 있으면 success=false다.
+  // 저장 필수 단계 또는 초기 공개 권한 처리 실패가 있으면 success=false다.
   const totalFailed =
-    uploadResult.imagesStep.final.fail.length +
-    uploadResult.audioStep.final.fail.length +
-    commitResult.dataStep.final.fail.length +
-    (commitResult.thumbnailSaveFailed ? 1 : 0);
+    saveFailedBeforeVisibility +
+    (visibility.attempted && !visibility.ok ? 1 : 0);
 
   return {
     success: totalFailed === 0,
     invitationUuid: prep.invitationUuid,
+    guestUrl:
+      typeof window !== 'undefined'
+        ? `${window.location.origin}/guest/${prep.dataJsonFileId}`
+        : `/guest/${prep.dataJsonFileId}`,
     results: {
       images: uploadResult.imagesStep.final,
       audio: uploadResult.audioStep.final,
       data: commitResult.dataStep.final,
+    },
+    files: {
+      dataJsonFileId: prep.dataJsonFileId,
+      thumbnailFileId: commitResult.thumbnailFileId,
     },
     folders: {
       workspaceFolderId: prep.workspaceFolderId,
@@ -634,5 +747,6 @@ export async function saveInvitationFlow(
       refreshedToken: token.refreshedToken,
       usedAccessToken: token.currentToken,
     },
+    visibility,
   };
 }

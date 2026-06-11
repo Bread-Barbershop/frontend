@@ -1,5 +1,7 @@
 import { BulkData } from '@/shared/types/block';
 
+export const DEFAULT_BACKGROUND_COLOR = '#FFFFFF';
+
 export const TITLE_BULK_DATA: BulkData = {
   font: 'LINESeedKR',
   fontSize: '20px',

@@ -13,10 +13,16 @@ interface Props {
   blockInfo: EditorBlock<'picture'>;
   className: string;
   titleClassName?: string;
+  isGuestPage?: boolean;
   onClick: () => void;
 }
 
-function PictureBlockPreview({ blockInfo, className, ...rest }: Props) {
+function PictureBlockPreview({
+  blockInfo,
+  className,
+  isGuestPage = false,
+  ...rest
+}: Props) {
   const preview = useResolvedImageSource(
     blockInfo.props.image && blockInfo.props.image.length > 0
       ? blockInfo.props.image[0]
@@ -46,7 +52,7 @@ function PictureBlockPreview({ blockInfo, className, ...rest }: Props) {
             <PreviewBody html={blockInfo.props.contentsHtml ?? ''} />
           )}
         </div>
-        {!preview && (
+        {!preview && !isGuestPage && (
           <div className="w-full aspect-square flex-center bg-border-neutral rounded-3xl">
             <p className="text-text-secondary text-sm">사진을 추가해주세요.</p>
           </div>

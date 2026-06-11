@@ -1,9 +1,22 @@
+export type InvitationVisibility = 'private' | 'public';
+
+export type InvitationReadiness =
+  | 'idle'
+  | 'pending'
+  | 'checking'
+  | 'ready'
+  | 'failed';
+
 export type InviteListItem = {
   folderId: string;
   name: string;
   createdTime?: string;
   invitationUuid?: string;
-  publishedUrl?: string | null;
+  dataJsonFileId?: string;
+  guestUrl?: string | null;
+  published: boolean;
+  readiness: InvitationReadiness;
+  isPending?: boolean;
   thumbnailUrl?: string | null;
   hasKakaoShareData?: boolean;
 };
@@ -27,7 +40,7 @@ export type LoadInvitationResponse = {
   nextPageToken: string | null;
 };
 
-export type PublishResult = {
+export type InvitationVisibilityResult = {
   ok: boolean;
   published?: boolean;
   ready?: boolean;

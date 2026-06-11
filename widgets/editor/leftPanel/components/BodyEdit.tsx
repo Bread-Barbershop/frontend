@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
@@ -9,6 +10,7 @@ import type { BulkColorPickerId } from '@/components/molecules/preview-text-edit
 import { BODY_BULK_DATA } from '@/shared/data/sample/bulkData';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { BulkData } from '@/shared/types/block';
+import { applyBulkBodyFontSizeToBlocks } from '@/shared/utils/applyBulkBodyFontSize';
 import { toStyle } from '@/shared/utils/toStyle';
 
 type BodyEditProps = {
@@ -20,9 +22,11 @@ function BodyEdit({
   activeColorPickerId,
   onActiveColorPickerChange,
 }: BodyEditProps) {
-  const { bodyData, setBodyData } = useEditorStore(
+  const { bodyData, block, setBlock, setBodyData } = useEditorStore(
     useShallow(state => ({
+      block: state.block,
       bodyData: state.bodyData,
+      setBlock: state.setBlock,
       setBodyData: state.setBodyData,
     }))
   );
@@ -31,19 +35,29 @@ function BodyEdit({
     bodyData.isDefault ? BODY_BULK_DATA : bodyData
   );
 
+  // const handleReset = () => {
+  //   setBulkBodyData(BODY_BULK_DATA);
+  //   setBodyData(BODY_BULK_DATA);
+  //   setBlock(applyBulkBodyFontSizeToBlocks(block, BODY_BULK_DATA.fontSize));
+  // };
+
+  const handleApply = () => {
+    setBodyData({ ...bulkBodyData, isDefault: false });
+    setBlock(applyBulkBodyFontSizeToBlocks(block, bulkBodyData.fontSize));
+  };
+
   return (
     <div className="w-full">
       <NavigationBar
         action={
-          <UtilityButton
-            size="md"
-            variant="primary"
-            onClick={() => {
-              setBodyData({ ...bulkBodyData, isDefault: false });
-            }}
-          >
-            적용하기
-          </UtilityButton>
+          <div className="flex items-center gap-1">
+            {/* <UtilityButton size="md" variant="primary" onClick={handleReset}>
+              되돌리기
+            </UtilityButton> */}
+            <UtilityButton size="md" variant="primary" onClick={handleApply}>
+              적용하기
+            </UtilityButton>
+          </div>
         }
         direction="right"
       >
@@ -56,12 +70,12 @@ function BodyEdit({
         activeColorPickerId={activeColorPickerId}
         onActiveColorPickerChange={onActiveColorPickerChange}
       >
-        <div className="w-full h-full flex flex-col gap-1 ">
+        <div className="w-full h-full flex flex-col gap-1">
           <p
             className="font-base text-base"
             style={toStyle(bulkBodyData, false)}
           >
-            본문입니다.
+            본문입니다
           </p>
         </div>
       </TextEditorPreview>

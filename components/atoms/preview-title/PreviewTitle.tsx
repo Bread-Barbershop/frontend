@@ -2,11 +2,9 @@
 
 import { VariantProps } from 'class-variance-authority';
 import React from 'react';
-import { useShallow } from 'zustand/shallow';
 
-import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { useTitleFontInfo } from '@/shared/hooks/useTitleFontInfo';
 import { cn } from '@/shared/utils/cn';
-import { toStyle } from '@/shared/utils/toStyle';
 
 import { previewTitleVariants } from './PreviewTitle.style';
 
@@ -25,13 +23,9 @@ export const PreviewTitle = ({
   className,
   titleClassName,
 }: PreviewTitleProps) => {
-  const koText = koTitle?.trim() || '제목을 입력해주세요';
+  const koText = koTitle?.trim() || '제목을 입력해 주세요';
   const enText = enTitle?.trim();
-  const { titleData } = useEditorStore(
-    useShallow(state => ({
-      titleData: state.titleData,
-    }))
-  );
+  const { koStyle, enStyle } = useTitleFontInfo();
 
   return (
     <div className={cn('flex flex-col gap-1 w-full', className)}>
@@ -41,9 +35,7 @@ export const PreviewTitle = ({
             previewTitleVariants({ language: 'en' }),
             titleClassName
           )}
-          style={
-            !titleData.isDefault ? toStyle(titleData, true, true) : undefined
-          }
+          style={enStyle}
         >
           {enText}
         </p>
@@ -54,7 +46,7 @@ export const PreviewTitle = ({
             previewTitleVariants({ language: 'ko' }),
             titleClassName
           )}
-          style={!titleData.isDefault ? toStyle(titleData, true) : undefined}
+          style={koStyle}
         >
           {koText}
         </p>

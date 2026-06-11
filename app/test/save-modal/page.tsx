@@ -132,6 +132,7 @@ export default function SaveModalTestPage() {
         <SaveModal
           isLoading={mode === 'loading'}
           isFail={mode === 'fail'}
+          pendingInvitation={null}
           retry={retry}
           onClose={() => setIsOpen(false)}
         />

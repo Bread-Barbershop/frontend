@@ -1,23 +1,33 @@
 'use client';
 import React from 'react';
-import { useShallow } from 'zustand/shallow';
 
 import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
-import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
-import { toStyle } from '@/shared/utils/toStyle';
+import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 
 export const PreviewBody = ({ html }: { html: string }) => {
-  const { bodyData } = useEditorStore(
-    useShallow(state => ({
-      bodyData: state.bodyData,
-    }))
-  );
+  const {
+    fontFamily,
+    fontWeight,
+    fontStyle,
+    textDecoration,
+    fontSize,
+    color,
+    textAlign,
+  } = useBodyFontInfo();
 
   return (
     <div
-      className={`text-sm ${previewTextClassName}`}
+      className={`text-sm select-none ${previewTextClassName}`}
       dangerouslySetInnerHTML={{ __html: html }}
-      style={!bodyData.isDefault ? toStyle(bodyData, false) : undefined}
+      style={{
+        fontFamily,
+        fontWeight,
+        fontStyle,
+        textDecoration,
+        fontSize,
+        color,
+        textAlign,
+      }}
     />
   );
 };
