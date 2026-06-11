@@ -56,14 +56,6 @@ function SkeletonSideActions() {
           boxShadow: dashboardCarouselLayout.sideActionShadow,
         }}
       />
-      <div
-        className="rounded-lg bg-[#FEE500]/45"
-        style={{
-          width: dashboardCarouselLayout.sideActionSize,
-          height: dashboardCarouselLayout.sideActionSize,
-          boxShadow: dashboardCarouselLayout.sideActionShadow,
-        }}
-      />
     </div>
   );
 }
@@ -101,9 +93,19 @@ function SkeletonCenterActions() {
     <>
       <div className="absolute inset-0 z-[5] bg-black/8" />
       <div
-        className="absolute inset-0 z-10 flex flex-col items-center justify-center"
-        style={{ gap: dashboardCarouselLayout.centerActionGap }}
+        className="absolute inset-x-0 bottom-0 z-10 flex flex-col items-center"
+        style={{
+          gap: dashboardCarouselLayout.centerActionGap,
+          paddingBottom: dashboardCarouselLayout.centerActionBottomPadding,
+        }}
       >
+        <div
+          className="rounded-lg bg-[#FAE100]/58"
+          style={{
+            width: dashboardCarouselLayout.primaryActionWidth,
+            height: dashboardCarouselLayout.primaryActionHeight,
+          }}
+        />
         <div
           className="rounded-lg bg-white/58"
           style={{

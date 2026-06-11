@@ -24,13 +24,12 @@ type PolicySection = {
 };
 
 const policyInfo = {
-  serviceName: 'Invia',
   title: '개인정보처리방침',
   effectiveDate: '2026년 4월 24일',
-  lastUpdated: '2026년 4월 24일',
+  lastUpdated: '2026년 6월 11일',
   descriptions: [
-    '본 서비스(이하 “Invia”)는 이용자의 개인정보를 중요하게 생각하며 관련 법령을 준수합니다.',
-    '본 방침은 서비스가 이용자의 개인정보를 어떻게 처리하는지 설명합니다.',
+    'Invia는 이용자의 개인정보를 중요하게 생각하며 관련 법령을 준수합니다.',
+    '본 방침은 서비스가 이용자의 개인정보와 Google Drive 데이터를 어떻게 처리하는지 설명합니다.',
   ],
 };
 
@@ -43,15 +42,14 @@ const policySections: PolicySection[] = [
         id: 'no-database',
         type: 'paragraph',
         content:
-          '서비스는 별도의 데이터베이스를 운영하지 않으며, 이용자의 개인정보를 자체 서버에 영구 저장하지 않습니다.',
+          '서비스는 별도 고객 데이터베이스에 초대장 본문이나 개인 연락처 정보를 영구 저장하지 않습니다.',
       },
       {
         id: 'google-drive-storage',
         type: 'paragraph',
         content: (
           <>
-            서비스는 Google 계정을 통한 인증 및 Google Drive 연동 기능을
-            제공하며, 초대장 데이터 등 서비스 콘텐츠는{' '}
+            초대장 데이터와 업로드한 파일은{' '}
             <span className="font-semibold underline underline-offset-4">
               이용자 본인의 Google Drive
             </span>
@@ -66,21 +64,16 @@ const policySections: PolicySection[] = [
     title: '처리하는 개인정보 항목',
     contents: [
       {
-        id: 'collectable-info',
-        type: 'paragraph',
-        content: '서비스는 다음과 같은 정보를 처리할 수 있습니다.',
-      },
-      {
         id: 'google-login-title',
         type: 'subtitle',
-        content: 'Google OAuth 인증 및 Google Drive 권한 승인 시',
+        content: 'Google OAuth 인증 및 Drive 권한',
       },
       {
         id: 'google-login-list',
         type: 'list',
         items: [
-          'Google OAuth 인증 및 Google Drive 연동을 위한 접근 토큰',
-          'Google Drive 파일 생성·조회·수정·삭제 권한 정보',
+          'Google OAuth 인증과 Drive 연동에 필요한 접근 토큰',
+          '서비스가 생성한 Google Drive 파일의 생성, 조회, 수정, 삭제 권한 정보',
         ],
       },
       {
@@ -92,35 +85,26 @@ const policySections: PolicySection[] = [
         id: 'generated-info-list',
         type: 'list',
         items: [
-          '이용자가 직접 입력한 초대장 콘텐츠(예: 전화번호, 계좌번호, 메시지, 일정·장소 정보)',
-          '서비스 운영에 필요한 최소한의 접속·인증 정보(세션/쿠키 등)',
+          '이용자가 직접 입력한 초대장 내용, 일정, 장소, 연락처, 메시지',
+          '초대장에 업로드한 이미지, 오디오, 대표 이미지',
+          '서비스 운영에 필요한 최소한의 접속 및 인증 정보',
         ],
-      },
-      {
-        id: 'log-policy',
-        type: 'paragraph',
-        content:
-          '이용자가 입력한 전화번호·계좌번호 등 콘텐츠 본문은 별도 고객 DB로 수집·축적하지 않으며, 애플리케이션 코드는 해당 본문을 의도적으로 로그에 저장하지 않습니다.',
       },
     ],
   },
   {
     id: 'purpose',
-    title: '개인정보의 처리 목적',
+    title: '개인정보 처리 목적',
     contents: [
-      {
-        id: 'purpose-intro',
-        type: 'paragraph',
-        content: '서비스는 다음 목적을 위해 개인정보를 처리합니다.',
-      },
       {
         id: 'purpose-list',
         type: 'list',
         items: [
-          'Google OAuth 인증 및 Google Drive 권한 승인',
-          '이용자 요청에 따른 Google Drive 파일 생성·조회·수정·삭제 기능 제공',
-          '초대장 작성/공유 등 서비스 핵심 기능 제공',
-          '서비스 안정성 유지 및 장애 대응',
+          'Google OAuth 인증 및 Google Drive 권한 확인',
+          '이용자 요청에 따른 초대장 저장, 수정, 삭제 기능 제공',
+          '초대장 공개/비공개 상태 관리',
+          '초대장 공유 링크와 카카오톡 공유 미리보기 제공',
+          '서비스 안정성 유지와 장애 대응',
         ],
       },
     ],
@@ -133,8 +117,8 @@ const policySections: PolicySection[] = [
         id: 'storage-list',
         type: 'list',
         items: [
-          '초대장 데이터 등 주요 콘텐츠는 이용자의 Google Drive에 저장됩니다.',
-          '서비스는 이용자 개인정보를 자체 서버 DB에 별도로 영구 저장하지 않습니다.',
+          '초대장 데이터와 주요 콘텐츠는 이용자의 Google Drive에 저장됩니다.',
+          '서비스는 초대장 본문을 별도 서버 DB에 영구 저장하지 않습니다.',
           '이용자가 Google Drive에서 파일을 삭제하거나 계정 연동을 해제하면, 해당 데이터는 서비스 접근 범위에서 제외됩니다.',
         ],
       },
@@ -142,22 +126,23 @@ const policySections: PolicySection[] = [
   },
   {
     id: 'publishing-and-sharing',
-    title: '초대장 발행 및 공유 시 공개 범위',
+    title: '초대장 공개 및 공유 시 공개 범위',
     contents: [
       {
-        id: 'publish-intro',
+        id: 'visibility-intro',
         type: 'paragraph',
         content:
-          '이용자가 초대장을 발행하거나 공유 기능을 사용하는 경우, 초대장 표시와 공유 미리보기 제공을 위해 일부 데이터가 링크를 가진 사람이 접근 가능한 상태로 공개될 수 있습니다.',
+          '이용자가 초대장을 공개로 전환하거나 공유 기능을 사용하는 경우, 초대장 표시와 공유 미리보기 제공을 위해 일부 데이터가 링크를 가진 사람이 접근 가능한 상태로 제공될 수 있습니다.',
       },
       {
-        id: 'publish-list',
+        id: 'visibility-list',
         type: 'list',
         items: [
-          '발행된 초대장 페이지는 링크를 가진 사람이 접근할 수 있습니다.',
+          '공개 상태의 초대장 페이지는 링크를 가진 사람이 접근할 수 있습니다.',
           '초대장 표시를 위해 필요한 data.json, 이미지, 오디오 등 Google Drive 파일 또는 폴더에 공개 읽기 권한이 부여될 수 있습니다.',
-          '공유 기능 사용 시 공유 제목, 설명, 대표 이미지, 위치 정보 등이 링크 미리보기 및 공유 기능 제공을 위해 저장·공개될 수 있습니다.',
-          'Google 계정 권한 철회는 서비스의 향후 Drive 접근을 제한하지만, 이미 공개된 Drive 파일의 공개 상태를 자동으로 해제하지는 않을 수 있습니다.',
+          '공유 기능 사용 시 공유 제목, 설명, 대표 이미지, 위치 정보 등이 링크 미리보기 및 공유 기능 제공을 위해 사용될 수 있습니다.',
+          '마이페이지에서 초대장을 비공개로 전환하면 초대장 폴더의 공개 읽기 권한을 회수합니다.',
+          'Google 계정 권한을 철회하면 서비스의 이후 Drive 접근은 제한되지만, 이미 공개로 설정된 Drive 파일 또는 폴더의 공개 상태가 자동으로 해제되지 않을 수 있습니다.',
         ],
       },
     ],
@@ -173,21 +158,11 @@ const policySections: PolicySection[] = [
           '서비스는 Google OAuth 동의 절차를 통해 필요한 최소 권한 범위에서만 Google 사용자 데이터에 접근합니다.',
       },
       {
-        id: 'google-oauth-list',
-        type: 'list',
-        items: [
-          'Google Drive 내 앱 동작에 필요한 파일 생성·조회·수정·삭제',
-          '이용자가 요청한 기능 수행 목적 외 사용 금지',
-          'Google 사용자 데이터의 판매 또는 광고 목적 이용 금지',
-        ],
-      },
-      {
         id: 'google-policy',
         type: 'paragraph',
         content: (
           <>
-            아래 내용은 OAuth scope 자체가 아니라 Google API로 받은 사용자
-            데이터의 사용 및 이전 원칙에 관한 안내입니다. Invia는{' '}
+            Invia는{' '}
             <a
               href="https://developers.google.com/terms/api-services-user-data-policy"
               target="_blank"
@@ -196,42 +171,10 @@ const policySections: PolicySection[] = [
             >
               Google API Services User Data Policy
             </a>
-            의 제한적 사용 요건에 따라 Google 사용자 데이터를 서비스 기능 제공
-            범위에서만 사용합니다.
+            를 준수하며, Google 사용자 데이터는 서비스 기능 제공 범위에서만
+            사용합니다.
           </>
         ),
-      },
-    ],
-  },
-  {
-    id: 'third-party',
-    title: '개인정보의 제3자 제공',
-    contents: [
-      {
-        id: 'third-party-rule',
-        type: 'paragraph',
-        content:
-          '서비스는 이용자의 개인정보를 제3자에게 제공하지 않습니다. 다만, 법령에 근거가 있거나 이용자가 사전에 동의한 경우에는 예외로 합니다.',
-      },
-    ],
-  },
-  {
-    id: 'cookies',
-    title: '쿠키 및 인증 정보',
-    contents: [
-      {
-        id: 'cookie-intro',
-        type: 'paragraph',
-        content:
-          '서비스는 로그인 상태 유지를 위해 쿠키 또는 이에 준하는 세션 정보를 사용할 수 있습니다.',
-      },
-      {
-        id: 'cookie-list',
-        type: 'list',
-        items: [
-          '인증 토큰은 서비스 인증 목적에 한해 처리됩니다.',
-          '이용자는 브라우저 설정을 통해 쿠키 저장을 거부할 수 있으나, 이 경우 일부 기능 이용이 제한될 수 있습니다.',
-        ],
       },
     ],
   },
@@ -240,27 +183,20 @@ const policySections: PolicySection[] = [
     title: '이용자의 권리 및 행사 방법',
     contents: [
       {
-        id: 'rights-intro',
-        type: 'paragraph',
-        content: '이용자는 언제든지 개인정보 관련 권리를 행사할 수 있습니다.',
-      },
-      {
         id: 'rights-list',
         type: 'list',
         items: [
-          <>
-            <a
-              href="https://myaccount.google.com/permissions"
-              target="_blank"
-              rel="noreferrer"
-              className="font-medium underline underline-offset-4"
-            >
-              Google 계정 권한 관리
-            </a>
-            에서 Invia의 Google Drive 접근 권한 철회
-          </>,
-          'Google Drive에서 발행된 초대장 파일 또는 폴더의 공개 권한 변경',
-          '초대장 파일 삭제(이용자 Google Drive에서 직접 삭제)',
+          <a
+            key="google-permissions"
+            href="https://myaccount.google.com/permissions"
+            target="_blank"
+            rel="noreferrer"
+            className="font-medium underline underline-offset-4"
+          >
+            Google 계정 권한 관리에서 Invia의 Google Drive 접근 권한 철회
+          </a>,
+          '마이페이지에서 초대장의 공개/비공개 상태 변경',
+          '마이페이지에서 초대장 삭제',
           '서비스 로그아웃 및 이용 중단',
           '문의처를 통한 개인정보 관련 권리 행사 요청',
         ],
@@ -272,18 +208,13 @@ const policySections: PolicySection[] = [
     title: '개인정보 보호를 위한 조치',
     contents: [
       {
-        id: 'security-intro',
-        type: 'paragraph',
-        content: '서비스는 개인정보 보호를 위해 다음과 같은 조치를 취합니다.',
-      },
-      {
         id: 'security-list',
         type: 'list',
         items: [
           'OAuth 기반 인증 적용',
           '최소 권한 원칙에 따른 Google API scope 사용',
-          'HTTPS 기반 암호화 통신 적용',
-          '애플리케이션 코드에서 초대장 콘텐츠 본문 로그 저장 방지',
+          'HTTPS 기반 통신 적용',
+          '애플리케이션 코드에서 초대장 본문 로그 저장 방지',
         ],
       },
     ],
@@ -296,21 +227,19 @@ const policySections: PolicySection[] = [
         id: 'owner-intro',
         type: 'paragraph',
         content:
-          '개인정보 보호 관련 문의 및 권리행사 요청은 아래 연락처로 접수하실 수 있습니다.',
+          '개인정보 보호 관련 문의와 권리 행사 요청은 아래 연락처로 접수할 수 있습니다.',
       },
       {
         id: 'owner-email',
         type: 'list',
         items: [
-          <>
-            이메일:{' '}
-            <a
-              href="mailto:teambread.official@gmail.com"
-              className="font-medium underline underline-offset-4"
-            >
-              teambread.official@gmail.com
-            </a>
-          </>,
+          <a
+            key="owner-email"
+            href="mailto:teambread.official@gmail.com"
+            className="font-medium underline underline-offset-4"
+          >
+            teambread.official@gmail.com
+          </a>,
         ],
       },
     ],
@@ -323,12 +252,12 @@ const policySections: PolicySection[] = [
         id: 'changes-notice',
         type: 'paragraph',
         content:
-          '본 개인정보처리방침의 내용 추가·삭제 및 수정이 있을 경우, 변경사항의 시행 7일 전부터 서비스 내 공지사항 또는 본 페이지를 통해 고지합니다. 다만 이용자 권리에 중대한 변경이 발생하는 경우 30일 전부터 고지할 수 있습니다.',
+          '본 개인정보처리방침이 변경되는 경우, 변경 사항의 시행 7일 전부터 서비스 공지사항 또는 본 페이지를 통해 안내합니다. 이용자 권리에 중대한 변경이 있는 경우 30일 전부터 안내할 수 있습니다.',
       },
       {
         id: 'changes-date',
         type: 'paragraph',
-        content: `시행일: ${policyInfo.effectiveDate} / 최종 수정일: ${policyInfo.lastUpdated}`,
+        content: `시행일 ${policyInfo.effectiveDate} / 최종 수정일 ${policyInfo.lastUpdated}`,
       },
     ],
   },
@@ -389,7 +318,7 @@ function PolicySectionCard({
   );
 }
 
-function Policy() {
+export default function Policy() {
   return (
     <DashboardShell>
       <article className="w-full px-5 pb-16 pt-12 text-[#171717] sm:px-8 lg:px-12 lg:pb-20 lg:pt-16">
@@ -467,19 +396,15 @@ function Policy() {
             </div>
           </section>
 
-          <section className="mb-16 grid gap-7 rounded-[2rem] bg-[#171717] px-7 py-8 text-white sm:px-10 sm:py-10 lg:grid-cols-[1fr_auto] lg:items-end">
+          <section className="grid gap-5 border-t border-black py-9 sm:grid-cols-[1fr_auto] sm:items-center">
             <div>
-              <p className="text-xs font-bold tracking-[0.2em] text-white/45">
-                PRIVACY QUESTIONS
+              <p className="text-xs font-bold tracking-[0.2em] text-black/40">
+                CONTACT
               </p>
-              <h2 className="mt-4 text-3xl font-semibold tracking-[-0.06em] sm:text-4xl">
-                궁금한 점이 있나요?
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-white/60 sm:text-base">
-                개인정보 처리와 관련된 문의를 이메일로 남겨주세요.
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-black/60 sm:text-base sm:leading-8">
+                개인정보 처리와 관련해 궁금한 점이 있으면 문의해 주세요.
               </p>
             </div>
-
             <ContactEmailActions />
           </section>
         </div>
@@ -487,5 +412,3 @@ function Policy() {
     </DashboardShell>
   );
 }
-
-export default Policy;
