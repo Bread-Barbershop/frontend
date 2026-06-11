@@ -12,12 +12,14 @@ interface Props {
   blockInfo: EditorBlock<'organizerInformation'>;
   className: string;
   titleClassName?: string;
+  isGuestPage?: boolean;
 }
 
 export const OrganizerInformationPreview = ({
   blockInfo,
   className,
   titleClassName,
+  isGuestPage = false,
   ...rest
 }: Props) => {
   const {
@@ -56,6 +58,11 @@ export const OrganizerInformationPreview = ({
       childClassName="gap-6"
       {...rest}
     >
+      {!preview && !isGuestPage && (
+        <div className="w-83.75 h-83.75 overflow-hidden rounded-3xl flex-center bg-border-neutral">
+          <p className="text-text-secondary text-sm">사진을 추가해주세요.</p>
+        </div>
+      )}
       {preview && (
         <button
           type="button"

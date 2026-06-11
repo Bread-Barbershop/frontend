@@ -12,15 +12,25 @@ interface Props {
     flower: boolean;
   };
   fontFamily?: CSSProperties['fontFamily'];
+  isGuestPage?: boolean;
 }
 
-export const MemberPreview = ({ member, fontFamily }: Props) => {
+export const MemberPreview = ({
+  member,
+  fontFamily,
+  isGuestPage = false,
+}: Props) => {
   const { image, relation, name, flower } = member;
   const preview = useResolvedImageSource(
     image && image.length > 0 ? image[0] : null
   );
   return (
     <>
+      {!preview && !isGuestPage && (
+        <div className="w-[158.5px] h-[158.5px] rounded-3xl overflow-hidden flex-center bg-border-neutral">
+          <p className="text-text-secondary text-sm">사진을 추가해주세요.</p>
+        </div>
+      )}
       {preview && (
         <div className="w-[158.5px] h-[158.5px] rounded-3xl overflow-hidden">
           <Image src={preview} alt="가족 사진" fill className="object-cover" />
