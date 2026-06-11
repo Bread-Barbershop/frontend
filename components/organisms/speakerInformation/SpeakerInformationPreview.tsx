@@ -12,12 +12,14 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'speakerInformation'>;
   className: string;
   titleClassName?: string;
+  isGuestPage?: boolean;
 }
 
 export const SpeakerInformationPreview = ({
   blockInfo,
   className,
   titleClassName,
+  isGuestPage = false,
   ...rest
 }: Props) => {
   const { title, speakers, checkedEnglishTitle, englishTitle } =
@@ -81,7 +83,7 @@ export const SpeakerInformationPreview = ({
                 (displayItems?.length ?? 0) === 1 && 'flex-center'
               )}
             >
-              <InformationPreview speaker={speaker} />
+              <InformationPreview speaker={speaker} isGuestPage={isGuestPage} />
             </div>
           ))}
         </Carousel>

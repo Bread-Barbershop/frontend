@@ -11,12 +11,14 @@ interface Props {
   className: string;
   titleClassName?: string;
   blockInfo: EditorBlock<'myChild'>;
+  isGuestPage?: boolean;
 }
 
 export const MyChildPreview = ({
   className,
   titleClassName,
   blockInfo,
+  isGuestPage = false,
   ...rest
 }: Props) => {
   const {
@@ -49,6 +51,11 @@ export const MyChildPreview = ({
       childClassName="w-full flex flex-col gap-6"
       {...rest}
     >
+      {!preview && !isGuestPage && (
+        <div className="relative w-full aspect-square overflow-hidden rounded-3xl flex-center bg-border-neutral">
+          <p className="text-text-secondary text-sm">사진을 추가해주세요.</p>
+        </div>
+      )}
       {preview && (
         <div className="relative w-full aspect-square overflow-hidden rounded-3xl">
           <Image src={preview} alt="아기 사진" fill className="object-cover" />

@@ -10,9 +10,10 @@ interface Props {
     image: (File | string)[];
     flower: boolean;
   };
+  isGuestPage?: boolean;
 }
 
-export const MemberPreview = ({ member }: Props) => {
+export const MemberPreview = ({ member, isGuestPage = false }: Props) => {
   const { image, relation, name, flower } = member;
   const { fontFamily } = useBodyFontInfo();
   const preview = useResolvedImageSource(
@@ -20,6 +21,11 @@ export const MemberPreview = ({ member }: Props) => {
   );
   return (
     <>
+      {!preview && !isGuestPage && (
+        <div className="w-[158.5px] h-[158.5px] rounded-3xl overflow-hidden flex-center bg-border-neutral">
+          <p className="text-text-secondary text-sm">사진을 추가해주세요.</p>
+        </div>
+      )}
       {preview && (
         <div className="w-[158.5px] h-[158.5px] rounded-3xl overflow-hidden">
           <Image src={preview} alt="가족 사진" fill className="object-cover" />

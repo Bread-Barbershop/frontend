@@ -14,6 +14,7 @@ interface Props {
   blockInfo: EditorBlock<'gallery'>;
   className: string;
   titleClassName?: string;
+  isGuestPage?: boolean;
   onClick: () => void;
 }
 
@@ -21,6 +22,7 @@ function GalleryPreview({
   blockInfo,
   className,
   titleClassName,
+  isGuestPage = false,
   ...rest
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
@@ -52,7 +54,7 @@ function GalleryPreview({
       titleClassName={cn('px-5', titleClassName)}
       {...rest}
     >
-      {preview.length === 0 && <ImageDefault />}
+      {preview.length === 0 && !isGuestPage && <ImageDefault />}
       {preview.length !== 0 && (
         <TemplateComponent
           preview={preview}

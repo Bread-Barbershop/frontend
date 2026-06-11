@@ -1,10 +1,7 @@
 import 'server-only';
 import { NextResponse } from 'next/server';
 
-import {
-  guestPath,
-  probeGuestData,
-} from '@/app/api/drive/_lib/guestReadiness';
+import { guestPath, probeGuestData } from '@/app/api/drive/_lib/guestReadiness';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

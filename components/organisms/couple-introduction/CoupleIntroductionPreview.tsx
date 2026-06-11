@@ -20,12 +20,14 @@ function pickResolvableImageSource(value: unknown): ResolvableImageSource {
 interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'coupleIntroduction'>;
   titleClassName?: string;
+  isGuestPage?: boolean;
 }
 
 function CoupleIntroductionPreview({
   blockInfo,
   className = '',
   titleClassName,
+  isGuestPage = false,
   ...rest
 }: Props) {
   const {
@@ -128,9 +130,11 @@ function CoupleIntroductionPreview({
                 />
               </div>
             ) : (
-              <div className="flex aspect-square w-full items-center justify-center rounded-3xl bg-border-neutral">
-                <p>사진을 추가해 주세요.</p>
-              </div>
+              !isGuestPage && (
+                <div className="flex aspect-square w-full items-center justify-center rounded-3xl bg-border-neutral">
+                  <p>사진을 추가해 주세요.</p>
+                </div>
+              )
             )}
             <p className="text-[16px] font-medium" style={{ fontFamily }}>
               {profile.name || '성함'}

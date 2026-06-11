@@ -10,12 +10,14 @@ interface Props {
   className: string;
   titleClassName?: string;
   blockInfo: EditorBlock<'myFamily'>;
+  isGuestPage?: boolean;
 }
 
 export const MyFamilyPreview = ({
   className,
   titleClassName,
   blockInfo,
+  isGuestPage = false,
   ...rest
 }: Props) => {
   const {
@@ -47,7 +49,7 @@ export const MyFamilyPreview = ({
             key={index}
             className="flex flex-col items-center gap-4.5 w-[calc(50%-9px)] max-w-[158.5px]"
           >
-            <MemberPreview member={member} />
+            <MemberPreview member={member} isGuestPage={isGuestPage} />
           </div>
         ))}
       </div>

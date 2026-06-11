@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
@@ -44,7 +45,10 @@ function extractFontFamiliesFromString(value: string) {
   return families;
 }
 
-function collectGuestFontFamilies(value: unknown, families = new Set<string>()) {
+function collectGuestFontFamilies(
+  value: unknown,
+  families = new Set<string>()
+) {
   if (typeof value === 'string') {
     extractFontFamiliesFromString(value).forEach(fontFamily => {
       families.add(fontFamily);
@@ -90,7 +94,7 @@ function GuestRenderer({
     }))
   );
   const [fontsReady, setFontsReady] = useState(false);
-
+  const pathname = usePathname();
   const fontFamiliesToPreload = useMemo(() => {
     const families = collectGuestFontFamilies({
       blocks,
@@ -174,11 +178,16 @@ function GuestRenderer({
         const View = registryItem.viewComponent as React.ComponentType<{
           blockInfo: GuestBlock;
           className?: string;
+          isGuestPage?: boolean;
         }>;
 
         return (
           <div key={block.id} className="w-full">
-            <View blockInfo={block} className="" />
+            <View
+              blockInfo={block}
+              className=""
+              isGuestPage={pathname.startsWith('/guest')}
+            />
           </div>
         );
       })}

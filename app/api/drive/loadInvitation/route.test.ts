@@ -41,7 +41,7 @@ describe('loadInvitation route', () => {
     jest.resetAllMocks();
   });
 
-  it('returns an empty list when the workspace does not exist', async () => {
+  it('워크스페이스가 없으면 빈 목록을 반환한다', async () => {
     (findWorkspaceFolderId as jest.Mock).mockResolvedValue(null);
 
     const res = await GET();
@@ -57,10 +57,14 @@ describe('loadInvitation route', () => {
     expect(res.headers.get('Cache-Control')).toBe('no-store');
   });
 
-  it('returns invitations with publishedUrl hydrated from published.json', async () => {
-    (findWorkspaceFolderId as jest.Mock).mockResolvedValue('workspace-folder-1');
+  it('meta.json 기준으로 초대장 목록 메타데이터를 채운다', async () => {
+    (findWorkspaceFolderId as jest.Mock).mockResolvedValue(
+      'workspace-folder-1'
+    );
 
     (googleFetch as jest.Mock).mockImplementation((url: string) => {
+      const decodedUrl = decodeURIComponent(url);
+
       if (url.includes('orderBy=createdTime+desc')) {
         return Promise.resolve(
           mockJsonResponse({
@@ -89,30 +93,37 @@ describe('loadInvitation route', () => {
         );
       }
 
-      if (url.includes('files%3F') || url.includes('files?')) {
-        if (url.includes('folder-1')) {
+      if (decodedUrl.includes('invitation_meta_json')) {
+        if (decodedUrl.includes('folder-1')) {
           return Promise.resolve(
             mockJsonResponse({
-              files: [{ id: 'published-file-1' }],
+              files: [{ id: 'meta-file-1' }],
             })
           );
         }
 
-        if (url.includes('folder-2')) {
-          return Promise.resolve(
-            mockJsonResponse({
-              files: [],
-            })
-          );
-        }
+        return Promise.resolve(mockJsonResponse({ files: [] }));
       }
 
-      if (url.includes('published-file-1') && url.includes('alt=media')) {
+      if (url.includes('meta-file-1') && url.includes('alt=media')) {
         return Promise.resolve(
           mockJsonResponse({
+            version: 1,
+            published: true,
             guestUrl: '/guest/data-json-file-id-1',
+            dataJsonFileId: 'data-json-file-id-1',
+            kakaoShare: {
+              title: 'Invitation 1',
+              description: 'Description 1',
+              showLocationButton: false,
+            },
+            updatedAt: '2026-03-21T10:00:00.000Z',
           })
         );
+      }
+
+      if (decodedUrl.includes('invitation_thumbnail')) {
+        return Promise.resolve(mockJsonResponse({ files: [] }));
       }
 
       throw new Error(`Unexpected googleFetch url: ${url}`);
@@ -130,24 +141,35 @@ describe('loadInvitation route', () => {
           name: 'Invitation 1',
           createdTime: '2026-03-21T10:00:00.000Z',
           invitationUuid: 'uuid-1',
-          publishedUrl: '/guest/data-json-file-id-1',
+          dataJsonFileId: 'data-json-file-id-1',
+          guestUrl: '/guest/data-json-file-id-1',
+          published: true,
+          readiness: 'ready',
+          thumbnailUrl: null,
+          hasKakaoShareData: true,
         },
         {
           folderId: 'folder-2',
           name: 'Invitation 2',
           createdTime: '2026-03-20T10:00:00.000Z',
           invitationUuid: 'uuid-2',
-          publishedUrl: null,
+          guestUrl: null,
+          published: false,
+          readiness: 'idle',
+          thumbnailUrl: null,
+          hasKakaoShareData: false,
         },
       ],
       nextPageToken: 'next-page-token-123',
     });
-    expect(googleFetch).toHaveBeenCalledTimes(4);
+    expect(googleFetch).toHaveBeenCalledTimes(6);
     expect(res.headers.get('Cache-Control')).toBe('no-store');
   });
 
-  it('returns a DriveHttpError response when the invitation list lookup fails', async () => {
-    (findWorkspaceFolderId as jest.Mock).mockResolvedValue('workspace-folder-2');
+  it('초대장 목록 조회 실패 시 DriveHttpError 응답을 반환한다', async () => {
+    (findWorkspaceFolderId as jest.Mock).mockResolvedValue(
+      'workspace-folder-2'
+    );
     (googleFetch as jest.Mock).mockResolvedValue(
       mockJsonResponse(
         {
@@ -169,7 +191,7 @@ describe('loadInvitation route', () => {
     });
   });
 
-  it('returns 401 when re-login is required', async () => {
+  it('재로그인이 필요하면 401을 반환한다', async () => {
     (findWorkspaceFolderId as jest.Mock).mockRejectedValue(
       new Error('재로그인이 필요합니다.')
     );
@@ -182,7 +204,7 @@ describe('loadInvitation route', () => {
     expect(googleFetch).not.toHaveBeenCalled();
   });
 
-  it('returns 400 when the request is invalid', async () => {
+  it('유효하지 않은 요청이면 400을 반환한다', async () => {
     (findWorkspaceFolderId as jest.Mock).mockRejectedValue(
       new Error('유효한 요청이 아닙니다.')
     );
@@ -195,7 +217,7 @@ describe('loadInvitation route', () => {
     expect(googleFetch).not.toHaveBeenCalled();
   });
 
-  it('returns 500 for unexpected failures', async () => {
+  it('예상하지 못한 오류는 500을 반환한다', async () => {
     (findWorkspaceFolderId as jest.Mock).mockRejectedValue(
       new Error('unexpected failure')
     );
