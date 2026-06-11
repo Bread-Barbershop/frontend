@@ -4,6 +4,7 @@ import { useShallow } from 'zustand/shallow';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import { hasPreparedInvitation } from '@/features/invitation/save/prepareCache';
 import { saveInvitationFlow } from '@/features/invitation/save/saveInvitationFlow';
+import type { DashboardPendingInvitation } from '@/shared/constants/dashboardPendingInvitation';
 import { useToast } from '@/shared/hooks/useToast';
 import {
   selectUploadData,
@@ -14,16 +15,21 @@ import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 export const useInvitationUpload = () => {
   const editorData = useEditorStore(useShallow(selectUploadData));
-  const { hashFiles, setHashFiles, setCleanUpFiles, clearHashFiles, clearCleanUpFiles } =
-    useEditorStore(
-      useShallow(state => ({
-        hashFiles: state.hashFiles,
-        setHashFiles: state.setHashFiles,
-        setCleanUpFiles: state.setCleanUpFiles,
-        clearHashFiles: state.clearHashFiles,
-        clearCleanUpFiles: state.clearCleanUpFiles,
-      }))
-    );
+  const {
+    hashFiles,
+    setHashFiles,
+    setCleanUpFiles,
+    clearHashFiles,
+    clearCleanUpFiles,
+  } = useEditorStore(
+    useShallow(state => ({
+      hashFiles: state.hashFiles,
+      setHashFiles: state.setHashFiles,
+      setCleanUpFiles: state.setCleanUpFiles,
+      clearHashFiles: state.clearHashFiles,
+      clearCleanUpFiles: state.clearCleanUpFiles,
+    }))
+  );
 
   const { exportIntersectedJSON, exportCanvasPreview } = useFabricContext();
 
@@ -50,13 +56,18 @@ export const useInvitationUpload = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isFail, setIsFail] = useState(false);
   const [isCleaningUp, setIsCleaningUp] = useState(false);
+  const [pendingInvitation, setPendingInvitation] =
+    useState<DashboardPendingInvitation | null>(null);
   const { info, success, error: showError } = useToast();
 
   const applySaveResult = async (
     saveResult: Awaited<ReturnType<typeof saveInvitationFlow>>,
     allTasks: { id: string; file: File | string }[]
   ) => {
-    console.log('[applySaveResult] 시작, saveResult.success:', saveResult.success);
+    console.log(
+      '[applySaveResult] 시작, saveResult.success:',
+      saveResult.success
+    );
     if (!saveResult.success) {
       console.error('[applySaveResult] 저장 실패:', saveResult.results);
       throw new Error('Invitation save failed.');
@@ -66,6 +77,16 @@ export const useInvitationUpload = () => {
     editorData.setImageFolderId(saveResult.folders.imageFolderId);
     editorData.setAudioFolderId(saveResult.folders.audioFolderId);
     editorData.setInvitationFolderId(saveResult.folders.invitationFolderId);
+    setPendingInvitation({
+      invitationFolderId: saveResult.folders.invitationFolderId,
+      invitationUuid: saveResult.invitationUuid,
+      dataJsonFileId: saveResult.files.dataJsonFileId,
+      guestUrl: saveResult.guestUrl,
+      thumbnailFileId: saveResult.files.thumbnailFileId,
+      published: saveResult.visibility.published,
+      ready: saveResult.visibility.ready,
+      createdAt: new Date().toISOString(),
+    });
     console.log('[applySaveResult] folderIds 설정 완료');
 
     // 성공한 File 객체들에 driveFileId 속성 심기 (다음 저장 시 참조용)
@@ -96,13 +117,23 @@ export const useInvitationUpload = () => {
         // 이번 업로드에서 성공한 파일인가?
         const newFileId = successfulFilesMap.get(file);
         if (newFileId) {
-          console.log('[applySaveResult] 신규 업로드 파일 등록:', imageId, '→', newFileId);
+          console.log(
+            '[applySaveResult] 신규 업로드 파일 등록:',
+            imageId,
+            '→',
+            newFileId
+          );
           setHashFiles(`${fileKey}::${newFileId}`);
         } else {
           // 이전에 업로드된 파일인가? (driveFileId 속성 확인)
           const oldFileId = (file as any).driveFileId;
           if (oldFileId) {
-            console.log('[applySaveResult] 재사용 파일 등록:', imageId, '→', oldFileId);
+            console.log(
+              '[applySaveResult] 재사용 파일 등록:',
+              imageId,
+              '→',
+              oldFileId
+            );
             setHashFiles(`${fileKey}::${oldFileId}`);
           }
         }
@@ -166,6 +197,7 @@ export const useInvitationUpload = () => {
       console.log('[uploadFlow] handleUpload 시작');
       setIsLoading(true);
       setIsFail(false);
+      setPendingInvitation(null);
 
       // 전체 task (invitationImage 보존용)
       const allTasks = editorData.images.flatMap(item =>
@@ -177,7 +209,10 @@ export const useInvitationUpload = () => {
       const oldHashFileIds = new Set(
         hashFiles.map(h => h.split('::')[1]).filter(Boolean)
       );
-      console.log('[uploadFlow] oldHashFileIds (저장 전):', Array.from(oldHashFileIds));
+      console.log(
+        '[uploadFlow] oldHashFileIds (저장 전):',
+        Array.from(oldHashFileIds)
+      );
 
       // hashFiles를 빠른 조회를 위해 Map으로 변환: fileKey -> driveFileId
       const hashFileMap = new Map(
@@ -211,7 +246,11 @@ export const useInvitationUpload = () => {
           newTasks.push(task);
         }
       }
-      console.log('[uploadFlow] newTasks (신규 업로드):', newTasks.length, 'items');
+      console.log(
+        '[uploadFlow] newTasks (신규 업로드):',
+        newTasks.length,
+        'items'
+      );
 
       const bgmData = {
         selectedBgmId: selectedBgmId ?? null,
@@ -241,7 +280,7 @@ export const useInvitationUpload = () => {
         height: 0,
         createdAt: '',
       };
-      
+
       if (editorData.invitationUuid === '') {
         console.log('[uploadFlow] 신규 저장 (invitationUuid 없음)');
         const saveResult = await saveInvitationFlow({
@@ -259,7 +298,11 @@ export const useInvitationUpload = () => {
         await applySaveResult(saveResult, allTasks);
         console.log('[uploadFlow] applySaveResult 완료');
       } else {
-        console.log('[uploadFlow] 재저장 (invitationUuid:', editorData.invitationUuid, ')');
+        console.log(
+          '[uploadFlow] 재저장 (invitationUuid:',
+          editorData.invitationUuid,
+          ')'
+        );
         const result = hasPreparedInvitation(editorData.invitationUuid)
           ? true
           : await trashFolder();
@@ -289,10 +332,18 @@ export const useInvitationUpload = () => {
 
         // 클린업 대상 계산 및 실행 (non-blocking)
         const newHashFileIds = new Set(
-          useEditorStore.getState().hashFiles.map(h => h.split('::')[1]).filter(Boolean)
+          useEditorStore
+            .getState()
+            .hashFiles.map(h => h.split('::')[1])
+            .filter(Boolean)
         );
-        console.log('[uploadFlow] newHashFileIds (저장 후):', Array.from(newHashFileIds));
-        const toCleanIds = [...oldHashFileIds].filter(id => !newHashFileIds.has(id));
+        console.log(
+          '[uploadFlow] newHashFileIds (저장 후):',
+          Array.from(newHashFileIds)
+        );
+        const toCleanIds = [...oldHashFileIds].filter(
+          id => !newHashFileIds.has(id)
+        );
         console.log('[uploadFlow] 삭제 대상 fileIds:', toCleanIds);
         toCleanIds.forEach(id => setCleanUpFiles(id));
         performCleanup(toCleanIds);
@@ -331,5 +382,6 @@ export const useInvitationUpload = () => {
     isLoading,
     isFail,
     isCleaningUp,
+    pendingInvitation,
   };
 };

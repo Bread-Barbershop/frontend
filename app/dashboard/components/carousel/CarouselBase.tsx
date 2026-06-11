@@ -20,11 +20,18 @@ type CarouselBaseProps = {
   selectedLift?: string;
   onDelete?: (folderId: string) => void | Promise<void>;
   onUpdate?: (folderId: string, uuid?: string) => void;
+  onToggleVisibility?: (
+    folderId: string,
+    nextVisible: boolean
+  ) => void | Promise<void>;
+  onOpenUrlShare?: (folderId: string) => void;
   onCopyUrl?: (folderId: string) => void;
   onShare?: (folderId: string) => Promise<void>;
-  getPublishedUrl?: (folderId: string) => string | null;
+  getGuestUrl?: (folderId: string) => string | null;
   isDeleting?: (folderId: string) => boolean;
   isSharing?: (folderId: string) => boolean;
+  isVisibilityUpdating?: (folderId: string) => boolean;
+  getVisibilityError?: (folderId: string) => string | null;
 };
 
 function CarouselBase({
@@ -37,11 +44,15 @@ function CarouselBase({
   selectedLift,
   onDelete,
   onUpdate,
+  onToggleVisibility,
+  onOpenUrlShare,
   onCopyUrl,
   onShare,
-  getPublishedUrl,
+  getGuestUrl,
   isDeleting,
   isSharing,
+  isVisibilityUpdating,
+  getVisibilityError,
 }: CarouselBaseProps) {
   const [selectedIndex, setSelectedIndex] = useState(startIndex);
   const hasHandledInitialLayoutRef = useRef(false);
@@ -132,11 +143,15 @@ function CarouselBase({
         onSelect={handleSelect}
         onDelete={onDelete}
         onUpdate={onUpdate}
+        onToggleVisibility={onToggleVisibility}
+        onOpenUrlShare={onOpenUrlShare}
         onCopyUrl={onCopyUrl}
         onShare={onShare}
-        getPublishedUrl={getPublishedUrl}
+        getGuestUrl={getGuestUrl}
         isDeleting={isDeleting}
         isSharing={isSharing}
+        isVisibilityUpdating={isVisibilityUpdating}
+        getVisibilityError={getVisibilityError}
       />
       <div className="absolute inset-x-0 bottom-0 z-10">
         <CarouselController onMove={handleMove} />

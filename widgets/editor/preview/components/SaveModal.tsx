@@ -2,11 +2,17 @@ import { useRouter } from 'next/navigation';
 import React, { forwardRef } from 'react';
 import { createPortal } from 'react-dom';
 
+import {
+  DASHBOARD_PENDING_INVITATION_KEY,
+  type DashboardPendingInvitation,
+} from '@/shared/constants/dashboardPendingInvitation';
+
 import { SaveLottie } from './SaveLottie';
 
 interface Props {
   isLoading: boolean;
   isFail: boolean;
+  pendingInvitation: DashboardPendingInvitation | null;
   retry: () => void;
   onClose: () => void;
 }
@@ -54,7 +60,7 @@ const SaveStepView = ({
       </p>
     </div>
     <div>
-      <SaveLottie variant={isFail ? 'fail' : 'success'} />
+      <SaveLottie variant={isFail ? 'fail' : 'success'} loop />
     </div>
     <div className="flex items-center gap-2">
       {isFail ? (
@@ -88,10 +94,16 @@ const SaveStepView = ({
 );
 
 export const SaveModal = forwardRef<HTMLDivElement, Props>(
-  ({ isLoading, isFail, retry, onClose }: Props, ref) => {
+  ({ isLoading, isFail, pendingInvitation, retry, onClose }: Props, ref) => {
     const router = useRouter();
 
     const handleExit = () => {
+      if (typeof window !== 'undefined' && pendingInvitation) {
+        sessionStorage.setItem(
+          DASHBOARD_PENDING_INVITATION_KEY,
+          JSON.stringify(pendingInvitation)
+        );
+      }
       router.replace('/dashboard');
     };
 

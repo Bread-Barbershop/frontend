@@ -17,11 +17,18 @@ type CarouselTrackProps = {
   onSelect: (index: number) => void;
   onDelete?: (folderId: string) => void | Promise<void>;
   onUpdate?: (folderId: string, uuid?: string) => void;
+  onToggleVisibility?: (
+    folderId: string,
+    nextVisible: boolean
+  ) => void | Promise<void>;
+  onOpenUrlShare?: (folderId: string) => void;
   onCopyUrl?: (folderId: string) => void;
   onShare?: (folderId: string) => Promise<void>;
-  getPublishedUrl?: (folderId: string) => string | null;
+  getGuestUrl?: (folderId: string) => string | null;
   isDeleting?: (folderId: string) => boolean;
   isSharing?: (folderId: string) => boolean;
+  isVisibilityUpdating?: (folderId: string) => boolean;
+  getVisibilityError?: (folderId: string) => string | null;
 };
 
 function CarouselTrack({
@@ -36,11 +43,15 @@ function CarouselTrack({
   onSelect,
   onDelete,
   onUpdate,
+  onToggleVisibility,
+  onOpenUrlShare,
   onCopyUrl,
   onShare,
-  getPublishedUrl,
+  getGuestUrl,
   isDeleting,
   isSharing,
+  isVisibilityUpdating,
+  getVisibilityError,
 }: CarouselTrackProps) {
   return (
     <div
@@ -74,11 +85,13 @@ function CarouselTrack({
             onSelect={onSelect}
             onDelete={onDelete}
             onUpdate={onUpdate}
+            onToggleVisibility={onToggleVisibility}
+            onOpenUrlShare={onOpenUrlShare}
             onCopyUrl={onCopyUrl}
             onShare={onShare}
-            publishedUrl={
-              item.invite && getPublishedUrl
-                ? getPublishedUrl(item.invite.folderId)
+            guestUrl={
+              item.invite && getGuestUrl
+                ? getGuestUrl(item.invite.folderId)
                 : null
             }
             isDeleting={
@@ -88,6 +101,16 @@ function CarouselTrack({
             }
             isSharing={
               item.invite && isSharing ? isSharing(item.invite.folderId) : false
+            }
+            isVisibilityUpdating={
+              item.invite && isVisibilityUpdating
+                ? isVisibilityUpdating(item.invite.folderId)
+                : false
+            }
+            visibilityError={
+              item.invite && getVisibilityError
+                ? getVisibilityError(item.invite.folderId)
+                : null
             }
           />
         ))}

@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { KeyboardEvent, MouseEvent, useState } from 'react';
+import { KeyboardEvent, MouseEvent, useEffect, useState } from 'react';
 
 import EditIcon from '@/shared/assets/icons/edit.svg';
 import KakaoIcon from '@/shared/assets/icons/kakao2.svg';
@@ -23,11 +23,18 @@ type CarouselItemProps = {
   onSelect: (index: number) => void;
   onDelete?: (folderId: string) => void | Promise<void>;
   onUpdate?: (folderId: string, uuid?: string) => void;
+  onToggleVisibility?: (
+    folderId: string,
+    nextVisible: boolean
+  ) => void | Promise<void>;
+  onOpenUrlShare?: (folderId: string) => void;
   onCopyUrl?: (folderId: string) => void;
   onShare?: (folderId: string) => Promise<void>;
-  publishedUrl: string | null;
+  guestUrl: string | null;
   isDeleting: boolean;
   isSharing: boolean;
+  isVisibilityUpdating: boolean;
+  visibilityError: string | null;
 };
 
 function CarouselItem({
@@ -41,16 +48,33 @@ function CarouselItem({
   onSelect,
   onDelete,
   onUpdate,
+  onToggleVisibility,
+  onOpenUrlShare,
   onCopyUrl,
   onShare,
-  publishedUrl,
+  guestUrl: guestUrlProp,
   isDeleting,
   isSharing,
+  isVisibilityUpdating,
+  visibilityError,
 }: CarouselItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isUrlActionExpanded, setIsUrlActionExpanded] = useState(false);
+  const [imageSrc, setImageSrc] = useState(item.image);
   const invite = item.invite;
-  const canShare = Boolean(invite?.hasKakaoShareData);
+  const guestUrl = invite?.guestUrl ?? guestUrlProp;
+  const isPublished = invite?.published ?? Boolean(guestUrlProp);
+  const readiness = invite?.readiness ?? (guestUrl ? 'ready' : 'idle');
+  const isReady = readiness === 'ready';
+  const isPending =
+    Boolean(invite?.isPending) ||
+    readiness === 'pending' ||
+    readiness === 'checking';
+  const canUseGuestUrl = Boolean(!isPending && guestUrl);
+  const canAttemptShare = Boolean(invite?.hasKakaoShareData && !isPending);
+  const canToggleVisibility = Boolean(
+    invite && !isPending && !isVisibilityUpdating
+  );
   const showSelectedOverlay =
     showHeader || showSideActions || showCenterActions;
   const hoverLift = showHeader
@@ -60,6 +84,10 @@ function CarouselItem({
     ? `calc(${selectedLiftProp} + ${dashboardCarouselLayout.headerHeight})`
     : selectedLiftProp;
   const translateY = isSelected ? selectedLift : isHovered ? hoverLift : null;
+
+  useEffect(() => {
+    setImageSrc(item.image);
+  }, [item.image]);
 
   const handleActionClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -148,7 +176,14 @@ function CarouselItem({
             <div className="absolute top-0 left-0 z-10">
               <ItemHeader
                 createdTime={invite?.createdTime}
-                isPublished={Boolean(publishedUrl)}
+                isPublished={isPublished}
+                disabled={!canToggleVisibility}
+                isBusy={isVisibilityUpdating}
+                hasError={Boolean(visibilityError)}
+                onToggle={() => {
+                  if (!invite || !canToggleVisibility) return;
+                  void onToggleVisibility?.(invite.folderId, !isPublished);
+                }}
               />
             </div>
           )}
@@ -163,19 +198,32 @@ function CarouselItem({
             }}
           >
             <Image
-              src={item.image}
+              src={imageSrc}
               alt={item.alt}
               fill
               sizes="260px"
               unoptimized
               draggable={false}
               className="object-cover"
+              onError={() => {
+                if (item.fallbackImage) {
+                  setImageSrc(item.fallbackImage);
+                }
+              }}
             />
             <div
               className={`absolute inset-0 bg-black/8 transition-opacity duration-300 ${
                 isSelected && showSelectedOverlay ? 'opacity-100' : 'opacity-0'
               }`}
             />
+            {isPending && (
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-white/72 text-[#121212] backdrop-blur-[2px]">
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-black/10 border-t-[#121212]" />
+                <p className="font-pretendard text-[13px] font-semibold leading-[18px]">
+                  초대장 준비 중
+                </p>
+              </div>
+            )}
             {isSelected && showCenterActions && invite && (
               <div
                 className="absolute inset-x-0 bottom-0 z-10 flex flex-col items-center"
@@ -188,10 +236,10 @@ function CarouselItem({
                 <DashboardActionButton
                   icon={KakaoIcon}
                   variant="kakao"
-                  disabled={isSharing}
+                  disabled={isSharing || !canAttemptShare}
                   onClick={event => {
                     handleActionClick(event);
-                    if (!canShare) return;
+                    if (!canAttemptShare) return;
                     void onShare?.(invite.folderId);
                   }}
                 >
@@ -210,8 +258,10 @@ function CarouselItem({
                   >
                     <button
                       type="button"
+                      disabled={!canUseGuestUrl}
                       onClick={event => {
                         handleActionClick(event);
+                        if (!canUseGuestUrl) return;
                         onCopyUrl?.(invite.folderId);
                       }}
                       className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg font-pretendard text-[13px] font-semibold leading-[18px] text-[#38BDF8] transition-colors hover:bg-[rgba(56,189,248,0.12)]"
@@ -219,7 +269,9 @@ function CarouselItem({
                       복사
                     </button>
                     <a
-                      href={publishedUrl ?? undefined}
+                      href={
+                        canUseGuestUrl ? (guestUrl ?? undefined) : undefined
+                      }
                       target="_blank"
                       rel="noreferrer"
                       onClick={event => {
@@ -228,7 +280,7 @@ function CarouselItem({
                       className="flex h-8 min-w-0 flex-1 items-center rounded-lg px-1.5 font-pretendard text-[14px] font-normal leading-5 text-white transition-colors hover:bg-[rgba(255,255,255,0.12)]"
                     >
                       <span className="block min-w-0 flex-1 truncate">
-                        {publishedUrl ?? 'URL 링크 준비 중'}
+                        {guestUrl ?? 'URL 링크 준비 중'}
                       </span>
                     </a>
                   </div>
@@ -236,8 +288,11 @@ function CarouselItem({
                   <DashboardActionButton
                     icon={LinkIcon}
                     variant="url"
+                    disabled={!canUseGuestUrl}
                     onClick={event => {
                       handleActionClick(event);
+                      if (!canUseGuestUrl) return;
+                      onOpenUrlShare?.(invite.folderId);
                       setIsUrlActionExpanded(true);
                     }}
                   >

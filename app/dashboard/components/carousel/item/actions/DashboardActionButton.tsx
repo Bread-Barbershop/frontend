@@ -21,8 +21,7 @@ type DashboardActionButtonProps = Omit<
 const variantClassName: Record<DashboardActionButtonVariant, string> = {
   kakao: 'bg-[#FAE100] text-[#3C1E1E] hover:bg-[#F5DC00]',
   url: 'bg-[#121212] text-white hover:bg-[#202020]',
-  outline:
-    'border border-[#EAEAEA] bg-white text-[#121212] hover:bg-[#F7F7F7]',
+  outline: 'border border-[#EAEAEA] bg-white text-[#121212] hover:bg-[#F7F7F7]',
 };
 
 function DashboardActionButton({
@@ -45,7 +44,7 @@ function DashboardActionButton({
       }}
       className={`grid select-none grid-cols-[32px_1fr_32px] items-center rounded-lg px-2 py-1.5 font-pretendard text-[14px] font-semibold leading-5 transition-colors ${
         variantClassName[variant]
-      } ${disabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'} ${className}`}
+      } ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'} ${className}`}
       style={{
         flex: '0 0 auto',
         width: dashboardCarouselLayout.primaryActionWidth,

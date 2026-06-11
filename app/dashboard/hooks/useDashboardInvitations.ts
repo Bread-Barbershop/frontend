@@ -1,15 +1,16 @@
-'use client';
+﻿'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import {
   DeleteInvitationResponse,
+  InvitationVisibilityResult,
   InviteListItem,
   KakaoShareData,
   LoadInvitationResponse,
-  PublishResult,
 } from '@/app/dashboard/types';
+import type { DashboardPendingInvitation } from '@/shared/constants/dashboardPendingInvitation';
 import { useConfirm } from '@/shared/hooks/useConfirm';
 import { useToast } from '@/shared/hooks/useToast';
 import {
@@ -18,12 +19,24 @@ import {
   resolveShareTitle,
 } from '@/shared/utils/shareUrlDefaults';
 
-type DeleteStateMap = Record<string, boolean>;
-type DeleteErrorMap = Record<string, string | null>;
-type PublishStateMap = Record<string, boolean>;
-type PublishErrorMap = Record<string, string | null>;
-type PublishResultMap = Record<string, PublishResult | null>;
-type ShareStateMap = Record<string, boolean>;
+import {
+  createInitialInvitationResults,
+  createPendingTimeoutResult,
+  isAbortError,
+  mergeGuestReadinessResult,
+  mergePendingInvite,
+  normalizeInvites,
+  PENDING_INVITATION_MAX_ATTEMPTS,
+  PENDING_INVITATION_POLL_DELAYS_MS,
+  readPendingInvitationFromSession,
+  READINESS_POLL_DELAYS_MS,
+  resolveGuestUrl,
+  resolvePendingTransition,
+  resolveVisibilityReadiness,
+  sleep,
+} from './dashboardInvitationState';
+import { useDashboardInvitationTransientState } from './useDashboardInvitationTransientState';
+
 type LoadInvitationErrorPayload = { message?: string };
 type UseDashboardInvitationsOptions = {
   loadOnMount?: boolean;
@@ -33,31 +46,6 @@ type ShareUrlResponse = {
   data?: KakaoShareData;
   error?: string;
 };
-
-const READINESS_POLL_DELAYS_MS = [1000, 1500, 2500, 4000, 6000];
-
-const sleep = (ms: number, signal: AbortSignal) =>
-  new Promise<void>((resolve, reject) => {
-    if (signal.aborted) {
-      reject(new DOMException('Aborted', 'AbortError'));
-      return;
-    }
-
-    const onAbort = () => {
-      clearTimeout(timeoutId);
-      reject(new DOMException('Aborted', 'AbortError'));
-    };
-    const timeoutId = setTimeout(() => {
-      signal.removeEventListener('abort', onAbort);
-      resolve();
-    }, ms);
-
-    signal.addEventListener('abort', onAbort, { once: true });
-  });
-
-function isAbortError(error: unknown) {
-  return error instanceof DOMException && error.name === 'AbortError';
-}
 
 function shareInvitationWithKakao(shareData: KakaoShareData) {
   if (typeof window === 'undefined' || !window.Kakao) {
@@ -78,7 +66,6 @@ function shareInvitationWithKakao(shareData: KakaoShareData) {
     window.Kakao.init(kakaoJsKey);
   }
 
-  // 초대장 보러가기 버튼 우선 삽입
   const messageButtons = [
     {
       title: '보러가기',
@@ -89,7 +76,6 @@ function shareInvitationWithKakao(shareData: KakaoShareData) {
     },
   ];
 
-  // 위치보기 버튼 추가
   if (shareData.showLocationButton && shareData.locationInfo) {
     const kakaoMapUrl = `https://map.kakao.com/link/map/${encodeURIComponent(
       shareData.locationInfo.placeName
@@ -138,12 +124,6 @@ function shouldRedirectToHome(status: number, message: string | null) {
   );
 }
 
-function resolvePublishedUrl(result: PublishResult | null) {
-  if (!result?.guestUrl) return null;
-  if (result.guestUrl.startsWith('http')) return result.guestUrl;
-  return `${window.location.origin}${result.guestUrl}`;
-}
-
 function getPayloadMessage(
   payload: LoadInvitationResponse | LoadInvitationErrorPayload | null
 ) {
@@ -152,109 +132,64 @@ function getPayloadMessage(
     : null;
 }
 
-function createInitialPublishResults(
-  invites: InviteListItem[]
-): PublishResultMap {
-  return invites.reduce<PublishResultMap>((acc, invite) => {
-    if (!invite.publishedUrl) return acc;
-
-    acc[invite.folderId] = {
-      ok: true,
-      published: true,
-      ready: true,
-      guestUrl: invite.publishedUrl,
-    };
-    return acc;
-  }, {});
-}
-
 function useDashboardInvitations(
   initialInvites: InviteListItem[] = [],
   options: UseDashboardInvitationsOptions = {}
 ) {
   const router = useRouter();
   const { confirm } = useConfirm();
-  const { success: successToast, error: errorToast } = useToast();
+  const {
+    success: successToast,
+    error: errorToast,
+    info: infoToast,
+  } = useToast();
   const loadOnMount = options.loadOnMount ?? initialInvites.length === 0;
+  const normalizedInitialInvites = normalizeInvites(initialInvites);
 
   const [loading, setLoading] = useState(loadOnMount);
   const [error, setError] = useState<string | null>(null);
-  const [invites, setInvites] = useState<InviteListItem[]>(initialInvites);
-  const [deleteBusy, setDeleteBusy] = useState<DeleteStateMap>({});
-  const [deleteErrors, setDeleteErrors] = useState<DeleteErrorMap>({});
-  const [publishBusy, setPublishBusy] = useState<PublishStateMap>({});
-  const [publishErrors, setPublishErrors] = useState<PublishErrorMap>({});
-  const [readinessPolling, setReadinessPolling] = useState<PublishStateMap>({});
-  const [shareBusy, setShareBusy] = useState<ShareStateMap>({});
-  const [publishResults, setPublishResults] = useState<PublishResultMap>(
-    createInitialPublishResults(initialInvites)
+  const [invites, setInvites] = useState<InviteListItem[]>(
+    normalizedInitialInvites
   );
-  const readinessAbortControllersRef = useRef(
-    new Map<string, AbortController>()
+  const {
+    deleteBusy,
+    setDeleteBusy,
+    deleteErrors,
+    setDeleteErrors,
+    readinessPolling,
+    setReadinessPolling,
+    shareBusy,
+    setShareBusy,
+    visibilityBusy,
+    setVisibilityBusy,
+    visibilityErrors,
+    setVisibilityErrors,
+    invitationResults,
+    setInvitationResults,
+    readinessAbortControllersRef,
+    pendingInvitationRef,
+    pendingInvitationAbortControllerRef,
+    hasAppliedPendingInvitationRef,
+    abortReadinessPolling,
+    abortAllReadinessPolling,
+    abortPendingInvitationPolling,
+    resetInvitationResultState,
+    clearInvitationTransientState,
+  } = useDashboardInvitationTransientState(
+    createInitialInvitationResults(normalizedInitialInvites)
   );
 
-  const abortReadinessPolling = useCallback((folderId: string) => {
-    const controller = readinessAbortControllersRef.current.get(folderId);
-    controller?.abort();
-    readinessAbortControllersRef.current.delete(folderId);
-  }, []);
-
-  const abortAllReadinessPolling = useCallback(() => {
-    readinessAbortControllersRef.current.forEach(controller => {
-      controller.abort();
-    });
-    readinessAbortControllersRef.current.clear();
-  }, []);
-
-  const resetPublishState = useCallback(() => {
-    abortAllReadinessPolling();
-    setPublishBusy({});
-    setPublishErrors({});
-    setReadinessPolling({});
-    setPublishResults({});
-  }, [abortAllReadinessPolling]);
-
-  const clearInvitationTransientState = useCallback(
-    (folderId: string) => {
-      abortReadinessPolling(folderId);
-
-      setDeleteBusy(prev => {
-        const next = { ...prev };
-        delete next[folderId];
-        return next;
-      });
-      setDeleteErrors(prev => {
-        const next = { ...prev };
-        delete next[folderId];
-        return next;
-      });
-      setPublishBusy(prev => {
-        const next = { ...prev };
-        delete next[folderId];
-        return next;
-      });
-      setPublishErrors(prev => {
-        const next = { ...prev };
-        delete next[folderId];
-        return next;
-      });
-      setReadinessPolling(prev => {
-        const next = { ...prev };
-        delete next[folderId];
-        return next;
-      });
-      setShareBusy(prev => {
-        const next = { ...prev };
-        delete next[folderId];
-        return next;
-      });
-      setPublishResults(prev => {
-        const next = { ...prev };
-        delete next[folderId];
-        return next;
-      });
+  const patchInvite = useCallback(
+    (folderId: string, patch: Partial<InviteListItem>) => {
+      setInvites(prev =>
+        normalizeInvites(
+          prev.map(invite =>
+            invite.folderId === folderId ? { ...invite, ...patch } : invite
+          )
+        )
+      );
     },
-    [abortReadinessPolling]
+    []
   );
 
   const loadInvitations = useCallback(async () => {
@@ -278,7 +213,7 @@ function useDashboardInvitations(
         setError(null);
         setDeleteBusy({});
         setDeleteErrors({});
-        resetPublishState();
+        resetInvitationResultState();
         router.replace('/');
         router.refresh();
         return;
@@ -288,35 +223,238 @@ function useDashboardInvitations(
         throw new Error(payloadMessage ?? '초대장 목록을 불러오지 못했습니다.');
       }
 
-      const loadedInvites = (payload as LoadInvitationResponse).invites ?? [];
+      const loadedInvites = normalizeInvites(
+        (payload as LoadInvitationResponse).invites ?? []
+      );
+      const activePendingInvitation = pendingInvitationRef.current;
+      const nextInvites = activePendingInvitation
+        ? mergePendingInvite(loadedInvites, activePendingInvitation)
+        : loadedInvites;
 
-      setInvites(loadedInvites);
+      setInvites(nextInvites);
       setDeleteBusy({});
       setDeleteErrors({});
-      setPublishBusy({});
-      setPublishErrors({});
+      setVisibilityBusy({});
+      setVisibilityErrors({});
       abortAllReadinessPolling();
       setReadinessPolling({});
-      setPublishResults(createInitialPublishResults(loadedInvites));
+      setInvitationResults(createInitialInvitationResults(nextInvites));
     } catch (err) {
       console.error(err);
       setInvites([]);
       setDeleteBusy({});
       setDeleteErrors({});
-      resetPublishState();
+      resetInvitationResultState();
+      setVisibilityBusy({});
+      setVisibilityErrors({});
       setError(
         err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.'
       );
     } finally {
       setLoading(false);
     }
-  }, [abortAllReadinessPolling, resetPublishState, router]);
+  }, [abortAllReadinessPolling, resetInvitationResultState, router]);
+
+  const pollPendingInvitation = useCallback(
+    async (pendingInvitation: DashboardPendingInvitation) => {
+      // 저장 직후 handoff 카드는 Drive 목록/meta 전파 지연을 흡수한다.
+      // 공개로 시작한 카드만 여기서 guest readiness까지 함께 확인한다.
+      abortPendingInvitationPolling();
+
+      const controller = new AbortController();
+      pendingInvitationAbortControllerRef.current = controller;
+      const { signal } = controller;
+      const folderId = pendingInvitation.invitationFolderId;
+      const pendingStartsPublic = pendingInvitation.published === true;
+
+      let attempt = 0;
+
+      try {
+        while (!signal.aborted && attempt < PENDING_INVITATION_MAX_ATTEMPTS) {
+          if (attempt > 0) {
+            const delayMs =
+              PENDING_INVITATION_POLL_DELAYS_MS[
+                Math.min(
+                  attempt - 1,
+                  PENDING_INVITATION_POLL_DELAYS_MS.length - 1
+                )
+              ];
+            await sleep(delayMs, signal);
+          }
+
+          const res = await fetch('/api/drive/loadInvitation', {
+            method: 'GET',
+            cache: 'no-store',
+            signal,
+          });
+
+          const payload = (await res.json().catch(() => null)) as
+            | LoadInvitationResponse
+            | LoadInvitationErrorPayload
+            | null;
+          const payloadMessage = getPayloadMessage(payload);
+
+          if (shouldRedirectToHome(res.status, payloadMessage)) {
+            pendingInvitationRef.current = null;
+            setInvites([]);
+            setError(null);
+            router.replace('/');
+            router.refresh();
+            return;
+          }
+
+          if (!res.ok) {
+            attempt += 1;
+            continue;
+          }
+
+          const loadedInvites = normalizeInvites(
+            (payload as LoadInvitationResponse).invites ?? []
+          );
+          const loadedPendingInvite = loadedInvites.find(
+            invite => invite.folderId === folderId
+          );
+
+          if (!loadedPendingInvite) {
+            setInvites(
+              mergePendingInvite(loadedInvites, pendingInvitation, {
+                readiness: 'pending',
+                isPending: true,
+              })
+            );
+            attempt += 1;
+            continue;
+          }
+
+          const dataJsonFileId =
+            loadedPendingInvite.dataJsonFileId ??
+            pendingInvitation.dataJsonFileId;
+          let readinessPayload: InvitationVisibilityResult | null = null;
+          let isGuestReady =
+            pendingStartsPublic && pendingInvitation.ready === true;
+
+          if (
+            loadedPendingInvite.dataJsonFileId &&
+            loadedPendingInvite.guestUrl &&
+            pendingStartsPublic &&
+            !isGuestReady
+          ) {
+            const readinessRes = await fetch(
+              `/api/drive/guestReadiness?dataJsonFileId=${encodeURIComponent(
+                dataJsonFileId
+              )}`,
+              { method: 'GET', cache: 'no-store', signal }
+            );
+            readinessPayload = (await readinessRes
+              .json()
+              .catch(() => ({}))) as InvitationVisibilityResult;
+            isGuestReady = readinessRes.ok && readinessPayload.ready === true;
+          }
+
+          const pendingTransition = resolvePendingTransition({
+            pending: pendingInvitation,
+            loadedPendingInvite,
+            readinessPayload,
+            isGuestReady,
+          });
+
+          setInvites(
+            mergePendingInvite(
+              loadedInvites,
+              pendingInvitation,
+              pendingTransition.patch
+            )
+          );
+
+          setInvitationResults(prev => ({
+            ...prev,
+            [folderId]: pendingTransition.result,
+          }));
+
+          if (pendingTransition.isComplete) {
+            pendingInvitationRef.current = null;
+            break;
+          }
+
+          attempt += 1;
+        }
+
+        if (!signal.aborted && pendingInvitationRef.current) {
+          setInvites(prev =>
+            normalizeInvites(
+              prev.map(invite =>
+                invite.folderId === folderId
+                  ? {
+                      ...invite,
+                      readiness: 'failed',
+                      isPending: false,
+                    }
+                  : invite
+              )
+            )
+          );
+          setInvitationResults(prev => ({
+            ...prev,
+            [folderId]: createPendingTimeoutResult(pendingInvitation),
+          }));
+          pendingInvitationRef.current = null;
+        }
+      } catch (err) {
+        if (!isAbortError(err)) {
+          console.error('Pending invitation polling failed:', err);
+        }
+      } finally {
+        if (pendingInvitationAbortControllerRef.current === controller) {
+          pendingInvitationAbortControllerRef.current = null;
+        }
+
+        if (!signal.aborted) {
+          setReadinessPolling(prev => ({ ...prev, [folderId]: false }));
+        }
+      }
+    },
+    [abortPendingInvitationPolling, router]
+  );
 
   useEffect(() => {
     return () => {
       abortAllReadinessPolling();
+      abortPendingInvitationPolling();
     };
-  }, [abortAllReadinessPolling]);
+  }, [abortAllReadinessPolling, abortPendingInvitationPolling]);
+
+  useEffect(() => {
+    const pendingInvitation =
+      pendingInvitationRef.current ?? readPendingInvitationFromSession();
+
+    if (!pendingInvitation) {
+      return;
+    }
+
+    pendingInvitationRef.current = pendingInvitation;
+
+    if (!hasAppliedPendingInvitationRef.current) {
+      hasAppliedPendingInvitationRef.current = true;
+      setInvites(prev => mergePendingInvite(prev, pendingInvitation));
+      setInvitationResults(prev => ({
+        ...prev,
+        [pendingInvitation.invitationFolderId]: {
+          ok: true,
+          published: pendingInvitation.published ?? false,
+          ready:
+            pendingInvitation.published === true
+              ? (pendingInvitation.ready ?? false)
+              : undefined,
+          guestUrl: pendingInvitation.guestUrl,
+          dataJsonFileId: pendingInvitation.dataJsonFileId,
+        },
+      }));
+    }
+
+    if (!pendingInvitationAbortControllerRef.current) {
+      void pollPendingInvitation(pendingInvitation);
+    }
+  }, [pollPendingInvitation]);
 
   useEffect(() => {
     if (!loadOnMount) {
@@ -327,7 +465,8 @@ function useDashboardInvitations(
   }, [loadInvitations, loadOnMount]);
 
   const pollGuestReadiness = useCallback(
-    async (folderId: string, initialResult: PublishResult) => {
+    async (folderId: string, initialResult: InvitationVisibilityResult) => {
+      // 공개 전환 직후 Drive public URL이 늦게 열릴 수 있어 해당 카드만 재확인한다.
       const dataJsonFileId = initialResult.dataJsonFileId;
       if (!dataJsonFileId) return;
 
@@ -346,22 +485,29 @@ function useDashboardInvitations(
           if (signal.aborted) break;
 
           const res = await fetch(
-            `/api/drive/publishInvitation/readiness?dataJsonFileId=${encodeURIComponent(
+            `/api/drive/guestReadiness?dataJsonFileId=${encodeURIComponent(
               dataJsonFileId
             )}`,
             { method: 'GET', cache: 'no-store', signal }
           );
           if (signal.aborted) break;
 
-          const json = (await res.json().catch(() => ({}))) as PublishResult;
-          latestResult = {
-            ...latestResult,
-            ...json,
-            guestUrl: json.guestUrl ?? latestResult.guestUrl,
-            dataJsonFileId: json.dataJsonFileId ?? dataJsonFileId,
-          };
+          const json = (await res
+            .json()
+            .catch(() => ({}))) as InvitationVisibilityResult;
+          latestResult = mergeGuestReadinessResult(
+            latestResult,
+            json,
+            dataJsonFileId
+          );
 
-          setPublishResults(prev => ({ ...prev, [folderId]: latestResult }));
+          setInvitationResults(prev => ({ ...prev, [folderId]: latestResult }));
+          patchInvite(folderId, {
+            guestUrl: latestResult.guestUrl ?? null,
+            dataJsonFileId: latestResult.dataJsonFileId,
+            published: latestResult.published ?? true,
+            readiness: json.ready === true ? 'ready' : 'checking',
+          });
 
           if (res.ok && json.ready === true) {
             break;
@@ -381,58 +527,101 @@ function useDashboardInvitations(
         }
       }
     },
-    [abortReadinessPolling]
+    [abortReadinessPolling, patchInvite]
   );
 
-  const handlePublish = useCallback(
-    async (invitationFolderId: string) => {
+  const handleToggleVisibility = useCallback(
+    async (invitationFolderId: string, nextVisible: boolean) => {
       if (!invitationFolderId) return;
+      if (visibilityBusy[invitationFolderId]) return;
 
-      setPublishErrors(prev => ({ ...prev, [invitationFolderId]: null }));
-      setPublishResults(prev => ({ ...prev, [invitationFolderId]: null }));
-      setPublishBusy(prev => ({ ...prev, [invitationFolderId]: true }));
+      setVisibilityErrors(prev => ({ ...prev, [invitationFolderId]: null }));
+      setVisibilityBusy(prev => ({ ...prev, [invitationFolderId]: true }));
       abortReadinessPolling(invitationFolderId);
-      setReadinessPolling(prev => ({ ...prev, [invitationFolderId]: false }));
+      setReadinessPolling(prev => ({
+        ...prev,
+        [invitationFolderId]: false,
+      }));
 
       try {
-        const res = await fetch('/api/drive/publishInvitation', {
+        const res = await fetch('/api/drive/invitationVisibility', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ invitationFolderId }),
+          body: JSON.stringify({
+            invitationFolderId,
+            visible: nextVisible,
+          }),
         });
 
-        const json = (await res.json().catch(() => ({}))) as PublishResult;
+        const json = (await res
+          .json()
+          .catch(() => ({}))) as InvitationVisibilityResult;
 
         if (!res.ok || json.ok === false) {
-          setPublishResults(prev => ({ ...prev, [invitationFolderId]: json }));
-          setPublishErrors(prev => ({
+          setInvitationResults(prev => ({
+            ...prev,
+            [invitationFolderId]: json,
+          }));
+          setVisibilityErrors(prev => ({
             ...prev,
             [invitationFolderId]: json.error
-              ? `Publish failed: ${json.error}`
-              : `Publish failed: ${res.status}`,
+              ? `Visibility update failed: ${json.error}`
+              : `Visibility update failed: ${res.status}`,
           }));
-          errorToast(json.error ?? '초대장 발행에 실패했습니다.');
+          errorToast(json.error ?? '초대장 공개 상태 변경에 실패했습니다.');
           return;
         }
 
-        setPublishResults(prev => ({ ...prev, [invitationFolderId]: json }));
-        successToast('초대장 발행 처리가 완료되었습니다.');
+        const guestUrl = json.guestUrl ?? null;
+        const dataJsonFileId = json.dataJsonFileId;
+        const isReady = json.ready === true;
 
-        if (json.ready === false) {
+        setInvitationResults(prev => ({
+          ...prev,
+          [invitationFolderId]: json,
+        }));
+        patchInvite(invitationFolderId, {
+          published: json.published ?? nextVisible,
+          guestUrl,
+          dataJsonFileId,
+          readiness: resolveVisibilityReadiness(nextVisible, isReady),
+          isPending: nextVisible && !isReady,
+        });
+
+        successToast(
+          nextVisible
+            ? '초대장을 공개로 변경했습니다.'
+            : '초대장을 비공개로 변경했습니다.'
+        );
+
+        if (nextVisible && json.ready === false) {
           void pollGuestReadiness(invitationFolderId, json);
         }
       } catch (err) {
-        setPublishErrors(prev => ({
+        const message =
+          err instanceof Error
+            ? err.message
+            : 'Visibility update request failed.';
+        setVisibilityErrors(prev => ({
           ...prev,
-          [invitationFolderId]:
-            err instanceof Error ? err.message : 'Publish request failed.',
+          [invitationFolderId]: message,
         }));
-        errorToast('초대장 발행 중 오류가 발생했습니다.');
+        errorToast('초대장 공개 상태 변경 중 오류가 발생했습니다.');
       } finally {
-        setPublishBusy(prev => ({ ...prev, [invitationFolderId]: false }));
+        setVisibilityBusy(prev => ({
+          ...prev,
+          [invitationFolderId]: false,
+        }));
       }
     },
-    [abortReadinessPolling, pollGuestReadiness]
+    [
+      abortReadinessPolling,
+      errorToast,
+      patchInvite,
+      pollGuestReadiness,
+      successToast,
+      visibilityBusy,
+    ]
   );
 
   const handleDelete = useCallback(
@@ -508,12 +697,16 @@ function useDashboardInvitations(
     [router]
   );
 
-  const handleCopyPublishedUrl = useCallback(
+  const handleCopyGuestUrl = useCallback(
     async (folderId: string) => {
-      const finalUrl = resolvePublishedUrl(publishResults[folderId] ?? null);
+      const finalUrl = resolveGuestUrl(invitationResults[folderId] ?? null);
       if (!finalUrl) return;
 
       try {
+        const invite = invites.find(item => item.folderId === folderId);
+        if (invite && !invite.published) {
+          infoToast('현재 초대장은 비공개 상태입니다.');
+        }
         await navigator.clipboard.writeText(finalUrl);
         successToast('복사가 완료되었어요!');
       } catch (err) {
@@ -521,7 +714,17 @@ function useDashboardInvitations(
         errorToast('링크 복사에 실패했습니다.');
       }
     },
-    [publishResults, successToast, errorToast]
+    [invitationResults, invites, successToast, errorToast, infoToast]
+  );
+
+  const handleOpenGuestUrlShare = useCallback(
+    (folderId: string) => {
+      const invite = invites.find(item => item.folderId === folderId);
+      if (invite && !invite.published) {
+        infoToast('현재 초대장은 비공개 상태입니다.');
+      }
+    },
+    [invites, infoToast]
   );
 
   const loadShareData = useCallback(async (folderId: string) => {
@@ -549,6 +752,11 @@ function useDashboardInvitations(
       if (!folderId) return;
       if (shareBusy[folderId]) return;
 
+      const invite = invites.find(item => item.folderId === folderId);
+      if (invite && !invite.published) {
+        infoToast('현재 초대장은 비공개 상태입니다.');
+      }
+
       setShareBusy(prev => ({ ...prev, [folderId]: true }));
       try {
         const shareData = await loadShareData(folderId);
@@ -564,34 +772,39 @@ function useDashboardInvitations(
         setShareBusy(prev => ({ ...prev, [folderId]: false }));
       }
     },
-    [loadShareData, shareBusy, errorToast]
+    [invites, loadShareData, shareBusy, errorToast, infoToast]
   );
 
-  const getPublishedUrl = useCallback(
-    (folderId: string) =>
-      resolvePublishedUrl(publishResults[folderId] ?? null),
-    [publishResults]
+  const getGuestUrl = useCallback(
+    (folderId: string) => resolveGuestUrl(invitationResults[folderId] ?? null),
+    [invitationResults]
   );
 
-  const isPublishing = useCallback(
-    (folderId: string) => Boolean(publishBusy[folderId]),
-    [publishBusy]
-  );
-
-  const isPublishReadinessPolling = useCallback(
+  const isGuestReadinessPolling = useCallback(
     (folderId: string) => Boolean(readinessPolling[folderId]),
     [readinessPolling]
   );
 
-  const isPublishReadyPending = useCallback(
-    (folderId: string) =>
-      !publishErrors[folderId] && publishResults[folderId]?.ready === false,
-    [publishErrors, publishResults]
+  const isGuestReadinessPending = useCallback(
+    (folderId: string) => {
+      const result = invitationResults[folderId];
+      return (
+        !visibilityErrors[folderId] &&
+        result?.published === true &&
+        result.ready === false
+      );
+    },
+    [visibilityErrors, invitationResults]
   );
 
   const isSharing = useCallback(
     (folderId: string) => Boolean(shareBusy[folderId]),
     [shareBusy]
+  );
+
+  const isVisibilityUpdating = useCallback(
+    (folderId: string) => Boolean(visibilityBusy[folderId]),
+    [visibilityBusy]
   );
 
   const isDeleting = useCallback(
@@ -604,9 +817,9 @@ function useDashboardInvitations(
     [deleteErrors]
   );
 
-  const getPublishError = useCallback(
-    (folderId: string) => publishErrors[folderId] ?? null,
-    [publishErrors]
+  const getVisibilityError = useCallback(
+    (folderId: string) => visibilityErrors[folderId] ?? null,
+    [visibilityErrors]
   );
 
   return {
@@ -615,19 +828,20 @@ function useDashboardInvitations(
     error,
     loadInvitations,
     handleDelete,
-    handlePublish,
+    handleToggleVisibility,
     handleUpdate,
-    handleCopyPublishedUrl,
+    handleOpenGuestUrlShare,
+    handleCopyGuestUrl,
     handleShare,
     loadShareData,
-    getPublishedUrl,
+    getGuestUrl,
     isDeleting,
     isSharing,
-    isPublishReadinessPolling,
-    isPublishReadyPending,
+    isVisibilityUpdating,
+    isGuestReadinessPolling,
+    isGuestReadinessPending,
     getDeleteError,
-    isPublishing,
-    getPublishError,
+    getVisibilityError,
   };
 }
 

@@ -1,8 +1,14 @@
 import { dashboardCarouselLayout } from '../carouselLayout';
 
+import VisibilityToggle from './VisibilityToggle';
+
 type ItemHeaderProps = {
   createdTime?: string;
   isPublished: boolean;
+  disabled?: boolean;
+  isBusy?: boolean;
+  hasError?: boolean;
+  onToggle?: () => void;
 };
 
 function formatCreatedDate(createdTime?: string) {
@@ -17,7 +23,14 @@ function formatCreatedDate(createdTime?: string) {
   return `${year}년 ${Number(month)}월 ${Number(day)}일`;
 }
 
-function ItemHeader({ createdTime, isPublished }: ItemHeaderProps) {
+function ItemHeader({
+  createdTime,
+  isPublished,
+  disabled = false,
+  isBusy = false,
+  hasError = false,
+  onToggle,
+}: ItemHeaderProps) {
   return (
     <div
       className="flex items-center justify-between rounded-t-lg bg-white px-3"
@@ -29,18 +42,13 @@ function ItemHeader({ createdTime, isPublished }: ItemHeaderProps) {
       <p className="font-pretendard text-[13px] font-semibold leading-[18px] text-[#121212]">
         {formatCreatedDate(createdTime)}
       </p>
-      <div
-        aria-label={isPublished ? '공개' : '비공개'}
-        className={`relative h-[24px] w-[44px] rounded-full transition-colors ${
-          isPublished ? 'bg-[#121212]' : 'bg-[#EAEAEA]'
-        }`}
-      >
-        <span
-          className={`absolute top-[3px] h-[18px] w-[18px] rounded-full bg-white shadow-sm transition-transform ${
-            isPublished ? 'translate-x-[23px]' : 'translate-x-[3px]'
-          }`}
-        />
-      </div>
+      <VisibilityToggle
+        isPublished={isPublished}
+        disabled={disabled}
+        isBusy={isBusy}
+        hasError={hasError}
+        onToggle={onToggle}
+      />
     </div>
   );
 }
