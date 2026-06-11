@@ -41,7 +41,7 @@ function CoupleIntroductionPreview({
     showContent = false,
     brideFirst = false,
   } = blockInfo.props;
-  const { fontFamily, color } = useBodyFontInfo();
+  const { fontFamily } = useBodyFontInfo();
 
   const hasGroomImageSlot =
     Array.isArray(groomImage.image) && groomImage.image.length > 0;
@@ -132,10 +132,7 @@ function CoupleIntroductionPreview({
                 <p>사진을 추가해 주세요.</p>
               </div>
             )}
-            <p
-              className="text-[16px] font-medium"
-              style={{ fontFamily, color }}
-            >
+            <p className="text-[16px] font-medium" style={{ fontFamily }}>
               {profile.name || '성함'}
             </p>
           </div>

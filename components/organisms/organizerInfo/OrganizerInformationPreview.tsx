@@ -32,7 +32,7 @@ export const OrganizerInformationPreview = ({
     englishTitle,
     checkedEnglishTitle,
   } = blockInfo.props;
-  const { fontFamily, color } = useBodyFontInfo();
+  const { fontFamily } = useBodyFontInfo();
   const html = messageHtml ?? tiptapJsonToHtmlUniversal(messageJson);
 
   const preview = useResolvedImageSource(
@@ -81,7 +81,7 @@ export const OrganizerInformationPreview = ({
       )}
       <p
         className="text-center text-[16px] font-semibold"
-        style={{ fontFamily, color }}
+        style={{ fontFamily }}
       >
         {organizer}
       </p>

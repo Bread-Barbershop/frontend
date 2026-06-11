@@ -61,16 +61,8 @@ function PhonePreviewPopup({ groups = [] }: Props) {
         className="flex justify-center items-center py-2 px-10 rounded-lg border border-[#e5e5e8] hover:bg-gray-50 hover:border-gray-300 cursor-pointer"
         onClick={() => setIsPopupOpen(true)}
       >
-        <PhoneIcon
-          className="size-5.5 text-text-secondary"
-          style={{ fontFamily, color }}
-        />
-        <p
-          className="text-sm font-bold text-text-secondary"
-          style={{ fontFamily, color }}
-        >
-          연락처
-        </p>
+        <PhoneIcon className="size-5.5 text-text-secondary" />
+        <p className="text-sm font-bold text-text-secondary">연락처</p>
       </button>
 
       <AnimatePresence>
@@ -121,7 +113,7 @@ function PhonePreviewPopup({ groups = [] }: Props) {
                   <li key={group.id} className="flex flex-col gap-1.5">
                     <p
                       className="h-11 flex items-center justify-center px-3 text-sm font-normal text-text-secondary text-center"
-                      style={{ color: titleColor }}
+                      style={{ color: titleColor, fontFamily }}
                     >
                       {group.name.trim() || `그룹${groupIndex + 1}`}
                     </p>
@@ -139,16 +131,10 @@ function PhonePreviewPopup({ groups = [] }: Props) {
                           className="h-11 flex items-center justify-between gap-3 pl-5 pr-[7px]"
                         >
                           <div className="min-w-0 flex flex-col justify-center gap-1.5 text-left">
-                            <p
-                              className="truncate text-[13px] font-normal leading-[13px] text-black"
-                              style={{ color }}
-                            >
+                            <p className="truncate text-[13px] font-normal leading-[13px] text-black">
                               {contact.label || `연락처 ${contactIndex + 1}`}
                             </p>
-                            <p
-                              className="truncate text-xs font-normal leading-3 text-black"
-                              style={{ color }}
-                            >
+                            <p className="truncate text-xs font-normal leading-3 text-black">
                               {formatPhoneNumber(contact.number)}
                             </p>
                           </div>
@@ -159,20 +145,14 @@ function PhonePreviewPopup({ groups = [] }: Props) {
                               aria-label="문자 보내기"
                               className="flex items-center justify-center size-11 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors"
                             >
-                              <MessageIcon
-                                className="text-text-tertiary"
-                                style={{ color }}
-                              />
+                              <MessageIcon className="text-text-tertiary" />
                             </a>
                             <a
                               href={`tel:${getPhoneHrefNumber(contact.number)}`}
                               aria-label="전화 걸기"
                               className="flex items-center justify-center size-11 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors"
                             >
-                              <PhoneActionIcon
-                                className="text-text-tertiary"
-                                style={{ color }}
-                              />
+                              <PhoneActionIcon className="text-text-tertiary" />
                             </a>
                           </div>
                         </li>

@@ -17,7 +17,7 @@ export const InformationPreview = ({
     image: (File | string)[];
   };
 }) => {
-  const { fontFamily, color } = useBodyFontInfo();
+  const { fontFamily } = useBodyFontInfo();
   const html =
     speaker.messageHtml ?? tiptapJsonToHtmlUniversal(speaker.messageJson);
   const preview = useResolvedImageSource(
@@ -44,7 +44,7 @@ export const InformationPreview = ({
       )}
       <p
         className="w-full px-5 text-center text-[16px] font-semibold"
-        style={{ fontFamily, color }}
+        style={{ fontFamily }}
       >
         {speaker.name}
       </p>

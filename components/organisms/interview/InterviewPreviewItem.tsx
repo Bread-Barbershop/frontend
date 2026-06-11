@@ -25,7 +25,7 @@ export const InterviewPreviewItem = ({
 }) => {
   const customPreview = useResolvedImageSource(image?.[0]);
   const preview = customPreview ?? defaultImage;
-  const { fontFamily, color } = useBodyFontInfo();
+  const { fontFamily } = useBodyFontInfo();
   const hasAnswer =
     answerHtml
       .replace(/<[^>]*>/g, '')
@@ -56,7 +56,7 @@ export const InterviewPreviewItem = ({
       )}
       <p
         className="text-sm text-center font-semibold select-text"
-        style={{ fontFamily, color }}
+        style={{ fontFamily }}
       >
         {question}
       </p>
@@ -83,10 +83,7 @@ export const InterviewPreviewItem = ({
         onDragStart={event => event.preventDefault()}
         onClick={onToggle}
       >
-        <p
-          className="text-sm font-bold text-text-secondary select-none"
-          style={{ fontFamily, color }}
-        >
+        <p className="text-sm font-bold text-text-secondary select-none">
           {isOpen ? '인터뷰 닫기' : '인터뷰 더 읽어보기'}
         </p>
       </button>

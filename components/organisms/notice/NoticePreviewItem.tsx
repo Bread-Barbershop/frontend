@@ -22,7 +22,7 @@ export const NoticePreviewItem = ({
     tiptapJsonToHtmlUniversal(notice.content.messageJson);
   const customPreview = useResolvedImageSource(notice.image?.[0]);
   const preview = customPreview ?? defaultImage;
-  const { fontFamily, color } = useBodyFontInfo();
+  const { fontFamily } = useBodyFontInfo();
 
   return (
     <div className={cn('flex flex-col gap-6 overflow-hidden', className)}>
@@ -40,7 +40,7 @@ export const NoticePreviewItem = ({
       <div className="flex flex-col gap-6">
         <p
           className="text-sm text-center font-semibold select-none"
-          style={{ fontFamily, color }}
+          style={{ fontFamily }}
         >
           {notice.notice}
         </p>

@@ -17,7 +17,7 @@ export const MyFamilyWeddingPreview = ({
   ...rest
 }: Props) => {
   const { brideFamily, groomFamily } = blockInfo.props;
-  const { fontFamily, color } = useBodyFontInfo();
+  const { fontFamily } = useBodyFontInfo();
 
   return (
     <MiddlePreviewWrapper
@@ -28,10 +28,7 @@ export const MyFamilyWeddingPreview = ({
       childClassName="w-full flex flex-col gap-1"
       {...rest}
     >
-      <div
-        className="flex flex-row items-center gap-1"
-        style={{ fontFamily, color }}
-      >
+      <div className="flex flex-row items-center gap-1" style={{ fontFamily }}>
         {brideFamily?.map((member, index) => (
           <p key={index} className="flex items-center">
             {brideFamily.length > 1 && index !== 0 && '•'}
@@ -41,10 +38,7 @@ export const MyFamilyWeddingPreview = ({
         ))}
         <span>의 딸</span>
       </div>
-      <div
-        className="flex flex-row items-center gap-1"
-        style={{ fontFamily, color }}
-      >
+      <div className="flex flex-row items-center gap-1" style={{ fontFamily }}>
         {groomFamily?.map((member, index) => (
           <p key={index} className="flex items-center">
             {groomFamily.length > 1 && index !== 0 && '•'}

@@ -47,7 +47,7 @@ export const AccountsPerGroupPreview = ({
   accountList: Account[];
 }) => {
   const { success: successToast } = useToast();
-  const { fontFamily, color } = useBodyFontInfo();
+  const { fontFamily } = useBodyFontInfo();
 
   const handleCopyAccount = async (bank: string, account: string) => {
     try {
@@ -75,7 +75,7 @@ export const AccountsPerGroupPreview = ({
           transition={{ duration: 0.25, ease: 'easeInOut' }}
           className="overflow-hidden"
         >
-          <div className="flex flex-col gap-2 pb-[11px] pt-2">
+          <div className="flex flex-col gap-2 pb-[11px] pt-2 bg-white">
             {accountList.map((account: Account, j: number) => {
               const displayName = account.name.trim() || '예금주';
               const displayBank = account.bank.trim() || '은행';
@@ -88,24 +88,15 @@ export const AccountsPerGroupPreview = ({
                 >
                   <div
                     className="flex h-full w-full flex-col justify-center text-start"
-                    style={{ fontFamily, color }}
+                    style={{ fontFamily }}
                   >
-                    <p
-                      className="text-[13px] text-start font-semibold text-border-liner"
-                      style={{ color }}
-                    >
+                    <p className="text-[13px] text-start font-semibold text-border-liner">
                       {displayName}
                     </p>
-                    <p
-                      className="text-[13px] font-normal text-border-liner"
-                      style={{ color }}
-                    >
+                    <p className="text-[13px] font-normal text-border-liner">
                       {displayBank}
                     </p>
-                    <p
-                      className="text-[13px] font-normal text-border-liner"
-                      style={{ color }}
-                    >
+                    <p className="text-[13px] font-normal text-border-liner">
                       {displayAccount}
                     </p>
                   </div>

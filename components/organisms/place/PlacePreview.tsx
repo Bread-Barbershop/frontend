@@ -39,7 +39,7 @@ export const PlacePreview = ({
     mapLocked,
   } = blockInfo.props;
   const defaultTitle = getDefaultPlaceTitle(blockInfo.type);
-  const { fontFamily, color } = useBodyFontInfo();
+  const { fontFamily } = useBodyFontInfo();
 
   return (
     <MiddlePreviewWrapper
@@ -56,17 +56,14 @@ export const PlacePreview = ({
       <NaverMapScript onReady={() => setIsScriptLoaded(true)} />
       <section
         className="flex flex-col justify-center items-center text-text-primary"
-        style={{ fontFamily, color }}
+        style={{ fontFamily }}
       >
         <p className="font-normal text-[16px]">
           {placeName} {placeDetail}
         </p>
         <p className="font-normal text-[16px]">{placeAddress}</p>
       </section>
-      <p
-        className="font-normal text-text-tertiary"
-        style={{ fontFamily, color }}
-      >
+      <p className="font-normal text-text-tertiary" style={{ fontFamily }}>
         TEL. {formatPhoneNumber(placeTel)}
       </p>
 

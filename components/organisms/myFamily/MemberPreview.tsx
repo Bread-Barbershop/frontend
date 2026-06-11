@@ -14,7 +14,7 @@ interface Props {
 
 export const MemberPreview = ({ member }: Props) => {
   const { image, relation, name, flower } = member;
-  const { fontFamily, color } = useBodyFontInfo();
+  const { fontFamily } = useBodyFontInfo();
   const preview = useResolvedImageSource(
     image && image.length > 0 ? image[0] : null
   );
@@ -27,7 +27,7 @@ export const MemberPreview = ({ member }: Props) => {
       )}
       <p
         className="flex items-center gap-1 text-[16px] font-semibold text-center"
-        style={{ fontFamily, color }}
+        style={{ fontFamily }}
       >
         {relation} {flower ? <Flower /> : ''} {name}
       </p>

@@ -28,7 +28,7 @@ export const MyChildPreview = ({
     checkedEnglishTitle,
     englishTitle,
   } = blockInfo.props;
-  const { fontFamily, color } = useBodyFontInfo();
+  const { fontFamily } = useBodyFontInfo();
 
   const html =
     blockInfo.props.messageHtml ??
@@ -56,7 +56,7 @@ export const MyChildPreview = ({
       )}
       <section
         className="grid grid-cols-[1fr_2fr_1fr] w-full items-center gap-10 text-text-primary"
-        style={{ fontFamily, color }}
+        style={{ fontFamily }}
       >
         <p className="col-start-2 text-[16px]">
           {name}

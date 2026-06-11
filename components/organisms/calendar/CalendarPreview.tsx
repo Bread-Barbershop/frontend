@@ -53,7 +53,7 @@ export function CalendarPreview({
   } = useCalendarData({ date, time, language, template });
 
   const isDateIncomplete = !date || date.length < 10;
-  const { fontFamily, color } = useBodyFontInfo();
+  const { fontFamily } = useBodyFontInfo();
 
   const TemplateComponent =
     CalendarTemplates[template as string] || CalendarTemplates['calendarType1'];
@@ -82,7 +82,7 @@ export function CalendarPreview({
       {showStringDate && (
         <div
           className="flex flex-col items-center tracking-[-0.01rem] leading-[1.2] text-base font-normal text-text-primary min-h-[40px] justify-center"
-          style={{ fontFamily, color }}
+          style={{ fontFamily }}
         >
           {isDateIncomplete ? (
             <div className="flex items-center gap-2">
