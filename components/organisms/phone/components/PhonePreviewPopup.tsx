@@ -6,9 +6,9 @@ import { useEffect, useRef, useState } from 'react';
 import MessageIcon from '@/shared/assets/icons/message.svg';
 import PhoneActionIcon from '@/shared/assets/icons/phone.svg';
 import PhoneIcon from '@/shared/assets/icons/phoneIcon.svg';
+import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { formatPhoneNumber } from '@/shared/utils/phoneNumber';
-import { toStyle } from '@/shared/utils/toStyle';
 
 import { PhoneGroup } from '../utils/phone.types';
 
@@ -25,9 +25,7 @@ const getPhoneHrefNumber = (number: string) => {
 
 function PhonePreviewPopup({ groups = [] }: Props) {
   const titleColor = useEditorStore(state => state.titleData.color);
-  const bodyFontFamily = useEditorStore(
-    state => toStyle(state.bodyData, false).fontFamily
-  );
+  const { fontFamily, color } = useBodyFontInfo();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const visibleGroups = groups
@@ -63,8 +61,16 @@ function PhonePreviewPopup({ groups = [] }: Props) {
         className="flex justify-center items-center py-2 px-10 rounded-lg border border-[#e5e5e8] hover:bg-gray-50 hover:border-gray-300 cursor-pointer"
         onClick={() => setIsPopupOpen(true)}
       >
-        <PhoneIcon className="size-5.5 text-text-secondary" />
-        <p className="text-sm font-bold text-text-secondary">연락처</p>
+        <PhoneIcon
+          className="size-5.5 text-text-secondary"
+          style={{ fontFamily, color }}
+        />
+        <p
+          className="text-sm font-bold text-text-secondary"
+          style={{ fontFamily, color }}
+        >
+          연락처
+        </p>
       </button>
 
       <AnimatePresence>
@@ -91,7 +97,7 @@ function PhonePreviewPopup({ groups = [] }: Props) {
               className={`w-[280px] rounded-lg bg-white shadow-edit ${
                 isEmpty ? '' : 'pb-[14px]'
               }`}
-              style={{ fontFamily: bodyFontFamily }}
+              style={{ fontFamily, color }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -133,10 +139,16 @@ function PhonePreviewPopup({ groups = [] }: Props) {
                           className="h-11 flex items-center justify-between gap-3 pl-5 pr-[7px]"
                         >
                           <div className="min-w-0 flex flex-col justify-center gap-1.5 text-left">
-                            <p className="truncate text-[13px] font-normal leading-[13px] text-black">
+                            <p
+                              className="truncate text-[13px] font-normal leading-[13px] text-black"
+                              style={{ color }}
+                            >
                               {contact.label || `연락처 ${contactIndex + 1}`}
                             </p>
-                            <p className="truncate text-xs font-normal leading-3 text-black">
+                            <p
+                              className="truncate text-xs font-normal leading-3 text-black"
+                              style={{ color }}
+                            >
                               {formatPhoneNumber(contact.number)}
                             </p>
                           </div>
@@ -145,16 +157,22 @@ function PhonePreviewPopup({ groups = [] }: Props) {
                             <a
                               href={`sms:${getPhoneHrefNumber(contact.number)}`}
                               aria-label="문자 보내기"
-                              className="flex items-center justify-center size-11 rounded-full text-[#787878] hover:bg-black/5 active:bg-black/10 transition-colors"
+                              className="flex items-center justify-center size-11 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors"
                             >
-                              <MessageIcon />
+                              <MessageIcon
+                                className="text-text-tertiary"
+                                style={{ color }}
+                              />
                             </a>
                             <a
                               href={`tel:${getPhoneHrefNumber(contact.number)}`}
                               aria-label="전화 걸기"
-                              className="flex items-center justify-center size-11 rounded-full text-[#787878] hover:bg-black/5 active:bg-black/10 transition-colors"
+                              className="flex items-center justify-center size-11 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors"
                             >
-                              <PhoneActionIcon />
+                              <PhoneActionIcon
+                                className="text-text-tertiary"
+                                style={{ color }}
+                              />
                             </a>
                           </div>
                         </li>

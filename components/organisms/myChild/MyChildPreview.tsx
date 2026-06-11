@@ -1,6 +1,7 @@
 import { Image } from '@/components/atoms/image';
-import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
+import { PreviewBody } from '@/components/atoms/preview-body/PreviewBody';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
+import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 import type { EditorBlock } from '@/shared/types/block';
 
@@ -27,6 +28,8 @@ export const MyChildPreview = ({
     checkedEnglishTitle,
     englishTitle,
   } = blockInfo.props;
+  const { fontFamily, color } = useBodyFontInfo();
+
   const html =
     blockInfo.props.messageHtml ??
     tiptapJsonToHtmlUniversal(blockInfo.props.messageJson);
@@ -51,17 +54,17 @@ export const MyChildPreview = ({
           <Image src={preview} alt="아기 사진" fill className="object-cover" />
         </div>
       )}
-      <section className="grid grid-cols-[1fr_2fr_1fr] w-full items-center gap-10 text-text-primary">
+      <section
+        className="grid grid-cols-[1fr_2fr_1fr] w-full items-center gap-10 text-text-primary"
+        style={{ fontFamily, color }}
+      >
         <p className="col-start-2 text-[16px]">
           {name}
           {nickname && <span className="text-[16px]">({nickname})</span>}
         </p>
         <p className="col-start-3">{birthday}</p>
       </section>
-      <div
-        className={`text-sm ${previewTextClassName}`}
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      <PreviewBody html={html} />
     </MiddlePreviewWrapper>
   );
 };

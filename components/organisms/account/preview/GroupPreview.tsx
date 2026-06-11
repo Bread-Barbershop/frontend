@@ -2,6 +2,7 @@ import { ChevronDown } from 'lucide-react';
 import React, { useState } from 'react';
 
 import { Button } from '@/components/atoms/button';
+import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { cn } from '@/shared/utils/cn';
 
 export const GroupPreview = ({
@@ -11,6 +12,8 @@ export const GroupPreview = ({
   children: (isOpenAccount: boolean) => React.ReactNode;
   group: { name: string };
 }) => {
+  const { fontFamily, color } = useBodyFontInfo();
+
   const [isOpenAccount, setIsOpenAccount] = useState(false);
   const displayGroupName = group.name.trim() || '그룹명';
   const handleOpenAccount = () => {
@@ -20,6 +23,7 @@ export const GroupPreview = ({
     <div className="relative flex w-70 flex-col justify-center overflow-hidden rounded-lg border border-border-button shadow-btn-drop-black">
       <Button
         className="h-[43px] w-full border-none py-2 text-sm text-text-secondary font-bold enabled:active:bg-btn-hover"
+        style={{ fontFamily, color }}
         type="button"
         onClick={handleOpenAccount}
       >

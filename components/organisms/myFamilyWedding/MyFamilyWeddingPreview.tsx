@@ -1,5 +1,5 @@
 import Flower from '@/shared/assets/icons/flower.svg';
-import { useBodyFontFamily } from '@/shared/hooks/useBodyFontFamily';
+import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import type { EditorBlock } from '@/shared/types/block';
 
 import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
@@ -17,7 +17,7 @@ export const MyFamilyWeddingPreview = ({
   ...rest
 }: Props) => {
   const { brideFamily, groomFamily } = blockInfo.props;
-  const bodyFontFamily = useBodyFontFamily();
+  const { fontFamily, color } = useBodyFontInfo();
 
   return (
     <MiddlePreviewWrapper
@@ -30,7 +30,7 @@ export const MyFamilyWeddingPreview = ({
     >
       <div
         className="flex flex-row items-center gap-1"
-        style={{ fontFamily: bodyFontFamily }}
+        style={{ fontFamily, color }}
       >
         {brideFamily?.map((member, index) => (
           <p key={index} className="flex items-center">
@@ -43,7 +43,7 @@ export const MyFamilyWeddingPreview = ({
       </div>
       <div
         className="flex flex-row items-center gap-1"
-        style={{ fontFamily: bodyFontFamily }}
+        style={{ fontFamily, color }}
       >
         {groomFamily?.map((member, index) => (
           <p key={index} className="flex items-center">

@@ -1,8 +1,9 @@
 import { JSONContent } from '@tiptap/react';
 
 import { Image } from '@/components/atoms/image';
-import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
+import { PreviewBody } from '@/components/atoms/preview-body/PreviewBody';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
+import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 
 export const InformationPreview = ({
@@ -16,6 +17,7 @@ export const InformationPreview = ({
     image: (File | string)[];
   };
 }) => {
+  const { fontFamily, color } = useBodyFontInfo();
   const html =
     speaker.messageHtml ?? tiptapJsonToHtmlUniversal(speaker.messageJson);
   const preview = useResolvedImageSource(
@@ -40,13 +42,13 @@ export const InformationPreview = ({
           </p>
         </div>
       )}
-      <p className="w-full px-5 text-center text-[16px] font-semibold">
+      <p
+        className="w-full px-5 text-center text-[16px] font-semibold"
+        style={{ fontFamily, color }}
+      >
         {speaker.name}
       </p>
-      <div
-        className={`px-5 text-sm text-center select-none ${previewTextClassName}`}
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      <PreviewBody html={html} />
     </div>
   );
 };
