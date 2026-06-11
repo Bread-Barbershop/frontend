@@ -237,7 +237,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
         <div className="flex flex-col gap-0.5">
           <div className="flex gap-2">
             <Checkbox
-              className="gap-1 pl-1 font-medium text-text-secondary"
+              className="gap-1 pl-1 text-text-secondary"
               checked={checkedEnglishTitle}
               onChange={e =>
                 updateBlock(id, { checkedEnglishTitle: e.target.checked })
@@ -247,7 +247,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
             </Checkbox>
 
             <Checkbox
-              className="gap-1 pl-1 font-medium text-text-secondary"
+              className="gap-1 pl-1 text-text-secondary"
               checked={showContent}
               onChange={e => updateBlock(id, { showContent: e.target.checked })}
             >
@@ -256,7 +256,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
           </div>
           <div className="flex gap-2">
             <Checkbox
-              className="gap-1 pl-1 font-medium text-text-secondary"
+              className="gap-1 pl-1 text-text-secondary"
               checked={brideFirst}
               onChange={e => updateBlock(id, { brideFirst: e.target.checked })}
             >

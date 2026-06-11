@@ -175,7 +175,7 @@ export const Account = ({ blockInfo, id }: Props) => {
         size="md"
         variant="borderless"
         onClick={handleAddGroup}
-        className="text-primary font-semibold"
+        className="text-primary"
       >
         + 그룹 추가
       </Button>
