@@ -21,8 +21,7 @@ type SkeletonSlideProps = {
 };
 
 const DEFAULT_SKELETON_COUNT = 5;
-const SELECTED_SKELETON_EXTRA_LIFT = '1.5rem';
-const SKELETON_DELAY_STEP_MS = 120;
+const SKELETON_PHASE_STEP_MS = 180;
 
 function getSelectedTrackLeft(selectedIndex: number) {
   const cardWidth = Number.parseFloat(dashboardCarouselLayout.cardWidth);
@@ -34,7 +33,7 @@ function getSelectedTrackLeft(selectedIndex: number) {
 
 function getSkeletonDelayStyle(index: number): CSSProperties {
   return {
-    '--dashboard-skeleton-delay': `${index * SKELETON_DELAY_STEP_MS}ms`,
+    '--dashboard-skeleton-delay': `-${index * SKELETON_PHASE_STEP_MS}ms`,
   } as CSSProperties;
 }
 
@@ -49,11 +48,12 @@ function SkeletonSideActions() {
       }}
     >
       <div
-        className="rounded-lg bg-white/55"
+        className="dashboard-skeleton-action-surface rounded-lg border border-white/45 bg-white/72"
         style={{
           width: dashboardCarouselLayout.sideActionSize,
           height: dashboardCarouselLayout.sideActionSize,
-          boxShadow: dashboardCarouselLayout.sideActionShadow,
+          boxShadow:
+            '0 14px 32px -22px rgb(15 23 42 / 55%), inset 0 1px 0 rgb(255 255 255 / 70%)',
         }}
       />
     </div>
@@ -63,35 +63,30 @@ function SkeletonSideActions() {
 function SkeletonHeader() {
   return (
     <div
-      className="absolute left-0 top-0 flex items-center justify-between rounded-t-lg bg-white px-2"
+      className="absolute left-0 top-0 flex items-center justify-between rounded-t-lg bg-white px-3"
       style={{
         width: dashboardCarouselLayout.cardWidth,
         height: dashboardCarouselLayout.headerHeight,
       }}
     >
-      <div className="h-2.5 w-18 rounded-full bg-white/45" />
-      <div className="h-2.5 w-20 rounded-full bg-white/38" />
+      <div className="dashboard-skeleton-line h-2.5 w-18 rounded-full" />
+      <div className="flex h-7 w-[72px] items-center rounded-full border border-[#E2E8F0] bg-[#F8FAFC] p-[1px]">
+        <div className="h-6 w-6 -translate-y-px rounded-full bg-[#E2E8F0] shadow-[1px_2px_3px_rgb(15_23_42_/_18%),inset_0_1px_0_rgb(255_255_255_/_80%)]" />
+      </div>
     </div>
   );
 }
 
-function SkeletonInvitationDetails() {
+function SkeletonPosterContent() {
   return (
-    <>
-      <div className="absolute inset-x-8 top-12 h-2.5 rounded-full bg-white/24" />
-      <div className="absolute left-1/2 top-20 h-9 w-24 -translate-x-1/2 rounded-full bg-white/18" />
-      <div className="absolute inset-x-9 top-[138px] h-2 rounded-full bg-white/18" />
-      <div className="absolute inset-x-14 top-40 h-2 rounded-full bg-white/14" />
-      <div className="absolute inset-x-10 bottom-12 h-2.5 rounded-full bg-white/18" />
-      <div className="absolute inset-x-16 bottom-7 h-2 rounded-full bg-white/14" />
-    </>
+    <div className="dashboard-skeleton-media absolute inset-x-5 top-6 h-[280px] rounded-[18px]" />
   );
 }
 
 function SkeletonCenterActions() {
   return (
     <>
-      <div className="absolute inset-0 z-[5] bg-black/8" />
+      <div className="absolute inset-0 z-[5] bg-black/10" />
       <div
         className="absolute inset-x-0 bottom-0 z-10 flex flex-col items-center"
         style={{
@@ -100,21 +95,21 @@ function SkeletonCenterActions() {
         }}
       >
         <div
-          className="rounded-lg bg-[#FAE100]/58"
+          className="dashboard-skeleton-action-surface rounded-lg border border-white/35"
           style={{
             width: dashboardCarouselLayout.primaryActionWidth,
             height: dashboardCarouselLayout.primaryActionHeight,
           }}
         />
         <div
-          className="rounded-lg bg-white/58"
+          className="dashboard-skeleton-action-surface rounded-lg border border-white/35 opacity-[0.85]"
           style={{
             width: dashboardCarouselLayout.primaryActionWidth,
             height: dashboardCarouselLayout.primaryActionHeight,
           }}
         />
         <div
-          className="rounded-lg bg-white/58"
+          className="dashboard-skeleton-action-surface rounded-lg border border-white/35 opacity-[0.75]"
           style={{
             width: dashboardCarouselLayout.primaryActionWidth,
             height: dashboardCarouselLayout.primaryActionHeight,
@@ -131,7 +126,7 @@ function SkeletonArtwork({
 }: Pick<SkeletonSlideProps, 'index' | 'isSelected'>) {
   return (
     <div
-      className={`dashboard-skeleton-card absolute bottom-0 left-0 overflow-hidden ${
+      className={`dashboard-skeleton-card absolute bottom-0 left-0 overflow-hidden border border-white/35 ${
         isSelected ? 'rounded-b-xl' : 'rounded-xl'
       }`}
       style={{
@@ -140,8 +135,7 @@ function SkeletonArtwork({
         ...getSkeletonDelayStyle(index),
       }}
     >
-      <div className="dashboard-skeleton-shimmer" />
-      <SkeletonInvitationDetails />
+      <SkeletonPosterContent />
       {isSelected && <SkeletonCenterActions />}
     </div>
   );
@@ -176,7 +170,8 @@ function SkeletonSlide({
           height: isSelected
             ? dashboardCarouselLayout.selectedVisualHeight
             : dashboardCarouselLayout.cardHeight,
-          boxShadow: dashboardCarouselLayout.sideActionShadow,
+          boxShadow:
+            '0 28px 70px -46px rgb(15 23 42 / 70%), 0 10px 30px -24px rgb(15 23 42 / 48%)',
           ...getSkeletonDelayStyle(index),
         }}
       >
@@ -191,14 +186,14 @@ function SkeletonController() {
   return (
     <div className="absolute inset-x-0 bottom-0 z-10">
       <div
-        className="flex w-full items-center justify-center gap-6 border border-white/30 bg-white/10 backdrop-blur-md"
+        className="flex w-full items-center justify-center gap-6 border border-white/45 bg-white/35 shadow-[0_-18px_50px_-42px_rgb(15_23_42_/_65%)] backdrop-blur-xl"
         style={{ height: dashboardCarouselLayout.controllerHeight }}
       >
-        <div className="flex size-11 items-center justify-center rounded-full bg-[#EEEEF2]/80">
-          <ChevronLeft strokeWidth={3} className="size-6 text-[#6B7280]/60" />
+        <div className="dashboard-skeleton-action-surface flex size-11 items-center justify-center rounded-full border border-white/45">
+          <ChevronLeft strokeWidth={3} className="size-6 text-[#64748B]/55" />
         </div>
-        <div className="flex size-11 items-center justify-center rounded-full bg-[#EEEEF2]/80">
-          <ChevronRight strokeWidth={3} className="size-6 text-[#6B7280]/60" />
+        <div className="dashboard-skeleton-action-surface flex size-11 items-center justify-center rounded-full border border-white/45">
+          <ChevronRight strokeWidth={3} className="size-6 text-[#64748B]/55" />
         </div>
       </div>
     </div>
@@ -210,7 +205,7 @@ function DashboardCarouselSkeleton({
   stageHeight = dashboardCarouselLayout.dashboardStageHeight,
 }: DashboardCarouselSkeletonProps) {
   const selectedIndex = Math.max(count - 1, 0);
-  const selectedLift = `calc(${dashboardCarouselLayout.dashboardSelectedLift} + ${SELECTED_SKELETON_EXTRA_LIFT})`;
+  const selectedLift = `calc(${dashboardCarouselLayout.dashboardSelectedLift} + ${dashboardCarouselLayout.headerHeight})`;
 
   return (
     <section

@@ -106,11 +106,19 @@ describe('auth callback Route Handler 테스트', () => {
     );
 
     const res = await GET(req);
-    const json = await res.json();
+    const html = await res.text();
 
-    expect(res.status).toBe(400);
-    expect(json).toEqual({
-      error: 'Google Auth Error: access_denied',
+    expect(res.status).toBe(200);
+    expect(res.headers.get('Content-Type')).toContain('text/html');
+    expect(html).toContain('GOOGLE_OAUTH_ERROR');
+    expect(html).toContain('로그인이 취소되었습니다. 창을 닫는 중...');
+    expect(cookieStore.set).toHaveBeenCalledWith('oauth_state', '', {
+      path: '/',
+      maxAge: 0,
+    });
+    expect(cookieStore.set).toHaveBeenCalledWith('pkce_code_verifier', '', {
+      path: '/',
+      maxAge: 0,
     });
 
     expect(mockFetch).not.toHaveBeenCalled();

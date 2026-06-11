@@ -64,7 +64,7 @@ const SaveStepView = ({
       </p>
     </div>
     <div>
-      <SaveLottie variant={isFail ? 'fail' : 'success'} loop />
+      <SaveLottie variant={isFail ? 'fail' : 'success'} />
     </div>
     <div className="flex items-center gap-2">
       {isFail ? (

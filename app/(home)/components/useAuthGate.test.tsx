@@ -18,7 +18,7 @@ jest.mock('next/navigation', () => ({
   }),
 }));
 
-describe('useAuthGate 테스트', () => {
+describe('useAuthGate', () => {
   const mockFetch = jest.fn();
   const mockPopupFocus = jest.fn();
   const mockPopupClose = jest.fn();
@@ -36,7 +36,7 @@ describe('useAuthGate 테스트', () => {
     });
   });
 
-  it('비로그인 상태에서 runAfterAuth()를 호출하면 로그인 모달이 열린다', async () => {
+  it('opens privacy notice before login modal for unauthenticated runAfterAuth', async () => {
     const action = jest.fn();
 
     const { result } = renderHook(() =>
@@ -45,16 +45,45 @@ describe('useAuthGate 테스트', () => {
 
     expect(result.current.isLoggedIn).toBe(false);
     expect(result.current.isLoginOpen).toBe(false);
+    expect(result.current.isPrivacyNoticeOpen).toBe(false);
 
     act(() => {
       result.current.runAfterAuth(action);
     });
 
     expect(action).not.toHaveBeenCalled();
+    expect(result.current.isPrivacyNoticeOpen).toBe(true);
+    expect(result.current.isLoginOpen).toBe(false);
+
+    act(() => {
+      result.current.closePrivacyNotice();
+    });
+
+    expect(result.current.isPrivacyNoticeOpen).toBe(false);
     expect(result.current.isLoginOpen).toBe(true);
   });
 
-  it('loginWithGoogle()를 호출하면 OAuth popup이 열린다', async () => {
+  it('opens privacy notice before login modal when login is requested', async () => {
+    const { result } = renderHook(() =>
+      useAuthGate({ initialIsLoggedIn: false })
+    );
+
+    act(() => {
+      result.current.login();
+    });
+
+    expect(result.current.isPrivacyNoticeOpen).toBe(true);
+    expect(result.current.isLoginOpen).toBe(false);
+
+    act(() => {
+      result.current.closePrivacyNotice();
+    });
+
+    expect(result.current.isPrivacyNoticeOpen).toBe(false);
+    expect(result.current.isLoginOpen).toBe(true);
+  });
+
+  it('opens an OAuth popup when loginWithGoogle is called', async () => {
     const { result } = renderHook(() =>
       useAuthGate({ initialIsLoggedIn: false })
     );
@@ -72,7 +101,7 @@ describe('useAuthGate 테스트', () => {
     expect(result.current.isLoginPending).toBe(true);
   });
 
-  it('popup이 아직 열려 있으면 focus 이벤트만으로 로그인 대기 상태를 해제하지 않는다', async () => {
+  it('releases pending state on focus when session is still unauthenticated', async () => {
     mockFetch.mockResolvedValue({
       ok: true,
       status: 200,
@@ -106,13 +135,20 @@ describe('useAuthGate 테스트', () => {
     expect(result.current.isLoginOpen).toBe(false);
   });
 
-  it('login pending 중 closeLogin()을 호출하면 popup과 modal 상태를 정리한다', async () => {
+  it('clears popup and modal state when closeLogin is called while login is pending', async () => {
     const { result } = renderHook(() =>
       useAuthGate({ initialIsLoggedIn: false })
     );
 
     act(() => {
       result.current.login();
+    });
+
+    act(() => {
+      result.current.closePrivacyNotice();
+    });
+
+    act(() => {
       result.current.loginWithGoogle();
     });
 
@@ -128,7 +164,7 @@ describe('useAuthGate 테스트', () => {
     expect(result.current.isLoginOpen).toBe(false);
   });
 
-  it('GOOGLE_OAUTH_SUCCESS 메시지를 받으면 로그인 상태가 true가 된다', async () => {
+  it('sets login state and refreshes on GOOGLE_OAUTH_SUCCESS without reopening privacy notice', async () => {
     const { result } = renderHook(() =>
       useAuthGate({ initialIsLoggedIn: false })
     );
@@ -154,18 +190,48 @@ describe('useAuthGate 테스트', () => {
 
     expect(result.current.isLoginPending).toBe(false);
     expect(result.current.isLoginOpen).toBe(false);
-    expect(result.current.isPrivacyNoticeOpen).toBe(true);
-    expect(refreshMock).not.toHaveBeenCalled();
+    expect(result.current.isPrivacyNoticeOpen).toBe(false);
+    expect(refreshMock).toHaveBeenCalled();
+  });
+
+  it('runs pending action on GOOGLE_OAUTH_SUCCESS after the pre-login notice flow', async () => {
+    const action = jest.fn();
+
+    const { result } = renderHook(() =>
+      useAuthGate({ initialIsLoggedIn: false })
+    );
+
+    act(() => {
+      result.current.runAfterAuth(action);
+    });
 
     act(() => {
       result.current.closePrivacyNotice();
     });
 
+    act(() => {
+      result.current.loginWithGoogle();
+    });
+
+    act(() => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          origin: window.location.origin,
+          data: { type: 'GOOGLE_OAUTH_SUCCESS' },
+        })
+      );
+    });
+
+    await waitFor(() => {
+      expect(result.current.isLoggedIn).toBe(true);
+    });
+
+    expect(action).toHaveBeenCalledTimes(1);
     expect(result.current.isPrivacyNoticeOpen).toBe(false);
-    expect(refreshMock).toHaveBeenCalled();
+    expect(refreshMock).not.toHaveBeenCalled();
   });
 
-  it('OAuth popup을 연 hook 인스턴스만 성공 메시지를 처리한다', async () => {
+  it('only the hook instance with an OAuth popup handles the success message', async () => {
     const headerGate = renderHook(() =>
       useAuthGate({ initialIsLoggedIn: false })
     );
@@ -185,13 +251,13 @@ describe('useAuthGate 테스트', () => {
     });
 
     await waitFor(() => {
-      expect(ctaGate.result.current.isPrivacyNoticeOpen).toBe(true);
+      expect(ctaGate.result.current.isLoggedIn).toBe(true);
     });
 
-    expect(headerGate.result.current.isPrivacyNoticeOpen).toBe(false);
+    expect(headerGate.result.current.isLoggedIn).toBe(false);
   });
 
-  it('로그인된 상태에서 runAfterAuth() 실행 후 session이 401이면 루트로 이동한다', async () => {
+  it('redirects home when a logged-in runAfterAuth session check fails', async () => {
     mockFetch.mockResolvedValue({
       status: 200,
       ok: true,
@@ -220,7 +286,7 @@ describe('useAuthGate 테스트', () => {
     expect(refreshMock).toHaveBeenCalled();
   });
 
-  it('logout() 호출 후 로그아웃 API 성공 시 루트로 이동하고 로그인 상태가 false가 된다', async () => {
+  it('logs out, redirects home, and clears login state', async () => {
     mockFetch.mockResolvedValue({
       ok: true,
       status: 200,
