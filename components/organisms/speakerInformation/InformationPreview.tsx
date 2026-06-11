@@ -7,6 +7,7 @@ import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 
 export const InformationPreview = ({
   speaker,
+  isGuestPage = false,
 }: {
   speaker: {
     id: string;
@@ -15,6 +16,7 @@ export const InformationPreview = ({
     messageHtml: string | null;
     image: (File | string)[];
   };
+  isGuestPage?: boolean;
 }) => {
   const html =
     speaker.messageHtml ?? tiptapJsonToHtmlUniversal(speaker.messageJson);
@@ -33,12 +35,15 @@ export const InformationPreview = ({
           />
         </div>
       )}
-      {!preview && (
-        <div className="w-83.75 h-83.75 overflow-hidden rounded-3xl border border-dashed border-gray-300 flex items-center justify-center">
+      {!preview && !isGuestPage && (
+        <div className="w-83.75 h-83.75 overflow-hidden rounded-3xl flex-center bg-border-neutral">
           <p className="text-text-secondary text-sm">
             이미지를 업로드해 주세요.
           </p>
         </div>
+      )}
+      {!preview && isGuestPage && (
+        <div className="w-83.75 overflow-hidden rounded-3xl"></div>
       )}
       <p className="w-full px-5 text-center text-[16px] font-semibold">
         {speaker.name}
