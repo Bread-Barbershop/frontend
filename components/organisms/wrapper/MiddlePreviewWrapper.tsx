@@ -6,6 +6,7 @@ import { cn } from '@/shared/utils/cn';
 interface Props extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   className: string;
+  isGuestPage?: boolean;
   noTitle?: boolean;
   titleClassName?: string;
   checkedEnglishTitle?: boolean;
@@ -29,6 +30,7 @@ export const MiddlePreviewWrapper = ({
   koTitle,
   koTitleDefault,
   childClassName,
+  isGuestPage: _isGuestPage,
   ...rest
 }: Props) => {
   return (
