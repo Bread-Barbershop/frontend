@@ -31,20 +31,30 @@ function TitleEdit({
     titleData.isDefault ? TITLE_BULK_DATA : titleData
   );
 
+  // const handleReset = () => {
+  //   setBulkTitleData(TITLE_BULK_DATA);
+  //   setTitleData(TITLE_BULK_DATA);
+  // };
+
   return (
     <div className="w-full">
       <div className="w-full">
         <NavigationBar
           action={
-            <UtilityButton
-              size="md"
-              variant="primary"
-              onClick={() => {
-                setTitleData({ ...bulkTitleData, isDefault: false });
-              }}
-            >
-              적용하기
-            </UtilityButton>
+            <div className="flex items-center gap-1">
+              {/* <UtilityButton size="md" variant="primary" onClick={handleReset}>
+                되돌리기
+              </UtilityButton> */}
+              <UtilityButton
+                size="md"
+                variant="primary"
+                onClick={() => {
+                  setTitleData({ ...bulkTitleData, isDefault: false });
+                }}
+              >
+                적용하기
+              </UtilityButton>
+            </div>
           }
           direction="right"
         >
@@ -69,7 +79,7 @@ function TitleEdit({
             </p>
 
             <p className="main-title" style={toStyle(bulkTitleData, true)}>
-              제목입니다.
+              제목입니다
             </p>
           </div>
         </TextEditorPreview>
