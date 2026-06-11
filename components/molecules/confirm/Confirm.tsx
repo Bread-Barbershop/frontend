@@ -4,7 +4,12 @@ import { forwardRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 import { cn } from '@/shared/utils/cn';
-import { trapFocus, disableBodyScroll, getHiddenRoot, removeHiddenRoot } from '@/shared/utils/focusTrap';
+import {
+  trapFocus,
+  disableBodyScroll,
+  getHiddenRoot,
+  removeHiddenRoot,
+} from '@/shared/utils/focusTrap';
 
 import { confirmPositionVariants, confirmVariants } from './Confirm.style';
 
@@ -80,21 +85,24 @@ const Confirm = forwardRef<HTMLDivElement, ConfirmProps>(
           className={cn(confirmVariants({ variant }))}
         >
           <div>
-            <p id="confirm-message" className="whitespace-pre text-center text-sm font-semibold text-text-primary font-pretendard">
+            <p
+              id="confirm-message"
+              className="whitespace-pre text-center text-sm font-semibold text-text-primary font-pretendard"
+            >
               {message}
             </p>
           </div>
           <div className="flex items-center justify-center gap-5">
             <button
               type="button"
-              className="text-[13px] text-status-error rounded-lg w-[66px] h-8 hover:bg-[#FFE8E8]/32 cursor-pointer focus:outline-none focus:ring-2 focus:ring-status-error focus:ring-offset-2"
+              className="text-[13px] text-status-error rounded-lg w-[66px] h-8 hover:bg-[#FFE8E8]/32 cursor-pointer"
               onClick={onConfirm}
             >
               {confirmText}
             </button>
             <button
               type="button"
-              className="text-[13px] text-text-primary rounded-lg w-[66px] h-8 hover:bg-[#FFE8E8]/32 cursor-pointer focus:outline-none focus:ring-2 focus:ring-text-primary focus:ring-offset-2"
+              className="text-[13px] text-text-primary rounded-lg w-[66px] h-8 hover:bg-[#FFE8E8]/32 cursor-pointer"
               onClick={onCancel}
             >
               {cancelText}
