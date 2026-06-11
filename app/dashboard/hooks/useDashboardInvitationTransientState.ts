@@ -1,6 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
 
-import type { InvitationVisibilityResult } from '@/app/dashboard/types';
 import type { DashboardPendingInvitation } from '@/shared/constants/dashboardPendingInvitation';
 
 import type { InvitationResultMap } from './dashboardInvitationState';

@@ -121,7 +121,9 @@ function CarouselWrapper({
   const orderedInvites = useMemo(() => [...invites].reverse(), [invites]);
   const startIndex = Math.max(orderedInvites.length - 1, 0);
   const [resolvedImages, setResolvedImages] = useState<ResolvedImageMap>({});
-  const [initialImagesReady, setInitialImagesReady] = useState(false);
+  const [readyInitialPreloadKey, setReadyInitialPreloadKey] = useState<
+    string | null
+  >(null);
   const backgroundPreloadedKeysRef = useRef<Set<string>>(new Set());
   const items: CarouselCardItem[] = useMemo(
     () =>
@@ -151,6 +153,8 @@ function CarouselWrapper({
     () => getPreloadKey(initialPreloadItems),
     [initialPreloadItems]
   );
+  const initialImagesReady =
+    items.length === 0 || readyInitialPreloadKey === initialPreloadKey;
   const displayItems = useMemo(
     () =>
       items.map(item => ({
@@ -162,12 +166,10 @@ function CarouselWrapper({
 
   useEffect(() => {
     if (loading || items.length === 0) {
-      setInitialImagesReady(false);
       return;
     }
 
     let cancelled = false;
-    setInitialImagesReady(false);
 
     void Promise.all(
       initialPreloadItems.map(
@@ -180,13 +182,13 @@ function CarouselWrapper({
         ...prev,
         ...Object.fromEntries(entries),
       }));
-      setInitialImagesReady(true);
+      setReadyInitialPreloadKey(initialPreloadKey);
     });
 
     return () => {
       cancelled = true;
     };
-  }, [initialPreloadKey, items.length, loading]);
+  }, [initialPreloadItems, initialPreloadKey, items.length, loading]);
 
   useEffect(() => {
     if (!initialImagesReady) {

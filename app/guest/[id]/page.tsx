@@ -1,9 +1,7 @@
 import 'server-only';
 
-import { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import type { ReactNode } from 'react';
 
 import inviaLogo3d from '@/shared/assets/logo/invia-simple-logo-3d.png';
 import {
@@ -16,6 +14,9 @@ import GuestBgm from './components/GuestBgm';
 import { GuestMainPoster } from './components/GuestMainPoster';
 import GuestRenderer from './components/GuestRenderer';
 import { isGuestPayload } from './utils/guestBlockTypeGuards';
+
+import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
 
 export const dynamic = 'force-static';
 export const revalidate = false;

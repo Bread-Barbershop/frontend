@@ -1,10 +1,10 @@
 import { Suspense } from 'react';
 
-import type { Metadata } from 'next';
-
 import DashboardCarouselSkeleton from './components/carousel/DashboardCarouselSkeleton';
 import DashboardInvitations from './components/DashboardInvitations';
 import DashboardTitle from './components/title/DashboardTitle';
+
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: '대시보드',

@@ -1,10 +1,10 @@
 import 'server-only';
 
+import { loadInvitationMeta } from '@/app/api/drive/_lib/ensureInvitationMetaFile';
 import {
   THUMBNAIL_KIND,
   THUMBNAIL_NAME,
 } from '@/app/api/drive/_lib/ensureThumbnailFile';
-import { loadInvitationMeta } from '@/app/api/drive/_lib/ensureInvitationMetaFile';
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import { escapeDriveQueryValue } from '@/app/api/drive/_lib/escapeQueryValue';
 import { findWorkspaceFolderId } from '@/app/api/drive/_lib/findWorkspaceFolderId';

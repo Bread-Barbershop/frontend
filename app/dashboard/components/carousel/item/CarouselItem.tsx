@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { KeyboardEvent, MouseEvent, useEffect, useState } from 'react';
+import { KeyboardEvent, MouseEvent, useState } from 'react';
 
 import EditIcon from '@/shared/assets/icons/edit.svg';
 import KakaoIcon from '@/shared/assets/icons/kakao2.svg';
@@ -11,6 +11,10 @@ import { CarouselCardItem } from '../carouselTypes';
 import DashboardActionButton from './actions/DashboardActionButton';
 import DeleteButton from './actions/DeleteButton';
 import ItemHeader from './ItemHeader';
+
+function getImageKey(image: CarouselCardItem['image']) {
+  return typeof image === 'string' ? image : image.src;
+}
 
 type CarouselItemProps = {
   item: CarouselCardItem;
@@ -60,12 +64,15 @@ function CarouselItem({
 }: CarouselItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isUrlActionExpanded, setIsUrlActionExpanded] = useState(false);
-  const [imageSrc, setImageSrc] = useState(item.image);
+  const currentImageKey = getImageKey(item.image);
+  const [imageState, setImageState] = useState({
+    sourceKey: currentImageKey,
+    src: item.image,
+  });
   const invite = item.invite;
   const guestUrl = invite?.guestUrl ?? guestUrlProp;
   const isPublished = invite?.published ?? Boolean(guestUrlProp);
   const readiness = invite?.readiness ?? (guestUrl ? 'ready' : 'idle');
-  const isReady = readiness === 'ready';
   const isPending =
     Boolean(invite?.isPending) ||
     readiness === 'pending' ||
@@ -85,9 +92,12 @@ function CarouselItem({
     : selectedLiftProp;
   const translateY = isSelected ? selectedLift : isHovered ? hoverLift : null;
 
-  useEffect(() => {
-    setImageSrc(item.image);
-  }, [item.image]);
+  if (imageState.sourceKey !== currentImageKey) {
+    setImageState({
+      sourceKey: currentImageKey,
+      src: item.image,
+    });
+  }
 
   const handleActionClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -198,7 +208,7 @@ function CarouselItem({
             }}
           >
             <Image
-              src={imageSrc}
+              src={imageState.src}
               alt={item.alt}
               fill
               sizes="260px"
@@ -207,7 +217,10 @@ function CarouselItem({
               className="object-cover"
               onError={() => {
                 if (item.fallbackImage) {
-                  setImageSrc(item.fallbackImage);
+                  setImageState(prev => ({
+                    ...prev,
+                    src: item.fallbackImage ?? prev.src,
+                  }));
                 }
               }}
             />
