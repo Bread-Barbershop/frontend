@@ -1,4 +1,4 @@
-import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
+import { PreviewBody } from '@/components/atoms/preview-body/PreviewBody';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { EditorBlock } from '@/shared/types/block';
 
@@ -41,10 +41,7 @@ export const AccountPreview = ({
       koTitleDefault="마음 보내실 곳"
       {...rest}
     >
-      <div
-        className={`text-sm text-text-tertiary ${previewTextClassName}`}
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      <PreviewBody html={html} />
 
       <div className="w-70 flex flex-col items-center gap-6">
         {groupList.map((group, i) => (

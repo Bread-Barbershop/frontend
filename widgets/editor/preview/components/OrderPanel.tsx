@@ -128,7 +128,7 @@ function OrderPanel() {
         ref={containerRef}
         className="relative flex flex-col items-center w-full rounded-lg bg-bg-base shadow-edit"
       >
-        <p className="font-semibold text-sm px-9 py-3.5">순서</p>
+        <p className="font-semibold text-sm px-9 py-3.5 select-none">순서</p>
         <div className="w-full px-2 relative">
           <ChipCarousel
             options={{
@@ -145,7 +145,7 @@ function OrderPanel() {
           >
             <button
               type="button"
-              className={`flex-center px-3 py-2 w-24 cursor-pointer rounded-sm ${selectedId === 'mainPoster' ? 'bg-[#DBE8FC]' : ''}`}
+              className={`flex-center px-3 py-2 w-24 cursor-pointer select-none rounded-sm ${selectedId === 'mainPoster' ? 'bg-[#DBE8FC]' : ''}`}
               onPointerDown={() => handleSelect('mainPoster')}
             >
               포스터
@@ -185,7 +185,7 @@ function OrderPanel() {
                 setDeleteTargetId(contextMenu.tabId);
                 setContextMenu(null);
               }}
-              className="w-31 text-[13px] text-text-primary p-1 rounded-sm hover:bg-[#FFE8E8]"
+              className="w-31 text-[13px] text-text-primary p-1 rounded-sm hover:bg-[#FFE8E8] select-none"
             >
               삭제하기
             </li>

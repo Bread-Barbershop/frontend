@@ -274,7 +274,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
     return (
       <div className="w-full space-y-1">
         <div className="flex flex-col gap-1">
-          <div className="flex h-8 items-center justify-between">
+          <div className="flex h-8 gap-[13px] items-center justify-between">
             <Selector<FontFamilyOption>
               options={FONT_FAMILY_OPTIONS}
               selected={fontFamilySelected}

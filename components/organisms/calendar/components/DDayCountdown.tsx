@@ -49,7 +49,7 @@ export function DDayCountdown({ date, time, messageJson }: Props) {
     if (!targetDate) return '(D-Day)';
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-    
+
     const target = new Date(targetDate);
     target.setHours(0, 0, 0, 0);
 
@@ -100,7 +100,7 @@ export function DDayCountdown({ date, time, messageJson }: Props) {
   return (
     <div
       className={cn(
-        'w-full border-t border-border-divider py-6 px-6 flex flex-col items-center justify-center gap-4 bg-white font-bold'
+        'w-full bg-transparent border-t border-border-divider py-6 px-6 flex flex-col items-center justify-center gap-4 font-bold'
       )}
     >
       <div className="flex w-full justify-between items-center text-center">

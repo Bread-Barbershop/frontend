@@ -60,7 +60,7 @@ const SortableItems = React.memo(
           onContextMenu={e => onContextMenu(e, id)}
           onPointerDown={handlePointerDown}
           className={cn(
-            'flex-center py-2 cursor-pointer rounded-sm w-24 transition-colors duration-200 ',
+            'flex-center py-2 cursor-pointer rounded-sm w-24 transition-colors duration-200 select-none ',
             isSelected ? 'bg-[#DBE8FC]' : ''
           )}
         >

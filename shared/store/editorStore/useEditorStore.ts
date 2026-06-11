@@ -1,7 +1,11 @@
 import { create } from 'zustand';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
 
-import { BODY_BULK_DATA, TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
+import {
+  BODY_BULK_DATA,
+  DEFAULT_BACKGROUND_COLOR,
+  TITLE_BULK_DATA,
+} from '@/shared/data/sample/bulkData';
 import { EditorState } from '@/shared/types/block';
 import { createDefaultShareUrlState } from '@/shared/utils/shareUrlDefaults';
 
@@ -40,7 +44,7 @@ export const useEditorStore = create<EditorState>()(
           invitationUuid: '',
           audioFolderId: '',
           imageFolderId: '',
-          backgroundColor: '#FFFFFF',
+          backgroundColor: DEFAULT_BACKGROUND_COLOR,
           titleData: TITLE_BULK_DATA,
           bodyData: BODY_BULK_DATA,
           isZoom: false,

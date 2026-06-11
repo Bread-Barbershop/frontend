@@ -1,6 +1,7 @@
 import { Image } from '@/components/atoms/image';
-import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
+import { PreviewBody } from '@/components/atoms/preview-body/PreviewBody';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
+import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 import { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
@@ -33,6 +34,7 @@ export const OrganizerInformationPreview = ({
     englishTitle,
     checkedEnglishTitle,
   } = blockInfo.props;
+  const { fontFamily } = useBodyFontInfo();
   const html = messageHtml ?? tiptapJsonToHtmlUniversal(messageJson);
 
   const preview = useResolvedImageSource(
@@ -84,11 +86,13 @@ export const OrganizerInformationPreview = ({
           />
         </button>
       )}
-      <p className="text-center text-[16px] font-semibold">{organizer}</p>
-      <div
-        className={`text-sm text-center select-none ${previewTextClassName}`}
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      <p
+        className="text-center text-[16px] font-semibold"
+        style={{ fontFamily }}
+      >
+        {organizer}
+      </p>
+      <PreviewBody html={html} />
     </MiddlePreviewWrapper>
   );
 };

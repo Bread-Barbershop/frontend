@@ -63,7 +63,7 @@ export const NoticePreview = ({
       enTitleDefault="INFORMATION"
       koTitle={title}
       koTitleDefault="공지사항"
-      titleClassName={titleClassName}
+      titleClassName={cn('px-5', titleClassName)}
       {...rest}
     >
       <div className="w-full flex justify-center relative overflow-hidden px-px">

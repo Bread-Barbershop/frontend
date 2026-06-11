@@ -1,6 +1,6 @@
 import { Image } from '@/components/atoms/image';
-import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
-import { useBodyFontFamily } from '@/shared/hooks/useBodyFontFamily';
+import { PreviewBody } from '@/components/atoms/preview-body/PreviewBody';
+import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 import { cn } from '@/shared/utils/cn';
 
@@ -25,7 +25,7 @@ export const InterviewPreviewItem = ({
 }) => {
   const customPreview = useResolvedImageSource(image?.[0]);
   const preview = customPreview ?? defaultImage;
-  const bodyFontFamily = useBodyFontFamily();
+  const { fontFamily } = useBodyFontInfo();
   const hasAnswer =
     answerHtml
       .replace(/<[^>]*>/g, '')
@@ -56,7 +56,7 @@ export const InterviewPreviewItem = ({
       )}
       <p
         className="text-sm text-center font-semibold select-text"
-        style={{ fontFamily: bodyFontFamily }}
+        style={{ fontFamily }}
       >
         {question}
       </p>
@@ -68,10 +68,7 @@ export const InterviewPreviewItem = ({
       >
         <div className="w-full overflow-hidden">
           {hasAnswer ? (
-            <div
-              className={`text-sm text-center select-text ${previewTextClassName}`}
-              dangerouslySetInnerHTML={{ __html: answerHtml }}
-            />
+            <PreviewBody html={answerHtml} />
           ) : (
             <p className="text-sm text-center text-text-secondary select-text ">
               인터뷰 내용이 비어있습니다.

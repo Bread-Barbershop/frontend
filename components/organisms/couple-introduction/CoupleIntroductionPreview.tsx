@@ -4,6 +4,7 @@ import { Image } from '@/components/atoms/image';
 import { PreviewBody } from '@/components/atoms/preview-body/PreviewBody';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
+import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import {
   useResolvedImageSource,
   type ResolvableImageSource,
@@ -42,6 +43,7 @@ function CoupleIntroductionPreview({
     showContent = false,
     brideFirst = false,
   } = blockInfo.props;
+  const { fontFamily } = useBodyFontInfo();
 
   const hasGroomImageSlot =
     Array.isArray(groomImage.image) && groomImage.image.length > 0;
@@ -134,7 +136,7 @@ function CoupleIntroductionPreview({
                 </div>
               )
             )}
-            <p className="text-[16px] font-semibold">
+            <p className="text-[16px] font-medium" style={{ fontFamily }}>
               {profile.name || '성함'}
             </p>
           </div>

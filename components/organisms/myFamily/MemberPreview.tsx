@@ -1,8 +1,7 @@
 import { Image } from '@/components/atoms/image';
 import Flower from '@/shared/assets/icons/flower.svg';
+import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
-
-import type { CSSProperties } from 'react';
 
 interface Props {
   member: {
@@ -11,16 +10,12 @@ interface Props {
     image: (File | string)[];
     flower: boolean;
   };
-  fontFamily?: CSSProperties['fontFamily'];
   isGuestPage?: boolean;
 }
 
-export const MemberPreview = ({
-  member,
-  fontFamily,
-  isGuestPage = false,
-}: Props) => {
+export const MemberPreview = ({ member, isGuestPage = false }: Props) => {
   const { image, relation, name, flower } = member;
+  const { fontFamily } = useBodyFontInfo();
   const preview = useResolvedImageSource(
     image && image.length > 0 ? image[0] : null
   );

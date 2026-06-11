@@ -1,4 +1,5 @@
 import { ChevronDown } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import {
   useState,
   useRef,
@@ -82,6 +83,8 @@ export const Selector = <T extends Option>({
   const popoverRef = useRef<HTMLUListElement>(null);
   const baseId = useId();
   const popoverId = `popover-${baseId}`;
+  const searchParams = useSearchParams();
+  const isAdmin = searchParams.get('type') === 'admin';
 
   // 실제 값이 있는지 확인 (객체 내부의 value나 label 체크)
   const hasValue = !!(selected?.value || selected?.label);
@@ -188,13 +191,14 @@ export const Selector = <T extends Option>({
     };
   }, [isOpen, updatePopoverPosition]);
 
-  const filteredOptions = searchable
-    ? options.filter(opt => {
-        const labelStr =
-          typeof opt.label === 'string' ? opt.label : String(opt.label);
-        return labelStr.toLowerCase().includes(searchTerm.toLowerCase());
-      })
-    : options;
+  const filteredOptions =
+    searchable || isAdmin
+      ? options.filter(opt => {
+          const labelStr =
+            typeof opt.label === 'string' ? opt.label : String(opt.label);
+          return labelStr.toLowerCase().includes(searchTerm.toLowerCase());
+        })
+      : options;
 
   const variantStyles = variant ? selectorStyles[variant] : null;
 
@@ -288,7 +292,7 @@ export const Selector = <T extends Option>({
           inset: 'auto', // popover 기본값 오버라이드
         }}
       >
-        {searchable && (
+        {(searchable || isAdmin) && (
           <div className="sticky top-0 z-10 p-1 bg-bg-base border-b border-border-neutral rounded-md">
             <Input
               type="text"
