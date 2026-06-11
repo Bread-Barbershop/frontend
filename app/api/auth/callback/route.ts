@@ -1,6 +1,47 @@
 ﻿import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+function oauthPopupResponse({
+  messageType,
+  origin,
+  title,
+  body,
+}: {
+  messageType: 'GOOGLE_OAUTH_SUCCESS' | 'GOOGLE_OAUTH_ERROR';
+  origin: string;
+  title: string;
+  body: string;
+}) {
+  const html = `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>${title}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 24px; }
+    </style>
+  </head>
+  <body>
+    <p>${body}</p>
+    <script>
+      (function () {
+        try {
+          if (window.opener) {
+            window.opener.postMessage({ type: '${messageType}' }, '${origin}');
+          }
+        } catch (e) {}
+        window.close();
+      })();
+    </script>
+  </body>
+</html>`;
+
+  return new NextResponse(html, {
+    headers: { 'Content-Type': 'text/html; charset=utf-8' },
+  });
+}
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
@@ -8,10 +49,16 @@ export async function GET(request: Request) {
   const stateFromGoogle = searchParams.get('state');
 
   if (error) {
-    return NextResponse.json(
-      { error: `Google Auth Error: ${error}` },
-      { status: 400 }
-    );
+    const cookieStore = await cookies();
+    cookieStore.set('oauth_state', '', { path: '/', maxAge: 0 });
+    cookieStore.set('pkce_code_verifier', '', { path: '/', maxAge: 0 });
+
+    return oauthPopupResponse({
+      messageType: 'GOOGLE_OAUTH_ERROR',
+      origin,
+      title: '로그인 취소',
+      body: '로그인이 취소되었습니다. 창을 닫는 중...',
+    });
   }
 
   if (!code) {
@@ -82,35 +129,11 @@ export async function GET(request: Request) {
       });
     }
 
-    const html = `<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>로그인 완료</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 24px; }
-    </style>
-  </head>
-  <body>
-    <p>로그인 성공! 창을 닫는 중...</p>
-    <script>
-      (function () {
-        try {
-          // 부모창에 "로그인 성공" 전달
-          if (window.opener) {
-            window.opener.postMessage({ type: 'GOOGLE_OAUTH_SUCCESS' }, '${origin}');
-          }
-        } catch (e) {}
-        // 팝업 닫기
-        window.close();
-      })();
-    </script>
-  </body>
-</html>`;
-
-    return new NextResponse(html, {
-      headers: { 'Content-Type': 'text/html; charset=utf-8' },
+    return oauthPopupResponse({
+      messageType: 'GOOGLE_OAUTH_SUCCESS',
+      origin,
+      title: '로그인 완료',
+      body: '로그인 성공! 창을 닫는 중...',
     });
   } catch (_err) {
     console.error('Token Exchange Error occurred');
