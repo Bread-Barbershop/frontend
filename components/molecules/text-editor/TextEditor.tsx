@@ -234,7 +234,22 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
     ) => {
       const selected = option as FontSizeOption;
       setFontSizeSelected(selected);
-      editor.chain().focus().setFontSize(selected.value).run();
+      if (selected.value) {
+        editor.chain().focus().setFontSize(selected.value).run();
+      }
+    };
+
+    const handleFontSizeInputChange = (value: string) => {
+      const numericValue = value.replace(/[^0-9]/g, '');
+      const option: FontSizeOption = {
+        label: numericValue,
+        value: numericValue ? `${numericValue}px` : '',
+      };
+      setFontSizeSelected(option);
+
+      if (numericValue) {
+        editor.chain().setFontSize(option.value).run();
+      }
     };
 
     const handleTextAlignSelect = (
@@ -300,6 +315,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
               options={FONT_SIZE_OPTIONS}
               selected={fontSizeSelected}
               onSelect={handleFontSizeSelect}
+              onInputChange={handleFontSizeInputChange}
               placeholder="Size"
               variant="fontSize"
               showCheckbox={false}

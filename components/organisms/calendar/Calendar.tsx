@@ -183,7 +183,7 @@ export function Calendar({ blockInfo, id }: Props) {
         </NavigationBar>
         <div className="flex flex-col gap-2">
           <div className="flex flex-col items-center gap-2 w-full ">
-            <div>
+            <div className="w-full">
               <TextEditor
                 key={id}
                 ref={textEditorRef}

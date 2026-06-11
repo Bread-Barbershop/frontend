@@ -231,7 +231,7 @@ export const Selector = <T extends Option>({
               'w-full h-8 px-2 bg-transparent outline-none text-text-primary text-sm',
               customInputClassName
             )}
-            value={typeof selected?.value === 'string' ? selected.value : ''}
+            value={typeof selected?.label === 'string' ? selected.label : ''}
             onChange={handleInputChange}
             onBlur={() => {
               setIsCustomInput(false);
