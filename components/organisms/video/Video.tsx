@@ -100,23 +100,21 @@ export const Video = ({ blockInfo, id }: Props) => {
       <section className="flex gap-2 w-full py-1.5">
         <Label className="text-center font-semibold">추가기능</Label>
         <Checkbox
-          className="text-[13px]"
           checked={checkThumbnail}
           onChange={e => {
             const checked = e.target.checked;
             handleUpdateBlock('checkThumbnail', checked);
           }}
         >
-          썸네일 이미지 추가
+          <p className="text-[13px]">썸네일 이미지 추가</p>
         </Checkbox>
         <Checkbox
-          className="text-[13px]"
           checked={checkedEnglishTitle}
           onChange={e =>
             handleUpdateBlock('checkedEnglishTitle', e.target.checked)
           }
         >
-          영문 제목 추가
+          <p className="text-[13px]">영문 제목 추가</p>
         </Checkbox>
       </section>
       {checkThumbnail && (

@@ -90,7 +90,7 @@ export function Place({ blockInfo, id }: Props) {
   return (
     <>
       <NaverMapScript onReady={() => setIsScriptLoaded(true)} />
-      <LeftEditorWrapper className="pb-3" ariaLabel={defaultTitle}>
+      <LeftEditorWrapper ariaLabel={defaultTitle}>
         <div className="flex flex-col gap-1 w-full">
           <NavigationBar>{defaultTitle} 편집 페이지</NavigationBar>
           <TextField

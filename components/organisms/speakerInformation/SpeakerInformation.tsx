@@ -141,7 +141,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
   }, [handleAddSpeaker, speakers]);
 
   return (
-    <LeftEditorWrapper ariaLabel="연사 정보">
+    <LeftEditorWrapper ariaLabel="연사 정보" className="pb-3">
       <NavigationBar
         action={
           <UtilityButton size="md" variant="primary" onClick={handleAddSpeaker}>
@@ -167,8 +167,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
             label="영문제목"
             inputProps={{
               placeholder: 'SPEAKER INFORMATION',
-              value:
-                englishTitle === 'SPEAKER INFORMATION' ? '' : englishTitle,
+              value: englishTitle === 'SPEAKER INFORMATION' ? '' : englishTitle,
               onChange: e => handleValueChange('englishTitle', e),
             }}
             className="w-full py-1.5 text-center"
