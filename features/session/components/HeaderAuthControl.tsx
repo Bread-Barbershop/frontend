@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 
 import { useAuthGate } from '@/features/session/hooks/useAuthGate';
 import { useConfirm } from '@/shared/hooks/useConfirm';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import LoginModal from './LoginModal';
 import PrivacyNoticeModal from './PrivacyNoticeModal';
@@ -34,6 +35,7 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
   } = useAuthGate({ initialIsLoggedIn });
   const pathname = usePathname();
   const { confirm } = useConfirm();
+  const isDirty = useEditorStore(state => state.isDirty);
   const modals = (
     <>
       <LoginModal
@@ -50,7 +52,7 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
   );
 
   const handleDashboardClick = async (e: MouseEvent) => {
-    if (pathname.startsWith('/editor')) {
+    if (pathname.startsWith('/editor') && isDirty) {
       const isConfirm = await confirm({
         message:
           '수정된 내용이 저장되지 않을 수 있습니다.\n정말 나가시겠습니까?',
@@ -68,7 +70,7 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
   };
 
   const handleLogoutClick = async () => {
-    if (pathname.startsWith('/editor')) {
+    if (pathname.startsWith('/editor') && isDirty) {
       const isConfirm = await confirm({
         message:
           '수정된 내용이 저장되지 않을 수 있습니다.\n정말 나가시겠습니까?',

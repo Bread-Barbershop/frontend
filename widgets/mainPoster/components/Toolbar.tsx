@@ -6,7 +6,7 @@ import { Button } from '@/components/atoms/button';
 import AddDrawing from '@/shared/assets/icons/add-drawing.svg';
 // import AddEraser from '@/shared/assets/icons/add-eraser.svg';
 import AddImage from '@/shared/assets/icons/add-image.svg';
-import AddPencil from '@/shared/assets/icons/add-pencil.svg';
+// import AddPencil from '@/shared/assets/icons/add-pencil.svg';
 import AddText from '@/shared/assets/icons/add-text.svg';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
@@ -134,7 +134,7 @@ function Toolbar() {
           {item.icon}
         </Button>
       ))}
-      {activeTab === 'graphic' && (
+      {/* {activeTab === 'graphic' && (
         <div className="absolute top-full mt-3 flex flex-col gap-3 items-center">
           <Button
             className="size-8"
@@ -146,7 +146,7 @@ function Toolbar() {
           >
             <AddPencil width={14} height={14} />
           </Button>
-          {/* <Button
+          <Button
             className="size-8"
             variant="bordered"
             active={drawingType === 'eraser'}
@@ -155,9 +155,9 @@ function Toolbar() {
             }}
           >
             <AddEraser width={14} height={14} />
-          </Button> */}
+          </Button>
         </div>
-      )}
+      )} */}
     </div>
   );
 }

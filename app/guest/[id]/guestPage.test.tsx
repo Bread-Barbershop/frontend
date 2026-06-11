@@ -47,11 +47,11 @@ jest.mock('next/navigation', () => ({
 // GuestPage의 핵심은 "데이터를 받아 어떤 분기를 타느냐" 이므로,
 // 하위 UI 자체는 단순 더미 컴포넌트로 대체한다.
 // ------------------------------
-const guestMainPosterMock = jest.fn((props: { json: unknown }) => {
+const guestMainPosterMock = jest.fn((props: { thumbnailFileId: string }) => {
   return React.createElement(
     'div',
     { 'data-testid': 'guest-main-poster' },
-    JSON.stringify(props.json)
+    props.thumbnailFileId
   );
 });
 
@@ -74,7 +74,8 @@ const guestBgmMock = jest.fn((props: { bgm: unknown }) => {
 });
 
 jest.mock('@/app/guest/[id]/components/GuestMainPoster', () => ({
-  GuestMainPoster: (props: { json: unknown }) => guestMainPosterMock(props),
+  GuestMainPoster: (props: { thumbnailFileId: string }) =>
+    guestMainPosterMock(props),
 }));
 
 jest.mock('@/app/guest/[id]/components/GuestRenderer', () => ({
@@ -106,6 +107,7 @@ const validGuestPayload = {
     version: '1.0.0',
     objects: [],
     background: '#ffffff',
+    thumbnailFileId: 'thumbnail-file-id',
   },
   blocks: [],
   bgm: {
@@ -121,8 +123,10 @@ const validGuestPayload = {
     titleData: {
       font: 'font-lineseed',
       fontSize: '20px',
+      fontWeight: '700',
       color: '#FA7564',
       bold: false,
+      underline: false,
       italic: false,
       align: 'center',
       isDefault: false,
@@ -130,8 +134,10 @@ const validGuestPayload = {
     bodyData: {
       font: 'font-lineseed',
       fontSize: '16px',
+      fontWeight: '500',
       color: '#000000',
       bold: false,
+      underline: false,
       italic: false,
       align: 'center',
       isDefault: false,
@@ -199,7 +205,7 @@ describe('GuestPage 서버 컴포넌트 테스트', () => {
     expect(notFoundMock).not.toHaveBeenCalled();
 
     expect(guestMainPosterMock).toHaveBeenCalledWith({
-      json: validGuestPayload.mainPoster,
+      thumbnailFileId: 'thumbnail-file-id',
     });
 
     expect(guestRendererMock).toHaveBeenCalledWith({
@@ -239,6 +245,27 @@ describe('GuestPage 서버 컴포넌트 테스트', () => {
     expect(notFoundMock).toHaveBeenCalledTimes(1);
 
     // fetch 실패이므로 하위 렌더러는 호출되면 안 된다.
+    expect(guestMainPosterMock).not.toHaveBeenCalled();
+    expect(guestRendererMock).not.toHaveBeenCalled();
+    expect(guestBgmMock).not.toHaveBeenCalled();
+  });
+
+  it('비공개 Drive 응답이면 notFound 대신 안내 UI를 렌더링한다', async () => {
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 403,
+      text: jest.fn(),
+    });
+
+    const pageElement = await GuestPage({
+      params: Promise.resolve({ id: 'private-file-id' }),
+    });
+    const html = renderToStaticMarkup(pageElement);
+
+    expect(notFoundMock).not.toHaveBeenCalled();
+    expect(html).toContain('비공개 초대장이에요');
+    expect(html).toContain('초대장 주인이 공개로 전환하면');
+    expect(html).toContain('초대장을 보내준 분에게 공개 상태를 확인해 주세요');
     expect(guestMainPosterMock).not.toHaveBeenCalled();
     expect(guestRendererMock).not.toHaveBeenCalled();
     expect(guestBgmMock).not.toHaveBeenCalled();

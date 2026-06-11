@@ -1,6 +1,7 @@
 import { Image } from '@/components/atoms/image';
-import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
+import { PreviewBody } from '@/components/atoms/preview-body/PreviewBody';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
+import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 import { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
@@ -12,12 +13,14 @@ interface Props {
   blockInfo: EditorBlock<'organizerInformation'>;
   className: string;
   titleClassName?: string;
+  isGuestPage?: boolean;
 }
 
 export const OrganizerInformationPreview = ({
   blockInfo,
   className,
   titleClassName,
+  isGuestPage = false,
   ...rest
 }: Props) => {
   const {
@@ -31,6 +34,7 @@ export const OrganizerInformationPreview = ({
     englishTitle,
     checkedEnglishTitle,
   } = blockInfo.props;
+  const { fontFamily } = useBodyFontInfo();
   const html = messageHtml ?? tiptapJsonToHtmlUniversal(messageJson);
 
   const preview = useResolvedImageSource(
@@ -56,6 +60,11 @@ export const OrganizerInformationPreview = ({
       childClassName="gap-6"
       {...rest}
     >
+      {!preview && !isGuestPage && (
+        <div className="w-83.75 h-83.75 overflow-hidden rounded-3xl flex-center bg-border-neutral">
+          <p className="text-text-secondary text-sm">사진을 추가해주세요.</p>
+        </div>
+      )}
       {preview && (
         <button
           type="button"
@@ -77,11 +86,13 @@ export const OrganizerInformationPreview = ({
           />
         </button>
       )}
-      <p className="text-center text-[16px] font-semibold">{organizer}</p>
-      <div
-        className={`text-sm text-center select-none ${previewTextClassName}`}
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      <p
+        className="text-center text-[16px] font-semibold"
+        style={{ fontFamily }}
+      >
+        {organizer}
+      </p>
+      <PreviewBody html={html} />
     </MiddlePreviewWrapper>
   );
 };

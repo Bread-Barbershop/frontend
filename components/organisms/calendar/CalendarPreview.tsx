@@ -3,7 +3,7 @@
 import { PreviewTitle } from '@/components/atoms/preview-title/PreviewTitle';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
-import { useBodyFontFamily } from '@/shared/hooks/useBodyFontFamily';
+import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 
@@ -53,7 +53,7 @@ export function CalendarPreview({
   } = useCalendarData({ date, time, language, template });
 
   const isDateIncomplete = !date || date.length < 10;
-  const bodyFontFamily = useBodyFontFamily();
+  const { fontFamily } = useBodyFontInfo();
 
   const TemplateComponent =
     CalendarTemplates[template as string] || CalendarTemplates['calendarType1'];
@@ -82,7 +82,7 @@ export function CalendarPreview({
       {showStringDate && (
         <div
           className="flex flex-col items-center tracking-[-0.01rem] leading-[1.2] text-base font-normal text-text-primary min-h-[40px] justify-center"
-          style={{ fontFamily: bodyFontFamily }}
+          style={{ fontFamily }}
         >
           {isDateIncomplete ? (
             <div className="flex items-center gap-2">

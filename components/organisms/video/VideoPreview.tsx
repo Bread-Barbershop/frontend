@@ -13,6 +13,7 @@ import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
 interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'video'>;
   className: string;
+  isGuestPage?: boolean;
 }
 
 const ThemeColor = 'white';
@@ -36,7 +37,12 @@ const ratioVariants = cva('', {
   },
 });
 
-export const VideoPreview = ({ blockInfo, className, ...rest }: Props) => {
+export const VideoPreview = ({
+  blockInfo,
+  className,
+  isGuestPage = false,
+  ...rest
+}: Props) => {
   const {
     image,
     videoUrl,
@@ -69,12 +75,14 @@ export const VideoPreview = ({ blockInfo, className, ...rest }: Props) => {
         )}
       >
         {!embedUrl ? (
-          /* 1. 영상 URL이 없는 경우 */
-          <div className="absolute inset-0 flex items-center justify-center bg-border-neutral">
-            <p className="text-text-secondary text-sm">
-              영상을 업로드해 주세요.
-            </p>
-          </div>
+          !isGuestPage && (
+            /* 1. 영상 URL이 없는 경우 */
+            <div className="absolute inset-0 flex items-center justify-center bg-border-neutral">
+              <p className="text-text-secondary text-sm">
+                영상을 업로드해 주세요.
+              </p>
+            </div>
+          )
         ) : !checkThumbnail ? (
           /* 2. 썸네일 사용 안 함 -> 바로 영상 노출 */
           <iframe

@@ -1,7 +1,10 @@
 import { Canvas, FabricImage } from 'fabric';
 import { useState } from 'react';
 
-import { ColorPickerChange, ColorPickerValue } from '@/components/molecules/color-picker/components/colorPicker.types';
+import {
+  ColorPickerChange,
+  ColorPickerValue,
+} from '@/components/molecules/color-picker/components/colorPicker.types';
 
 import { convertFabricColor } from '../utils/fabricUtils';
 
@@ -13,11 +16,13 @@ export const useFabricBackground = ({ canvas, saveHistory }: Props) => {
   const [backgroundColor, setBackgroundColor] = useState<ColorPickerValue>({
     h: 0,
     s: 0,
-    v: 0,
+    v: 100,
     a: 1,
   });
 
-  const updateBackgroundColor = (color: ColorPickerChange | ColorPickerValue) => {
+  const updateBackgroundColor = (
+    color: ColorPickerChange | ColorPickerValue
+  ) => {
     if (!canvas) return;
 
     // 기존 배경 이미지 객체 제거

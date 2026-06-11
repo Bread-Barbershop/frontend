@@ -39,6 +39,7 @@ export const MainPosterPreview = () => {
   const isAdmin = searchParams.get('type') === 'admin';
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isMouseInCanvasRef = useRef(false);
+  const isInitialLoadDoneRef = useRef(false);
   const slotInputRef = useRef<HTMLInputElement>(null);
   const pendingSlotRef = useRef<SlotTargetObject | null>(null);
 
@@ -75,7 +76,15 @@ export const MainPosterPreview = () => {
   };
 
   useEffect(() => {
-    if (!canvas || !initialData) return;
+    if (!canvas) {
+      isInitialLoadDoneRef.current = true;
+      return;
+    }
+
+    if (!initialData) {
+      isInitialLoadDoneRef.current = true;
+      return;
+    }
 
     const loadData = async () => {
       try {
@@ -121,8 +130,10 @@ export const MainPosterPreview = () => {
 
         await new Promise(resolve => requestAnimationFrame(resolve));
         canvas.requestRenderAll();
+        isInitialLoadDoneRef.current = true;
       } catch (error) {
         console.error('Fabric load Error:', error);
+        isInitialLoadDoneRef.current = true;
       }
     };
 
@@ -135,6 +146,7 @@ export const MainPosterPreview = () => {
     const fabricCanvas = new Canvas(canvasRef.current, {
       width: 375,
       height: 812,
+      backgroundColor: '#ffffff',
       fireRightClick: true,
       stopContextMenu: true,
     });
@@ -217,6 +229,28 @@ export const MainPosterPreview = () => {
   useEffect(() => {
     const fabricCanvas = canvas;
     if (!fabricCanvas) return;
+
+    const markDirty = () => {
+      if (isInitialLoadDoneRef.current) {
+        useEditorStore.getState().setIsDirty(true);
+      }
+    };
+
+    const events = [
+      'object:added',
+      'object:modified',
+      'object:removed',
+    ] as const;
+    events.forEach(event => fabricCanvas.on(event, markDirty));
+
+    return () => {
+      events.forEach(event => fabricCanvas.off(event, markDirty));
+    };
+  }, [canvas]);
+
+  useEffect(() => {
+    const fabricCanvas = canvas;
+    if (!fabricCanvas) return;
     setupEventListeners(fabricCanvas);
 
     const cleanupEmpty = handleDeleteEmptyShape(fabricCanvas);
@@ -257,10 +291,6 @@ export const MainPosterPreview = () => {
         if (obj.isType('path') || obj.isType('line')) return '선/경로';
         return obj.type;
       };
-
-      console.log(
-        `[Fabric] 마우스 다운: ${getType(target)} (ID: ${targetId}, 잠금: ${isLocked})`
-      );
 
       // 잠긴 객체가 잡혔을 때, 그 위치에 있는 다른 (잠기지 않은) 객체를 찾아서 선택해줌
       if (target && isLocked && !isBackground) {
@@ -306,9 +336,6 @@ export const MainPosterPreview = () => {
     };
 
     const handleMouseUp = (options: TPointerEventInfo) => {
-      if (typeof window !== 'undefined') {
-        console.log('[Fabric] 마우스 업: 선택 가능 상태 복구');
-      }
       // 드래그 종료 시 (또는 클릭 종료 시) 잠긴 객체와 배경 레이어의 selectable 다시 복구
       fabricCanvas.getObjects().forEach(obj => {
         const target = obj as FabricObjectWithLock;

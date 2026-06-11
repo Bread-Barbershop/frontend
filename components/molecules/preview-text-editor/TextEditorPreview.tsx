@@ -1,7 +1,7 @@
 'use client';
 
 import { ChevronDown } from 'lucide-react';
-import { CSSProperties, useMemo, type ReactNode } from 'react';
+import { CSSProperties, useEffect, useMemo, type ReactNode } from 'react';
 
 import TextEditorButton from '@/components/atoms/text-editor-button/TextEditorButton';
 import AlignCenterIcon from '@/shared/assets/icons/alignCenter.svg';
@@ -10,6 +10,7 @@ import AlignRightIcon from '@/shared/assets/icons/alignRight.svg';
 import FontColorIcon from '@/shared/assets/icons/color.svg';
 import ItalicIcon from '@/shared/assets/icons/italic.svg';
 import UnderlineIcon from '@/shared/assets/icons/underline.svg';
+import { loadCustomFont } from '@/shared/fonts/fontLoader';
 import { FontFamilyOption, FontWeightOption } from '@/shared/fonts/fontOptions';
 import { resolveFontFamily } from '@/shared/fonts/fontRegistry';
 import { BulkData } from '@/shared/types/block';
@@ -89,12 +90,18 @@ export function TextEditorPreview({
     'bg-white hover:bg-[#FAFAFB] active:bg-[#F5F8FF] aria-pressed:bg-[#F5F8FF] aria-pressed:text-[#1F72EF]';
 
   const {
+    selectedFontFamily,
     handleFontSizeSelect,
     handleFontFamilySelect,
     handleTextAlignSelect,
     handleTextColorSelect,
     handleFontWeightSelect,
   } = useBulkEditor(value, onChange);
+
+  useEffect(() => {
+    void loadCustomFont(selectedFontFamily.value, fontWeightSelected.value);
+  }, [selectedFontFamily.value, fontWeightSelected.value]);
+
   const handleColorPickerToggle = () => {
     onActiveColorPickerChange(colorPickerOpen ? null : colorPickerId);
   };

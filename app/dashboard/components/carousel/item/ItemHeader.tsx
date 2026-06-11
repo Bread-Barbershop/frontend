@@ -1,8 +1,14 @@
 import { dashboardCarouselLayout } from '../carouselLayout';
 
+import VisibilityToggle from './VisibilityToggle';
+
 type ItemHeaderProps = {
   createdTime?: string;
   isPublished: boolean;
+  disabled?: boolean;
+  isBusy?: boolean;
+  hasError?: boolean;
+  onToggle?: () => void;
 };
 
 function formatCreatedDate(createdTime?: string) {
@@ -13,23 +19,36 @@ function formatCreatedDate(createdTime?: string) {
     return '날짜 없음';
   }
 
-  return isoDate.replace(/-/g, '.');
+  const [year, month, day] = isoDate.split('-');
+  return `${year}년 ${Number(month)}월 ${Number(day)}일`;
 }
 
-function ItemHeader({ createdTime, isPublished }: ItemHeaderProps) {
+function ItemHeader({
+  createdTime,
+  isPublished,
+  disabled = false,
+  isBusy = false,
+  hasError = false,
+  onToggle,
+}: ItemHeaderProps) {
   return (
     <div
-      className="flex items-center justify-between px-2 rounded-t-lg"
+      className="flex items-center justify-between rounded-t-lg bg-white px-3"
       style={{
         width: dashboardCarouselLayout.cardWidth,
         height: dashboardCarouselLayout.headerHeight,
-        backgroundColor: '#FFFFFF',
       }}
     >
-      <p>{formatCreatedDate(createdTime)}</p>
-      <p style={{ color: isPublished ? '#1F72EF' : '#EB4335' }}>
-        {isPublished ? 'URL 발행됨' : 'URL 발행 안됨'}
+      <p className="font-pretendard text-[13px] font-semibold leading-[18px] text-[#121212]">
+        {formatCreatedDate(createdTime)}
       </p>
+      <VisibilityToggle
+        isPublished={isPublished}
+        disabled={disabled}
+        isBusy={isBusy}
+        hasError={hasError}
+        onToggle={onToggle}
+      />
     </div>
   );
 }

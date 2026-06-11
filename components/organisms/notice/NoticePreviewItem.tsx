@@ -1,7 +1,7 @@
 import { Image } from '@/components/atoms/image';
-import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
+import { PreviewBody } from '@/components/atoms/preview-body/PreviewBody';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
-import { useBodyFontFamily } from '@/shared/hooks/useBodyFontFamily';
+import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 import { cn } from '@/shared/utils/cn';
 
@@ -22,7 +22,7 @@ export const NoticePreviewItem = ({
     tiptapJsonToHtmlUniversal(notice.content.messageJson);
   const customPreview = useResolvedImageSource(notice.image?.[0]);
   const preview = customPreview ?? defaultImage;
-  const bodyFontFamily = useBodyFontFamily();
+  const { fontFamily } = useBodyFontInfo();
 
   return (
     <div className={cn('flex flex-col gap-6 overflow-hidden', className)}>
@@ -40,14 +40,11 @@ export const NoticePreviewItem = ({
       <div className="flex flex-col gap-6">
         <p
           className="text-sm text-center font-semibold select-none"
-          style={{ fontFamily: bodyFontFamily }}
+          style={{ fontFamily }}
         >
           {notice.notice}
         </p>
-        <div
-          className={`text-sm text-center select-none ${previewTextClassName}`}
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
+        <PreviewBody html={html} />
       </div>
     </div>
   );

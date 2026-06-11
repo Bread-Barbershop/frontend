@@ -23,8 +23,7 @@ export type ReadinessResult =
   | { ok: true; attempt: number }
   | { ok: false; attempts: number; lastProbe: ProbeResult | null };
 
-export const guestPath = (dataJsonFileId: string) =>
-  `/guest/${dataJsonFileId}`;
+export const guestPath = (dataJsonFileId: string) => `/guest/${dataJsonFileId}`;
 
 const guestDataUrl = (dataJsonFileId: string) =>
   `https://drive.google.com/uc?export=download&id=${encodeURIComponent(
@@ -45,6 +44,8 @@ function isAbortError(error: unknown) {
 export async function probeGuestData(
   dataJsonFileId: string
 ): Promise<ProbeResult> {
+  // Drive 전파 지연은 HTTP status, HTML 응답, schema 불일치로 나타날 수 있어
+  // 단순 fetch 성공이 아니라 실제 guest payload 형태까지 확인한다.
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
     controller.abort();

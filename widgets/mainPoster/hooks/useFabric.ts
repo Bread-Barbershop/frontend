@@ -22,6 +22,50 @@ export const useFabric = () => {
   const isDeleting = useRef<boolean>(false);
   const { confirm } = useConfirm();
   const MAX_STACK_SIZE = 30;
+  const shouldLogSelection =
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('type') === 'admin';
+
+  const logSelectionSnapshot = useCallback(
+    (label: string, targetCanvas?: Canvas | null) => {
+      const currentCanvas = targetCanvas ?? canvas;
+      if (!currentCanvas || !shouldLogSelection) return;
+
+      const activeObject = currentCanvas.getActiveObject();
+      const activeObjects = currentCanvas.getActiveObjects();
+
+      console.groupCollapsed(`[Fabric][Selection] ${label}`);
+      console.log('activeObject', {
+        id: activeObject?.get?.('id'),
+        type: activeObject?.type,
+        selectable: activeObject?.selectable,
+        evented: activeObject?.evented,
+        isLocked: (activeObject as any)?.isLocked,
+      });
+      console.log(
+        'activeObjects',
+        activeObjects.map(obj => ({
+          id: obj.get?.('id'),
+          type: obj.type,
+          selectable: obj.selectable,
+          evented: obj.evented,
+          isLocked: (obj as any)?.isLocked,
+        }))
+      );
+      console.log(
+        'allObjects',
+        currentCanvas.getObjects().map(obj => ({
+          id: obj.get?.('id'),
+          type: obj.type,
+          selectable: obj.selectable,
+          evented: obj.evented,
+          isLocked: (obj as any)?.isLocked,
+        }))
+      );
+      console.groupEnd();
+    },
+    [canvas, shouldLogSelection]
+  );
 
   const saveHistory = useCallback(() => {
     if (isUpdating.current || !canvas) return;
@@ -33,15 +77,6 @@ export const useFabric = () => {
         'id',
         'name',
         'isLocked',
-        'lockMovementX',
-        'lockMovementY',
-        'lockScalingX',
-        'lockScalingY',
-        'lockRotation',
-        'hasControls',
-        'editable',
-        'selectable',
-        'evented',
         'fontSize',
         'fontFamily',
         'fontWeight',
@@ -109,7 +144,7 @@ export const useFabric = () => {
   };
 
   const handleDeleteShape = useCallback(
-    async(canvas: Canvas, e?: KeyboardEvent, flag?: boolean) => {
+    async (canvas: Canvas, e?: KeyboardEvent, flag?: boolean) => {
       if (e?.repeat) return;
 
       const activeObjects = [...canvas.getActiveObjects()];
@@ -143,18 +178,17 @@ export const useFabric = () => {
       }
 
       if (e?.key === 'Backspace') {
-              const isConfirm = await confirm({
-        message:
-          '정말 뒤돌아가시겠습니까?\n 저장되지 않은 내역은 모두 사라집니다',
-        variant: 'white',
-        xPosition : 'center',
-        yPosition : 'center'
-      });
-      if (!isConfirm) {
-        e.preventDefault();
-        return;
-      }
-
+        const isConfirm = await confirm({
+          message:
+            '정말 뒤돌아가시겠습니까?\n 저장되지 않은 내역은 모두 사라집니다',
+          variant: 'white',
+          xPosition: 'center',
+          yPosition: 'center',
+        });
+        if (!isConfirm) {
+          e.preventDefault();
+          return;
+        }
       }
     },
     [saveHistory]
@@ -356,7 +390,7 @@ export const useFabric = () => {
     const activeObjects = canvas.getActiveObjects();
 
     if (activeObjects.length === 0) {
-      if (typeof window !== 'undefined' && window.location.pathname.startsWith('/dev')) {
+      if (shouldLogSelection) {
         console.log('[Fabric] 선택 해제됨');
       }
       setActiveInfo({ type: null, isLocked: false, filters: [], styles: {} });
@@ -366,17 +400,17 @@ export const useFabric = () => {
     const primaryObject = activeObjects[0];
     const getKoreanType = (obj: any) => {
       if (obj.get('id') === 'background-layer') return '배경';
-      if (obj.isType('textbox') || obj.isType('itext') || obj.isType('text')) return '텍스트';
+      if (obj.isType('textbox') || obj.isType('itext') || obj.isType('text'))
+        return '텍스트';
       if (obj.isType('image')) return '이미지';
-      if (obj.isType('rect') || obj.isType('circle') || obj.isType('triangle')) return '도형';
+      if (obj.isType('rect') || obj.isType('circle') || obj.isType('triangle'))
+        return '도형';
       if (obj.isType('path') || obj.isType('line')) return '선/경로';
       if (obj.isType('activeSelection')) return '다중 선택';
       return obj.type;
     };
 
-    const isDev = typeof window !== 'undefined' && window.location.pathname.startsWith('/dev');
-
-    if (isDev) {
+    if (shouldLogSelection) {
       console.log(`[Fabric] 객체 활성화: ${getKoreanType(primaryObject)}`, {
         id: primaryObject.get('id'),
         isLocked: (primaryObject as any).isLocked,
@@ -415,7 +449,9 @@ export const useFabric = () => {
         'text:selection:changed',
       ];
 
-      const handleSelection = () => syncActiveObjectInfo(canvas);
+      const handleSelection = () => {
+        syncActiveObjectInfo(canvas);
+      };
 
       selectionEvents.forEach(event => {
         canvas.off(event as any, handleSelection);
@@ -439,64 +475,104 @@ export const useFabric = () => {
     [syncActiveObjectInfo, saveHistory]
   );
 
+  const normalizeInteractionState = useCallback((targetCanvas: Canvas) => {
+    targetCanvas.getObjects().forEach(obj => {
+      const isLocked = Boolean((obj as any).isLocked);
+      const isBackground = obj.get('id') === 'background-layer';
+
+      obj.set({
+        lockMovementX: isLocked,
+        lockMovementY: isLocked,
+        lockScalingX: isLocked,
+        lockScalingY: isLocked,
+        lockRotation: isLocked,
+        hasControls: !isLocked && !isBackground,
+        editable: !isLocked,
+        evented: !isBackground,
+        selectable: !isBackground,
+      });
+    });
+  }, []);
+
+  const finalizeLoadedCanvas = useCallback(
+    (targetCanvas: Canvas) => {
+      normalizeInteractionState(targetCanvas);
+
+      const objects = targetCanvas.getObjects();
+      for (const obj of objects) {
+        if (
+          obj.isType('image') &&
+          'applyFilters' in obj &&
+          (obj as any).filters?.length
+        ) {
+          (obj as any).applyFilters();
+        }
+
+        obj.setCoords();
+      }
+
+      targetCanvas.requestRenderAll();
+    },
+    [normalizeInteractionState]
+  );
+
+  const runHistoryTransaction = useCallback(
+    async (task: () => Promise<void> | void, options?: { save?: boolean }) => {
+      if (!canvas) return;
+
+      isUpdating.current = true;
+      canvas.discardActiveObject();
+
+      try {
+        await task();
+        finalizeLoadedCanvas(canvas);
+      } finally {
+        isUpdating.current = false;
+      }
+
+      syncActiveObjectInfo(canvas);
+
+      if (options?.save) {
+        saveHistory();
+      }
+    },
+    [canvas, finalizeLoadedCanvas, saveHistory, syncActiveObjectInfo]
+  );
+
   const undo = useCallback(async () => {
     if (undoStack.current.length <= 1 || isUpdating.current || !canvas) return;
 
-    isUpdating.current = true;
     const current = undoStack.current.pop();
     if (current) redoStack.current.push(current);
 
     const prevState = undoStack.current[undoStack.current.length - 1];
 
-    await canvas.loadFromJSON(prevState);
+    await runHistoryTransaction(async () => {
+      await canvas.loadFromJSON(prevState);
+    });
 
+    logSelectionSnapshot('undo:after-render');
     // 저장된 필터 효과를 다시 렌더링하도록 applyFilters 호출
-    const objects = canvas.getObjects();
-    for (const obj of objects) {
-      if (
-        obj.isType('image') &&
-        'applyFilters' in obj &&
-        (obj as any).filters?.length
-      ) {
-        (obj as any).applyFilters();
-      }
-    }
-
-    canvas.requestRenderAll();
-    isUpdating.current = false;
-    syncActiveObjectInfo(canvas);
     setCanUndo(undoStack.current.length > 1);
     setCanRedo(redoStack.current.length > 0);
-  }, [canvas, syncActiveObjectInfo]);
+  }, [canvas, logSelectionSnapshot, runHistoryTransaction]);
 
   const redo = useCallback(async () => {
     if (redoStack.current.length === 0 || isUpdating.current || !canvas) return;
 
-    isUpdating.current = true;
     const nextState = redoStack.current.pop();
     if (nextState) {
       undoStack.current.push(nextState);
-      await canvas.loadFromJSON(nextState);
+      await runHistoryTransaction(async () => {
+        await canvas.loadFromJSON(nextState);
+      });
 
       // 저장된 필터 효과를 다시 렌더링하도록 applyFilters 호출
-      const objects = canvas.getObjects();
-      for (const obj of objects) {
-        if (
-          obj.isType('image') &&
-          'applyFilters' in obj &&
-          (obj as any & { filters?: any[] }).filters?.length
-        ) {
-          (obj as any).applyFilters();
-        }
-      }
-
-      canvas.requestRenderAll();
+      logSelectionSnapshot('redo:after-render');
     }
-    isUpdating.current = false;
-    syncActiveObjectInfo(canvas);
     setCanUndo(undoStack.current.length > 1);
     setCanRedo(redoStack.current.length > 0);
-  }, [canvas, syncActiveObjectInfo]);
+  }, [canvas, logSelectionSnapshot, runHistoryTransaction]);
 
   const exportIntersectedJSON = useCallback(() => {
     if (!canvas) return;
@@ -613,6 +689,7 @@ export const useFabric = () => {
     lock,
     unLock,
     saveHistory,
+    runHistoryTransaction,
     exportIntersectedJSON,
     exportCanvasPreview,
     clipboard,

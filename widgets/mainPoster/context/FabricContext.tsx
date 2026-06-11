@@ -61,7 +61,9 @@ export const FabricProvider = ({
 
   const fabricShapeValues = useFabricShape();
 
-  const fabricTemplateValues = useTemplate();
+  const fabricTemplateValues = useTemplate({
+    runHistoryTransaction: fabricValues.runHistoryTransaction,
+  });
 
   const value = useMemo(
     () => ({
