@@ -52,7 +52,12 @@ export function Navigation({ lat, lng, name }: Props) {
 
   return (
     <div className="space-y-1">
-      <p className="font-bold text-center text-text-tertiary">길 안내</p>
+      <p
+        className="font-bold text-center text-text-tertiary"
+        style={{ fontFamily, color }}
+      >
+        길 안내
+      </p>
       <div className="flex flex-row items-center justify-center gap-2">
         <Button
           variant="bordered"
