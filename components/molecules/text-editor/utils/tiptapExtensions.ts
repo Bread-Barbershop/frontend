@@ -11,8 +11,11 @@ import TextAlign from '@tiptap/extension-text-align';
 import { FontFamily, FontSize, TextStyle } from '@tiptap/extension-text-style';
 import Underline from '@tiptap/extension-underline';
 
-import { FontStyleOverride, TextDecorationOverride } from './textStyleOverrides';
 import { FontWeight } from './fontWeight';
+import {
+  FontStyleOverride,
+  TextDecorationOverride,
+} from './textStyleOverrides';
 
 /**
  * TextEditorBar에서 사용하는 TipTap extension 목록을 반환합니다.

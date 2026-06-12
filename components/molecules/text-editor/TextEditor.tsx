@@ -68,13 +68,9 @@ const TEXT_ALIGN_OPTIONS: TextAlignOption[] = [
   { label: <AlignLeftIcon />, value: 'left' },
 ];
 
-const DEFAULT_FONT_FAMILY_OPTION = FONT_FAMILY_OPTIONS[0];
-const DEFAULT_FONT_WEIGHT_OPTION = getDefaultFontWeightOption(
-  DEFAULT_FONT_FAMILY_OPTION
-);
-const DEFAULT_FONT_SIZE_OPTION = FONT_SIZE_OPTIONS.find(
-  option => option.value === '14px'
-) ?? FONT_SIZE_OPTIONS[0];
+const DEFAULT_FONT_SIZE_OPTION =
+  FONT_SIZE_OPTIONS.find(option => option.value === '14px') ??
+  FONT_SIZE_OPTIONS[0];
 const DEFAULT_TEXT_ALIGN_OPTION = TEXT_ALIGN_OPTIONS[1];
 const DEFAULT_EDITOR_TEXT = '내용을 입력해주세요';
 
@@ -93,7 +89,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
 
     const initialStyles = useMemo(
       () => getInitialEditorStyles(value, defaultAlign),
-      []
+      [value, defaultAlign]
     );
 
     const [fontFamilySelected, setFontFamilySelected] =
@@ -283,34 +279,22 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       const command = editor.chain().focus();
 
       if (italicActive) {
-        command
-          .unsetItalic()
-          .setFontStyleOverride('normal')
-          .run();
+        command.unsetItalic().setFontStyleOverride('normal').run();
         return;
       }
 
-      command
-        .setItalic()
-        .setFontStyleOverride(null)
-        .run();
+      command.setItalic().setFontStyleOverride(null).run();
     };
 
     const handleUnderlineToggle = () => {
       const command = editor.chain().focus();
 
       if (underlineActive) {
-        command
-          .unsetUnderline()
-          .setTextDecorationOverride('none')
-          .run();
+        command.unsetUnderline().setTextDecorationOverride('none').run();
         return;
       }
 
-      command
-        .setUnderline()
-        .setTextDecorationOverride(null)
-        .run();
+      command.setUnderline().setTextDecorationOverride(null).run();
     };
 
     return (

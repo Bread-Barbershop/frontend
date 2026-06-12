@@ -5,6 +5,7 @@ import {
   type FontWeightOption,
   getFontFamilyOption,
 } from '@/shared/fonts/fontOptions';
+
 import type { JSONContent } from '@tiptap/core';
 import type { ReactNode } from 'react';
 
@@ -40,9 +41,9 @@ export const FONT_SIZE_OPTIONS: FontSizeOption[] = [
   { label: '148', value: '148px' },
 ];
 
-const DEFAULT_FONT_SIZE_OPTION = FONT_SIZE_OPTIONS.find(
-  option => option.value === '14px'
-) ?? FONT_SIZE_OPTIONS[0];
+const DEFAULT_FONT_SIZE_OPTION =
+  FONT_SIZE_OPTIONS.find(option => option.value === '14px') ??
+  FONT_SIZE_OPTIONS[0];
 
 export function createFontWeightOptions(
   fontFamily: FontFamilyOption
