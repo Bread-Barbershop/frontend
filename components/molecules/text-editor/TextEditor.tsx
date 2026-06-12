@@ -413,6 +413,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
               ? 'border-primary bg-bg-base'
               : 'border-transparent bg-border-neutral'
           )}
+          style={{ textAlign: defaultAlign }}
         >
           <EditorContent editor={editor} />
         </div>

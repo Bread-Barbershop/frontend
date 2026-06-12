@@ -37,7 +37,6 @@ export function createTextEditorBarExtensions(
     FontSize,
     TextAlign.configure({
       types: ['paragraph'],
-      defaultAlignment: 'center',
     }),
   ];
 
