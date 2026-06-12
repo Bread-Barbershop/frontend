@@ -161,8 +161,40 @@ function normalizeShareUrl(
   shareUrl: unknown
 ): GuestPayload['shareUrl'] | undefined {
   if (!isRecord(shareUrl)) return undefined;
+  if (
+    typeof shareUrl.title !== 'string' ||
+    typeof shareUrl.description !== 'string' ||
+    !Array.isArray(shareUrl.images) ||
+    !shareUrl.images.every((v): v is string => typeof v === 'string') ||
+    typeof shareUrl.urlTitle !== 'string' ||
+    typeof shareUrl.urlDescription !== 'string' ||
+    !Array.isArray(shareUrl.urlImage) ||
+    !shareUrl.urlImage.every((v): v is string => typeof v === 'string') ||
+    typeof shareUrl.showLocationButton !== 'boolean'
+  ) {
+    return undefined;
+  }
 
-  return shareUrl as GuestPayload['shareUrl'];
+  if (
+    shareUrl.locationInfo !== undefined &&
+    (!isRecord(shareUrl.locationInfo) ||
+      typeof shareUrl.locationInfo.lat !== 'number' ||
+      typeof shareUrl.locationInfo.lng !== 'number' ||
+      typeof shareUrl.locationInfo.placeName !== 'string')
+  ) {
+    return undefined;
+  }
+
+  return {
+    title: shareUrl.title,
+    description: shareUrl.description,
+    images: shareUrl.images,
+    urlTitle: shareUrl.urlTitle,
+    urlDescription: shareUrl.urlDescription,
+    urlImage: shareUrl.urlImage,
+    showLocationButton: shareUrl.showLocationButton,
+    ...(shareUrl.locationInfo ? { locationInfo: shareUrl.locationInfo } : {}),
+  };
 }
 
 function normalizeStringArray(value: unknown) {
