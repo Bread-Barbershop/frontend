@@ -4,11 +4,13 @@ import type {
   ShareUrlState,
 } from '@/shared/types/block';
 
+import type { GuestRenderHints } from './renderHints';
 import type {
   SerializedImageProps,
   SerializedObjectProps,
   SerializedTextboxProps,
 } from 'fabric';
+
 
 export type UploadTask = {
   id: string;
@@ -49,6 +51,7 @@ export type InvitationPayload = {
   bgm: BgmData;
   mainPoster: MainPosterData;
   invitationImage: UploadTask[];
+  renderHints?: GuestRenderHints;
 };
 
 export type InvitationThumbnail = {

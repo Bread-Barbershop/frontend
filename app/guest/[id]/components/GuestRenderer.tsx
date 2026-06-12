@@ -6,85 +6,36 @@ import { useShallow } from 'zustand/shallow';
 
 import { blockRegistry } from '@/shared/data/registry/registry';
 import { preloadFontFamilyWeights } from '@/shared/fonts/fontLoader';
-import {
-  getFontFamilies,
-  resolveFontFamily,
-} from '@/shared/fonts/fontRegistry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
-import type { BulkJson, GuestBlock } from '../types/guestTypes';
+import { resolveGuestFontFamiliesToPreload } from './guestFontPreload';
 
-const FONT_FAMILY_SET = new Set(getFontFamilies().map(font => font.family));
+import type { NormalizedGuestPayload } from '../validation/parseGuestPayload';
 
-function extractFontFamiliesFromString(value: string) {
-  const families = new Set<string>();
-  const normalizedValue = value.replace(/&quot;/g, '"');
+type GuestRendererBlock = NormalizedGuestPayload['blocks'][number];
+type GuestRendererBulkData = NormalizedGuestPayload['bulkData'];
+type GuestRendererRenderHints = NormalizedGuestPayload['renderHints'];
 
-  const fontFamilyRegex = /font-family\s*:\s*([^;"'}]+)/gi;
-
-  for (const match of normalizedValue.matchAll(fontFamilyRegex)) {
-    const rawFamilies = match[1]?.split(',') ?? [];
-
-    rawFamilies.forEach(rawFamily => {
-      const normalizedFamily = resolveFontFamily(
-        rawFamily.trim().replace(/^['"]|['"]$/g, '')
-      );
-
-      if (FONT_FAMILY_SET.has(normalizedFamily)) {
-        families.add(normalizedFamily);
-      }
-    });
-  }
-
-  FONT_FAMILY_SET.forEach(fontFamily => {
-    if (normalizedValue.includes(fontFamily)) {
-      families.add(fontFamily);
-    }
-  });
-
-  return families;
-}
-
-function collectGuestFontFamilies(
-  value: unknown,
-  families = new Set<string>()
-) {
-  if (typeof value === 'string') {
-    extractFontFamiliesFromString(value).forEach(fontFamily => {
-      families.add(fontFamily);
-    });
-
-    const resolvedFamily = resolveFontFamily(value);
-    if (FONT_FAMILY_SET.has(resolvedFamily)) {
-      families.add(resolvedFamily);
-    }
-
-    return families;
-  }
-
-  if (Array.isArray(value)) {
-    value.forEach(item => {
-      collectGuestFontFamilies(item, families);
-    });
-
-    return families;
-  }
-
-  if (value && typeof value === 'object') {
-    Object.values(value).forEach(item => {
-      collectGuestFontFamilies(item, families);
-    });
-  }
-
-  return families;
-}
+const GUEST_PAGE_PROP_COMPONENTS = new Set<GuestRendererBlock['component']>([
+  'coupleIntroduction',
+  'gallery',
+  'myChild',
+  'myFamily',
+  'organizerInformation',
+  'picture',
+  'speakerInformation',
+  'sponsorshipInfomation',
+  'video',
+]);
 
 function GuestRenderer({
   blocks,
   bulkData,
+  renderHints,
 }: {
-  blocks: GuestBlock[];
-  bulkData: BulkJson;
+  blocks: NormalizedGuestPayload['blocks'];
+  bulkData: GuestRendererBulkData;
+  renderHints?: GuestRendererRenderHints;
 }) {
   const { titleData, bodyData } = bulkData;
   const { setTitleData, setBodyData } = useEditorStore(
@@ -95,18 +46,17 @@ function GuestRenderer({
   );
   const [fontsReady, setFontsReady] = useState(false);
   const pathname = usePathname();
-  const fontFamiliesToPreload = useMemo(() => {
-    const families = collectGuestFontFamilies({
-      blocks,
-      titleData,
-      bodyData,
-    });
-
-    families.add(resolveFontFamily(titleData.font));
-    families.add(resolveFontFamily(bodyData.font));
-
-    return Array.from(families);
-  }, [blocks, bodyData, titleData]);
+  const isGuestPage = pathname.startsWith('/guest');
+  // renderHints가 있으면 그 값을 쓰고, 없으면 기존 block 스캔 방식으로 fallback한다.
+  const fontFamiliesToPreload = useMemo(
+    () =>
+      resolveGuestFontFamiliesToPreload({
+        blocks,
+        bulkData,
+        renderHints,
+      }),
+    [blocks, bulkData, renderHints]
+  );
 
   useEffect(() => {
     setTitleData(titleData);
@@ -176,7 +126,7 @@ function GuestRenderer({
         if (!registryItem || !registryItem.viewComponent) return null;
 
         const View = registryItem.viewComponent as React.ComponentType<{
-          blockInfo: GuestBlock;
+          blockInfo: GuestRendererBlock;
           className?: string;
           isGuestPage?: boolean;
         }>;
@@ -186,7 +136,10 @@ function GuestRenderer({
             <View
               blockInfo={block}
               className=""
-              isGuestPage={pathname.startsWith('/guest')}
+              {...(isGuestPage &&
+              GUEST_PAGE_PROP_COMPONENTS.has(block.component)
+                ? { isGuestPage: true }
+                : {})}
             />
           </div>
         );

@@ -11,12 +11,12 @@
  * 2) blocks가 배열이 아니면 false를 반환하는지
  * 3) mainPoster 구조가 잘못되면 false를 반환하는지
  * 4) bgm 구조가 잘못되면 false를 반환하는지
- * 5) block 항목 구조가 잘못되면 false를 반환하는지
+ * 5) 일부 block 항목이 잘못되어도 최상위 payload가 정상이면 true를 반환하는지
  *
  * 왜 중요한가:
  * GuestPage는 fetch한 공개 데이터를 바로 쓰지 않고,
- * 먼저 isGuestPayload로 구조를 검증한 뒤에만 렌더링한다.
- * 즉, 이 함수는 "공개 데이터 계약(Contract)"을 보장하는 핵심 방어 로직이다.
+ * 이 함수는 parseGuestPayload의 compatibility wrapper다.
+ * 새 검증 정책은 최상위 payload는 엄격히 막고, 일부 block 오류는 parser에서 제외한다.
  */
 
 import { isGuestPayload } from '@/app/guest/[id]/utils/guestBlockTypeGuards';
@@ -145,22 +145,17 @@ describe('isGuestPayload 테스트', () => {
     expect(isGuestPayload(invalidPayload)).toBe(false);
   });
 
-  it('block 항목 구조가 잘못되면 false를 반환한다', () => {
+  it('일부 block 항목 구조가 잘못되어도 최상위 payload가 정상이면 true를 반환한다', () => {
     /**
      * 목적:
-     * blocks 배열 안의 각 항목은 최소한
-     * - id: string
-     * - type: string
-     * - component: string
-     * - props 존재
-     * 조건을 만족해야 한다.
-     *
-     * 여기서는 id를 제거해서 invalid block을 만든다.
+     * 새 정책에서는 block 단위 오류가 전체 초대장 실패로 번지지 않는다.
+     * parseGuestPayload가 invalid block을 warning으로 기록하고 제외한다.
      */
 
-    const invalidPayload = {
+    const payloadWithInvalidBlock = {
       ...validPayload,
       blocks: [
+        validPayload.blocks[0],
         {
           type: 'wedding',
           component: 'greeting',
@@ -169,7 +164,23 @@ describe('isGuestPayload 테스트', () => {
       ],
     };
 
-    expect(isGuestPayload(invalidPayload)).toBe(false);
+    expect(isGuestPayload(payloadWithInvalidBlock)).toBe(true);
+  });
+
+  it('알 수 없는 component가 있어도 최상위 payload가 정상이면 true를 반환한다', () => {
+    const payloadWithUnknownComponent = {
+      ...validPayload,
+      blocks: [
+        {
+          id: 'unknown-block',
+          type: 'wedding',
+          component: 'unknownComponent',
+          props: {},
+        },
+      ],
+    };
+
+    expect(isGuestPayload(payloadWithUnknownComponent)).toBe(true);
   });
 
   it('bulkData 구조가 잘못되면 false를 반환한다', () => {

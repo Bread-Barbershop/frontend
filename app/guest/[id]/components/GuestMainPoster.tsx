@@ -1,7 +1,6 @@
 'use client';
 
 import '@/widgets/mainPoster/libs/customImage-filter';
-import { useRef } from 'react';
 
 import { Image } from '@/components/atoms/image';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
@@ -12,16 +11,18 @@ export const GuestMainPoster = ({
   thumbnailFileId: string;
 }) => {
   const resolvedSrc = useResolvedImageSource(thumbnailFileId);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   if (resolvedSrc) {
     return (
       <div className="w-full relative aspect-[375/812] overflow-hidden">
+        {/* 메인 포스터는 첫 화면 핵심 이미지라 Google 직접 URL을 유지하면서 우선순위만 높인다. */}
         <Image
           src={resolvedSrc}
           alt="초대장 메인 포스터"
           fill
+          priority
+          fetchPriority="high"
+          sizes="(max-width: 430px) 100vw, 430px"
           unoptimized
           className="object-cover"
           onLoad={() => {
@@ -33,18 +34,13 @@ export const GuestMainPoster = ({
   }
 
   return (
-    <div
-      ref={containerRef}
-      className="w-full overflow-hidden bg-red-100 min-h-[300px] flex flex-col items-center justify-center text-red-500"
-    >
-      <p>⚠️ 이미지를 불러오지 못했습니다.</p>
-      <p className="text-xs mt-2">
-        thumbnailFileId:{' '}
-        {thumbnailFileId
-          ? thumbnailFileId
-          : '없음 (저장 버튼을 다시 눌러주세요)'}
+    <div className="flex aspect-[375/812] w-full flex-col items-center justify-center bg-[#F7F4EF] px-8 text-center font-pretendard text-[#6B6258]">
+      <p className="text-[15px] font-semibold leading-[140%]">
+        초대장 이미지를 준비하고 있어요.
       </p>
-      <canvas ref={canvasRef} className="hidden" />
+      <p className="mt-2 text-[13px] font-medium leading-[140%] text-[#8B8176]">
+        잠시 후 다시 열어주세요.
+      </p>
     </div>
   );
 };
