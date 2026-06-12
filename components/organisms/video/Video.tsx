@@ -106,7 +106,7 @@ export const Video = ({ blockInfo, id }: Props) => {
             handleUpdateBlock('checkThumbnail', checked);
           }}
         >
-          <p className="text-[13px]">썸네일 이미지 추가</p>
+          <span className="text-[13px]">썸네일 이미지 추가</span>
         </Checkbox>
         <Checkbox
           checked={checkedEnglishTitle}
@@ -114,7 +114,7 @@ export const Video = ({ blockInfo, id }: Props) => {
             handleUpdateBlock('checkedEnglishTitle', e.target.checked)
           }
         >
-          <p className="text-[13px]">영문 제목 추가</p>
+          <span className="text-[13px]">영문 제목 추가</span>
         </Checkbox>
       </section>
       {checkThumbnail && (

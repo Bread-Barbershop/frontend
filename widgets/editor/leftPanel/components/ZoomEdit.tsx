@@ -20,7 +20,7 @@ function ZoomEdit() {
       <Label className="font-semibold shrink-0 text-center">추가 기능</Label>
       <div>
         <Checkbox onChange={handleZoomInChange} checked={isZoom}>
-          초대장 확대 방지
+          <span className="text-[13px]">초대장 확대 방지</span>
         </Checkbox>
       </div>
     </div>

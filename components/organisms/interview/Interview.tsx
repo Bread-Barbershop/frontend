@@ -41,10 +41,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
     updateBlock(id, { [key]: value });
   };
 
-  const handleQuestionChange = (
-    question: string,
-    questionId: string
-  ) => {
+  const handleQuestionChange = (question: string, questionId: string) => {
     const newQuestions = (questions || []).map(q =>
       q.id === questionId
         ? {
@@ -175,7 +172,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
           }
           checked={checkedEnglishTitle}
         >
-          영문 제목 추가
+          <span className="text-[13px]">영문 제목 추가</span>
         </Checkbox>
       </section>
 

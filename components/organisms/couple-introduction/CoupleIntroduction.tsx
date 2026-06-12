@@ -243,7 +243,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
                 updateBlock(id, { checkedEnglishTitle: e.target.checked })
               }
             >
-              영문 제목 추가
+              <span className="text-[13px]">영문 제목 추가</span>
             </Checkbox>
 
             <Checkbox
@@ -251,7 +251,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
               checked={showContent}
               onChange={e => updateBlock(id, { showContent: e.target.checked })}
             >
-              내용 추가
+              <span className="text-[13px]">내용 추가</span>
             </Checkbox>
           </div>
           <div className="flex gap-2">
@@ -260,7 +260,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
               checked={brideFirst}
               onChange={e => updateBlock(id, { brideFirst: e.target.checked })}
             >
-              신부측 먼저 표시하기
+              <span className="text-[13px]">신부측 먼저 표시하기</span>
             </Checkbox>
           </div>
         </div>

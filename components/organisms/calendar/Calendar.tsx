@@ -208,20 +208,20 @@ export function Calendar({ blockInfo, id }: Props) {
                     checked={blockInfo.props.isEnglishTitle}
                     onChange={handleEnglishTitleCheck}
                   >
-                    영문 제목 추가
+                    <span className="text-[13px]">영문 제목 추가</span>
                   </Checkbox>
                   <Checkbox
                     checked={blockInfo.props.showDday}
                     onChange={handleShowDdayChange}
                   >
-                    디데이&카운트다운
+                    <span className="text-[13px]">디데이&카운트다운</span>
                   </Checkbox>
                 </div>
                 <Checkbox
                   checked={blockInfo.props.showCalendar}
                   onChange={handleShowCalendarChange}
                 >
-                  캘린더
+                  <span className="text-[13px]">캘린더</span>
                 </Checkbox>
               </div>
             </div>

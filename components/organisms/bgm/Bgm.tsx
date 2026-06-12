@@ -145,7 +145,7 @@ export default function Bgm() {
           checked={isLoop}
           onChange={e => setIsLoop(e.target.checked)}
         >
-          반복재생
+          <span className="text-[13px]">반복재생</span>
         </Checkbox>
       </div>
     </LeftEditorWrapper>

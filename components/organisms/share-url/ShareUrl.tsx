@@ -165,9 +165,9 @@ function ShareUrl() {
                 disabled={!hasValidLocation}
                 name="showLocationButton"
               >
-                <p className="font-normal text-text-secondary text-[13px]">
+                <span className="text-text-secondary text-[13px]">
                   위치보기 버튼 추가
-                </p>
+                </span>
               </Checkbox>
             </div>
           </div>
