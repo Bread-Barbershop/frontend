@@ -35,10 +35,12 @@
 변환 순서:
 
 1. `http://` 또는 `https://` 절대 URL이면 그대로 사용
-2. Drive 파일 ID 형태면 `https://drive.google.com/uc?export=download&id=...` 형태로 변환
+2. Drive 파일 ID 형태면 `https://lh3.googleusercontent.com/d/{fileId}` 형태로 변환
 3. 둘 다 아니면 원본 문자열 유지
 
 > 문자열 기반 소스를 단일 처리할 때 사용하면 됩니다.
+
+게스트/프리뷰 이미지 렌더링은 Vercel 이미지 최적화 캐시를 불필요하게 쓰지 않기 위해 Google 공개 이미지 URL을 직접 사용합니다. `components/atoms/image/Image.tsx`는 Google Drive 계열 URL을 감지하면 `unoptimized`를 자동 적용합니다.
 
 ### B. `useResolvedImageSource(source, v?)`
 

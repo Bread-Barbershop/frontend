@@ -16,6 +16,7 @@ import {
   resolveShareTitle,
 } from '@/shared/utils/shareUrlDefaults';
 
+import { createGuestRenderHints } from './createGuestRenderHints';
 import {
   getPreparedInvitation,
   invalidatePreparedInvitation,
@@ -443,6 +444,13 @@ async function commit(params: {
     ...mainPoster,
     thumbnailFileId: thumbnailFileId ?? mainPoster.thumbnailFileId,
   };
+  // 게스트 페이지가 첫 렌더에 필요한 폰트/이미지 후보를 빠르게 알 수 있도록 저장 payload에 힌트를 함께 넣는다.
+  const renderHints = createGuestRenderHints({
+    bulkData,
+    blocks: newData,
+    shareUrl: replacedShareUrl,
+    mainPoster: finalMainPoster,
+  });
 
   const payload: InvitationPayload = {
     bulkData,
@@ -451,6 +459,7 @@ async function commit(params: {
     bgm: finalBgm,
     mainPoster: finalMainPoster,
     invitationImage: images,
+    renderHints,
   };
 
   const dataFile = new File([JSON.stringify(payload)], 'data.json', {
