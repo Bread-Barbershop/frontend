@@ -15,17 +15,17 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
-import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { cn } from '@/shared/utils/cn';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import { useKeyboardEvents } from '../hooks/useKeyboardEvents';
 import { useSetFabricControls } from '../hooks/useSetFabricControls';
 import { preloadFonts, stabilizeCanvasAfterLoad } from '../hooks/useTemplate';
-import { preloadPreviewFonts } from '../utils/fontLoader';
 import { initAligningGuidelines } from '../libs/aligning-guidelines';
 import { FabricObjectWithLock } from '../types/fabric';
+import { preloadPreviewFonts } from '../utils/fontLoader';
 import {
   isFilledSlotImage,
   isReplaceableSlotImage,

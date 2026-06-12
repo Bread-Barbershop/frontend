@@ -90,6 +90,7 @@ function CarouselItem({
     hasImageError && item.fallbackImage ? item.fallbackImage : item.image;
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasImageError(false);
   }, [currentImageKey]);
 
