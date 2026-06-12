@@ -11,6 +11,7 @@ import TextAlign from '@tiptap/extension-text-align';
 import { FontFamily, FontSize, TextStyle } from '@tiptap/extension-text-style';
 import Underline from '@tiptap/extension-underline';
 
+import { FontStyleOverride, TextDecorationOverride } from './textStyleOverrides';
 import { FontWeight } from './fontWeight';
 
 /**
@@ -35,6 +36,8 @@ export function createTextEditorBarExtensions(
     FontFamily,
     FontWeight,
     FontSize,
+    FontStyleOverride,
+    TextDecorationOverride,
     TextAlign.configure({
       types: ['paragraph'],
     }),

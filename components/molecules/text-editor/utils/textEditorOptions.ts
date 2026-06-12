@@ -3,8 +3,9 @@ import {
   createFontWeightOptions as buildFontWeightOptions,
   type FontFamilyOption,
   type FontWeightOption,
+  getFontFamilyOption,
 } from '@/shared/fonts/fontOptions';
-
+import type { JSONContent } from '@tiptap/core';
 import type { ReactNode } from 'react';
 
 export type FontSizeOption = {
@@ -39,6 +40,10 @@ export const FONT_SIZE_OPTIONS: FontSizeOption[] = [
   { label: '148', value: '148px' },
 ];
 
+const DEFAULT_FONT_SIZE_OPTION = FONT_SIZE_OPTIONS.find(
+  option => option.value === '14px'
+) ?? FONT_SIZE_OPTIONS[0];
+
 export function createFontWeightOptions(
   fontFamily: FontFamilyOption
 ): FontWeightOption[] {
@@ -58,4 +63,119 @@ export function getDefaultFontWeightOption(
   const options = createFontWeightOptions(fontFamily);
 
   return findFontWeightOption(options, fontFamily.defaultWeight);
+}
+
+export interface InitialEditorStyles {
+  fontFamily: FontFamilyOption;
+  fontWeight: FontWeightOption;
+  fontSize: FontSizeOption;
+  textAlign: TextAlignOption;
+  color: string;
+}
+
+const DEFAULT_TEXT_ALIGN_OPTION: TextAlignOption = {
+  label: '가운데',
+  value: 'center',
+};
+
+export function getInitialEditorStyles(
+  content: JSONContent | null | undefined,
+  defaultAlign: TextAlignValue
+): InitialEditorStyles {
+  let textAlign: TextAlignOption | undefined;
+  let fontFamily: FontFamilyOption | undefined;
+  let fontWeight: FontWeightOption | undefined;
+  let fontSize: FontSizeOption | undefined;
+  let color: string | undefined;
+
+  // content 구조 순회해서 첫 paragraph/text의 attrs 추출
+  if (content && Array.isArray(content.content)) {
+    for (const node of content.content) {
+      // 첫 paragraph의 textAlign 찾기
+      if (node.type === 'paragraph' && !textAlign) {
+        const paragraphAlign = node.attrs?.textAlign as string | undefined;
+        if (paragraphAlign) {
+          if (paragraphAlign === 'left') {
+            textAlign = { label: '왼쪽', value: 'left' };
+          } else if (paragraphAlign === 'center') {
+            textAlign = { label: '가운데', value: 'center' };
+          } else if (paragraphAlign === 'right') {
+            textAlign = { label: '오른쪽', value: 'right' };
+          }
+        }
+      }
+
+      // 첫 text 노드의 textStyle mark 속성 찾기
+      if (node.type === 'paragraph' && Array.isArray(node.content)) {
+        for (const textNode of node.content) {
+          if (textNode.type === 'text' && Array.isArray(textNode.marks)) {
+            const textStyleMark = textNode.marks.find(
+              mark => mark.type === 'textStyle'
+            );
+            if (textStyleMark) {
+              const attrs = textStyleMark.attrs || {};
+              if (!fontFamily && attrs.fontFamily) {
+                fontFamily = getFontFamilyOption(attrs.fontFamily);
+              }
+              if (!fontSize && attrs.fontSize) {
+                fontSize = FONT_SIZE_OPTIONS.find(
+                  opt => opt.value === attrs.fontSize
+                );
+              }
+              if (!color && attrs.color) {
+                color = attrs.color;
+              }
+            }
+          }
+        }
+      }
+
+      // 찾은 것이 충분하면 순회 중단
+      if (textAlign && fontFamily && fontSize && color) break;
+    }
+  }
+
+  // fontFamily 기본값 결정
+  if (!fontFamily) {
+    fontFamily = FONT_FAMILY_OPTIONS[0];
+  }
+
+  // fontWeight는 fontFamily에 따라 결정
+  if (!fontWeight) {
+    fontWeight = getDefaultFontWeightOption(fontFamily);
+  }
+
+  // fontSize 기본값
+  if (!fontSize) {
+    fontSize = DEFAULT_FONT_SIZE_OPTION;
+  }
+
+  // textAlign 기본값
+  if (!textAlign) {
+    const align = defaultAlign as TextAlignValue;
+    if (align === 'left') {
+      textAlign = { label: '왼쪽', value: 'left' };
+    } else if (align === 'right') {
+      textAlign = { label: '오른쪽', value: 'right' };
+    } else {
+      textAlign = DEFAULT_TEXT_ALIGN_OPTION;
+    }
+  }
+
+  // color 기본값
+  if (!color) {
+    color = '#000000';
+  }
+
+  return {
+    fontFamily,
+    fontWeight,
+    fontSize,
+    textAlign,
+    color,
+  };
+}
+
+export function getDefaultFontSizeOption(): FontSizeOption {
+  return DEFAULT_FONT_SIZE_OPTION;
 }
