@@ -299,6 +299,7 @@ export const useFabricSlot = ({
     value: number,
     options?: {
       saveHistory?: boolean;
+      syncActiveObjectInfo?: boolean;
     }
   ) => {
     if (!canvas) return;
@@ -322,7 +323,9 @@ export const useFabricSlot = ({
     image.setCoords();
     canvas.setActiveObject(image);
     canvas.requestRenderAll();
-    syncActiveObjectInfo?.(canvas);
+    if (options?.syncActiveObjectInfo) {
+      syncActiveObjectInfo?.(canvas);
+    }
 
     if (options?.saveHistory) {
       saveHistory();

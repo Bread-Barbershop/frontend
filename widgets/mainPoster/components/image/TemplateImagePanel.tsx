@@ -1,5 +1,5 @@
 import { FabricImage } from 'fabric';
-import { ChangeEvent, useRef } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
 
 import { ImageUploadButton } from '@/components/atoms/button/ImageUploadButton';
 import { EditorNoticeList } from '@/components/molecules/editor-notice';
@@ -29,6 +29,16 @@ export const TemplateImagePanel = () => {
   const position = activeSlotImage
     ? getSlotImagePosition(activeSlotImage)
     : { x: 50, y: 50, canMoveX: false, canMoveY: false };
+  const activeSlotKey = activeSlotImage?.slot?.key ?? null;
+  const [dragPosition, setDragPosition] = useState<{
+    slotKey: string;
+    x: number;
+    y: number;
+  } | null>(null);
+  const sliderPosition =
+    dragPosition && dragPosition.slotKey === activeSlotKey
+      ? { x: dragPosition.x, y: dragPosition.y }
+      : { x: clampPercent(position.x), y: clampPercent(position.y) };
 
   const handleUploadClick = () => {
     inputRef.current?.click();
@@ -52,6 +62,23 @@ export const TemplateImagePanel = () => {
   };
 
   const handleSlotPositionChange = (axis: 'x' | 'y', value: number) => {
+    if (activeSlotKey) {
+      const currentX =
+        dragPosition?.slotKey === activeSlotKey
+          ? dragPosition.x
+          : clampPercent(position.x);
+      const currentY =
+        dragPosition?.slotKey === activeSlotKey
+          ? dragPosition.y
+          : clampPercent(position.y);
+
+      setDragPosition({
+        slotKey: activeSlotKey,
+        x: axis === 'x' ? clampPercent(value) : currentX,
+        y: axis === 'y' ? clampPercent(value) : currentY,
+      });
+    }
+
     if (canvas && activeSlotImage) {
       updateSlotImagePosition(activeSlotImage, axis, value);
     }
@@ -61,8 +88,10 @@ export const TemplateImagePanel = () => {
     if (canvas && activeSlotImage) {
       updateSlotImagePosition(activeSlotImage, axis, value, {
         saveHistory: true,
+        syncActiveObjectInfo: true,
       });
     }
+    setDragPosition(null);
   };
 
   return (
@@ -87,7 +116,7 @@ export const TemplateImagePanel = () => {
             type="range"
             min={0}
             max={100}
-            value={clampPercent(position.x)}
+            value={sliderPosition.x}
             disabled={!position.canMoveX || !activeSlotImage || !canvas}
             className="mt-2 w-full"
             onChange={event => {
@@ -108,7 +137,7 @@ export const TemplateImagePanel = () => {
             type="range"
             min={0}
             max={100}
-            value={clampPercent(position.y)}
+            value={sliderPosition.y}
             disabled={!position.canMoveY || !activeSlotImage || !canvas}
             className="mt-2 w-full"
             onChange={event => {
