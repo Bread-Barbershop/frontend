@@ -42,6 +42,7 @@ import {
   FONT_FAMILY_OPTIONS,
   FONT_SIZE_OPTIONS,
   getDefaultFontWeightOption,
+  getInitialEditorStyles,
   type FontSizeOption,
   type TextAlignOption,
   type TextAlignValue,
@@ -67,11 +68,9 @@ const TEXT_ALIGN_OPTIONS: TextAlignOption[] = [
   { label: <AlignLeftIcon />, value: 'left' },
 ];
 
-const DEFAULT_FONT_FAMILY_OPTION = FONT_FAMILY_OPTIONS[0];
-const DEFAULT_FONT_WEIGHT_OPTION = getDefaultFontWeightOption(
-  DEFAULT_FONT_FAMILY_OPTION
-);
-const DEFAULT_FONT_SIZE_OPTION = FONT_SIZE_OPTIONS[0];
+const DEFAULT_FONT_SIZE_OPTION =
+  FONT_SIZE_OPTIONS.find(option => option.value === '14px') ??
+  FONT_SIZE_OPTIONS[0];
 const DEFAULT_TEXT_ALIGN_OPTION = TEXT_ALIGN_OPTIONS[1];
 const DEFAULT_EDITOR_TEXT = '내용을 입력해주세요';
 
@@ -87,21 +86,26 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
     ref
   ) => {
     const [, forceUpdate] = useReducer((count: number) => count + 1, 0);
+
+    const initialStyles = useMemo(
+      () => getInitialEditorStyles(value, defaultAlign),
+      [value, defaultAlign]
+    );
+
     const [fontFamilySelected, setFontFamilySelected] =
-      useState<FontFamilyOption>(DEFAULT_FONT_FAMILY_OPTION);
+      useState<FontFamilyOption>(initialStyles.fontFamily);
     const [fontWeightSelected, setFontWeightSelected] =
-      useState<FontWeightOption>(DEFAULT_FONT_WEIGHT_OPTION);
+      useState<FontWeightOption>(initialStyles.fontWeight);
     const [fontSizeSelected, setFontSizeSelected] = useState<FontSizeOption>(
-      DEFAULT_FONT_SIZE_OPTION
+      initialStyles.fontSize
     );
     const [textAlignSelected, setTextAlignSelected] = useState<TextAlignOption>(
-      TEXT_ALIGN_OPTIONS.find(opt => opt.value === defaultAlign) ??
-        DEFAULT_TEXT_ALIGN_OPTION
+      initialStyles.textAlign
     );
     const [colorPickerOpen, setColorPickerOpen] = useState(false);
-    const [selectedColor, setSelectedColor] = useState('#000000');
+    const [selectedColor, setSelectedColor] = useState(initialStyles.color);
     const editorRef = useRef<Editor | null>(null);
-    const fontSizeSelectedRef = useRef(DEFAULT_FONT_SIZE_OPTION);
+    const fontSizeSelectedRef = useRef(initialStyles.fontSize);
     const colorPickerContainerRef = useRef<HTMLDivElement>(null);
     const fontWeightOptions = useMemo(
       () => createFontWeightOptions(fontFamilySelected),
@@ -275,22 +279,22 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       const command = editor.chain().focus();
 
       if (italicActive) {
-        command.unsetItalic().run();
+        command.unsetItalic().setFontStyleOverride('normal').run();
         return;
       }
 
-      command.setItalic().run();
+      command.setItalic().setFontStyleOverride(null).run();
     };
 
     const handleUnderlineToggle = () => {
       const command = editor.chain().focus();
 
       if (underlineActive) {
-        command.unsetUnderline().run();
+        command.unsetUnderline().setTextDecorationOverride('none').run();
         return;
       }
 
-      command.setUnderline().run();
+      command.setUnderline().setTextDecorationOverride(null).run();
     };
 
     return (
@@ -413,6 +417,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
               ? 'border-primary bg-bg-base'
               : 'border-transparent bg-border-neutral'
           )}
+          style={{ textAlign: defaultAlign }}
         >
           <EditorContent editor={editor} />
         </div>

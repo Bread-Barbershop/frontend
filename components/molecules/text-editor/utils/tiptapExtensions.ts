@@ -12,6 +12,10 @@ import { FontFamily, FontSize, TextStyle } from '@tiptap/extension-text-style';
 import Underline from '@tiptap/extension-underline';
 
 import { FontWeight } from './fontWeight';
+import {
+  FontStyleOverride,
+  TextDecorationOverride,
+} from './textStyleOverrides';
 
 /**
  * TextEditorBar에서 사용하는 TipTap extension 목록을 반환합니다.
@@ -35,9 +39,10 @@ export function createTextEditorBarExtensions(
     FontFamily,
     FontWeight,
     FontSize,
+    FontStyleOverride,
+    TextDecorationOverride,
     TextAlign.configure({
       types: ['paragraph'],
-      defaultAlignment: 'center',
     }),
   ];
 
