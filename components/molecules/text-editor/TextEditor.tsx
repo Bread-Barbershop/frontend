@@ -252,6 +252,13 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       }
     };
 
+    const handleFontSizeInputBlur = () => {
+      if (!fontSizeSelected.value) {
+        setFontSizeSelected(DEFAULT_FONT_SIZE_OPTION);
+        editor.chain().setFontSize(DEFAULT_FONT_SIZE_OPTION.value).run();
+      }
+    };
+
     const handleTextAlignSelect = (
       option: TextAlignOption | { label: string; value: string }
     ) => {
@@ -316,6 +323,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
               selected={fontSizeSelected}
               onSelect={handleFontSizeSelect}
               onInputChange={handleFontSizeInputChange}
+              onInputBlur={handleFontSizeInputBlur}
               placeholder="Size"
               variant="fontSize"
               showCheckbox={false}

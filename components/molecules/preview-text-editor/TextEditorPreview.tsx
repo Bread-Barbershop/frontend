@@ -31,6 +31,8 @@ import { useBulkEditor } from './hooks/useBulkEditor';
 
 import type { BulkColorPickerId } from './types';
 
+const DEFAULT_FONT_SIZE_OPTION = FONT_SIZE_OPTIONS[0];
+
 interface TextEditorPreviewProps {
   children: ReactNode;
   value: BulkData;
@@ -47,8 +49,6 @@ const TEXT_ALIGN_OPTIONS: TextAlignOption[] = [
 ];
 
 const DEFAULT_FONT_FAMILY_OPTION = FONT_FAMILY_OPTIONS[0];
-
-const DEFAULT_FONT_SIZE_OPTION = FONT_SIZE_OPTIONS[0];
 const DEFAULT_TEXT_ALIGN_OPTION = TEXT_ALIGN_OPTIONS[1];
 
 export function TextEditorPreview({
@@ -130,6 +130,13 @@ export function TextEditorPreview({
     }
   };
 
+  const handleFontSizeInputBlur = () => {
+    if (customFontSizeInput === '') {
+      setCustomFontSizeInput(null);
+      onChange({ ...value, fontSize: DEFAULT_FONT_SIZE_OPTION.value });
+    }
+  };
+
   useEffect(() => {
     void loadCustomFont(selectedFontFamily.value, fontWeightSelected.value);
   }, [selectedFontFamily.value, fontWeightSelected.value]);
@@ -167,6 +174,7 @@ export function TextEditorPreview({
             selected={fontSizeSelected}
             onSelect={handleFontSizeSelectWithCustom}
             onInputChange={handleFontSizeInputChange}
+            onInputBlur={handleFontSizeInputBlur}
             placeholder="Size"
             variant="fontSize"
             showCheckbox={false}
