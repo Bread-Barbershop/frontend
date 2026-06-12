@@ -1,73 +1,387 @@
-import { Canvas, Textbox, IText } from 'fabric';
+import { Canvas, IText, Textbox } from 'fabric';
+import { useCallback, useRef } from 'react';
 
 import { getTemplateJson } from '@/app/api/template/utils';
 import { CUSTOM_FONTS } from '@/shared/fonts/fonts';
 import { useToast } from '@/shared/hooks/useToast';
 
-/**
- * 템플릿 JSON에서 모든 fontFamily를 추출하여 로드합니다.
- */
-export const preloadFonts = async (templateJson: any) => {
-  const fontFamilies = new Set<string>();
+type FontRequest = {
+  family: string;
+  weight: string;
+  style: string;
+};
 
-  // 기본 객체들에서 fontFamily 추출
-  templateJson.objects?.forEach((obj: any) => {
-    if (obj.fontFamily) {
-      fontFamilies.add(obj.fontFamily);
+type StyleRecord = Record<string, any>;
+
+type TemplateStyleRun = {
+  start?: number;
+  end?: number;
+  style?: StyleRecord;
+};
+
+const DEFAULT_FONT_WEIGHT = '400';
+const DEFAULT_FONT_STYLE = 'normal';
+const TEXT_OBJECT_TYPES = new Set(['textbox', 'i-text', 'text', 'Textbox']);
+
+const templateJsonCache = new Map<string, Promise<any>>();
+const templateReadyCache = new Map<string, Promise<any>>();
+
+const waitForNextFrame = () =>
+  new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+
+const waitForFrames = async (count: number) => {
+  for (let i = 0; i < count; i += 1) {
+    await waitForNextFrame();
+  }
+};
+
+const waitForTimeout = (ms: number) =>
+  new Promise<void>(resolve => window.setTimeout(resolve, ms));
+
+const createFontRequestKey = (font: FontRequest) =>
+  `${font.family}::${font.weight}::${font.style}`;
+
+const getAllFontFamilies = () =>
+  Array.from(new Set(CUSTOM_FONTS.map(font => font.family)));
+
+const FONT_FAMILIES = getAllFontFamilies().sort((a, b) => b.length - a.length);
+
+const WEIGHT_TOKEN_MAP: Record<string, string> = {
+  thin: '100',
+  extralight: '200',
+  ultralight: '200',
+  light: '300',
+  regular: '400',
+  normal: '400',
+  medium: '500',
+  semibold: '600',
+  demibold: '600',
+  bold: '700',
+  extrabold: '800',
+  ultrabold: '800',
+  heavy: '900',
+  black: '900',
+};
+
+const normalizeFontFamilyName = (value?: string | null) => {
+  if (!value) return null;
+
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  if (FONT_FAMILIES.includes(trimmed)) {
+    return {
+      family: trimmed,
+      weight: DEFAULT_FONT_WEIGHT,
+      style: DEFAULT_FONT_STYLE,
+    };
+  }
+
+  for (const family of FONT_FAMILIES) {
+    if (
+      trimmed === family ||
+      trimmed.startsWith(`${family}-`) ||
+      trimmed.startsWith(`${family} `)
+    ) {
+      const suffix = trimmed.slice(family.length).replace(/^[-\s]+/, '');
+      const normalizedSuffix = suffix.toLowerCase().replace(/\s+/g, '');
+
+      return {
+        family,
+        weight: WEIGHT_TOKEN_MAP[normalizedSuffix] ?? DEFAULT_FONT_WEIGHT,
+        style: normalizedSuffix.includes('italic') ? 'italic' : DEFAULT_FONT_STYLE,
+      };
+    }
+  }
+
+  return {
+    family: trimmed,
+    weight: DEFAULT_FONT_WEIGHT,
+    style: DEFAULT_FONT_STYLE,
+  };
+};
+
+const normalizeFontRequest = (
+  family?: string,
+  weight?: string | number,
+  style?: string
+): FontRequest | null => {
+  const normalized = normalizeFontFamilyName(family);
+  if (!normalized) return null;
+
+  return {
+    family: normalized.family,
+    weight: String(weight ?? normalized.weight ?? DEFAULT_FONT_WEIGHT),
+    style: style ?? normalized.style ?? DEFAULT_FONT_STYLE,
+  };
+};
+
+const isTextObject = (obj: any) => TEXT_OBJECT_TYPES.has(obj?.type);
+
+const isTemplateStyleRunArray = (
+  styles: unknown
+): styles is TemplateStyleRun[] => Array.isArray(styles);
+
+const getTemplateStyleRuns = (obj: any): TemplateStyleRun[] =>
+  isTemplateStyleRunArray(obj?.styles) ? obj.styles : [];
+
+const getFirstFabricStyleEntry = (styles?: StyleRecord) => {
+  if (!styles || Array.isArray(styles)) return null;
+
+  for (const row of Object.values(styles)) {
+    if (!row || typeof row !== 'object') continue;
+
+    for (const charStyle of Object.values(row as StyleRecord)) {
+      if (charStyle && typeof charStyle === 'object') {
+        return charStyle as StyleRecord;
+      }
+    }
+  }
+
+  return null;
+};
+
+const isRunActiveAtIndex = (
+  run: TemplateStyleRun,
+  textIndexWithoutNewline: number
+) => {
+  if (typeof run.start !== 'number' || typeof run.end !== 'number') {
+    return false;
+  }
+
+  return (
+    textIndexWithoutNewline >= run.start &&
+    textIndexWithoutNewline < run.end
+  );
+};
+
+const buildFabricStylesFromRuns = (text: string, styleRuns: TemplateStyleRun[]) => {
+  if (!styleRuns.length) return {};
+
+  const stylesByLine: Record<number, Record<number, StyleRecord>> = {};
+  let lineIndex = 0;
+  let charIndexInLine = 0;
+  let textIndexWithoutNewline = 0;
+
+  for (let rawIndex = 0; rawIndex < text.length; rawIndex += 1) {
+    const character = text[rawIndex];
+
+    if (character === '\n') {
+      lineIndex += 1;
+      charIndexInLine = 0;
+      continue;
     }
 
-    // 텍스트 스타일(부분 스타일)에서 fontFamily 추출
-    if (obj.styles) {
-      Object.values(obj.styles).forEach((row: any) => {
-        Object.values(row).forEach((charStyle: any) => {
-          if (charStyle.fontFamily) {
-            fontFamilies.add(charStyle.fontFamily);
-          }
-        });
-      });
+    const matchingRun = styleRuns.find(run =>
+      isRunActiveAtIndex(run, textIndexWithoutNewline)
+    );
+
+    if (matchingRun?.style) {
+      stylesByLine[lineIndex] ??= {};
+      stylesByLine[lineIndex][charIndexInLine] = { ...matchingRun.style };
+    }
+
+    charIndexInLine += 1;
+    textIndexWithoutNewline += 1;
+  }
+
+  return stylesByLine;
+};
+
+const normalizeFabricStyleMap = (
+  styles: StyleRecord,
+  fallbackFont: FontRequest | null
+) => {
+  Object.values(styles).forEach((row: any) => {
+    if (!row || typeof row !== 'object') return;
+
+    Object.values(row).forEach((charStyle: any) => {
+      if (!charStyle || typeof charStyle !== 'object') return;
+
+      const normalizedCharFont = normalizeFontRequest(
+        charStyle.fontFamily ?? fallbackFont?.family,
+        charStyle.fontWeight ?? fallbackFont?.weight,
+        charStyle.fontStyle ?? fallbackFont?.style
+      );
+
+      if (!normalizedCharFont) return;
+
+      charStyle.fontFamily = normalizedCharFont.family;
+      charStyle.fontWeight = normalizedCharFont.weight;
+      charStyle.fontStyle = normalizedCharFont.style;
+    });
+  });
+};
+
+const normalizeTemplateTextObject = (obj: any) => {
+  const styleRuns = getTemplateStyleRuns(obj);
+  const firstStyleRun = styleRuns.find(run => run?.style)?.style;
+  const firstFabricStyleEntry = getFirstFabricStyleEntry(obj.styles);
+
+  const normalizedTopLevel = normalizeFontRequest(
+    obj.fontFamily,
+    obj.fontWeight,
+    obj.fontStyle
+  );
+  const normalizedRunLevel = normalizeFontRequest(
+    firstStyleRun?.fontFamily,
+    firstStyleRun?.fontWeight,
+    firstStyleRun?.fontStyle
+  );
+  const normalizedFabricStyleLevel = normalizeFontRequest(
+    firstFabricStyleEntry?.fontFamily,
+    firstFabricStyleEntry?.fontWeight,
+    firstFabricStyleEntry?.fontStyle
+  );
+
+  if (normalizedTopLevel) {
+    obj.fontFamily = normalizedTopLevel.family;
+    obj.fontWeight = normalizedTopLevel.weight;
+    obj.fontStyle = normalizedTopLevel.style;
+  }
+
+  if (styleRuns.length > 0) {
+    obj.styles = buildFabricStylesFromRuns(obj.text ?? '', styleRuns);
+  }
+
+  const effectiveFont =
+    normalizedFabricStyleLevel ?? normalizedRunLevel ?? normalizedTopLevel;
+
+  if (obj.styles && !Array.isArray(obj.styles)) {
+    normalizeFabricStyleMap(obj.styles, effectiveFont);
+  }
+};
+
+export const normalizeTemplateJsonFonts = (templateJson: any) => {
+  templateJson.objects?.forEach((obj: any) => {
+    if (isTextObject(obj)) {
+      normalizeTemplateTextObject(obj);
     }
   });
 
-  // 커스텀 폰트 등록 확인 및 등록
-  for (const font of fontFamilies) {
-    const customFonts = CUSTOM_FONTS.filter(f => f.family === font);
-    if (customFonts.length > 0) {
-      // 이미 등록된 폰트인지 확인
-      const existingFaces = Array.from(document.fonts);
+  return templateJson;
+};
 
-      for (const customFont of customFonts) {
-        const isAlreadyRegistered = existingFaces.some(
-          face =>
-            face.family === customFont.family &&
-            face.weight === customFont.weight
+const collectTemplateFonts = (templateJson: any) => {
+  const fontRequests = new Map<string, FontRequest>();
+
+  const addFont = (
+    family?: string,
+    weight?: string | number,
+    style?: string
+  ) => {
+    const request = normalizeFontRequest(family, weight, style);
+    if (!request) return;
+
+    fontRequests.set(createFontRequestKey(request), request);
+  };
+
+  templateJson.objects?.forEach((obj: any) => {
+    addFont(obj.fontFamily, obj.fontWeight, obj.fontStyle);
+
+    if (!obj.styles || Array.isArray(obj.styles)) return;
+
+    Object.values(obj.styles).forEach((row: any) => {
+      if (!row || typeof row !== 'object') return;
+
+      Object.values(row).forEach((charStyle: any) => {
+        addFont(
+          charStyle.fontFamily ?? obj.fontFamily,
+          charStyle.fontWeight ?? obj.fontWeight,
+          charStyle.fontStyle ?? obj.fontStyle
         );
+      });
+    });
+  });
 
-        if (!isAlreadyRegistered) {
-          try {
-            const fontFace = new FontFace(customFont.family, customFont.url, {
-              weight: customFont.weight,
-              style: customFont.style,
-            });
-            document.fonts.add(fontFace);
-          } catch (e) {
-            console.error(`폰트 등록 실패: ${customFont.family}`, e);
-          }
+  return Array.from(fontRequests.values());
+};
+
+const getTemplateJsonCached = (jsonUrl: string) => {
+  const cached = templateJsonCache.get(jsonUrl);
+  if (cached) return cached;
+
+  const request = getTemplateJson(jsonUrl).then(templateJson =>
+    normalizeTemplateJsonFonts(templateJson)
+  );
+  templateJsonCache.set(jsonUrl, request);
+  return request;
+};
+
+const cloneTemplateJson = <T,>(templateJson: T): T => {
+  if (typeof structuredClone === 'function') {
+    return structuredClone(templateJson);
+  }
+
+  return JSON.parse(JSON.stringify(templateJson)) as T;
+};
+
+export const preloadFonts = async (templateJson: any) => {
+  const normalizedTemplateJson = normalizeTemplateJsonFonts(templateJson);
+  const fontRequests = collectTemplateFonts(normalizedTemplateJson);
+
+  for (const request of fontRequests) {
+    const customFonts = CUSTOM_FONTS.filter(
+      font =>
+        font.family === request.family &&
+        font.weight === request.weight &&
+        font.style === request.style
+    );
+
+    if (customFonts.length === 0) continue;
+
+    for (const customFont of customFonts) {
+      const isAlreadyRegistered = Array.from(document.fonts).some(
+        face =>
+          face.family === customFont.family &&
+          face.weight === customFont.weight &&
+          face.style === customFont.style
+      );
+
+      if (!isAlreadyRegistered) {
+        try {
+          const fontFace = new FontFace(customFont.family, customFont.url, {
+            weight: customFont.weight,
+            style: customFont.style,
+          });
+          await fontFace.load();
+          document.fonts.add(fontFace);
+        } catch (error) {
+          console.error(`폰트 등록 실패: ${customFont.family}`, error);
         }
       }
     }
   }
 
-  const loadPromises = Array.from(fontFamilies).map(async font => {
-    const fontSpec = `10px "${font}"`;
+  const loadPromises = fontRequests.map(async request => {
     try {
-      await document.fonts.load(fontSpec);
-    } catch (e) {
-      console.warn(`폰트 로드 실패: ${font}`, e);
+      await document.fonts.load(
+        `${request.style} ${request.weight} 10px "${request.family}"`
+      );
+    } catch (error) {
+      console.warn(
+        `폰트 로드 실패: ${request.family} ${request.weight} ${request.style}`,
+        error
+      );
     }
   });
 
   await Promise.all(loadPromises);
   await document.fonts.ready;
+};
+
+export const prepareTemplateAssets = async (jsonUrl: string) => {
+  const cached = templateReadyCache.get(jsonUrl);
+  if (cached) return cached;
+
+  const request = (async () => {
+    const templateJson = await getTemplateJsonCached(jsonUrl);
+    await preloadFonts(templateJson);
+    return templateJson;
+  })();
+
+  templateReadyCache.set(jsonUrl, request);
+  return request;
 };
 
 interface UseTemplateProps {
@@ -77,117 +391,124 @@ interface UseTemplateProps {
   ) => Promise<void>;
 }
 
-export const useTemplate = ({ runHistoryTransaction }: UseTemplateProps = {}) => {
-  /**
-   * 템플릿 JSON을 가져와서 캔버스에 적용합니다.
-   * @param canvas Fabric 캔버스 인스턴스
-   * @param jsonUrl 템플릿 JSON URL
-   */
-  const { error: errorToast } = useToast();
-  const applyTemplateToCanvas = async (
-    canvas: Canvas | null,
-    jsonUrl: string
-  ) => {
-    if (!canvas) return;
+const getCanvasTextObjects = (canvas: Canvas) =>
+  canvas.getObjects().filter(
+    obj => obj.isType('textbox') || obj.isType('itext') || obj.isType('text')
+  ) as Array<Textbox | IText>;
 
-    try {
-      const templateJson = await getTemplateJson(jsonUrl);
+const remeasureTextObjects = (canvas: Canvas) => {
+  const textObjects = getCanvasTextObjects(canvas);
 
-      // 1. 폰트 로딩 보장 (JSON 로드 전)
-      await preloadFonts(templateJson);
+  textObjects.forEach(textObj => {
+    const fixedWidth =
+      textObj.isType('textbox') && typeof textObj.width === 'number'
+        ? textObj.width
+        : undefined;
 
-      // 2. JSON 로드
-      const prepareTextObjects = () => {
-        const objects = canvas.getObjects();
-        for (const obj of objects) {
-          if (
-            obj.isType('textbox') ||
-            obj.isType('itext') ||
-            obj.isType('text')
-          ) {
-            const textObj = obj as Textbox | IText;
+    textObj.set({
+      dirty: true,
+      objectCaching: false,
+    });
 
-            textObj.set({
-              dirty: true,
-              objectCaching: false,
-            });
-
-            if ('_initDimensions' in textObj) {
-              (textObj as any)._initDimensions();
-            } else if ('initDimensions' in textObj) {
-              (textObj as any).initDimensions();
-            }
-
-            textObj.setCoords();
-          }
-        }
-      };
-
-      if (runHistoryTransaction) {
-        await runHistoryTransaction(
-          async () => {
-            await canvas.loadFromJSON(templateJson);
-            prepareTextObjects();
-            await new Promise(resolve => requestAnimationFrame(resolve));
-          },
-          { save: true }
-        );
-      } else {
-        await canvas.loadFromJSON(templateJson);
-        prepareTextObjects();
-      }
-
-      // 3. 개체별 보정 및 렌더링 최적화
-      const objects = canvas.getObjects();
-      for (const obj of objects) {
-        // 이미지 필터 적용
-        if (
-          obj.isType('image') &&
-          'applyFilters' in obj &&
-          (obj as any).filters?.length
-        ) {
-          (obj as any).applyFilters();
-        }
-
-        // 텍스트 개체 재계산 (폰트 적용 보장)
-        if (
-          obj.isType('textbox') ||
-          obj.isType('itext') ||
-          obj.isType('text')
-        ) {
-          const textObj = obj as Textbox | IText;
-
-          // 캐시 초기화 및 다시 그리기 강제
-          textObj.set({
-            dirty: true,
-            objectCaching: false,
-          });
-
-          // 폰트에 따른 치수 재계산
-          if ('_initDimensions' in textObj) {
-            (textObj as any)._initDimensions();
-          } else if ('initDimensions' in textObj) {
-            (textObj as any).initDimensions();
-          }
-
-          textObj.setCoords();
-        }
-      }
-
-      // 브라우저가 폰트를 완전히 적용할 시간을 주기 위해 한 프레임 대기 후 렌더링
-      await new Promise(resolve => requestAnimationFrame(resolve));
-      canvas.requestRenderAll();
-
-      // 최종적으로 한 번 더 렌더링 (간혹 비동기 폰트 적용 시 필요)
-      setTimeout(() => {
-        canvas.requestRenderAll();
-      }, 100);
-    } catch (error) {
-      errorToast('템플릿 적용 중 오류가 발생했습니다.');
-      console.error('템플릿 적용 중 오류 발생:', error);
-      throw error;
+    if ('_clearCache' in textObj) {
+      (textObj as any)._clearCache();
     }
-  };
+
+    if ('_splitText' in textObj) {
+      (textObj as any)._splitText();
+    }
+
+    if (fixedWidth !== undefined) {
+      textObj.set({ width: fixedWidth });
+    }
+
+    if ('_generateStyleMap' in textObj && '_splitText' in textObj) {
+      (textObj as any)._generateStyleMap((textObj as any)._splitText());
+    }
+
+    if ('_initDimensions' in textObj) {
+      (textObj as any)._initDimensions();
+    } else if ('initDimensions' in textObj) {
+      (textObj as any).initDimensions();
+    }
+
+    if (
+      textObj.isType('textbox') &&
+      typeof (textObj as any).calcTextHeight === 'function'
+    ) {
+      textObj.set({
+        height: (textObj as any).calcTextHeight(),
+      });
+    }
+
+    textObj.setCoords();
+  });
+};
+
+export const stabilizeCanvasAfterLoad = async (
+  canvas: Canvas,
+  options?: { delayMs?: number }
+) => {
+  const delayMs = options?.delayMs ?? 120;
+
+  remeasureTextObjects(canvas);
+  canvas.discardActiveObject();
+  canvas.requestRenderAll();
+
+  await waitForFrames(1);
+  await waitForTimeout(delayMs);
+
+  remeasureTextObjects(canvas);
+  canvas.requestRenderAll();
+  await waitForFrames(1);
+};
+
+export const useTemplate = ({
+  runHistoryTransaction,
+}: UseTemplateProps = {}) => {
+  const { error: errorToast } = useToast();
+  const latestRequestIdRef = useRef(0);
+
+  const applyTemplateToCanvas = useCallback(
+    async (canvas: Canvas | null, jsonUrl: string) => {
+      if (!canvas) return;
+
+      const requestId = ++latestRequestIdRef.current;
+
+      try {
+        const preparedTemplateJson = await prepareTemplateAssets(jsonUrl);
+        if (requestId !== latestRequestIdRef.current) return;
+
+        const templateJson = cloneTemplateJson(preparedTemplateJson);
+
+        await waitForFrames(1);
+        if (requestId !== latestRequestIdRef.current) return;
+
+        if (runHistoryTransaction) {
+          await runHistoryTransaction(
+            async () => {
+              if (requestId !== latestRequestIdRef.current) return;
+              await canvas.loadFromJSON(templateJson);
+            },
+            { save: true }
+          );
+        } else {
+          await canvas.loadFromJSON(templateJson);
+        }
+
+        if (requestId !== latestRequestIdRef.current) return;
+
+        await stabilizeCanvasAfterLoad(canvas);
+      } catch (error) {
+        if (requestId !== latestRequestIdRef.current) return;
+
+        errorToast('템플릿 적용 중 오류가 발생했습니다.');
+        console.error('템플릿 적용 중 오류 발생:', error);
+        throw error;
+      }
+    },
+    [errorToast, runHistoryTransaction]
+  );
 
   return { applyTemplateToCanvas };
 };

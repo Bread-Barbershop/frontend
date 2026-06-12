@@ -47,6 +47,7 @@ interface SelectorProps<T extends Option> {
   showCheckbox?: boolean;
   addPopWidth?: number;
   searchable?: boolean;
+  disabled?: boolean;
 }
 
 const VIEWPORT_GAP = 12;
@@ -73,6 +74,7 @@ export const Selector = <T extends Option>({
   showCheckbox = true,
   addPopWidth = 0,
   searchable = false,
+  disabled = false,
 }: SelectorProps<T>) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCustomInput, setIsCustomInput] = useState(false);
@@ -120,12 +122,16 @@ export const Selector = <T extends Option>({
   };
 
   const handleSelect = (option: T) => {
+    if (disabled) return;
+
     setIsCustomInput(false);
     onSelect(option);
     popoverRef.current?.hidePopover();
   };
 
   const handleToggle = () => {
+    if (disabled) return;
+
     if (isOpen) {
       setIsOpen(false);
       popoverRef.current?.hidePopover();
@@ -216,6 +222,7 @@ export const Selector = <T extends Option>({
           selectorVariants({ type, isOpen, hasValue }),
           variantStyles?.trigger,
           triggerClassName,
+          disabled && 'pointer-events-none opacity-60',
           isOpen &&
             (variantStyles && 'openTrigger' in variantStyles
               ? variantStyles.openTrigger
@@ -248,10 +255,12 @@ export const Selector = <T extends Option>({
             className={cn(
               'flex items-center justify-between w-full py-1 pl-2 text-left cursor-pointer',
               variantStyles?.triggerButton,
-              triggerButtonClassName
+              triggerButtonClassName,
+              disabled && 'cursor-not-allowed'
             )}
             aria-haspopup="listbox"
             aria-expanded={isOpen}
+            disabled={disabled}
           >
             <span
               className={cn(

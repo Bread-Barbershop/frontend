@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { KeyboardEvent, MouseEvent, useState } from 'react';
+import { KeyboardEvent, MouseEvent, useEffect, useState } from 'react';
 
 import EditIcon from '@/shared/assets/icons/edit.svg';
 import KakaoIcon from '@/shared/assets/icons/kakao2.svg';
@@ -62,13 +62,9 @@ function CarouselItem({
   isVisibilityUpdating,
   visibilityError,
 }: CarouselItemProps) {
-  const [isHovered, setIsHovered] = useState(false);
   const [isUrlActionExpanded, setIsUrlActionExpanded] = useState(false);
   const currentImageKey = getImageKey(item.image);
-  const [imageState, setImageState] = useState({
-    sourceKey: currentImageKey,
-    src: item.image,
-  });
+  const [hasImageError, setHasImageError] = useState(false);
   const invite = item.invite;
   const guestUrl = invite?.guestUrl ?? guestUrlProp;
   const isPublished = invite?.published ?? Boolean(guestUrlProp);
@@ -90,14 +86,12 @@ function CarouselItem({
   const selectedLift = showHeader
     ? `calc(${selectedLiftProp} + ${dashboardCarouselLayout.headerHeight})`
     : selectedLiftProp;
-  const translateY = isSelected ? selectedLift : isHovered ? hoverLift : null;
+  const displayImage =
+    hasImageError && item.fallbackImage ? item.fallbackImage : item.image;
 
-  if (imageState.sourceKey !== currentImageKey) {
-    setImageState({
-      sourceKey: currentImageKey,
-      src: item.image,
-    });
-  }
+  useEffect(() => {
+    setHasImageError(false);
+  }, [currentImageKey]);
 
   const handleActionClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -116,8 +110,6 @@ function CarouselItem({
       tabIndex={0}
       onClick={() => onSelect(index)}
       onKeyDown={handleKeyDown}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       aria-label={item.invite?.name ?? item.alt}
       aria-pressed={isSelected}
       className={`group relative shrink-0 overflow-visible cursor-pointer select-none text-left ${
@@ -130,12 +122,15 @@ function CarouselItem({
       }}
     >
       <div
-        className="relative overflow-visible transition-transform"
+        className={`relative overflow-visible transition-transform ${
+          isSelected
+            ? '[transform:translateY(calc(-1*var(--carousel-selected-lift)))]'
+            : 'group-hover:[transform:translateY(calc(-1*var(--carousel-hover-lift)))]'
+        }`}
         style={{
           transitionDuration: `${dashboardCarouselLayout.cardLiftDurationMs}ms`,
-          transform: translateY
-            ? `translateY(calc(-1 * ${translateY}))`
-            : undefined,
+          ['--carousel-hover-lift' as string]: hoverLift,
+          ['--carousel-selected-lift' as string]: selectedLift,
           height:
             isSelected && showHeader
               ? dashboardCarouselLayout.selectedVisualHeight
@@ -208,7 +203,7 @@ function CarouselItem({
             }}
           >
             <Image
-              src={imageState.src}
+              src={displayImage}
               alt={item.alt}
               fill
               sizes="260px"
@@ -216,11 +211,8 @@ function CarouselItem({
               draggable={false}
               className="object-cover"
               onError={() => {
-                if (item.fallbackImage) {
-                  setImageState(prev => ({
-                    ...prev,
-                    src: item.fallbackImage ?? prev.src,
-                  }));
+                if (!hasImageError && item.fallbackImage) {
+                  setHasImageError(true);
                 }
               }}
             />

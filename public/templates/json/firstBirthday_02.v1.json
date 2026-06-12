@@ -15,7 +15,7 @@
           "start": 0,
           "end": 4,
           "style": {
-            "fontFamily": "ONE Moblie POP",
+            "fontFamily": "ONE Mobile POP",
             "fontSize": 32
           }
         }
@@ -88,7 +88,7 @@
           "end": 6,
           "style": {
             "fontSize": 32,
-            "fontFamily": "ONE Moblie POP"
+            "fontFamily": "ONE Mobile POP"
           }
         }
       ],
@@ -159,7 +159,7 @@
           "end": 4,
           "style": {
             "fontSize": 24,
-            "fontFamily": "ONE Moblie POP"
+            "fontFamily": "ONE Mobile POP"
           }
         }
       ],
@@ -231,7 +231,7 @@
           "end": 7,
           "style": {
             "fontSize": 24,
-            "fontFamily": "ONE Moblie POP"
+            "fontFamily": "ONE Mobile POP"
           }
         }
       ],
@@ -301,7 +301,7 @@
           "start": 0,
           "end": 24,
           "style": {
-            "fontFamily": "ONE Moblie POP"
+            "fontFamily": "ONE Mobile POP"
           }
         }
       ],

@@ -193,6 +193,9 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
       }
 
       activeObject.dirty = true;
+      if ('_clearCache' in activeObject) {
+        (activeObject as any)._clearCache();
+      }
       activeObject.initDimensions();
       saveHistory();
       canvas.requestRenderAll();

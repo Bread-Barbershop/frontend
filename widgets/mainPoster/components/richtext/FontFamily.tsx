@@ -15,7 +15,6 @@ import {
 import { useFabricContext } from '../../context/FabricContext';
 import {
   loadCustomFont,
-  preloadPreviewFonts,
   preloadFontFamilyWeights,
 } from '../../utils/fontLoader';
 import {
@@ -44,20 +43,13 @@ function FontFamily() {
   const [selectedFont, setSelectedFont] = useState<FontOption>(
     createFontOption(currentFontFamily)
   );
-
   const [selectedWeight, setSelectedWeight] = useState<FontOption>({
     label: weightToLabel(currentFontWeight),
     value: currentFontWeight,
   });
 
   useEffect(() => {
-    preloadPreviewFonts();
-  }, []);
-
-  useEffect(() => {
-    if (!activeObject) {
-      return;
-    }
+    if (!activeObject) return;
 
     const handleSync = () => {
       getRichStyles(
@@ -109,17 +101,16 @@ function FontFamily() {
     };
   }, [activeObject, getRichStyles]);
 
-  const FAMILY_OPTIONS = createFontFamilyOptions().map(option =>
+  const familyOptions = createFontFamilyOptions().map(option =>
     createFontOption(option.value, 400)
   );
 
   const weightOptions = useMemo(() => {
-    return getFontWeights(selectedFont.value)
-      .map(weight => ({
-        label: weightToLabel(weight),
-        value: weight,
-        style: createFontStyle(selectedFont.value, weight),
-      }));
+    return getFontWeights(selectedFont.value).map(weight => ({
+      label: weightToLabel(weight),
+      value: weight,
+      style: createFontStyle(selectedFont.value, weight),
+    }));
   }, [selectedFont.value]);
 
   if (!canvas) return null;
@@ -129,14 +120,15 @@ function FontFamily() {
       <Selector<FontOption>
         placeholder="폰트 패밀리"
         variant="fontFamily"
-        options={FAMILY_OPTIONS}
+        options={familyOptions}
         onSelect={async option => {
           const newFamily = option.value;
-
           const currentWeight =
             selectedWeight.value === MIXED_VALUE ? '400' : selectedWeight.value;
-
-          const nextWeight = getFallbackWeight(newFamily, currentWeight) ?? getDefaultFontWeight(newFamily);
+          const nextWeight =
+            getFallbackWeight(newFamily, currentWeight) ??
+            getDefaultFontWeight(newFamily);
+          await preloadFontFamilyWeights(newFamily);
 
           const nextSelectedWeight = {
             label: weightToLabel(nextWeight),
@@ -147,8 +139,6 @@ function FontFamily() {
             },
           };
 
-          await preloadFontFamilyWeights(newFamily);
-
           setSelectedFont({
             label: newFamily,
             value: newFamily,
@@ -158,6 +148,7 @@ function FontFamily() {
             },
           });
           setSelectedWeight(nextSelectedWeight);
+
           await loadCustomFont(newFamily, nextWeight);
           applyRichStyle(
             {
@@ -187,8 +178,8 @@ function FontFamily() {
               fontWeight: `${nextWeight}`,
             },
           });
-          await loadCustomFont(selectedFont.value, nextWeight);
 
+          await loadCustomFont(selectedFont.value, nextWeight);
           applyRichStyle({ fontWeight: nextWeight }, canvas);
         }}
         selected={selectedWeight}
@@ -198,4 +189,5 @@ function FontFamily() {
     </div>
   );
 }
+
 export default FontFamily;

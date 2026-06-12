@@ -12,16 +12,18 @@ import {
   IText,
 } from 'fabric';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
 import { cn } from '@/shared/utils/cn';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import { useKeyboardEvents } from '../hooks/useKeyboardEvents';
 import { useSetFabricControls } from '../hooks/useSetFabricControls';
-import { preloadFonts } from '../hooks/useTemplate';
+import { preloadFonts, stabilizeCanvasAfterLoad } from '../hooks/useTemplate';
+import { preloadPreviewFonts } from '../utils/fontLoader';
 import { initAligningGuidelines } from '../libs/aligning-guidelines';
 import { FabricObjectWithLock } from '../types/fabric';
 import {
@@ -42,6 +44,7 @@ export const MainPosterPreview = () => {
   const isInitialLoadDoneRef = useRef(false);
   const slotInputRef = useRef<HTMLInputElement>(null);
   const pendingSlotRef = useRef<SlotTargetObject | null>(null);
+  const [isCanvasLoading, setIsCanvasLoading] = useState(false);
 
   const { activeTab, selectedId, selectedBlock, setActiveTab, setIsEdit } =
     useEditorStore(
@@ -70,6 +73,10 @@ export const MainPosterPreview = () => {
   useSetFabricControls();
   useKeyboardEvents(canvas, isMouseInCanvasRef);
 
+  useEffect(() => {
+    void preloadPreviewFonts();
+  }, []);
+
   const openSlotFilePicker = (target: SlotTargetObject) => {
     pendingSlotRef.current = target;
     slotInputRef.current?.click();
@@ -83,11 +90,13 @@ export const MainPosterPreview = () => {
 
     if (!initialData) {
       isInitialLoadDoneRef.current = true;
+      setIsCanvasLoading(false);
       return;
     }
 
     const loadData = async () => {
       try {
+        setIsCanvasLoading(true);
         const jsonData =
           typeof initialData === 'string'
             ? JSON.parse(initialData)
@@ -128,12 +137,13 @@ export const MainPosterPreview = () => {
           }
         });
 
-        await new Promise(resolve => requestAnimationFrame(resolve));
-        canvas.requestRenderAll();
+        await stabilizeCanvasAfterLoad(canvas);
         isInitialLoadDoneRef.current = true;
       } catch (error) {
         console.error('Fabric load Error:', error);
         isInitialLoadDoneRef.current = true;
+      } finally {
+        setIsCanvasLoading(false);
       }
     };
 
@@ -463,6 +473,14 @@ export const MainPosterPreview = () => {
         <div className="overflow-hidden">
           <canvas ref={canvasRef} className="w-full h-full" />
         </div>
+        {isCanvasLoading && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-white/82 backdrop-blur-[1px]">
+            <LoadingSpinner className="h-7 w-7 animate-spin text-text-primary" />
+            <p className="text-sm text-text-primary">
+              저장된 포스터를 불러오는 중...
+            </p>
+          </div>
+        )}
       </div>
       {selectedId === 'mainPoster' && <Toolbar />}
     </>

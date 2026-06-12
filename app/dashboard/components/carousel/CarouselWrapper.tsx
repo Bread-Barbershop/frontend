@@ -78,6 +78,15 @@ async function resolvePreloadedImage(item: CarouselCardItem) {
     return item.image;
   }
 
+  const hasDedicatedThumbnail =
+    typeof item.image === 'string' &&
+    Boolean(item.fallbackImage) &&
+    getImageKey(item.image) !== getImageKey(item.fallbackImage);
+
+  if (hasDedicatedThumbnail) {
+    return item.image;
+  }
+
   if (item.fallbackImage) {
     await preloadImage(item.fallbackImage);
     return item.fallbackImage;
@@ -159,7 +168,7 @@ function CarouselWrapper({
     () =>
       items.map(item => ({
         ...item,
-        image: resolvedImages[item.id] ?? item.fallbackImage ?? item.image,
+        image: resolvedImages[item.id] ?? item.image,
       })),
     [items, resolvedImages]
   );
