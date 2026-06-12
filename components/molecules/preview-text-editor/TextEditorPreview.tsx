@@ -1,7 +1,7 @@
 'use client';
 
 import { ChevronDown } from 'lucide-react';
-import { CSSProperties, useEffect, useMemo, type ReactNode } from 'react';
+import { CSSProperties, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import TextEditorButton from '@/components/atoms/text-editor-button/TextEditorButton';
 import AlignCenterIcon from '@/shared/assets/icons/alignCenter.svg';
@@ -31,6 +31,8 @@ import { useBulkEditor } from './hooks/useBulkEditor';
 
 import type { BulkColorPickerId } from './types';
 
+const DEFAULT_FONT_SIZE_OPTION = FONT_SIZE_OPTIONS[0];
+
 interface TextEditorPreviewProps {
   children: ReactNode;
   value: BulkData;
@@ -47,8 +49,6 @@ const TEXT_ALIGN_OPTIONS: TextAlignOption[] = [
 ];
 
 const DEFAULT_FONT_FAMILY_OPTION = FONT_FAMILY_OPTIONS[0];
-
-const DEFAULT_FONT_SIZE_OPTION = FONT_SIZE_OPTIONS[0];
 const DEFAULT_TEXT_ALIGN_OPTION = TEXT_ALIGN_OPTIONS[1];
 
 export function TextEditorPreview({
@@ -60,10 +60,23 @@ export function TextEditorPreview({
   onActiveColorPickerChange,
 }: TextEditorPreviewProps) {
   const colorPickerOpen = activeColorPickerId === colorPickerId;
+  const [customFontSizeInput, setCustomFontSizeInput] = useState<string | null>(
+    null
+  );
 
-  const fontSizeSelected =
-    FONT_SIZE_OPTIONS.find(option => option.value === value.fontSize) ??
-    DEFAULT_FONT_SIZE_OPTION;
+  const fontSizeSelected: FontSizeOption =
+    customFontSizeInput !== null
+      ? {
+          label: customFontSizeInput,
+          value: customFontSizeInput ? `${customFontSizeInput}px` : '',
+        }
+      : FONT_SIZE_OPTIONS.find(option => option.value === value.fontSize) ??
+          (value.fontSize
+            ? {
+                label: value.fontSize.replace('px', ''),
+                value: value.fontSize,
+              }
+            : DEFAULT_FONT_SIZE_OPTION);
 
   const fontFamilySelected =
     FONT_FAMILY_OPTIONS.find(
@@ -97,6 +110,32 @@ export function TextEditorPreview({
     handleTextColorSelect,
     handleFontWeightSelect,
   } = useBulkEditor(value, onChange);
+
+  const handleFontSizeSelectWithCustom = (
+    option: FontSizeOption | { label: string; value: string }
+  ) => {
+    if (!option.value) {
+      setCustomFontSizeInput('');
+      return;
+    }
+    setCustomFontSizeInput(null);
+    handleFontSizeSelect(option);
+  };
+
+  const handleFontSizeInputChange = (input: string) => {
+    const numericValue = input.replace(/[^0-9]/g, '');
+    setCustomFontSizeInput(numericValue);
+    if (numericValue) {
+      onChange({ ...value, fontSize: `${numericValue}px` });
+    }
+  };
+
+  const handleFontSizeInputBlur = () => {
+    if (customFontSizeInput === '') {
+      setCustomFontSizeInput(null);
+      onChange({ ...value, fontSize: DEFAULT_FONT_SIZE_OPTION.value });
+    }
+  };
 
   useEffect(() => {
     void loadCustomFont(selectedFontFamily.value, fontWeightSelected.value);
@@ -133,7 +172,9 @@ export function TextEditorPreview({
           <Selector<FontSizeOption>
             options={FONT_SIZE_OPTIONS}
             selected={fontSizeSelected}
-            onSelect={handleFontSizeSelect}
+            onSelect={handleFontSizeSelectWithCustom}
+            onInputChange={handleFontSizeInputChange}
+            onInputBlur={handleFontSizeInputBlur}
             placeholder="Size"
             variant="fontSize"
             showCheckbox={false}

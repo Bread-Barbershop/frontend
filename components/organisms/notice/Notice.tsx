@@ -175,7 +175,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
           }
           checked={checkedEnglishTitle}
         >
-          영문 제목 추가
+          <span className="text-[13px]">영문 제목 추가</span>
         </Checkbox>
       </section>
 

@@ -112,7 +112,7 @@ function Greeting({ blockInfo, id }: Props) {
             checked={checkedEnglishTitle}
             onChange={handleEnglishTitleCheckedChange}
           >
-            영문 제목 추가
+            <span className="text-[13px]">영문 제목 추가</span>
           </Checkbox>
         </section>
       </div>

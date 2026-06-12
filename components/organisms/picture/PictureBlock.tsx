@@ -104,10 +104,7 @@ function PictureBlock({ blockInfo, id }: Props) {
             inputProps={{
               placeholder: 'PICTURE',
               onChange: e => handleOnChangeEngTitle(e),
-              value:
-                englishTitle === DEFAULT_ENGLISH_TITLE
-                  ? ''
-                  : englishTitle,
+              value: englishTitle === DEFAULT_ENGLISH_TITLE ? '' : englishTitle,
             }}
           />
         )}
@@ -124,25 +121,27 @@ function PictureBlock({ blockInfo, id }: Props) {
         )}
         <div className="flex items-center gap-2">
           <Label className="font-semibold shrink-0 text-center">추가기능</Label>
-          <div className="flex flex-wrap gap-2">
-            <Checkbox
-              checked={blockInfo.props.isTitle}
-              onChange={handleTitleChange}
-            >
-              제목 추가
-            </Checkbox>
-            <Checkbox
-              className={!blockInfo.props.isTitle ? 'hidden' : undefined}
-              checked={blockInfo.props.isEnglishTitle}
-              onChange={handleEngTitleChange}
-            >
-              영문 제목 추가
-            </Checkbox>
+          <div className="flex flex-col gap-0.5">
+            <div className="flex flex-wrap gap-3">
+              <Checkbox
+                checked={blockInfo.props.isTitle}
+                onChange={handleTitleChange}
+              >
+                <span className="text-[13px]">제목 추가</span>
+              </Checkbox>
+              <Checkbox
+                className={!blockInfo.props.isTitle ? 'hidden' : undefined}
+                checked={blockInfo.props.isEnglishTitle}
+                onChange={handleEngTitleChange}
+              >
+                <span className="text-[13px]">영문 제목 추가</span>
+              </Checkbox>
+            </div>
             <Checkbox
               checked={blockInfo.props.isContents}
               onChange={handleContentsChange}
             >
-              내용 추가
+              <span className="text-[13px]">내용 추가</span>
             </Checkbox>
           </div>
         </div>

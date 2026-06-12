@@ -18,25 +18,31 @@ import { SHARE_NOTICES } from './constants/share';
 const SHARE_URL_IMAGE_ID = 'shareUrl';
 
 function ShareUrl() {
-  const { block, shareUrl, shareUrlTab, setShareUrlTab, updateShareUrl, updateImage } =
-    useEditorStore(
-      useShallow(state => ({
-        block: state.block,
-        shareUrl: state.shareUrl,
-        shareUrlTab: state.shareUrlTab,
-        setShareUrlTab: state.setShareUrlTab,
-        updateShareUrl: state.updateShareUrl,
-        updateImage: state.updateImage,
-      }))
-    );
+  const {
+    block,
+    shareUrl,
+    shareUrlTab,
+    setShareUrlTab,
+    updateShareUrl,
+    updateImage,
+  } = useEditorStore(
+    useShallow(state => ({
+      block: state.block,
+      shareUrl: state.shareUrl,
+      shareUrlTab: state.shareUrlTab,
+      setShareUrlTab: state.setShareUrlTab,
+      updateShareUrl: state.updateShareUrl,
+      updateImage: state.updateImage,
+    }))
+  );
 
   const placeBlock = block.find(
     (b): b is EditorBlock<'place'> => b.component === 'place'
   );
   const hasValidLocation = Boolean(
     placeBlock &&
-      typeof placeBlock.props.lat === 'number' &&
-      typeof placeBlock.props.lng === 'number'
+    typeof placeBlock.props.lat === 'number' &&
+    typeof placeBlock.props.lng === 'number'
   );
 
   useEffect(() => {
@@ -129,7 +135,7 @@ function ShareUrl() {
           <MultiRowInput
             key={`desc-${shareUrlTab}`}
             size="full"
-            className="text-center py-[46px]"
+            className="text-center pt-12.5"
             name={shareUrlTab === 'kakao' ? 'description' : 'urlDescription'}
             placeholder="내용을 입력해 주세요."
             onChange={handleChange}
@@ -159,9 +165,9 @@ function ShareUrl() {
                 disabled={!hasValidLocation}
                 name="showLocationButton"
               >
-                <p className="font-normal text-text-secondary text-[13px]">
+                <span className="text-text-secondary text-[13px]">
                   위치보기 버튼 추가
-                </p>
+                </span>
               </Checkbox>
             </div>
           </div>

@@ -70,7 +70,7 @@ function BodyEdit({
         activeColorPickerId={activeColorPickerId}
         onActiveColorPickerChange={onActiveColorPickerChange}
       >
-        <div className="w-full h-full flex flex-col gap-1">
+        <div className="w-full h-full flex flex-col gap-1 px-3">
           <p
             className="font-base text-base"
             style={toStyle(bulkBodyData, false)}

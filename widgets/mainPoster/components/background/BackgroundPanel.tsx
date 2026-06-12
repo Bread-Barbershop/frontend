@@ -18,7 +18,7 @@ export const BackgroundPanel = () => {
   };
 
   return (
-    <LeftEditorWrapper ariaLabel="배경 편집">
+    <LeftEditorWrapper ariaLabel="배경 편집" className="pb-0">
       <NavigationBar>배경</NavigationBar>
       <div className="flex w-full items-center justify-center gap-2 pb-1.5">
         <button

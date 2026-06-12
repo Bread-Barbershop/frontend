@@ -109,7 +109,7 @@ function LoginModal({
           type="button"
           onClick={onGoogleLogin}
           disabled={isLoading}
-          className="relative flex h-11 w-[352px] cursor-pointer items-center justify-center rounded-lg border border-[#e5e7eb] bg-white px-2 py-1.5 text-[15px] font-medium text-[#111827] enabled:hover:bg-[#FAFAFB] enabled:active:bg-[#F5F8FF] disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="relative flex h-11 w-[352px] cursor-pointer items-center justify-center rounded-lg border border-[#e5e7eb] bg-white px-2 py-1.5 text-[15px] font-medium text-[#111827] enabled:hover:bg-[#FAFAFB] enabled:active:bg-[#F5F8FF] disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Image
             src="/assets/icons/google-icon.svg"

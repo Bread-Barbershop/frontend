@@ -82,14 +82,12 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
           label="영문제목"
           inputProps={{
             placeholder: 'ORGANIZER INFORMATION',
-            value:
-              englishTitle === 'ORGANIZER INFORMATION' ? '' : englishTitle,
+            value: englishTitle === 'ORGANIZER INFORMATION' ? '' : englishTitle,
             onChange: e =>
               handleValueChange(
                 'englishTitle',
                 undefined,
-                sanitizeEnglishTitleInput(e.target) ||
-                  'ORGANIZER INFORMATION'
+                sanitizeEnglishTitleInput(e.target) || 'ORGANIZER INFORMATION'
               ),
           }}
           className="text-center w-full"
@@ -126,17 +124,18 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
         <Label className="font-semibold">추가기능</Label>
         <div className="flex-col">
           <Checkbox
-            className="text-[13px]"
             checked={checkedEnglishTitle}
             onChange={handleCheckedChange}
           >
-            영문 제목 추가
+            <span className="text-[13px]">영문 제목 추가</span>
           </Checkbox>
           <Checkbox
             checked={hasUrl}
             onChange={() => handleValueChange('hasUrl', undefined, !hasUrl)}
           >
-            <p className={hasUrl ? 'text-text-primary' : 'text-text-secondary'}>
+            <p
+              className={`text-[13px] ${hasUrl ? 'text-text-primary' : 'text-text-secondary'}`}
+            >
               로고 클릭 시 주최사 홈페이지 접속 가능
             </p>
           </Checkbox>

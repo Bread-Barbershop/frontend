@@ -225,7 +225,7 @@ const UrlShareUrlView = ({ shareUrl }: { shareUrl: ShareUrlState }) => {
           )}
           style={GLASS_BACKGROUND_STYLE}
         >
-          <span className="min-w-0 flex-1 truncate text-[16px] tracking-[0.64px] text-[#C4C4C6]">
+          <span className="min-w-0 flex-1 truncate text-[14px] tracking-[0.64px] text-[#C4C4C6]">
             미리보기 예시입니다.
           </span>
           <MicIcon className="size-[17px] shrink-0" />
@@ -246,8 +246,8 @@ const KakaoShareUrlView = ({ shareUrl }: { shareUrl: ShareUrlState }) => {
   );
   const hasValidLocation = Boolean(
     placeBlock &&
-      typeof placeBlock.props.lat === 'number' &&
-      typeof placeBlock.props.lng === 'number'
+    typeof placeBlock.props.lat === 'number' &&
+    typeof placeBlock.props.lng === 'number'
   );
   const {
     title,
