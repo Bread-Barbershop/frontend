@@ -226,18 +226,16 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
       <section className="flex w-full -mx-2 gap-1 py-1.5">
         <Label className="font-semibold">추가기능</Label>
         <Checkbox
-          className="text-[13px]"
           checked={checkedEnglishTitle}
           onChange={e => handleCheckedChange(e, 'checkedEnglishTitle')}
         >
-          영문 제목 추가
+          <span className="text-[13px]">영문 제목 추가</span>
         </Checkbox>
         <Checkbox
-          className="text-[13px]"
           checked={checkedMessage}
           onChange={e => handleCheckedChange(e, 'checkedMessage')}
         >
-          내용 추가
+          <span className="text-[13px]">내용 추가</span>
         </Checkbox>
       </section>
     </LeftEditorWrapper>

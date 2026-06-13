@@ -168,12 +168,8 @@ export const MyChild = ({ blockInfo, id }: Props) => {
 
       <section className="flex w-full -mx-2 gap-1 py-1.5">
         <Label className="font-semibold">추가기능</Label>
-        <Checkbox
-          className="text-[13px]"
-          checked={checkedEnglishTitle}
-          onChange={handleCheckedChange}
-        >
-          영문 제목 추가
+        <Checkbox checked={checkedEnglishTitle} onChange={handleCheckedChange}>
+          <span className="text-[13px]">영문 제목 추가</span>
         </Checkbox>
       </section>
     </LeftEditorWrapper>

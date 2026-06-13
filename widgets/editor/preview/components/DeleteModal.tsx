@@ -68,14 +68,14 @@ const DeleteModal = forwardRef<HTMLDivElement, DeleteModalProps>(
           <div className="flex items-center justify-center gap-5 mb-3">
             <button
               type="button"
-              className="text-[13px] text-status-error rounded-lg w-[66px] h-8 hover:bg-[#FFE8E8]/32 focus:outline-none focus:ring-2 focus:ring-status-error focus:ring-offset-2"
+              className="text-[13px] text-status-error rounded-lg w-[66px] h-8 hover:bg-[#FFE8E8]/32"
               onClick={onDelete}
             >
               예
             </button>
             <button
               type="button"
-              className="text-[13px] text-text-primary rounded-lg w-[66px] h-8 hover:bg-[#FFE8E8]/32 focus:outline-none focus:ring-2 focus:ring-text-primary focus:ring-offset-2"
+              className="text-[13px] text-text-primary rounded-lg w-[66px] h-8 hover:bg-[#FFE8E8]/32"
               onClick={() => setIsDeleteModal(false)}
             >
               아니오

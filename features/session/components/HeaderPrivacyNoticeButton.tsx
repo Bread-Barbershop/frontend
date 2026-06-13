@@ -20,7 +20,7 @@ function HeaderPrivacyNoticeButton() {
         onClick={() => setIsOpen(true)}
         className={HEADER_PRIVACY_BUTTON_CLASS}
       >
-        개인정보 걱정 없어요.
+        개인정보 걱정 없어요
       </button>
       <PrivacyNoticeModal open={isOpen} onClose={handleClose} />
     </>

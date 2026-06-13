@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { isGuestPayload } from '@/app/guest/[id]/utils/guestBlockTypeGuards';
+import { parseGuestPayload } from '@/app/guest/[id]/validation/parseGuestPayload';
 
 export type ProbeFailureReason =
   | 'fetch_failed'
@@ -87,7 +87,7 @@ export async function probeGuestData(
     };
   }
 
-  if (!isGuestPayload(parsed)) {
+  if (!parseGuestPayload(parsed).ok) {
     return { ok: false, status: res.status, reason: 'invalid_schema' };
   }
 

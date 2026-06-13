@@ -139,12 +139,12 @@ function Gallery({ blockInfo, id }: Props) {
               onChange={handleEnglishTitleChange}
               checked={isEnglishTitle}
             >
-              <p className="font-normal text-[13px]">영문 제목 추가</p>
+              <span className="text-[13px]">영문 제목 추가</span>
             </Checkbox>
             <Checkbox onChange={handlePopViewChange} checked={isPopupViewer}>
-              <p className="font-normal text-[13px]">
+              <span className="text-[13px]">
                 팝업뷰어(사진을 터치하여 크게 볼 수 있어요.)
-              </p>
+              </span>
             </Checkbox>
           </div>
         </div>

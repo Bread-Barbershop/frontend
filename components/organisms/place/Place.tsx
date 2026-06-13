@@ -90,7 +90,7 @@ export function Place({ blockInfo, id }: Props) {
   return (
     <>
       <NaverMapScript onReady={() => setIsScriptLoaded(true)} />
-      <LeftEditorWrapper className="pb-3" ariaLabel={defaultTitle}>
+      <LeftEditorWrapper ariaLabel={defaultTitle}>
         <div className="flex flex-col gap-1 w-full">
           <NavigationBar>{defaultTitle} 편집 페이지</NavigationBar>
           <TextField
@@ -209,14 +209,14 @@ export function Place({ blockInfo, id }: Props) {
                 }
                 checked={checkedEnglishTitle}
               >
-                영문 제목 추가
+                <span className="text-[13px]">영문 제목 추가</span>
               </Checkbox>
               <Checkbox
                 direction="right"
                 onChange={() => handleUpdateBlock('openMap', !openMap)}
                 checked={openMap}
               >
-                지도
+                <span className="text-[13px]">지도</span>
               </Checkbox>
             </div>
           </div>
@@ -230,20 +230,22 @@ export function Place({ blockInfo, id }: Props) {
               <Label className="font-semibold">추가기능</Label>
               <div>
                 <Checkbox
-                  className="text-[13px]"
                   direction="right"
                   onChange={() => handleUpdateBlock('openNavi', !openNavi)}
                   checked={openNavi}
                 >
-                  내비 앱 바로가기 버튼(카카오, 티맵, 네이버)
+                  <span className="text-[13px]">
+                    내비 앱 바로가기 버튼(카카오, 티맵, 네이버)
+                  </span>
                 </Checkbox>
                 <Checkbox
-                  className="text-[13px]"
                   direction="right"
                   onChange={() => handleUpdateBlock('mapLocked', !mapLocked)}
                   checked={Boolean(mapLocked)}
                 >
-                  위치 고정(지도가 움직이지 않아요.)
+                  <span className="text-[13px]">
+                    위치 고정(지도가 움직이지 않아요.)
+                  </span>
                 </Checkbox>
               </div>
             </section>

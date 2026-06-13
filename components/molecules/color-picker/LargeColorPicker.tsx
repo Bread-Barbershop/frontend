@@ -35,7 +35,7 @@ function LargeColorPicker({
   return (
     <div
       className={cn(
-        'box-border flex w-93.75 flex-col gap-5 rounded-lg border bg-white px-5 pb-5',
+        'box-border flex w-93.75 flex-col gap-5 rounded-lg border bg-white px-5',
         showHeader ? 'pt-0' : 'pt-5',
         className
       )}

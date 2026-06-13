@@ -68,7 +68,7 @@ function TitleEdit({
           onActiveColorPickerChange={onActiveColorPickerChange}
         >
           <div
-            className={`w-full h-full flex flex-col gap-1 ${
+            className={`w-full h-full flex flex-col gap-1  ${
               bulkTitleData.font.startsWith('var(--')
                 ? bulkTitleData.font.slice(6, -1)
                 : bulkTitleData.font

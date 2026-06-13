@@ -136,7 +136,7 @@ export const Group = ({
                 )
               }
             >
-              간편 송금(카카오페이)
+              <span className="text-[13px]">간편 송금(카카오페이)</span>
             </Checkbox>
           </div>
         </div>

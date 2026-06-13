@@ -62,7 +62,8 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
           className="py-1.5 text-center"
           inputProps={{
             placeholder: '후원사',
-            value: blockInfo.props.title === '후원사' ? '' : blockInfo.props.title,
+            value:
+              blockInfo.props.title === '후원사' ? '' : blockInfo.props.title,
             onChange: handleOnChangeTitle,
           }}
         />
@@ -105,7 +106,7 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
           onChange={handleOnChangeIsEnglishTitle}
           checked={blockInfo.props.isEnglishTitle}
         >
-          영문 제목 추가
+          <span className="text-[13px]">영문 제목 추가</span>
         </Checkbox>
       </div>
     </LeftEditorWrapper>

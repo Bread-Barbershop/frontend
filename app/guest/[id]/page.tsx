@@ -1,38 +1,23 @@
 import 'server-only';
 
-import Image from 'next/image';
 import { notFound } from 'next/navigation';
 
-import inviaLogo3d from '@/shared/assets/logo/invia-simple-logo-3d.png';
 import {
   resolveShareDescription,
   resolveShareImageUrl,
   resolveShareTitle,
 } from '@/shared/utils/shareUrlDefaults';
 
+import { GuestAccessNotice } from './components/GuestAccessNotice';
 import GuestBgm from './components/GuestBgm';
 import { GuestMainPoster } from './components/GuestMainPoster';
 import GuestRenderer from './components/GuestRenderer';
-import { isGuestPayload } from './utils/guestBlockTypeGuards';
+import { loadGuestPayload } from './server/loadGuestPayload';
 
 import type { Metadata } from 'next';
-import type { ReactNode } from 'react';
 
 export const dynamic = 'force-static';
 export const revalidate = false;
-
-function publicDataJsonUrl(fileId: string) {
-  return `https://drive.google.com/uc?export=download&id=${encodeURIComponent(fileId)}`;
-}
-
-function isPrivateDriveStatus(status: number) {
-  return status === 401 || status === 403 || status === 404;
-}
-
-function isPrivateDriveBody(raw: string) {
-  const head = raw.trimStart().slice(0, 120).toLowerCase();
-  return head.startsWith('<!doctype') || head.startsWith('<html');
-}
 
 function renderPrivateInvitationNotice() {
   return (
@@ -48,46 +33,6 @@ function renderPrivateInvitationNotice() {
   );
 }
 
-function GuestAccessNotice({
-  title,
-  description,
-}: {
-  title: string;
-  description: ReactNode;
-}) {
-  return (
-    <main className="flex min-h-dvh items-center justify-center bg-[#F6F7F9] px-5 py-10">
-      <section className="w-full max-w-[390px] rounded-[28px] border border-black/5 bg-white px-7 py-9 text-center shadow-[0_24px_80px_-40px_rgb(17_24_39_/_45%)] sm:max-w-[430px] sm:px-9 sm:py-10">
-        <div className="mx-auto mb-7 flex h-[108px] w-[108px] items-center justify-center rounded-[32px] bg-[#F8FAFC] shadow-inner">
-          <Image
-            src={inviaLogo3d}
-            alt="Invia"
-            width={82}
-            height={82}
-            priority
-            className="h-[82px] w-[82px] object-contain"
-          />
-        </div>
-        <p className="mb-3 font-pretendard text-[12px] font-bold tracking-[0.2em] text-[#9AA3AF]">
-          PRIVATE INVITATION
-        </p>
-        <h1 className="font-pretendard text-[24px] font-bold leading-8 tracking-[-0.02em] text-[#111827] sm:text-[26px] sm:leading-9">
-          {title}
-        </h1>
-        <p className="mx-auto mt-4 flex max-w-[300px] flex-col font-pretendard text-[15px] font-medium leading-7 text-[#6B7280]">
-          {description}
-        </p>
-        <div className="mt-7 rounded-2xl bg-[#F8FAFC] px-4 py-3 font-pretendard text-[13px] font-semibold leading-5 text-[#4B5563]">
-          <span className="block">잠시 후 다시 열어보거나,</span>
-          <span className="block">
-            초대장을 보내준 분에게 공개 상태를 확인해 주세요.
-          </span>
-        </div>
-      </section>
-    </main>
-  );
-}
-
 export async function generateMetadata({
   params,
 }: {
@@ -96,28 +41,12 @@ export async function generateMetadata({
   const { id } = await params;
 
   try {
-    const res = await fetch(publicDataJsonUrl(id), {
-      next: { tags: [`invitation:${id}`] },
-    });
-
-    if (!res.ok) return {};
-
-    const raw = await res.text();
-    if (isPrivateDriveBody(raw)) {
+    const result = await loadGuestPayload(id);
+    if (result.status !== 'ok') {
       return {};
     }
 
-    let payload: unknown;
-    try {
-      payload = JSON.parse(raw);
-    } catch {
-      return {};
-    }
-
-    if (!isGuestPayload(payload)) {
-      return {};
-    }
-
+    const { payload } = result;
     const topLevelShare = payload.shareUrl;
     const title = resolveShareTitle(topLevelShare?.urlTitle);
     const description = resolveShareDescription(topLevelShare?.urlDescription);
@@ -153,32 +82,16 @@ export default async function GuestPage({
 }) {
   const { id } = await params;
 
-  const res = await fetch(publicDataJsonUrl(id), {
-    next: { tags: [`invitation:${id}`] },
-  });
-
-  if (!res.ok) {
-    if (isPrivateDriveStatus(res.status)) {
-      return renderPrivateInvitationNotice();
-    }
-
-    notFound();
-  }
-
-  const raw = await res.text();
-  if (isPrivateDriveBody(raw)) {
+  const result = await loadGuestPayload(id);
+  if (result.status === 'private') {
     return renderPrivateInvitationNotice();
   }
 
-  let payload: unknown;
-  try {
-    payload = JSON.parse(raw);
-  } catch {
+  if (result.status === 'not-found') {
     notFound();
   }
-  if (!isGuestPayload(payload)) {
-    notFound();
-  }
+
+  const { payload } = result;
 
   return (
     <main className="min-h-screen bg-neutral-50">
@@ -196,7 +109,11 @@ export default async function GuestPage({
           thumbnailFileId={payload.mainPoster.thumbnailFileId ?? ''}
         />
         <div className="mx-auto w-full">
-          <GuestRenderer blocks={payload.blocks} bulkData={payload.bulkData} />
+          <GuestRenderer
+            blocks={payload.blocks}
+            bulkData={payload.bulkData}
+            renderHints={payload.renderHints}
+          />
         </div>
       </div>
     </main>

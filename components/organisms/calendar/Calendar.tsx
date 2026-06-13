@@ -119,7 +119,7 @@ export function Calendar({ blockInfo, id }: Props) {
     <LeftEditorWrapper ariaLabel="행사 일시">
       <NavigationBar>{defaultTitle}</NavigationBar>
 
-      <div className="w-full flex flex-col gap-3">
+      <div className="w-full flex flex-col gap-3 mb-2">
         <TextField
           key={`title-${id}`}
           label="제목"
@@ -181,58 +181,61 @@ export function Calendar({ blockInfo, id }: Props) {
         >
           디데이&카운트다운
         </NavigationBar>
-        <div className="flex flex-col items-center gap-2 w-full ">
-          <div>
-            <TextEditor
-              key={id}
-              ref={textEditorRef}
-              value={blockInfo.props.messageJson}
-              defaultText={
-                blockInfo.type === 'wedding'
-                  ? '신랑과 신부의 특별한 약속이 이루어지기까지 (D-Day)일이 남았습니다.'
-                  : '내용을 입력해주세요.'
-              }
-              defaultAlign="center"
-              onChange={handleEditorChange}
-            />
-          </div>
-          <div className="flex items-center gap-2 w-full mb-4">
-            <Label className="w-14 text-center font-semibold shrink-0">
-              추가기능
-            </Label>
-            <div className="flex flex-col">
-              <div className="flex gap-3">
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-col items-center gap-2 w-full ">
+            <div className="w-full">
+              <TextEditor
+                key={id}
+                ref={textEditorRef}
+                value={blockInfo.props.messageJson}
+                defaultText={
+                  blockInfo.type === 'wedding'
+                    ? '신랑과 신부의 특별한 약속이 이루어지기까지 (D-Day)일이 남았습니다.'
+                    : '내용을 입력해주세요.'
+                }
+                defaultAlign="center"
+                onChange={handleEditorChange}
+              />
+            </div>
+
+            <div className="flex items-center gap-2 w-full">
+              <Label className="w-14 text-center font-semibold shrink-0">
+                추가기능
+              </Label>
+              <div className="flex flex-col">
+                <div className="flex gap-3">
+                  <Checkbox
+                    checked={blockInfo.props.isEnglishTitle}
+                    onChange={handleEnglishTitleCheck}
+                  >
+                    <span className="text-[13px]">영문 제목 추가</span>
+                  </Checkbox>
+                  <Checkbox
+                    checked={blockInfo.props.showDday}
+                    onChange={handleShowDdayChange}
+                  >
+                    <span className="text-[13px]">디데이&카운트다운</span>
+                  </Checkbox>
+                </div>
                 <Checkbox
-                  checked={blockInfo.props.isEnglishTitle}
-                  onChange={handleEnglishTitleCheck}
+                  checked={blockInfo.props.showCalendar}
+                  onChange={handleShowCalendarChange}
                 >
-                  영문 제목 추가
-                </Checkbox>
-                <Checkbox
-                  checked={blockInfo.props.showDday}
-                  onChange={handleShowDdayChange}
-                >
-                  디데이&카운트다운
+                  <span className="text-[13px]">캘린더</span>
                 </Checkbox>
               </div>
-              <Checkbox
-                checked={blockInfo.props.showCalendar}
-                onChange={handleShowCalendarChange}
-              >
-                캘린더
-              </Checkbox>
             </div>
           </div>
+          <EditorNoticeList
+            notices={[
+              {
+                id: 'calendar-dday',
+                text: '디데이 버튼 클릭 시 (D-Day)가 추가되며, (D-Day)에 남은 일수가 표시됩니다.',
+                colorClass: 'text-[#1F72EF]',
+              },
+            ]}
+          />
         </div>
-        <EditorNoticeList
-          notices={[
-            {
-              id: 'calendar-dday',
-              text: '디데이 버튼 클릭 시 (D-Day)가 추가되며, (D-Day)에 남은 일수가 표시됩니다.',
-              colorClass: 'text-[#1F72EF]',
-            },
-          ]}
-        />
       </div>
     </LeftEditorWrapper>
   );

@@ -54,33 +54,72 @@
     will-change: transform;
   }
   .dashboard-skeleton-card {
-    background-color: rgb(92 92 92 / 38%);
-    animation: dashboard-skeleton-card-glow 1.8s ease-in-out infinite;
+    background-color: #eff3f7;
+    --dashboard-skeleton-pulse-duration: 2.8s;
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 62%),
+      0 18px 44px -36px rgb(15 23 42 / 44%);
+    animation: dashboard-skeleton-card-pulse
+      var(--dashboard-skeleton-pulse-duration, 2.8s) ease-in-out infinite;
     animation-delay: var(--dashboard-skeleton-delay, 0ms);
     will-change: background-color;
   }
-  .dashboard-skeleton-shimmer {
-    position: absolute;
-    inset: 0;
+  .dashboard-skeleton-action-surface {
+    position: relative;
     overflow: hidden;
+    background-color: rgb(255 255 255 / 72%);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 60%),
+      0 10px 24px -20px rgb(15 23 42 / 45%);
   }
-  .dashboard-skeleton-shimmer::before {
+  .dashboard-skeleton-action-surface::after {
     content: '';
     position: absolute;
-    top: -20%;
-    bottom: -20%;
-    left: 0;
-    width: 60%;
-    transform: translateX(-120%) skewX(-18deg);
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgb(255 255 255 / 12%),
-      transparent
-    );
-    animation: dashboard-skeleton-shimmer 1.8s linear infinite;
+    inset: 0;
+    background-color: rgb(255 255 255 / 22%);
+    opacity: 0;
+    animation: dashboard-skeleton-fill-pulse
+      var(--dashboard-skeleton-pulse-duration, 2.8s) ease-in-out infinite;
     animation-delay: var(--dashboard-skeleton-delay, 0ms);
-    will-change: transform;
+    will-change: opacity;
+  }
+  .dashboard-skeleton-line {
+    position: relative;
+    overflow: hidden;
+    background-color: #d6dee8;
+  }
+  .dashboard-skeleton-line::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: rgb(255 255 255 / 42%);
+    opacity: 0;
+    animation: dashboard-skeleton-fill-pulse
+      var(--dashboard-skeleton-pulse-duration, 2.8s) ease-in-out infinite;
+    animation-delay: var(--dashboard-skeleton-delay, 0ms);
+    will-change: opacity;
+  }
+  .dashboard-skeleton-media {
+    overflow: hidden;
+    border: 1px solid rgb(148 163 184 / 18%);
+    background-color: #d8e1ec;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 54%),
+      0 14px 34px -32px rgb(15 23 42 / 36%);
+    animation: dashboard-skeleton-media-pulse
+      var(--dashboard-skeleton-pulse-duration, 2.8s) ease-in-out infinite;
+    animation-delay: var(--dashboard-skeleton-delay, 0ms);
+    will-change: background-color;
+  }
+  .dashboard-skeleton-media::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: rgb(255 255 255 / 38%);
+    opacity: 0;
+    animation: dashboard-skeleton-fill-pulse
+      var(--dashboard-skeleton-pulse-duration, 2.8s) ease-in-out infinite;
+    animation-delay: var(--dashboard-skeleton-delay, 0ms);
   }
   .sub-title {
     font-size: 13px;
@@ -134,25 +173,51 @@
   }
 }
 
-@keyframes dashboard-skeleton-shimmer {
-  0% {
-    transform: translateX(-120%) skewX(-18deg);
-  }
+@keyframes dashboard-skeleton-fill-pulse {
+  0%,
   100% {
-    transform: translateX(320%) skewX(-18deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.18;
+  }
+  50% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.18;
   }
 }
 
-@keyframes dashboard-skeleton-card-glow {
+@keyframes dashboard-skeleton-card-pulse {
   0%,
   100% {
-    background-color: rgb(92 92 92 / 38%);
+    background-color: #e8eef5;
   }
-  48% {
-    background-color: rgb(172 172 172 / 54%);
+  20% {
+    background-color: #edf2f7;
   }
-  72% {
-    background-color: rgb(92 92 92 / 38%);
+  50% {
+    background-color: #f4f7fa;
+  }
+  80% {
+    background-color: #edf2f7;
+  }
+}
+
+@keyframes dashboard-skeleton-media-pulse {
+  0%,
+  100% {
+    background-color: #cbd7e4;
+  }
+  20% {
+    background-color: #d2ddea;
+  }
+  50% {
+    background-color: #dbe4ef;
+  }
+  80% {
+    background-color: #d2ddea;
   }
 }
 
@@ -190,7 +255,9 @@
   .dashboard-skeleton-card {
     animation: none;
   }
-  .dashboard-skeleton-shimmer::before {
+  .dashboard-skeleton-action-surface::after,
+  .dashboard-skeleton-line::after,
+  .dashboard-skeleton-media::before {
     animation: none;
   }
 }

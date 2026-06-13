@@ -56,7 +56,7 @@ const guestMainPosterMock = jest.fn((props: { thumbnailFileId: string }) => {
 });
 
 const guestRendererMock = jest.fn(
-  (props: { blocks: unknown; bulkData: unknown }) => {
+  (props: { blocks: unknown; bulkData: unknown; renderHints?: unknown }) => {
     return React.createElement(
       'div',
       { 'data-testid': 'guest-renderer' },
@@ -211,6 +211,7 @@ describe('GuestPage 서버 컴포넌트 테스트', () => {
     expect(guestRendererMock).toHaveBeenCalledWith({
       blocks: validGuestPayload.blocks,
       bulkData: validGuestPayload.bulkData,
+      renderHints: undefined,
     });
 
     expect(guestBgmMock).toHaveBeenCalledWith({
@@ -222,6 +223,86 @@ describe('GuestPage 서버 컴포넌트 테스트', () => {
     expect(html).toContain('data-testid="guest-bgm"');
     expect(html).toContain('max-w-[430px]');
     expect(html).toContain('min-w-[375px]');
+  });
+
+  it('payload block props를 정규화한 뒤 GuestRenderer에 전달한다', async () => {
+    const payloadWithPartialBlock = {
+      ...validGuestPayload,
+      blocks: [
+        {
+          id: 'gallery-block-id',
+          type: 'wedding',
+          component: 'gallery',
+          props: {
+            images: ['drive-image-file-id'],
+          },
+        },
+      ],
+    };
+
+    mockFetch.mockResolvedValue({
+      ok: true,
+      text: jest
+        .fn()
+        .mockResolvedValue(JSON.stringify(payloadWithPartialBlock)),
+    });
+
+    const pageElement = await GuestPage({
+      params: Promise.resolve({ id: 'partial-block-file-id' }),
+    });
+    renderToStaticMarkup(pageElement);
+
+    expect(guestRendererMock).toHaveBeenCalledWith({
+      blocks: [
+        {
+          id: 'gallery-block-id',
+          type: 'wedding',
+          component: 'gallery',
+          props: expect.objectContaining({
+            title: '갤러리',
+            images: ['drive-image-file-id'],
+            template: 'galleryType1',
+            ratio: '1:1',
+          }),
+        },
+      ],
+      bulkData: {
+        ...validGuestPayload.bulkData,
+        isZoom: false,
+      },
+      renderHints: undefined,
+    });
+  });
+
+  it('renderHints가 있으면 GuestRenderer에 함께 전달한다', async () => {
+    const payloadWithRenderHints = {
+      ...validGuestPayload,
+      renderHints: {
+        schemaVersion: 1,
+        fonts: ['Pretendard'],
+        primaryImageFileIds: ['poster-thumbnail-file-id'],
+        aboveTheFoldBlockIds: [],
+      },
+    };
+
+    mockFetch.mockResolvedValue({
+      ok: true,
+      text: jest.fn().mockResolvedValue(JSON.stringify(payloadWithRenderHints)),
+    });
+
+    const pageElement = await GuestPage({
+      params: Promise.resolve({ id: 'render-hints-file-id' }),
+    });
+    renderToStaticMarkup(pageElement);
+
+    expect(guestRendererMock).toHaveBeenCalledWith({
+      blocks: validGuestPayload.blocks,
+      bulkData: {
+        ...validGuestPayload.bulkData,
+        isZoom: false,
+      },
+      renderHints: payloadWithRenderHints.renderHints,
+    });
   });
 
   it('fetch 실패(res.ok === false)면 notFound()를 호출한다', async () => {

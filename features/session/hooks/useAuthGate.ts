@@ -58,9 +58,7 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
 
   const popupRef = useRef<Window | null>(null);
   const pendingActionRef = useRef<(() => void | Promise<void>) | null>(null);
-  const postNoticeActionRef = useRef<(() => void | Promise<void>) | null>(
-    null
-  );
+  const openLoginAfterNoticeRef = useRef(false);
 
   const releaseLoginPending = useCallback(() => {
     popupRef.current = null;
@@ -73,6 +71,7 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
     setIsLoginPending(false);
     setIsLoginOpen(false);
     pendingActionRef.current = null;
+    openLoginAfterNoticeRef.current = false;
 
     if (closePopup && popup) {
       try {
@@ -93,18 +92,21 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
 
     const pendingAction = pendingActionRef.current;
     pendingActionRef.current = null;
-    postNoticeActionRef.current = pendingAction;
-    setIsPrivacyNoticeOpen(true);
-  }, [success]);
+
+    if (pendingAction) {
+      void Promise.resolve(pendingAction()).catch(console.error);
+      return;
+    }
+
+    router.refresh();
+  }, [router, success]);
 
   const closePrivacyNotice = useCallback(() => {
     setIsPrivacyNoticeOpen(false);
 
-    const postNoticeAction = postNoticeActionRef.current;
-    postNoticeActionRef.current = null;
-
-    if (postNoticeAction) {
-      void Promise.resolve(postNoticeAction()).catch(console.error);
+    if (openLoginAfterNoticeRef.current) {
+      openLoginAfterNoticeRef.current = false;
+      setIsLoginOpen(true);
       return;
     }
 
@@ -155,7 +157,8 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
   }, [completeLoginSuccess, isLoginPending, releaseLoginPending]);
 
   const login = () => {
-    setIsLoginOpen(true);
+    openLoginAfterNoticeRef.current = true;
+    setIsPrivacyNoticeOpen(true);
   };
 
   const closeLogin = () => {
@@ -181,7 +184,7 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
 
       if (!isSessionValid) {
         pendingActionRef.current = null;
-        postNoticeActionRef.current = null;
+        openLoginAfterNoticeRef.current = false;
         setIsLoggedIn(false);
         setIsLoginOpen(false);
         setIsPrivacyNoticeOpen(false);
@@ -210,7 +213,7 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
 
       setIsLoggedIn(false);
       setIsPrivacyNoticeOpen(false);
-      postNoticeActionRef.current = null;
+      openLoginAfterNoticeRef.current = false;
       router.replace('/');
       router.refresh();
     } catch (err) {

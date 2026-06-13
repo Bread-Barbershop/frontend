@@ -42,6 +42,7 @@ interface SelectorProps<T extends Option> {
   optionLabelClassName?: string;
   customInputClassName?: string;
   onInputChange?: (value: string) => void;
+  onInputBlur?: () => void;
   onSelect: (option: T) => void;
   selected: T | null;
   showCheckbox?: boolean;
@@ -70,6 +71,7 @@ export const Selector = <T extends Option>({
   customInputClassName,
   onSelect,
   onInputChange,
+  onInputBlur,
   selected,
   showCheckbox = true,
   addPopWidth = 0,
@@ -238,14 +240,16 @@ export const Selector = <T extends Option>({
               'w-full h-8 px-2 bg-transparent outline-none text-text-primary text-sm',
               customInputClassName
             )}
-            value={typeof selected?.value === 'string' ? selected.value : ''}
+            value={typeof selected?.label === 'string' ? selected.label : ''}
             onChange={handleInputChange}
             onBlur={() => {
               setIsCustomInput(false);
+              onInputBlur?.();
             }}
             onKeyDown={e => {
               if (e.key === 'Enter' || e.key === 'Escape') {
                 setIsCustomInput(false);
+                onInputBlur?.();
               }
             }}
           />
