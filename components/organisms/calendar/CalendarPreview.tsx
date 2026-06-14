@@ -15,6 +15,7 @@ interface Props {
   className: string;
   language: 'ko' | 'en';
   titleClassName?: string;
+  isGuestPage?: boolean;
   onClick: () => void;
 }
 
@@ -23,6 +24,7 @@ export function CalendarPreview({
   className,
   language,
   titleClassName,
+  isGuestPage: _isGuestPage,
   ...rest
 }: Props) {
   const {
