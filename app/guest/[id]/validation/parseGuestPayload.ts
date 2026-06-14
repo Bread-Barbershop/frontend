@@ -30,6 +30,10 @@ export type GuestPayloadWarning = GuestBlockWarning;
 
 export type NormalizedGuestPayload = GuestPayload;
 
+type GuestShareLocationInfo = NonNullable<
+  NonNullable<GuestPayload['shareUrl']>['locationInfo']
+>;
+
 export type GuestPayloadParseResult =
   | {
       ok: true;
@@ -157,6 +161,27 @@ function normalizeGuestBlocks(blocks: unknown[]) {
   return { blocks: normalizedBlocks, warnings };
 }
 
+function normalizeShareLocationInfo(
+  value: unknown
+): GuestShareLocationInfo | null | undefined {
+  if (value === undefined) return undefined;
+
+  if (
+    !isRecord(value) ||
+    typeof value.lat !== 'number' ||
+    typeof value.lng !== 'number' ||
+    typeof value.placeName !== 'string'
+  ) {
+    return null;
+  }
+
+  return {
+    lat: value.lat,
+    lng: value.lng,
+    placeName: value.placeName,
+  };
+}
+
 function normalizeShareUrl(
   shareUrl: unknown
 ): GuestPayload['shareUrl'] | undefined {
@@ -175,13 +200,8 @@ function normalizeShareUrl(
     return undefined;
   }
 
-  if (
-    shareUrl.locationInfo !== undefined &&
-    (!isRecord(shareUrl.locationInfo) ||
-      typeof shareUrl.locationInfo.lat !== 'number' ||
-      typeof shareUrl.locationInfo.lng !== 'number' ||
-      typeof shareUrl.locationInfo.placeName !== 'string')
-  ) {
+  const locationInfo = normalizeShareLocationInfo(shareUrl.locationInfo);
+  if (locationInfo === null) {
     return undefined;
   }
 
@@ -193,7 +213,7 @@ function normalizeShareUrl(
     urlDescription: shareUrl.urlDescription,
     urlImage: shareUrl.urlImage,
     showLocationButton: shareUrl.showLocationButton,
-    ...(shareUrl.locationInfo ? { locationInfo: shareUrl.locationInfo } : {}),
+    ...(locationInfo ? { locationInfo } : {}),
   };
 }
 
