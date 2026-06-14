@@ -15,29 +15,24 @@ export type EnsureWorkspaceResult = {
   reused: boolean; // true면 기존 폴더 재사용, false면 새로 생성
 };
 
-const WORKSPACE_NAME = '나의 모바일 청첩장';
+const WORKSPACE_NAME = '모바일 초대장 invia';
+const LEGACY_WORKSPACE_NAME = '나의 모바일 청첩장';
 const APP_IDENTIFIER = 'Bread-Barbershop';
 
-/**
- * Google Drive에서 우리 서비스의 워크스페이스 폴더를 "보장"한다.
- * - 있으면 재사용(reused: true)
- * - 없으면 생성(reused: false)
- *
- * 실패 시 Error를 throw하며, status는 상위(라우트핸들러)에서 해석한다.
- */
-export async function ensureWorkspace(): Promise<EnsureWorkspaceResult> {
-  // 검색 쿼리 구성
-  const q = [
-    `name='${escapeDriveQueryValue(WORKSPACE_NAME)}'`,
+function createWorkspaceQuery(name: string) {
+  return [
+    `name='${escapeDriveQueryValue(name)}'`,
     `mimeType='application/vnd.google-apps.folder'`,
     `trashed=false`,
     `appProperties has { key='app_id' and value='${escapeDriveQueryValue(
       APP_IDENTIFIER
     )}' }`,
   ].join(' and ');
+}
 
+async function findWorkspaceByName(name: string): Promise<DriveFile | null> {
   const searchParams = new URLSearchParams({
-    q,
+    q: createWorkspaceQuery(name),
     spaces: 'drive',
     fields: 'files(id,name,createdTime)',
     orderBy: 'createdTime',
@@ -61,9 +56,47 @@ export async function ensureWorkspace(): Promise<EnsureWorkspaceResult> {
     );
   }
 
-  const existing = searchData.files?.[0];
+  return searchData.files?.[0] ?? null;
+}
+
+async function renameWorkspaceFolder(folderId: string): Promise<void> {
+  const updateRes = await googleFetch(
+    `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(
+      folderId
+    )}`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: WORKSPACE_NAME }),
+    }
+  );
+
+  if (!updateRes.ok) {
+    throw new DriveHttpError(
+      '워크스페이스 이름 변경 실패',
+      updateRes.status,
+      await updateRes.json().catch(() => ({}))
+    );
+  }
+}
+
+/**
+ * Google Drive에서 우리 서비스의 워크스페이스 폴더를 "보장"한다.
+ * - 있으면 재사용(reused: true)
+ * - 없으면 생성(reused: false)
+ *
+ * 실패 시 Error를 throw하며, status는 상위(라우트핸들러)에서 해석한다.
+ */
+export async function ensureWorkspace(): Promise<EnsureWorkspaceResult> {
+  const existing = await findWorkspaceByName(WORKSPACE_NAME);
   if (existing?.id) {
     return { folderId: existing.id, reused: true };
+  }
+
+  const legacyExisting = await findWorkspaceByName(LEGACY_WORKSPACE_NAME);
+  if (legacyExisting?.id) {
+    await renameWorkspaceFolder(legacyExisting.id);
+    return { folderId: legacyExisting.id, reused: true };
   }
 
   // 없으면 생성
