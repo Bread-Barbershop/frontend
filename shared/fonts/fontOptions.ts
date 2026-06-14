@@ -67,8 +67,14 @@ export const createFontWeightOptions = (
   }));
 };
 
-export const getDefaultFontFamilyOption = () => {
+export const getDefaultFontFamilyOption = (): FontFamilyOption => {
   const options = createFontFamilyOptions();
+
+  if (options.length === 0) {
+    throw new Error(
+      'Font registry is empty. At least one font family must be registered.'
+    );
+  }
 
   return (
     options.find(option => option.value === DEFAULT_FONT_FAMILY) ?? options[0]

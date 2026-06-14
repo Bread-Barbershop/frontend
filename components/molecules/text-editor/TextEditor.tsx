@@ -10,6 +10,7 @@ import { ChevronDown } from 'lucide-react';
 import React, {
   type CSSProperties,
   useEffect,
+  useCallback,
   useMemo,
   useReducer,
   useRef,
@@ -112,16 +113,31 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       [fontFamilySelected]
     );
 
+    const loadEditorFont = useCallback(
+      async (family: string, weight: string) => {
+        try {
+          await preloadFontFamilyWeights(family);
+          await loadCustomFont(family, weight);
+        } catch (error) {
+          if (process.env.NODE_ENV !== 'production') {
+            console.error('Failed to load editor font.', {
+              family,
+              weight,
+              error,
+            });
+          }
+        }
+      },
+      []
+    );
+
     useEffect(() => {
       fontSizeSelectedRef.current = fontSizeSelected;
     }, [fontSizeSelected]);
 
     useEffect(() => {
-      void (async () => {
-        await preloadFontFamilyWeights(fontFamilySelected.value);
-        await loadCustomFont(fontFamilySelected.value, fontWeightSelected.value);
-      })();
-    }, [fontFamilySelected.value, fontWeightSelected.value]);
+      void loadEditorFont(fontFamilySelected.value, fontWeightSelected.value);
+    }, [fontFamilySelected.value, fontWeightSelected.value, loadEditorFont]);
 
     const editorContentStyle = useMemo<CSSProperties>(
       () => ({
@@ -234,8 +250,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       setFontWeightSelected(nextWeight);
 
       void (async () => {
-        await preloadFontFamilyWeights(selected.value);
-        await loadCustomFont(selected.value, nextWeight.value);
+        await loadEditorFont(selected.value, nextWeight.value);
 
         editor
           .chain()
@@ -252,7 +267,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       const selected = option as FontWeightOption;
       setFontWeightSelected(selected);
       void (async () => {
-        await loadCustomFont(fontFamilySelected.value, selected.value);
+        await loadEditorFont(fontFamilySelected.value, selected.value);
         editor.chain().focus().setFontWeight(selected.value).run();
       })();
     };

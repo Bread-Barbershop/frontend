@@ -56,6 +56,12 @@ export function findFontWeightOption(
   options: FontWeightOption[],
   weight: string
 ): FontWeightOption {
+  if (options.length === 0) {
+    throw new Error(
+      'Font weight options are empty. At least one font weight must be registered.'
+    );
+  }
+
   return options.find(option => option.value === weight) ?? options[0];
 }
 
