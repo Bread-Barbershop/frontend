@@ -17,7 +17,7 @@ export const BODY_BULK_DATA: BulkData = {
   font: 'LINESeedKR',
   fontSize: '14px',
   color: '#000000',
-  fontWeight: '500',
+  fontWeight: '400',
   bold: false,
   underline: false,
   italic: false,

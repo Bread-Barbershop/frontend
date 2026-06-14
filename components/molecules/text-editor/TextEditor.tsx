@@ -10,6 +10,7 @@ import { ChevronDown } from 'lucide-react';
 import React, {
   type CSSProperties,
   useEffect,
+  useCallback,
   useMemo,
   useReducer,
   useRef,
@@ -112,9 +113,48 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       [fontFamilySelected]
     );
 
+    const loadEditorFont = useCallback(
+      async (family: string, weight: string) => {
+        try {
+          await preloadFontFamilyWeights(family);
+          await loadCustomFont(family, weight);
+        } catch (error) {
+          if (process.env.NODE_ENV !== 'production') {
+            console.error('Failed to load editor font.', {
+              family,
+              weight,
+              error,
+            });
+          }
+        }
+      },
+      []
+    );
+
     useEffect(() => {
       fontSizeSelectedRef.current = fontSizeSelected;
     }, [fontSizeSelected]);
+
+    useEffect(() => {
+      void loadEditorFont(fontFamilySelected.value, fontWeightSelected.value);
+    }, [fontFamilySelected.value, fontWeightSelected.value, loadEditorFont]);
+
+    const editorContentStyle = useMemo<CSSProperties>(
+      () => ({
+        fontFamily: fontFamilySelected.style?.fontFamily,
+        fontWeight: fontWeightSelected.value,
+        fontSize: fontSizeSelected.value || DEFAULT_FONT_SIZE_OPTION.value,
+        color: selectedColor,
+        textAlign: textAlignSelected.value,
+      }),
+      [
+        fontFamilySelected.style?.fontFamily,
+        fontWeightSelected.value,
+        fontSizeSelected.value,
+        selectedColor,
+        textAlignSelected.value,
+      ]
+    );
 
     const editor = useEditor({
       immediatelyRender: false,
@@ -210,8 +250,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       setFontWeightSelected(nextWeight);
 
       void (async () => {
-        await preloadFontFamilyWeights(selected.value);
-        await loadCustomFont(selected.value, nextWeight.value);
+        await loadEditorFont(selected.value, nextWeight.value);
 
         editor
           .chain()
@@ -228,7 +267,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       const selected = option as FontWeightOption;
       setFontWeightSelected(selected);
       void (async () => {
-        await loadCustomFont(fontFamilySelected.value, selected.value);
+        await loadEditorFont(fontFamilySelected.value, selected.value);
         editor.chain().focus().setFontWeight(selected.value).run();
       })();
     };
@@ -417,7 +456,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
               ? 'border-primary bg-bg-base'
               : 'border-transparent bg-border-neutral'
           )}
-          style={{ textAlign: defaultAlign }}
+          style={editorContentStyle}
         >
           <EditorContent editor={editor} />
         </div>

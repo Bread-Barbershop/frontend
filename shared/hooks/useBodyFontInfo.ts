@@ -4,13 +4,13 @@ import { useMemo } from 'react';
 
 import { resolveFontFamily } from '@/shared/fonts/fontRegistry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
-import { createBulkOverrideStyle } from '@/shared/utils/createBulkOverrideStyle';
+import { toStyle } from '@/shared/utils/toStyle';
 
 export const useBodyFontInfo = () => {
   const bodyData = useEditorStore(state => state.bodyData);
 
   return useMemo(() => {
-    const style = createBulkOverrideStyle(bodyData, 'body');
+    const style = toStyle(bodyData, false);
     const resolvedFontFamily = resolveFontFamily(bodyData.font);
 
     return {

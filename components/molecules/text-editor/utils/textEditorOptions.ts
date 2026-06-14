@@ -3,6 +3,7 @@ import {
   createFontWeightOptions as buildFontWeightOptions,
   type FontFamilyOption,
   type FontWeightOption,
+  getDefaultFontFamilyOption,
   getFontFamilyOption,
 } from '@/shared/fonts/fontOptions';
 
@@ -55,6 +56,12 @@ export function findFontWeightOption(
   options: FontWeightOption[],
   weight: string
 ): FontWeightOption {
+  if (options.length === 0) {
+    throw new Error(
+      'Font weight options are empty. At least one font weight must be registered.'
+    );
+  }
+
   return options.find(option => option.value === weight) ?? options[0];
 }
 
@@ -118,6 +125,14 @@ export function getInitialEditorStyles(
               if (!fontFamily && attrs.fontFamily) {
                 fontFamily = getFontFamilyOption(attrs.fontFamily);
               }
+              if (!fontWeight && attrs.fontWeight) {
+                const weightFontFamily =
+                  fontFamily ?? getDefaultFontFamilyOption();
+                fontWeight = findFontWeightOption(
+                  createFontWeightOptions(weightFontFamily),
+                  String(attrs.fontWeight)
+                );
+              }
               if (!fontSize && attrs.fontSize) {
                 fontSize = FONT_SIZE_OPTIONS.find(
                   opt => opt.value === attrs.fontSize
@@ -138,7 +153,7 @@ export function getInitialEditorStyles(
 
   // fontFamily 기본값 결정
   if (!fontFamily) {
-    fontFamily = FONT_FAMILY_OPTIONS[0];
+    fontFamily = getDefaultFontFamilyOption();
   }
 
   // fontWeight는 fontFamily에 따라 결정
