@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 
 import { resolveFontFamily } from '@/shared/fonts/fontRegistry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
-import { createBulkOverrideStyle } from '@/shared/utils/createBulkOverrideStyle';
+import { toStyle } from '@/shared/utils/toStyle';
 
 export const useTitleFontInfo = () => {
   const titleData = useEditorStore(state => state.titleData);
@@ -15,8 +15,8 @@ export const useTitleFontInfo = () => {
     return {
       font: titleData.font,
       resolvedFontFamily,
-      koStyle: createBulkOverrideStyle(titleData, 'title'),
-      enStyle: createBulkOverrideStyle(titleData, 'title', true),
+      koStyle: toStyle(titleData, true),
+      enStyle: toStyle(titleData, true, true),
     };
   }, [titleData]);
 };

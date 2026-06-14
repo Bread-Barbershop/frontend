@@ -11,7 +11,11 @@ import FontColorIcon from '@/shared/assets/icons/color.svg';
 import ItalicIcon from '@/shared/assets/icons/italic.svg';
 import UnderlineIcon from '@/shared/assets/icons/underline.svg';
 import { loadCustomFont } from '@/shared/fonts/fontLoader';
-import { FontFamilyOption, FontWeightOption } from '@/shared/fonts/fontOptions';
+import {
+  FontFamilyOption,
+  FontWeightOption,
+  getDefaultFontFamilyOption,
+} from '@/shared/fonts/fontOptions';
 import { resolveFontFamily } from '@/shared/fonts/fontRegistry';
 import { BulkData } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
@@ -31,7 +35,9 @@ import { useBulkEditor } from './hooks/useBulkEditor';
 
 import type { BulkColorPickerId } from './types';
 
-const DEFAULT_FONT_SIZE_OPTION = FONT_SIZE_OPTIONS[0];
+const DEFAULT_FONT_SIZE_OPTION =
+  FONT_SIZE_OPTIONS.find(option => option.value === '14px') ??
+  FONT_SIZE_OPTIONS[0];
 
 interface TextEditorPreviewProps {
   children: ReactNode;
@@ -48,7 +54,7 @@ const TEXT_ALIGN_OPTIONS: TextAlignOption[] = [
   { label: <AlignLeftIcon />, value: 'left' },
 ];
 
-const DEFAULT_FONT_FAMILY_OPTION = FONT_FAMILY_OPTIONS[0];
+const DEFAULT_FONT_FAMILY_OPTION = getDefaultFontFamilyOption();
 const DEFAULT_TEXT_ALIGN_OPTION = TEXT_ALIGN_OPTIONS[1];
 
 export function TextEditorPreview({

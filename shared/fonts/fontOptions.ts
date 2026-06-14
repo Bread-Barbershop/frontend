@@ -34,6 +34,8 @@ const FONT_WEIGHT_LABELS: Record<string, string> = {
   '900': 'Black',
 };
 
+const DEFAULT_FONT_FAMILY = 'LINESeedKR';
+
 export const getFontWeightLabel = (weight: string) => {
   return FONT_WEIGHT_LABELS[weight] ?? weight;
 };
@@ -66,7 +68,11 @@ export const createFontWeightOptions = (
 };
 
 export const getDefaultFontFamilyOption = () => {
-  return createFontFamilyOptions().find(option => option.value === 'Pretendard');
+  const options = createFontFamilyOptions();
+
+  return (
+    options.find(option => option.value === DEFAULT_FONT_FAMILY) ?? options[0]
+  );
 };
 
 export const getFontFamilyOption = (value?: string | null) => {

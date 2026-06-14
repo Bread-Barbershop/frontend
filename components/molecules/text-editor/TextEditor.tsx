@@ -116,6 +116,30 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       fontSizeSelectedRef.current = fontSizeSelected;
     }, [fontSizeSelected]);
 
+    useEffect(() => {
+      void (async () => {
+        await preloadFontFamilyWeights(fontFamilySelected.value);
+        await loadCustomFont(fontFamilySelected.value, fontWeightSelected.value);
+      })();
+    }, [fontFamilySelected.value, fontWeightSelected.value]);
+
+    const editorContentStyle = useMemo<CSSProperties>(
+      () => ({
+        fontFamily: fontFamilySelected.style?.fontFamily,
+        fontWeight: fontWeightSelected.value,
+        fontSize: fontSizeSelected.value || DEFAULT_FONT_SIZE_OPTION.value,
+        color: selectedColor,
+        textAlign: textAlignSelected.value,
+      }),
+      [
+        fontFamilySelected.style?.fontFamily,
+        fontWeightSelected.value,
+        fontSizeSelected.value,
+        selectedColor,
+        textAlignSelected.value,
+      ]
+    );
+
     const editor = useEditor({
       immediatelyRender: false,
       extensions: createTextEditorBarExtensions(defaultText),
@@ -417,7 +441,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
               ? 'border-primary bg-bg-base'
               : 'border-transparent bg-border-neutral'
           )}
-          style={{ textAlign: defaultAlign }}
+          style={editorContentStyle}
         >
           <EditorContent editor={editor} />
         </div>
