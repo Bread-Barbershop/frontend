@@ -24,11 +24,22 @@ export async function getFreshAccessToken(): Promise<{
   try {
     const refreshed = await tokenRefresh(refreshToken);
 
-    if (
-      refreshed.scope !== undefined &&
-      !hasRequiredDriveScope(refreshed.scope)
-    ) {
-      throw new Error('auth_required');
+    if (refreshed.scope !== undefined) {
+      if (!hasRequiredDriveScope(refreshed.scope)) {
+        cookieStore.set('granted_scopes', '', {
+          path: '/',
+          maxAge: 0,
+        });
+        throw new Error('auth_required');
+      }
+
+      cookieStore.set('granted_scopes', refreshed.scope, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 180,
+      });
     }
 
     cookieStore.set('access_token', refreshed.accessToken, {
@@ -41,16 +52,6 @@ export async function getFreshAccessToken(): Promise<{
 
     if (refreshed.refreshToken) {
       cookieStore.set('refresh_token', refreshed.refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 60 * 60 * 24 * 180,
-      });
-    }
-
-    if (refreshed.scope) {
-      cookieStore.set('granted_scopes', refreshed.scope, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
