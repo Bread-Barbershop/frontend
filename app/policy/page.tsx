@@ -26,7 +26,7 @@ type PolicySection = {
 const policyInfo = {
   title: '개인정보처리방침',
   effectiveDate: '2026년 4월 24일',
-  lastUpdated: '2026년 6월 11일',
+  lastUpdated: '2026년 6월 14일',
   descriptions: [
     'Invia는 이용자의 개인정보를 중요하게 생각하며 관련 법령을 준수합니다.',
     '본 방침은 서비스가 이용자의 개인정보와 Google Drive 데이터를 어떻게 처리하는지 설명합니다.',
@@ -72,8 +72,8 @@ const policySections: PolicySection[] = [
         id: 'google-login-list',
         type: 'list',
         items: [
-          'Google OAuth 인증과 Drive 연동에 필요한 접근 토큰',
-          '서비스가 생성한 Google Drive 파일의 생성, 조회, 수정, 삭제 권한 정보',
+          'Google OAuth 인증과 Drive 연동에 필요한 access token, refresh token, 승인된 권한 범위 정보',
+          '서비스가 생성한 Google Drive 파일 및 폴더의 생성, 조회, 수정, 삭제 권한 정보',
         ],
       },
       {
@@ -139,8 +139,8 @@ const policySections: PolicySection[] = [
         type: 'list',
         items: [
           '공개 상태의 초대장 페이지는 링크를 가진 사람이 접근할 수 있습니다.',
-          '초대장 표시를 위해 필요한 data.json, 이미지, 오디오 등 Google Drive 파일 또는 폴더에 공개 읽기 권한이 부여될 수 있습니다.',
-          '공유 기능 사용 시 공유 제목, 설명, 대표 이미지, 위치 정보 등이 링크 미리보기 및 공유 기능 제공을 위해 사용될 수 있습니다.',
+          '초대장 표시를 위해 필요한 data.json, 이미지, 오디오, 썸네일 등 Google Drive 파일 또는 폴더에 공개 읽기 권한이 부여될 수 있습니다.',
+          '공유 기능 사용 시 공유 제목, 설명, 대표 이미지, 위치 정보 등이 링크를 가진 사람 또는 링크 미리보기 서비스에서 접근 가능한 상태가 될 수 있습니다.',
           '마이페이지에서 초대장을 비공개로 전환하면 초대장 폴더의 공개 읽기 권한을 회수합니다.',
           'Google 계정 권한을 철회하면 서비스의 이후 Drive 접근은 제한되지만, 이미 공개로 설정된 Drive 파일 또는 폴더의 공개 상태가 자동으로 해제되지 않을 수 있습니다.',
         ],
@@ -158,6 +158,24 @@ const policySections: PolicySection[] = [
           '서비스는 Google OAuth 동의 절차를 통해 필요한 최소 권한 범위에서만 Google 사용자 데이터에 접근합니다.',
       },
       {
+        id: 'google-drive-scope',
+        type: 'paragraph',
+        content:
+          'Invia는 Google Drive API 사용을 위해 최소 권한 범위인 https://www.googleapis.com/auth/drive.file 만 요청합니다.',
+      },
+      {
+        id: 'google-drive-access-scope',
+        type: 'paragraph',
+        content:
+          '이 권한은 Invia가 생성한 Google Drive 파일 및 폴더, 또는 이용자가 Invia 사용 중 생성하거나 공유한 파일에 접근하기 위해 사용됩니다. Invia는 이용자의 기존 Google Drive 전체 파일을 조회, 검색, 수정하거나 삭제하지 않습니다.',
+      },
+      {
+        id: 'google-token-storage',
+        type: 'paragraph',
+        content:
+          'Invia는 로그인 및 Drive 연동 유지를 위해 Google OAuth access token, refresh token, 승인된 권한 범위 정보를 인증 쿠키에 저장할 수 있습니다. 이 정보는 초대장 저장, 수정, 삭제, 공개 상태 변경 등 이용자가 요청한 기능을 제공하기 위해서만 사용됩니다.',
+      },
+      {
         id: 'google-policy',
         type: 'paragraph',
         content: (
@@ -172,9 +190,23 @@ const policySections: PolicySection[] = [
               Google API Services User Data Policy
             </a>
             를 준수하며, Google 사용자 데이터는 서비스 기능 제공 범위에서만
-            사용합니다.
+            사용합니다. Google API로부터 받은 정보의 사용 및 이전은 Google API
+            Services User Data Policy, including Limited Use requirements를
+            준수합니다.
           </>
         ),
+      },
+    ],
+  },
+  {
+    id: 'analytics',
+    title: '접속 통계 및 서비스 품질 개선',
+    contents: [
+      {
+        id: 'analytics-description',
+        type: 'paragraph',
+        content:
+          '서비스 안정성, 성능 측정, 오류 분석 및 사용성 개선을 위해 Vercel Analytics, Vercel Speed Insights, Microsoft Clarity와 같은 분석 도구를 사용할 수 있습니다. 이 과정에서 접속 환경, 페이지 이용 정보, 성능 지표 등이 처리될 수 있습니다.',
       },
     ],
   },
