@@ -177,6 +177,7 @@ describe('auth login Route Handler 테스트', () => {
     expect(redirectUrl.searchParams.get('response_type')).toBe('code');
     expect(redirectUrl.searchParams.get('access_type')).toBe('offline');
     expect(redirectUrl.searchParams.get('prompt')).toBe('consent');
+    expect(redirectUrl.searchParams.get('include_granted_scopes')).toBe('true');
     expect(redirectUrl.searchParams.get('scope')).toBe(
       'openid https://www.googleapis.com/auth/drive.file'
     );

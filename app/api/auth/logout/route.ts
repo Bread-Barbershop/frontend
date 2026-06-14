@@ -14,5 +14,10 @@ export async function POST() {
     maxAge: 0,
   });
 
+  cookieStore.set('granted_scopes', '', {
+    path: '/',
+    maxAge: 0,
+  });
+
   return NextResponse.json({ ok: true });
 }

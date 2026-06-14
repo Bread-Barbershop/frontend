@@ -22,16 +22,21 @@ describe('useAuthGate', () => {
   const mockFetch = jest.fn();
   const mockPopupFocus = jest.fn();
   const mockPopupClose = jest.fn();
+  let mockPopupClosed = false;
 
   beforeEach(() => {
     jest.resetAllMocks();
 
     global.fetch = mockFetch as unknown as typeof fetch;
+    mockPopupClosed = false;
 
     window.open = jest.fn(() => {
       return {
         focus: mockPopupFocus,
         close: mockPopupClose,
+        get closed() {
+          return mockPopupClosed;
+        },
       } as unknown as Window;
     });
   });
@@ -119,6 +124,7 @@ describe('useAuthGate', () => {
     });
 
     expect(result.current.isLoginPending).toBe(true);
+    mockPopupClosed = true;
 
     await act(async () => {
       window.dispatchEvent(new Event('focus'));
@@ -131,8 +137,10 @@ describe('useAuthGate', () => {
       });
     });
 
-    expect(result.current.isLoginPending).toBe(false);
-    expect(result.current.isLoginOpen).toBe(false);
+    await waitFor(() => {
+      expect(result.current.isLoginPending).toBe(false);
+      expect(result.current.isLoginOpen).toBe(false);
+    });
   });
 
   it('clears popup and modal state when closeLogin is called while login is pending', async () => {
@@ -229,6 +237,66 @@ describe('useAuthGate', () => {
     expect(action).toHaveBeenCalledTimes(1);
     expect(result.current.isPrivacyNoticeOpen).toBe(false);
     expect(refreshMock).not.toHaveBeenCalled();
+  });
+
+  it('opens Drive permission modal and preserves pending action when Drive scope is missing', async () => {
+    const action = jest.fn();
+
+    const { result } = renderHook(() =>
+      useAuthGate({ initialIsLoggedIn: false })
+    );
+
+    act(() => {
+      result.current.runAfterAuth(action);
+    });
+
+    act(() => {
+      result.current.closePrivacyNotice();
+    });
+
+    act(() => {
+      result.current.loginWithGoogle();
+    });
+
+    act(() => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          origin: window.location.origin,
+          data: {
+            type: 'GOOGLE_OAUTH_ERROR',
+            reason: 'missing_drive_scope',
+          },
+        })
+      );
+    });
+
+    expect(result.current.isLoginPending).toBe(false);
+    expect(result.current.isLoginOpen).toBe(false);
+    expect(result.current.isDrivePermissionRequiredOpen).toBe(true);
+    expect(action).not.toHaveBeenCalled();
+
+    act(() => {
+      result.current.retryDrivePermission();
+    });
+
+    expect(window.open).toHaveBeenCalledTimes(2);
+    expect(result.current.isDrivePermissionRequiredOpen).toBe(false);
+    expect(result.current.isLoginPending).toBe(true);
+
+    act(() => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          origin: window.location.origin,
+          data: { type: 'GOOGLE_OAUTH_SUCCESS' },
+        })
+      );
+    });
+
+    await waitFor(() => {
+      expect(result.current.isLoggedIn).toBe(true);
+    });
+
+    expect(action).toHaveBeenCalledTimes(1);
   });
 
   it('only the hook instance with an OAuth popup handles the success message', async () => {

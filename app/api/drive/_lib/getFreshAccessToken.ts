@@ -1,6 +1,7 @@
 import 'server-only';
 import { cookies } from 'next/headers';
 
+import { hasRequiredDriveScope } from '@/app/api/auth/_lib/googleScopes';
 import { tokenRefresh } from '@/app/api/auth/_lib/tokenRefresh';
 
 /**
@@ -14,13 +15,32 @@ export async function getFreshAccessToken(): Promise<{
 }> {
   const cookieStore = await cookies();
   const refreshToken = cookieStore.get('refresh_token')?.value;
+  const grantedScopes = cookieStore.get('granted_scopes')?.value;
 
-  if (!refreshToken) {
+  if (!refreshToken || !hasRequiredDriveScope(grantedScopes)) {
     throw new Error('auth_required');
   }
 
   try {
     const refreshed = await tokenRefresh(refreshToken);
+
+    if (refreshed.scope !== undefined) {
+      if (!hasRequiredDriveScope(refreshed.scope)) {
+        cookieStore.set('granted_scopes', '', {
+          path: '/',
+          maxAge: 0,
+        });
+        throw new Error('auth_required');
+      }
+
+      cookieStore.set('granted_scopes', refreshed.scope, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 180,
+      });
+    }
 
     cookieStore.set('access_token', refreshed.accessToken, {
       httpOnly: true,

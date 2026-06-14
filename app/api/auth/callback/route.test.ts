@@ -111,6 +111,7 @@ describe('auth callback Route Handler 테스트', () => {
     expect(res.status).toBe(200);
     expect(res.headers.get('Content-Type')).toContain('text/html');
     expect(html).toContain('GOOGLE_OAUTH_ERROR');
+    expect(html).toContain('"reason":"access_denied"');
     expect(html).toContain('로그인이 취소되었습니다. 창을 닫는 중...');
     expect(cookieStore.set).toHaveBeenCalledWith('oauth_state', '', {
       path: '/',
@@ -239,6 +240,7 @@ describe('auth callback Route Handler 테스트', () => {
         access_token: 'new-access-token',
         refresh_token: 'new-refresh-token',
         expires_in: 3600,
+        scope: 'openid https://www.googleapis.com/auth/drive.file',
       }),
     });
 
@@ -305,6 +307,17 @@ describe('auth callback Route Handler 테스트', () => {
       })
     );
 
+    expect(cookieStore.set).toHaveBeenCalledWith(
+      'granted_scopes',
+      'openid https://www.googleapis.com/auth/drive.file',
+      expect.objectContaining({
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 180,
+      })
+    );
+
     /**
      * 최종 응답은 팝업 닫기용 HTML
      */
@@ -312,6 +325,50 @@ describe('auth callback Route Handler 테스트', () => {
     expect(res.headers.get('Content-Type')).toContain('text/html');
     expect(html).toContain('로그인 성공! 창을 닫는 중...');
     expect(html).toContain('GOOGLE_OAUTH_SUCCESS');
+  });
+
+  it('Drive scope가 없으면 로그인 실패로 처리한다', async () => {
+    const cookieStore = createCookieStore({
+      oauth_state: 'matched-state',
+      pkce_code_verifier: 'verifier-abc',
+    });
+
+    (cookies as jest.Mock).mockResolvedValue(cookieStore);
+
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        access_token: 'new-access-token',
+        refresh_token: 'new-refresh-token',
+        expires_in: 3600,
+        scope: 'openid',
+      }),
+    });
+
+    const req = new Request(
+      'http://localhost:3000/api/auth/callback?code=auth-code-3&state=matched-state',
+      {
+        method: 'GET',
+      }
+    );
+
+    const res = await GET(req);
+    const html = await res.text();
+
+    expect(res.status).toBe(200);
+    expect(html).toContain('GOOGLE_OAUTH_ERROR');
+    expect(html).toContain('"reason":"missing_drive_scope"');
+    expect(html).toContain('Google Drive');
+    expect(cookieStore.set).toHaveBeenCalledWith('access_token', '', {
+      path: '/',
+      maxAge: 0,
+    });
+    expect(cookieStore.set).not.toHaveBeenCalledWith(
+      'access_token',
+      'new-access-token',
+      expect.anything()
+    );
   });
 
   it('token 교환 실패 시 Google 응답 status/json을 그대로 반환한다', async () => {

@@ -94,6 +94,7 @@ describe('auth session Route Handler 테스트', () => {
     const cookieStore = createCookieStore({
       access_token: 'access-token-value',
       refresh_token: 'refresh-token-value',
+      granted_scopes: 'openid https://www.googleapis.com/auth/drive.file',
     });
 
     (cookies as jest.Mock).mockResolvedValue(cookieStore);
@@ -106,6 +107,7 @@ describe('auth session Route Handler 테스트', () => {
       isLoggedIn: true,
       hasAccessToken: true,
       hasRefreshToken: true,
+      hasRequiredDriveScope: true,
     });
 
     /**
@@ -141,6 +143,7 @@ describe('auth session Route Handler 테스트', () => {
       isLoggedIn: false,
       hasAccessToken: false,
       hasRefreshToken: false,
+      hasRequiredDriveScope: false,
     });
 
     /**
@@ -148,6 +151,44 @@ describe('auth session Route Handler 테스트', () => {
      */
     expect(tokenRefresh).not.toHaveBeenCalled();
 
+    expect(res.headers.get('Cache-Control')).toBe('no-store');
+  });
+
+  it('refresh token은 있지만 granted_scopes가 없으면 쿠키를 정리하고 비로그인 상태를 반환한다', async () => {
+    const cookieStore = createCookieStore({
+      access_token: undefined,
+      refresh_token: 'refresh-token-value',
+      granted_scopes: undefined,
+    });
+
+    (cookies as jest.Mock).mockResolvedValue(cookieStore);
+
+    const res = await GET();
+    const json = await res.json();
+
+    expect(tokenRefresh).not.toHaveBeenCalled();
+    expect(cookieStore.set).toHaveBeenCalledWith(
+      'refresh_token',
+      '',
+      expect.objectContaining({
+        path: '/',
+        maxAge: 0,
+      })
+    );
+    expect(cookieStore.set).toHaveBeenCalledWith(
+      'granted_scopes',
+      '',
+      expect.objectContaining({
+        path: '/',
+        maxAge: 0,
+      })
+    );
+    expect(json).toEqual({
+      isLoggedIn: false,
+      hasAccessToken: false,
+      hasRefreshToken: false,
+      hasRequiredDriveScope: false,
+    });
     expect(res.headers.get('Cache-Control')).toBe('no-store');
   });
 
@@ -161,6 +202,7 @@ describe('auth session Route Handler 테스트', () => {
     const cookieStore = createCookieStore({
       access_token: undefined,
       refresh_token: 'refresh-token-value',
+      granted_scopes: 'openid https://www.googleapis.com/auth/drive.file',
     });
 
     (cookies as jest.Mock).mockResolvedValue(cookieStore);
@@ -186,6 +228,7 @@ describe('auth session Route Handler 테스트', () => {
       isLoggedIn: true,
       hasAccessToken: true,
       hasRefreshToken: true,
+      hasRequiredDriveScope: true,
     });
 
     /**
@@ -218,6 +261,63 @@ describe('auth session Route Handler 테스트', () => {
     expect(res.headers.get('Cache-Control')).toBe('no-store');
   });
 
+  it('refresh 후 Drive scope가 빠진 scope가 내려오면 쿠키를 정리하고 비로그인 상태를 반환한다', async () => {
+    const cookieStore = createCookieStore({
+      access_token: undefined,
+      refresh_token: 'refresh-token-value',
+      granted_scopes: 'openid https://www.googleapis.com/auth/drive.file',
+    });
+
+    (cookies as jest.Mock).mockResolvedValue(cookieStore);
+
+    (tokenRefresh as jest.Mock).mockResolvedValue({
+      accessToken: 'new-access-token',
+      expiresAt: Date.UTC(2026, 2, 21, 12, 0, 0),
+      scope: 'openid',
+    });
+
+    const res = await GET();
+    const json = await res.json();
+
+    expect(tokenRefresh).toHaveBeenCalledWith('refresh-token-value');
+    expect(cookieStore.set).toHaveBeenCalledWith(
+      'access_token',
+      '',
+      expect.objectContaining({
+        path: '/',
+        maxAge: 0,
+      })
+    );
+    expect(cookieStore.set).toHaveBeenCalledWith(
+      'refresh_token',
+      '',
+      expect.objectContaining({
+        path: '/',
+        maxAge: 0,
+      })
+    );
+    expect(cookieStore.set).toHaveBeenCalledWith(
+      'granted_scopes',
+      '',
+      expect.objectContaining({
+        path: '/',
+        maxAge: 0,
+      })
+    );
+    expect(cookieStore.set).not.toHaveBeenCalledWith(
+      'access_token',
+      'new-access-token',
+      expect.anything()
+    );
+    expect(json).toEqual({
+      isLoggedIn: false,
+      hasAccessToken: false,
+      hasRefreshToken: false,
+      hasRequiredDriveScope: false,
+    });
+    expect(res.headers.get('Cache-Control')).toBe('no-store');
+  });
+
   it('refresh에 실패하면 auth 쿠키를 제거하고 401을 반환한다', async () => {
     /**
      * 목적:
@@ -229,6 +329,7 @@ describe('auth session Route Handler 테스트', () => {
     const cookieStore = createCookieStore({
       access_token: undefined,
       refresh_token: 'expired-refresh-token',
+      granted_scopes: 'openid https://www.googleapis.com/auth/drive.file',
     });
 
     (cookies as jest.Mock).mockResolvedValue(cookieStore);
@@ -272,6 +373,7 @@ describe('auth session Route Handler 테스트', () => {
       isLoggedIn: false,
       hasAccessToken: false,
       hasRefreshToken: false,
+      hasRequiredDriveScope: false,
     });
 
     expect(res.headers.get('Cache-Control')).toBe('no-store');

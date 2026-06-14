@@ -6,6 +6,7 @@ import { useAuthGate } from '@/features/session/hooks/useAuthGate';
 import { useConfirm } from '@/shared/hooks/useConfirm';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
+import DrivePermissionRequiredModal from './DrivePermissionRequiredModal';
 import LoginModal from './LoginModal';
 import PrivacyNoticeModal from './PrivacyNoticeModal';
 
@@ -26,10 +27,13 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
     isLoginOpen,
     isLoginPending,
     isPrivacyNoticeOpen,
+    isDrivePermissionRequiredOpen,
     login,
     closeLogin,
     closePrivacyNotice,
+    closeDrivePermissionRequired,
     loginWithGoogle,
+    retryDrivePermission,
     logout,
     runAfterAuth,
   } = useAuthGate({ initialIsLoggedIn });
@@ -47,6 +51,12 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
       <PrivacyNoticeModal
         open={isPrivacyNoticeOpen}
         onClose={closePrivacyNotice}
+      />
+      <DrivePermissionRequiredModal
+        open={isDrivePermissionRequiredOpen}
+        isLoading={isLoginPending}
+        onClose={closeDrivePermissionRequired}
+        onRetry={retryDrivePermission}
       />
     </>
   );
