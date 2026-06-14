@@ -6,7 +6,7 @@ import { EditorNoticeList } from '@/components/molecules/editor-notice';
 import type { BulkColorPickerId } from '@/components/molecules/preview-text-editor/types';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 
-import BackGroundEdit from './BackGroundEdit';
+import BackGroundColorEdit from './BackGroundColorEdit';
 import BodyEdit from './BodyEdit';
 import TitleEdit from './TitleEdit';
 import ZoomEdit from './ZoomEdit';
@@ -26,10 +26,11 @@ function BulkEdit() {
           activeColorPickerId={activeColorPickerId}
           onActiveColorPickerChange={setActiveColorPickerId}
         />
-        <BackGroundEdit
+        <BackGroundColorEdit />
+        {/* <BackGroundEdit
           activeColorPickerId={activeColorPickerId}
           onActiveColorPickerChange={setActiveColorPickerId}
-        />
+        /> */}
         <ZoomEdit />
         <EditorNoticeList
           notices={[

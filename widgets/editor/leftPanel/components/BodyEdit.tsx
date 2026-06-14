@@ -75,6 +75,12 @@ function BodyEdit({
             className="font-base text-base"
             style={toStyle(bulkBodyData, false)}
           >
+            Eng Sample
+          </p>
+          <p
+            className="font-base text-base"
+            style={toStyle(bulkBodyData, false)}
+          >
             본문입니다
           </p>
         </div>
