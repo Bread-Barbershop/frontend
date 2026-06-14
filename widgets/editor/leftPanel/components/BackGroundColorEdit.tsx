@@ -1,3 +1,5 @@
+import { useShallow } from 'zustand/shallow';
+
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
@@ -19,16 +21,23 @@ const BACKGROUND_COLOR = [
 ];
 
 function BackGroundColorEdit() {
-  const setBackgroundColor = useEditorStore(state => state.setBackgroundColor);
+  const { backgroundColor, setBackgroundColor } = useEditorStore(
+    useShallow(state => ({
+      backgroundColor: state.backgroundColor,
+      setBackgroundColor: state.setBackgroundColor,
+    }))
+  );
   return (
     <div className="w-full">
       <NavigationBar>배경 편집</NavigationBar>
-      <div className="w-full grid grid-cols-7 grid-rows-2 gap-x-[18.5px] gap-y-3">
+      <div className="w-full grid grid-cols-7 gap-x-[18.5px] gap-y-3">
         {BACKGROUND_COLOR.map((value, index) => (
           <button
             key={value + index}
             type="button"
             style={{ backgroundColor: value }}
+            aria-label={`배경색 ${value}`}
+            aria-pressed={backgroundColor === value}
             className={` w-8 h-8 rounded-lg border border-[#EAEAEA] cursor-pointer`}
             onClick={() => {
               setBackgroundColor(value);
