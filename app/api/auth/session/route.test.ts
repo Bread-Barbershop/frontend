@@ -94,6 +94,7 @@ describe('auth session Route Handler 테스트', () => {
     const cookieStore = createCookieStore({
       access_token: 'access-token-value',
       refresh_token: 'refresh-token-value',
+      granted_scopes: 'openid https://www.googleapis.com/auth/drive.file',
     });
 
     (cookies as jest.Mock).mockResolvedValue(cookieStore);
@@ -106,6 +107,7 @@ describe('auth session Route Handler 테스트', () => {
       isLoggedIn: true,
       hasAccessToken: true,
       hasRefreshToken: true,
+      hasRequiredDriveScope: true,
     });
 
     /**
@@ -141,6 +143,7 @@ describe('auth session Route Handler 테스트', () => {
       isLoggedIn: false,
       hasAccessToken: false,
       hasRefreshToken: false,
+      hasRequiredDriveScope: false,
     });
 
     /**
@@ -161,6 +164,7 @@ describe('auth session Route Handler 테스트', () => {
     const cookieStore = createCookieStore({
       access_token: undefined,
       refresh_token: 'refresh-token-value',
+      granted_scopes: 'openid https://www.googleapis.com/auth/drive.file',
     });
 
     (cookies as jest.Mock).mockResolvedValue(cookieStore);
@@ -186,6 +190,7 @@ describe('auth session Route Handler 테스트', () => {
       isLoggedIn: true,
       hasAccessToken: true,
       hasRefreshToken: true,
+      hasRequiredDriveScope: true,
     });
 
     /**
@@ -229,6 +234,7 @@ describe('auth session Route Handler 테스트', () => {
     const cookieStore = createCookieStore({
       access_token: undefined,
       refresh_token: 'expired-refresh-token',
+      granted_scopes: 'openid https://www.googleapis.com/auth/drive.file',
     });
 
     (cookies as jest.Mock).mockResolvedValue(cookieStore);
@@ -272,6 +278,7 @@ describe('auth session Route Handler 테스트', () => {
       isLoggedIn: false,
       hasAccessToken: false,
       hasRefreshToken: false,
+      hasRequiredDriveScope: false,
     });
 
     expect(res.headers.get('Cache-Control')).toBe('no-store');

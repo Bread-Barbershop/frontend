@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 
+import DrivePermissionRequiredModal from '@/features/session/components/DrivePermissionRequiredModal';
 import LoginModal from '@/features/session/components/LoginModal';
 import PrivacyNoticeModal from '@/features/session/components/PrivacyNoticeModal';
 import { useAuthGate } from '@/features/session/hooks/useAuthGate';
@@ -19,9 +20,12 @@ function Cta({ initialIsLoggedIn }: CtaProps) {
     isLoginOpen,
     isLoginPending,
     isPrivacyNoticeOpen,
+    isDrivePermissionRequiredOpen,
     closeLogin,
     closePrivacyNotice,
+    closeDrivePermissionRequired,
     loginWithGoogle,
+    retryDrivePermission,
     runAfterAuth,
   } = useAuthGate({ initialIsLoggedIn });
 
@@ -85,6 +89,12 @@ function Cta({ initialIsLoggedIn }: CtaProps) {
       <PrivacyNoticeModal
         open={isPrivacyNoticeOpen}
         onClose={closePrivacyNotice}
+      />
+      <DrivePermissionRequiredModal
+        open={isDrivePermissionRequiredOpen}
+        isLoading={isLoginPending}
+        onClose={closeDrivePermissionRequired}
+        onRetry={retryDrivePermission}
       />
     </>
   );

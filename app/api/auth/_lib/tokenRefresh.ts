@@ -27,5 +27,6 @@ export async function tokenRefresh(refreshToken: string) {
     accessToken: data.access_token as string,
     expiresAt: Date.now() + Number(data.expires_in) * 1000,
     refreshToken: (data.refresh_token as string | undefined) ?? undefined,
+    scope: (data.scope as string | undefined) ?? undefined,
   };
 }

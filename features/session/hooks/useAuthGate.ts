@@ -13,6 +13,11 @@ type SessionResponse = {
   isLoggedIn: boolean;
 };
 
+type GoogleOAuthMessage = {
+  type?: 'GOOGLE_OAUTH_SUCCESS' | 'GOOGLE_OAUTH_ERROR';
+  reason?: 'access_denied' | 'missing_drive_scope';
+};
+
 function openGoogleLoginPopup() {
   const width = 480;
   const height = 640;
@@ -55,6 +60,8 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isLoginPending, setIsLoginPending] = useState(false);
   const [isPrivacyNoticeOpen, setIsPrivacyNoticeOpen] = useState(false);
+  const [isDrivePermissionRequiredOpen, setIsDrivePermissionRequiredOpen] =
+    useState(false);
 
   const popupRef = useRef<Window | null>(null);
   const pendingActionRef = useRef<(() => void | Promise<void>) | null>(null);
@@ -70,6 +77,7 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
     popupRef.current = null;
     setIsLoginPending(false);
     setIsLoginOpen(false);
+    setIsDrivePermissionRequiredOpen(false);
     pendingActionRef.current = null;
     openLoginAfterNoticeRef.current = false;
 
@@ -86,6 +94,7 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
     popupRef.current = null;
     setIsLoginPending(false);
     setIsLoginOpen(false);
+    setIsDrivePermissionRequiredOpen(false);
     setIsLoggedIn(true);
 
     success('로그인에 성공했습니다.');
@@ -122,12 +131,22 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
       if (event.origin !== window.location.origin) return;
       if (!popupRef.current) return;
 
-      if (event.data?.type === 'GOOGLE_OAUTH_SUCCESS') {
+      const message = event.data as GoogleOAuthMessage;
+
+      if (message.type === 'GOOGLE_OAUTH_SUCCESS') {
         completeLoginSuccess();
         return;
       }
 
-      if (event.data?.type === 'GOOGLE_OAUTH_ERROR') {
+      if (message.type === 'GOOGLE_OAUTH_ERROR') {
+        if (message.reason === 'missing_drive_scope') {
+          popupRef.current = null;
+          setIsLoginPending(false);
+          setIsLoginOpen(false);
+          setIsDrivePermissionRequiredOpen(true);
+          return;
+        }
+
         clearLoginAttempt();
       }
     };
@@ -149,7 +168,16 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
         console.error(err);
       }
 
-      releaseLoginPending();
+      const popup = popupRef.current;
+      if (popup && !popup.closed) {
+        return;
+      }
+
+      window.setTimeout(() => {
+        if (popupRef.current?.closed) {
+          releaseLoginPending();
+        }
+      }, 250);
     };
 
     window.addEventListener('focus', handleFocus);
@@ -178,6 +206,17 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
     }
   };
 
+  const closeDrivePermissionRequired = () => {
+    pendingActionRef.current = null;
+    setIsDrivePermissionRequiredOpen(false);
+    setIsLoginPending(false);
+  };
+
+  const retryDrivePermission = () => {
+    setIsDrivePermissionRequiredOpen(false);
+    loginWithGoogle();
+  };
+
   const validateSession = async () => {
     try {
       const isSessionValid = await fetchSessionState();
@@ -188,6 +227,7 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
         setIsLoggedIn(false);
         setIsLoginOpen(false);
         setIsPrivacyNoticeOpen(false);
+        setIsDrivePermissionRequiredOpen(false);
         router.replace('/');
         router.refresh();
         return false;
@@ -213,6 +253,7 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
 
       setIsLoggedIn(false);
       setIsPrivacyNoticeOpen(false);
+      setIsDrivePermissionRequiredOpen(false);
       openLoginAfterNoticeRef.current = false;
       router.replace('/');
       router.refresh();
@@ -251,10 +292,13 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
     isLoginOpen,
     isLoginPending,
     isPrivacyNoticeOpen,
+    isDrivePermissionRequiredOpen,
     login,
     closeLogin,
     closePrivacyNotice,
+    closeDrivePermissionRequired,
     loginWithGoogle,
+    retryDrivePermission,
     logout,
     runAfterAuth,
   };
