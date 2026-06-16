@@ -4,6 +4,7 @@ import {
   type FontFamilyOption,
   type FontWeightOption,
   getDefaultFontFamilyOption,
+  getFallbackWeight,
   getFontFamilyOption,
 } from '@/shared/fonts/fontOptions';
 
@@ -70,7 +71,7 @@ export function getDefaultFontWeightOption(
 ): FontWeightOption {
   const options = createFontWeightOptions(fontFamily);
 
-  return findFontWeightOption(options, fontFamily.defaultWeight);
+  return findFontWeightOption(options, getFallbackWeight(fontFamily.value));
 }
 
 export interface InitialEditorStyles {

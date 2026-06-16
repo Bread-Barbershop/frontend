@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  type ChainedCommands,
   EditorContent,
   JSONContent,
   type Editor,
@@ -30,16 +31,24 @@ import {
   loadCustomFont,
   preloadFontFamilyWeights,
 } from '@/shared/fonts/fontLoader';
-import { FontFamilyOption, FontWeightOption } from '@/shared/fonts/fontOptions';
+import {
+  FontFamilyOption,
+  FontWeightOption,
+  getFallbackWeight,
+} from '@/shared/fonts/fontOptions';
 import { cn } from '@/shared/utils/cn';
 
 import { Selector } from '../selector';
 
 import TextEditorColorPickerPopover from './components/TextEditorColorPickerPopover';
 import { isTextMarkFullyActive } from './utils/markState';
-import { stripFontSizeFromHtml } from './utils/paste';
+import {
+  normalizePastedHtmlToPlainText,
+  normalizePastedText,
+} from './utils/paste';
 import {
   createFontWeightOptions,
+  findFontWeightOption,
   FONT_FAMILY_OPTIONS,
   FONT_SIZE_OPTIONS,
   getDefaultFontWeightOption,
@@ -63,6 +72,25 @@ export interface TextEditorRef {
   getEditor: () => Editor | null;
 }
 
+type SavedTextSelection = {
+  from: number;
+  to: number;
+};
+
+type TextStyleAttributes = {
+  fontFamily?: unknown;
+  fontWeight?: unknown;
+  fontSize?: unknown;
+  color?: unknown;
+};
+
+type TextMark = {
+  type: {
+    name: string;
+  };
+  attrs: TextStyleAttributes;
+};
+
 const TEXT_ALIGN_OPTIONS: TextAlignOption[] = [
   { label: <AlignRightIcon />, value: 'right' },
   { label: <AlignCenterIcon />, value: 'center' },
@@ -74,6 +102,106 @@ const DEFAULT_FONT_SIZE_OPTION =
   FONT_SIZE_OPTIONS[0];
 const DEFAULT_TEXT_ALIGN_OPTION = TEXT_ALIGN_OPTIONS[1];
 const DEFAULT_EDITOR_TEXT = '내용을 입력해주세요';
+const MIXED_STYLE_VALUE = '__mixed__';
+
+const MIXED_FONT_FAMILY_OPTION: FontFamilyOption = {
+  label: 'Mixed',
+  value: MIXED_STYLE_VALUE,
+  weights: [],
+  defaultWeight: '',
+};
+
+const MIXED_FONT_WEIGHT_OPTION: FontWeightOption = {
+  label: 'Mixed',
+  value: MIXED_STYLE_VALUE,
+};
+
+const MIXED_FONT_SIZE_OPTION: FontSizeOption = {
+  label: 'Mixed',
+  value: MIXED_STYLE_VALUE,
+};
+
+const getTextStyleAttributesFromMarks = (
+  marks: readonly TextMark[] | null | undefined
+): TextStyleAttributes => {
+  return marks?.find(mark => mark.type.name === 'textStyle')?.attrs ?? {};
+};
+
+const getTextStyleAttributesAtSelection = (
+  editor: Editor,
+  pendingStoredMarkPosition?: number | null
+): TextStyleAttributes => {
+  const { state } = editor;
+  const { selection } = state;
+
+  if (selection.empty) {
+    const shouldUseStoredMarks =
+      pendingStoredMarkPosition !== null &&
+      pendingStoredMarkPosition !== undefined &&
+      pendingStoredMarkPosition === selection.from;
+
+    const beforeTextStyle = getTextStyleAttributesFromMarks(
+      selection.$from.nodeBefore?.marks
+    );
+    if (!shouldUseStoredMarks && Object.keys(beforeTextStyle).length > 0) {
+      return beforeTextStyle;
+    }
+
+    const storedTextStyle = getTextStyleAttributesFromMarks(state.storedMarks);
+    if (shouldUseStoredMarks && Object.keys(storedTextStyle).length > 0) {
+      return storedTextStyle;
+    }
+
+    const afterTextStyle = getTextStyleAttributesFromMarks(
+      selection.$from.nodeAfter?.marks
+    );
+    if (Object.keys(afterTextStyle).length > 0) return afterTextStyle;
+
+    return storedTextStyle;
+  }
+
+  const selectedValues: Record<
+    'fontFamily' | 'fontWeight' | 'fontSize' | 'color',
+    Set<unknown>
+  > = {
+    fontFamily: new Set(),
+    fontWeight: new Set(),
+    fontSize: new Set(),
+    color: new Set(),
+  };
+
+  state.doc.nodesBetween(selection.from, selection.to, node => {
+    if (!node.isText) return;
+
+    const textStyle = getTextStyleAttributesFromMarks(node.marks);
+
+    selectedValues.fontFamily.add(textStyle.fontFamily);
+    selectedValues.fontWeight.add(textStyle.fontWeight);
+    selectedValues.fontSize.add(textStyle.fontSize);
+    selectedValues.color.add(textStyle.color);
+
+    return;
+  });
+
+  return {
+    fontFamily:
+      selectedValues.fontFamily.size > 1
+        ? MIXED_STYLE_VALUE
+        : selectedValues.fontFamily.values().next().value,
+    fontWeight:
+      selectedValues.fontWeight.size > 1
+        ? MIXED_STYLE_VALUE
+        : selectedValues.fontWeight.values().next().value,
+    fontSize:
+      selectedValues.fontSize.size > 1
+        ? MIXED_STYLE_VALUE
+        : selectedValues.fontSize.values().next().value,
+    color:
+      selectedValues.color.size > 1
+        ? MIXED_STYLE_VALUE
+        : selectedValues.color.values().next().value,
+  };
+};
 
 export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
   (
@@ -88,10 +216,10 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
   ) => {
     const [, forceUpdate] = useReducer((count: number) => count + 1, 0);
 
-    const initialStyles = useMemo(
-      () => getInitialEditorStyles(value, defaultAlign),
-      [value, defaultAlign]
+    const [editorBaseStyles] = useState(() =>
+      getInitialEditorStyles(null, defaultAlign)
     );
+    const initialStyles = editorBaseStyles;
 
     const [fontFamilySelected, setFontFamilySelected] =
       useState<FontFamilyOption>(initialStyles.fontFamily);
@@ -106,11 +234,17 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
     const [colorPickerOpen, setColorPickerOpen] = useState(false);
     const [selectedColor, setSelectedColor] = useState(initialStyles.color);
     const editorRef = useRef<Editor | null>(null);
-    const fontSizeSelectedRef = useRef(initialStyles.fontSize);
+    const savedSelectionRef = useRef<SavedTextSelection | null>(null);
+    const pendingStoredMarkPositionRef = useRef<number | null>(null);
     const colorPickerContainerRef = useRef<HTMLDivElement>(null);
     const fontWeightOptions = useMemo(
-      () => createFontWeightOptions(fontFamilySelected),
-      [fontFamilySelected]
+      () =>
+        createFontWeightOptions(
+          fontFamilySelected.value === MIXED_STYLE_VALUE
+            ? editorBaseStyles.fontFamily
+            : fontFamilySelected
+        ),
+      [editorBaseStyles.fontFamily, fontFamilySelected]
     );
 
     const loadEditorFont = useCallback(
@@ -131,9 +265,148 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       []
     );
 
-    useEffect(() => {
-      fontSizeSelectedRef.current = fontSizeSelected;
-    }, [fontSizeSelected]);
+    const saveSelection = useCallback((editor: Editor) => {
+      const { from, to } = editor.state.selection;
+      savedSelectionRef.current = { from, to };
+
+      if (
+        pendingStoredMarkPositionRef.current !== null &&
+        (from !== to || from !== pendingStoredMarkPositionRef.current)
+      ) {
+        pendingStoredMarkPositionRef.current = null;
+      }
+    }, []);
+
+    const getCommandAtSavedSelection = useCallback(
+      (editor: Editor): ChainedCommands => {
+        const command = editor.chain();
+        const savedSelection = savedSelectionRef.current;
+
+        if (!savedSelection) {
+          return command.focus();
+        }
+
+        const docSize = editor.state.doc.content.size;
+        const from = Math.min(Math.max(savedSelection.from, 0), docSize);
+        const to = Math.min(Math.max(savedSelection.to, 0), docSize);
+
+        if (from === to) {
+          return command.setTextSelection(from);
+        }
+
+        return command.setTextSelection({ from, to });
+      },
+      []
+    );
+
+    const runAtSavedSelection = useCallback(
+      (
+        editor: Editor,
+        applyCommand: (command: ChainedCommands) => ChainedCommands
+      ) => {
+        const savedSelection = savedSelectionRef.current;
+        const selectionIsEmpty =
+          savedSelection && savedSelection.from === savedSelection.to
+            ? true
+            : !savedSelection && editor.state.selection.empty;
+        const storedMarkPosition =
+          savedSelection?.from ?? editor.state.selection.from;
+        pendingStoredMarkPositionRef.current = selectionIsEmpty
+          ? storedMarkPosition
+          : null;
+
+        let command = applyCommand(getCommandAtSavedSelection(editor));
+
+        if (!selectionIsEmpty) {
+          command = command.command(({ tr }) => {
+            tr.setStoredMarks(null);
+            return true;
+          });
+        }
+
+        command.run();
+        editor.view.focus();
+        saveSelection(editor);
+      },
+      [getCommandAtSavedSelection, saveSelection]
+    );
+
+    const syncToolbarState = useCallback(
+      (editor: Editor) => {
+        const textStyleAttributes = getTextStyleAttributesAtSelection(
+          editor,
+          pendingStoredMarkPositionRef.current
+        );
+        const paragraphAttributes = editor.getAttributes('paragraph');
+
+        const nextFontFamily =
+          textStyleAttributes.fontFamily === MIXED_STYLE_VALUE
+            ? MIXED_FONT_FAMILY_OPTION
+            : typeof textStyleAttributes.fontFamily === 'string'
+              ? (FONT_FAMILY_OPTIONS.find(
+                  option => option.value === textStyleAttributes.fontFamily
+                ) ?? editorBaseStyles.fontFamily)
+              : editorBaseStyles.fontFamily;
+
+        const nextFontWeightFamily =
+          nextFontFamily.value === MIXED_STYLE_VALUE
+            ? editorBaseStyles.fontFamily
+            : nextFontFamily;
+        const nextFontWeight =
+          textStyleAttributes.fontWeight === MIXED_STYLE_VALUE
+            ? MIXED_FONT_WEIGHT_OPTION
+            : typeof textStyleAttributes.fontWeight === 'string'
+              ? findFontWeightOption(
+                  createFontWeightOptions(nextFontWeightFamily),
+                  textStyleAttributes.fontWeight
+                )
+              : getDefaultFontWeightOption(nextFontWeightFamily);
+
+        const fontSize =
+          textStyleAttributes.fontSize === MIXED_STYLE_VALUE
+            ? MIXED_STYLE_VALUE
+            : typeof textStyleAttributes.fontSize === 'string'
+              ? textStyleAttributes.fontSize
+              : editorBaseStyles.fontSize.value;
+        const nextFontSize =
+          fontSize === MIXED_STYLE_VALUE
+            ? MIXED_FONT_SIZE_OPTION
+            : (FONT_SIZE_OPTIONS.find(option => option.value === fontSize) ?? {
+                label: fontSize.replace('px', ''),
+                value: fontSize,
+              });
+
+        const textAlign =
+          typeof paragraphAttributes.textAlign === 'string'
+            ? paragraphAttributes.textAlign
+            : defaultAlign;
+        const nextTextAlign =
+          TEXT_ALIGN_OPTIONS.find(option => option.value === textAlign) ??
+          editorBaseStyles.textAlign;
+
+        const nextColor =
+          textStyleAttributes.color === MIXED_STYLE_VALUE
+            ? selectedColor
+            : typeof textStyleAttributes.color === 'string'
+              ? textStyleAttributes.color
+              : editorBaseStyles.color;
+
+        setFontFamilySelected(prev =>
+          prev.value === nextFontFamily.value ? prev : nextFontFamily
+        );
+        setFontWeightSelected(prev =>
+          prev.value === nextFontWeight.value ? prev : nextFontWeight
+        );
+        setFontSizeSelected(prev =>
+          prev.value === nextFontSize.value ? prev : nextFontSize
+        );
+        setTextAlignSelected(prev =>
+          prev.value === nextTextAlign.value ? prev : nextTextAlign
+        );
+        setSelectedColor(prev => (prev === nextColor ? prev : nextColor));
+      },
+      [defaultAlign, editorBaseStyles, selectedColor]
+    );
 
     useEffect(() => {
       void loadEditorFont(fontFamilySelected.value, fontWeightSelected.value);
@@ -141,19 +414,14 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
 
     const editorContentStyle = useMemo<CSSProperties>(
       () => ({
-        fontFamily: fontFamilySelected.style?.fontFamily,
-        fontWeight: fontWeightSelected.value,
-        fontSize: fontSizeSelected.value || DEFAULT_FONT_SIZE_OPTION.value,
-        color: selectedColor,
-        textAlign: textAlignSelected.value,
+        fontFamily: editorBaseStyles.fontFamily.style?.fontFamily,
+        fontWeight: editorBaseStyles.fontWeight.value,
+        fontSize:
+          editorBaseStyles.fontSize.value || DEFAULT_FONT_SIZE_OPTION.value,
+        color: editorBaseStyles.color,
+        textAlign: editorBaseStyles.textAlign.value,
       }),
-      [
-        fontFamilySelected.style?.fontFamily,
-        fontWeightSelected.value,
-        fontSizeSelected.value,
-        selectedColor,
-        textAlignSelected.value,
-      ]
+      [editorBaseStyles]
     );
 
     const editor = useEditor({
@@ -166,44 +434,35 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
             'flex flex-col justify-center min-h-[120px] outline-none text-[14px] leading-7 selection:bg-primary/20 selection:text-inherit',
         },
         transformPastedHTML(html) {
-          return stripFontSizeFromHtml(html);
+          return normalizePastedHtmlToPlainText(html);
         },
-        handlePaste(view) {
-          const pasteFrom = view.state.selection.from;
-
-          window.requestAnimationFrame(() => {
-            const currentEditor = editorRef.current;
-            const pasteTo = currentEditor?.state.selection.from;
-
-            if (!currentEditor || !pasteTo || pasteTo <= pasteFrom) return;
-
-            currentEditor
-              .chain()
-              .setTextSelection({ from: pasteFrom, to: pasteTo })
-              .setFontSize(fontSizeSelectedRef.current.value)
-              .setTextSelection(pasteTo)
-              .run();
-          });
-
-          return false;
+        transformPastedText(text) {
+          return normalizePastedText(text);
         },
       },
       onCreate({ editor }) {
         editorRef.current = editor;
-        onChange?.(editor.getJSON());
+        saveSelection(editor);
+        syncToolbarState(editor);
         forceUpdate();
       },
       onUpdate({ editor }) {
+        saveSelection(editor);
+        syncToolbarState(editor);
         onChange?.(editor.getJSON());
         forceUpdate();
       },
-      onSelectionUpdate() {
+      onSelectionUpdate({ editor }) {
+        saveSelection(editor);
+        syncToolbarState(editor);
         forceUpdate();
       },
-      onTransaction() {
+      onTransaction({ editor }) {
+        syncToolbarState(editor);
         forceUpdate();
       },
-      onFocus() {
+      onFocus({ editor }) {
+        syncToolbarState(editor);
         forceUpdate();
       },
       onBlur() {
@@ -229,11 +488,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
 
     if (!editor) return null;
 
-    const textStyleAttributes = editor.getAttributes('textStyle');
-    const activeColor =
-      typeof textStyleAttributes.color === 'string'
-        ? textStyleAttributes.color
-        : selectedColor;
+    const activeColor = selectedColor;
     const italicActive = isTextMarkFullyActive(editor, 'italic');
     const underlineActive = isTextMarkFullyActive(editor, 'underline');
     const editorFocused = editor.isFocused;
@@ -244,21 +499,18 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       option: FontFamilyOption | { label: string; value: string }
     ) => {
       const selected = option as FontFamilyOption;
-      const nextWeight = getDefaultFontWeightOption(selected);
+      const nextWeight = findFontWeightOption(
+        createFontWeightOptions(selected),
+        getFallbackWeight(selected.value, fontWeightSelected.value)
+      );
 
       setFontFamilySelected(selected);
       setFontWeightSelected(nextWeight);
 
-      void (async () => {
-        await loadEditorFont(selected.value, nextWeight.value);
-
-        editor
-          .chain()
-          .focus()
-          .setFontFamily(selected.value)
-          .setFontWeight(nextWeight.value)
-          .run();
-      })();
+      runAtSavedSelection(editor, command =>
+        command.setFontFamily(selected.value).setFontWeight(nextWeight.value)
+      );
+      void loadEditorFont(selected.value, nextWeight.value);
     };
 
     const handleFontWeightSelect = (
@@ -266,10 +518,15 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
     ) => {
       const selected = option as FontWeightOption;
       setFontWeightSelected(selected);
-      void (async () => {
-        await loadEditorFont(fontFamilySelected.value, selected.value);
-        editor.chain().focus().setFontWeight(selected.value).run();
-      })();
+      runAtSavedSelection(editor, command =>
+        command.setFontWeight(selected.value)
+      );
+      void loadEditorFont(
+        fontFamilySelected.value === MIXED_STYLE_VALUE
+          ? editorBaseStyles.fontFamily.value
+          : fontFamilySelected.value,
+        selected.value
+      );
     };
 
     const handleFontSizeSelect = (
@@ -278,7 +535,9 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       const selected = option as FontSizeOption;
       setFontSizeSelected(selected);
       if (selected.value) {
-        editor.chain().focus().setFontSize(selected.value).run();
+        runAtSavedSelection(editor, command =>
+          command.setFontSize(selected.value)
+        );
       }
     };
 
@@ -291,14 +550,18 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       setFontSizeSelected(option);
 
       if (numericValue) {
-        editor.chain().setFontSize(option.value).run();
+        runAtSavedSelection(editor, command =>
+          command.setFontSize(option.value)
+        );
       }
     };
 
     const handleFontSizeInputBlur = () => {
       if (!fontSizeSelected.value) {
         setFontSizeSelected(DEFAULT_FONT_SIZE_OPTION);
-        editor.chain().setFontSize(DEFAULT_FONT_SIZE_OPTION.value).run();
+        runAtSavedSelection(editor, command =>
+          command.setFontSize(DEFAULT_FONT_SIZE_OPTION.value)
+        );
       }
     };
 
@@ -307,7 +570,9 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
     ) => {
       const selected = option as TextAlignOption;
       setTextAlignSelected(selected);
-      editor.chain().focus().setTextAlign(selected.value).run();
+      runAtSavedSelection(editor, command =>
+        command.setTextAlign(selected.value)
+      );
     };
 
     const handleColorPickerToggle = () => {
@@ -315,25 +580,34 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
     };
 
     const handleItalicToggle = () => {
-      const command = editor.chain().focus();
-
       if (italicActive) {
-        command.unsetItalic().setFontStyleOverride('normal').run();
+        runAtSavedSelection(editor, command =>
+          command.unsetItalic().setFontStyleOverride('normal')
+        );
         return;
       }
 
-      command.setItalic().setFontStyleOverride(null).run();
+      runAtSavedSelection(editor, command =>
+        command.setItalic().setFontStyleOverride(null)
+      );
     };
 
     const handleUnderlineToggle = () => {
-      const command = editor.chain().focus();
-
       if (underlineActive) {
-        command.unsetUnderline().setTextDecorationOverride('none').run();
+        runAtSavedSelection(editor, command =>
+          command.unsetUnderline().setTextDecorationOverride('none')
+        );
         return;
       }
 
-      command.setUnderline().setTextDecorationOverride(null).run();
+      runAtSavedSelection(editor, command =>
+        command.setUnderline().setTextDecorationOverride(null)
+      );
+    };
+
+    const handleColorChange = (color: string) => {
+      setSelectedColor(color);
+      runAtSavedSelection(editor, command => command.setColor(color));
     };
 
     return (
@@ -402,10 +676,10 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
               </button>
 
               <TextEditorColorPickerPopover
-                editor={editor}
                 isOpen={colorPickerOpen}
+                initialHex={activeColor}
                 onClose={() => setColorPickerOpen(false)}
-                onColorChange={setSelectedColor}
+                onColorChange={handleColorChange}
                 containerRef={colorPickerContainerRef}
               />
             </div>
