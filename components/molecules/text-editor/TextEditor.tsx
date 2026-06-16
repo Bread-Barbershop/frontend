@@ -179,8 +179,6 @@ const getTextStyleAttributesAtSelection = (
     selectedValues.fontWeight.add(textStyle.fontWeight);
     selectedValues.fontSize.add(textStyle.fontSize);
     selectedValues.color.add(textStyle.color);
-
-    return;
   });
 
   return {
