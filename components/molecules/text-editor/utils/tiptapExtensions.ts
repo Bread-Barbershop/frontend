@@ -10,6 +10,7 @@ import Text from '@tiptap/extension-text';
 import TextAlign from '@tiptap/extension-text-align';
 import { FontFamily, FontSize, TextStyle } from '@tiptap/extension-text-style';
 import Underline from '@tiptap/extension-underline';
+import { UndoRedo } from '@tiptap/extensions/undo-redo';
 
 import { FontWeight } from './fontWeight';
 import {
@@ -41,6 +42,9 @@ export function createTextEditorBarExtensions(
     FontSize,
     FontStyleOverride,
     TextDecorationOverride,
+    UndoRedo.configure({
+      depth: 100,
+    }),
     TextAlign.configure({
       types: ['paragraph'],
     }),

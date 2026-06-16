@@ -1,5 +1,4 @@
 import {
-  getDefaultFontWeight,
   getFontFamilies,
   getFontFallbackStack,
   getFontWeights,
@@ -35,6 +34,29 @@ const FONT_WEIGHT_LABELS: Record<string, string> = {
 };
 
 const DEFAULT_FONT_FAMILY = 'LINESeedKR';
+
+const getRegularFallbackWeight = (
+  weights: string[],
+  currentWeight?: string
+) => {
+  if (currentWeight && weights.includes(currentWeight)) return currentWeight;
+  if (weights.includes('400')) return '400';
+
+  return (
+    weights
+      .filter(weight => !Number.isNaN(Number(weight)))
+      .toSorted((a, b) => {
+        const aDistance = Math.abs(Number(a) - 400);
+        const bDistance = Math.abs(Number(b) - 400);
+
+        if (aDistance !== bDistance) return aDistance - bDistance;
+
+        return Number(a) - Number(b);
+      })[0] ??
+    weights[0] ??
+    '400'
+  );
+};
 
 export const getFontWeightLabel = (weight: string) => {
   return FONT_WEIGHT_LABELS[weight] ?? weight;
@@ -95,11 +117,5 @@ export const getFontFamilyOption = (value?: string | null) => {
 export const getFallbackWeight = (family: string, currentWeight?: string) => {
   const weights = getFontWeights(resolveFontFamily(family));
 
-  if (currentWeight && weights.includes(currentWeight)) return currentWeight;
-
-  const defaultWeight = getDefaultFontWeight(resolveFontFamily(family));
-  if (weights.includes(defaultWeight)) return defaultWeight;
-  if (weights.includes('400')) return '400';
-
-  return weights[0] ?? '400';
+  return getRegularFallbackWeight(weights, currentWeight);
 };

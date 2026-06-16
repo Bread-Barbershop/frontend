@@ -19,10 +19,7 @@ import {
   type FloatingPlacementMode,
 } from '@/shared/utils/floatingPosition';
 
-import type { Editor } from '@tiptap/react';
-
 interface Props {
-  editor: Editor | null;
   isOpen: boolean;
   initialHex?: string;
   onClose?: () => void;
@@ -36,7 +33,6 @@ const PANEL_GAP = 12;
 const LEFT_PANEL_SELECTOR = '[data-editor-left-panel]';
 
 export default function TextEditorColorPickerPopover({
-  editor,
   isOpen,
   initialHex = '#FF4D6D',
   onClose,
@@ -149,7 +145,6 @@ export default function TextEditorColorPickerPopover({
               const nextColor = `rgba(${r}, ${g}, ${b}, ${a})`;
 
               onColorChange?.(nextColor);
-              editor?.chain().focus().setColor(nextColor).run();
             }}
           />
         </motion.div>
