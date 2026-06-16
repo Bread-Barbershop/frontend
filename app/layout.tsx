@@ -55,7 +55,7 @@ const lineSeedKr = localFont({
 const serviceName = 'Invia';
 const defaultTitle = 'Invia | 초대장의 새로운 기준';
 const defaultDescription =
-  '모든 종류의 초대장을 무료로 만드세요. 개인정보를 요구하지 않으며, 모든 데이터는 당신의 Google Drive에 안전하게 보관됩니다. 기록이 남지 않는 가장 투명한 초대장 서비스.';
+  '함께하고 싶은 사람에게 마음을 전하는 일, 무료로 개인정보 없이 할 수 있어요.';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://invia.co.kr'),
@@ -65,9 +65,6 @@ export const metadata: Metadata = {
     template: `%s | ${serviceName}`,
   },
   description: defaultDescription,
-  alternates: {
-    canonical: '/',
-  },
   openGraph: {
     title: defaultTitle,
     description: defaultDescription,

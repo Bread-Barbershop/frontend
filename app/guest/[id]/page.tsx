@@ -19,6 +19,12 @@ import type { Metadata } from 'next';
 export const dynamic = 'force-static';
 export const revalidate = false;
 
+const noindexRobots = {
+  index: false,
+  follow: false,
+  nocache: true,
+} satisfies NonNullable<Metadata['robots']>;
+
 function renderPrivateInvitationNotice() {
   return (
     <GuestAccessNotice
@@ -43,7 +49,9 @@ export async function generateMetadata({
   try {
     const result = await loadGuestPayload(id);
     if (result.status !== 'ok') {
-      return {};
+      return {
+        robots: noindexRobots,
+      };
     }
 
     const { payload } = result;
@@ -55,6 +63,7 @@ export async function generateMetadata({
     return {
       title,
       description,
+      robots: noindexRobots,
       openGraph: {
         title,
         description,
@@ -71,7 +80,9 @@ export async function generateMetadata({
       },
     };
   } catch {
-    return {};
+    return {
+      robots: noindexRobots,
+    };
   }
 }
 
