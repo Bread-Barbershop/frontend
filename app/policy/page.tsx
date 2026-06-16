@@ -3,7 +3,23 @@ import { ShieldCheck } from 'lucide-react';
 import ContactEmailActions from '@/features/contact/components/ContactEmailActions';
 import DashboardShell from '@/features/session/components/DashboardShell';
 
+import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+
+export const metadata: Metadata = {
+  title: '개인정보처리방침',
+  description:
+    'Invia가 개인정보와 Google Drive 데이터를 어떻게 처리하고 보호하는지 안내합니다.',
+  alternates: {
+    canonical: '/policy',
+  },
+  openGraph: {
+    title: '개인정보처리방침 | Invia',
+    description:
+      'Invia가 개인정보와 Google Drive 데이터를 어떻게 처리하고 보호하는지 안내합니다.',
+    url: '/policy',
+  },
+};
 
 type PolicyContent =
   | {

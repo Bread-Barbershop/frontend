@@ -4,6 +4,14 @@ import CarouselBase from '@/app/dashboard/components/carousel/CarouselBase';
 import Cta from './components/Cta';
 import { getShuffledShowcaseItems } from './components/showcaseItems';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: '/',
+  },
+};
+
 export default async function Home() {
   const session = await getAuthSession();
   const showcaseItems = getShuffledShowcaseItems();
