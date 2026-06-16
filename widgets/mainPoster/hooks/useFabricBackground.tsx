@@ -12,6 +12,7 @@ interface Props {
   canvas: Canvas | null;
   saveHistory: () => void;
 }
+
 export const useFabricBackground = ({ canvas, saveHistory }: Props) => {
   const [backgroundColor, setBackgroundColor] = useState<ColorPickerValue>({
     h: 0,
@@ -19,13 +20,13 @@ export const useFabricBackground = ({ canvas, saveHistory }: Props) => {
     v: 100,
     a: 1,
   });
+  const [backgroundImageOpacity, setBackgroundImageOpacity] = useState(1);
 
   const updateBackgroundColor = (
     color: ColorPickerChange | ColorPickerValue
   ) => {
     if (!canvas) return;
 
-    // 기존 배경 이미지 객체 제거
     const existingBg = canvas
       .getObjects()
       .find(obj => obj.get('id') === 'background-layer');
@@ -52,10 +53,9 @@ export const useFabricBackground = ({ canvas, saveHistory }: Props) => {
       const objects = canvas.getObjects();
       const existingBg = objects.find(
         obj => obj.get('id') === 'background-layer'
-      ) as FabricImage;
+      ) as FabricImage | undefined;
 
       if (existingBg) {
-        // 기존 배경이 있으면 소스만 교체
         await existingBg.setSrc(base64);
         const scaleX = canvas.width / existingBg.width;
         const scaleY = canvas.height / existingBg.height;
@@ -67,6 +67,7 @@ export const useFabricBackground = ({ canvas, saveHistory }: Props) => {
           originY: 'center',
           left: canvas.width / 2,
           top: canvas.height / 2,
+          opacity: existingBg.opacity ?? backgroundImageOpacity,
         });
         existingBg.setCoords();
         canvas.requestRenderAll();
@@ -74,10 +75,8 @@ export const useFabricBackground = ({ canvas, saveHistory }: Props) => {
         return;
       }
 
-      // 새 배경 이미지 생성
       const img = await FabricImage.fromURL(base64);
 
-      // 캔버스 크기에 맞춰 이미지 스케일링 (Cover)
       const scaleX = canvas.width / img.width;
       const scaleY = canvas.height / img.height;
       const scale = Math.max(scaleX, scaleY);
@@ -90,7 +89,8 @@ export const useFabricBackground = ({ canvas, saveHistory }: Props) => {
         originY: 'center',
         left: canvas.width / 2,
         top: canvas.height / 2,
-        selectable: false, // 기본적으로 선택 불가 (배경 탭에서 제어)
+        opacity: backgroundImageOpacity,
+        selectable: false,
         evented: false,
       });
 
@@ -102,9 +102,29 @@ export const useFabricBackground = ({ canvas, saveHistory }: Props) => {
     }
   };
 
+  const updateBackgroundImageOpacity = (opacity: number) => {
+    if (!canvas) return;
+
+    const existingBg = canvas
+      .getObjects()
+      .find(obj => obj.get('id') === 'background-layer') as
+      | FabricImage
+      | undefined;
+
+    setBackgroundImageOpacity(opacity);
+
+    if (!existingBg) return;
+
+    existingBg.set({ opacity });
+    canvas.requestRenderAll();
+    saveHistory();
+  };
+
   return {
     backgroundColor,
+    backgroundImageOpacity,
     updateBackgroundColor,
     setBackgroundImage,
+    updateBackgroundImageOpacity,
   };
 };

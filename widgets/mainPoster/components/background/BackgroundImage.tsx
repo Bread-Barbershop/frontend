@@ -1,5 +1,6 @@
 import { FabricImage } from 'fabric';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
@@ -8,8 +9,16 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 export const BackgroundImage = () => {
-  const { canvas, compressImage, setBackgroundImage, activeInfo } =
-    useFabricContext();
+  const searchParams = useSearchParams();
+  const isAdmin = searchParams.get('type') === 'admin';
+  const {
+    canvas,
+    compressImage,
+    setBackgroundImage,
+    updateBackgroundImageOpacity,
+    backgroundImageOpacity,
+    activeInfo,
+  } = useFabricContext();
   const { activeTab } = useEditorStore(
     useShallow(state => ({
       activeTab: state.activeTab,
@@ -17,23 +26,24 @@ export const BackgroundImage = () => {
   );
   const inputRef = useRef<HTMLInputElement>(null);
   const [imageSrc, setImageSrc] = useState('');
+  const [opacity, setOpacity] = useState(100);
 
   const updateImageSrc = async () => {
     if (!canvas) return;
-    // 항상 배경 레이어를 타겟으로 함 (다른 객체가 선택되어도 프리뷰는 배경 유지)
+
     const target = canvas
       .getObjects()
       .find(obj => obj.get('id') === 'background-layer') as FabricImage;
 
     if (!target || !(target instanceof FabricImage)) {
       setImageSrc('');
+      setOpacity(Math.round(backgroundImageOpacity * 100));
       return;
     }
 
-    // 1. 객체 복제 (원본 객체에 영향 주지 않기 위함)
-    const clonedObject = await target.clone();
+    setOpacity(Math.round((target.opacity ?? 1) * 100));
 
-    // 2. 리사이징용 캔버스 생성 (335px 제한) - 필터 적용 속도 최적화
+    const clonedObject = await target.clone();
     const originalElem = clonedObject.getElement();
     const offscreenCanvas = document.createElement('canvas');
     const MAX_SIZE = 335;
@@ -46,11 +56,9 @@ export const BackgroundImage = () => {
         height *= MAX_SIZE / width;
         width = MAX_SIZE;
       }
-    } else {
-      if (height > MAX_SIZE) {
-        width *= MAX_SIZE / height;
-        height = MAX_SIZE;
-      }
+    } else if (height > MAX_SIZE) {
+      width *= MAX_SIZE / height;
+      height = MAX_SIZE;
     }
 
     offscreenCanvas.width = width;
@@ -67,8 +75,8 @@ export const BackgroundImage = () => {
       scaleY: 1,
       left: 0,
       top: 0,
-      width: width,
-      height: height,
+      width,
+      height,
       cropX: 0,
       cropY: 0,
     });
@@ -87,7 +95,6 @@ export const BackgroundImage = () => {
     setImageSrc(newDataUrl);
   };
 
-  // 배경 편집 모드 활성화 (배경 탭 활성화 시에만 배경 레이어 선택 가능하도록 함)
   useEffect(() => {
     if (!canvas) return;
 
@@ -96,19 +103,16 @@ export const BackgroundImage = () => {
     const bgObj = objects.find(obj => obj.get('id') === 'background-layer');
 
     if (isActive) {
-      // 배경 모드: 배경 선택 가능
       if (bgObj) {
         bgObj.set({ selectable: true, evented: true });
         canvas.setActiveObject(bgObj);
         canvas.sendObjectToBack(bgObj);
       }
     } else {
-      // 일반 모드: 배경 비활성화
       if (bgObj) {
         bgObj.set({ selectable: false, evented: false });
       }
 
-      // 혹시 배경이 선택되어 있었다면 해제
       const currentActive = canvas.getActiveObject();
       if (currentActive === bgObj) {
         canvas.discardActiveObject();
@@ -116,15 +120,14 @@ export const BackgroundImage = () => {
     }
 
     canvas.requestRenderAll();
-    updateImageSrc();
+    void updateImageSrc();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canvas, activeTab]);
 
-  // 객체 변경 시 프리뷰 업데이트
   useEffect(() => {
-    updateImageSrc();
+    void updateImageSrc();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeInfo]);
+  }, [activeInfo, backgroundImageOpacity]);
 
   const handleImageUpload = () => {
     inputRef.current?.click();
@@ -141,7 +144,6 @@ export const BackgroundImage = () => {
       if (canvas) {
         await setBackgroundImage(compressed);
 
-        // 배경 객체 생성/업데이트 후 다시 활성화
         const bgObj = canvas
           .getObjects()
           .find(obj => obj.get('id') === 'background-layer');
@@ -157,8 +159,44 @@ export const BackgroundImage = () => {
     e.target.value = '';
   };
 
+  const handleOpacityChange = (value: number) => {
+    setOpacity(value);
+    updateBackgroundImageOpacity(value / 100);
+  };
+
   return (
-    <section className="flex flex-col items-center gap-3">
+    <section className="flex w-full flex-col items-center gap-3">
+      {isAdmin && (
+        <div className="w-full px-1">
+          <div className="mb-2 text-center text-[13px] font-semibold text-text-primary">
+            투명도
+          </div>
+          <div className="flex w-full items-center gap-1.5">
+            <input
+              type="text"
+              readOnly
+              value={opacity}
+              className="flex h-[32px] w-[47px] items-center justify-center rounded-lg border border-border-neutral bg-bg-base text-center text-xs focus:outline-none"
+            />
+            <div className="flex-1 px-1">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value={opacity}
+                disabled={!imageSrc}
+                onChange={e => {
+                  handleOpacityChange(parseInt(e.target.value, 10));
+                }}
+                className="h-1 w-full cursor-pointer appearance-none rounded-full bg-[#E5E7EB] accent-[#3B82F6] disabled:cursor-not-allowed disabled:opacity-40
+                  [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:size-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#3B82F6]
+                  [&::-moz-range-thumb]:size-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#3B82F6] [&::-moz-range-thumb]:border-none"
+              />
+            </div>
+          </div>
+        </div>
+      )}
       <div className="py-5">
         {imageSrc ? (
           <Image
