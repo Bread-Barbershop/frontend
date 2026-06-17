@@ -45,15 +45,18 @@ const updateSlotRectPattern = (rect: Rect) => {
   rect.set('fill', createSlotPattern());
 };
 
-const createSlotMeta = (): ImageSlotMeta => ({
-  key: `slot-${Date.now()}`,
-  label: `Photo Slot ${Date.now()}`,
-  replaceable: true,
-  aspectMode: 'cover',
-  required: false,
-  order: 1,
-  filled: false,
-});
+const createSlotMeta = (): ImageSlotMeta => {
+  const ts = Date.now();
+  return {
+    key: `slot-${ts}`,
+    label: `Photo Slot ${ts}`,
+    replaceable: true,
+    aspectMode: 'cover',
+    required: false,
+    order: 1,
+    filled: false,
+  };
+};
 
 const applySlotMetadata = (rect: SlotRect) => {
   const slot = rect.slot?.replaceable ? rect.slot : createSlotMeta();

@@ -187,22 +187,28 @@ export const TemplateImagePanel = () => {
             disabled={!position.canMoveX || !activeSlotImage || !canvas}
             onChange={event => {
               const numericValue = event.target.value.replace(/[^0-9-]/g, '');
-              if (numericValue !== '' && !/^-?\d+$/.test(numericValue)) return;
+              if (
+                numericValue !== '' &&
+                numericValue !== '-' &&
+                !/^-?\d+$/.test(numericValue)
+              )
+                return;
 
               setDisplayValue(current => ({
                 ...current,
                 x: numericValue,
               }));
 
-              if (numericValue !== '') {
+              if (numericValue !== '' && numericValue !== '-') {
                 handleSlotPositionChange('x', Number(numericValue));
               }
             }}
             onBlur={() => {
+              const parsed = Number(displayValue.x);
               const nextValue =
-                displayValue.x === ''
+                displayValue.x === '' || displayValue.x === '-' || isNaN(parsed)
                   ? sliderPosition.x
-                  : Number(displayValue.x);
+                  : parsed;
               handleSlotPositionCommit('x', nextValue);
             }}
             className="flex h-[32px] w-[47px] items-center justify-center rounded-lg border border-border-neutral bg-bg-base text-center text-xs focus:border-primary focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
@@ -244,22 +250,28 @@ export const TemplateImagePanel = () => {
             disabled={!position.canMoveY || !activeSlotImage || !canvas}
             onChange={event => {
               const numericValue = event.target.value.replace(/[^0-9-]/g, '');
-              if (numericValue !== '' && !/^-?\d+$/.test(numericValue)) return;
+              if (
+                numericValue !== '' &&
+                numericValue !== '-' &&
+                !/^-?\d+$/.test(numericValue)
+              )
+                return;
 
               setDisplayValue(current => ({
                 ...current,
                 y: numericValue,
               }));
 
-              if (numericValue !== '') {
+              if (numericValue !== '' && numericValue !== '-') {
                 handleSlotPositionChange('y', Number(numericValue));
               }
             }}
             onBlur={() => {
+              const parsed = Number(displayValue.y);
               const nextValue =
-                displayValue.y === ''
+                displayValue.y === '' || displayValue.y === '-' || isNaN(parsed)
                   ? sliderPosition.y
-                  : Number(displayValue.y);
+                  : parsed;
               handleSlotPositionCommit('y', nextValue);
             }}
             className="flex h-[32px] w-[47px] items-center justify-center rounded-lg border border-border-neutral bg-bg-base text-center text-xs focus:border-primary focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
