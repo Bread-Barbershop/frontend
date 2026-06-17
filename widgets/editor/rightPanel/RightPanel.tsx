@@ -5,7 +5,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
-import PosterPanel from './components/PosterPanel';
+import { PosterPanel } from './components/PosterPanel';
 import TypePanel from './components/TypePanel';
 import { useComponentType } from './hooks/useComponentType';
 
