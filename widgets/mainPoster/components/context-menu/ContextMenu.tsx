@@ -1,5 +1,4 @@
 import { TPointerEvent, TPointerEventInfo } from 'fabric';
-import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
@@ -8,14 +7,11 @@ import ControlZindex from './ControlZindex';
 import CopyAndPaste from './CopyAndPaste';
 import { DeleteObject } from './DeleteObject';
 import { LockObject } from './LockObject';
-import { RegisterSlot } from './RegisterSlot';
 import { UndoRedo } from './UndoRedo';
 
 export function ContextMenu() {
   const CONTEXT_MENU_MAX_HEIGHT = 400;
   const { canvas } = useFabricContext();
-  const searchParams = useSearchParams();
-  const isAdmin = searchParams.get('type') === 'admin';
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
@@ -80,7 +76,6 @@ export function ContextMenu() {
       }
       onContextMenu={e => e.preventDefault()}
     >
-      {isAdmin && <RegisterSlot onClick={() => setOpen(false)} />}
       <CopyAndPaste onClick={() => setOpen(false)} />
       <ControlZindex onClick={() => setOpen(false)} />
       <UndoRedo onClick={() => setOpen(false)} />

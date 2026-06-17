@@ -22,8 +22,6 @@ export const useKeyboardEvents = (
     redo,
     handleDeleteShape,
     toggleDrawingMode,
-    convertActiveRectToSlot,
-    unregisterActiveSlot,
   } = useFabricContext();
 
   const { setActiveTab } = useEditorStore(
@@ -41,29 +39,6 @@ export const useKeyboardEvents = (
 
       const mod = e.ctrlKey || e.metaKey;
 
-      // 슬롯 설정 ctrl + p
-      if (mod && e.code === 'KeyP') {
-        const activeObj = canvas.getActiveObject();
-        const isEditingText =
-          activeObj && 'isEditing' in activeObj && activeObj.isEditing;
-        if (activeObj && !isEditingText) {
-          e.preventDefault();
-          convertActiveRectToSlot();
-        }
-      }
-
-      // 슬롯 해제 ctrl + shift + p
-      if (mod && e.shiftKey && e.code === 'KeyP') {
-        const activeObj = canvas.getActiveObject();
-        const isEditingText =
-          activeObj && 'isEditing' in activeObj && activeObj.isEditing;
-        if (activeObj && !isEditingText) {
-          e.preventDefault();
-          unregisterActiveSlot();
-        }
-      }
-
-      // 복사 ctrl + c
       if (mod && e.code === 'KeyC') {
         const activeObj = canvas.getActiveObject();
         const isEditingText =
@@ -74,7 +49,6 @@ export const useKeyboardEvents = (
         }
       }
 
-      // 붙여넣기 ctrl + v
       if (mod && e.code === 'KeyV') {
         const activeObj = canvas.getActiveObject();
         const isEditingText =
@@ -85,7 +59,6 @@ export const useKeyboardEvents = (
         }
       }
 
-      // 잠그기 ctrl + l
       if (mod && !e.shiftKey && e.code === 'KeyL') {
         const activeObj = canvas.getActiveObject();
         const isEditingText =
@@ -96,7 +69,6 @@ export const useKeyboardEvents = (
         }
       }
 
-      // 잠금 해제 ctrl + shift + l
       if (mod && e.shiftKey && e.code === 'KeyL') {
         const activeObj = canvas.getActiveObject();
         const isEditingText =
@@ -107,7 +79,6 @@ export const useKeyboardEvents = (
         }
       }
 
-      // 맨 위로 보내기 ctrl + shift + [
       if (mod && e.shiftKey && e.code === 'BracketLeft') {
         const activeObj = canvas.getActiveObject();
         const isEditingText =
@@ -118,7 +89,6 @@ export const useKeyboardEvents = (
         }
       }
 
-      // 맨 아래로 보내기 ctrl + shift + ]
       if (mod && e.shiftKey && e.code === 'BracketRight') {
         const activeObj = canvas.getActiveObject();
         const isEditingText =
@@ -129,7 +99,6 @@ export const useKeyboardEvents = (
         }
       }
 
-      // 위로 보내기 ctrl + [
       if (mod && !e.shiftKey && e.code === 'BracketLeft') {
         const activeObj = canvas.getActiveObject();
         const isEditingText =
@@ -140,7 +109,6 @@ export const useKeyboardEvents = (
         }
       }
 
-      // 아래로 보내기 ctrl + ]
       if (mod && !e.shiftKey && e.code === 'BracketRight') {
         const activeObj = canvas.getActiveObject();
         const isEditingText =
@@ -151,12 +119,10 @@ export const useKeyboardEvents = (
         }
       }
 
-      // 삭제 delete
       if (e.key === 'Delete') {
         handleDeleteShape(canvas, e);
       }
 
-      // 되돌리기 ctrl + z
       if (mod && !e.shiftKey && e.code === 'KeyZ') {
         const activeObj = canvas.getActiveObject();
         const isEditingText =
@@ -168,7 +134,6 @@ export const useKeyboardEvents = (
         }
       }
 
-      // 다시하기 ctrl + shift + z
       if (mod && e.shiftKey && e.code === 'KeyZ') {
         const activeObj = canvas.getActiveObject();
         const isEditingText =

@@ -12,10 +12,12 @@ type SlotRect = Rect & {
   slot?: ImageSlotMeta;
 };
 
+const SLOT_PATTERN_CELL_SIZE = 72;
+
 const createSlotPattern = () => {
   const patternCanvas = document.createElement('canvas');
-  patternCanvas.width = 24;
-  patternCanvas.height = 24;
+  patternCanvas.width = SLOT_PATTERN_CELL_SIZE;
+  patternCanvas.height = SLOT_PATTERN_CELL_SIZE;
   const ctx = patternCanvas.getContext('2d');
 
   if (!ctx) {
@@ -23,15 +25,53 @@ const createSlotPattern = () => {
   }
 
   ctx.fillStyle = '#F3F4F6';
-  ctx.fillRect(0, 0, 24, 24);
+  ctx.fillRect(0, 0, SLOT_PATTERN_CELL_SIZE, SLOT_PATTERN_CELL_SIZE);
   ctx.fillStyle = '#D1D5DB';
-  ctx.fillRect(0, 0, 12, 12);
-  ctx.fillRect(12, 12, 12, 12);
+  ctx.fillRect(0, 0, SLOT_PATTERN_CELL_SIZE / 2, SLOT_PATTERN_CELL_SIZE / 2);
+  ctx.fillRect(
+    SLOT_PATTERN_CELL_SIZE / 2,
+    SLOT_PATTERN_CELL_SIZE / 2,
+    SLOT_PATTERN_CELL_SIZE / 2,
+    SLOT_PATTERN_CELL_SIZE / 2
+  );
 
   return new Pattern({
     source: patternCanvas,
     repeat: 'repeat',
   });
+};
+
+const updateSlotRectPattern = (rect: Rect) => {
+  rect.set('fill', createSlotPattern());
+};
+
+const createSlotMeta = (): ImageSlotMeta => {
+  const ts = Date.now();
+  return {
+    key: `slot-${ts}`,
+    label: `Photo Slot ${ts}`,
+    replaceable: true,
+    aspectMode: 'cover',
+    required: false,
+    order: 1,
+    filled: false,
+  };
+};
+
+const applySlotMetadata = (rect: SlotRect) => {
+  const slot = rect.slot?.replaceable ? rect.slot : createSlotMeta();
+
+  rect.set({
+    id: rect.get('id') || slot.key,
+    name: 'slot-placeholder',
+    fill: createSlotPattern(),
+    stroke: null,
+    strokeWidth: 0,
+    strokeDashArray: null,
+    slot,
+  });
+
+  return rect;
 };
 
 const normalizeSlotRectScale = (rect: Rect) => {
@@ -62,6 +102,7 @@ const normalizeSlotRectScale = (rect: Rect) => {
 const attachSlotRectBehavior = (rect: Rect) => {
   rect.on('modified', () => {
     normalizeSlotRectScale(rect);
+    updateSlotRectPattern(rect);
   });
 };
 
@@ -94,7 +135,6 @@ export const useFabricSlot = ({
       top: canvas.height ? canvas.height / 2 : 190,
       width: 120,
       height: 180,
-      fill: createSlotPattern(),
       objectCaching: false,
       selectable: true,
       evented: true,
@@ -103,6 +143,7 @@ export const useFabricSlot = ({
       originY: 'center',
     });
 
+    applySlotMetadata(rect as SlotRect);
     attachSlotRectBehavior(rect);
     canvas.add(rect);
     canvas.setActiveObject(rect);
@@ -123,25 +164,8 @@ export const useFabricSlot = ({
     const rect = activeObject as SlotRect;
     if (rect.slot?.replaceable) return false;
 
-    const slotKey = `slot-${Date.now()}`;
     normalizeSlotRectScale(rect);
-    rect.set({
-      id: rect.get('id') || slotKey,
-      name: 'slot-placeholder',
-      fill: createSlotPattern(),
-      stroke: null,
-      strokeWidth: 0,
-      strokeDashArray: null,
-      slot: {
-        key: slotKey,
-        label: `Photo Slot ${Date.now()}`,
-        replaceable: true,
-        aspectMode: 'cover',
-        required: false,
-        order: 1,
-        filled: false,
-      },
-    });
+    applySlotMetadata(rect);
     attachSlotRectBehavior(rect);
     rect.setCoords();
     canvas.requestRenderAll();
@@ -181,10 +205,7 @@ export const useFabricSlot = ({
     return true;
   };
 
-  const replaceSlotImage = async (
-    targetImage: FabricObject,
-    url: string
-  ) => {
+  const replaceSlotImage = async (targetImage: FabricObject, url: string) => {
     if (!canvas) return null;
 
     const objectIndex = canvas.getObjects().indexOf(targetImage);

@@ -1,52 +1,12 @@
 {
   "templates": [
     {
-      "id": "wedding_02_eng",
-      "name": "웨딩 02 (영문)",
+      "id": "wedding_03",
+      "name": "웨딩 03",
       "category": "wedding",
       "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/wedding_02_eng.png",
-      "jsonUrl": "/templates/json/wedding_02_eng.v1.json"
-    },
-    {
-      "id": "wedding_04",
-      "name": "웨딩 04",
-      "category": "wedding",
-      "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/wedding_04.png",
-      "jsonUrl": "/templates/json/wedding_04.v1.json"
-    },
-    {
-      "id": "test_01",
-      "name": "테스트 01",
-      "category": "wedding",
-      "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/test_01.png",
-      "jsonUrl": "/templates/json/test_01.json"
-    },
-    {
-      "id": "test_02",
-      "name": "테스트 02",
-      "category": "wedding",
-      "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/test_02.png",
-      "jsonUrl": "/templates/json/test_02.json"
-    },
-    {
-      "id": "test_03",
-      "name": "테스트 03",
-      "category": "wedding",
-      "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/test_03.png",
-      "jsonUrl": "/templates/json/test_03.json"
-    },
-    {
-      "id": "test_04",
-      "name": "테스트 04",
-      "category": "wedding",
-      "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/test_04.png",
-      "jsonUrl": "/templates/json/test_04.json"
+      "thumbnailUrl": "/templates/thumbnails/wedding_03.png",
+      "jsonUrl": "/templates/json/wedding_03.v1.json"
     }
   ]
 }
