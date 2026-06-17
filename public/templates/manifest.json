@@ -82,7 +82,7 @@
     },
     {
       "id": "firstBirthday_01",
-      "name": "돌잡이 01",
+      "name": "돌잔치 01",
       "category": "firstBirthday",
       "version": 1,
       "thumbnailUrl": "/templates/thumbnails/firstBirthday_01.png",
@@ -90,7 +90,7 @@
     },
     {
       "id": "firstBirthday_02",
-      "name": "돌잡이 02",
+      "name": "돌잔치 02",
       "category": "firstBirthday",
       "version": 1,
       "thumbnailUrl": "/templates/thumbnails/firstBirthday_02.png",
