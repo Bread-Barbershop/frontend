@@ -1,4 +1,9 @@
-export type TemplateCategory = 'birthday' | 'conference' | 'wedding' | 'etc';
+export type TemplateCategory =
+  | 'birthday'
+  | 'conference'
+  | 'firstBirthday'
+  | 'wedding'
+  | 'etc';
 
 export interface TemplateItem {
   id: string;

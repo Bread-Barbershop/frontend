@@ -79,6 +79,22 @@
       "version": 1,
       "thumbnailUrl": "/templates/thumbnails/birthday_04.png",
       "jsonUrl": "/templates/json/birthday_04.v1.json"
+    },
+    {
+      "id": "firstBirthday_01",
+      "name": "돌잡이 01",
+      "category": "firstBirthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/firstBirthday_01.png",
+      "jsonUrl": "/templates/json/firstBirthday_01.v1.json"
+    },
+    {
+      "id": "firstBirthday_02",
+      "name": "돌잡이 02",
+      "category": "firstBirthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/firstBirthday_02.png",
+      "jsonUrl": "/templates/json/firstBirthday_02.v1.json"
     }
   ]
 }
