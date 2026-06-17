@@ -14,6 +14,7 @@ type CarouselTrackProps = {
   showSideActions?: boolean;
   showCenterActions?: boolean;
   selectedLift?: string;
+  preloadItemCount?: number;
   onSelect: (index: number) => void;
   onDelete?: (folderId: string) => void | Promise<void>;
   onUpdate?: (folderId: string, uuid?: string) => void;
@@ -40,6 +41,7 @@ function CarouselTrack({
   showSideActions = false,
   showCenterActions = false,
   selectedLift,
+  preloadItemCount = 0,
   onSelect,
   onDelete,
   onUpdate,
@@ -82,6 +84,7 @@ function CarouselTrack({
             showSideActions={showSideActions}
             showCenterActions={showCenterActions}
             selectedLift={selectedLift}
+            preloadImage={index < preloadItemCount}
             onSelect={onSelect}
             onDelete={onDelete}
             onUpdate={onUpdate}

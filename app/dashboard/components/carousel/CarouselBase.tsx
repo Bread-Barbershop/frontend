@@ -18,6 +18,7 @@ type CarouselBaseProps = {
   showCenterActions?: boolean;
   stageHeight?: string;
   selectedLift?: string;
+  preloadItemCount?: number;
   onDelete?: (folderId: string) => void | Promise<void>;
   onUpdate?: (folderId: string, uuid?: string) => void;
   onToggleVisibility?: (
@@ -42,6 +43,7 @@ function CarouselBase({
   showCenterActions = false,
   stageHeight = dashboardCarouselLayout.stageHeight,
   selectedLift,
+  preloadItemCount = 0,
   onDelete,
   onUpdate,
   onToggleVisibility,
@@ -140,6 +142,7 @@ function CarouselBase({
         showSideActions={showSideActions}
         showCenterActions={showCenterActions}
         selectedLift={selectedLift}
+        preloadItemCount={preloadItemCount}
         onSelect={handleSelect}
         onDelete={onDelete}
         onUpdate={onUpdate}

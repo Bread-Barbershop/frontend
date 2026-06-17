@@ -7,6 +7,94 @@
       "version": 1,
       "thumbnailUrl": "/templates/thumbnails/wedding_03.png",
       "jsonUrl": "/templates/json/wedding_03.v1.json"
+    },
+    {
+      "id": "conference_01",
+      "name": "컨퍼런스 01",
+      "category": "conference",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/conference_01.png",
+      "jsonUrl": "/templates/json/conference_01.v1.json"
+    },
+    {
+      "id": "conference_02",
+      "name": "컨퍼런스 02",
+      "category": "conference",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/conference_02.png",
+      "jsonUrl": "/templates/json/conference_02.v1.json"
+    },
+    {
+      "id": "conference_03",
+      "name": "컨퍼런스 03",
+      "category": "conference",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/conference_03.png",
+      "jsonUrl": "/templates/json/conference_03.v1.json"
+    },
+    {
+      "id": "conference_04",
+      "name": "컨퍼런스 04",
+      "category": "conference",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/conference_04.png",
+      "jsonUrl": "/templates/json/conference_04.v1.json"
+    },
+    {
+      "id": "conference_05",
+      "name": "컨퍼런스 05",
+      "category": "conference",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/conference_05.png",
+      "jsonUrl": "/templates/json/conference_05.v1.json"
+    },
+    {
+      "id": "birthday_01",
+      "name": "생일 01",
+      "category": "birthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/birthday_01.png",
+      "jsonUrl": "/templates/json/birthday_01.v1.json"
+    },
+    {
+      "id": "birthday_02",
+      "name": "생일 02",
+      "category": "birthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/birthday_02.png",
+      "jsonUrl": "/templates/json/birthday_02.v1.json"
+    },
+    {
+      "id": "birthday_03",
+      "name": "생일 03",
+      "category": "birthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/birthday_03.png",
+      "jsonUrl": "/templates/json/birthday_03.v1.json"
+    },
+    {
+      "id": "birthday_04",
+      "name": "생일 04",
+      "category": "birthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/birthday_04.png",
+      "jsonUrl": "/templates/json/birthday_04.v1.json"
+    },
+    {
+      "id": "firstBirthday_01",
+      "name": "돌잔치 01",
+      "category": "firstBirthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/firstBirthday_01.png",
+      "jsonUrl": "/templates/json/firstBirthday_01.v1.json"
+    },
+    {
+      "id": "firstBirthday_02",
+      "name": "돌잔치 02",
+      "category": "firstBirthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/firstBirthday_02.png",
+      "jsonUrl": "/templates/json/firstBirthday_02.v1.json"
     }
   ]
 }
