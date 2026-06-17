@@ -26,17 +26,37 @@ export const ImagePanel = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [imageSrc, setImageSrc] = useState('');
 
+  const getPreviewTargetImage = () => {
+    if (!canvas) return null;
+
+    const activeObject = canvas.getActiveObject();
+
+    if (activeObject instanceof FabricImage) {
+      if (activeObject.get('id') === 'background-layer') {
+        return null;
+      }
+
+      return activeObject;
+    }
+
+    const cropGhostImage = canvas
+      .getObjects()
+      .find(
+        obj =>
+          obj instanceof FabricImage &&
+          (obj as unknown as { name?: string }).name === 'ghost-image'
+      );
+
+    return cropGhostImage instanceof FabricImage ? cropGhostImage : null;
+  };
+
   // 이미지 Preview 업데이트 함수
   const updateImageSrc = async () => {
     if (!canvas) return;
-    const activeObject = canvas.getActiveObject();
+    const activeObject = getPreviewTargetImage();
 
     // 선택된 객체가 없거나, FabricImage가 아니거나, 배경 레이어인 경우 프리뷰 비우기
-    if (
-      !activeObject ||
-      !(activeObject instanceof FabricImage) ||
-      activeObject.get('id') === 'background-layer'
-    ) {
+    if (!activeObject) {
       setImageSrc('');
       return;
     }

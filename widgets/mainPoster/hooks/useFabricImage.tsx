@@ -373,7 +373,7 @@ export const useFabricImage = ({
 
       // 클릭된 대상이 캔버스 컨테이너 내부에 속하지 않는 경우 (진짜 캔버스 밖)
       if (container && !container.contains(e.target as Node)) {
-        cancelCrop(canvas);
+        applyCrop(canvas);
       }
     };
     documentClickHandlerRef.current = onDocumentMouseDown;
