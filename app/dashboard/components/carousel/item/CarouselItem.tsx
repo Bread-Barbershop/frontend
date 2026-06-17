@@ -24,6 +24,7 @@ type CarouselItemProps = {
   showSideActions?: boolean;
   showCenterActions?: boolean;
   selectedLift?: string;
+  preloadImage?: boolean;
   onSelect: (index: number) => void;
   onDelete?: (folderId: string) => void | Promise<void>;
   onUpdate?: (folderId: string, uuid?: string) => void;
@@ -49,6 +50,7 @@ function CarouselItem({
   showSideActions = false,
   showCenterActions = false,
   selectedLift: selectedLiftProp = dashboardCarouselLayout.selectedLift,
+  preloadImage = false,
   onSelect,
   onDelete,
   onUpdate,
@@ -208,7 +210,8 @@ function CarouselItem({
               alt={item.alt}
               fill
               sizes="260px"
-              unoptimized
+              preload={preloadImage}
+              unoptimized={typeof displayImage === 'string'}
               draggable={false}
               className="object-cover"
               onError={() => {

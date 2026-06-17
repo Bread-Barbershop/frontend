@@ -24,7 +24,7 @@ export default async function Home() {
       >
         <Cta initialIsLoggedIn={session.isLoggedIn} />
       </div>
-      <CarouselBase items={showcaseItems} startIndex={0} />
+      <CarouselBase items={showcaseItems} startIndex={0} preloadItemCount={5} />
     </>
   );
 }
