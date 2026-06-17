@@ -8,6 +8,7 @@ export function drawLine(
   target: Point
 ) {
   const ctx = this.canvas.getTopContext();
+  if (!ctx) return;
   const viewportTransform = this.canvas.viewportTransform;
   const zoom = this.canvas.getZoom();
   ctx.save();
@@ -28,6 +29,7 @@ export function drawLine(
 
 export function drawX(this: AligningGuidelinesState, point: Point, _: number) {
   const ctx = this.canvas.getTopContext();
+  if (!ctx) return;
   const zoom = this.canvas.getZoom();
   const size = this.xSize / zoom;
   ctx.save();
@@ -42,6 +44,7 @@ export function drawX(this: AligningGuidelinesState, point: Point, _: number) {
 }
 function drawPoint(this: AligningGuidelinesState, arr: Point[]) {
   const ctx = this.canvas.getTopContext();
+  if (!ctx) return;
   const viewportTransform = this.canvas.viewportTransform;
   const zoom = this.canvas.getZoom();
   ctx.save();

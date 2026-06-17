@@ -73,6 +73,55 @@ type ScaleCursorCoord = Parameters<
   typeof controlsUtils.scaleCursorStyleHandler
 >[3];
 
+const DEBUG_FABRIC_RESIZE = true;
+
+type ResizableFabricObject = FabricObjectLike & {
+  left?: number;
+  top?: number;
+  width?: number;
+  height?: number;
+  scaleX?: number;
+  scaleY?: number;
+  cropX?: number;
+  cropY?: number;
+  flipX?: boolean;
+  flipY?: boolean;
+  getScaledWidth?: () => number;
+  getScaledHeight?: () => number;
+};
+
+const logResizeState = (
+  stage: 'before' | 'after',
+  target: ResizableFabricObject,
+  corner: string
+) => {
+  if (!DEBUG_FABRIC_RESIZE) return;
+
+  console.log(`[fabric-resize:${stage}]`, {
+    corner,
+    type: target.type,
+    angle: target.angle,
+    left: target.left,
+    top: target.top,
+    width: target.width,
+    height: target.height,
+    scaleX: target.scaleX,
+    scaleY: target.scaleY,
+    scaledWidth:
+      typeof target.getScaledWidth === 'function'
+        ? target.getScaledWidth()
+        : undefined,
+    scaledHeight:
+      typeof target.getScaledHeight === 'function'
+        ? target.getScaledHeight()
+        : undefined,
+    cropX: target.cropX,
+    cropY: target.cropY,
+    flipX: target.flipX,
+    flipY: target.flipY,
+  });
+};
+
 const renderSquareControl: ControlRender = function (
   this: Control,
   ctx,
@@ -118,29 +167,28 @@ const scaleOrResizeTextbox: ControlActionHandler = (
 
   if (!target || !corner) return false;
 
+  logResizeState('before', target as ResizableFabricObject, corner);
+
   const isTextbox = isTextboxObject(target);
+  let result = false;
 
   if (isTextbox && DIAGONAL_CORNERS.includes(corner)) {
-    return false;
+    result = false;
+  } else if (isTextbox && HORIZONTAL_CORNERS.includes(corner)) {
+    result = controlsUtils.changeWidth(eventData, transform, x, y);
+  } else if (isTextbox && VERTICAL_CORNERS.includes(corner)) {
+    result = controlsUtils.changeHeight(eventData, transform, x, y);
+  } else if (HORIZONTAL_CORNERS.includes(corner)) {
+    result = controlsUtils.scalingX(eventData, transform, x, y);
+  } else if (VERTICAL_CORNERS.includes(corner)) {
+    result = controlsUtils.scalingY(eventData, transform, x, y);
+  } else {
+    result = controlsUtils.scalingEqually(eventData, transform, x, y);
   }
 
-  if (isTextbox && HORIZONTAL_CORNERS.includes(corner)) {
-    return controlsUtils.changeWidth(eventData, transform, x, y);
-  }
+  logResizeState('after', target as ResizableFabricObject, corner);
 
-  if (isTextbox && VERTICAL_CORNERS.includes(corner)) {
-    return controlsUtils.changeHeight(eventData, transform, x, y);
-  }
-
-  if (HORIZONTAL_CORNERS.includes(corner)) {
-    return controlsUtils.scalingX(eventData, transform, x, y);
-  }
-
-  if (VERTICAL_CORNERS.includes(corner)) {
-    return controlsUtils.scalingY(eventData, transform, x, y);
-  }
-
-  return controlsUtils.scalingEqually(eventData, transform, x, y);
+  return result;
 };
 
 const createRotateControl = (corner: (typeof CORNERS_CONFIG)[number]) => {
