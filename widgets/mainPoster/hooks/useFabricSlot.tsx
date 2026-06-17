@@ -12,10 +12,17 @@ type SlotRect = Rect & {
   slot?: ImageSlotMeta;
 };
 
-const createSlotPattern = () => {
+const SLOT_PATTERN_COLUMNS = 9;
+
+const createSlotPattern = (width: number, height: number) => {
   const patternCanvas = document.createElement('canvas');
-  patternCanvas.width = 24;
-  patternCanvas.height = 24;
+  const safeWidth = Math.max(1, Math.round(width));
+  const safeHeight = Math.max(1, Math.round(height));
+  const cellSize = Math.max(1, safeWidth / SLOT_PATTERN_COLUMNS);
+  const rowCount = Math.max(1, Math.ceil(safeHeight / cellSize));
+
+  patternCanvas.width = safeWidth;
+  patternCanvas.height = safeHeight;
   const ctx = patternCanvas.getContext('2d');
 
   if (!ctx) {
@@ -23,15 +30,30 @@ const createSlotPattern = () => {
   }
 
   ctx.fillStyle = '#F3F4F6';
-  ctx.fillRect(0, 0, 24, 24);
-  ctx.fillStyle = '#D1D5DB';
-  ctx.fillRect(0, 0, 12, 12);
-  ctx.fillRect(12, 12, 12, 12);
+  ctx.fillRect(0, 0, safeWidth, safeHeight);
+
+  for (let row = 0; row < rowCount; row += 1) {
+    for (let column = 0; column < SLOT_PATTERN_COLUMNS; column += 1) {
+      if ((row + column) % 2 !== 0) continue;
+
+      ctx.fillStyle = '#D1D5DB';
+      ctx.fillRect(
+        column * cellSize,
+        row * cellSize,
+        cellSize,
+        cellSize
+      );
+    }
+  }
 
   return new Pattern({
     source: patternCanvas,
     repeat: 'repeat',
   });
+};
+
+const updateSlotRectPattern = (rect: Rect) => {
+  rect.set('fill', createSlotPattern(rect.getScaledWidth(), rect.getScaledHeight()));
 };
 
 const normalizeSlotRectScale = (rect: Rect) => {
@@ -62,6 +84,7 @@ const normalizeSlotRectScale = (rect: Rect) => {
 const attachSlotRectBehavior = (rect: Rect) => {
   rect.on('modified', () => {
     normalizeSlotRectScale(rect);
+    updateSlotRectPattern(rect);
   });
 };
 
@@ -94,7 +117,7 @@ export const useFabricSlot = ({
       top: canvas.height ? canvas.height / 2 : 190,
       width: 120,
       height: 180,
-      fill: createSlotPattern(),
+      fill: createSlotPattern(120, 180),
       objectCaching: false,
       selectable: true,
       evented: true,
@@ -128,7 +151,7 @@ export const useFabricSlot = ({
     rect.set({
       id: rect.get('id') || slotKey,
       name: 'slot-placeholder',
-      fill: createSlotPattern(),
+      fill: createSlotPattern(rect.getScaledWidth(), rect.getScaledHeight()),
       stroke: null,
       strokeWidth: 0,
       strokeDashArray: null,
