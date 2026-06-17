@@ -12,17 +12,12 @@ type SlotRect = Rect & {
   slot?: ImageSlotMeta;
 };
 
-const SLOT_PATTERN_COLUMNS = 9;
+const SLOT_PATTERN_CELL_SIZE = 72;
 
-const createSlotPattern = (width: number, height: number) => {
+const createSlotPattern = () => {
   const patternCanvas = document.createElement('canvas');
-  const safeWidth = Math.max(1, Math.round(width));
-  const safeHeight = Math.max(1, Math.round(height));
-  const cellSize = Math.max(1, safeWidth / SLOT_PATTERN_COLUMNS);
-  const rowCount = Math.max(1, Math.ceil(safeHeight / cellSize));
-
-  patternCanvas.width = safeWidth;
-  patternCanvas.height = safeHeight;
+  patternCanvas.width = SLOT_PATTERN_CELL_SIZE;
+  patternCanvas.height = SLOT_PATTERN_CELL_SIZE;
   const ctx = patternCanvas.getContext('2d');
 
   if (!ctx) {
@@ -30,21 +25,15 @@ const createSlotPattern = (width: number, height: number) => {
   }
 
   ctx.fillStyle = '#F3F4F6';
-  ctx.fillRect(0, 0, safeWidth, safeHeight);
-
-  for (let row = 0; row < rowCount; row += 1) {
-    for (let column = 0; column < SLOT_PATTERN_COLUMNS; column += 1) {
-      if ((row + column) % 2 !== 0) continue;
-
-      ctx.fillStyle = '#D1D5DB';
-      ctx.fillRect(
-        column * cellSize,
-        row * cellSize,
-        cellSize,
-        cellSize
-      );
-    }
-  }
+  ctx.fillRect(0, 0, SLOT_PATTERN_CELL_SIZE, SLOT_PATTERN_CELL_SIZE);
+  ctx.fillStyle = '#D1D5DB';
+  ctx.fillRect(0, 0, SLOT_PATTERN_CELL_SIZE / 2, SLOT_PATTERN_CELL_SIZE / 2);
+  ctx.fillRect(
+    SLOT_PATTERN_CELL_SIZE / 2,
+    SLOT_PATTERN_CELL_SIZE / 2,
+    SLOT_PATTERN_CELL_SIZE / 2,
+    SLOT_PATTERN_CELL_SIZE / 2
+  );
 
   return new Pattern({
     source: patternCanvas,
@@ -53,7 +42,33 @@ const createSlotPattern = (width: number, height: number) => {
 };
 
 const updateSlotRectPattern = (rect: Rect) => {
-  rect.set('fill', createSlotPattern(rect.getScaledWidth(), rect.getScaledHeight()));
+  rect.set('fill', createSlotPattern());
+};
+
+const createSlotMeta = (): ImageSlotMeta => ({
+  key: `slot-${Date.now()}`,
+  label: `Photo Slot ${Date.now()}`,
+  replaceable: true,
+  aspectMode: 'cover',
+  required: false,
+  order: 1,
+  filled: false,
+});
+
+const applySlotMetadata = (rect: SlotRect) => {
+  const slot = rect.slot?.replaceable ? rect.slot : createSlotMeta();
+
+  rect.set({
+    id: rect.get('id') || slot.key,
+    name: 'slot-placeholder',
+    fill: createSlotPattern(),
+    stroke: null,
+    strokeWidth: 0,
+    strokeDashArray: null,
+    slot,
+  });
+
+  return rect;
 };
 
 const normalizeSlotRectScale = (rect: Rect) => {
@@ -117,7 +132,6 @@ export const useFabricSlot = ({
       top: canvas.height ? canvas.height / 2 : 190,
       width: 120,
       height: 180,
-      fill: createSlotPattern(120, 180),
       objectCaching: false,
       selectable: true,
       evented: true,
@@ -126,6 +140,7 @@ export const useFabricSlot = ({
       originY: 'center',
     });
 
+    applySlotMetadata(rect as SlotRect);
     attachSlotRectBehavior(rect);
     canvas.add(rect);
     canvas.setActiveObject(rect);
@@ -146,25 +161,8 @@ export const useFabricSlot = ({
     const rect = activeObject as SlotRect;
     if (rect.slot?.replaceable) return false;
 
-    const slotKey = `slot-${Date.now()}`;
     normalizeSlotRectScale(rect);
-    rect.set({
-      id: rect.get('id') || slotKey,
-      name: 'slot-placeholder',
-      fill: createSlotPattern(rect.getScaledWidth(), rect.getScaledHeight()),
-      stroke: null,
-      strokeWidth: 0,
-      strokeDashArray: null,
-      slot: {
-        key: slotKey,
-        label: `Photo Slot ${Date.now()}`,
-        replaceable: true,
-        aspectMode: 'cover',
-        required: false,
-        order: 1,
-        filled: false,
-      },
-    });
+    applySlotMetadata(rect);
     attachSlotRectBehavior(rect);
     rect.setCoords();
     canvas.requestRenderAll();
@@ -204,10 +202,7 @@ export const useFabricSlot = ({
     return true;
   };
 
-  const replaceSlotImage = async (
-    targetImage: FabricObject,
-    url: string
-  ) => {
+  const replaceSlotImage = async (targetImage: FabricObject, url: string) => {
     if (!canvas) return null;
 
     const objectIndex = canvas.getObjects().indexOf(targetImage);

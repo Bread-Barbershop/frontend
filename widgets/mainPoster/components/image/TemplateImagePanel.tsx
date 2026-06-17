@@ -137,7 +137,7 @@ export const TemplateImagePanel = () => {
 
   return (
     <LeftEditorWrapper ariaLabel="이미지 위치 조절">
-      <NavigationBar>이미지</NavigationBar>
+      <NavigationBar>템플릿 이미지</NavigationBar>
       <div className="py-5" data-crop-controls="true">
         <ImageUploadButton
           ref={inputRef}
