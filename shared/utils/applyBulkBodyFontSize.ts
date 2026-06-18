@@ -66,6 +66,10 @@ function updateRichTextProps<T>(value: T, fontSize: string): T {
     return value;
   }
 
+  if (value instanceof File || value instanceof Blob) {
+    return value;
+  }
+
   const nextValue = { ...(value as Record<string, unknown>) };
 
   RICH_TEXT_PAIRS.forEach(({ jsonKey, htmlKey }) => {
