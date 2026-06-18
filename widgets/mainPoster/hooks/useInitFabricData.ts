@@ -1,32 +1,29 @@
 import { useEffect } from 'react';
 
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
+import { stabilizeCanvasAfterLoad } from '@/widgets/mainPoster/hooks/useTemplate';
 
 export const useInitFabricData = () => {
-  const { canvas, initialData, saveHistory } = useFabricContext();
+  const { canvas, initialData, runHistoryTransaction } = useFabricContext();
 
   useEffect(() => {
     if (!canvas || !initialData) return;
 
     const loadData = async () => {
       try {
-        await canvas.loadFromJSON(initialData);
-
+        await runHistoryTransaction(
+          async () => {
+            await canvas.loadFromJSON(initialData);
+          },
+          { save: true }
+        );
         await document.fonts.ready;
-        canvas.getObjects().forEach(obj => {
-          if (obj.isType('textbox') || obj.isType('itext')) {
-            obj.set({ dirty: true });
-            (obj as any).initDimensions?.();
-          }
-        });
-
-        canvas.requestRenderAll();
-        saveHistory();
+        await stabilizeCanvasAfterLoad(canvas);
       } catch (error) {
         console.error('Failed to load canvas data:', error);
       }
     };
 
     loadData();
-  }, [canvas, initialData]);
+  }, [canvas, initialData, runHistoryTransaction]);
 };

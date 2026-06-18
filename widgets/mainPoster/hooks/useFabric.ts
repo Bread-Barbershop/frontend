@@ -20,6 +20,7 @@ export const useFabric = () => {
   const redoStack = useRef<string[]>([]);
   const isUpdating = useRef<boolean>(false);
   const isDeleting = useRef<boolean>(false);
+  const isRestoringCanvasState = useRef<boolean>(false);
   const { confirm } = useConfirm();
   const MAX_STACK_SIZE = 30;
   const shouldLogSelection =
@@ -68,7 +69,7 @@ export const useFabric = () => {
   );
 
   const saveHistory = useCallback(() => {
-    if (isUpdating.current || !canvas) return;
+    if (isUpdating.current || isRestoringCanvasState.current || !canvas) return;
 
     // 객체 상태 직렬화 시 filters 등 커스텀 속성 및 잠금 관련 속성 포함
     const json = JSON.stringify(
@@ -465,7 +466,10 @@ export const useFabric = () => {
         'object:removed',
       ];
 
-      const handleHistory = () => saveHistory();
+      const handleHistory = () => {
+        if (isRestoringCanvasState.current) return;
+        saveHistory();
+      };
 
       historyEvents.forEach(event => {
         canvas.off(event as any, handleHistory);
@@ -521,12 +525,14 @@ export const useFabric = () => {
       if (!canvas) return;
 
       isUpdating.current = true;
+      isRestoringCanvasState.current = true;
       canvas.discardActiveObject();
 
       try {
         await task();
         finalizeLoadedCanvas(canvas);
       } finally {
+        isRestoringCanvasState.current = false;
         isUpdating.current = false;
       }
 

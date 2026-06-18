@@ -119,28 +119,23 @@ const scaleOrResizeTextbox: ControlActionHandler = (
   if (!target || !corner) return false;
 
   const isTextbox = isTextboxObject(target);
+  let result = false;
 
   if (isTextbox && DIAGONAL_CORNERS.includes(corner)) {
-    return false;
+    result = false;
+  } else if (isTextbox && HORIZONTAL_CORNERS.includes(corner)) {
+    result = controlsUtils.changeWidth(eventData, transform, x, y);
+  } else if (isTextbox && VERTICAL_CORNERS.includes(corner)) {
+    result = controlsUtils.changeHeight(eventData, transform, x, y);
+  } else if (HORIZONTAL_CORNERS.includes(corner)) {
+    result = controlsUtils.scalingX(eventData, transform, x, y);
+  } else if (VERTICAL_CORNERS.includes(corner)) {
+    result = controlsUtils.scalingY(eventData, transform, x, y);
+  } else {
+    result = controlsUtils.scalingEqually(eventData, transform, x, y);
   }
 
-  if (isTextbox && HORIZONTAL_CORNERS.includes(corner)) {
-    return controlsUtils.changeWidth(eventData, transform, x, y);
-  }
-
-  if (isTextbox && VERTICAL_CORNERS.includes(corner)) {
-    return controlsUtils.changeHeight(eventData, transform, x, y);
-  }
-
-  if (HORIZONTAL_CORNERS.includes(corner)) {
-    return controlsUtils.scalingX(eventData, transform, x, y);
-  }
-
-  if (VERTICAL_CORNERS.includes(corner)) {
-    return controlsUtils.scalingY(eventData, transform, x, y);
-  }
-
-  return controlsUtils.scalingEqually(eventData, transform, x, y);
+  return result;
 };
 
 const createRotateControl = (corner: (typeof CORNERS_CONFIG)[number]) => {

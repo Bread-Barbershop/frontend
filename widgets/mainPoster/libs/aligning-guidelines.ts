@@ -216,6 +216,9 @@ export function initAligningGuidelines(
   };
 
   const afterRender = () => {
+    const ctx = state.canvas.getTopContext();
+    if (!ctx) return;
+
     if (state.onlyDrawPoint) {
       drawPointList.call(state);
     } else {
