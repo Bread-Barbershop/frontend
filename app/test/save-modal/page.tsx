@@ -24,7 +24,8 @@ const SAVE_PROGRESS_MESSAGES = [
   '이제 거의 다 완성됐어요',
 ];
 
-const SAVE_PROGRESS_PREVIEW_INTERVAL_MS = 5000;
+const PREVIEW_INTERVAL_OPTIONS = [2000, 3000, 4000, 5000] as const;
+const DEFAULT_PREVIEW_INTERVAL_MS: (typeof PREVIEW_INTERVAL_OPTIONS)[number] = 5000;
 
 const MODE_LABEL: Record<SaveModalMode, string> = {
   loading: '로딩',
@@ -34,6 +35,9 @@ const MODE_LABEL: Record<SaveModalMode, string> = {
 
 const MODE_BUTTON_CLASS =
   'inline-flex h-9 items-center justify-center gap-1.5 rounded-md border px-3 text-sm font-semibold transition-colors';
+
+const INTERVAL_BUTTON_CLASS =
+  'inline-flex h-8 items-center justify-center rounded-md border px-3 text-xs font-semibold transition-colors';
 
 type SaveLoadingMessageAnimation = 'slide' | 'blur' | 'scale' | 'stagger';
 
@@ -180,6 +184,9 @@ export default function SaveModalTestPage() {
   const [mode, setMode] = useState<SaveModalMode>('loading');
   const [messageIndex, setMessageIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  const [previewIntervalMs, setPreviewIntervalMs] = useState<number>(
+    DEFAULT_PREVIEW_INTERVAL_MS
+  );
 
   useEffect(() => {
     if (mode !== 'loading') return;
@@ -188,10 +195,10 @@ export default function SaveModalTestPage() {
       setMessageIndex(
         currentIndex => (currentIndex + 1) % SAVE_PROGRESS_MESSAGES.length
       );
-    }, SAVE_PROGRESS_PREVIEW_INTERVAL_MS);
+    }, previewIntervalMs);
 
     return () => window.clearInterval(intervalId);
-  }, [isOpen, mode]);
+  }, [isOpen, mode, previewIntervalMs]);
 
   const openMode = (nextMode: SaveModalMode) => {
     setMode(nextMode);
@@ -291,6 +298,7 @@ export default function SaveModalTestPage() {
                 재시도 상태
               </button>
             </div>
+
             <div className="flex items-center gap-2">
               {SAVE_PROGRESS_MESSAGES.map((message, index) => (
                 <span
@@ -303,6 +311,27 @@ export default function SaveModalTestPage() {
                 />
               ))}
             </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-[#64748B]">
+                전환 속도
+              </span>
+              {PREVIEW_INTERVAL_OPTIONS.map(ms => (
+                <button
+                  key={ms}
+                  type="button"
+                  className={`${INTERVAL_BUTTON_CLASS} ${
+                    previewIntervalMs === ms
+                      ? 'border-[#2563EB] bg-[#EFF6FF] text-[#1D4ED8]'
+                      : 'border-black/10 bg-white text-[#374151] hover:bg-black/5'
+                  }`}
+                  onClick={() => setPreviewIntervalMs(ms)}
+                >
+                  {ms / 1000}초
+                </button>
+              ))}
+            </div>
+
             <div className="grid w-full grid-cols-1 justify-items-center gap-5 md:grid-cols-2 xl:grid-cols-4">
               {ANIMATION_PREVIEWS.map(({ label, animation }, index) => (
                 <SaveModalAnimationPreview
