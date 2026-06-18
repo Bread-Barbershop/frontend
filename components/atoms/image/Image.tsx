@@ -2,6 +2,7 @@ import NextImage, { ImageProps as NextImageProps } from 'next/image';
 import React, { useCallback, useRef, useState } from 'react';
 
 import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
+import { useDriveImageResolveMode } from '@/shared/hooks/useDriveImageResolveMode';
 import { cn } from '@/shared/utils/cn';
 
 import { imageVariants, imageWrapperVariants } from './Image.style';
@@ -28,6 +29,10 @@ export const Image = ({
   const isDragging = useRef(false);
   const lastPos = useRef({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const imageResolveMode = useDriveImageResolveMode();
+  // 대시보드 미리보기는 모달 로딩 UI를 유지하므로 이미지별 스피너를 중복으로 보여주지 않는다.
+  const showLoadingSpinner =
+    isLoading && imageResolveMode !== 'dashboard-preview';
 
   if (prevSrc !== src) {
     setIsLoading(true);
@@ -87,7 +92,7 @@ export const Image = ({
   }, []);
   return (
     <div className={cn(imageWrapperVariants({ fill: rest.fill }))}>
-      {isLoading && (
+      {showLoadingSpinner && (
         <div
           className={cn(
             'absolute inset-0 flex items-center justify-center',

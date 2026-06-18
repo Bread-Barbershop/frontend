@@ -216,6 +216,7 @@ describe('GuestPage 서버 컴포넌트 테스트', () => {
 
     expect(guestBgmMock).toHaveBeenCalledWith({
       bgm: validGuestPayload.bgm,
+      mode: 'guest',
     });
 
     expect(html).toContain('data-testid="guest-main-poster"');

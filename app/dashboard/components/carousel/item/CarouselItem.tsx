@@ -10,6 +10,7 @@ import { CarouselCardItem } from '../carouselTypes';
 
 import DashboardActionButton from './actions/DashboardActionButton';
 import DeleteButton from './actions/DeleteButton';
+import PreviewButton from './actions/PreviewButton';
 import ItemHeader from './ItemHeader';
 
 function getImageKey(image: CarouselCardItem['image']) {
@@ -27,12 +28,12 @@ type CarouselItemProps = {
   preloadImage?: boolean;
   onSelect: (index: number) => void;
   onDelete?: (folderId: string) => void | Promise<void>;
+  onPreview?: (folderId: string) => void;
   onUpdate?: (folderId: string, uuid?: string) => void;
   onToggleVisibility?: (
     folderId: string,
     nextVisible: boolean
   ) => void | Promise<void>;
-  onOpenUrlShare?: (folderId: string) => void;
   onCopyUrl?: (folderId: string) => void;
   onShare?: (folderId: string) => Promise<void>;
   guestUrl: string | null;
@@ -53,9 +54,9 @@ function CarouselItem({
   preloadImage = false,
   onSelect,
   onDelete,
+  onPreview,
   onUpdate,
   onToggleVisibility,
-  onOpenUrlShare,
   onCopyUrl,
   onShare,
   guestUrl: guestUrlProp,
@@ -64,7 +65,6 @@ function CarouselItem({
   isVisibilityUpdating,
   visibilityError,
 }: CarouselItemProps) {
-  const [isUrlActionExpanded, setIsUrlActionExpanded] = useState(false);
   const currentImageKey = getImageKey(item.image);
   const [hasImageError, setHasImageError] = useState(false);
   const invite = item.invite;
@@ -150,6 +150,17 @@ function CarouselItem({
               minHeight: dashboardCarouselLayout.sideActionSize,
             }}
           >
+            <button
+              type="button"
+              onClick={event => {
+                handleActionClick(event);
+                onPreview?.(invite.folderId);
+              }}
+              className="cursor-pointer"
+              aria-label="초대장 미리보기"
+            >
+              <PreviewButton />
+            </button>
             <button
               type="button"
               disabled={isDeleting}
@@ -254,60 +265,18 @@ function CarouselItem({
                 >
                   카카오톡 공유하기
                 </DashboardActionButton>
-                {isUrlActionExpanded ? (
-                  <div
-                    className="flex items-center gap-0.5 rounded-lg bg-[#121212] px-2 py-1.5"
-                    style={{
-                      flex: '0 0 auto',
-                      width: dashboardCarouselLayout.primaryActionWidth,
-                      minWidth: dashboardCarouselLayout.primaryActionWidth,
-                      maxWidth: dashboardCarouselLayout.primaryActionWidth,
-                      height: dashboardCarouselLayout.primaryActionHeight,
-                    }}
-                  >
-                    <button
-                      type="button"
-                      disabled={!canUseGuestUrl}
-                      onClick={event => {
-                        handleActionClick(event);
-                        if (!canUseGuestUrl) return;
-                        onCopyUrl?.(invite.folderId);
-                      }}
-                      className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg font-pretendard text-[13px] font-semibold leading-[18px] text-[#38BDF8] transition-colors hover:bg-[rgba(56,189,248,0.12)]"
-                    >
-                      복사
-                    </button>
-                    <a
-                      href={
-                        canUseGuestUrl ? (guestUrl ?? undefined) : undefined
-                      }
-                      target="_blank"
-                      rel="noreferrer"
-                      onClick={event => {
-                        event.stopPropagation();
-                      }}
-                      className="flex h-8 min-w-0 flex-1 items-center rounded-lg px-1.5 font-pretendard text-[14px] font-normal leading-5 text-white transition-colors hover:bg-[rgba(255,255,255,0.12)]"
-                    >
-                      <span className="block min-w-0 flex-1 truncate">
-                        {guestUrl ?? 'URL 링크 준비 중'}
-                      </span>
-                    </a>
-                  </div>
-                ) : (
-                  <DashboardActionButton
-                    icon={LinkIcon}
-                    variant="url"
-                    disabled={!canUseGuestUrl}
-                    onClick={event => {
-                      handleActionClick(event);
-                      if (!canUseGuestUrl) return;
-                      onOpenUrlShare?.(invite.folderId);
-                      setIsUrlActionExpanded(true);
-                    }}
-                  >
-                    URL 링크 공유하기
-                  </DashboardActionButton>
-                )}
+                <DashboardActionButton
+                  icon={LinkIcon}
+                  variant="url"
+                  disabled={!canUseGuestUrl}
+                  onClick={event => {
+                    handleActionClick(event);
+                    if (!canUseGuestUrl) return;
+                    onCopyUrl?.(invite.folderId);
+                  }}
+                >
+                  URL 링크 공유하기
+                </DashboardActionButton>
                 <DashboardActionButton
                   icon={EditIcon}
                   variant="outline"

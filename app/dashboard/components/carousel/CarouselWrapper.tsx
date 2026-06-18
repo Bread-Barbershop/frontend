@@ -2,9 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { useDashboardInvitationPreview } from '@/app/dashboard/hooks/useDashboardInvitationPreview';
 import useDashboardInvitations from '@/app/dashboard/hooks/useDashboardInvitations';
 import { InviteListItem } from '@/app/dashboard/types';
 import { getInvitationShowcaseItem } from '@/app/dashboard/utils/getInvitationShowcaseItem';
+
+import DashboardInvitationPreviewModal from '../preview/DashboardInvitationPreviewModal';
 
 import CarouselBase from './CarouselBase';
 import { dashboardCarouselLayout } from './carouselLayout';
@@ -118,7 +121,6 @@ function CarouselWrapper({
     handleDelete,
     handleUpdate,
     handleToggleVisibility,
-    handleOpenGuestUrlShare,
     handleCopyGuestUrl,
     handleShare,
     getGuestUrl,
@@ -127,6 +129,7 @@ function CarouselWrapper({
     isVisibilityUpdating,
     getVisibilityError,
   } = useDashboardInvitations(initialInvites, { loadOnMount });
+  const preview = useDashboardInvitationPreview();
   const orderedInvites = useMemo(() => [...invites].reverse(), [invites]);
   const startIndex = Math.max(orderedInvites.length - 1, 0);
   const [resolvedImages, setResolvedImages] = useState<ResolvedImageMap>({});
@@ -245,26 +248,38 @@ function CarouselWrapper({
   }
 
   return (
-    <CarouselBase
-      items={displayItems}
-      startIndex={startIndex}
-      stageHeight={dashboardCarouselLayout.dashboardStageHeight}
-      selectedLift={dashboardCarouselLayout.dashboardSelectedLift}
-      showHeader
-      showSideActions
-      showCenterActions
-      onDelete={handleDelete}
-      onUpdate={handleUpdate}
-      onToggleVisibility={handleToggleVisibility}
-      onOpenUrlShare={handleOpenGuestUrlShare}
-      onCopyUrl={handleCopyGuestUrl}
-      onShare={handleShare}
-      getGuestUrl={getGuestUrl}
-      isDeleting={isDeleting}
-      isSharing={isSharing}
-      isVisibilityUpdating={isVisibilityUpdating}
-      getVisibilityError={getVisibilityError}
-    />
+    <>
+      <CarouselBase
+        items={displayItems}
+        startIndex={startIndex}
+        stageHeight={dashboardCarouselLayout.dashboardStageHeight}
+        selectedLift={dashboardCarouselLayout.dashboardSelectedLift}
+        showHeader
+        showSideActions
+        showCenterActions
+        onDelete={handleDelete}
+        onPreview={preview.openPreview}
+        onUpdate={handleUpdate}
+        onToggleVisibility={handleToggleVisibility}
+        onCopyUrl={handleCopyGuestUrl}
+        onShare={handleShare}
+        getGuestUrl={getGuestUrl}
+        isDeleting={isDeleting}
+        isSharing={isSharing}
+        isVisibilityUpdating={isVisibilityUpdating}
+        getVisibilityError={getVisibilityError}
+      />
+      <DashboardInvitationPreviewModal
+        errorMessage={preview.errorMessage}
+        folderId={preview.folderId}
+        isOpen={preview.isOpen}
+        onClose={preview.closePreview}
+        onRetry={preview.openPreview}
+        payload={preview.payload}
+        requestId={preview.requestId}
+        status={preview.status}
+      />
+    </>
   );
 }
 export default CarouselWrapper;

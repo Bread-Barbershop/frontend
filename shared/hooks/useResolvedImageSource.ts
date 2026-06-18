@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
+import { useDriveImageResolveContext } from '@/shared/hooks/useDriveImageResolveMode';
 import { resolveDriveImageSource } from '@/shared/utils/media/driveImageUtils';
 
 export type ResolvableImageSource = File | string | null | undefined;
@@ -17,6 +18,7 @@ export function useResolvedImageSource(
   v?: string
 ) {
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
+  const imageResolveContext = useDriveImageResolveContext();
 
   useEffect(() => {
     if (!(source instanceof File)) {
@@ -36,6 +38,16 @@ export function useResolvedImageSource(
   return useMemo(() => {
     if (!source) return null;
     if (source instanceof File) return objectUrl;
-    return resolveDriveImageSource(source, v);
-  }, [objectUrl, source, v]);
+    return resolveDriveImageSource(source, {
+      folderId: imageResolveContext.folderId,
+      mode: imageResolveContext.mode,
+      v,
+    });
+  }, [
+    imageResolveContext.folderId,
+    imageResolveContext.mode,
+    objectUrl,
+    source,
+    v,
+  ]);
 }

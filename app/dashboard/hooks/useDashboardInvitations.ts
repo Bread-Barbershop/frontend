@@ -717,16 +717,6 @@ function useDashboardInvitations(
     [invitationResults, invites, successToast, errorToast, infoToast]
   );
 
-  const handleOpenGuestUrlShare = useCallback(
-    (folderId: string) => {
-      const invite = invites.find(item => item.folderId === folderId);
-      if (invite && !invite.published) {
-        infoToast('현재 초대장은 비공개 상태입니다.');
-      }
-    },
-    [invites, infoToast]
-  );
-
   const loadShareData = useCallback(async (folderId: string) => {
     const res = await fetch(
       `/api/drive/shareUrl?invitationFolderId=${encodeURIComponent(folderId)}`,
@@ -830,7 +820,6 @@ function useDashboardInvitations(
     handleDelete,
     handleToggleVisibility,
     handleUpdate,
-    handleOpenGuestUrlShare,
     handleCopyGuestUrl,
     handleShare,
     loadShareData,

@@ -9,9 +9,7 @@ import {
 } from '@/shared/utils/shareUrlDefaults';
 
 import { GuestAccessNotice } from './components/GuestAccessNotice';
-import GuestBgm from './components/GuestBgm';
-import { GuestMainPoster } from './components/GuestMainPoster';
-import GuestRenderer from './components/GuestRenderer';
+import GuestInvitationView from './components/GuestInvitationView';
 import { loadGuestPayload } from './server/loadGuestPayload';
 
 import type { Metadata } from 'next';
@@ -104,29 +102,5 @@ export default async function GuestPage({
 
   const { payload } = result;
 
-  return (
-    <main className="min-h-screen bg-neutral-50">
-      <div
-        id="preview-container"
-        className="relative mx-auto w-full min-w-[375px] max-w-[430px] bg-white shadow-sm"
-        style={{
-          backgroundColor: payload.bulkData.backgroundColor,
-        }}
-      >
-        <div className="sticky top-0 z-50 h-0">
-          <GuestBgm bgm={payload.bgm} />
-        </div>
-        <GuestMainPoster
-          thumbnailFileId={payload.mainPoster.thumbnailFileId ?? ''}
-        />
-        <div className="mx-auto w-full">
-          <GuestRenderer
-            blocks={payload.blocks}
-            bulkData={payload.bulkData}
-            renderHints={payload.renderHints}
-          />
-        </div>
-      </div>
-    </main>
-  );
+  return <GuestInvitationView payload={payload} mode="guest" />;
 }

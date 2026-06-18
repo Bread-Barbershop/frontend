@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
+import { useDriveImageResolveContext } from '@/shared/hooks/useDriveImageResolveMode';
 import { resolveDriveImageSource } from '@/shared/utils/media/driveImageUtils';
 
 import type { ResolvableImageSource } from './useResolvedImageSource';
@@ -17,6 +18,7 @@ export function useResolvedImageSources(
   v?: string
 ) {
   const [resolvedSources, setResolvedSources] = useState<string[]>([]);
+  const imageResolveContext = useDriveImageResolveContext();
 
   useEffect(() => {
     const items = sources ?? [];
@@ -33,7 +35,11 @@ export function useResolvedImageSources(
         return;
       }
 
-      const resolved = resolveDriveImageSource(source, v);
+      const resolved = resolveDriveImageSource(source, {
+        folderId: imageResolveContext.folderId,
+        mode: imageResolveContext.mode,
+        v,
+      });
       if (resolved) nextSources.push(resolved);
     });
 
@@ -43,7 +49,7 @@ export function useResolvedImageSources(
     return () => {
       objectUrls.forEach(url => URL.revokeObjectURL(url));
     };
-  }, [sources, v]);
+  }, [imageResolveContext.folderId, imageResolveContext.mode, sources, v]);
 
   return resolvedSources;
 }
