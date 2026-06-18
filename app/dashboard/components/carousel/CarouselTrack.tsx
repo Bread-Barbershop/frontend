@@ -22,7 +22,6 @@ type CarouselTrackProps = {
     folderId: string,
     nextVisible: boolean
   ) => void | Promise<void>;
-  onOpenUrlShare?: (folderId: string) => void;
   onCopyUrl?: (folderId: string) => void;
   onShare?: (folderId: string) => Promise<void>;
   getGuestUrl?: (folderId: string) => string | null;
@@ -46,7 +45,6 @@ function CarouselTrack({
   onDelete,
   onUpdate,
   onToggleVisibility,
-  onOpenUrlShare,
   onCopyUrl,
   onShare,
   getGuestUrl,
@@ -89,7 +87,6 @@ function CarouselTrack({
             onDelete={onDelete}
             onUpdate={onUpdate}
             onToggleVisibility={onToggleVisibility}
-            onOpenUrlShare={onOpenUrlShare}
             onCopyUrl={onCopyUrl}
             onShare={onShare}
             guestUrl={

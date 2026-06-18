@@ -118,7 +118,6 @@ function CarouselWrapper({
     handleDelete,
     handleUpdate,
     handleToggleVisibility,
-    handleOpenGuestUrlShare,
     handleCopyGuestUrl,
     handleShare,
     getGuestUrl,
@@ -256,7 +255,6 @@ function CarouselWrapper({
       onDelete={handleDelete}
       onUpdate={handleUpdate}
       onToggleVisibility={handleToggleVisibility}
-      onOpenUrlShare={handleOpenGuestUrlShare}
       onCopyUrl={handleCopyGuestUrl}
       onShare={handleShare}
       getGuestUrl={getGuestUrl}
