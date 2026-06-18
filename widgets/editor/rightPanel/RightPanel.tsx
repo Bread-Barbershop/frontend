@@ -37,14 +37,14 @@ function RightPanel() {
           <button
             type="button"
             className={` w-41.5 h-11 font-semibold ${tab === 'poster' ? 'border-b text-text-primary' : 'text-text-tertiary'}`}
-            onClick={() => setTab('poster')}
+            onPointerDown={() => setTab('poster')}
           >
             포스터
           </button>
           <button
             type="button"
             className={`w-41.75 h-11 font-semibold ${typeArray && typeArray.length > 0 ? 'pointer-events-auto' : 'pointer-events-none'} ${tab === 'type' ? 'border-b text-text-primary' : 'text-text-tertiary'}`}
-            onClick={() => setTab('type')}
+            onPointerDown={() => setTab('type')}
           >
             타입
           </button>
