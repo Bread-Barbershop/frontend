@@ -124,7 +124,7 @@ export const PosterPanel = () => {
             key={eng}
             type="button"
             className={`w-[61px] h-11 font-semibold ${selectedCategory === eng ? 'border-b text-text-primary' : 'text-text-tertiary'}`}
-            onPointerDown={() => setSelectedCategory(eng as TemplateCategory)}
+            onClick={() => setSelectedCategory(eng as TemplateCategory)}
           >
             <p>{kor}</p>
           </button>
