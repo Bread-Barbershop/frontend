@@ -17,7 +17,7 @@ export const PosterPanelView = memo(function PosterPanelView({
   onSelectTemplate,
 }: PosterPanelViewProps) {
   return (
-    <div className="relative flex min-h-0 flex-1 flex-wrap content-start gap-3.5 overflow-y-auto scrollbar-hide">
+    <div className="relative flex min-h-0 flex-1 flex-wrap content-start gap-3.5 overflow-y-scroll scrollbar-hide">
       {templates.map(template => {
         const isReady = readyTemplateIds.has(template.id);
 

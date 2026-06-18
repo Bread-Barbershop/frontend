@@ -32,8 +32,8 @@ function RightPanel() {
     <div
       className={`${selectedId !== 'mainPoster' && (!typeArray || typeArray.length === 0) ? 'invisible' : 'visible'} w-93.75 h-full max-h-[810px] mr-5 min-[1540px]:mr-15 flex flex-col gap-5`}
     >
-      <div className="w-93.75 min-h-0 flex-1 bg-white rounded-lg shadow-edit flex-center flex-col gap-3 px-5 ">
-        <div className="w-full">
+      <div className="w-93.75 min-h-0 h-full flex-1 bg-white rounded-lg shadow-edit flex-center flex-col gap-3 px-5 ">
+        <div className="w-full h-11">
           <button
             type="button"
             className={` w-41.5 h-11 font-semibold ${tab === 'poster' ? 'border-b text-text-primary' : 'text-text-tertiary'}`}

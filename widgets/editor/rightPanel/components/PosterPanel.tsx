@@ -117,8 +117,8 @@ export const PosterPanel = () => {
   }
 
   return (
-    <section className="w-93.75 h-full flex justify-center px-5 gap-2 flex-col">
-      <div className="w-full flex justify-between bg-white rounded-lg">
+    <section className="w-93.75 h-full flex flex-1 min-h-0 justify-center px-5 gap-2 flex-col">
+      <div className="w-full flex shrink-0 justify-between bg-white rounded-lg">
         {Object.entries(TEMPLATE_CATEGORIES).map(([eng, kor]) => (
           <button
             key={eng}
