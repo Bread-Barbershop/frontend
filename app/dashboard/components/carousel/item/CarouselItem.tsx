@@ -10,6 +10,7 @@ import { CarouselCardItem } from '../carouselTypes';
 
 import DashboardActionButton from './actions/DashboardActionButton';
 import DeleteButton from './actions/DeleteButton';
+import PreviewButton from './actions/PreviewButton';
 import ItemHeader from './ItemHeader';
 
 function getImageKey(image: CarouselCardItem['image']) {
@@ -27,6 +28,7 @@ type CarouselItemProps = {
   preloadImage?: boolean;
   onSelect: (index: number) => void;
   onDelete?: (folderId: string) => void | Promise<void>;
+  onPreview?: (folderId: string) => void;
   onUpdate?: (folderId: string, uuid?: string) => void;
   onToggleVisibility?: (
     folderId: string,
@@ -52,6 +54,7 @@ function CarouselItem({
   preloadImage = false,
   onSelect,
   onDelete,
+  onPreview,
   onUpdate,
   onToggleVisibility,
   onCopyUrl,
@@ -147,6 +150,17 @@ function CarouselItem({
               minHeight: dashboardCarouselLayout.sideActionSize,
             }}
           >
+            <button
+              type="button"
+              onClick={event => {
+                handleActionClick(event);
+                onPreview?.(invite.folderId);
+              }}
+              className="cursor-pointer"
+              aria-label="초대장 미리보기"
+            >
+              <PreviewButton />
+            </button>
             <button
               type="button"
               disabled={isDeleting}

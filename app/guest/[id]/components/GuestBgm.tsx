@@ -11,6 +11,8 @@ import type { GuestBgm as GuestBgmData } from '../types/guestTypes';
 
 interface GuestBgmProps {
   bgm: GuestBgmData;
+  mode?: 'guest' | 'dashboard-preview';
+  previewFolderId?: string;
 }
 
 const USER_BGM_ID = 'user-bgm';
@@ -23,12 +25,30 @@ function proxyAudioUrl(fileId: string) {
   return `/api/drive/guestBgm?fileId=${encodeURIComponent(fileId)}`;
 }
 
+function previewAudioUrl(fileId: string, folderId?: string) {
+  // 미리보기에서는 비공개 사용자 BGM도 재생해야 하므로 초대장 범위가 검증되는 프록시를 사용한다.
+  const params = new URLSearchParams({
+    kind: 'audio',
+    fileId,
+  });
+
+  if (folderId) {
+    params.set('folderId', folderId);
+  }
+
+  return `/api/drive/previewAsset?${params.toString()}`;
+}
+
 function clampVolume(volume: number) {
   if (Number.isNaN(volume)) return 0.2;
   return Math.min(1, Math.max(0, volume));
 }
 
-function GuestBgm({ bgm }: GuestBgmProps) {
+function GuestBgm({
+  bgm,
+  mode = 'guest',
+  previewFolderId,
+}: GuestBgmProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isOn, setIsOn] = useState(false);
   const [isHintDismissed, setIsHintDismissed] = useState(false);
@@ -44,7 +64,8 @@ function GuestBgm({ bgm }: GuestBgmProps) {
   const shouldUseProxyForUserBgm =
     isUserBgm &&
     bgm.userBgmFileId !== null &&
-    directFailedUserBgmFileId === bgm.userBgmFileId;
+    (mode === 'dashboard-preview' ||
+      directFailedUserBgmFileId === bgm.userBgmFileId);
 
   const selectedAudioKey = useMemo(() => {
     if (!bgm.selectedBgmId) return null;
@@ -62,6 +83,11 @@ function GuestBgm({ bgm }: GuestBgmProps) {
 
     if (isUserBgm) {
       if (!bgm.userBgmFileId) return null;
+      if (mode === 'dashboard-preview') {
+        // 공개 Drive URL 실패를 기다리지 않고 처음부터 인증 프록시로 요청한다.
+        return previewAudioUrl(bgm.userBgmFileId, previewFolderId);
+      }
+
       return shouldUseProxyForUserBgm
         ? proxyAudioUrl(bgm.userBgmFileId)
         : driveAudioUrl(bgm.userBgmFileId);
@@ -72,6 +98,8 @@ function GuestBgm({ bgm }: GuestBgmProps) {
     bgm.selectedBgmId,
     bgm.userBgmFileId,
     isUserBgm,
+    mode,
+    previewFolderId,
     shouldUseProxyForUserBgm,
   ]);
 

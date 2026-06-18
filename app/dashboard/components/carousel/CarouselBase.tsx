@@ -20,6 +20,7 @@ type CarouselBaseProps = {
   selectedLift?: string;
   preloadItemCount?: number;
   onDelete?: (folderId: string) => void | Promise<void>;
+  onPreview?: (folderId: string) => void;
   onUpdate?: (folderId: string, uuid?: string) => void;
   onToggleVisibility?: (
     folderId: string,
@@ -44,6 +45,7 @@ function CarouselBase({
   selectedLift,
   preloadItemCount = 0,
   onDelete,
+  onPreview,
   onUpdate,
   onToggleVisibility,
   onCopyUrl,
@@ -143,6 +145,7 @@ function CarouselBase({
         preloadItemCount={preloadItemCount}
         onSelect={handleSelect}
         onDelete={onDelete}
+        onPreview={onPreview}
         onUpdate={onUpdate}
         onToggleVisibility={onToggleVisibility}
         onCopyUrl={onCopyUrl}

@@ -17,6 +17,7 @@ type CarouselTrackProps = {
   preloadItemCount?: number;
   onSelect: (index: number) => void;
   onDelete?: (folderId: string) => void | Promise<void>;
+  onPreview?: (folderId: string) => void;
   onUpdate?: (folderId: string, uuid?: string) => void;
   onToggleVisibility?: (
     folderId: string,
@@ -43,6 +44,7 @@ function CarouselTrack({
   preloadItemCount = 0,
   onSelect,
   onDelete,
+  onPreview,
   onUpdate,
   onToggleVisibility,
   onCopyUrl,
@@ -85,6 +87,7 @@ function CarouselTrack({
             preloadImage={index < preloadItemCount}
             onSelect={onSelect}
             onDelete={onDelete}
+            onPreview={onPreview}
             onUpdate={onUpdate}
             onToggleVisibility={onToggleVisibility}
             onCopyUrl={onCopyUrl}

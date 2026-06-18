@@ -31,7 +31,7 @@ export const dashboardCarouselLayout = {
   // 선택 상태에서 헤더와 카드가 합쳐졌을 때의 전체 시각 높이
   selectedVisualHeight: `calc(${carouselCardHeight} + 44px)`,
   // 선택된 카드 우측 상단 액션 버튼 묶음 위치 보정값
-  actionTop: '16px',
+  actionTop: '36px',
   actionRight: '-24px',
   // 카드 중앙 액션 버튼 묶음 사이 간격
   centerActionGap: '8px',
