@@ -42,10 +42,14 @@ export const Image = ({
   // blob: URL인 경우 서버 최적화가 불가능하므로 unoptimized 속성 자동 적용
   const isBlob = typeof src === 'string' && src.startsWith('blob:');
 
-  // Google Drive 또는 Google User Content URL인 경우 리다이렉트 이슈 방지를 위해 unoptimized 속성 자동 적용
+  // Drive 원본/미리보기 프록시 이미지는 Next 이미지 최적화 서버를 거치면 인증 쿠키가 누락될 수 있어 직접 요청합니다.
   const isGoogleDrive =
     typeof src === 'string' &&
     (src.includes('drive.google.com') || src.includes('googleusercontent.com'));
+  const isPreviewAsset =
+    typeof src === 'string' && src.startsWith('/api/drive/previewAsset');
+  const shouldUseUnoptimized =
+    rest.unoptimized || isBlob || isGoogleDrive || isPreviewAsset;
 
   // fill 속성 사용 시 기본 sizes 설정 (브라우저가 적절한 크기의 이미지를 요청하도록 유도)
   const defaultSizes = rest.fill
@@ -115,7 +119,7 @@ export const Image = ({
             {...rest}
             src={src}
             alt={alt}
-            unoptimized={rest.unoptimized || isBlob || isGoogleDrive}
+            unoptimized={shouldUseUnoptimized}
             sizes={rest.sizes || defaultSizes}
             className={cn(className, imageVariants({ loading: isLoading }))}
             onLoad={() => {
@@ -138,7 +142,7 @@ export const Image = ({
           {...rest}
           src={src}
           alt={alt}
-          unoptimized={rest.unoptimized || isBlob || isGoogleDrive}
+          unoptimized={shouldUseUnoptimized}
           sizes={rest.sizes || defaultSizes}
           className={cn(className, imageVariants({ loading: isLoading }))}
           onLoad={() => {
