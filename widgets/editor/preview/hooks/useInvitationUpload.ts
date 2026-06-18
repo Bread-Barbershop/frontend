@@ -3,7 +3,10 @@ import { useShallow } from 'zustand/shallow';
 
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import { hasPreparedInvitation } from '@/features/invitation/save/prepareCache';
-import { saveInvitationFlow } from '@/features/invitation/save/saveInvitationFlow';
+import {
+  saveInvitationFlow,
+  type SaveProgressStep,
+} from '@/features/invitation/save/saveInvitationFlow';
 import type { DashboardPendingInvitation } from '@/shared/constants/dashboardPendingInvitation';
 import { useToast } from '@/shared/hooks/useToast';
 import {
@@ -12,6 +15,13 @@ import {
 } from '@/shared/store/editorStore/useEditorStore';
 import { getFileKey } from '@/shared/utils/fileUtils';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
+
+const SAVE_PROGRESS_MESSAGES: Record<SaveProgressStep, string> = {
+  checking: '소중한 내용을 확인하고 있어요',
+  collecting: '사진과 문구를 차근차근 담고 있어요',
+  finishing: '초대장을 예쁘게 마무리하고 있어요',
+  almostDone: '이제 거의 다 완성됐어요',
+};
 
 export const useInvitationUpload = () => {
   const editorData = useEditorStore(useShallow(selectUploadData));
@@ -54,6 +64,9 @@ export const useInvitationUpload = () => {
   );
 
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState(
+    SAVE_PROGRESS_MESSAGES.checking
+  );
   const [isFail, setIsFail] = useState(false);
   const [isCleaningUp, setIsCleaningUp] = useState(false);
   const [pendingInvitation, setPendingInvitation] =
@@ -196,8 +209,13 @@ export const useInvitationUpload = () => {
     try {
       console.log('[uploadFlow] handleUpload 시작');
       setIsLoading(true);
+      setLoadingMessage(SAVE_PROGRESS_MESSAGES.checking);
       setIsFail(false);
       setPendingInvitation(null);
+
+      const handleSaveProgress = (step: SaveProgressStep) => {
+        setLoadingMessage(SAVE_PROGRESS_MESSAGES[step]);
+      };
 
       // 전체 task (invitationImage 보존용)
       const allTasks = editorData.images.flatMap(item =>
@@ -293,6 +311,7 @@ export const useInvitationUpload = () => {
           bgmData, // bgm의 data 버전.
           mainPoster,
           invitationThumbnail,
+          onProgress: handleSaveProgress,
         });
         console.log('[uploadFlow] saveInvitationFlow 완료');
         await applySaveResult(saveResult, allTasks);
@@ -326,6 +345,7 @@ export const useInvitationUpload = () => {
           mainPoster,
           invitationThumbnail,
           invitationUuid: editorData.invitationUuid,
+          onProgress: handleSaveProgress,
         });
         console.log('[uploadFlow] saveInvitationFlow 완료');
         await applySaveResult(saveResult, allTasks);
@@ -385,5 +405,6 @@ export const useInvitationUpload = () => {
     isFail,
     isCleaningUp,
     pendingInvitation,
+    loadingMessage,
   };
 };

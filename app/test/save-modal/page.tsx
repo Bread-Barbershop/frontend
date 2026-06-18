@@ -14,6 +14,13 @@ const SaveModal = dynamic(
 
 type SaveModalMode = 'loading' | 'success' | 'fail';
 
+const SAVE_PROGRESS_MESSAGES = [
+  '소중한 내용을 확인하고 있어요',
+  '사진과 문구를 차근차근 담고 있어요',
+  '초대장을 예쁘게 마무리하고 있어요',
+  '이제 거의 다 완성됐어요',
+];
+
 const MODE_LABEL: Record<SaveModalMode, string> = {
   loading: '로딩',
   success: '성공',
@@ -25,15 +32,20 @@ const MODE_BUTTON_CLASS =
 
 export default function SaveModalTestPage() {
   const [mode, setMode] = useState<SaveModalMode>('loading');
+  const [messageIndex, setMessageIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(true);
 
   const openMode = (nextMode: SaveModalMode) => {
     setMode(nextMode);
+    if (nextMode === 'loading') {
+      setMessageIndex(0);
+    }
     setIsOpen(true);
   };
 
   const retry = () => {
     setMode('loading');
+    setMessageIndex(0);
     setIsOpen(true);
   };
 
@@ -124,6 +136,26 @@ export default function SaveModalTestPage() {
                 재시도 상태
               </button>
             </div>
+            <div className="flex max-w-[335px] flex-wrap justify-center gap-2">
+              {SAVE_PROGRESS_MESSAGES.map((message, index) => (
+                <button
+                  key={message}
+                  type="button"
+                  className={`h-8 rounded-md border px-2.5 text-xs font-semibold transition-colors ${
+                    messageIndex === index
+                      ? 'border-[#2563EB] bg-[#EFF6FF] text-[#1D4ED8]'
+                      : 'border-black/10 bg-white text-[#4B5563] hover:bg-black/5'
+                  }`}
+                  onClick={() => {
+                    setMode('loading');
+                    setMessageIndex(index);
+                    setIsOpen(true);
+                  }}
+                >
+                  {index + 1}단계
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -133,6 +165,7 @@ export default function SaveModalTestPage() {
           isLoading={mode === 'loading'}
           isFail={mode === 'fail'}
           pendingInvitation={null}
+          loadingMessage={SAVE_PROGRESS_MESSAGES[messageIndex]}
           retry={retry}
           onClose={() => setIsOpen(false)}
         />

@@ -10,8 +10,14 @@ function UploadButton() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const tabRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
-  const { handleUpload, isLoading, isFail, isCleaningUp, pendingInvitation } =
-    useInvitationUpload();
+  const {
+    handleUpload,
+    isLoading,
+    isFail,
+    isCleaningUp,
+    pendingInvitation,
+    loadingMessage,
+  } = useInvitationUpload();
   const { confirm } = useConfirm();
 
   const handleClose = () => {
@@ -49,6 +55,7 @@ function UploadButton() {
           isLoading={isLoading}
           isFail={isFail}
           pendingInvitation={pendingInvitation}
+          loadingMessage={loadingMessage}
           retry={handleUpload}
           onClose={handleClose}
         />

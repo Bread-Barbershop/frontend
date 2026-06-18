@@ -51,6 +51,12 @@ type SaveInvitationPrepareResponse = {
 
 type BatchResult = { ok: UploadOk[]; fail: UploadFail[] };
 
+export type SaveProgressStep =
+  | 'checking'
+  | 'collecting'
+  | 'finishing'
+  | 'almostDone';
+
 type SaveInvitationFlowParams = {
   bulkData: BulkJson;
   images: UploadTask[];
@@ -62,6 +68,7 @@ type SaveInvitationFlowParams = {
   mainPoster: MainPosterData;
   invitationThumbnail: InvitationThumbnail;
   uploadImages?: UploadTask[];
+  onProgress?: (step: SaveProgressStep) => void;
 };
 
 type SaveInvitationFlowResult = {
@@ -651,14 +658,17 @@ export async function saveInvitationFlow(
     invitationThumbnail,
   } = params;
 
+  params.onProgress?.('checking');
   let prep = await prepare(invitationUuid);
   let token = createTokenState(prep);
+  params.onProgress?.('collecting');
   let uploadResult = await upload({
     prep,
     images: params.uploadImages ?? images,
     audio,
     token,
   });
+  params.onProgress?.('finishing');
   let commitResult = await commit({
     prep,
     token,
@@ -680,14 +690,17 @@ export async function saveInvitationFlow(
       dataFailures: commitResult.dataStep.final.fail,
     })
   ) {
+    params.onProgress?.('checking');
     prep = await prepareFallback(prep.invitationUuid);
     token = createTokenState(prep);
+    params.onProgress?.('collecting');
     uploadResult = await upload({
       prep,
       images: params.uploadImages ?? images,
       audio,
       token,
     });
+    params.onProgress?.('finishing');
     commitResult = await commit({
       prep,
       token,
@@ -709,6 +722,7 @@ export async function saveInvitationFlow(
     commitResult.dataStep.final.fail.length +
     (commitResult.thumbnailSaveFailed ? 1 : 0) +
     (commitResult.metaSaveFailed ? 1 : 0);
+  params.onProgress?.('almostDone');
   const visibility =
     saveFailedBeforeVisibility === 0
       ? await requestInitialPublicVisibility(prep.invitationFolderId)

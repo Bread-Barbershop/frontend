@@ -13,6 +13,7 @@ interface Props {
   isLoading: boolean;
   isFail: boolean;
   pendingInvitation: DashboardPendingInvitation | null;
+  loadingMessage: string;
   retry: () => void;
   onClose: () => void;
 }
@@ -22,9 +23,10 @@ const ModalFrame = forwardRef<
   {
     children: React.ReactNode;
     isLoading?: boolean;
+    loadingMessage?: string;
     onClose: () => void;
   }
->(({ children, isLoading, onClose }, ref) => (
+>(({ children, isLoading, loadingMessage, onClose }, ref) => (
   <>
     <div
       className="fixed inset-0 z-[100] bg-[rgb(0_0_0_/_8%)]"
@@ -40,7 +42,16 @@ const ModalFrame = forwardRef<
       tabIndex={-1}
       className={`fixed top-1/2 left-1/2 z-[101] flex w-[335px] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-6 rounded-xl border border-white/22 bg-white/72 p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%),0_1px_8px_-2px_rgb(255_255_255_/_35%)] backdrop-blur-xl ${isLoading ? 'justify-center' : ''}`}
     >
-      {isLoading ? <SaveLottie variant="loading" loop /> : children}
+      {isLoading ? (
+        <div className="flex flex-col items-center gap-3 text-center">
+          <SaveLottie variant="loading" loop />
+          <p className="min-h-5 text-sm font-semibold text-[#202020]">
+            {loadingMessage}
+          </p>
+        </div>
+      ) : (
+        children
+      )}
     </div>
   </>
 ));
@@ -98,7 +109,17 @@ const SaveStepView = ({
 );
 
 export const SaveModal = forwardRef<HTMLDivElement, Props>(
-  ({ isLoading, isFail, pendingInvitation, retry, onClose }: Props, ref) => {
+  (
+    {
+      isLoading,
+      isFail,
+      pendingInvitation,
+      loadingMessage,
+      retry,
+      onClose,
+    }: Props,
+    ref
+  ) => {
     const router = useRouter();
 
     const handleExit = () => {
@@ -112,7 +133,12 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
     };
 
     return createPortal(
-      <ModalFrame ref={ref} isLoading={isLoading} onClose={onClose}>
+      <ModalFrame
+        ref={ref}
+        isLoading={isLoading}
+        loadingMessage={loadingMessage}
+        onClose={onClose}
+      >
         <SaveStepView
           isFail={isFail}
           onRetry={retry}
