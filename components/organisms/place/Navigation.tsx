@@ -22,7 +22,30 @@ interface Props {
 
 export function Navigation({ lat, lng, name }: Props) {
   const { confirm } = useConfirm();
+
+  const openNavigation = (type: 'naver' | 'kakao' | 'tmap') => {
+    switch (type) {
+      case 'naver':
+        openNaverMap(lat, lng, name);
+        break;
+      case 'kakao':
+        openKakaoMap(lat, lng, name);
+        break;
+      case 'tmap':
+        openTMap(lat, lng, name);
+        break;
+    }
+  };
+
   const handleNavigation = async (type: 'naver' | 'kakao' | 'tmap') => {
+    const pathname = window.location.pathname;
+    const shouldConfirm = pathname.startsWith('/editor');
+
+    if (!shouldConfirm) {
+      openNavigation(type);
+      return;
+    }
+
     const isConfirm = await confirm({
       message: '편집 내역이 저장되지 않았습니다.\n길안내를 시작하시겠습니까?',
       variant: 'white',
@@ -34,17 +57,7 @@ export function Navigation({ lat, lng, name }: Props) {
       // 추후 수정되거나 삭제될 부분
       isConfirm
     ) {
-      switch (type) {
-        case 'naver':
-          openNaverMap(lat, lng, name);
-          break;
-        case 'kakao':
-          openKakaoMap(lat, lng, name);
-          break;
-        case 'tmap':
-          openTMap(lat, lng, name);
-          break;
-      }
+      openNavigation(type);
     }
   };
 
@@ -104,3 +117,4 @@ export function Navigation({ lat, lng, name }: Props) {
     </div>
   );
 }
+
