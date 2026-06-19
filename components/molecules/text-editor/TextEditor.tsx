@@ -28,6 +28,7 @@ import FontColorIcon from '@/shared/assets/icons/color.svg';
 import ItalicIcon from '@/shared/assets/icons/italic.svg';
 import UnderlineIcon from '@/shared/assets/icons/underline.svg';
 import {
+  hasCustomFontFace,
   loadCustomFont,
   preloadFontFamilyWeights,
 } from '@/shared/fonts/fontLoader';
@@ -246,15 +247,20 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
     );
 
     const loadEditorFont = useCallback(
-      async (family: string, weight: string) => {
+      async (family: string, weight: string, style: 'normal' | 'italic') => {
         try {
-          await preloadFontFamilyWeights(family);
-          await loadCustomFont(family, weight);
+          if (!hasCustomFontFace(family, weight, style)) {
+            return;
+          }
+
+          await preloadFontFamilyWeights(family, style);
+          await loadCustomFont(family, weight, style);
         } catch (error) {
           if (process.env.NODE_ENV !== 'production') {
             console.error('Failed to load editor font.', {
               family,
               weight,
+              style,
               error,
             });
           }
@@ -406,10 +412,6 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       [defaultAlign, editorBaseStyles, selectedColor]
     );
 
-    useEffect(() => {
-      void loadEditorFont(fontFamilySelected.value, fontWeightSelected.value);
-    }, [fontFamilySelected.value, fontWeightSelected.value, loadEditorFont]);
-
     const editorContentStyle = useMemo<CSSProperties>(
       () => ({
         fontFamily: editorBaseStyles.fontFamily.style?.fontFamily,
@@ -471,6 +473,21 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       },
     });
 
+    const italicActive = editor ? isTextMarkFullyActive(editor, 'italic') : false;
+
+    useEffect(() => {
+      void loadEditorFont(
+        fontFamilySelected.value,
+        fontWeightSelected.value,
+        italicActive ? 'italic' : 'normal'
+      );
+    }, [
+      fontFamilySelected.value,
+      fontWeightSelected.value,
+      italicActive,
+      loadEditorFont,
+    ]);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -487,7 +504,6 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
     if (!editor) return null;
 
     const activeColor = selectedColor;
-    const italicActive = isTextMarkFullyActive(editor, 'italic');
     const underlineActive = isTextMarkFullyActive(editor, 'underline');
     const editorFocused = editor.isFocused;
     const inlineButtonClassName =
@@ -508,7 +524,11 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       runAtSavedSelection(editor, command =>
         command.setFontFamily(selected.value).setFontWeight(nextWeight.value)
       );
-      void loadEditorFont(selected.value, nextWeight.value);
+      void loadEditorFont(
+        selected.value,
+        nextWeight.value,
+        italicActive ? 'italic' : 'normal'
+      );
     };
 
     const handleFontWeightSelect = (
@@ -523,7 +543,8 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
         fontFamilySelected.value === MIXED_STYLE_VALUE
           ? editorBaseStyles.fontFamily.value
           : fontFamilySelected.value,
-        selected.value
+        selected.value,
+        italicActive ? 'italic' : 'normal'
       );
     };
 
@@ -577,18 +598,29 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       setColorPickerOpen(prev => !prev);
     };
 
-    const handleItalicToggle = () => {
-      if (italicActive) {
-        runAtSavedSelection(editor, command =>
-          command.unsetItalic().setFontStyleOverride('normal')
-        );
-        return;
-      }
+      const handleItalicToggle = () => {
+        if (italicActive) {
+          runAtSavedSelection(editor, command =>
+            command.unsetItalic().setFontStyleOverride('normal')
+          );
+          return;
+        }
 
-      runAtSavedSelection(editor, command =>
-        command.setItalic().setFontStyleOverride(null)
-      );
-    };
+        const activeFamily =
+          fontFamilySelected.value === MIXED_STYLE_VALUE
+            ? editorBaseStyles.fontFamily.value
+            : fontFamilySelected.value;
+        const activeWeight =
+          fontWeightSelected.value === MIXED_STYLE_VALUE
+            ? editorBaseStyles.fontWeight.value
+            : fontWeightSelected.value;
+
+        void loadEditorFont(activeFamily, activeWeight, 'italic');
+
+        runAtSavedSelection(editor, command =>
+          command.setItalic().setFontStyleOverride(null)
+        );
+      };
 
     const handleUnderlineToggle = () => {
       if (underlineActive) {

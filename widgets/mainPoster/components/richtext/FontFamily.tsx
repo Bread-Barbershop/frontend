@@ -14,6 +14,7 @@ import {
 
 import { useFabricContext } from '../../context/FabricContext';
 import {
+  hasCustomFontFace,
   loadCustomFont,
   preloadFontFamilyWeights,
 } from '../../utils/fontLoader';
@@ -39,6 +40,8 @@ function FontFamily() {
   const currentFontFamily =
     (activeInfo?.styles?.fontFamily as string) || 'Pretendard';
   const currentFontWeight = (activeInfo?.styles?.fontWeight as string) || '400';
+  const currentFontStyle =
+    (activeInfo?.styles?.fontStyle as string) === 'italic' ? 'italic' : 'normal';
 
   const [selectedFont, setSelectedFont] = useState<FontOption>(
     createFontOption(currentFontFamily)
@@ -128,7 +131,9 @@ function FontFamily() {
           const nextWeight =
             getFallbackWeight(newFamily, currentWeight) ??
             getDefaultFontWeight(newFamily);
-          await preloadFontFamilyWeights(newFamily);
+          if (hasCustomFontFace(newFamily, nextWeight, currentFontStyle)) {
+            await preloadFontFamilyWeights(newFamily, currentFontStyle);
+          }
 
           const nextSelectedWeight = {
             label: weightToLabel(nextWeight),
@@ -149,7 +154,9 @@ function FontFamily() {
           });
           setSelectedWeight(nextSelectedWeight);
 
-          await loadCustomFont(newFamily, nextWeight);
+          if (hasCustomFontFace(newFamily, nextWeight, currentFontStyle)) {
+            await loadCustomFont(newFamily, nextWeight, currentFontStyle);
+          }
           applyRichStyle(
             {
               fontFamily: newFamily,
@@ -179,7 +186,15 @@ function FontFamily() {
             },
           });
 
-          await loadCustomFont(selectedFont.value, nextWeight);
+          if (
+            hasCustomFontFace(selectedFont.value, nextWeight, currentFontStyle)
+          ) {
+            await loadCustomFont(
+              selectedFont.value,
+              nextWeight,
+              currentFontStyle
+            );
+          }
           applyRichStyle({ fontWeight: nextWeight }, canvas);
         }}
         selected={selectedWeight}

@@ -3,15 +3,25 @@ import { Dispatch, ReactNode, SetStateAction } from 'react';
 import ItalicIcon from '@/shared/assets/icons/italic.svg';
 import UnderlineIcon from '@/shared/assets/icons/underline.svg';
 import { cn } from '@/shared/utils/cn';
+import {
+  hasCustomFontFace,
+  loadCustomFont,
+} from '@/widgets/mainPoster/utils/fontLoader';
 
 import { useFabricContext } from '../../context/FabricContext';
-import { RichStyle } from '../../types/fabric';
+import { AllStyle } from '../../types/fabric';
 
-interface ButtonsType {
-  id: string;
-  style: RichStyle;
-  component: ReactNode;
-}
+type ButtonsType =
+  | {
+      id: 'italic';
+      style: Pick<AllStyle, 'fontStyle'>;
+      component: ReactNode;
+    }
+  | {
+      id: 'underline';
+      style: Pick<AllStyle, 'underline'>;
+      component: ReactNode;
+    };
 
 type activeStyle = {
   fontWeight: string | undefined;
@@ -26,7 +36,11 @@ const ItalicUnderline = ({
   activeStyles: activeStyle;
   setActiveStyles: Dispatch<SetStateAction<activeStyle>>;
 }) => {
-  const { canvas, applyRichStyle } = useFabricContext();
+  const { canvas, activeInfo, applyRichStyle } = useFabricContext();
+
+  const currentFontFamily =
+    (activeInfo?.styles?.fontFamily as string) || 'Pretendard';
+  const currentFontWeight = (activeInfo?.styles?.fontWeight as string) || '400';
 
   const BUTTONS: ButtonsType[] = [
     {
@@ -58,23 +72,37 @@ const ItalicUnderline = ({
   return (
     <div className="flex gap-1">
       {BUTTONS.map(btn => {
-        const { id, style, component } = btn;
-        const isActive = checkIsActive(id);
+        const isActive = checkIsActive(btn.id);
         return (
           <button
-            key={id}
+            key={btn.id}
             type="button"
-            aria-label={id}
+            aria-label={btn.id}
             aria-pressed={isActive}
-            onClick={() => {
-              applyRichStyle({ ...style }, canvas);
-              const s = style as activeStyle;
+            onClick={async () => {
+              if (
+                btn.id === 'italic' &&
+                btn.style.fontStyle === 'italic' &&
+                hasCustomFontFace(
+                  currentFontFamily,
+                  currentFontWeight,
+                  'italic'
+                )
+              ) {
+                await loadCustomFont(
+                  currentFontFamily,
+                  currentFontWeight,
+                  'italic'
+                );
+              }
+
+              applyRichStyle({ ...btn.style }, canvas);
               setActiveStyles(prev => {
-                if (id === 'italic' && s.fontStyle !== undefined) {
-                  return { ...prev, fontStyle: s.fontStyle };
+                if (btn.id === 'italic') {
+                  return { ...prev, fontStyle: btn.style.fontStyle };
                 }
-                if (id === 'underline' && s.underline !== undefined) {
-                  return { ...prev, underline: s.underline };
+                if (btn.id === 'underline') {
+                  return { ...prev, underline: btn.style.underline };
                 }
                 return prev;
               });
@@ -86,7 +114,7 @@ const ItalicUnderline = ({
                 : ' text-text-primary hover:bg-btn-hover active:bg-btn-pressed'
             )}
           >
-            {component}
+            {btn.component}
           </button>
         );
       })}

@@ -10,7 +10,7 @@ import AlignRightIcon from '@/shared/assets/icons/alignRight.svg';
 import FontColorIcon from '@/shared/assets/icons/color.svg';
 import ItalicIcon from '@/shared/assets/icons/italic.svg';
 import UnderlineIcon from '@/shared/assets/icons/underline.svg';
-import { loadCustomFont } from '@/shared/fonts/fontLoader';
+import { hasCustomFontFace, loadCustomFont } from '@/shared/fonts/fontLoader';
 import {
   FontFamilyOption,
   FontWeightOption,
@@ -144,8 +144,14 @@ export function TextEditorPreview({
   };
 
   useEffect(() => {
-    void loadCustomFont(selectedFontFamily.value, fontWeightSelected.value);
-  }, [selectedFontFamily.value, fontWeightSelected.value]);
+    const style = value.italic ? 'italic' : 'normal';
+
+    if (!hasCustomFontFace(selectedFontFamily.value, fontWeightSelected.value, style)) {
+      return;
+    }
+
+    void loadCustomFont(selectedFontFamily.value, fontWeightSelected.value, style);
+  }, [selectedFontFamily.value, fontWeightSelected.value, value.italic]);
 
   const handleColorPickerToggle = () => {
     onActiveColorPickerChange(colorPickerOpen ? null : colorPickerId);
