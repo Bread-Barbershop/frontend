@@ -79,7 +79,8 @@
           "end": 3,
           "style": {
             "fontFamily": "Clash Grotesk",
-            "fontWeight": "600"
+            "fontWeight": "600",
+            "fontStyle": "normal"
           }
         },
         {
@@ -87,7 +88,8 @@
           "end": 6,
           "style": {
             "fontFamily": "BM 한나는11살체",
-            "fontWeight": "400"
+            "fontWeight": "400",
+            "fontStyle": "normal"
           }
         }
       ],
@@ -160,7 +162,8 @@
           "style": {
             "fontSize": 32,
             "fontWeight": "400",
-            "fontFamily": "Rajdhani"
+            "fontFamily": "Rajdhani",
+            "fontStyle": "normal"
           }
         }
       ],
@@ -354,6 +357,7 @@
       "lockScalingY": false,
       "lockRotation": false,
       "hasControls": true,
+      "editable": true,
       "selectable": true,
       "evented": true,
       "fill": "rgb(0,0,0)",

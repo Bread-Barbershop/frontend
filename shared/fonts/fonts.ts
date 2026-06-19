@@ -582,6 +582,12 @@ export const CUSTOM_FONTS = [
     style: 'normal',
   },
   {
+    family: 'Old Standard TT',
+    url: 'url(/font/OldStandardTT/OldStandardTT-Italic.ttf)',
+    weight: '400',
+    style: 'italic',
+  },
+  {
     family: 'Cormorant SC',
     url: 'url(/font/CormorantSC/CormorantSC-Light.ttf)',
     weight: '300',
@@ -688,6 +694,60 @@ export const CUSTOM_FONTS = [
     url: 'url(/font/NotoSerifKR-Variable.ttf)',
     weight: '900',
     style: 'normal',
+  },
+  {
+    family: 'Noto Serif KR',
+    url: 'url(/font/NotoSerifKR-Italic-Variable.ttf)',
+    weight: '100',
+    style: 'italic',
+  },
+  {
+    family: 'Noto Serif KR',
+    url: 'url(/font/NotoSerifKR-Italic-Variable.ttf)',
+    weight: '200',
+    style: 'italic',
+  },
+  {
+    family: 'Noto Serif KR',
+    url: 'url(/font/NotoSerifKR-Italic-Variable.ttf)',
+    weight: '300',
+    style: 'italic',
+  },
+  {
+    family: 'Noto Serif KR',
+    url: 'url(/font/NotoSerifKR-Italic-Variable.ttf)',
+    weight: '400',
+    style: 'italic',
+  },
+  {
+    family: 'Noto Serif KR',
+    url: 'url(/font/NotoSerifKR-Italic-Variable.ttf)',
+    weight: '500',
+    style: 'italic',
+  },
+  {
+    family: 'Noto Serif KR',
+    url: 'url(/font/NotoSerifKR-Italic-Variable.ttf)',
+    weight: '600',
+    style: 'italic',
+  },
+  {
+    family: 'Noto Serif KR',
+    url: 'url(/font/NotoSerifKR-Italic-Variable.ttf)',
+    weight: '700',
+    style: 'italic',
+  },
+  {
+    family: 'Noto Serif KR',
+    url: 'url(/font/NotoSerifKR-Italic-Variable.ttf)',
+    weight: '800',
+    style: 'italic',
+  },
+  {
+    family: 'Noto Serif KR',
+    url: 'url(/font/NotoSerifKR-Italic-Variable.ttf)',
+    weight: '900',
+    style: 'italic',
   },
   {
     family: 'Prata',
@@ -820,6 +880,12 @@ export const CUSTOM_FONTS = [
     url: 'url(/font/BonaNova/BonaNova-Regular.ttf)',
     weight: '400',
     style: 'normal',
+  },
+  {
+    family: 'Bona Nova',
+    url: 'url(/font/BonaNova/BonaNova-Italic.ttf)',
+    weight: '400',
+    style: 'italic',
   },
   {
     family: 'IBM Plex Sans',
@@ -1774,6 +1840,12 @@ export const CUSTOM_FONTS = [
     url: 'url(/font/Rosarivo/Rosarivo-Regular.ttf)',
     weight: '400',
     style: 'normal',
+  },
+  {
+    family: 'Rosarivo',
+    url: 'url(/font/Rosarivo/Rosarivo-Italic.ttf)',
+    weight: '400',
+    style: 'italic',
   },
   {
     family: 'Ruwudu',
