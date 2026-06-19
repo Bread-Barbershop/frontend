@@ -1,6 +1,7 @@
 export {
   getFontKey,
   getPreviewFonts,
+  hasCustomFontFace,
   loadCustomFont,
   preloadFontFamilyWeights,
   preloadPreviewFonts,

@@ -93,7 +93,9 @@ export const getFontFaces = (family: string) => {
 };
 
 export const getFontWeights = (family: string) => {
-  return getFontFaces(family).map(face => face.weight);
+  return Array.from(
+    new Set(getFontFaces(family).map(face => String(face.weight)))
+  );
 };
 
 export const getDefaultFontWeight = (family: string) => {

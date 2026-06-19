@@ -1,4 +1,5 @@
 import {
+  hasCustomFontFace,
   loadCustomFont,
   preloadFontFamilyWeights,
 } from '@/shared/fonts/fontLoader';
@@ -26,7 +27,13 @@ export function useBulkEditor(
     option: FontOption | { label: string; value: string }
   ) => {
     const selected = option;
-    void loadCustomFont(resolveFontFamily(bulkData.font), selected.value);
+    const family = resolveFontFamily(bulkData.font);
+    const style = bulkData.italic ? 'italic' : 'normal';
+
+    if (hasCustomFontFace(family, selected.value, style)) {
+      void loadCustomFont(family, selected.value, style);
+    }
+
     onBulkChange({
       ...bulkData,
       fontWeight: selected.value,
@@ -40,8 +47,12 @@ export function useBulkEditor(
     const nextWeight = getFallbackWeight(nextFamily, bulkData.fontWeight);
 
     void (async () => {
-      await preloadFontFamilyWeights(nextFamily);
-      await loadCustomFont(nextFamily, nextWeight);
+      const style = bulkData.italic ? 'italic' : 'normal';
+
+      if (hasCustomFontFace(nextFamily, nextWeight, style)) {
+        await preloadFontFamilyWeights(nextFamily, style);
+        await loadCustomFont(nextFamily, nextWeight, style);
+      }
     })();
 
     onBulkChange({

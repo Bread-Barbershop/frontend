@@ -59,12 +59,13 @@ export function ShapePanel() {
               <div className="flex-1 px-1">
                 <input
                   type="range"
-                  min="0"
-                  max="50"
-                  step="1"
+                  min="0.5"
+                  max="10"
+                  step="0.5"
                   value={shapeConfig.strokeWidth}
                   onChange={e => {
-                    const val = parseInt(e.target.value, 10);
+                    const val = Number(e.target.value);
+                    // const val = parseInt(e.target.value, 10);
                     setShapeConfig({ strokeWidth: val });
                     updateShapeStyle(canvas, { strokeWidth: val });
                   }}
