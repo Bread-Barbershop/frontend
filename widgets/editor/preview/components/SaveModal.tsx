@@ -170,10 +170,10 @@ const ModalFrame = forwardRef<
       aria-modal="true"
       aria-labelledby="save-modal-title"
       tabIndex={-1}
-      className={`fixed top-1/2 left-1/2 z-[101] flex w-[335px] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-6 rounded-xl border border-white/22 bg-white/72 p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%),0_1px_8px_-2px_rgb(255_255_255_/_35%)] backdrop-blur-xl ${isLoading ? 'justify-center' : ''}`}
+      className={`fixed top-1/2 left-1/2 z-[101] flex h-[249px] w-[335px] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-6 rounded-xl border border-white/22 bg-white/72 p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%),0_1px_8px_-2px_rgb(255_255_255_/_35%)] backdrop-blur-xl ${isLoading ? 'justify-center' : ''}`}
     >
       {isLoading ? (
-        <div className="flex flex-col items-center gap-3 text-center">
+        <div className="-mt-2 flex flex-col items-center gap-3 text-center">
           <SaveLottie variant="loading" loop />
           <SaveLoadingMessage
             message={loadingMessage}

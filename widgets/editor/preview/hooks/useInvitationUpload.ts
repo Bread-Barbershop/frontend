@@ -25,8 +25,7 @@ const SAVE_PROGRESS_MESSAGES: Record<SaveProgressStep, string> = {
   polishingInvitation: '초대장의 전체 모습을 다듬고 있어요',
   reviewingDetails: '작은 부분까지 꼼꼼하게 살펴보고 있어요',
   checkingPresentation: '더 예쁘게 보이도록 확인하고 있어요',
-  finishingInvitation: '초대장을 예쁘게 마무리하고 있어요',
-  almostDone: '이제 거의 다 완성됐어요',
+  finishingInvitation: '이제 거의 다 완성됐어요',
 };
 
 const SAVE_PROGRESS_ORDER: Record<SaveProgressStep, number> = {
@@ -39,7 +38,6 @@ const SAVE_PROGRESS_ORDER: Record<SaveProgressStep, number> = {
   reviewingDetails: 6,
   checkingPresentation: 7,
   finishingInvitation: 8,
-  almostDone: 9,
 };
 
 const MIN_SAVE_PROGRESS_MESSAGE_MS = 2000;

@@ -60,8 +60,7 @@ export type SaveProgressStep =
   | 'polishingInvitation'
   | 'reviewingDetails'
   | 'checkingPresentation'
-  | 'finishingInvitation'
-  | 'almostDone';
+  | 'finishingInvitation';
 
 type SaveInvitationFlowParams = {
   bulkData: BulkJson;
@@ -748,7 +747,6 @@ export async function saveInvitationFlow(
           ready: false,
         };
 
-  params.onProgress?.('almostDone');
   setPreparedInvitation({
     ...prep,
     accessToken: token.currentToken,
