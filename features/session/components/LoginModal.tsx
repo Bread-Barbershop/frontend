@@ -88,7 +88,7 @@ function LoginModal({
       <div className="absolute inset-0 bg-[rgb(0_0_0_/_8%)]" />
 
       <div
-        className={`relative flex w-fit flex-col items-center gap-6 rounded-xl border border-white/22 bg-white/72 p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%),0_1px_8px_-2px_rgb(255_255_255_/_35%)] backdrop-blur-xl transition-all duration-200 ${
+        className={`relative flex w-fit flex-col items-center gap-6 rounded-[12px] bg-white p-5 ring-1 ring-white/22 ring-inset transition-all duration-200 ${
           isClosing
             ? 'scale-[0.98] opacity-0'
             : 'animate-[fade-in_180ms_ease-out] scale-100 opacity-100'
@@ -109,7 +109,7 @@ function LoginModal({
           type="button"
           onClick={onGoogleLogin}
           disabled={isLoading}
-          className="relative flex h-11 w-[352px] cursor-pointer items-center justify-center rounded-lg border border-[#e5e7eb] bg-white px-2 py-1.5 text-[15px] font-medium text-[#111827] enabled:hover:bg-[#FAFAFB] enabled:active:bg-[#F5F8FF] disabled:cursor-not-allowed disabled:opacity-60"
+          className="relative flex h-11 w-[352px] cursor-pointer items-center justify-center rounded-[8px] bg-white px-2 py-1.5 text-[15px] font-medium text-[#111827] ring-1 ring-[#EBEBEB] ring-inset enabled:hover:bg-[#FAFAFB] enabled:active:bg-[#F5F8FF] disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Image
             src="/assets/icons/google-icon.svg"
