@@ -19,8 +19,13 @@ type SaveModalMode = 'loading' | 'success' | 'fail';
 
 const SAVE_PROGRESS_MESSAGES = [
   '소중한 내용을 확인하고 있어요',
-  '사진과 문구를 차근차근 담고 있어요',
-  '초대장을 예쁘게 마무리하고 있어요',
+  '초대장에 담을 내용을 정리하고 있어요',
+  '작성한 문구를 차근차근 담고 있어요',
+  '소중한 사진을 불러오고 있어요',
+  '사진과 문구를 보기 좋게 배치하고 있어요',
+  '초대장의 전체 모습을 다듬고 있어요',
+  '작은 부분까지 꼼꼼하게 살펴보고 있어요',
+  '더 예쁘게 보이도록 확인하고 있어요',
   '이제 거의 다 완성됐어요',
 ];
 
@@ -157,9 +162,6 @@ const ANIMATION_PREVIEWS: {
   animation: SaveLoadingMessageAnimation;
 }[] = [
   { label: '1. 페이드 + 슬라이드업', animation: 'slide' },
-  { label: '2. 블러 페이드', animation: 'blur' },
-  { label: '3. 스케일 페이드', animation: 'scale' },
-  { label: '5. 글자 분산', animation: 'stagger' },
 ];
 
 const SaveModalAnimationPreview = ({
@@ -173,9 +175,11 @@ const SaveModalAnimationPreview = ({
 }) => (
   <div className="flex flex-col items-center gap-3">
     <span className="text-xs font-semibold text-[#64748B]">{label}</span>
-    <div className="flex h-[272px] w-[335px] flex-col items-center justify-center rounded-xl border border-white/22 bg-white/72 p-5 text-center shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%),0_1px_8px_-2px_rgb(255_255_255_/_35%)] backdrop-blur-xl">
-      <SaveLottie variant="loading" loop />
-      <SaveLoadingMessagePreview message={message} animation={animation} />
+    <div className="flex h-[249px] w-[335px] flex-col items-center justify-center rounded-xl border border-white/22 bg-white/72 p-5 text-center shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%),0_1px_8px_-2px_rgb(255_255_255_/_35%)] backdrop-blur-xl">
+      <div className="-mt-2 flex flex-col items-center gap-3">
+        <SaveLottie variant="loading" loop />
+        <SaveLoadingMessagePreview message={message} animation={animation} />
+      </div>
     </div>
   </div>
 );
@@ -355,6 +359,8 @@ export default function SaveModalTestPage() {
           isLoading={mode === 'loading'}
           isFail={mode === 'fail'}
           pendingInvitation={null}
+          loadingMessage={SAVE_PROGRESS_MESSAGES[messageIndex]}
+          loadingAnimation="slide"
           retry={retry}
           onClose={() => setIsOpen(false)}
         />

@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import { hasPreparedInvitation } from '@/features/invitation/save/prepareCache';
-import { saveInvitationFlow } from '@/features/invitation/save/saveInvitationFlow';
+import {
+  saveInvitationFlow,
+  type SaveProgressStep,
+} from '@/features/invitation/save/saveInvitationFlow';
 import type { DashboardPendingInvitation } from '@/shared/constants/dashboardPendingInvitation';
 import { useToast } from '@/shared/hooks/useToast';
 import {
@@ -12,6 +15,32 @@ import {
 } from '@/shared/store/editorStore/useEditorStore';
 import { getFileKey } from '@/shared/utils/fileUtils';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
+
+const SAVE_PROGRESS_MESSAGES: Record<SaveProgressStep, string> = {
+  checkingContent: '소중한 내용을 확인하고 있어요',
+  organizingContent: '초대장에 담을 내용을 정리하고 있어요',
+  collectingText: '작성한 문구를 차근차근 담고 있어요',
+  loadingPhotos: '소중한 사진을 불러오고 있어요',
+  arrangingContent: '사진과 문구를 보기 좋게 배치하고 있어요',
+  polishingInvitation: '초대장의 전체 모습을 다듬고 있어요',
+  reviewingDetails: '작은 부분까지 꼼꼼하게 살펴보고 있어요',
+  checkingPresentation: '더 예쁘게 보이도록 확인하고 있어요',
+  finishingInvitation: '이제 거의 다 완성됐어요',
+};
+
+const SAVE_PROGRESS_ORDER: Record<SaveProgressStep, number> = {
+  checkingContent: 0,
+  organizingContent: 1,
+  collectingText: 2,
+  loadingPhotos: 3,
+  arrangingContent: 4,
+  polishingInvitation: 5,
+  reviewingDetails: 6,
+  checkingPresentation: 7,
+  finishingInvitation: 8,
+};
+
+const MIN_SAVE_PROGRESS_MESSAGE_MS = 2000;
 
 export const useInvitationUpload = () => {
   const editorData = useEditorStore(useShallow(selectUploadData));
@@ -54,11 +83,95 @@ export const useInvitationUpload = () => {
   );
 
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState(
+    SAVE_PROGRESS_MESSAGES.checkingContent
+  );
+  const currentProgressStepRef =
+    useRef<SaveProgressStep>('checkingContent');
+  const pendingProgressStepRef = useRef<SaveProgressStep | null>(null);
+  const progressMessageShownAtRef = useRef(0);
+  const progressMessageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+  const isSaveLoadingRef = useRef(false);
   const [isFail, setIsFail] = useState(false);
   const [isCleaningUp, setIsCleaningUp] = useState(false);
   const [pendingInvitation, setPendingInvitation] =
     useState<DashboardPendingInvitation | null>(null);
   const { info, success, error: showError } = useToast();
+
+  const clearProgressMessageTimer = useCallback(() => {
+    if (progressMessageTimerRef.current === null) return;
+    clearTimeout(progressMessageTimerRef.current);
+    progressMessageTimerRef.current = null;
+  }, []);
+
+  const showProgressStep = useCallback((step: SaveProgressStep) => {
+    currentProgressStepRef.current = step;
+    progressMessageShownAtRef.current = Date.now();
+    setLoadingMessage(SAVE_PROGRESS_MESSAGES[step]);
+  }, []);
+
+  const flushPendingProgressStep = useCallback(() => {
+    progressMessageTimerRef.current = null;
+
+    if (!isSaveLoadingRef.current) {
+      pendingProgressStepRef.current = null;
+      return;
+    }
+
+    const pendingStep = pendingProgressStepRef.current;
+    pendingProgressStepRef.current = null;
+
+    if (!pendingStep || pendingStep === currentProgressStepRef.current) {
+      return;
+    }
+
+    showProgressStep(pendingStep);
+  }, [showProgressStep]);
+
+  const queueProgressStep = useCallback(
+    (step: SaveProgressStep) => {
+      if (
+        SAVE_PROGRESS_ORDER[step] <
+        SAVE_PROGRESS_ORDER[currentProgressStepRef.current]
+      ) {
+        return;
+      }
+
+      if (!isSaveLoadingRef.current) {
+        showProgressStep(step);
+        return;
+      }
+
+      if (step === currentProgressStepRef.current) {
+        return;
+      }
+
+      const elapsed = Date.now() - progressMessageShownAtRef.current;
+
+      if (elapsed >= MIN_SAVE_PROGRESS_MESSAGE_MS) {
+        pendingProgressStepRef.current = null;
+        clearProgressMessageTimer();
+        showProgressStep(step);
+        return;
+      }
+
+      pendingProgressStepRef.current = step;
+
+      if (progressMessageTimerRef.current !== null) {
+        return;
+      }
+
+      progressMessageTimerRef.current = setTimeout(
+        flushPendingProgressStep,
+        MIN_SAVE_PROGRESS_MESSAGE_MS - elapsed
+      );
+    },
+    [clearProgressMessageTimer, flushPendingProgressStep, showProgressStep]
+  );
+
+  useEffect(() => clearProgressMessageTimer, [clearProgressMessageTimer]);
 
   const applySaveResult = async (
     saveResult: Awaited<ReturnType<typeof saveInvitationFlow>>,
@@ -195,6 +308,10 @@ export const useInvitationUpload = () => {
   const handleUpload = async () => {
     try {
       console.log('[uploadFlow] handleUpload 시작');
+      isSaveLoadingRef.current = true;
+      pendingProgressStepRef.current = null;
+      clearProgressMessageTimer();
+      showProgressStep('checkingContent');
       setIsLoading(true);
       setIsFail(false);
       setPendingInvitation(null);
@@ -203,6 +320,7 @@ export const useInvitationUpload = () => {
       const allTasks = editorData.images.flatMap(item =>
         item.file.map(file => ({ id: item.id, file }))
       );
+      queueProgressStep('organizingContent');
       console.log('[uploadFlow] allTasks:', allTasks.length, 'items');
 
       // 이전 hashFiles의 fileId들을 캡처
@@ -251,6 +369,7 @@ export const useInvitationUpload = () => {
         newTasks.length,
         'items'
       );
+      queueProgressStep('collectingText');
 
       const bgmData = {
         selectedBgmId: selectedBgmId ?? null,
@@ -293,6 +412,7 @@ export const useInvitationUpload = () => {
           bgmData, // bgm의 data 버전.
           mainPoster,
           invitationThumbnail,
+          onProgress: queueProgressStep,
         });
         console.log('[uploadFlow] saveInvitationFlow 완료');
         await applySaveResult(saveResult, allTasks);
@@ -326,6 +446,7 @@ export const useInvitationUpload = () => {
           mainPoster,
           invitationThumbnail,
           invitationUuid: editorData.invitationUuid,
+          onProgress: queueProgressStep,
         });
         console.log('[uploadFlow] saveInvitationFlow 완료');
         await applySaveResult(saveResult, allTasks);
@@ -355,6 +476,9 @@ export const useInvitationUpload = () => {
       setIsFail(true);
     } finally {
       console.log('[uploadFlow] handleUpload finally - isLoading=false');
+      isSaveLoadingRef.current = false;
+      pendingProgressStepRef.current = null;
+      clearProgressMessageTimer();
       setIsLoading(false);
     }
   };
@@ -385,5 +509,6 @@ export const useInvitationUpload = () => {
     isFail,
     isCleaningUp,
     pendingInvitation,
+    loadingMessage,
   };
 };

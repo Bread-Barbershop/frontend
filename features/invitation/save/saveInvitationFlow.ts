@@ -51,6 +51,17 @@ type SaveInvitationPrepareResponse = {
 
 type BatchResult = { ok: UploadOk[]; fail: UploadFail[] };
 
+export type SaveProgressStep =
+  | 'checkingContent'
+  | 'organizingContent'
+  | 'collectingText'
+  | 'loadingPhotos'
+  | 'arrangingContent'
+  | 'polishingInvitation'
+  | 'reviewingDetails'
+  | 'checkingPresentation'
+  | 'finishingInvitation';
+
 type SaveInvitationFlowParams = {
   bulkData: BulkJson;
   images: UploadTask[];
@@ -62,6 +73,7 @@ type SaveInvitationFlowParams = {
   mainPoster: MainPosterData;
   invitationThumbnail: InvitationThumbnail;
   uploadImages?: UploadTask[];
+  onProgress?: (step: SaveProgressStep) => void;
 };
 
 type SaveInvitationFlowResult = {
@@ -218,8 +230,9 @@ async function upload(params: {
   images: UploadTask[];
   audio: File | null;
   token: TokenState;
+  onProgress?: (step: SaveProgressStep) => void;
 }): Promise<UploadResult> {
-  const { prep, images, audio, token } = params;
+  const { prep, images, audio, token, onProgress } = params;
 
   // 공통 업로드 실행기: 1차 업로드 후 실패한 파일만 1회 재시도한다.
   const runUploadStep = async (step: {
@@ -268,6 +281,7 @@ async function upload(params: {
     };
   };
 
+  onProgress?.('loadingPhotos');
   const imagesStep = await runUploadStep({
     originFile: images,
     folderId: prep.imageFolderId,
@@ -286,6 +300,7 @@ async function upload(params: {
     });
   });
 
+  onProgress?.('arrangingContent');
   const audioStep = await runUploadStep({
     originFile: audio ? [{ id: 'bgm', file: audio }] : [],
     folderId: prep.audioFolderId,
@@ -313,6 +328,7 @@ async function commit(params: {
   bgmData: BgmData;
   mainPoster: MainPosterData;
   invitationThumbnail: InvitationThumbnail;
+  onProgress?: (step: SaveProgressStep) => void;
 }): Promise<CommitResult> {
   const {
     prep,
@@ -326,9 +342,11 @@ async function commit(params: {
     bgmData,
     mainPoster,
     invitationThumbnail,
+    onProgress,
   } = params;
   const { fileToId, uploadedAudioFileId } = uploadResult;
 
+  onProgress?.('collectingText');
   // uploadImages의 imageId -> File 매핑 (중복 이미지 처리용)
   const uploadImagesByImageId = new Map(
     (uploadImages ?? []).map(task => [task.id, task.file as File])
@@ -412,6 +430,7 @@ async function commit(params: {
       : null,
   };
 
+  onProgress?.('polishingInvitation');
   let thumbnailFileId: string | undefined = undefined;
   let thumbnailSaveFailed = false;
 
@@ -466,6 +485,7 @@ async function commit(params: {
     type: 'application/json',
   });
 
+  onProgress?.('reviewingDetails');
   // data.json PATCH가 저장 완료의 핵심 단계다. 실패하면 401/5xx에 한해 1회 재시도한다.
   const dataFirstAttempt: BatchResult = await (async () => {
     try {
@@ -502,6 +522,7 @@ async function commit(params: {
     usedAccessToken: token.currentToken,
   };
 
+  onProgress?.('checkingPresentation');
   // 공유 데이터 저장 실패는 기존 정책대로 전체 저장 실패로 보지 않는다.
   let metaSaveFailed = false;
 
@@ -651,6 +672,7 @@ export async function saveInvitationFlow(
     invitationThumbnail,
   } = params;
 
+  params.onProgress?.('checkingContent');
   let prep = await prepare(invitationUuid);
   let token = createTokenState(prep);
   let uploadResult = await upload({
@@ -658,6 +680,7 @@ export async function saveInvitationFlow(
     images: params.uploadImages ?? images,
     audio,
     token,
+    onProgress: params.onProgress,
   });
   let commitResult = await commit({
     prep,
@@ -671,6 +694,7 @@ export async function saveInvitationFlow(
     bgmData,
     mainPoster,
     invitationThumbnail,
+    onProgress: params.onProgress,
   });
 
   if (
@@ -680,6 +704,7 @@ export async function saveInvitationFlow(
       dataFailures: commitResult.dataStep.final.fail,
     })
   ) {
+    params.onProgress?.('checkingContent');
     prep = await prepareFallback(prep.invitationUuid);
     token = createTokenState(prep);
     uploadResult = await upload({
@@ -687,6 +712,7 @@ export async function saveInvitationFlow(
       images: params.uploadImages ?? images,
       audio,
       token,
+      onProgress: params.onProgress,
     });
     commitResult = await commit({
       prep,
@@ -700,6 +726,7 @@ export async function saveInvitationFlow(
       bgmData,
       mainPoster,
       invitationThumbnail,
+      onProgress: params.onProgress,
     });
   }
 
@@ -709,6 +736,7 @@ export async function saveInvitationFlow(
     commitResult.dataStep.final.fail.length +
     (commitResult.thumbnailSaveFailed ? 1 : 0) +
     (commitResult.metaSaveFailed ? 1 : 0);
+  params.onProgress?.('finishingInvitation');
   const visibility =
     saveFailedBeforeVisibility === 0
       ? await requestInitialPublicVisibility(prep.invitationFolderId)
