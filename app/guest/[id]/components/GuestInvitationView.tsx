@@ -1,5 +1,6 @@
 'use client';
 
+import InviaLogo from '@/shared/assets/logo/invia-logo.svg';
 import { DriveImageResolveModeProvider } from '@/shared/hooks/useDriveImageResolveMode';
 
 import GuestBgm from './GuestBgm';
@@ -64,9 +65,26 @@ function GuestInvitationView({
               renderHints={payload.renderHints}
             />
           </div>
+          <GuestInvitationFooter />
         </div>
       </Root>
     </DriveImageResolveModeProvider>
+  );
+}
+
+function GuestInvitationFooter() {
+  return (
+    <footer
+      className="flex h-[76px] w-full select-none items-center justify-center bg-inherit"
+      aria-label="Special moments with INVIA"
+    >
+      <div className="flex items-end gap-[5px]" aria-hidden="true">
+        <span className="font-['NanumSquare'] text-[11px] font-bold leading-[11px] text-[#4E4E4E]">
+          Special moments with
+        </span>
+        <InviaLogo className="h-[12px] w-auto shrink-0" focusable="false" />
+      </div>
+    </footer>
   );
 }
 
