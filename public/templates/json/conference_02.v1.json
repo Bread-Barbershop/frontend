@@ -12,6 +12,7 @@
       "lockScalingY": false,
       "lockRotation": false,
       "hasControls": true,
+      "editable": true,
       "selectable": true,
       "evented": true,
       "fill": "rgb(0,0,0)",
@@ -623,6 +624,7 @@
       "lockScalingY": false,
       "lockRotation": false,
       "hasControls": true,
+      "editable": true,
       "selectable": true,
       "evented": true,
       "fill": {

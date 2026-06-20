@@ -18,6 +18,18 @@ export const getFontKey = (
   return `${family}-${weight}-${style}`;
 };
 
+export const hasCustomFontFace = (
+  family: string,
+  weight: string,
+  style = 'normal'
+) => {
+  const normalizedWeight = String(weight);
+
+  return getFontFaces(family).some(
+    face => String(face.weight) === normalizedWeight && face.style === style
+  );
+};
+
 export const loadCustomFont = async (
   family: string,
   weight: string,

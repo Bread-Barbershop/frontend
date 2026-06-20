@@ -13,7 +13,7 @@
       "lockRotation": false,
       "hasControls": false,
       "editable": true,
-      "selectable": true,
+      "selectable": false,
       "evented": false,
       "fill": "rgb(0,0,0)",
       "stroke": null,
@@ -128,7 +128,8 @@
           "style": {
             "fontFamily": "Red Hat Display",
             "fontWeight": "900",
-            "fontSize": 24
+            "fontSize": 24,
+            "fontStyle": "normal"
           }
         },
         {
@@ -137,7 +138,8 @@
           "style": {
             "fontFamily": "BM Dohyeon",
             "fontWeight": "400",
-            "fontSize": 24
+            "fontSize": 24,
+            "fontStyle": "normal"
           }
         }
       ],
@@ -209,7 +211,9 @@
           "end": 4,
           "style": {
             "fontSize": 24,
-            "fontWeight": "900"
+            "fontWeight": "900",
+            "fontFamily": "M Plus 1",
+            "fontStyle": "normal"
           }
         }
       ],
