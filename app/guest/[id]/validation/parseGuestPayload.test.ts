@@ -11,10 +11,6 @@ const bulkData = {
     fontSize: '20px',
     fontWeight: '700',
     color: '#FA7564',
-    bold: false,
-    underline: false,
-    italic: false,
-    align: 'center',
     isDefault: false,
   },
   bodyData: {
@@ -22,10 +18,6 @@ const bulkData = {
     fontSize: '16px',
     fontWeight: '500',
     color: '#000000',
-    bold: false,
-    underline: false,
-    italic: false,
-    align: 'center',
     isDefault: false,
   },
 };

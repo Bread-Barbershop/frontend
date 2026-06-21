@@ -1,5 +1,3 @@
-import { ReactNode } from 'react';
-
 import { PickerHsva } from '@/components/molecules/color-picker/components/colorPicker.types';
 import { blockRegistry } from '@/shared/data/registry/registry';
 
@@ -32,22 +30,12 @@ export interface FontOption {
   label: string;
   value: string;
 }
-type TextAlignValue = 'left' | 'center' | 'right';
 export interface BulkData {
   font: string;
   fontSize: string;
   fontWeight: string;
   color: string;
-  bold: boolean;
-  italic: boolean;
-  underline: boolean;
-  align: TextAlignValue;
   isDefault: boolean;
-}
-
-export interface TextAlignOption {
-  label: ReactNode;
-  value: TextAlignValue;
 }
 
 export interface BlockSlice {

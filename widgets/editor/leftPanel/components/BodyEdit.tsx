@@ -72,13 +72,13 @@ function BodyEdit({
       >
         <div className="w-full h-full flex flex-col gap-1 px-3">
           <p
-            className="font-base text-base"
+            className="font-base text-base text-center"
             style={toStyle(bulkBodyData, false)}
           >
             Eng Sample
           </p>
           <p
-            className="font-base text-base"
+            className="font-base text-base text-center"
             style={toStyle(bulkBodyData, false)}
           >
             본문입니다

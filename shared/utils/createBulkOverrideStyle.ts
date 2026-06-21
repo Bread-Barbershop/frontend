@@ -34,18 +34,6 @@ export function createBulkOverrideStyle(
       currentStyle.fontWeight === defaultStyle.fontWeight
         ? undefined
         : currentStyle.fontWeight,
-    fontStyle:
-      currentStyle.fontStyle === defaultStyle.fontStyle
-        ? undefined
-        : currentStyle.fontStyle,
-    textDecoration:
-      currentStyle.textDecoration === defaultStyle.textDecoration
-        ? undefined
-        : currentStyle.textDecoration,
-    textAlign:
-      currentStyle.textAlign === defaultStyle.textAlign
-        ? undefined
-        : currentStyle.textAlign,
     color:
       currentStyle.color === defaultStyle.color ? undefined : currentStyle.color,
   };
