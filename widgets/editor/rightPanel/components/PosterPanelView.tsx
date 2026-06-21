@@ -38,6 +38,8 @@ export const PosterPanelView = memo(function PosterPanelView({
               src={template.thumbnailUrl}
               alt={template.name}
               fill
+              sizes="160px"
+              quality={100}
               className="object-cover"
             />
 

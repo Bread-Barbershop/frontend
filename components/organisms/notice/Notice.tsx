@@ -222,8 +222,6 @@ export const Notice = ({ blockInfo, id }: Props) => {
           onSelect={handleNoticeListSelect}
           onClose={() => setIsNoticeListOpen(false)}
           triggerRef={noticeListTriggerRef}
-          listClassName="justify-center items-center"
-          textClassName="bg-bg-sub rounded-xl flex items-center px-4 h-13"
         />
       )}
     </LeftEditorWrapper>

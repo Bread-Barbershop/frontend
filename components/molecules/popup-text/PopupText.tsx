@@ -5,17 +5,30 @@ import { cn } from '@/shared/utils/cn';
 interface PopupTextProps {
   text: string;
   className?: string;
+  twoLineEllipsis?: boolean;
 }
 
-export const PopupText = ({ text, className }: PopupTextProps) => {
+export const PopupText = ({
+  text,
+  className,
+  twoLineEllipsis = false,
+}: PopupTextProps) => {
   return (
     <div
       className={cn(
-        'flex h-18.5 items-center overflow-hidden rounded-md bg-[#F5F8FF] p-4 text-sm',
+        'flex h-9 items-center overflow-hidden rounded-xl bg-bg-sub px-4 py-0 text-sm',
         className
       )}
     >
-      <p className="line-clamp-2 overflow-hidden">{text}</p>
+      <p
+        className={cn(
+          twoLineEllipsis
+            ? 'line-clamp-2 overflow-hidden whitespace-normal'
+            : 'truncate whitespace-nowrap'
+        )}
+      >
+        {text}
+      </p>
     </div>
   );
 };

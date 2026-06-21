@@ -16,9 +16,11 @@ interface PopupProps {
   name?: string;
   selectedText?: string;
   defaultSelectedText?: string;
+  listWrapperClassName?: string;
   listClassName?: string;
   radioClassName?: string;
   textClassName?: string;
+  twoLineEllipsis?: boolean;
   triggerRef?: RefObject<HTMLElement | null>;
 }
 
@@ -30,9 +32,11 @@ function PopupOptions({
   name,
   selectedText,
   defaultSelectedText,
+  listWrapperClassName,
   listClassName,
   radioClassName,
   textClassName,
+  twoLineEllipsis = false,
   triggerRef,
 }: PopupProps) {
   const autoName = useId();
@@ -67,9 +71,14 @@ function PopupOptions({
       onClose={onClose}
       triggerRef={triggerRef}
       hideCloseButton
-      wrapperClassName="w-[280px] pb-3"
+      wrapperClassName="w-[280px] pb-3.5 pl-4 pr-3"
     >
-      <ul className=" max-h-120 overflow-y-auto space-y-2 pr-1">
+      <ul
+        className={cn(
+          'h-[370px] max-h-[370px] space-y-3 overflow-y-auto edit-custom-scrollbar pr-1',
+          listWrapperClassName
+        )}
+      >
         {options.length === 0 && (
           <li className="px-2 py-3 text-sm text-text-secondary text-center">
             표시할 항목이 없습니다.
@@ -79,7 +88,10 @@ function PopupOptions({
         {options.map((text, index) => (
           <li
             key={`${text}-${index}`}
-            className={cn('flex items-center gap-3 p-1', listClassName)}
+            className={cn(
+              'flex h-9 items-center justify-center gap-2.5 p-0',
+              listClassName
+            )}
           >
             <div className={cn('flex shrink-0 items-center', radioClassName)}>
               <Radio
@@ -90,7 +102,11 @@ function PopupOptions({
               />
             </div>
 
-            <PopupText text={text} className={cn('flex-1', textClassName)} />
+            <PopupText
+              text={text}
+              className={cn('flex-1', textClassName)}
+              twoLineEllipsis={twoLineEllipsis}
+            />
           </li>
         ))}
       </ul>
