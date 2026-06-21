@@ -31,6 +31,7 @@ function Toolbar() {
     icon: React.ReactNode;
     onClick: () => void;
     active: boolean;
+    value: string;
     className?: string;
     variant?: 'bordered' | 'solid' | 'flat' | 'ghost' | 'light';
   };
@@ -44,6 +45,7 @@ function Toolbar() {
         createTextBox(canvas);
       },
       active: activeTab === 'text',
+      value: '텍스트',
     },
     {
       id: 'image',
@@ -52,6 +54,7 @@ function Toolbar() {
         setActiveTab('image');
       },
       active: activeTab === 'image',
+      value: '이미지',
     },
     {
       id: 'graphic',
@@ -61,6 +64,7 @@ function Toolbar() {
         setDrawingType('pen');
       },
       active: activeTab === 'graphic' && drawingType === 'pen',
+      value: '그리기',
     },
     {
       id: 'background',
@@ -69,6 +73,7 @@ function Toolbar() {
         setActiveTab('background');
       },
       active: activeTab === 'background',
+      value: '배경색',
     },
   ];
 
@@ -96,6 +101,7 @@ function Toolbar() {
         addSlotRect();
       },
       active: activeTab === 'slot',
+      value: '슬롯',
       className:
         activeTab === 'slot' ? '' : 'bg-[#0F766E] text-white border-none',
       variant: activeTab === 'slot' ? 'bordered' : 'solid',
@@ -121,6 +127,7 @@ function Toolbar() {
         setActiveTab('shape');
       },
       active: activeTab === 'shape',
+      value: '도형',
       className:
         activeTab === 'shape' ? '' : 'bg-[#10B981] text-white border-none',
       variant: activeTab === 'shape' ? 'bordered' : 'solid',
@@ -138,6 +145,7 @@ function Toolbar() {
           className={`size-11 flex items-center justify-center rounded-full shadow-btn-drop-black ${item.className || ''}`}
           onClick={item.onClick}
           active={item.active}
+          title={item.value}
         >
           {item.icon}
         </Button>
