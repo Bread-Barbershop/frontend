@@ -1,5 +1,7 @@
 import { FabricImage, FabricObject } from 'fabric';
 
+import { FabricObjectWithLock } from '../types/fabric';
+
 export interface ImageSlotMeta {
   key: string;
   label?: string;
@@ -14,7 +16,7 @@ export type SlotImageObject = FabricImage & {
   slot?: ImageSlotMeta;
 };
 
-export type SlotTargetObject = FabricObject & {
+export type SlotTargetObject = FabricObjectWithLock & {
   slot?: ImageSlotMeta;
 };
 
@@ -39,13 +41,17 @@ export const getImageSlot = (target: unknown) => {
   return getSlotMeta(target);
 };
 
-export const isReplaceableSlotTarget = (target: unknown): target is SlotTargetObject =>
-  getSlotMeta(target) !== null;
+export const isReplaceableSlotTarget = (
+  target: unknown
+): target is SlotTargetObject => getSlotMeta(target) !== null;
 
-export const isReplaceableSlotImage = (target: unknown): target is SlotImageObject =>
-  getImageSlot(target) !== null;
+export const isReplaceableSlotImage = (
+  target: unknown
+): target is SlotImageObject => getImageSlot(target) !== null;
 
-export const isFilledSlotImage = (target: unknown): target is SlotImageObject => {
+export const isFilledSlotImage = (
+  target: unknown
+): target is SlotImageObject => {
   const slot = getImageSlot(target);
   return Boolean(slot?.filled);
 };

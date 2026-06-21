@@ -20,8 +20,9 @@ type DashboardActionButtonProps = Omit<
 
 const variantClassName: Record<DashboardActionButtonVariant, string> = {
   kakao: 'bg-[#FAE100] text-[#3C1E1E] hover:bg-[#F5DC00]',
-  url: 'bg-[#121212] text-white hover:bg-[#202020]',
-  outline: 'border border-[#EAEAEA] bg-white text-[#121212] hover:bg-[#F7F7F7]',
+  url: 'bg-bg-plain text-white hover:bg-[#202020]',
+  outline:
+    'border border-[#EAEAEA] bg-white text-text-plain hover:bg-[#F7F7F7]',
 };
 
 function DashboardActionButton({

@@ -4,7 +4,6 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import { ImageUploadButton } from '@/components/atoms/button/ImageUploadButton';
 import { EditorNoticeList } from '@/components/molecules/editor-notice';
-import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
@@ -165,8 +164,7 @@ export const ImagePanel = () => {
   }, [canvas, activeInfo]);
 
   return (
-    <LeftEditorWrapper ariaLabel="사진 편집">
-      <NavigationBar>사진</NavigationBar>
+    <LeftEditorWrapper ariaLabel="이미지 편집">
       <div className="py-5">
         {imageSrc ? (
           <Image

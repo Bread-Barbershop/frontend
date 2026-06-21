@@ -1,6 +1,5 @@
 import { useState } from 'react';
 
-import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 
 import { BackgroundColor } from './BackgroundColor';
@@ -19,7 +18,6 @@ export const BackgroundPanel = () => {
 
   return (
     <LeftEditorWrapper ariaLabel="배경 편집" className="pb-4">
-      <NavigationBar>배경</NavigationBar>
       <div className="flex w-full items-center justify-center gap-2 pb-1.5">
         <button
           onClick={() => {

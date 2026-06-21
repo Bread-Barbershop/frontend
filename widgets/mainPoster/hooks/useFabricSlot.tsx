@@ -268,6 +268,8 @@ export const useFabricSlot = ({
       selectable: targetImage.selectable,
       evented: targetImage.evented,
       hasControls: targetImage.hasControls,
+      editable: (targetImage as SlotTargetObject).editable,
+      isLocked: (targetImage as SlotTargetObject).isLocked,
       lockMovementX: targetImage.lockMovementX,
       lockMovementY: targetImage.lockMovementY,
       lockScalingX: targetImage.lockScalingX,

@@ -10,7 +10,7 @@ import HeaderPrivacyNoticeButton from './HeaderPrivacyNoticeButton';
 import HomeButton from './HomeButton';
 
 const HEADER_NAV_LINK_CLASS =
-  'flex items-center border-b border-transparent px-2 py-[6.5px] text-[16px] font-semibold text-[#121212] transition-colors hover:border-black hover:text-black';
+  'flex items-center border-b border-transparent px-2 py-[6.5px] text-[16px] font-semibold text-text-plain transition-colors hover:border-black hover:text-black';
 
 export default async function DashboardShell({
   children,

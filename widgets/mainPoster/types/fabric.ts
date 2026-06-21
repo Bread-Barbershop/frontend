@@ -12,6 +12,7 @@ export type ShapeType = 'image' | 'text';
 
 export interface FabricObjectWithLock extends OriginalFabricObject {
   isLocked?: boolean;
+  editable?: boolean;
 }
 
 export interface TextboxWithLock extends OriginalTextbox {

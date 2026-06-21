@@ -65,7 +65,7 @@ function PrivacyNoticeModal({ open, onClose }: PrivacyNoticeModalProps) {
         }`}
       >
         <div className="overflow-hidden rounded-xl border border-black/5 bg-white p-5">
-          <div className="w-fit max-w-full px-10 py-5 font-pretendard text-[14px] font-medium leading-5 text-[#121212]">
+          <div className="w-fit max-w-full px-10 py-5 font-pretendard text-[14px] font-medium leading-5 text-text-plain">
             <h2 className="mb-5 text-[32px] font-bold leading-10">
               안심하고 이용하세요
             </h2>

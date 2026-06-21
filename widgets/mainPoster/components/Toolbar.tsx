@@ -3,6 +3,7 @@ import React from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { Button } from '@/components/atoms/button';
+import Background from '@/shared/assets/icons/add-background.svg';
 import AddDrawing from '@/shared/assets/icons/add-drawing.svg';
 // import AddEraser from '@/shared/assets/icons/add-eraser.svg';
 import AddImage from '@/shared/assets/icons/add-image.svg';
@@ -27,9 +28,11 @@ function Toolbar() {
 
   type ToolbarItem = {
     id: string;
-    icon: React.ReactNode;
-    onClick: () => void;
     active: boolean;
+    araiaLabel: string;
+    icon: React.ReactNode;
+    hoverIcon: React.ReactNode;
+    onClick: () => void;
     className?: string;
     variant?: 'bordered' | 'solid' | 'flat' | 'ghost' | 'light';
   };
@@ -37,35 +40,69 @@ function Toolbar() {
   const TOOLBAR_ITEMS: ToolbarItem[] = [
     {
       id: 'text',
-      icon: <AddText width={14} height={14} />,
+      active: activeTab === 'text',
+      araiaLabel: '텍스트 추가',
+      icon: <AddText width={19} height={22} />,
+      hoverIcon: (
+        <p className="w-26.25 font-bold text-[16px] text-text-plain ">
+          텍스트 추가
+        </p>
+      ),
       onClick: () => {
         setActiveTab('text');
         createTextBox(canvas);
       },
-      active: activeTab === 'text',
     },
     {
       id: 'image',
-      icon: <AddImage width={14} height={14} />,
+      active: activeTab === 'image',
+      araiaLabel: '이미지 추가',
+      icon: <AddImage width={24} height={24} />,
       onClick: () => {
         setActiveTab('image');
       },
-      active: activeTab === 'image',
+      hoverIcon: (
+        <p className="w-26.25 font-bold text-[16px] text-text-plain">
+          이미지 추가
+        </p>
+      ),
     },
     {
       id: 'graphic',
-      icon: <AddDrawing width={14} height={14} />,
+      active: activeTab === 'graphic' && drawingType === 'pen',
+      araiaLabel: '그림 그리기',
+      icon: <AddDrawing width={22} height={20} />,
+      hoverIcon: (
+        <p className="w-26.25 font-bold text-[16px] text-text-plain">
+          그림 그리기
+        </p>
+      ),
       onClick: () => {
         setActiveTab('graphic');
         setDrawingType('pen');
       },
-      active: activeTab === 'graphic' && drawingType === 'pen',
+    },
+    {
+      id: 'background',
+      active: activeTab === 'background',
+      araiaLabel: '배경 변경',
+      icon: <Background width={22} height={22} />,
+      hoverIcon: (
+        <p className="w-26.25 font-bold text-[16px] text-text-plain">
+          배경색 변경
+        </p>
+      ),
+      onClick: () => {
+        setActiveTab('background');
+      },
     },
   ];
 
   if (isAdmin) {
     TOOLBAR_ITEMS.unshift({
       id: 'slot',
+      active: activeTab === 'slot',
+      araiaLabel: '슬롯 추가',
       icon: (
         <svg
           width="14"
@@ -82,18 +119,21 @@ function Toolbar() {
           <path d="M9 3v18"></path>
         </svg>
       ),
+      hoverIcon: (
+        <p className="w-26.25 font-bold text-[16px] text-text-plain">
+          슬롯 추가
+        </p>
+      ),
       onClick: () => {
         setActiveTab('slot');
         addSlotRect();
       },
-      active: activeTab === 'slot',
-      className:
-        activeTab === 'slot' ? '' : 'bg-[#0F766E] text-white border-none',
-      variant: activeTab === 'slot' ? 'bordered' : 'solid',
     });
 
     TOOLBAR_ITEMS.unshift({
       id: 'shape',
+      active: activeTab === 'shape',
+      araiaLabel: '도형 추가',
       icon: (
         <svg
           width="14"
@@ -108,56 +148,39 @@ function Toolbar() {
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
         </svg>
       ),
+      hoverIcon: (
+        <p className="w-26.25 font-bold text-[16px] text-text-plain">
+          도형 추가
+        </p>
+      ),
       onClick: () => {
         setActiveTab('shape');
       },
-      active: activeTab === 'shape',
-      className:
-        activeTab === 'shape' ? '' : 'bg-[#10B981] text-white border-none',
-      variant: activeTab === 'shape' ? 'bordered' : 'solid',
     });
   }
 
   return (
     <div
-      className="absolute top-1/2 -translate-y-1/2 -left-6 -translate-x-full flex flex-col gap-3 items-center"
+      className="absolute top-1/2 -translate-y-1/2 -left-6 -translate-x-full flex flex-col gap-3 items-end"
       data-canvas="true"
     >
       {TOOLBAR_ITEMS.map(item => (
         <Button
           key={item.id}
-          className={`size-8 ${item.className || ''}`}
+          className={`group size-11 hover:w-[105px] bg-bg-base hover:bg-bg-base rounded-full transition-width duration-150 ${item.className || ''}`}
           onClick={item.onClick}
-          variant={'bordered'}
           active={item.active}
+          shadow="custom"
+          aria-label={item.araiaLabel}
         >
-          {item.icon}
+          <span className="flex items-center justify-center group-hover:hidden">
+            {item.icon}
+          </span>
+          <span className="hidden items-center justify-center group-hover:inline-flex">
+            {item.hoverIcon}
+          </span>
         </Button>
       ))}
-      {/* {activeTab === 'graphic' && (
-        <div className="absolute top-full mt-3 flex flex-col gap-3 items-center">
-          <Button
-            className="size-8"
-            variant="bordered"
-            active={drawingType === 'pencil'}
-            onClick={() => {
-              setDrawingType('pencil');
-            }}
-          >
-            <AddPencil width={14} height={14} />
-          </Button>
-          <Button
-            className="size-8"
-            variant="bordered"
-            active={drawingType === 'eraser'}
-            onClick={() => {
-              setDrawingType('eraser');
-            }}
-          >
-            <AddEraser width={14} height={14} />
-          </Button>
-        </div>
-      )} */}
     </div>
   );
 }

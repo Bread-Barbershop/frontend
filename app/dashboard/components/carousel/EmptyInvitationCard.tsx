@@ -50,15 +50,15 @@ function EmptyInvitationCard() {
               height={120}
               priority
             />
-            <p className="mt-5 font-pretendard text-[16px] font-semibold leading-5 text-[#121212]">
+            <p className="mt-5 font-pretendard text-[16px] font-semibold leading-5 text-text-plain">
               아직 만든 초대장이 없어요.
             </p>
-            <p className="mt-[99px] font-pretendard text-[13px] font-medium leading-[18px] text-[#121212]">
+            <p className="mt-[99px] font-pretendard text-[13px] font-medium leading-[18px] text-text-plain">
               첫 초대장을 만들어 보세요.
             </p>
             <Link
               href="/editor"
-              className="mt-1.5 flex h-8 w-[217px] items-center justify-center rounded-lg bg-[#121212] font-pretendard text-[14px] font-semibold leading-5 text-white transition-colors hover:bg-[#202020] active:bg-[#0D0D0D]"
+              className="mt-1.5 flex h-8 w-[217px] items-center justify-center rounded-lg bg-bg-plain font-pretendard text-[14px] font-semibold leading-5 text-white transition-colors hover:bg-[#202020] active:bg-[#0D0D0D]"
             >
               무료로 제작하기
             </Link>
