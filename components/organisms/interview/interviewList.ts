@@ -1,4 +1,10 @@
+import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import interviewDefaultImage from '@/shared/assets/images/interview/interview-default.png';
+
+import {
+  EMPTY_INTERVIEW_OPTION,
+  INTERVIEW_QUESTION_OPTIONS,
+} from './interviewOptions';
 
 import type { JSONContent } from '@tiptap/react';
 import type { StaticImageData } from 'next/image';
@@ -47,9 +53,37 @@ export type InterviewQuestion = {
   image: (File | string)[];
 };
 
-export const QUESTION_LIST = QUESTION_PRESETS.map(preset => preset.label);
+export const QUESTION_LIST = [...INTERVIEW_QUESTION_OPTIONS];
 
 export const DEFAULT_QUESTION_PRESET = QUESTION_PRESETS[0];
+export const DEFAULT_INTERVIEW_QUESTION = '제목을 입력해주세요';
+export const createDefaultInterviewAnswerJson = (): JSONContent => ({
+  type: 'doc',
+  content: [
+    {
+      type: 'paragraph',
+      content: [{ type: 'text', text: '신랑' }],
+    },
+    {
+      type: 'paragraph',
+      content: [{ type: 'text', text: '"내용을 입력해 주세요"' }],
+    },
+    {
+      type: 'paragraph',
+    },
+    {
+      type: 'paragraph',
+      content: [{ type: 'text', text: '신부' }],
+    },
+    {
+      type: 'paragraph',
+      content: [{ type: 'text', text: '"내용을 입력해 주세요"' }],
+    },
+  ],
+});
+export const DEFAULT_INTERVIEW_ANSWER_HTML = tiptapJsonToHtmlUniversal(
+  createDefaultInterviewAnswerJson()
+);
 
 export const getInterviewPresetByLabel = (label: string) =>
   QUESTION_PRESETS.find(preset => preset.label === label);
@@ -73,17 +107,23 @@ export const getInterviewDefaultImage = (
 };
 
 export const createInterviewQuestion = (
-  label: string = DEFAULT_QUESTION_PRESET.label
+  label = EMPTY_INTERVIEW_OPTION
 ): InterviewQuestion => {
-  const preset = getInterviewPresetByLabel(label) ?? DEFAULT_QUESTION_PRESET;
+  const isEmptyOption = label === EMPTY_INTERVIEW_OPTION;
+  const preset = isEmptyOption ? undefined : getInterviewPresetByLabel(label);
+  const defaultAnswerJson = isEmptyOption
+    ? createDefaultInterviewAnswerJson()
+    : null;
 
   return {
     id: crypto.randomUUID(),
-    presetId: preset.id,
-    question: preset.label,
+    presetId: preset?.id,
+    question: isEmptyOption
+      ? DEFAULT_INTERVIEW_QUESTION
+      : (preset?.label ?? label),
     answer: {
-      messageJson: null,
-      messageHtml: null,
+      messageJson: defaultAnswerJson,
+      messageHtml: isEmptyOption ? DEFAULT_INTERVIEW_ANSWER_HTML : null,
     },
     image: [],
   };

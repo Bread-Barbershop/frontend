@@ -132,7 +132,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
               variant="primary"
               onClick={() => setIsQuestionListOpen(true)}
             >
-              항목추가
+              예시보기
             </UtilityButton>
           </div>
         }
@@ -221,8 +221,6 @@ export const Interview = ({ blockInfo, id }: Props) => {
           onSelect={handleQuestionListSelect}
           onClose={() => setIsQuestionListOpen(false)}
           triggerRef={questionListTriggerRef}
-          listClassName="justify-center items-center"
-          textClassName="bg-bg-sub rounded-xl flex items-center px-4 h-13"
         />
       )}
     </LeftEditorWrapper>
