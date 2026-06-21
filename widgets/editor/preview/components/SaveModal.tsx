@@ -170,7 +170,7 @@ const ModalFrame = forwardRef<
       aria-modal="true"
       aria-labelledby="save-modal-title"
       tabIndex={-1}
-      className={`fixed top-1/2 left-1/2 z-[101] flex h-[249px] w-[335px] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-6 rounded-xl border border-white/22 bg-white/72 p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%),0_1px_8px_-2px_rgb(255_255_255_/_35%)] backdrop-blur-xl ${isLoading ? 'justify-center' : ''}`}
+      className={`fixed top-1/2 left-1/2 z-[101] flex h-[249px] w-[335px] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-6 rounded-xl bg-white p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%)] ${isLoading ? 'justify-center' : ''}`}
     >
       {isLoading ? (
         <div className="-mt-2 flex flex-col items-center gap-3 text-center">
@@ -208,11 +208,11 @@ const SaveStepView = ({
     <div>
       <SaveLottie variant={isFail ? 'fail' : 'success'} />
     </div>
-    <div className="flex items-center gap-2">
+    <div className="flex w-full items-center gap-2">
       {isFail ? (
         <button
           type="button"
-          className="font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[295px] h-[44px]"
+          className="font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center h-[44px] w-full"
           onClick={onRetry}
         >
           다시 저장하기
@@ -221,14 +221,14 @@ const SaveStepView = ({
         <>
           <button
             type="button"
-            className="font-semibold text-sm border border-[#EAEAEA] rounded-lg bg-white text-black flex-center w-[143px] h-[44px] cursor-pointer transition-colors hover:bg-[#FAFAFB] active:bg-[#F5F8FF]"
+            className="font-semibold text-sm rounded-[8px] bg-white text-black flex-center h-[44px] flex-1 cursor-pointer shadow-[inset_0_0_0_1px_#EBEBEB] transition-colors hover:bg-[#F9F9F9] active:bg-[#EFEFEF]"
             onClick={onClose}
           >
             다시 수정하기
           </button>
           <button
             type="button"
-            className="font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center w-[143px] h-[44px] cursor-pointer transition-colors hover:bg-[#202020] active:bg-[#0D0D0D]"
+            className="font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center h-[44px] flex-1 cursor-pointer transition-colors hover:bg-[#202020] active:bg-[#0D0D0D]"
             onClick={onExit}
           >
             여기서 나가기
