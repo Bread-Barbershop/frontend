@@ -28,10 +28,11 @@ function Toolbar() {
 
   type ToolbarItem = {
     id: string;
-    icon: React.ReactNode;
-    onClick: () => void;
     active: boolean;
+    araiaLabel: string;
+    icon: React.ReactNode;
     hoverIcon: React.ReactNode;
+    onClick: () => void;
     className?: string;
     variant?: 'bordered' | 'solid' | 'flat' | 'ghost' | 'light';
   };
@@ -40,6 +41,7 @@ function Toolbar() {
     {
       id: 'text',
       active: activeTab === 'text',
+      araiaLabel: '텍스트 추가',
       icon: <AddText width={19} height={22} />,
       hoverIcon: (
         <p className="w-26.25 font-bold text-[16px] text-text-plain ">
@@ -54,6 +56,7 @@ function Toolbar() {
     {
       id: 'image',
       active: activeTab === 'image',
+      araiaLabel: '이미지 추가',
       icon: <AddImage width={24} height={24} />,
       onClick: () => {
         setActiveTab('image');
@@ -67,6 +70,7 @@ function Toolbar() {
     {
       id: 'graphic',
       active: activeTab === 'graphic' && drawingType === 'pen',
+      araiaLabel: '그림 그리기',
       icon: <AddDrawing width={22} height={20} />,
       hoverIcon: (
         <p className="w-26.25 font-bold text-[16px] text-text-plain">
@@ -81,6 +85,7 @@ function Toolbar() {
     {
       id: 'background',
       active: activeTab === 'background',
+      araiaLabel: '배경 변경',
       icon: <Background width={22} height={22} />,
       hoverIcon: (
         <p className="w-26.25 font-bold text-[16px] text-text-plain">
@@ -97,7 +102,7 @@ function Toolbar() {
     TOOLBAR_ITEMS.unshift({
       id: 'slot',
       active: activeTab === 'slot',
-
+      araiaLabel: '슬롯 추가',
       icon: (
         <svg
           width="14"
@@ -128,6 +133,7 @@ function Toolbar() {
     TOOLBAR_ITEMS.unshift({
       id: 'shape',
       active: activeTab === 'shape',
+      araiaLabel: '도형 추가',
       icon: (
         <svg
           width="14"
@@ -165,6 +171,7 @@ function Toolbar() {
           onClick={item.onClick}
           active={item.active}
           shadow="custom"
+          aria-label={item.araiaLabel}
         >
           <span className="flex items-center justify-center group-hover:hidden">
             {item.icon}
