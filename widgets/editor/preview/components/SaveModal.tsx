@@ -221,7 +221,7 @@ const SaveStepView = ({
         <>
           <button
             type="button"
-            className="font-semibold text-sm rounded-[8px] bg-white text-black flex-center h-[44px] flex-1 cursor-pointer shadow-[inset_0_0_0_1px_#EBEBEB] transition-colors hover:bg-[#F9F9F9] active:bg-[#EFEFEF]"
+            className="font-semibold text-sm rounded-[8px] bg-white text-black flex-center h-[44px] flex-1 cursor-pointer transition-colors hover:bg-[#F9F9F9] active:bg-[#EFEFEF]"
             onClick={onClose}
           >
             다시 수정하기
