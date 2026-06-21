@@ -32,18 +32,18 @@ function RightPanel() {
     <div
       className={`${selectedId !== 'mainPoster' && (!typeArray || typeArray.length === 0) ? 'invisible' : 'visible'} w-93.75 h-full max-h-[810px] mr-5 min-[1540px]:mr-15 flex flex-col gap-5`}
     >
-      <div className="w-93.75 min-h-0 h-full flex-1 bg-white rounded-lg shadow-edit flex-center flex-col gap-3 px-5 ">
+      <div className="w-93.75 min-h-0 h-full flex-1 bg-white rounded-lg shadow-edit flex-center flex-col gap-2 px-5 ">
         <div className="w-full h-11">
           <button
             type="button"
-            className={` w-41.5 h-11 font-semibold ${tab === 'poster' ? 'border-b text-text-primary' : 'text-text-tertiary'}`}
+            className={`w-41.5 h-11 cursor-pointer select-none text-sm ${tab === 'poster' ? 'border-b font-semibold text-text-primary' : 'font-normal text-[#838383]'}`}
             onPointerDown={() => setTab('poster')}
           >
             포스터
           </button>
           <button
             type="button"
-            className={`w-41.75 h-11 font-semibold ${typeArray && typeArray.length > 0 ? 'pointer-events-auto' : 'pointer-events-none'} ${tab === 'type' ? 'border-b text-text-primary' : 'text-text-tertiary'}`}
+            className={`w-41.75 h-11 cursor-pointer select-none text-sm ${typeArray && typeArray.length > 0 ? 'pointer-events-auto' : 'pointer-events-none'} ${tab === 'type' ? 'border-b font-semibold text-text-primary' : 'font-normal text-[#838383]'}`}
             onPointerDown={() => setTab('type')}
           >
             타입
