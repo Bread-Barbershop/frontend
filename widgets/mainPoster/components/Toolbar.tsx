@@ -123,9 +123,6 @@ function Toolbar() {
         setActiveTab('slot');
         addSlotRect();
       },
-      className:
-        activeTab === 'slot' ? '' : 'bg-[#0F766E] text-white border-none',
-      variant: activeTab === 'slot' ? 'bordered' : 'solid',
     });
 
     TOOLBAR_ITEMS.unshift({
@@ -145,13 +142,14 @@ function Toolbar() {
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
         </svg>
       ),
-      hoverIcon: <p className="w-26.25 font-bold text-text-plain">도형 추가</p>,
+      hoverIcon: (
+        <p className="w-26.25 font-bold text-[16px] text-text-plain">
+          도형 추가
+        </p>
+      ),
       onClick: () => {
         setActiveTab('shape');
       },
-      className:
-        activeTab === 'shape' ? '' : 'bg-[#10B981] text-white border-none',
-      variant: activeTab === 'shape' ? 'bordered' : 'solid',
     });
   }
 
@@ -163,9 +161,10 @@ function Toolbar() {
       {TOOLBAR_ITEMS.map(item => (
         <Button
           key={item.id}
-          className={`group size-11 hover:w-[105px] rounded-full shadow-btn-drop-black transition-width duration-150 ${item.className || ''}`}
+          className={`group size-11 hover:w-[105px] bg-bg-base hover:bg-bg-base rounded-full transition-width duration-150 ${item.className || ''}`}
           onClick={item.onClick}
           active={item.active}
+          shadow="custom"
         >
           <span className="flex items-center justify-center group-hover:hidden">
             {item.icon}
