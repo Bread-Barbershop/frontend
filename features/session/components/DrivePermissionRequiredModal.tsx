@@ -106,7 +106,7 @@ function DrivePermissionRequiredModal({
         <div className="flex flex-col gap-2">
           <h2
             id="drive-permission-title"
-            className="text-[20px] font-bold leading-7 text-[#121212]"
+            className="text-[20px] font-bold leading-7 text-text-plain"
           >
             Google Drive 권한이 필요해요
           </h2>
@@ -123,7 +123,7 @@ function DrivePermissionRequiredModal({
             type="button"
             onClick={onRetry}
             disabled={isLoading}
-            className="h-11 w-full cursor-pointer rounded-lg bg-[#121212] px-4 text-[15px] font-semibold text-white transition-colors enabled:hover:bg-[#202020] enabled:active:bg-[#0D0D0D] disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-11 w-full cursor-pointer rounded-lg bg-bg-plain px-4 text-[15px] font-semibold text-white transition-colors enabled:hover:bg-[#202020] enabled:active:bg-[#0D0D0D] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isLoading ? '권한 요청 중...' : '다시 권한 허용하기'}
           </button>

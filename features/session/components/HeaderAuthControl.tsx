@@ -17,7 +17,7 @@ type HeaderAuthControlProps = {
 };
 
 const HEADER_ACTION_CLASS =
-  'flex items-center border-b border-transparent px-2 py-[6.5px] text-[16px] font-semibold text-[#121212] transition-colors enabled:hover:border-black enabled:hover:text-black disabled:opacity-50 cursor-pointer';
+  'flex items-center border-b border-transparent px-2 py-[6.5px] text-[16px] font-semibold text-text-plain transition-colors enabled:hover:border-black enabled:hover:text-black disabled:opacity-50 cursor-pointer';
 
 function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
   const router = useRouter();

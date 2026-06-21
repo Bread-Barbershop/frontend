@@ -237,8 +237,8 @@ function CarouselItem({
               }`}
             />
             {isPending && (
-              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-white/72 text-[#121212] backdrop-blur-[2px]">
-                <div className="h-8 w-8 animate-spin rounded-full border-2 border-black/10 border-t-[#121212]" />
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-white/72 text-text-plain backdrop-blur-[2px]">
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-black/10 border-t-border-plain" />
                 <p className="font-pretendard text-[13px] font-semibold leading-[18px]">
                   초대장 준비 중
                 </p>

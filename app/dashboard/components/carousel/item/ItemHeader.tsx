@@ -39,7 +39,7 @@ function ItemHeader({
         height: dashboardCarouselLayout.headerHeight,
       }}
     >
-      <p className="font-pretendard text-[13px] font-semibold leading-[18px] text-[#121212]">
+      <p className="font-pretendard text-[13px] font-semibold leading-[18px] text-text-plain">
         {formatCreatedDate(createdTime)}
       </p>
       <VisibilityToggle

@@ -117,21 +117,21 @@ function DashboardInvitationPreviewModal({
           <div className="flex min-h-full flex-col items-center justify-center px-8 text-center">
             {status === 'loading' || (status === 'success' && payload) ? (
               <>
-                <div className="h-9 w-9 animate-spin rounded-full border-2 border-black/10 border-t-[#121212]" />
-                <p className="mt-5 font-pretendard text-[15px] font-semibold leading-[22px] text-[#121212]">
+                <div className="h-9 w-9 animate-spin rounded-full border-2 border-black/10 border-t-border-plain" />
+                <p className="mt-5 font-pretendard text-[15px] font-semibold leading-[22px] text-text-plain">
                   초대장을 불러오고 있어요.
                 </p>
               </>
             ) : (
               <>
-                <p className="font-pretendard text-[15px] font-semibold leading-[22px] text-[#121212]">
+                <p className="font-pretendard text-[15px] font-semibold leading-[22px] text-text-plain">
                   {errorMessage ?? '미리보기를 불러오지 못했습니다.'}
                 </p>
                 {folderId && (
                   <button
                     type="button"
                     onClick={() => onRetry(folderId)}
-                    className="mt-5 h-10 rounded-lg bg-[#121212] px-5 font-pretendard text-[14px] font-semibold leading-5 text-white transition-colors hover:bg-[#202020]"
+                    className="mt-5 h-10 rounded-lg bg-bg-plain px-5 font-pretendard text-[14px] font-semibold leading-5 text-white transition-colors hover:bg-[#202020]"
                   >
                     다시 시도
                   </button>
