@@ -42,7 +42,9 @@ function Toolbar() {
       active: activeTab === 'text',
       icon: <AddText width={19} height={22} />,
       hoverIcon: (
-        <div className="w-26.25 font-bold text-text-plain ">텍스트 추가</div>
+        <p className="w-26.25 font-bold text-[16px] text-text-plain ">
+          텍스트 추가
+        </p>
       ),
       onClick: () => {
         setActiveTab('text');
@@ -57,7 +59,9 @@ function Toolbar() {
         setActiveTab('image');
       },
       hoverIcon: (
-        <div className="w-26.25 font-bold text-text-plain">이미지 추가</div>
+        <p className="w-26.25 font-bold text-[16px] text-text-plain">
+          이미지 추가
+        </p>
       ),
     },
     {
@@ -65,7 +69,9 @@ function Toolbar() {
       active: activeTab === 'graphic' && drawingType === 'pen',
       icon: <AddDrawing width={22} height={20} />,
       hoverIcon: (
-        <div className="w-26.25 font-bold text-text-plain">그림 그리기</div>
+        <p className="w-26.25 font-bold text-[16px] text-text-plain">
+          그림 그리기
+        </p>
       ),
       onClick: () => {
         setActiveTab('graphic');
@@ -77,7 +83,9 @@ function Toolbar() {
       active: activeTab === 'background',
       icon: <Background width={22} height={22} />,
       hoverIcon: (
-        <div className="w-26.25 font-bold text-text-plain">배경색 변경</div>
+        <p className="w-26.25 font-bold text-[16px] text-text-plain">
+          배경색 변경
+        </p>
       ),
       onClick: () => {
         setActiveTab('background');
@@ -107,7 +115,9 @@ function Toolbar() {
         </svg>
       ),
       hoverIcon: (
-        <div className="w-26.25 font-bold text-text-plain">슬롯 추가</div>
+        <p className="w-26.25 font-bold text-[16px] text-text-plain">
+          슬롯 추가
+        </p>
       ),
       onClick: () => {
         setActiveTab('slot');
@@ -135,9 +145,7 @@ function Toolbar() {
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
         </svg>
       ),
-      hoverIcon: (
-        <div className="w-26.25 font-bold text-text-plain">도형 추가</div>
-      ),
+      hoverIcon: <p className="w-26.25 font-bold text-text-plain">도형 추가</p>,
       onClick: () => {
         setActiveTab('shape');
       },
