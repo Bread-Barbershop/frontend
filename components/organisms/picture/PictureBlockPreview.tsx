@@ -64,7 +64,7 @@ function PictureBlockPreview({
               alt="사진 컴포넌트 이미지"
               fill
               className="object-cover"
-              draggable={true}
+              draggable={false}
             />
           </div>
         )}
