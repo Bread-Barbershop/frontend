@@ -15,15 +15,50 @@ import { ShapePanel } from './shape/ShapePanel';
 import { SlotPanel } from './slot/SlotPanel';
 
 export const MainPoster = () => {
-  const { activeTab } = useEditorStore(
+  const { activeTab, setActiveTab } = useEditorStore(
     useShallow(state => ({
       activeTab: state.activeTab,
+      setActiveTab: state.setActiveTab,
     }))
   );
   const searchParams = useSearchParams();
   const isAdmin = searchParams.get('type') === 'admin';
-  const { canvas, exportCanvasPreview, exportIntersectedJSON } =
+  const { canvas, exportCanvasPreview, exportIntersectedJSON, createTextBox } =
     useFabricContext();
+
+  if (!canvas) return null;
+
+  const PanelItems = [
+    {
+      id: 'background',
+      value: '배경색',
+      onClick: () => {
+        setActiveTab('background');
+      },
+    },
+    {
+      id: 'text',
+      value: '텍스트',
+      onClick: () => {
+        setActiveTab('text');
+        createTextBox(canvas);
+      },
+    },
+    {
+      id: 'image',
+      value: '이미지',
+      onClick: () => {
+        setActiveTab('image');
+      },
+    },
+    {
+      id: 'graphic',
+      value: '그리기',
+      onClick: () => {
+        setActiveTab('graphic');
+      },
+    },
+  ];
 
   const handleDownloadImage = () => {
     const preview = exportCanvasPreview();
@@ -76,6 +111,36 @@ export const MainPoster = () => {
           </div>
         </>
       )}
+
+      <NavigationBar
+        action={
+          activeTab === 'text' ? (
+            <UtilityButton
+              size="md"
+              variant="primary"
+              className="text-sm"
+              onClick={() => createTextBox(canvas)}
+            >
+              텍스트 추가
+            </UtilityButton>
+          ) : null
+        }
+        direction="right"
+      >
+        포스터
+      </NavigationBar>
+      <div className="w-full h-11 flex gap-2 items-center justify-center bg-white rounded-lg">
+        {PanelItems.map(item => (
+          <button
+            key={item.id}
+            type="button"
+            className={`w-[54px] h-8 font-medium text-sm ${activeTab === item.id ? 'border-b text-text-primary' : 'text-text-secondary'}`}
+            onClick={item.onClick}
+          >
+            <p>{item.value}</p>
+          </button>
+        ))}
+      </div>
 
       {activeTab === 'text' && <RichTextPanel />}
 

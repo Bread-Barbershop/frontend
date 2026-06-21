@@ -1,7 +1,6 @@
 import { Textbox } from 'fabric';
 import { useEffect, useState } from 'react';
 
-import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
@@ -61,8 +60,7 @@ export const RichTextPanel = () => {
   if (!canvas) return null;
 
   return (
-    <LeftEditorWrapper ariaLabel="폰트 편집" className="w-83.75 px-0">
-      <NavigationBar>폰트 편집</NavigationBar>
+    <LeftEditorWrapper ariaLabel="폰트 편집" className="w-83.75 px-0 pt-1">
       <div className="w-full">
         <FontFamily />
       </div>

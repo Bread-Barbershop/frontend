@@ -3,6 +3,7 @@ import React from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { Button } from '@/components/atoms/button';
+import Background from '@/shared/assets/icons/add-background.svg';
 import AddDrawing from '@/shared/assets/icons/add-drawing.svg';
 // import AddEraser from '@/shared/assets/icons/add-eraser.svg';
 import AddImage from '@/shared/assets/icons/add-image.svg';
@@ -37,7 +38,7 @@ function Toolbar() {
   const TOOLBAR_ITEMS: ToolbarItem[] = [
     {
       id: 'text',
-      icon: <AddText width={14} height={14} />,
+      icon: <AddText width={19} height={22} />,
       onClick: () => {
         setActiveTab('text');
         createTextBox(canvas);
@@ -46,7 +47,7 @@ function Toolbar() {
     },
     {
       id: 'image',
-      icon: <AddImage width={14} height={14} />,
+      icon: <AddImage width={24} height={24} />,
       onClick: () => {
         setActiveTab('image');
       },
@@ -54,12 +55,20 @@ function Toolbar() {
     },
     {
       id: 'graphic',
-      icon: <AddDrawing width={14} height={14} />,
+      icon: <AddDrawing width={22} height={20} />,
       onClick: () => {
         setActiveTab('graphic');
         setDrawingType('pen');
       },
       active: activeTab === 'graphic' && drawingType === 'pen',
+    },
+    {
+      id: 'background',
+      icon: <Background width={22} height={22} />,
+      onClick: () => {
+        setActiveTab('background');
+      },
+      active: activeTab === 'background',
     },
   ];
 
@@ -126,38 +135,13 @@ function Toolbar() {
       {TOOLBAR_ITEMS.map(item => (
         <Button
           key={item.id}
-          className={`size-8 ${item.className || ''}`}
+          className={`size-11 flex items-center justify-center rounded-full shadow-btn-drop-black ${item.className || ''}`}
           onClick={item.onClick}
-          variant={'bordered'}
           active={item.active}
         >
           {item.icon}
         </Button>
       ))}
-      {/* {activeTab === 'graphic' && (
-        <div className="absolute top-full mt-3 flex flex-col gap-3 items-center">
-          <Button
-            className="size-8"
-            variant="bordered"
-            active={drawingType === 'pencil'}
-            onClick={() => {
-              setDrawingType('pencil');
-            }}
-          >
-            <AddPencil width={14} height={14} />
-          </Button>
-          <Button
-            className="size-8"
-            variant="bordered"
-            active={drawingType === 'eraser'}
-            onClick={() => {
-              setDrawingType('eraser');
-            }}
-          >
-            <AddEraser width={14} height={14} />
-          </Button>
-        </div>
-      )} */}
     </div>
   );
 }
