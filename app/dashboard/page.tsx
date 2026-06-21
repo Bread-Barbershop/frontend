@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 
 import DashboardCarouselSkeleton from './components/carousel/DashboardCarouselSkeleton';
 import DashboardInvitations from './components/DashboardInvitations';
+import DashboardCreateInvitationButton from './components/title/DashboardCreateInvitationButton';
 import DashboardTitle from './components/title/DashboardTitle';
 
 import type { Metadata } from 'next';
@@ -16,10 +17,11 @@ export default function DashboardPage() {
   return (
     <>
       <div
-        className="pointer-events-none fixed z-10"
+        className="pointer-events-none fixed z-10 flex flex-col items-end gap-10"
         style={{ right: '2.5rem', top: '30%' }}
       >
         <DashboardTitle />
+        <DashboardCreateInvitationButton />
       </div>
       <Suspense fallback={<DashboardCarouselSkeleton />}>
         <DashboardInvitations />
