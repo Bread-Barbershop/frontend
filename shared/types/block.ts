@@ -1,5 +1,3 @@
-import { ReactNode } from 'react';
-
 import { PickerHsva } from '@/components/molecules/color-picker/components/colorPicker.types';
 import { blockRegistry } from '@/shared/data/registry/registry';
 
