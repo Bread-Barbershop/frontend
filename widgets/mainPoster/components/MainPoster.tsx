@@ -2,6 +2,7 @@ import { useSearchParams } from 'next/navigation';
 import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
+import { Label } from '@/components/atoms/label/Label';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
@@ -91,25 +92,23 @@ export const MainPoster = () => {
       data-canvas="true"
     >
       {isAdmin && (
-        <>
-          <NavigationBar>포스터 프리뷰(개발용)</NavigationBar>
-          <div className="flex gap-2 w-full mb-4">
-            <UtilityButton
-              size="sm"
-              className="flex-1"
-              onClick={handleDownloadImage}
-            >
-              이미지 다운로드
-            </UtilityButton>
-            <UtilityButton
-              size="sm"
-              className="flex-1"
-              onClick={handleDownloadJSON}
-            >
-              데이터 다운로드
-            </UtilityButton>
-          </div>
-        </>
+        <div className="flex gap-2 w-full py-3">
+          <Label className="text-sm text-text-secondary">개발용</Label>
+          <UtilityButton
+            size="sm"
+            className="flex-1"
+            onClick={handleDownloadImage}
+          >
+            이미지 다운로드
+          </UtilityButton>
+          <UtilityButton
+            size="sm"
+            className="flex-1"
+            onClick={handleDownloadJSON}
+          >
+            데이터 다운로드
+          </UtilityButton>
+        </div>
       )}
 
       <NavigationBar
@@ -129,7 +128,7 @@ export const MainPoster = () => {
       >
         포스터
       </NavigationBar>
-      <div className="w-full h-11 flex gap-2 items-center justify-center bg-white rounded-lg">
+      <div className="w-full h-11 flex gap-2 items-center justify-center bg-white rounded-lg user-select-none">
         {PanelItems.map(item => (
           <button
             key={item.id}
