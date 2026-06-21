@@ -1,15 +1,15 @@
 'use client';
 
 import { ChevronDown } from 'lucide-react';
-import { CSSProperties, useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  CSSProperties,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
 
-import TextEditorButton from '@/components/atoms/text-editor-button/TextEditorButton';
-import AlignCenterIcon from '@/shared/assets/icons/alignCenter.svg';
-import AlignLeftIcon from '@/shared/assets/icons/alignLeft.svg';
-import AlignRightIcon from '@/shared/assets/icons/alignRight.svg';
 import FontColorIcon from '@/shared/assets/icons/color.svg';
-import ItalicIcon from '@/shared/assets/icons/italic.svg';
-import UnderlineIcon from '@/shared/assets/icons/underline.svg';
 import { hasCustomFontFace, loadCustomFont } from '@/shared/fonts/fontLoader';
 import {
   FontFamilyOption,
@@ -27,7 +27,6 @@ import {
   FONT_SIZE_OPTIONS,
   getDefaultFontWeightOption,
   type FontSizeOption,
-  type TextAlignOption,
 } from '../text-editor/utils/textEditorOptions';
 
 import BulkColorPicker from './components/ColorPicker';
@@ -48,14 +47,7 @@ interface TextEditorPreviewProps {
   onActiveColorPickerChange: (id: BulkColorPickerId | null) => void;
 }
 
-const TEXT_ALIGN_OPTIONS: TextAlignOption[] = [
-  { label: <AlignRightIcon />, value: 'right' },
-  { label: <AlignCenterIcon />, value: 'center' },
-  { label: <AlignLeftIcon />, value: 'left' },
-];
-
 const DEFAULT_FONT_FAMILY_OPTION = getDefaultFontFamilyOption();
-const DEFAULT_TEXT_ALIGN_OPTION = TEXT_ALIGN_OPTIONS[1];
 
 export function TextEditorPreview({
   children,
@@ -76,22 +68,18 @@ export function TextEditorPreview({
           label: customFontSizeInput,
           value: customFontSizeInput ? `${customFontSizeInput}px` : '',
         }
-      : FONT_SIZE_OPTIONS.find(option => option.value === value.fontSize) ??
-          (value.fontSize
-            ? {
-                label: value.fontSize.replace('px', ''),
-                value: value.fontSize,
-              }
-            : DEFAULT_FONT_SIZE_OPTION);
+      : (FONT_SIZE_OPTIONS.find(option => option.value === value.fontSize) ??
+        (value.fontSize
+          ? {
+              label: value.fontSize.replace('px', ''),
+              value: value.fontSize,
+            }
+          : DEFAULT_FONT_SIZE_OPTION));
 
   const fontFamilySelected =
     FONT_FAMILY_OPTIONS.find(
       option => option.value === resolveFontFamily(value.font)
     ) ?? DEFAULT_FONT_FAMILY_OPTION;
-
-  const textAlignSelected =
-    TEXT_ALIGN_OPTIONS.find(option => option.value === value.align) ??
-    DEFAULT_TEXT_ALIGN_OPTION;
 
   const fontWeightOptions = useMemo(
     () => createFontWeightOptions(fontFamilySelected),
@@ -105,14 +93,10 @@ export function TextEditorPreview({
     [fontWeightOptions, fontFamilySelected, value.fontWeight]
   );
 
-  const inlineButtonClassName =
-    'bg-white hover:bg-[#FAFAFB] active:bg-[#F5F8FF] aria-pressed:bg-[#F5F8FF] aria-pressed:text-[#1F72EF]';
-
   const {
     selectedFontFamily,
     handleFontSizeSelect,
     handleFontFamilySelect,
-    handleTextAlignSelect,
     handleTextColorSelect,
     handleFontWeightSelect,
   } = useBulkEditor(value, onChange);
@@ -144,14 +128,14 @@ export function TextEditorPreview({
   };
 
   useEffect(() => {
-    const style = value.italic ? 'italic' : 'normal';
-
-    if (!hasCustomFontFace(selectedFontFamily.value, fontWeightSelected.value, style)) {
+    if (
+      !hasCustomFontFace(selectedFontFamily.value, fontWeightSelected.value)
+    ) {
       return;
     }
 
-    void loadCustomFont(selectedFontFamily.value, fontWeightSelected.value, style);
-  }, [selectedFontFamily.value, fontWeightSelected.value, value.italic]);
+    void loadCustomFont(selectedFontFamily.value, fontWeightSelected.value);
+  }, [selectedFontFamily.value, fontWeightSelected.value]);
 
   const handleColorPickerToggle = () => {
     onActiveColorPickerChange(colorPickerOpen ? null : colorPickerId);
@@ -160,7 +144,7 @@ export function TextEditorPreview({
   return (
     <div className="w-full space-y-1">
       <div className="flex flex-col gap-1">
-        <div className="flex h-8 items-center justify-between">
+        <div className="w-full">
           <Selector<FontFamilyOption>
             options={FONT_FAMILY_OPTIONS}
             selected={fontFamilySelected}
@@ -168,8 +152,10 @@ export function TextEditorPreview({
             placeholder="Font"
             variant="fontFamily"
             showCheckbox={false}
+            className="w-full"
           />
-
+        </div>
+        <div className="flex h-8 gap-3 items-center justify-between">
           <Selector<FontWeightOption>
             options={fontWeightOptions}
             selected={fontWeightSelected}
@@ -177,10 +163,8 @@ export function TextEditorPreview({
             placeholder="Weight"
             variant="fontWeight"
             showCheckbox={false}
+            className="w-full"
           />
-        </div>
-
-        <div className="flex h-8 items-center justify-between">
           <Selector<FontSizeOption>
             options={FONT_SIZE_OPTIONS}
             selected={fontSizeSelected}
@@ -190,8 +174,8 @@ export function TextEditorPreview({
             placeholder="Size"
             variant="fontSize"
             showCheckbox={false}
+            className="w-full"
           />
-
           <div className="relative">
             <button
               type="button"
@@ -228,46 +212,6 @@ export function TextEditorPreview({
                 onChange={handleTextColorSelect}
               />
             )}
-          </div>
-
-          <TextEditorButton
-            icon={<ItalicIcon />}
-            label="Italic"
-            active={value.italic}
-            className={inlineButtonClassName}
-            onClick={() => {
-              onChange({ ...value, italic: !value.italic });
-            }}
-          />
-
-          <TextEditorButton
-            icon={<UnderlineIcon />}
-            label="Underline"
-            active={value.underline}
-            className={inlineButtonClassName}
-            onClick={() => {
-              onChange({ ...value, underline: !value.underline });
-            }}
-          />
-
-          <div className="flex h-8 items-center gap-1 rounded-md bg-[#f3f3f3] p-px">
-            {TEXT_ALIGN_OPTIONS.map(option => {
-              const active = textAlignSelected.value === option.value;
-
-              return (
-                <TextEditorButton
-                  key={option.value}
-                  icon={option.label}
-                  label={`Align ${option.value}`}
-                  active={active}
-                  className={cn(
-                    'h-[30px] w-[30px] rounded-[5px] hover:bg-[#FAFAFB] active:bg-[#F5F8FF] aria-pressed:bg-white aria-pressed:shadow-sm text-text-primary',
-                    !active && 'bg-transparent shadow-none'
-                  )}
-                  onClick={() => handleTextAlignSelect(option)}
-                />
-              );
-            })}
           </div>
         </div>
       </div>

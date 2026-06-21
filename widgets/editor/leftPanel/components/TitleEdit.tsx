@@ -74,11 +74,17 @@ function TitleEdit({
                 : bulkTitleData.font
             }`}
           >
-            <p className="sub-title" style={toStyle(bulkTitleData, true, true)}>
+            <p
+              className="sub-title text-center"
+              style={toStyle(bulkTitleData, true, true)}
+            >
               ENG TITLE
             </p>
 
-            <p className="main-title" style={toStyle(bulkTitleData, true)}>
+            <p
+              className="main-title text-center"
+              style={toStyle(bulkTitleData, true)}
+            >
               제목입니다
             </p>
           </div>

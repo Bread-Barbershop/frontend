@@ -13,9 +13,6 @@ export const toStyle = (
   fontFamily: data.font
     ? getFontFallbackStack(resolveFontFamily(data.font))
     : undefined,
-  fontWeight: data.fontWeight || (data.bold ? '600' : '400'),
-  fontStyle: data.italic ? 'italic' : 'normal',
-  textDecoration: data.underline ? 'underline' : 'none',
-  textAlign: data.align,
+  fontWeight: data.fontWeight || '400',
   color: data.color,
 });

@@ -8,7 +8,7 @@ import {
   getFontFamilyOption,
 } from '@/shared/fonts/fontOptions';
 import { resolveFontFamily } from '@/shared/fonts/fontRegistry';
-import { BulkData, FontOption, TextAlignOption } from '@/shared/types/block';
+import { BulkData, FontOption } from '@/shared/types/block';
 
 export function useBulkEditor(
   bulkData: BulkData,
@@ -28,7 +28,7 @@ export function useBulkEditor(
   ) => {
     const selected = option;
     const family = resolveFontFamily(bulkData.font);
-    const style = bulkData.italic ? 'italic' : 'normal';
+    const style = 'normal';
 
     if (hasCustomFontFace(family, selected.value, style)) {
       void loadCustomFont(family, selected.value, style);
@@ -47,7 +47,7 @@ export function useBulkEditor(
     const nextWeight = getFallbackWeight(nextFamily, bulkData.fontWeight);
 
     void (async () => {
-      const style = bulkData.italic ? 'italic' : 'normal';
+      const style = 'normal';
 
       if (hasCustomFontFace(nextFamily, nextWeight, style)) {
         await preloadFontFamilyWeights(nextFamily, style);
@@ -62,16 +62,6 @@ export function useBulkEditor(
     });
   };
 
-  const handleTextAlignSelect = (
-    option: TextAlignOption | { label: string; value: string }
-  ) => {
-    const selected = option as TextAlignOption;
-    onBulkChange({
-      ...bulkData,
-      align: selected.value,
-    });
-  };
-
   const handleTextColorSelect = (hex: string) => {
     onBulkChange({
       ...bulkData,
@@ -83,7 +73,6 @@ export function useBulkEditor(
     selectedFontFamily: getFontFamilyOption(bulkData.font),
     handleFontSizeSelect,
     handleFontFamilySelect,
-    handleTextAlignSelect,
     handleTextColorSelect,
     handleFontWeightSelect,
   };
