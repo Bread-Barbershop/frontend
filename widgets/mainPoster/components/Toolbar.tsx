@@ -31,7 +31,7 @@ function Toolbar() {
     icon: React.ReactNode;
     onClick: () => void;
     active: boolean;
-    value: string;
+    hoverIcon: React.ReactNode;
     className?: string;
     variant?: 'bordered' | 'solid' | 'flat' | 'ghost' | 'light';
   };
@@ -39,47 +39,57 @@ function Toolbar() {
   const TOOLBAR_ITEMS: ToolbarItem[] = [
     {
       id: 'text',
+      active: activeTab === 'text',
       icon: <AddText width={19} height={22} />,
+      hoverIcon: (
+        <div className="w-26.25 font-bold text-text-plain ">텍스트 추가</div>
+      ),
       onClick: () => {
         setActiveTab('text');
         createTextBox(canvas);
       },
-      active: activeTab === 'text',
-      value: '텍스트',
     },
     {
       id: 'image',
+      active: activeTab === 'image',
       icon: <AddImage width={24} height={24} />,
       onClick: () => {
         setActiveTab('image');
       },
-      active: activeTab === 'image',
-      value: '이미지',
+      hoverIcon: (
+        <div className="w-26.25 font-bold text-text-plain">이미지 추가</div>
+      ),
     },
     {
       id: 'graphic',
+      active: activeTab === 'graphic' && drawingType === 'pen',
       icon: <AddDrawing width={22} height={20} />,
+      hoverIcon: (
+        <div className="w-26.25 font-bold text-text-plain">그림 그리기</div>
+      ),
       onClick: () => {
         setActiveTab('graphic');
         setDrawingType('pen');
       },
-      active: activeTab === 'graphic' && drawingType === 'pen',
-      value: '그리기',
     },
     {
       id: 'background',
+      active: activeTab === 'background',
       icon: <Background width={22} height={22} />,
+      hoverIcon: (
+        <div className="w-26.25 font-bold text-text-plain">배경색 변경</div>
+      ),
       onClick: () => {
         setActiveTab('background');
       },
-      active: activeTab === 'background',
-      value: '배경색',
     },
   ];
 
   if (isAdmin) {
     TOOLBAR_ITEMS.unshift({
       id: 'slot',
+      active: activeTab === 'slot',
+
       icon: (
         <svg
           width="14"
@@ -96,12 +106,13 @@ function Toolbar() {
           <path d="M9 3v18"></path>
         </svg>
       ),
+      hoverIcon: (
+        <div className="w-26.25 font-bold text-text-plain">슬롯 추가</div>
+      ),
       onClick: () => {
         setActiveTab('slot');
         addSlotRect();
       },
-      active: activeTab === 'slot',
-      value: '슬롯',
       className:
         activeTab === 'slot' ? '' : 'bg-[#0F766E] text-white border-none',
       variant: activeTab === 'slot' ? 'bordered' : 'solid',
@@ -109,6 +120,7 @@ function Toolbar() {
 
     TOOLBAR_ITEMS.unshift({
       id: 'shape',
+      active: activeTab === 'shape',
       icon: (
         <svg
           width="14"
@@ -123,11 +135,12 @@ function Toolbar() {
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
         </svg>
       ),
+      hoverIcon: (
+        <div className="w-26.25 font-bold text-text-plain">도형 추가</div>
+      ),
       onClick: () => {
         setActiveTab('shape');
       },
-      active: activeTab === 'shape',
-      value: '도형',
       className:
         activeTab === 'shape' ? '' : 'bg-[#10B981] text-white border-none',
       variant: activeTab === 'shape' ? 'bordered' : 'solid',
@@ -136,18 +149,22 @@ function Toolbar() {
 
   return (
     <div
-      className="absolute top-1/2 -translate-y-1/2 -left-6 -translate-x-full flex flex-col gap-3 items-center"
+      className="absolute top-1/2 -translate-y-1/2 -left-6 -translate-x-full flex flex-col gap-3 items-end"
       data-canvas="true"
     >
       {TOOLBAR_ITEMS.map(item => (
         <Button
           key={item.id}
-          className={`size-11 flex items-center justify-center rounded-full shadow-btn-drop-black ${item.className || ''}`}
+          className={`group size-11 hover:w-[105px] rounded-full shadow-btn-drop-black transition-width duration-150 ${item.className || ''}`}
           onClick={item.onClick}
           active={item.active}
-          title={item.value}
         >
-          {item.icon}
+          <span className="flex items-center justify-center group-hover:hidden">
+            {item.icon}
+          </span>
+          <span className="hidden items-center justify-center group-hover:inline-flex">
+            {item.hoverIcon}
+          </span>
         </Button>
       ))}
     </div>

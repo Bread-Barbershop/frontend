@@ -30,6 +30,7 @@
   /* --- Background --- */
   --color-bg-base: #ffffff;
   --color-bg-sub: #f5f8ff;
+  --color-bg-plain: #121212;
 
   /* --- Text --- */
   --color-text-primary: #000000;
@@ -39,6 +40,7 @@
   --color-text-firstbirthday: #fa731f;
   --color-text-conference: #6470fa;
   --color-text-birthday: #891ffa;
+  --color-text-plain: #121212;
 
   /* --- Status (Feedback) --- */
   --color-status-success: #2db400;
@@ -56,6 +58,7 @@
   --color-border-slider: #e5e5e8;
   --color-border-divider: rgba(80, 80, 80, 0.16);
   --color-border-button: #e5e5e8;
+  --color-border-plain: #121212;
   --color-stroke-neutral: rgba(0, 0, 0, 0.05);
   --color-liner-segment: #6fef1f;
 
