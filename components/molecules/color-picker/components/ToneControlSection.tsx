@@ -40,12 +40,18 @@ export function ToneControlSection({
           radius={9999}
           width="100%"
           height={20}
+          bgProps={{
+            style: {
+              boxShadow: 'inset 0 0 0 1px #EAEAEA',
+            },
+          }}
           pointer={({ left, top }) => (
             <GlassPointer
               left={left}
               top={top}
               color={hsvaToHslaString(hsva)}
               size={pointerSize}
+              cursor="pointer"
             />
           )}
           onChange={newAlpha => {

@@ -21,11 +21,13 @@ export function GlassPointer({
   top = '50%',
   color,
   size = DEFAULT_GLASS_POINTER_SIZE,
+  cursor = 'inherit',
 }: {
   left?: string | number;
   top?: string | number;
   color: string;
   size?: GlassPointerSize;
+  cursor?: string;
 }) {
   return (
     <div
@@ -34,7 +36,8 @@ export function GlassPointer({
         left,
         top,
         transform: 'translate(-50%, -50%)',
-        pointerEvents: 'none',
+        pointerEvents: 'auto',
+        cursor,
       }}
     >
       <div
