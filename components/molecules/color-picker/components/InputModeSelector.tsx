@@ -1,11 +1,21 @@
 'use client';
 
 import { ChevronDown } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import {
+  type CSSProperties,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
+import { createPortal } from 'react-dom';
 
 import { INPUT_MODE_OPTIONS } from './colorPicker.constants';
 
 import type { InputMode } from './colorPicker.types';
+
+const DROPDOWN_GAP = 4;
+const VIEWPORT_GAP = 8;
 
 /**
  * HEX, RGB 입력 모드를 전환하는 컬러피커 전용 셀렉터입니다.
@@ -21,16 +31,64 @@ export function InputModeSelector({
   onChange: (mode: InputMode) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({
+    position: 'fixed',
+    visibility: 'hidden',
+  });
   const containerRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
   const selectedOption =
     INPUT_MODE_OPTIONS.find(option => option.value === value) ??
     INPUT_MODE_OPTIONS[0];
 
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    if (typeof window === 'undefined') return;
+
+    const updatePosition = () => {
+      const trigger = containerRef.current;
+      if (!trigger) return;
+
+      const rect = trigger.getBoundingClientRect();
+      const dropdownHeight =
+        listRef.current?.offsetHeight ?? INPUT_MODE_OPTIONS.length * 32 + 2;
+      const opensUp =
+        rect.bottom + DROPDOWN_GAP + dropdownHeight >
+        window.innerHeight - VIEWPORT_GAP;
+
+      setDropdownStyle({
+        position: 'fixed',
+        left: rect.left,
+        top: opensUp
+          ? Math.max(VIEWPORT_GAP, rect.top - DROPDOWN_GAP - dropdownHeight)
+          : rect.bottom + DROPDOWN_GAP,
+        width: rect.width,
+        visibility: 'visible',
+        zIndex: 10000,
+      });
+    };
+
+    updatePosition();
+    const animationFrameId = window.requestAnimationFrame(updatePosition);
+
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+
+    return () => {
+      window.cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
+  }, [isOpen]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+
       if (
         containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
+        !containerRef.current.contains(target) &&
+        !listRef.current?.contains(target)
       ) {
         setIsOpen(false);
       }
@@ -64,27 +122,32 @@ export function InputModeSelector({
         />
       </button>
 
-      {isOpen && (
-        <ul
-          className="absolute left-0 top-full z-10 mt-1 w-full overflow-hidden rounded-sm border-[0.5px] border-[#1F72EF] bg-white shadow-lg"
-          role="listbox"
-        >
-          {INPUT_MODE_OPTIONS.map(option => (
-            <li key={option.value}>
-              <button
-                type="button"
-                className="flex h-8 w-full items-center justify-center px-2 text-[14px] leading-5 text-text-primary transition-colors hover:bg-[#F3F8FF]"
-                onClick={() => {
-                  onChange(option.value);
-                  setIsOpen(false);
-                }}
-              >
-                {option.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      {isOpen &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <ul
+            ref={listRef}
+            className="overflow-hidden rounded-sm border-[0.5px] border-[#1F72EF] bg-white shadow-lg"
+            style={dropdownStyle}
+            role="listbox"
+          >
+            {INPUT_MODE_OPTIONS.map(option => (
+              <li key={option.value}>
+                <button
+                  type="button"
+                  className="flex h-8 w-full items-center justify-center px-2 text-[14px] leading-5 text-text-primary transition-colors hover:bg-[#F3F8FF]"
+                  onClick={() => {
+                    onChange(option.value);
+                    setIsOpen(false);
+                  }}
+                >
+                  {option.label}
+                </button>
+              </li>
+            ))}
+          </ul>,
+          document.body
+        )}
     </div>
   );
 }
