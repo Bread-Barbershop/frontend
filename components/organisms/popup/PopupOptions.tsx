@@ -71,11 +71,12 @@ function PopupOptions({
       onClose={onClose}
       triggerRef={triggerRef}
       hideCloseButton
-      wrapperClassName="w-[280px] pb-3.5 pl-4 pr-3"
+      wrapperClassName="h-[370px] w-[280px] px-0"
+      contentClassName="min-h-0 flex-1 px-4 pb-3.5"
     >
       <ul
         className={cn(
-          'h-[370px] max-h-[370px] space-y-3 overflow-y-auto edit-custom-scrollbar pr-1',
+          'h-full max-h-full space-y-3 overflow-y-auto scrollbar-hide',
           listWrapperClassName
         )}
       >
