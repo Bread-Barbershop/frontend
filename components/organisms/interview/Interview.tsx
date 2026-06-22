@@ -136,7 +136,13 @@ export const Interview = ({ blockInfo, id }: Props) => {
     const target = questionItemRefs.current[pendingQuestionId];
     if (!target) return;
 
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const scrollContainer = target.closest('section');
+    window.requestAnimationFrame(() => {
+      scrollContainer?.scrollTo({
+        top: scrollContainer.scrollHeight,
+        behavior: 'smooth',
+      });
+    });
     pendingScrollQuestionIdRef.current = null;
   }, [questions]);
 

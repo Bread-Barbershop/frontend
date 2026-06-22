@@ -136,7 +136,13 @@ export const Notice = ({ blockInfo, id }: Props) => {
     const target = noticeItemRefs.current[pendingNoticeId];
     if (!target) return;
 
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const scrollContainer = target.closest('section');
+    window.requestAnimationFrame(() => {
+      scrollContainer?.scrollTo({
+        top: scrollContainer.scrollHeight,
+        behavior: 'smooth',
+      });
+    });
     pendingScrollNoticeIdRef.current = null;
   }, [noticeList]);
 

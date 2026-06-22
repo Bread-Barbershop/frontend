@@ -71,7 +71,7 @@ export const getNoticePresetForItem = (
 
 export const getNoticeDefaultImage = (
   item: Pick<NoticeListItem, 'notice' | 'presetId'>
-) => getNoticePresetForItem(item)?.image;
+) => getNoticePresetForItem(item)?.image ?? DEFAULT_NOTICE_PRESET.image;
 
 export const createNoticeItem = (
   label = EMPTY_NOTICE_OPTION
