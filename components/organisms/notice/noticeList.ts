@@ -82,7 +82,7 @@ export const createNoticeItem = (
   return {
     id: crypto.randomUUID(),
     presetId: preset?.id,
-    notice: isEmptyOption ? DEFAULT_NOTICE_TITLE : (preset?.label ?? label),
+    notice: isEmptyOption ? '' : (preset?.label ?? label),
     content: {
       messageJson: null,
       messageHtml: null,
