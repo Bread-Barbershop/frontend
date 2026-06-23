@@ -44,7 +44,7 @@ function Toolbar() {
       araiaLabel: '텍스트 추가',
       icon: <AddText width={19} height={22} />,
       hoverIcon: (
-        <p className="w-26.25 font-bold text-[16px] text-text-plain ">
+        <p className="w-24 font-semibold text-sm text-text-plain ">
           텍스트 추가
         </p>
       ),
@@ -62,7 +62,7 @@ function Toolbar() {
         setActiveTab('image');
       },
       hoverIcon: (
-        <p className="w-26.25 font-bold text-[16px] text-text-plain">
+        <p className="w-24 font-semibold text-sm text-text-plain">
           이미지 추가
         </p>
       ),
@@ -73,7 +73,7 @@ function Toolbar() {
       araiaLabel: '그림 그리기',
       icon: <AddDrawing width={22} height={20} />,
       hoverIcon: (
-        <p className="w-26.25 font-bold text-[16px] text-text-plain">
+        <p className="w-24 font-semibold text-sm text-text-plain">
           그림 그리기
         </p>
       ),
@@ -88,7 +88,7 @@ function Toolbar() {
       araiaLabel: '배경 변경',
       icon: <Background width={22} height={22} />,
       hoverIcon: (
-        <p className="w-26.25 font-bold text-[16px] text-text-plain">
+        <p className="w-24 font-semibold text-sm text-text-plain">
           배경색 변경
         </p>
       ),
