@@ -1,45 +1,12 @@
-import { useState } from 'react';
-
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 
 import { BackgroundColor } from './BackgroundColor';
-import { BackgroundImage } from './BackgroundImage';
-
-const ACTIVE_TAB_CLASS = 'w-13.25 p-2 border-b-[1.5px] border-b-text-primary';
-const INACTIVE_TAB_CLASS =
-  'w-13.25 p-2 text-text-secondary border-b-transparent';
 
 export const BackgroundPanel = () => {
-  const [type, setType] = useState<'color' | 'image'>('color');
-
-  const handleToggleTab = (newType: 'color' | 'image') => {
-    setType(newType);
-  };
-
   return (
     <LeftEditorWrapper ariaLabel="배경 편집" className="pb-4">
-      <div className="flex w-full items-center justify-center gap-2 pb-1.5">
-        <button
-          onClick={() => {
-            handleToggleTab('color');
-          }}
-          type="button"
-          className={type === 'color' ? ACTIVE_TAB_CLASS : INACTIVE_TAB_CLASS}
-        >
-          색상
-        </button>
-        <button
-          onClick={() => {
-            handleToggleTab('image');
-          }}
-          type="button"
-          className={type === 'image' ? ACTIVE_TAB_CLASS : INACTIVE_TAB_CLASS}
-        >
-          이미지
-        </button>
-      </div>
       <div className="flex w-full items-center justify-center">
-        {type === 'color' ? <BackgroundColor /> : <BackgroundImage />}
+        <BackgroundColor />
       </div>
     </LeftEditorWrapper>
   );
