@@ -10,7 +10,6 @@ import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 import { BackgroundPanel } from './background/BackgroundPanel';
 import { GraphicPanel } from './graphic/GraphicPanel';
 import { ImagePanel } from './image/ImagePanel';
-import { TemplateImagePanel } from './image/TemplateImagePanel';
 import { RichTextPanel } from './richtext/RichTextPanel';
 import { ShapePanel } from './shape/ShapePanel';
 import { SlotPanel } from './slot/SlotPanel';
@@ -148,9 +147,7 @@ export const MainPoster = () => {
 
       {activeTab === 'text' && <RichTextPanel />}
 
-      {activeTab === 'image' && <ImagePanel />}
-
-      {activeTab === 'template' && <TemplateImagePanel />}
+      {(activeTab === 'image' || activeTab === 'template') && <ImagePanel />}
 
       {activeTab === 'slot' && <SlotPanel />}
 

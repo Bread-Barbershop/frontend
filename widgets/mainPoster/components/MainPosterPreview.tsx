@@ -27,6 +27,7 @@ import { initAligningGuidelines } from '../libs/aligning-guidelines';
 import { FabricObjectWithLock } from '../types/fabric';
 import { preloadPreviewFonts } from '../utils/fontLoader';
 import {
+  getImagePanelMode,
   isFilledSlotImage,
   isReplaceableSlotImage,
   isReplaceableSlotTarget,
@@ -176,7 +177,7 @@ export const MainPosterPreview = () => {
       // 배경 레이어인 경우 배경 탭 유지
       if (activeObj.get('id') === 'background-layer') {
         if (!fabricCanvas.isDrawingMode) {
-          setActiveTab('background');
+          setActiveTab('image');
         }
         return;
       }
@@ -184,7 +185,7 @@ export const MainPosterPreview = () => {
       // 탭 전환 등의 기존 로직 수행
       const isActiveText =
         activeObj instanceof Textbox || activeObj instanceof IText;
-      const isActiveImage = activeObj instanceof FabricImage;
+      const imagePanelMode = getImagePanelMode(activeObj);
       const isActiveShape =
         activeObj instanceof Rect ||
         activeObj instanceof Circle ||
@@ -195,16 +196,15 @@ export const MainPosterPreview = () => {
 
       if (isActiveText) {
         setActiveTab('text');
-      } else if (isReplaceableSlotImage(activeObj)) {
-        setActiveTab('template');
-      } else if (isActiveImage || isCropZone) {
-        setActiveTab('image');
       } else if (
-        isAdmin &&
-        activeObj.get('name') === 'slot-placeholder' &&
-        !(activeObj instanceof FabricImage)
+        imagePanelMode === 'user-image' ||
+        imagePanelMode === 'background-image' ||
+        imagePanelMode === 'frame-image' ||
+        isCropZone
       ) {
-        setActiveTab('slot');
+        setActiveTab('image');
+      } else if (imagePanelMode === 'empty-frame') {
+        setActiveTab('image');
       } else if (isActiveShape && isAdmin) {
         setActiveTab('shape');
       } else {
@@ -223,7 +223,7 @@ export const MainPosterPreview = () => {
     return () => {
       fabricCanvas.dispose();
     };
-  }, [setCanvas, setActiveTab]);
+  }, [isAdmin, setCanvas, setActiveTab]);
 
   useEffect(() => {
     if (!canvas) return;
@@ -358,9 +358,7 @@ export const MainPosterPreview = () => {
 
       if (isReplaceableSlotTarget(options.target)) {
         fabricCanvas.setActiveObject(options.target);
-        setActiveTab(
-          options.target instanceof FabricImage ? 'template' : 'slot'
-        );
+        setActiveTab('image');
 
         if (!isAdmin && !isFilledSlotImage(options.target)) {
           openSlotFilePicker(options.target);
@@ -387,6 +385,7 @@ export const MainPosterPreview = () => {
     setActiveTab,
     setupEventListeners,
     startCrop,
+    isAdmin,
   ]);
 
   // 마우스가 캔버스에 들어왔는지 나갔는지 확인
