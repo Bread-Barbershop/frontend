@@ -3,7 +3,6 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import { ImageUploadButton } from '@/components/atoms/button/ImageUploadButton';
 import { EditorNoticeList } from '@/components/molecules/editor-notice';
-import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
@@ -137,7 +136,6 @@ export const TemplateImagePanel = () => {
 
   return (
     <LeftEditorWrapper ariaLabel="이미지 위치 조절">
-      <NavigationBar>템플릿 이미지</NavigationBar>
       <div className="py-5" data-crop-controls="true">
         <ImageUploadButton
           ref={inputRef}

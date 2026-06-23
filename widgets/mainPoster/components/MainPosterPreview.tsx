@@ -415,6 +415,7 @@ export const MainPosterPreview = () => {
       if (
         target.classList.contains('upper-canvas') ||
         target.closest('[data-canvas="true"]')
+        // || target.closest('[data-crop-controls="true"]')
       ) {
         return;
       }

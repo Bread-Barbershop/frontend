@@ -1,5 +1,14 @@
 import { Canvas, FabricImage, FabricObject, Pattern, Rect } from 'fabric';
+import { useEffect } from 'react';
 
+import {
+  SLOT_UPLOAD_ICON_SVG,
+  SLOT_UPLOAD_SMALL_ICON_SVG,
+} from '../constants/fabric';
+import {
+  createFabricControlImage,
+  isImageReadyForCanvas,
+} from '../utils/fabricUtils';
 import { ImageSlotMeta, SlotTargetObject } from '../utils/imageSlot';
 
 interface Props {
@@ -12,12 +21,32 @@ type SlotRect = Rect & {
   slot?: ImageSlotMeta;
 };
 
-const SLOT_PATTERN_CELL_SIZE = 72;
+type SlotPlaceholderRect = SlotRect & {
+  _render: (ctx: CanvasRenderingContext2D) => void;
+  __slotPlaceholderBaseRender?: (ctx: CanvasRenderingContext2D) => void;
+  __slotPlaceholderModifiedHandler?: () => void;
+};
 
-const createSlotPattern = () => {
+const PATTERN_BASE_WIDTH = 335;
+const PATTERN_VISIBLE_COLUMNS = 9;
+const ICON_SWITCH_SIZE = 44;
+const ICON_DEFAULT_SIZE = 44;
+const ICON_SMALL_SIZE = 24;
+const ICON_PADDING = 8;
+
+let slotUploadIconImage: HTMLImageElement | null = null;
+let slotUploadSmallIconImage: HTMLImageElement | null = null;
+
+const getSlotPatternScale = (rect: Rect) =>
+  Math.max(
+    0.001,
+    (rect.getScaledWidth() * 2) / (PATTERN_BASE_WIDTH * PATTERN_VISIBLE_COLUMNS)
+  );
+
+const createSlotPattern = (scale: number) => {
   const patternCanvas = document.createElement('canvas');
-  patternCanvas.width = SLOT_PATTERN_CELL_SIZE;
-  patternCanvas.height = SLOT_PATTERN_CELL_SIZE;
+  patternCanvas.width = PATTERN_BASE_WIDTH;
+  patternCanvas.height = PATTERN_BASE_WIDTH;
   const ctx = patternCanvas.getContext('2d');
 
   if (!ctx) {
@@ -25,31 +54,108 @@ const createSlotPattern = () => {
   }
 
   ctx.fillStyle = '#F3F4F6';
-  ctx.fillRect(0, 0, SLOT_PATTERN_CELL_SIZE, SLOT_PATTERN_CELL_SIZE);
+  ctx.fillRect(0, 0, PATTERN_BASE_WIDTH, PATTERN_BASE_WIDTH);
   ctx.fillStyle = '#D1D5DB';
-  ctx.fillRect(0, 0, SLOT_PATTERN_CELL_SIZE / 2, SLOT_PATTERN_CELL_SIZE / 2);
+  ctx.fillRect(0, 0, PATTERN_BASE_WIDTH / 2, PATTERN_BASE_WIDTH / 2);
   ctx.fillRect(
-    SLOT_PATTERN_CELL_SIZE / 2,
-    SLOT_PATTERN_CELL_SIZE / 2,
-    SLOT_PATTERN_CELL_SIZE / 2,
-    SLOT_PATTERN_CELL_SIZE / 2
+    PATTERN_BASE_WIDTH / 2,
+    PATTERN_BASE_WIDTH / 2,
+    PATTERN_BASE_WIDTH / 2,
+    PATTERN_BASE_WIDTH / 2
   );
 
   return new Pattern({
     source: patternCanvas,
     repeat: 'repeat',
+    patternTransform: [scale, 0, 0, scale, 0, 0],
   });
 };
 
+const ensureSlotIconImage = (useSmallIcon: boolean) => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  if (useSmallIcon) {
+    slotUploadSmallIconImage ??= createFabricControlImage(
+      SLOT_UPLOAD_SMALL_ICON_SVG
+    );
+
+    return slotUploadSmallIconImage;
+  }
+
+  slotUploadIconImage ??= createFabricControlImage(SLOT_UPLOAD_ICON_SVG);
+
+  return slotUploadIconImage;
+};
+
+const getSlotIconSize = (rect: Rect, useSmallIcon: boolean) => {
+  const width = rect.width || 0;
+  const height = rect.height || 0;
+  const preferredSize = useSmallIcon ? ICON_SMALL_SIZE : ICON_DEFAULT_SIZE;
+
+  return Math.max(
+    0,
+    Math.min(preferredSize, width - ICON_PADDING, height - ICON_PADDING)
+  );
+};
+
+const renderSlotPlaceholderIcon = (
+  rect: SlotPlaceholderRect,
+  ctx: CanvasRenderingContext2D
+) => {
+  const useSmallIcon =
+    rect.getScaledWidth() < ICON_SWITCH_SIZE ||
+    rect.getScaledHeight() < ICON_SWITCH_SIZE;
+  const iconImage = ensureSlotIconImage(useSmallIcon);
+
+  if (!iconImage) {
+    return;
+  }
+
+  if (!isImageReadyForCanvas(iconImage)) {
+    iconImage.onload = () => rect.canvas?.requestRenderAll();
+    return;
+  }
+
+  const iconSize = getSlotIconSize(rect, useSmallIcon);
+  if (iconSize <= 0) {
+    return;
+  }
+
+  ctx.drawImage(iconImage, -iconSize / 2, -iconSize / 2, iconSize, iconSize);
+};
+
+const attachSlotPlaceholderRender = (rect: SlotPlaceholderRect) => {
+  if (rect.__slotPlaceholderBaseRender) {
+    return;
+  }
+
+  rect.__slotPlaceholderBaseRender = rect._render.bind(rect);
+  rect._render = (ctx: CanvasRenderingContext2D) => {
+    rect.__slotPlaceholderBaseRender?.(ctx);
+    renderSlotPlaceholderIcon(rect, ctx);
+  };
+};
+
+const detachSlotPlaceholderRender = (rect: SlotPlaceholderRect) => {
+  if (!rect.__slotPlaceholderBaseRender) {
+    return;
+  }
+
+  rect._render = rect.__slotPlaceholderBaseRender;
+  delete rect.__slotPlaceholderBaseRender;
+};
+
 const updateSlotRectPattern = (rect: Rect) => {
-  rect.set('fill', createSlotPattern());
+  rect.set('fill', createSlotPattern(getSlotPatternScale(rect)));
 };
 
 const createSlotMeta = (): ImageSlotMeta => {
   const ts = Date.now();
   return {
-    key: `slot-${ts}`,
-    label: `Photo Slot ${ts}`,
+    key: 'slot-' + ts,
+    label: 'Photo Slot ' + ts,
     replaceable: true,
     aspectMode: 'cover',
     required: false,
@@ -64,12 +170,12 @@ const applySlotMetadata = (rect: SlotRect) => {
   rect.set({
     id: rect.get('id') || slot.key,
     name: 'slot-placeholder',
-    fill: createSlotPattern(),
     stroke: null,
     strokeWidth: 0,
     strokeDashArray: null,
     slot,
   });
+  updateSlotRectPattern(rect);
 
   return rect;
 };
@@ -100,10 +206,31 @@ const normalizeSlotRectScale = (rect: Rect) => {
 };
 
 const attachSlotRectBehavior = (rect: Rect) => {
-  rect.on('modified', () => {
-    normalizeSlotRectScale(rect);
-    updateSlotRectPattern(rect);
-  });
+  const slotRect = rect as SlotPlaceholderRect;
+
+  attachSlotPlaceholderRender(slotRect);
+
+  if (slotRect.__slotPlaceholderModifiedHandler) {
+    return;
+  }
+
+  slotRect.__slotPlaceholderModifiedHandler = () => {
+    normalizeSlotRectScale(slotRect);
+    updateSlotRectPattern(slotRect);
+  };
+
+  slotRect.on('modified', slotRect.__slotPlaceholderModifiedHandler);
+};
+
+const detachSlotRectBehavior = (rect: Rect) => {
+  const slotRect = rect as SlotPlaceholderRect;
+
+  if (slotRect.__slotPlaceholderModifiedHandler) {
+    slotRect.off('modified', slotRect.__slotPlaceholderModifiedHandler);
+    delete slotRect.__slotPlaceholderModifiedHandler;
+  }
+
+  detachSlotPlaceholderRender(slotRect);
 };
 
 const getImageSourceSize = (image: FabricImage) => {
@@ -127,6 +254,45 @@ export const useFabricSlot = ({
   saveHistory,
   syncActiveObjectInfo,
 }: Props) => {
+  useEffect(() => {
+    if (!canvas) return;
+
+    const syncSlotPlaceholder = (target?: FabricObject | null) => {
+      if (!(target instanceof Rect)) {
+        return;
+      }
+
+      const slotRect = target as SlotRect;
+      if (!slotRect.slot?.replaceable) {
+        return;
+      }
+
+      attachSlotRectBehavior(target);
+      updateSlotRectPattern(target);
+    };
+
+    canvas.getObjects().forEach(syncSlotPlaceholder);
+
+    const handleObjectAdded = ({
+      target,
+    }: {
+      target?: FabricObject | null;
+    }) => {
+      syncSlotPlaceholder(target);
+    };
+
+    canvas.on('object:added', handleObjectAdded);
+
+    return () => {
+      canvas.off('object:added', handleObjectAdded);
+      canvas.getObjects().forEach(obj => {
+        if (obj instanceof Rect) {
+          detachSlotRectBehavior(obj);
+        }
+      });
+    };
+  }, [canvas]);
+
   const addSlotRect = () => {
     if (!canvas) return null;
 
@@ -185,6 +351,7 @@ export const useFabricSlot = ({
     if (!rect.slot?.replaceable) return false;
 
     normalizeSlotRectScale(rect);
+    detachSlotRectBehavior(rect);
     rect.set({
       name: undefined,
       slot: undefined,
