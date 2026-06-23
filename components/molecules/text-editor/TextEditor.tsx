@@ -66,6 +66,7 @@ interface TextEditorProps {
   defaultAlign?: TextAlignValue;
   onChange?: (json: JSONContent) => void;
   additionalSlot?: React.ReactNode;
+  placeholderMode?: 'tiptap' | 'overlay';
 }
 
 export interface TextEditorRef {
@@ -210,6 +211,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       defaultAlign = DEFAULT_TEXT_ALIGN_OPTION.value,
       onChange,
       additionalSlot = null,
+      placeholderMode = 'tiptap',
     },
     ref
   ) => {
@@ -426,7 +428,9 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
 
     const editor = useEditor({
       immediatelyRender: false,
-      extensions: createTextEditorBarExtensions(defaultText),
+      extensions: createTextEditorBarExtensions(
+        placeholderMode === 'overlay' ? undefined : defaultText
+      ),
       content: value ?? null,
       editorProps: {
         attributes: {
@@ -473,7 +477,9 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       },
     });
 
-    const italicActive = editor ? isTextMarkFullyActive(editor, 'italic') : false;
+    const italicActive = editor
+      ? isTextMarkFullyActive(editor, 'italic')
+      : false;
 
     useEffect(() => {
       void loadEditorFont(
@@ -598,29 +604,29 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       setColorPickerOpen(prev => !prev);
     };
 
-      const handleItalicToggle = () => {
-        if (italicActive) {
-          runAtSavedSelection(editor, command =>
-            command.unsetItalic().setFontStyleOverride('normal')
-          );
-          return;
-        }
-
-        const activeFamily =
-          fontFamilySelected.value === MIXED_STYLE_VALUE
-            ? editorBaseStyles.fontFamily.value
-            : fontFamilySelected.value;
-        const activeWeight =
-          fontWeightSelected.value === MIXED_STYLE_VALUE
-            ? editorBaseStyles.fontWeight.value
-            : fontWeightSelected.value;
-
-        void loadEditorFont(activeFamily, activeWeight, 'italic');
-
+    const handleItalicToggle = () => {
+      if (italicActive) {
         runAtSavedSelection(editor, command =>
-          command.setItalic().setFontStyleOverride(null)
+          command.unsetItalic().setFontStyleOverride('normal')
         );
-      };
+        return;
+      }
+
+      const activeFamily =
+        fontFamilySelected.value === MIXED_STYLE_VALUE
+          ? editorBaseStyles.fontFamily.value
+          : fontFamilySelected.value;
+      const activeWeight =
+        fontWeightSelected.value === MIXED_STYLE_VALUE
+          ? editorBaseStyles.fontWeight.value
+          : fontWeightSelected.value;
+
+      void loadEditorFont(activeFamily, activeWeight, 'italic');
+
+      runAtSavedSelection(editor, command =>
+        command.setItalic().setFontStyleOverride(null)
+      );
+    };
 
     const handleUnderlineToggle = () => {
       if (underlineActive) {
@@ -755,13 +761,20 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
         <div
           data-state={editorFocused ? 'focused' : 'default'}
           className={cn(
-            'rounded-lg border px-4 py-3 transition-colors duration-150',
+            'relative rounded-lg border px-4 py-3 transition-colors duration-150',
             editorFocused
               ? 'border-primary bg-bg-base'
               : 'border-transparent bg-border-neutral'
           )}
           style={editorContentStyle}
         >
+          {placeholderMode === 'overlay' &&
+            !editorFocused &&
+            editor.isEmpty && (
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-4 text-center text-[14px] leading-7 text-text-secondary whitespace-pre-wrap">
+                {defaultText}
+              </div>
+            )}
           <EditorContent editor={editor} />
         </div>
       </div>
