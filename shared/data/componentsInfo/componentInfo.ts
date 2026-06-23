@@ -60,7 +60,7 @@ export const birthdayComponents: ListType[] = [
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
 ];
-export const conferenceComponents: ListType[] = [
+export const seminarComponents: ListType[] = [
   { contents: '인사말', component: 'greeting', isType: false },
   { contents: '주최정보', component: 'organizerInformation', isType: false },
   { contents: '후원정보', component: 'sponsorshipInfomation', isType: false },
@@ -100,9 +100,9 @@ export const componentCls: SampleDataType[] = [
     list: birthdayComponents,
   },
   {
-    english: 'conference',
-    korea: '컨퍼런스',
-    list: conferenceComponents,
+    english: 'seminar',
+    korea: '세미나',
+    list: seminarComponents,
   },
   {
     english: 'etc',

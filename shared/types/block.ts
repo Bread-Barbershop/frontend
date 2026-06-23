@@ -8,7 +8,7 @@ export type InvitationType =
   | 'wedding'
   | 'firstBirthday'
   | 'birthday'
-  | 'conference'
+  | 'seminar'
   | 'etc';
 
 export type EditorBlock<T extends BlockType = BlockType> = {

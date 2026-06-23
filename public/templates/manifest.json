@@ -121,44 +121,44 @@
       "jsonUrl": "/templates/json/wedding_14.v1.json"
     },
     {
-      "id": "conference_01",
-      "name": "컨퍼런스 01",
-      "category": "conference",
+      "id": "seminar_01",
+      "name": "세미나 01",
+      "category": "seminar",
       "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/conference_01.png",
-      "jsonUrl": "/templates/json/conference_01.v1.json"
+      "thumbnailUrl": "/templates/thumbnails/seminar_01.png",
+      "jsonUrl": "/templates/json/seminar_01.v1.json"
     },
     {
-      "id": "conference_02",
-      "name": "컨퍼런스 02",
-      "category": "conference",
+      "id": "seminar_02",
+      "name": "세미나 02",
+      "category": "seminar",
       "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/conference_02.png",
-      "jsonUrl": "/templates/json/conference_02.v1.json"
+      "thumbnailUrl": "/templates/thumbnails/seminar_02.png",
+      "jsonUrl": "/templates/json/seminar_02.v1.json"
     },
     {
-      "id": "conference_03",
-      "name": "컨퍼런스 03",
-      "category": "conference",
+      "id": "seminar_03",
+      "name": "세미나 03",
+      "category": "seminar",
       "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/conference_03.png",
-      "jsonUrl": "/templates/json/conference_03.v1.json"
+      "thumbnailUrl": "/templates/thumbnails/seminar_03.png",
+      "jsonUrl": "/templates/json/seminar_03.v1.json"
     },
     {
-      "id": "conference_04",
-      "name": "컨퍼런스 04",
-      "category": "conference",
+      "id": "seminar_04",
+      "name": "세미나 04",
+      "category": "seminar",
       "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/conference_04.png",
-      "jsonUrl": "/templates/json/conference_04.v1.json"
+      "thumbnailUrl": "/templates/thumbnails/seminar_04.png",
+      "jsonUrl": "/templates/json/seminar_04.v1.json"
     },
     {
-      "id": "conference_05",
-      "name": "컨퍼런스 05",
-      "category": "conference",
+      "id": "seminar_05",
+      "name": "세미나 05",
+      "category": "seminar",
       "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/conference_05.png",
-      "jsonUrl": "/templates/json/conference_05.v1.json"
+      "thumbnailUrl": "/templates/thumbnails/seminar_05.png",
+      "jsonUrl": "/templates/json/seminar_05.v1.json"
     },
     {
       "id": "birthday_01",

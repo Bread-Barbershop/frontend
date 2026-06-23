@@ -11,7 +11,7 @@ const COLORS = {
   wedding: 'bg-[#E96B8A]',
   firstBirthday: 'bg-[#F2A65A]',
   birthday: 'bg-[#7F7BFF]',
-  conference: 'bg-[#3B82F6]',
+  seminar: 'bg-[#3B82F6]',
   etc: 'bg-[#2CB9A8]',
   // event : '',
 };
@@ -44,7 +44,7 @@ function ContentsArea({ scrollContainerRef, sectionRefs }: Props) {
   };
   return (
     <div
-      className="overflow-y-auto px-5 mb-7.5 flex flex-col gap-5 "
+      className="overflow-y-auto px-5 flex flex-col gap-5 popup-custom-scrollbar"
       ref={scrollContainerRef}
     >
       {componentCls.map((items, index) => (
