@@ -94,6 +94,22 @@ export const useFabric = () => {
         'shadow',
         'paintFirst',
         'slot',
+        'imageBaseScale',
+        'imageSliderX',
+        'imageSliderY',
+        'imageSliderScale',
+        'slotBaseCropWidth',
+        'slotBaseCropHeight',
+        'slotZoomScale',
+        'slotFrameWidth',
+        'slotFrameHeight',
+        'slotFrameLeft',
+        'slotFrameTop',
+        'slotFrameAngle',
+        'slotImageBaseScale',
+        'slotImageOffsetX',
+        'slotImageOffsetY',
+        'slotTransformLocked',
       ])
     );
 
@@ -352,16 +368,36 @@ export const useFabric = () => {
   const lock = useCallback(
     (activeObject: FabricObject) => {
       if (!activeObject || !canvas) return;
-      activeObject.set({
-        lockMovementX: true,
-        lockMovementY: true,
-        lockScalingX: true,
-        lockScalingY: true,
-        lockRotation: true,
-        hasControls: false,
-        editable: false,
-        isLocked: true,
-      });
+
+      const isReplaceableSlotImage =
+        activeObject.isType('image') &&
+        Boolean((activeObject as any).slot?.replaceable);
+
+      if (isReplaceableSlotImage) {
+        activeObject.set({
+          slotTransformLocked: true,
+          lockMovementX: true,
+          lockMovementY: true,
+          lockScalingX: true,
+          lockScalingY: true,
+          lockRotation: true,
+          hasControls: false,
+          editable: false,
+          isLocked: true,
+        });
+      } else {
+        activeObject.set({
+          lockMovementX: true,
+          lockMovementY: true,
+          lockScalingX: true,
+          lockScalingY: true,
+          lockRotation: true,
+          hasControls: false,
+          editable: false,
+          isLocked: true,
+        });
+      }
+
       canvas?.requestRenderAll();
       saveHistory();
     },
@@ -371,16 +407,36 @@ export const useFabric = () => {
   const unLock = useCallback(
     (activeObject: FabricObject) => {
       if (!activeObject || !canvas) return;
-      activeObject.set({
-        lockMovementX: false,
-        lockMovementY: false,
-        lockScalingX: false,
-        lockScalingY: false,
-        lockRotation: false,
-        isLocked: false,
-        hasControls: true,
-        editable: true,
-      });
+
+      const isReplaceableSlotImage =
+        activeObject.isType('image') &&
+        Boolean((activeObject as any).slot?.replaceable);
+
+      if (isReplaceableSlotImage) {
+        activeObject.set({
+          slotTransformLocked: false,
+          lockMovementX: false,
+          lockMovementY: false,
+          lockScalingX: true,
+          lockScalingY: true,
+          lockRotation: true,
+          isLocked: false,
+          hasControls: false,
+          editable: false,
+        });
+      } else {
+        activeObject.set({
+          lockMovementX: false,
+          lockMovementY: false,
+          lockScalingX: false,
+          lockScalingY: false,
+          lockRotation: false,
+          isLocked: false,
+          hasControls: true,
+          editable: true,
+        });
+      }
+
       canvas?.requestRenderAll();
       saveHistory();
     },
@@ -630,6 +686,22 @@ export const useFabric = () => {
       'shadow',
       'paintFirst',
       'slot',
+      'imageBaseScale',
+      'imageSliderX',
+      'imageSliderY',
+      'imageSliderScale',
+      'slotBaseCropWidth',
+      'slotBaseCropHeight',
+      'slotZoomScale',
+      'slotFrameWidth',
+      'slotFrameHeight',
+      'slotFrameLeft',
+      'slotFrameTop',
+      'slotFrameAngle',
+      'slotImageBaseScale',
+      'slotImageOffsetX',
+      'slotImageOffsetY',
+      'slotTransformLocked',
     ];
     const json = canvas.toObject(propertiesToInclude);
     json.objects = filteredData.map(obj => obj.toObject(propertiesToInclude));
