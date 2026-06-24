@@ -16,6 +16,7 @@ interface CheckboxProps extends Omit<
   children: ReactNode;
   id?: string;
   direction?: 'right' | 'left' | 'top' | 'bottom';
+  dimDisabled?: boolean;
 }
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
   (
@@ -25,6 +26,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       className,
       disabled = false,
       direction = 'right',
+      dimDisabled = true,
       ...props
     },
     ref
@@ -35,13 +37,18 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     return (
       <div
         tabIndex={0}
-        className={cn(checkboxVariants({ direction, disabled }), className)}
+        className={cn(
+          checkboxVariants({ direction, disabled }),
+          disabled && !dimDisabled && 'opacity-100',
+          className
+        )}
       >
         <CheckboxIndicator
           size="sm"
           ref={ref}
           id={checkboxId}
           disabled={disabled}
+          dimDisabled={dimDisabled}
           {...props}
         />
         <Label
