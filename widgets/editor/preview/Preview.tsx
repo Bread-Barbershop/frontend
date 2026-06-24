@@ -34,9 +34,13 @@ function Preview() {
   const isPreviewCalloutOpen = useEditorCalloutStore(
     state => state.callouts['preview-panel']
   );
+  const isAnyCalloutOpen = useEditorCalloutStore(
+    state => state.callouts['preview-panel'] || state.callouts['order-panel']
+  );
   const showAllCalloutsFor = useEditorCalloutStore(
     state => state.showAllCalloutsFor
   );
+  const hideAllCallouts = useEditorCalloutStore(state => state.hideAllCallouts);
 
   useEffect(() => {
     if (!selectedId) return;
@@ -130,6 +134,11 @@ function Preview() {
         className="absolute left-[-24px] top-[95%] z-[20000] flex h-8 w-8 -translate-x-full -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-black/5 bg-white text-[#111827] shadow-[0_8px_24px_0_rgb(0_0_0_/_6%),0_2px_10px_0_rgb(0_0_0_/_8%)] transition-colors enabled:hover:bg-[#FAFAFB] enabled:active:bg-[#F5F8FF]"
         onClick={event => {
           event.stopPropagation();
+          if (isAnyCalloutOpen) {
+            hideAllCallouts();
+            return;
+          }
+
           showAllCalloutsFor(6000);
         }}
       >

@@ -71,7 +71,7 @@ export const getNoticePresetForItem = (
 
 export const getNoticeDefaultImage = (
   item: Pick<NoticeListItem, 'notice' | 'presetId'>
-) => getNoticePresetForItem(item)?.image;
+) => getNoticePresetForItem(item)?.image ?? DEFAULT_NOTICE_PRESET.image;
 
 export const createNoticeItem = (
   label = EMPTY_NOTICE_OPTION
@@ -82,7 +82,7 @@ export const createNoticeItem = (
   return {
     id: crypto.randomUUID(),
     presetId: preset?.id,
-    notice: isEmptyOption ? DEFAULT_NOTICE_TITLE : (preset?.label ?? label),
+    notice: isEmptyOption ? '' : (preset?.label ?? label),
     content: {
       messageJson: null,
       messageHtml: null,

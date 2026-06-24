@@ -36,14 +36,25 @@ export function CalendarType1({
               className={cn(
                 'flex items-center justify-center relative z-1 transition-colors w-8 h-8 text-sm text-text-tertiary',
                 idx % 7 === 0 && 'text-text-wedding',
-                !dayObj.isCurrentMonth && 'opacity-30',
-                dayObj.isTargetDate && 'text-white'
+                !dayObj.isCurrentMonth && 'opacity-30'
               )}
             >
-              {dayObj.num}
-              {dayObj.isTargetDate && (
-                <div className="absolute size-5.5 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-1 bg-text-wedding rounded-full" />
-              )}
+              <span
+                className={cn(
+                  'flex items-center justify-center leading-none',
+                  dayObj.isTargetDate &&
+                    'size-5.5 rounded-full bg-text-wedding text-white'
+                )}
+              >
+                <span
+                  className={cn(
+                    'block leading-none',
+                    dayObj.isTargetDate && 'translate-y-0.5'
+                  )}
+                >
+                  {dayObj.num}
+                </span>
+              </span>
             </div>
           </div>
         ))}
