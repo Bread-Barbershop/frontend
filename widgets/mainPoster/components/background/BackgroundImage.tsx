@@ -1,32 +1,67 @@
+'use client';
 import { FabricImage } from 'fabric';
-import Image from 'next/image';
-import { useSearchParams } from 'next/navigation';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { useShallow } from 'zustand/shallow';
 
-import { ImageUploadButton } from '@/components/atoms/button/ImageUploadButton';
+import { Label } from '@/components/atoms/label/Label';
+import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
+import EditorNoticeList from '@/components/molecules/editor-notice/EditorNoticeList';
+import { RangeControl } from '@/components/molecules/range-control/RangeControl';
+import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
+import { AspectRatioSelector } from '../image/AspectRatioSelector';
+import { ImagePreview } from '../image/ImagePreview';
+
+const POSITION_MIN = -50;
+const POSITION_MAX = 50;
+const SCALE_MIN = 100;
+const SCALE_MAX = 300;
+const SCALE_OFFSET_MIN = 0;
+const SCALE_OFFSET_MAX = 300;
+
+const clampPosition = (value: number) =>
+  Math.min(POSITION_MAX, Math.max(POSITION_MIN, value));
+const clampScale = (value: number) =>
+  Math.min(SCALE_MAX, Math.max(SCALE_MIN, value));
+const clampScaleOffset = (value: number) =>
+  Math.min(SCALE_OFFSET_MAX, Math.max(SCALE_OFFSET_MIN, value));
+const scaleToOffset = (value: number) => clampScale(value) - SCALE_MIN;
+const offsetToScale = (value: number) => SCALE_MIN + clampScaleOffset(value);
+
 export const BackgroundImage = () => {
-  const searchParams = useSearchParams();
-  const isAdmin = searchParams.get('type') === 'admin';
   const {
     canvas,
     compressImage,
     setBackgroundImage,
-    updateBackgroundImageOpacity,
-    backgroundImageOpacity,
+    removeBackgroundImage,
+    getBackgroundImageTransform,
+    updateBackgroundImagePosition,
+    updateBackgroundImageScale,
     activeInfo,
+    runHistoryTransaction,
   } = useFabricContext();
-  const { activeTab } = useEditorStore(
-    useShallow(state => ({
-      activeTab: state.activeTab,
-    }))
-  );
+  const setActiveTab = useEditorStore(state => state.setActiveTab);
   const inputRef = useRef<HTMLInputElement>(null);
   const [imageSrc, setImageSrc] = useState('');
-  const [opacity, setOpacity] = useState(100);
+  const [displayValue, setDisplayValue] = useState({
+    x: '0',
+    y: '0',
+    scale: '0',
+  });
+  const transform = getBackgroundImageTransform();
+  const hasImage = transform.hasImage;
+
+  const syncBackgroundSelection = () => {
+    if (!canvas) return;
+    const backgroundObject = canvas
+      .getObjects()
+      .find(obj => obj.get('id') === 'background-layer');
+    if (!backgroundObject) return;
+    backgroundObject.set({ selectable: true, evented: true });
+    canvas.setActiveObject(backgroundObject);
+    canvas.requestRenderAll();
+  };
 
   const updateImageSrc = async () => {
     if (!canvas) return;
@@ -34,186 +69,238 @@ export const BackgroundImage = () => {
     const target = canvas
       .getObjects()
       .find(obj => obj.get('id') === 'background-layer') as FabricImage;
-
     if (!target || !(target instanceof FabricImage)) {
       setImageSrc('');
-      setOpacity(Math.round(backgroundImageOpacity * 100));
       return;
     }
 
-    setOpacity(Math.round((target.opacity ?? 1) * 100));
+    const objectsToHide = canvas.getObjects().filter(obj => obj !== target);
+    const visibilitySnapshot = objectsToHide.map(obj => obj.visible);
+    const activeObject = canvas.getActiveObject();
 
-    const clonedObject = await target.clone();
-    const originalElem = clonedObject.getElement();
-    const offscreenCanvas = document.createElement('canvas');
-    const MAX_SIZE = 335;
-
-    let width = originalElem.width;
-    let height = originalElem.height;
-
-    if (width > height) {
-      if (width > MAX_SIZE) {
-        height *= MAX_SIZE / width;
-        width = MAX_SIZE;
-      }
-    } else if (height > MAX_SIZE) {
-      width *= MAX_SIZE / height;
-      height = MAX_SIZE;
+    if (activeObject && activeObject !== target) {
+      canvas.discardActiveObject();
     }
-
-    offscreenCanvas.width = width;
-    offscreenCanvas.height = height;
-    const ctx = offscreenCanvas.getContext('2d');
-    if (!ctx) return;
-
-    ctx.drawImage(originalElem, 0, 0, width, height);
-    clonedObject.setElement(offscreenCanvas);
-
-    clonedObject.set({
-      angle: 0,
-      scaleX: 1,
-      scaleY: 1,
-      left: 0,
-      top: 0,
-      width,
-      height,
-      cropX: 0,
-      cropY: 0,
+    objectsToHide.forEach(obj => {
+      obj.set('visible', false);
     });
 
-    if (target.filters && target.filters.length > 0) {
-      if (!clonedObject.filters || clonedObject.filters.length === 0) {
-        clonedObject.filters = [...target.filters];
-      }
-      clonedObject.applyFilters();
-    }
-
-    const newDataUrl = clonedObject.toDataURL({
+    canvas.requestRenderAll();
+    const previewDataUrl = canvas.toDataURL({
       format: 'webp',
       quality: 0.8,
+      left: 0,
+      top: 0,
+      width: canvas.getWidth(),
+      height: canvas.getHeight(),
+      multiplier: 1,
     });
-    setImageSrc(newDataUrl);
-  };
 
-  useEffect(() => {
-    if (!canvas) return;
+    objectsToHide.forEach((obj, index) => {
+      obj.set('visible', visibilitySnapshot[index]);
+    });
 
-    const isActive = activeTab === 'background';
-    const objects = canvas.getObjects();
-    const bgObj = objects.find(obj => obj.get('id') === 'background-layer');
-
-    if (isActive) {
-      if (bgObj) {
-        bgObj.set({ selectable: true, evented: true });
-        canvas.setActiveObject(bgObj);
-        canvas.sendObjectToBack(bgObj);
-      }
-    } else {
-      if (bgObj) {
-        bgObj.set({ selectable: false, evented: false });
-      }
-
-      const currentActive = canvas.getActiveObject();
-      if (currentActive === bgObj) {
-        canvas.discardActiveObject();
-      }
+    if (activeObject && activeObject !== target) {
+      canvas.setActiveObject(activeObject);
     }
 
     canvas.requestRenderAll();
+    setImageSrc(previewDataUrl);
+  };
+
+  useEffect(() => {
+    syncBackgroundSelection();
     void updateImageSrc();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canvas, activeTab]);
+  }, [canvas]);
+
+  useEffect(() => {
+    setDisplayValue({
+      x: String(clampPosition(transform.x)),
+      y: String(clampPosition(transform.y)),
+      scale: String(scaleToOffset(transform.scale)),
+    });
+  }, [transform.hasImage, transform.x, transform.y, transform.scale]);
 
   useEffect(() => {
     void updateImageSrc();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeInfo, backgroundImageOpacity]);
+  }, [activeInfo, hasImage]);
 
   const handleImageUpload = () => {
     inputRef.current?.click();
   };
 
-  const handleChangeImage = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const handleChangeImage = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file || !canvas) return;
     const reader = new FileReader();
-    reader.onload = async event => {
-      const base64 = event.target?.result as string;
+    reader.onload = async loadEvent => {
+      const base64 = loadEvent.target?.result;
+      if (typeof base64 !== 'string') return;
       const compressed = await compressImage(base64);
-      if (canvas) {
-        await setBackgroundImage(compressed);
-
-        const bgObj = canvas
-          .getObjects()
-          .find(obj => obj.get('id') === 'background-layer');
-        if (bgObj) {
-          bgObj.set({ selectable: true, evented: true });
-          canvas.setActiveObject(bgObj);
-          canvas.requestRenderAll();
-        }
-      }
+      await runHistoryTransaction(
+        async () => {
+          await setBackgroundImage(compressed, { saveHistory: false });
+        },
+        { save: true }
+      );
+      syncBackgroundSelection();
+      setActiveTab('image');
     };
     reader.readAsDataURL(file);
-
-    e.target.value = '';
   };
 
-  const handleOpacityChange = (value: number) => {
-    setOpacity(value);
-    updateBackgroundImageOpacity(value / 100);
+  const handlePositionChange = (axis: 'x' | 'y', value: number) => {
+    const nextValue = clampPosition(value);
+    setDisplayValue(current => ({
+      ...current,
+      [axis]: String(nextValue),
+    }));
+    updateBackgroundImagePosition(axis, nextValue);
+  };
+
+  const handlePositionCommit = (axis: 'x' | 'y', value: number) => {
+    const nextValue = clampPosition(value);
+    setDisplayValue(current => ({
+      ...current,
+      [axis]: String(nextValue),
+    }));
+    updateBackgroundImagePosition(axis, nextValue, { saveHistory: true });
+    void updateImageSrc();
+  };
+
+  const handleScaleChange = (value: number) => {
+    const nextScale = clampScale(value);
+    setDisplayValue(current => ({
+      ...current,
+      scale: String(scaleToOffset(nextScale)),
+    }));
+    updateBackgroundImageScale(nextScale);
+  };
+
+  const handleScaleCommit = (value: number) => {
+    const nextScale = clampScale(value);
+    setDisplayValue(current => ({
+      ...current,
+      scale: String(scaleToOffset(nextScale)),
+    }));
+    updateBackgroundImageScale(nextScale, { saveHistory: true });
+    void updateImageSrc();
   };
 
   return (
-    <section className="flex w-full flex-col items-center gap-3">
-      {isAdmin && (
-        <div className="w-full px-1">
-          <div className="mb-2 text-center text-[13px] font-semibold text-text-primary">
-            투명도
-          </div>
-          <div className="flex w-full items-center gap-1.5">
-            <input
-              type="text"
-              readOnly
-              value={opacity}
-              className="flex h-[32px] w-[47px] items-center justify-center rounded-lg border border-border-neutral bg-bg-base text-center text-xs focus:outline-none"
-            />
-            <div className="flex-1 px-1">
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="1"
-                value={opacity}
-                disabled={!imageSrc}
-                onChange={e => {
-                  handleOpacityChange(parseInt(e.target.value, 10));
-                }}
-                className="h-1 w-full cursor-pointer appearance-none rounded-full bg-[#E5E7EB] accent-[#3B82F6] disabled:cursor-not-allowed disabled:opacity-40
-                  [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:size-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#3B82F6]
-                  [&::-moz-range-thumb]:size-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#3B82F6] [&::-moz-range-thumb]:border-none"
-              />
-            </div>
-          </div>
-        </div>
-      )}
-      <div className="py-5">
-        {imageSrc ? (
-          <Image
-            src={imageSrc}
-            alt="Active Object Preview"
-            className="object-contain"
-            width={335}
-            height={335}
-          />
-        ) : (
-          <ImageUploadButton
-            ref={inputRef}
-            onButtonClick={handleImageUpload}
-            onInputChange={handleChangeImage}
-          />
-        )}
+    <LeftEditorWrapper
+      ariaLabel="배경 이미지 편집"
+      data-crop-controls="true"
+      className="flex-1 min-h-0 max-h-none gap-2 overflow-y-scroll"
+    >
+      <ImagePreview
+        src={imageSrc}
+        alt="배경 이미지 미리보기"
+        inputRef={inputRef}
+        onUploadClick={handleImageUpload}
+        onInputChange={handleChangeImage}
+      />
+      <AspectRatioSelector disabled startCrop={() => {}} />
+      <RangeControl
+        label="X축"
+        min={POSITION_MIN}
+        max={POSITION_MAX}
+        step={1}
+        value={transform.x}
+        displayValue={displayValue.x}
+        disabled={!hasImage}
+        allowNegative
+        onDisplayValueChange={value => {
+          setDisplayValue(current => ({
+            ...current,
+            x: value,
+          }));
+        }}
+        onChange={value => {
+          handlePositionChange('x', value);
+        }}
+        onCommit={value => {
+          handlePositionCommit('x', value);
+        }}
+      />
+      <RangeControl
+        label="Y축"
+        min={POSITION_MIN}
+        max={POSITION_MAX}
+        step={1}
+        value={transform.y}
+        displayValue={displayValue.y}
+        disabled={!hasImage}
+        allowNegative
+        onDisplayValueChange={value => {
+          setDisplayValue(current => ({
+            ...current,
+            y: value,
+          }));
+        }}
+        onChange={value => {
+          handlePositionChange('y', value);
+        }}
+        onCommit={value => {
+          handlePositionCommit('y', value);
+        }}
+      />
+      <RangeControl
+        label="배율"
+        min={SCALE_OFFSET_MIN}
+        max={SCALE_OFFSET_MAX}
+        step={5}
+        value={scaleToOffset(transform.scale)}
+        displayValue={displayValue.scale}
+        disabled={!hasImage}
+        onDisplayValueChange={value => {
+          setDisplayValue(current => ({
+            ...current,
+            scale: value,
+          }));
+        }}
+        onChange={value => {
+          handleScaleChange(offsetToScale(value));
+        }}
+        onCommit={value => {
+          handleScaleCommit(offsetToScale(value));
+        }}
+      />
+      <div className="w-full pb-2 flex items-center gap-2">
+        <Label className="font-semibold">추가기능</Label>
+        <Checkbox
+          checked={hasImage}
+          disabled={!hasImage}
+          onChange={async event => {
+            if (event.target.checked) return;
+            await runHistoryTransaction(
+              () => {
+                removeBackgroundImage({ saveHistory: false });
+              },
+              { save: true }
+            );
+            setActiveTab('background');
+          }}
+        >
+          <span className="text-[13px]">해당 이미지를 배경으로 적용하기</span>
+        </Checkbox>
       </div>
-    </section>
+      <EditorNoticeList
+        notices={[
+          {
+            id: 'image-crop',
+            text: '자르기 실행 후 원하는 형태로 자르기 하신 뒤 아무곳이나 클릭하시면 적용됩니다.',
+            colorClass: 'text-[#1F72EF]',
+          },
+          {
+            id: 'image-position',
+            text: 'X축, Y축 조정을 통해 이미지가 보이는 위치를 변경할 수 있습니다.',
+          },
+        ]}
+      />
+    </LeftEditorWrapper>
   );
 };

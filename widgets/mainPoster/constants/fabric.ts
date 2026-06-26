@@ -42,3 +42,8 @@ export const SIDES_CONFIG = [
   { id: 'ml', x: -0.5, y: 0, action: 'scalingX' },
   { id: 'mr', x: 0.5, y: 0, action: 'scalingX' },
 ];
+
+export const SLOT_UPLOAD_ICON_SVG =
+  '<svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.3333 16.6667L22 10L28.6667 16.6667M22 10V26M34 26V31.3333C34 32.0406 33.719 32.7189 33.219 33.219C32.7189 33.719 32.0406 34 31.3333 34H12.6667C11.9594 34 11.2811 33.719 10.781 33.219C10.281 32.7189 10 32.0406 10 31.3333V26" stroke="#121212" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+export const SLOT_UPLOAD_SMALL_ICON_SVG =
+  '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.55556 8.44444L12 4L16.4444 8.44444M12 4V14.6667M20 14.6667V18.2222C20 18.6937 19.8127 19.1459 19.4793 19.4793C19.1459 19.8127 18.6937 20 18.2222 20H5.77778C5.30628 20 4.8541 19.8127 4.5207 19.4793C4.1873 19.1459 4 18.6937 4 18.2222V14.6667" stroke="#121212" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
