@@ -61,11 +61,11 @@ export const VideoPreview = ({
   return (
     <MiddlePreviewWrapper
       className={className}
-      checkedEnglishTitle={checkedEnglishTitle}
-      enTitle={englishTitle}
-      enTitleDefault="VIDEO"
-      koTitle={title}
-      koTitleDefault="동영상"
+      checkedSubTitle={checkedEnglishTitle}
+      subTitle={englishTitle}
+      subTitleDefault="VIDEO"
+      mainTitle={title}
+      mainTitleDefault="동영상"
       {...rest}
     >
       <div

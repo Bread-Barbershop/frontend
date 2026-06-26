@@ -55,11 +55,11 @@ export const InterviewPreview = ({
   return (
     <MiddlePreviewWrapper
       className={cn('px-0', className)}
-      checkedEnglishTitle={checkedEnglishTitle}
-      enTitle={englishTitle}
-      enTitleDefault="INTERVIEW"
-      koTitle={title}
-      koTitleDefault="인터뷰"
+      checkedSubTitle={checkedEnglishTitle}
+      subTitle={englishTitle}
+      subTitleDefault="INTERVIEW"
+      mainTitle={title}
+      mainTitleDefault="인터뷰"
       titleClassName={cn('px-5', titleClassName)}
       {...rest}
     >

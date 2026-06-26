@@ -56,11 +56,11 @@ export const SpeakerInformationPreview = ({
   return (
     <MiddlePreviewWrapper
       className={cn('px-0', className)}
-      checkedEnglishTitle={checkedEnglishTitle}
-      enTitle={englishTitle}
-      enTitleDefault="SPEAKER INFORMATION"
-      koTitle={title}
-      koTitleDefault="연사정보"
+      checkedSubTitle={checkedEnglishTitle}
+      subTitle={englishTitle}
+      subTitleDefault="SPEAKER INFORMATION"
+      mainTitle={title}
+      mainTitleDefault="연사정보"
       titleClassName={cn('px-5', titleClassName)}
       {...rest}
     >

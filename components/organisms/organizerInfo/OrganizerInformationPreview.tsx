@@ -51,11 +51,11 @@ export const OrganizerInformationPreview = ({
   return (
     <MiddlePreviewWrapper
       className={className}
-      checkedEnglishTitle={checkedEnglishTitle}
-      enTitle={englishTitle}
-      enTitleDefault="ORGANIZER INFORMATION"
-      koTitle={title}
-      koTitleDefault="주최사"
+      checkedSubTitle={checkedEnglishTitle}
+      subTitle={englishTitle}
+      subTitleDefault="ORGANIZER INFORMATION"
+      mainTitle={title}
+      mainTitleDefault="주최사"
       titleClassName={titleClassName}
       childClassName="gap-6"
       {...rest}

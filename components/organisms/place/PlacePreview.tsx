@@ -46,11 +46,11 @@ export const PlacePreview = ({
       className={className}
       childClassName="gap-6"
       titleClassName={titleClassName}
-      checkedEnglishTitle={checkedEnglishTitle}
-      enTitle={englishTitle}
-      enTitleDefault="LOCATION"
-      koTitle={normalizePlaceTitle(title, blockInfo.type)}
-      koTitleDefault={defaultTitle}
+      checkedSubTitle={checkedEnglishTitle}
+      subTitle={englishTitle}
+      subTitleDefault="LOCATION"
+      mainTitle={normalizePlaceTitle(title, blockInfo.type)}
+      mainTitleDefault={defaultTitle}
       {...rest}
     >
       <NaverMapScript onReady={() => setIsScriptLoaded(true)} />

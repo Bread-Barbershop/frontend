@@ -107,11 +107,11 @@ function CoupleIntroductionPreview({
     <MiddlePreviewWrapper
       className={className}
       titleClassName={titleClassName}
-      checkedEnglishTitle={checkedEnglishTitle}
-      enTitle={englishTitle}
-      enTitleDefault="INTRODUCTION"
-      koTitle={title}
-      koTitleDefault="신랑・신부 소개"
+      checkedSubTitle={checkedEnglishTitle}
+      subTitle={englishTitle}
+      subTitleDefault="INTRODUCTION"
+      mainTitle={title}
+      mainTitleDefault="신랑・신부 소개"
       {...rest}
     >
       <div className="flex w-full flex-row gap-4.5">

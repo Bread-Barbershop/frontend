@@ -42,11 +42,11 @@ export const MyChildPreview = ({
   return (
     <MiddlePreviewWrapper
       className={className}
-      checkedEnglishTitle={checkedEnglishTitle}
-      enTitle={englishTitle}
-      enTitleDefault="MY CHILD"
-      koTitle={title}
-      koTitleDefault={`${name}의 첫번째 생일`}
+      checkedSubTitle={checkedEnglishTitle}
+      subTitle={englishTitle}
+      subTitleDefault="MY CHILD"
+      mainTitle={title}
+      mainTitleDefault={`${name}의 첫번째 생일`}
       titleClassName={titleClassName}
       childClassName="w-full flex flex-col gap-6"
       {...rest}

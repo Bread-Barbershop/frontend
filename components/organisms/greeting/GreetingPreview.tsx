@@ -30,11 +30,11 @@ function GreetingPreview({
   return (
     <MiddlePreviewWrapper
       className={className}
-      checkedEnglishTitle={checkedEnglishTitle}
-      enTitle={englishTitle}
-      enTitleDefault="INVITATION"
-      koTitle={title}
-      koTitleDefault="인사말"
+      checkedSubTitle={checkedEnglishTitle}
+      subTitle={englishTitle}
+      subTitleDefault="INVITATION"
+      mainTitle={title}
+      mainTitleDefault="인사말"
       titleClassName={titleClassName}
       {...rest}
     >

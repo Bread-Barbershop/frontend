@@ -58,11 +58,11 @@ export const NoticePreview = ({
   return (
     <MiddlePreviewWrapper
       className={cn('px-0', className)}
-      checkedEnglishTitle={checkedEnglishTitle}
-      enTitle={englishTitle}
-      enTitleDefault="INFORMATION"
-      koTitle={title}
-      koTitleDefault="공지사항"
+      checkedSubTitle={checkedEnglishTitle}
+      subTitle={englishTitle}
+      subTitleDefault="INFORMATION"
+      mainTitle={title}
+      mainTitleDefault="공지사항"
       titleClassName={cn('px-5', titleClassName)}
       {...rest}
     >
