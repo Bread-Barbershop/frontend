@@ -1,21 +1,26 @@
 'use client';
 
-import { ArrowUpRight, Home, Maximize2 } from 'lucide-react';
+import { Home, Maximize2 } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import HeaderPrivacyNoticeButton from '@/features/session/components/HeaderPrivacyNoticeButton';
-import HomeButton from '@/features/session/components/HomeButton';
 import homeBackgroundImage from '@/shared/assets/images/home/home-background.png';
 import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 import { useEditorCalloutStore } from '@/shared/store/useEditorCalloutStore';
 
-import type { ReactNode } from 'react';
+import HeaderPrivacyNoticeButton from './HeaderPrivacyNoticeButton';
+import HomeButton from './HomeButton';
 
-const HEADER_NAV_LINK_CLASS =
-  'flex items-center border-b border-transparent px-2 py-[6.5px] text-[16px] font-semibold text-text-plain transition-colors hover:border-black hover:text-black';
+const DESKTOP_GUARD_EXCLUDED_PREFIXES = ['/guest'];
 
-function EditorDesktopNotice({
+function isExcludedRoute(pathname: string) {
+  return DESKTOP_GUARD_EXCLUDED_PREFIXES.some(
+    prefix => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
+}
+
+function DesktopRequiredNotice({
   viewportWidth,
 }: {
   viewportWidth: number | null;
@@ -28,41 +33,37 @@ function EditorDesktopNotice({
         style={{ backgroundImage: `url(${homeBackgroundImage.src})` }}
       />
 
-      <header className="relative flex h-14 items-center justify-between bg-transparent px-10">
+      <header className="relative flex h-14 items-center justify-between bg-transparent px-5 sm:px-8 lg:px-12">
         <div className="flex h-full items-center gap-8">
-          <HomeButton />
-
-          <nav className="flex h-full items-center gap-6">
-            <Link href="/faq" className={HEADER_NAV_LINK_CLASS}>
-              FAQ
-            </Link>
-          </nav>
+          <HomeButton className="px-0" />
         </div>
 
-        <HeaderPrivacyNoticeButton />
+        <div className="hidden h-full sm:block">
+          <HeaderPrivacyNoticeButton />
+        </div>
       </header>
 
       <main className="relative mx-auto grid w-full max-w-7xl items-center gap-12 px-5 py-14 sm:px-8 lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.72fr)] lg:gap-20 lg:px-12 lg:py-20">
         <section>
-          <p className="text-xs font-bold tracking-[0.24em] text-black/45">
+          <p className="text-xs font-bold text-black/45">
             WIDER WORKSPACE REQUIRED
           </p>
-          <h1 className="mt-6 max-w-3xl text-[clamp(4rem,9vw,8.8rem)] font-semibold leading-[0.88]">
-            Create on
+          <h1 className="mt-6 max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl">
+            모바일 화면은
             <br />
-            desktop.
+            아직 준비 중이에요.
           </h1>
           <p className="mt-8 max-w-xl text-base leading-7 text-black/60 sm:text-lg sm:leading-8">
-            초대장은 데스크톱에서 만들어 주세요.
+            불편을 드려 죄송해요. 작은 화면에서도 편하게 이용하실 수 있도록
+            준비하고 있습니다.
             <br />
-            섬세한 편집을 위해 {DESKTOP_CONTENT_MIN_WIDTH}px 이상의 브라우저
-            너비가 필요합니다.
+            업데이트 전까지는 데스크탑에서 이용해 주세요.
           </p>
         </section>
 
         <section className="border-t border-black lg:border-t-0">
           <div className="flex items-end justify-between gap-6 border-b border-black/15 py-6">
-            <span className="text-xs font-bold tracking-[0.2em] text-black/40">
+            <span className="text-xs font-bold text-black/40">
               WORKSPACE WIDTH
             </span>
             <Maximize2 className="h-7 w-7 text-black/60" />
@@ -70,18 +71,14 @@ function EditorDesktopNotice({
 
           <div className="grid grid-cols-2 border-b border-black/15">
             <div className="border-r border-black/15 py-5 pr-4">
-              <p className="text-xs font-bold tracking-[0.16em] text-black/40">
-                REQUIRED
-              </p>
-              <p className="mt-3 text-2xl font-semibold tracking-[-0.05em]">
+              <p className="text-xs font-bold text-black/40">REQUIRED</p>
+              <p className="mt-3 text-2xl font-semibold">
                 {DESKTOP_CONTENT_MIN_WIDTH}px+
               </p>
             </div>
             <div className="py-5 pl-4">
-              <p className="text-xs font-bold tracking-[0.16em] text-black/40">
-                CURRENT
-              </p>
-              <p className="mt-3 text-2xl font-semibold tracking-[-0.05em]">
+              <p className="text-xs font-bold text-black/40">CURRENT</p>
+              <p className="mt-3 text-2xl font-semibold">
                 {viewportWidth === null ? 'Checking' : `${viewportWidth}px`}
               </p>
             </div>
@@ -95,18 +92,11 @@ function EditorDesktopNotice({
               홈으로 돌아가기
               <Home className="h-4 w-4" />
             </Link>
-            <Link
-              href="/faq"
-              className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-black/20 px-4 py-2.5 text-sm font-semibold transition-colors hover:border-black"
-            >
-              FAQ 살펴보기
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
           </div>
         </section>
       </main>
 
-      <footer className="relative flex h-10 items-center justify-between bg-transparent px-10">
+      <footer className="relative flex h-10 items-center justify-between bg-transparent px-5 sm:px-8 lg:px-12">
         <Link href="/policy" className="text-text-secondary">
           개인정보 처리방침
         </Link>
@@ -120,46 +110,52 @@ function EditorDesktopNotice({
   );
 }
 
-function EditorViewportGuard({ children }: { children: ReactNode }) {
+function DesktopViewportGuard() {
+  const pathname = usePathname();
   const [viewportWidth, setViewportWidth] = useState<number | null>(null);
   const hideAllCallouts = useEditorCalloutStore(state => state.hideAllCallouts);
+  const shouldBypassGuard = isExcludedRoute(pathname);
 
   useEffect(() => {
-    const updateViewportWidth = () => {
-      const nextViewportWidth = window.innerWidth;
+    if (shouldBypassGuard) return;
 
-      setViewportWidth(nextViewportWidth);
+    const updateViewportWidth = () => {
+      setViewportWidth(window.innerWidth);
     };
 
     updateViewportWidth();
     window.addEventListener('resize', updateViewportWidth);
 
     return () => window.removeEventListener('resize', updateViewportWidth);
-  }, []);
+  }, [shouldBypassGuard]);
 
   const shouldShowDesktopNotice =
-    viewportWidth !== null && viewportWidth < DESKTOP_CONTENT_MIN_WIDTH;
+    !shouldBypassGuard &&
+    viewportWidth !== null &&
+    viewportWidth < DESKTOP_CONTENT_MIN_WIDTH;
 
   useEffect(() => {
-    if (!shouldShowDesktopNotice) return;
+    const root = document.getElementById('app-root');
+    if (!root) return;
 
-    hideAllCallouts();
+    if (shouldShowDesktopNotice) {
+      root.setAttribute('inert', '');
+      root.setAttribute('aria-hidden', 'true');
+      hideAllCallouts();
+
+      return () => {
+        root.removeAttribute('inert');
+        root.removeAttribute('aria-hidden');
+      };
+    }
+
+    root.removeAttribute('inert');
+    root.removeAttribute('aria-hidden');
   }, [hideAllCallouts, shouldShowDesktopNotice]);
 
-  return (
-    <>
-      <div
-        className="h-full w-full"
-        inert={shouldShowDesktopNotice ? true : undefined}
-        aria-hidden={shouldShowDesktopNotice ? true : undefined}
-      >
-        {children}
-      </div>
-      {shouldShowDesktopNotice && (
-        <EditorDesktopNotice viewportWidth={viewportWidth} />
-      )}
-    </>
-  );
+  if (!shouldShowDesktopNotice) return null;
+
+  return <DesktopRequiredNotice viewportWidth={viewportWidth} />;
 }
 
-export default EditorViewportGuard;
+export default DesktopViewportGuard;

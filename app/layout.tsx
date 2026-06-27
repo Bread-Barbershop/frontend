@@ -9,6 +9,7 @@ import { ReactNode } from 'react';
 import { ConfirmContainer } from '@/components/molecules/confirm/ConfirmContainer';
 import { ToastContainer } from '@/components/molecules/toast/ToastContainer';
 import ClarityInit from '@/features/monitoring/ClarityInit';
+import DesktopViewportGuard from '@/features/session/components/DesktopViewportGuard';
 
 import './styles/globals.css';
 
@@ -89,9 +90,11 @@ export default function RootLayout({
     <html
       lang="ko"
       className={`${pretendard.variable} ${inter.variable} ${notoSansKr.variable} ${lineSeedKr.variable}`}
+      suppressHydrationWarning
     >
-      <body className="antialiased font-pretendard">
+      <body className="antialiased font-pretendard" suppressHydrationWarning>
         <div id="app-root">{children}</div>
+        <DesktopViewportGuard />
         <Analytics />
         <SpeedInsights />
         <ClarityInit />
