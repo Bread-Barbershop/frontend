@@ -2,8 +2,6 @@ import { ReactNode } from 'react';
 
 import DashboardShell from '@/features/session/components/DashboardShell';
 
-import EditorViewportGuard from './components/EditorViewportGuard';
-
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -21,7 +19,7 @@ export default function EditorLayout({
 }>) {
   return (
     <DashboardShell variant="editor">
-      <EditorViewportGuard>{children}</EditorViewportGuard>
+      {children}
     </DashboardShell>
   );
 }
