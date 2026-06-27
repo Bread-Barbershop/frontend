@@ -5,7 +5,7 @@ import { useCallback, useState } from 'react';
 import PrivacyNoticeModal from './PrivacyNoticeModal';
 
 const HEADER_PRIVACY_BUTTON_CLASS =
-  'h-full px-2 flex items-center text-[14px] font-semibold text-text-plain cursor-pointer';
+  'h-full px-2 flex shrink-0 items-center whitespace-nowrap text-[14px] font-semibold text-text-plain cursor-pointer';
 
 function HeaderPrivacyNoticeButton() {
   const [isOpen, setIsOpen] = useState(false);

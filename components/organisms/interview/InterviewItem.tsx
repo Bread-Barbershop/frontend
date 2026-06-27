@@ -7,7 +7,10 @@ import { Picture } from '@/components/molecules/picture/Picture';
 import { TextEditor } from '@/components/molecules/text-editor';
 import { cn } from '@/shared/utils/cn';
 
-import type { InterviewQuestion } from './interviewList';
+import {
+  DEFAULT_INTERVIEW_QUESTION,
+  type InterviewQuestion,
+} from './interviewList';
 
 interface Props {
   id: string;
@@ -38,7 +41,10 @@ export const InterviewItem = ({
         label="인터뷰"
         inputProps={{
           placeholder: '제목을 입력해 주세요',
-          value: question.question,
+          value:
+            question.question === DEFAULT_INTERVIEW_QUESTION
+              ? ''
+              : question.question,
           onChange: onQuestionChange,
         }}
         className="w-full py-1.5 text-center"

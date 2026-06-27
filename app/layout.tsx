@@ -9,6 +9,7 @@ import { ReactNode } from 'react';
 import { ConfirmContainer } from '@/components/molecules/confirm/ConfirmContainer';
 import { ToastContainer } from '@/components/molecules/toast/ToastContainer';
 import ClarityInit from '@/features/monitoring/ClarityInit';
+import DesktopViewportGuard from '@/features/session/components/DesktopViewportGuard';
 
 import './styles/globals.css';
 
@@ -56,6 +57,12 @@ const serviceName = 'Invia';
 const defaultTitle = 'Invia | 초대장의 새로운 기준';
 const defaultDescription =
   '함께하고 싶은 사람에게 마음을 전하는 일, 무료로 개인정보 없이 할 수 있어요.';
+const defaultOgImage = {
+  url: '/opengraph-image.png',
+  width: 1200,
+  height: 630,
+  alt: serviceName,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://invia.co.kr'),
@@ -70,6 +77,7 @@ export const metadata: Metadata = {
     description: defaultDescription,
     url: '/',
     siteName: serviceName,
+    images: [defaultOgImage],
     locale: 'ko_KR',
     type: 'website',
   },
@@ -77,6 +85,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: defaultTitle,
     description: defaultDescription,
+    images: [defaultOgImage.url],
   },
 };
 
@@ -89,9 +98,11 @@ export default function RootLayout({
     <html
       lang="ko"
       className={`${pretendard.variable} ${inter.variable} ${notoSansKr.variable} ${lineSeedKr.variable}`}
+      suppressHydrationWarning
     >
-      <body className="antialiased font-pretendard">
+      <body className="antialiased font-pretendard" suppressHydrationWarning>
         <div id="app-root">{children}</div>
+        <DesktopViewportGuard />
         <Analytics />
         <SpeedInsights />
         <ClarityInit />

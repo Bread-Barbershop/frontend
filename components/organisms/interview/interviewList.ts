@@ -107,23 +107,25 @@ export const getInterviewDefaultImage = (
 };
 
 export const createInterviewQuestion = (
-  label = EMPTY_INTERVIEW_OPTION
+  label = EMPTY_INTERVIEW_OPTION,
+  options: { includeEmptyTemplate?: boolean } = {}
 ): InterviewQuestion => {
   const isEmptyOption = label === EMPTY_INTERVIEW_OPTION;
   const preset = isEmptyOption ? undefined : getInterviewPresetByLabel(label);
-  const defaultAnswerJson = isEmptyOption
+  const defaultAnswerJson = isEmptyOption && options.includeEmptyTemplate
     ? createDefaultInterviewAnswerJson()
     : null;
 
   return {
     id: crypto.randomUUID(),
     presetId: preset?.id,
-    question: isEmptyOption
-      ? DEFAULT_INTERVIEW_QUESTION
-      : (preset?.label ?? label),
+    question: isEmptyOption ? '' : (preset?.label ?? label),
     answer: {
       messageJson: defaultAnswerJson,
-      messageHtml: isEmptyOption ? DEFAULT_INTERVIEW_ANSWER_HTML : null,
+      messageHtml:
+        isEmptyOption && options.includeEmptyTemplate
+          ? DEFAULT_INTERVIEW_ANSWER_HTML
+          : null,
     },
     image: [],
   };
