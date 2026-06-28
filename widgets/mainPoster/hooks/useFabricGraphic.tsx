@@ -10,6 +10,9 @@ export const useFabricGraphic = () => {
   const [drawingType, setDrawingType] = useState<DrawingTool>('pen');
   /* eslint-disable @typescript-eslint/no-explicit-any */
   const drawingListenerRef = useRef<((e: any) => void) | null>(null);
+  const drawingCursor = "url('/assets/icons/pencil.png') 4 28, crosshair";
+  const defaultCursor = 'default';
+  const moveCursor = 'move';
 
   const toggleDrawingMode = (
     canvas: Canvas,
@@ -32,9 +35,16 @@ export const useFabricGraphic = () => {
     } = options;
 
     canvas.isDrawingMode = enable;
-    canvas.defaultCursor = enable ? 'crosshair' : 'default';
-    canvas.hoverCursor = enable ? 'crosshair' : 'move';
+    canvas.freeDrawingCursor = enable ? drawingCursor : defaultCursor;
+    canvas.defaultCursor = enable ? drawingCursor : defaultCursor;
+    canvas.hoverCursor = enable ? drawingCursor : moveCursor;
     canvas.includeDefaultValues = false;
+
+    if (canvas.upperCanvasEl) {
+      canvas.upperCanvasEl.style.cursor = enable
+        ? drawingCursor
+        : defaultCursor;
+    }
 
     // 기존 리스너 제거
     if (drawingListenerRef.current) {
@@ -70,8 +80,14 @@ export const useFabricGraphic = () => {
       if (autoDisable) {
         const disableDrawingAfterPath = () => {
           canvas.isDrawingMode = false;
-          canvas.defaultCursor = 'default';
-          canvas.hoverCursor = 'move';
+          canvas.freeDrawingCursor = defaultCursor;
+          canvas.defaultCursor = defaultCursor;
+          canvas.hoverCursor = moveCursor;
+
+          if (canvas.upperCanvasEl) {
+            canvas.upperCanvasEl.style.cursor = defaultCursor;
+          }
+
           if (onFinish) {
             onFinish();
           }
