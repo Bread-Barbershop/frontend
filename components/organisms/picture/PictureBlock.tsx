@@ -51,7 +51,7 @@ function PictureBlock({ blockInfo, id }: Props) {
     const checked = e.target.checked;
     updateBlock(
       id,
-      checked ? { isTitle: true } : { isTitle: false, isEnglishTitle: false }
+      checked ? { isTitle: true } : { isTitle: false, isSubTitle: false }
     );
   };
   const handleSubTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -133,10 +133,8 @@ function PictureBlock({ blockInfo, id }: Props) {
                 <span className="text-[13px]">제목 추가</span>
               </Checkbox>
               <Checkbox
-                checked={
-                  blockInfo.props.isTitle && blockInfo.props.isEnglishTitle
-                }
-                onChange={handleEngTitleChange}
+                checked={blockInfo.props.isTitle && blockInfo.props.isSubTitle}
+                onChange={handleSubTitleChange}
                 disabled={!blockInfo.props.isTitle}
                 dimDisabled={false}
               >
