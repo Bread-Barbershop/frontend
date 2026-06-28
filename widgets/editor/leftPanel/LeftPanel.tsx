@@ -9,10 +9,10 @@ import BulkEdit from './components/BulkEdit';
 import Edit from './components/Edit';
 
 function LeftPanel() {
-  const { isEdit, setIsEdit} = useEditorStore(
+  const { isEdit, setIsEdit } = useEditorStore(
     useShallow(state => ({ isEdit: state.isEdit, setIsEdit: state.setIsEdit }))
   );
-  
+
   return (
     <div
       className="w-93.75 max-h-[810px] ml-5 min-[1540px]:ml-15 flex flex-col gap-4"
@@ -24,7 +24,7 @@ function LeftPanel() {
           className={`flex-center relative bg-white rounded-lg ${isEdit ? 'rounded-b-none border-b-0' : 'shadow-edit'} border border-black/5 w-full h-11 transition-default`}
           onClick={() => setIsEdit(!isEdit)}
         >
-          <p className="font-semibold">일괄 편집</p>
+          <p className="font-semibold text-sm">일괄 편집</p>
           <div
             className={`absolute right-6 ${isEdit ? 'rotate-180' : ''} transition-default`}
           >
@@ -36,7 +36,7 @@ function LeftPanel() {
           key={`bulk-edit-${isEdit}`}
           className={`grid ${isEdit ? 'animate-grow-height opacity-100 mt-0' : 'grid-rows-[0fr] opacity-0'}`}
         >
-          <div className="overflow-hidden">
+          <div className="overflow-hidden rounded-b-lg">
             <BulkEdit />
           </div>
         </div>

@@ -7,11 +7,11 @@ export const organizerInformationSchema = {
       default: '주최사',
       required: true,
     },
-    checkedEnglishTitle: {
+    checkedSubTitle: {
       default: true,
       required: true,
     },
-    englishTitle: {
+    subTitle: {
       default: 'ORGANIZER INFORMATION',
       required: false,
     },

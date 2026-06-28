@@ -7,11 +7,11 @@ export const interviewSchema = {
       default: '인터뷰',
       required: true,
     },
-    checkedEnglishTitle: {
+    checkedSubTitle: {
       default: true,
       required: true,
     },
-    englishTitle: {
+    subTitle: {
       default: 'INTERVIEW',
       required: false,
     },

@@ -16,7 +16,7 @@ import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
-const DEFAULT_ENGLISH_TITLE = 'PICTURE';
+const DEFAULT_SUB_TITLE = 'PICTURE';
 
 interface Props {
   blockInfo: EditorBlock<'picture'>;
@@ -24,7 +24,7 @@ interface Props {
 }
 
 function PictureBlock({ blockInfo, id }: Props) {
-  const englishTitle = blockInfo.props.enTitle || DEFAULT_ENGLISH_TITLE;
+  const subTitle = blockInfo.props.subTitle || DEFAULT_SUB_TITLE;
   const { updateBlock, updateImage } = useEditorStore(
     useShallow(state => ({
       updateBlock: state.updateBlock,
@@ -33,10 +33,10 @@ function PictureBlock({ blockInfo, id }: Props) {
   );
 
   useEffect(() => {
-    if (!blockInfo.props.enTitle) {
-      updateBlock(id, { enTitle: DEFAULT_ENGLISH_TITLE });
+    if (!blockInfo.props.subTitle) {
+      updateBlock(id, { subTitle: DEFAULT_SUB_TITLE });
     }
-  }, [blockInfo.props.enTitle, id, updateBlock]);
+  }, [blockInfo.props.subTitle, id, updateBlock]);
 
   const handlePictureChange = (file: (File | string)[]) => {
     updateBlock(id, { image: file });
@@ -51,11 +51,11 @@ function PictureBlock({ blockInfo, id }: Props) {
     const checked = e.target.checked;
     updateBlock(
       id,
-      checked ? { isTitle: true } : { isTitle: false, isEnglishTitle: false }
+      checked ? { isTitle: true } : { isTitle: false, isSubTitle: false }
     );
   };
-  const handleEngTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { isEnglishTitle: e.target.checked });
+  const handleSubTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    updateBlock(id, { isSubTitle: e.target.checked });
   };
   const handleContentsChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { isContents: e.target.checked });
@@ -64,9 +64,9 @@ function PictureBlock({ blockInfo, id }: Props) {
   const handleOnChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { title: e.target.value || '사진' });
   };
-  const handleOnChangeEngTitle = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleOnChangeSubTitle = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, {
-      enTitle: sanitizeEnglishTitleInput(e.target) || DEFAULT_ENGLISH_TITLE,
+      subTitle: sanitizeEnglishTitleInput(e.target) || DEFAULT_SUB_TITLE,
     });
   };
   const handleEditorChange = (json: JSONContent) => {
@@ -100,14 +100,14 @@ function PictureBlock({ blockInfo, id }: Props) {
             }}
           />
         )}
-        {blockInfo.props.isTitle && blockInfo.props.isEnglishTitle && (
+        {blockInfo.props.isTitle && blockInfo.props.isSubTitle && (
           <TextField
             label="영문 제목"
             className="py-1.5 text-center"
             inputProps={{
               placeholder: 'PICTURE',
-              onChange: e => handleOnChangeEngTitle(e),
-              value: englishTitle === DEFAULT_ENGLISH_TITLE ? '' : englishTitle,
+              onChange: e => handleOnChangeSubTitle(e),
+              value: subTitle === DEFAULT_SUB_TITLE ? '' : subTitle,
             }}
           />
         )}
@@ -133,10 +133,8 @@ function PictureBlock({ blockInfo, id }: Props) {
                 <span className="text-[13px]">제목 추가</span>
               </Checkbox>
               <Checkbox
-                checked={
-                  blockInfo.props.isTitle && blockInfo.props.isEnglishTitle
-                }
-                onChange={handleEngTitleChange}
+                checked={blockInfo.props.isTitle && blockInfo.props.isSubTitle}
+                onChange={handleSubTitleChange}
                 disabled={!blockInfo.props.isTitle}
                 dimDisabled={false}
               >

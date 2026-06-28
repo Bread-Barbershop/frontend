@@ -27,8 +27,8 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
     url,
     messageJson,
     image,
-    checkedEnglishTitle,
-    englishTitle,
+    checkedSubTitle,
+    subTitle,
   } = blockInfo.props;
   const { updateBlock, updateImage } = useEditorStore(
     useShallow(state => ({
@@ -37,7 +37,7 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
     }))
   );
   const handleValueChange = (
-    key: 'title' | 'organizer' | 'url' | 'hasUrl' | 'englishTitle',
+    key: 'title' | 'organizer' | 'url' | 'hasUrl' | 'subTitle',
     e?: ChangeEvent<HTMLInputElement>,
     value?: string | boolean
   ) => {
@@ -61,7 +61,7 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
   };
 
   const handleCheckedChange = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { checkedEnglishTitle: e.target.checked });
+    updateBlock(id, { checkedSubTitle: e.target.checked });
   };
 
   return (
@@ -77,15 +77,15 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
         }}
         className="text-center w-full"
       />
-      {checkedEnglishTitle && (
+      {checkedSubTitle && (
         <TextField
           label="영문제목"
           inputProps={{
             placeholder: 'ORGANIZER INFORMATION',
-            value: englishTitle === 'ORGANIZER INFORMATION' ? '' : englishTitle,
+            value: subTitle === 'ORGANIZER INFORMATION' ? '' : subTitle,
             onChange: e =>
               handleValueChange(
-                'englishTitle',
+                'subTitle',
                 undefined,
                 sanitizeEnglishTitleInput(e.target) || 'ORGANIZER INFORMATION'
               ),
@@ -124,7 +124,7 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
         <Label className="font-semibold">추가기능</Label>
         <div className="flex-col">
           <Checkbox
-            checked={checkedEnglishTitle}
+            checked={checkedSubTitle}
             onChange={handleCheckedChange}
           >
             <span className="text-[13px]">영문 제목 추가</span>

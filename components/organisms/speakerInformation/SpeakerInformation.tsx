@@ -38,7 +38,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
       updateImage: state.updateImage,
     }))
   );
-  const { speakers, title, checkedEnglishTitle, englishTitle } =
+  const { speakers, title, checkedSubTitle, subTitle } =
     blockInfo.props;
 
   const handleEditorChange = useCallback(
@@ -59,12 +59,12 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
   );
 
   const handleValueChange = (
-    key: 'title' | 'englishTitle',
+    key: 'title' | 'subTitle',
     e: ChangeEvent<HTMLInputElement>
   ) => {
     const fallback = key === 'title' ? '연사정보' : 'SPEAKER INFORMATION';
     const value =
-      key === 'englishTitle'
+      key === 'subTitle'
         ? sanitizeEnglishTitleInput(e.target)
         : e.target.value;
 
@@ -72,7 +72,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
   };
 
   const handleCheckedChange = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { checkedEnglishTitle: e.target.checked });
+    updateBlock(id, { checkedSubTitle: e.target.checked });
   };
 
   const handleSpeakerNameChange = (
@@ -162,13 +162,13 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
           }}
           className="w-full py-1.5 text-center"
         />
-        {checkedEnglishTitle && (
+        {checkedSubTitle && (
           <TextField
             label="영문제목"
             inputProps={{
               placeholder: 'SPEAKER INFORMATION',
-              value: englishTitle === 'SPEAKER INFORMATION' ? '' : englishTitle,
-              onChange: e => handleValueChange('englishTitle', e),
+              value: subTitle === 'SPEAKER INFORMATION' ? '' : subTitle,
+              onChange: e => handleValueChange('subTitle', e),
             }}
             className="w-full py-1.5 text-center"
           />
@@ -199,7 +199,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
       <section className="flex items-center gap-2 w-full py-1.5">
         <Label className="font-semibold">추가기능</Label>
 
-        <Checkbox checked={checkedEnglishTitle} onChange={handleCheckedChange}>
+        <Checkbox checked={checkedSubTitle} onChange={handleCheckedChange}>
           <span className="text-[13px]">영문 제목 추가</span>
         </Checkbox>
       </section>

@@ -31,8 +31,8 @@ export const MyChild = ({ blockInfo, id }: Props) => {
     }))
   );
   const {
-    checkedEnglishTitle,
-    englishTitle,
+    checkedSubTitle,
+    subTitle,
     name,
     nickname,
     birthday,
@@ -40,12 +40,12 @@ export const MyChild = ({ blockInfo, id }: Props) => {
     image,
   } = blockInfo.props;
   const handleStringChange = (
-    type: 'title' | 'englishTitle' | 'name' | 'nickname',
+    type: 'title' | 'subTitle' | 'name' | 'nickname',
     e: ChangeEvent<HTMLInputElement>
   ) => {
     updateBlock(id, {
       [type]:
-        type === 'englishTitle'
+        type === 'subTitle'
           ? sanitizeEnglishTitleInput(e.target) || 'MY CHILD'
           : e.target.value,
     });
@@ -84,7 +84,7 @@ export const MyChild = ({ blockInfo, id }: Props) => {
   };
 
   const handleCheckedChange = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { checkedEnglishTitle: e.target.checked });
+    updateBlock(id, { checkedSubTitle: e.target.checked });
   };
 
   return (
@@ -100,13 +100,13 @@ export const MyChild = ({ blockInfo, id }: Props) => {
           }}
           className="w-full py-1.5 text-center"
         />
-        {checkedEnglishTitle && (
+        {checkedSubTitle && (
           <TextField
             label="영문제목"
             inputProps={{
               placeholder: 'MY CHILD',
-              value: englishTitle === 'MY CHILD' ? '' : englishTitle,
-              onChange: e => handleStringChange('englishTitle', e),
+              value: subTitle === 'MY CHILD' ? '' : subTitle,
+              onChange: e => handleStringChange('subTitle', e),
             }}
             className="w-full py-1.5 text-center"
           />
@@ -168,7 +168,7 @@ export const MyChild = ({ blockInfo, id }: Props) => {
 
       <section className="flex w-full -mx-2 gap-1 py-1.5">
         <Label className="font-semibold">추가기능</Label>
-        <Checkbox checked={checkedEnglishTitle} onChange={handleCheckedChange}>
+        <Checkbox checked={checkedSubTitle} onChange={handleCheckedChange}>
           <span className="text-[13px]">영문 제목 추가</span>
         </Checkbox>
       </section>

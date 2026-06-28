@@ -37,6 +37,26 @@
     border-color: #d9d9d9;
     background-clip: padding-box;
   }
+  .popup-custom-scrollbar {
+    scrollbar-gutter: stable;
+    overflow-y: auto;
+  }
+
+  .popup-custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .popup-custom-scrollbar::-webkit-scrollbar-track {
+    border-radius: 100vw !important;
+    background-color: #e5e5e8;
+  }
+  .popup-custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #121212;
+    border-radius: 100vw;
+    border: 1px solid transparent;
+    border-color: #d9d9d9;
+    background-clip: padding-box;
+  }
   .edit-custom-scrollbar {
     scrollbar-gutter: stable;
     overflow-y: auto;
