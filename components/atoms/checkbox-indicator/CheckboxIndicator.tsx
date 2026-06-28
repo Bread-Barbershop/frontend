@@ -12,12 +12,15 @@ interface CheckboxProps
     VariantProps<typeof sizeVariants> {}
 
 export const CheckboxIndicator = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ className, size, ...props }, ref) => {
+  ({ className, size, dimDisabled, ...props }, ref) => {
     return (
       <label className="relative flex-center">
         <input ref={ref} type="checkbox" className="peer sr-only" {...props} />
-        <div className={cn(sizeVariants({ size }), className)} />
-        <CheckIcon className={cn(iconVariants({ size }))} strokeWidth={3} />
+        <div className={cn(sizeVariants({ size, dimDisabled }), className)} />
+        <CheckIcon
+          className={cn(iconVariants({ size, dimDisabled }))}
+          strokeWidth={3}
+        />
       </label>
     );
   }

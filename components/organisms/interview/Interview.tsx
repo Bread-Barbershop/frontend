@@ -33,6 +33,8 @@ export const Interview = ({ blockInfo, id }: Props) => {
   );
   const [isQuestionListOpen, setIsQuestionListOpen] = useState(false);
   const questionListTriggerRef = useRef<HTMLDivElement>(null);
+  const questionItemRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const pendingScrollQuestionIdRef = useRef<string | null>(null);
   const [editorResetKey, setEditorResetKey] = useState(0);
   const { title, questions, checkedSubTitle, subTitle } =
     blockInfo.props;
@@ -54,9 +56,14 @@ export const Interview = ({ blockInfo, id }: Props) => {
   };
 
   const handleQuestionListSelect = (content: string, _index?: number) => {
-    updateBlock(id, {
-      questions: [...(questions || []), createInterviewQuestion(content)],
+    const nextQuestion = createInterviewQuestion(content, {
+      includeEmptyTemplate: true,
     });
+
+    updateBlock(id, {
+      questions: [...(questions || []), nextQuestion],
+    });
+    pendingScrollQuestionIdRef.current = nextQuestion.id;
     setEditorResetKey(prev => prev + 1);
     setIsQuestionListOpen(false);
   };
@@ -122,6 +129,23 @@ export const Interview = ({ blockInfo, id }: Props) => {
     }
   }, [id]);
 
+  useEffect(() => {
+    const pendingQuestionId = pendingScrollQuestionIdRef.current;
+    if (!pendingQuestionId) return;
+
+    const target = questionItemRefs.current[pendingQuestionId];
+    if (!target) return;
+
+    const scrollContainer = target.closest('section');
+    window.requestAnimationFrame(() => {
+      scrollContainer?.scrollTo({
+        top: scrollContainer.scrollHeight,
+        behavior: 'smooth',
+      });
+    });
+    pendingScrollQuestionIdRef.current = null;
+  }, [questions]);
+
   return (
     <LeftEditorWrapper ariaLabel="인터뷰" className="pb-3">
       <NavigationBar
@@ -178,7 +202,13 @@ export const Interview = ({ blockInfo, id }: Props) => {
 
       <div className="flex flex-col gap-1 w-full">
         {(questions || []).map((question, index) => (
-          <div key={question.id} className="flex flex-col gap-1">
+          <div
+            key={question.id}
+            ref={element => {
+              questionItemRefs.current[question.id] = element;
+            }}
+            className="flex flex-col gap-1"
+          >
             {index !== 0 && <Divider className="w-full" />}
             <InterviewItem
               id={id}

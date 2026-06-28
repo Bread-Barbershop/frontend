@@ -88,14 +88,21 @@ export const useFabricImage = ({
   };
 
   // 이미지 크롭 시작
-  const startCrop = (canvas: Canvas, ratio?: number | 'free') => {
+  const startCrop = (
+    canvas: Canvas,
+    ratio?: number | 'free',
+    targetImage?: FabricImageWithLock | null
+  ) => {
     // 1. 이미 크롭 중이라면 비율만 업데이트
     if (cropZoneRef.current && ratio) {
       updateCropRatio(canvas, ratio);
       return;
     }
 
-    const activeObject = canvas.getActiveObject() as FabricImageWithLock;
+    const activeObject = (targetImage ||
+      (canvas.getActiveObject() as FabricImageWithLock | null)) as
+      | FabricImageWithLock
+      | null;
     if (!activeObject || !activeObject.isType('image')) return;
     if (activeObject.isLocked) return;
     setIsCropping(true);

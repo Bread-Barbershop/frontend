@@ -5,7 +5,7 @@ const carouselCardHeight = '520px';
 export const dashboardCarouselLayout = {
   // 대시보드 셸 내부에서 캐러셀이 차지하는 전체 높이
   stageHeight: '75%',
-  dashboardStageHeight: '82%',
+  dashboardStageHeight: 'max(82%, 680px)',
   // 캐러셀 전체 트랙이 아래로 얼마나 묻혀 보일지 결정하는 값
   buriedOffset: '21rem',
   // 선택된 카드가 기본 위치에서 위로 얼마나 떠오를지 결정하는 값

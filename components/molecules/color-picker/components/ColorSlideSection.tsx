@@ -38,6 +38,7 @@ export function ColorSlideSection({
             top={top}
             color={hsvaToHslaString({ h: hue, s: 100, v: 100, a: 1 })}
             size={pointerSize}
+            cursor="pointer"
           />
         )}
         onChange={newHue => {

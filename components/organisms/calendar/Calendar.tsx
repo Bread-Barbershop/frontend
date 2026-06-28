@@ -116,42 +116,41 @@ export function Calendar({ blockInfo, id }: Props) {
   );
 
   return (
-    <LeftEditorWrapper ariaLabel="행사 일시">
+    <LeftEditorWrapper ariaLabel="행사 일시" className="pb-3">
       <NavigationBar>{defaultTitle}</NavigationBar>
 
-      <div className="w-full flex flex-col gap-3 mb-2">
+      <TextField
+        key={`title-${id}`}
+        label="제목"
+        inputProps={{
+          placeholder: blockInfo.type === 'wedding' ? '예식 일시' : '행사 일시',
+          defaultValue: blockInfo.props.title,
+          onChange: handleTitleChange,
+        }}
+        className="w-full text-center py-1.5"
+      />
+
+      {blockInfo.props.isEnglishTitle && (
         <TextField
-          key={`title-${id}`}
-          label="제목"
+          key={`english-title-${id}`}
+          label="영문제목"
           inputProps={{
             placeholder:
-              blockInfo.type === 'wedding' ? '예식 일시' : '행사 일시',
-            defaultValue: blockInfo.props.title,
-            onChange: handleTitleChange,
+              blockInfo.type === 'wedding'
+                ? 'THE WEDDING DATE'
+                : 'THE EVENT DATE',
+            defaultValue: blockInfo.props.englishTitle,
+            onChange: handleEnglishTitleChange,
           }}
           className="w-full text-center py-1.5"
         />
+      )}
 
-        {blockInfo.props.isSubTitle && (
-          <TextField
-            key={`english-title-${id}`}
-            label="영문제목"
-            inputProps={{
-              placeholder:
-                blockInfo.type === 'wedding'
-                  ? 'THE WEDDING DATE'
-                  : 'THE EVENT DATE',
-              defaultValue: blockInfo.props.subTitle,
-              onChange: handleSubTitleChange,
-            }}
-            className="w-full text-center py-1.5"
-          />
-        )}
-
+      <div className="flex flex-col gap-1 w-full">
         <Divider className="w-full" />
         <TextField
           label={blockInfo.type === 'wedding' ? '예식일' : '행사일'}
-          className="w-full"
+          className="w-full py-1.5"
           labelClassName="w-14 text-center"
           inputProps={{
             placeholder: '2026-03-09',
@@ -160,7 +159,7 @@ export function Calendar({ blockInfo, id }: Props) {
             maxLength: 10,
           }}
         />
-        <div className="flex items-center gap-2 w-full">
+        <section className="flex flex-row gap-2 items-center w-full py-1.5">
           <Label className="w-14 text-center font-semibold shrink-0">
             {blockInfo.type === 'wedding' ? '예식시간' : '행사시간'}
           </Label>
@@ -170,7 +169,7 @@ export function Calendar({ blockInfo, id }: Props) {
               onChange={handleTimeChange}
             />
           </div>
-        </div>
+        </section>
         <NavigationBar
           action={
             <UtilityButton size="sm" onClick={handleInsertDday}>
@@ -194,49 +193,47 @@ export function Calendar({ blockInfo, id }: Props) {
                     : '내용을 입력해주세요.'
                 }
                 defaultAlign="center"
+                placeholderMode="overlay"
                 onChange={handleEditorChange}
               />
             </div>
-
-            <div className="flex items-center gap-2 w-full">
-              <Label className="w-14 text-center font-semibold shrink-0">
-                추가기능
-              </Label>
-              <div className="flex flex-col">
-                <div className="flex gap-3">
-                  <Checkbox
-                    checked={blockInfo.props.isSubTitle}
-                    onChange={handleSubTitleCheck}
-                  >
-                    <span className="text-[13px]">영문 제목 추가</span>
-                  </Checkbox>
-                  <Checkbox
-                    checked={blockInfo.props.showDday}
-                    onChange={handleShowDdayChange}
-                  >
-                    <span className="text-[13px]">디데이&카운트다운</span>
-                  </Checkbox>
-                </div>
-                <Checkbox
-                  checked={blockInfo.props.showCalendar}
-                  onChange={handleShowCalendarChange}
-                >
-                  <span className="text-[13px]">캘린더</span>
-                </Checkbox>
-              </div>
-            </div>
           </div>
-          <EditorNoticeList
-            notices={[
-              {
-                id: 'calendar-dday',
-                text: '디데이 버튼 클릭 시 (D-Day)가 추가되며, (D-Day)에 남은 일수가 표시됩니다.',
-                colorClass: 'text-[#1F72EF]',
-              },
-            ]}
-          />
         </div>
+        <section className="flex flex-row gap-2 items-center w-full py-1.5">
+          <Label className="font-semibold">추가기능</Label>
+          <div className="flex flex-col">
+            <div className="flex gap-3">
+              <Checkbox
+                checked={blockInfo.props.isEnglishTitle}
+                onChange={handleEnglishTitleCheck}
+              >
+                <span className="text-[13px]">영문 제목 추가</span>
+              </Checkbox>
+              <Checkbox
+                checked={blockInfo.props.showDday}
+                onChange={handleShowDdayChange}
+              >
+                <span className="text-[13px]">디데이 카운트다운</span>
+              </Checkbox>
+            </div>
+            <Checkbox
+              checked={blockInfo.props.showCalendar}
+              onChange={handleShowCalendarChange}
+            >
+              <span className="text-[13px]">캘린더</span>
+            </Checkbox>
+          </div>
+        </section>
       </div>
+      <EditorNoticeList
+        notices={[
+          {
+            id: 'calendar-dday',
+            text: '디데이 버튼 클릭 시 (D-Day)가 추가되며, (D-Day)에 남은 일수가 표시됩니다.',
+            colorClass: 'text-[#1F72EF]',
+          },
+        ]}
+      />
     </LeftEditorWrapper>
   );
 }

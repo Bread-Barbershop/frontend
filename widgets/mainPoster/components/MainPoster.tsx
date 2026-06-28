@@ -10,7 +10,6 @@ import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 import { BackgroundPanel } from './background/BackgroundPanel';
 import { GraphicPanel } from './graphic/GraphicPanel';
 import { ImagePanel } from './image/ImagePanel';
-import { TemplateImagePanel } from './image/TemplateImagePanel';
 import { RichTextPanel } from './richtext/RichTextPanel';
 import { ShapePanel } from './shape/ShapePanel';
 import { SlotPanel } from './slot/SlotPanel';
@@ -129,23 +128,26 @@ export const MainPoster = () => {
         포스터
       </NavigationBar>
       <div className="w-full h-11 flex gap-2 items-center justify-center bg-white rounded-lg user-select-none">
-        {PanelItems.map(item => (
-          <button
-            key={item.id}
-            type="button"
-            className={`w-[54px] h-8 font-medium text-sm ${activeTab === item.id ? 'border-b text-text-primary' : 'text-text-secondary'}`}
-            onClick={item.onClick}
-          >
-            <p>{item.value}</p>
-          </button>
-        ))}
+        {PanelItems.map(item => {
+          const isActive =
+            activeTab === item.id || (activeTab === 'template' && item.id === 'image');
+
+          return (
+            <button
+              key={item.id}
+              type="button"
+              className={`w-[54px] h-8 font-medium text-sm ${isActive ? 'border-b text-text-primary' : 'text-text-secondary'}`}
+              onClick={item.onClick}
+            >
+              <p>{item.value}</p>
+            </button>
+          );
+        })}
       </div>
 
       {activeTab === 'text' && <RichTextPanel />}
 
-      {activeTab === 'image' && <ImagePanel />}
-
-      {activeTab === 'template' && <TemplateImagePanel />}
+      {(activeTab === 'image' || activeTab === 'template') && <ImagePanel />}
 
       {activeTab === 'slot' && <SlotPanel />}
 

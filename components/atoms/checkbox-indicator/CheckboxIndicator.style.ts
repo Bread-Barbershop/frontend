@@ -1,7 +1,7 @@
 import { cva } from 'class-variance-authority';
 
 const commonStyles =
-  'peer-disabled:opacity-50 peer-disabled:cursor-not-allowed select-none cursor-pointer';
+  'peer-disabled:cursor-not-allowed select-none cursor-pointer';
 
 export const sizeVariants = cva(
   `flex-center rounded-sm bg-border-neutral peer-checked:bg-primary ${commonStyles}`,
@@ -12,9 +12,14 @@ export const sizeVariants = cva(
         md: 'w-5 h-5',
         lg: 'w-6 h-6',
       },
+      dimDisabled: {
+        true: 'peer-disabled:opacity-50',
+        false: '',
+      },
     },
     defaultVariants: {
       size: 'sm',
+      dimDisabled: true,
     },
   }
 );
@@ -28,7 +33,11 @@ export const iconVariants = cva(
         md: 'size-4',
         lg: 'size-5',
       },
+      dimDisabled: {
+        true: 'peer-disabled:opacity-50',
+        false: '',
+      },
     },
-    defaultVariants: { size: 'sm' },
+    defaultVariants: { size: 'sm', dimDisabled: true },
   }
 );

@@ -64,7 +64,7 @@ function PrivacyNoticeModal({ open, onClose }: PrivacyNoticeModalProps) {
           isClosing ? 'scale-[0.98] opacity-0' : 'scale-100 opacity-100'
         }`}
       >
-        <div className="overflow-hidden rounded-xl border border-black/5 bg-white p-5">
+        <div className="flex flex-col items-center gap-1.5 overflow-hidden rounded-xl border border-black/5 bg-white p-5">
           <div className="w-fit max-w-full px-10 py-5 font-pretendard text-[14px] font-medium leading-5 text-text-plain">
             <h2 className="mb-5 text-[32px] font-bold leading-10">
               안심하고 이용하세요
@@ -97,6 +97,16 @@ function PrivacyNoticeModal({ open, onClose }: PrivacyNoticeModalProps) {
               노력할게요.
             </p>
           </div>
+          <button
+            type="button"
+            className="cursor-pointer rounded-lg bg-white px-8 py-[13.5px] font-pretendard text-[14px] font-semibold leading-5 text-text-plain transition-colors hover:bg-[#FAFAFB] active:bg-[#F5F8FF]"
+            style={{
+              boxShadow: 'inset 0 0 0 1px rgb(255 255 255 / 12%)',
+            }}
+            onClick={closeWithFade}
+          >
+            이제 그만 볼래요
+          </button>
         </div>
       </div>
     </dialog>

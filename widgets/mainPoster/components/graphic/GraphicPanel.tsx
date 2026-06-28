@@ -55,7 +55,7 @@ export function GraphicPanel() {
   if (!canvas) return null;
 
   return (
-    <LeftEditorWrapper ariaLabel="그리기 설정">
+    <LeftEditorWrapper ariaLabel="그리기 설정" className="pb-0">
       <div className="flex flex-col w-full items-center">
         <section className="w-full h-11 flex flex-row gap-2 items-center justify-center bg-bg-base">
           <p className="w-[47px] h-8 flex items-center justify-center text-[13px] font-semibold text-text-primary">
@@ -80,7 +80,7 @@ export function GraphicPanel() {
             type="text"
             readOnly
             value={drawingConfig.width}
-            className="flex items-center justify-center text-center w-[47px] h-8 text-xs bg-bg-base border border-border-neutral rounded-lg focus:outline-none"
+            className="flex items-center justify-center text-center w-[47px] h-8 text-sm font-normal bg-bg-base border border-border-neutral rounded-lg focus:outline-none"
           />
         </section>
 

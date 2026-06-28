@@ -7,8 +7,9 @@ import React from 'react';
 import InviaLogo from '@/shared/assets/logo/invia-logo.svg';
 import { useConfirm } from '@/shared/hooks/useConfirm';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { cn } from '@/shared/utils/cn';
 
-function HomeButton() {
+function HomeButton({ className = '' }: { className?: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const { confirm } = useConfirm();
@@ -34,7 +35,7 @@ function HomeButton() {
   return (
     <Link
       href="/"
-      className="flex h-full max-h-full items-center px-6"
+      className={cn('flex h-full max-h-full items-center px-6', className)}
       onClick={handleHomeClick}
       aria-label="Invia 홈으로 이동"
     >

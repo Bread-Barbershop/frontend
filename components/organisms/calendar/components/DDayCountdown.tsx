@@ -100,7 +100,7 @@ export function DDayCountdown({ date, time, messageJson }: Props) {
   return (
     <div
       className={cn(
-        'w-full bg-transparent border-t border-border-divider py-6 px-6 flex flex-col items-center justify-center gap-4 font-bold'
+        'w-full bg-transparent border-t border-border-divider py-6 px-6 flex flex-col items-center justify-center gap-4 text-center font-bold'
       )}
     >
       <div className="flex w-full justify-between items-center text-center">

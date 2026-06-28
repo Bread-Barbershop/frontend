@@ -31,10 +31,22 @@ export function CalendarType2({
                   dayObj.isTargetDate && 'text-white'
                 )}
               >
-                {dayObj.num}
-                {dayObj.isTargetDate && (
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-5.5 -z-1 bg-text-wedding rounded-full" />
-                )}
+                <span
+                  className={cn(
+                    'flex items-center justify-center leading-none',
+                    dayObj.isTargetDate &&
+                      'size-5.5 rounded-full bg-text-wedding text-white'
+                  )}
+                >
+                  <span
+                    className={cn(
+                      'block leading-none',
+                      dayObj.isTargetDate && 'translate-y-0.5'
+                    )}
+                  >
+                    {dayObj.num}
+                  </span>
+                </span>
               </div>
             </div>
           );

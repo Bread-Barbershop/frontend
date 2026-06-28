@@ -20,6 +20,13 @@ export type SlotTargetObject = FabricObjectWithLock & {
   slot?: ImageSlotMeta;
 };
 
+export type ImagePanelMode =
+  | 'user-image'
+  | 'background-image'
+  | 'frame-image'
+  | 'empty-frame'
+  | null;
+
 export const getSlotMeta = (target: unknown) => {
   if (!(target instanceof FabricObject)) {
     return null;
@@ -54,4 +61,32 @@ export const isFilledSlotImage = (
 ): target is SlotImageObject => {
   const slot = getImageSlot(target);
   return Boolean(slot?.filled);
+};
+
+export const isBackgroundImage = (target: unknown): target is FabricImage => {
+  return target instanceof FabricImage && target.get('id') === 'background-layer';
+};
+
+export const getImagePanelMode = (target: unknown): ImagePanelMode => {
+  if (isBackgroundImage(target)) {
+    return 'background-image';
+  }
+
+  if (isReplaceableSlotImage(target)) {
+    return 'frame-image';
+  }
+
+  if (
+    isReplaceableSlotTarget(target) &&
+    !(target instanceof FabricImage) &&
+    target.get('name') === 'slot-placeholder'
+  ) {
+    return 'empty-frame';
+  }
+
+  if (target instanceof FabricImage) {
+    return 'user-image';
+  }
+
+  return null;
 };

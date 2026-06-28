@@ -35,6 +35,8 @@ export const Notice = ({ blockInfo, id }: Props) => {
   );
   const [isNoticeListOpen, setIsNoticeListOpen] = useState(false);
   const noticeListTriggerRef = useRef<HTMLDivElement>(null);
+  const noticeItemRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const pendingScrollNoticeIdRef = useRef<string | null>(null);
   const [editorResetKey, setEditorResetKey] = useState(0);
 
   const { noticeList, title, checkedSubTitle, subTitle } =
@@ -57,9 +59,12 @@ export const Notice = ({ blockInfo, id }: Props) => {
   };
 
   const handleNoticeListSelect = (content: string, _index?: number) => {
+    const nextNotice = createNoticeItem(content);
+
     updateBlock(id, {
-      noticeList: [...(noticeList || []), createNoticeItem(content)],
+      noticeList: [...(noticeList || []), nextNotice],
     });
+    pendingScrollNoticeIdRef.current = nextNotice.id;
     setEditorResetKey(prev => prev + 1);
     setIsNoticeListOpen(false);
   };
@@ -124,6 +129,23 @@ export const Notice = ({ blockInfo, id }: Props) => {
     }
   }, [id]);
 
+  useEffect(() => {
+    const pendingNoticeId = pendingScrollNoticeIdRef.current;
+    if (!pendingNoticeId) return;
+
+    const target = noticeItemRefs.current[pendingNoticeId];
+    if (!target) return;
+
+    const scrollContainer = target.closest('section');
+    window.requestAnimationFrame(() => {
+      scrollContainer?.scrollTo({
+        top: scrollContainer.scrollHeight,
+        behavior: 'smooth',
+      });
+    });
+    pendingScrollNoticeIdRef.current = null;
+  }, [noticeList]);
+
   return (
     <LeftEditorWrapper ariaLabel="공지사항" className="pb-3">
       <NavigationBar
@@ -181,7 +203,13 @@ export const Notice = ({ blockInfo, id }: Props) => {
 
       <div className="flex flex-col gap-1 w-full">
         {(noticeList || []).map((notice, index) => (
-          <div key={notice.id} className="flex flex-col gap-1">
+          <div
+            key={notice.id}
+            ref={element => {
+              noticeItemRefs.current[notice.id] = element;
+            }}
+            className="flex flex-col gap-1"
+          >
             {index !== 0 && <Divider className="w-full" />}
             <NoticeItem
               id={id}
