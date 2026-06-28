@@ -7,11 +7,11 @@ export const speakerInformationSchema = {
       default: '연사정보',
       required: true,
     },
-    englishTitle: {
+    subTitle: {
       default: 'SPEAKER INFORMATION',
       required: false,
     },
-    checkedEnglishTitle: {
+    checkedSubTitle: {
       default: true,
       required: true,
     },

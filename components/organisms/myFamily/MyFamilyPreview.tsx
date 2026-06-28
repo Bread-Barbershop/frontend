@@ -25,8 +25,8 @@ export const MyFamilyPreview = ({
     family,
     messageHtml,
     messageJson,
-    checkedEnglishTitle,
-    englishTitle,
+    checkedSubTitle,
+    subTitle,
   } = blockInfo.props;
   const html =
     messageHtml ?? tiptapJsonToHtmlUniversal(messageJson ?? undefined);
@@ -34,8 +34,8 @@ export const MyFamilyPreview = ({
   return (
     <MiddlePreviewWrapper
       className={className}
-      checkedSubTitle={checkedEnglishTitle}
-      subTitle={englishTitle}
+      checkedSubTitle={checkedSubTitle}
+      subTitle={subTitle}
       subTitleDefault="MY FAMILY"
       mainTitle={title}
       mainTitleDefault="저희 가족을 소개합니다."

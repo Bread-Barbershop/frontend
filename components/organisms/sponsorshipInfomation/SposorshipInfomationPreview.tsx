@@ -30,8 +30,8 @@ function SponsorshipInfomationPreview({
   return (
     <MiddlePreviewWrapper
       className={className}
-      checkedSubTitle={blockInfo.props.isEnglishTitle}
-      subTitle={blockInfo.props.englishTitle}
+      checkedSubTitle={blockInfo.props.isSubTitle}
+      subTitle={blockInfo.props.subTitle}
       subTitleDefault="OUR SPONSORS"
       mainTitle={blockInfo.props.title}
       mainTitleDefault="후원사"

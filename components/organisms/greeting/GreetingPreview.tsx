@@ -19,8 +19,8 @@ function GreetingPreview({
 }: Props) {
   const {
     title,
-    checkedEnglishTitle = true,
-    englishTitle = '',
+    checkedSubTitle = true,
+    subTitle = '',
     messageJson,
     messageHtml,
   } = blockInfo.props;
@@ -30,8 +30,8 @@ function GreetingPreview({
   return (
     <MiddlePreviewWrapper
       className={className}
-      checkedSubTitle={checkedEnglishTitle}
-      subTitle={englishTitle}
+      checkedSubTitle={checkedSubTitle}
+      subTitle={subTitle}
       subTitleDefault="INVITATION"
       mainTitle={title}
       mainTitleDefault="인사말"

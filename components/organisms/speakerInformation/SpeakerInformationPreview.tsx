@@ -22,7 +22,7 @@ export const SpeakerInformationPreview = ({
   isGuestPage = false,
   ...rest
 }: Props) => {
-  const { title, speakers, checkedEnglishTitle, englishTitle } =
+  const { title, speakers, checkedSubTitle, subTitle } =
     blockInfo.props;
 
   const displayItems = useMemo(() => {
@@ -56,8 +56,8 @@ export const SpeakerInformationPreview = ({
   return (
     <MiddlePreviewWrapper
       className={cn('px-0', className)}
-      checkedSubTitle={checkedEnglishTitle}
-      subTitle={englishTitle}
+      checkedSubTitle={checkedSubTitle}
+      subTitle={subTitle}
       subTitleDefault="SPEAKER INFORMATION"
       mainTitle={title}
       mainTitleDefault="연사정보"

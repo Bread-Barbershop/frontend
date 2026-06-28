@@ -36,8 +36,8 @@ function CoupleIntroductionPreview({
     groomImage = { id: '', image: [] },
     brideImage = { id: '', image: [] },
     title = '',
-    checkedEnglishTitle = true,
-    englishTitle = '',
+    checkedSubTitle = true,
+    subTitle = '',
     messageJson = null,
     messageHtml = null,
     showContent = false,
@@ -107,8 +107,8 @@ function CoupleIntroductionPreview({
     <MiddlePreviewWrapper
       className={className}
       titleClassName={titleClassName}
-      checkedSubTitle={checkedEnglishTitle}
-      subTitle={englishTitle}
+      checkedSubTitle={checkedSubTitle}
+      subTitle={subTitle}
       subTitleDefault="INTRODUCTION"
       mainTitle={title}
       mainTitleDefault="신랑・신부 소개"

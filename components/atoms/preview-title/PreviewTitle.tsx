@@ -9,22 +9,22 @@ import { cn } from '@/shared/utils/cn';
 import { previewTitleVariants } from './PreviewTitle.style';
 
 interface PreviewTitleProps extends VariantProps<typeof previewTitleVariants> {
-  isKoTitle?: boolean;
-  koTitle?: string;
-  enTitle?: string;
+  isMainTitle?: boolean;
+  mainTitle?: string;
+  subTitle?: string;
   className?: string;
   titleClassName?: string;
 }
 
 export const PreviewTitle = ({
-  isKoTitle,
-  koTitle,
-  enTitle,
+  isMainTitle,
+  mainTitle,
+  subTitle,
   className,
   titleClassName,
 }: PreviewTitleProps) => {
-  const koText = koTitle?.trim() || '제목을 입력해 주세요';
-  const enText = enTitle?.trim();
+  const koText = mainTitle?.trim() || '제목을 입력해 주세요';
+  const enText = subTitle?.trim();
   const { koStyle, enStyle } = useTitleFontInfo();
 
   return (
@@ -40,7 +40,7 @@ export const PreviewTitle = ({
           {enText}
         </p>
       )}
-      {isKoTitle && (
+      {isMainTitle && (
         <p
           className={cn(
             previewTitleVariants({ language: 'ko' }),

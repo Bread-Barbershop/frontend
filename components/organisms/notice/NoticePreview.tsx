@@ -23,7 +23,7 @@ export const NoticePreview = ({
   titleClassName,
   ...rest
 }: Props) => {
-  const { noticeList, title, checkedEnglishTitle, englishTitle } =
+  const { noticeList, title, checkedSubTitle, subTitle } =
     blockInfo.props;
   const isSingleNotice = (noticeList?.length ?? 0) === 1;
 
@@ -58,8 +58,8 @@ export const NoticePreview = ({
   return (
     <MiddlePreviewWrapper
       className={cn('px-0', className)}
-      checkedSubTitle={checkedEnglishTitle}
-      subTitle={englishTitle}
+      checkedSubTitle={checkedSubTitle}
+      subTitle={subTitle}
       subTitleDefault="INFORMATION"
       mainTitle={title}
       mainTitleDefault="공지사항"

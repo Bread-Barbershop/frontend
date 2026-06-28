@@ -5,11 +5,11 @@ export const videoSchema = {
       default: '동영상',
       required: true,
     },
-    checkedEnglishTitle: {
+    checkedSubTitle: {
       default: true,
       required: true,
     },
-    englishTitle: {
+    subTitle: {
       default: 'VIDEO',
       required: true,
     },

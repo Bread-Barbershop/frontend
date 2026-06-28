@@ -27,8 +27,8 @@ export const MyChildPreview = ({
     nickname,
     birthday,
     image,
-    checkedEnglishTitle,
-    englishTitle,
+    checkedSubTitle,
+    subTitle,
   } = blockInfo.props;
   const { fontFamily } = useBodyFontInfo();
 
@@ -42,8 +42,8 @@ export const MyChildPreview = ({
   return (
     <MiddlePreviewWrapper
       className={className}
-      checkedSubTitle={checkedEnglishTitle}
-      subTitle={englishTitle}
+      checkedSubTitle={checkedSubTitle}
+      subTitle={subTitle}
       subTitleDefault="MY CHILD"
       mainTitle={title}
       mainTitleDefault={`${name}의 첫번째 생일`}

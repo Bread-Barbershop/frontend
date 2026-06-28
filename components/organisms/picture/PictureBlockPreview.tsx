@@ -32,9 +32,9 @@ function PictureBlockPreview({
   return (
     <MiddlePreviewWrapper
       noTitle={!blockInfo.props.isTitle}
-      checkedSubTitle={blockInfo.props.isEnglishTitle}
+      checkedSubTitle={blockInfo.props.isSubTitle}
       checkedMainTitle={blockInfo.props.isTitle}
-      subTitle={blockInfo.props.enTitle}
+      subTitle={blockInfo.props.subTitle}
       subTitleDefault="PICTURE"
       mainTitle={blockInfo.props.title}
       mainTitleDefault="사진"

@@ -7,7 +7,7 @@ export const gallerySchema = {
       default: '갤러리',
       required: true,
     },
-    enTitle: {
+    subTitle: {
       default: 'GALLERY',
       required: false,
     },
@@ -27,7 +27,7 @@ export const gallerySchema = {
       default: false,
       required: true,
     },
-    isEnglishTitle: {
+    isSubTitle: {
       default: true,
       required: true,
     },

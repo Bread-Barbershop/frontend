@@ -21,7 +21,7 @@ interface Props {
 }
 
 const DEFAULT_COUPLE_INTRODUCTION_TITLE = '신랑・신부 소개';
-const DEFAULT_COUPLE_INTRODUCTION_ENGLISH_TITLE = 'INTRODUCTION';
+const DEFAULT_COUPLE_INTRODUCTION_SUB_TITLE = 'INTRODUCTION';
 
 function CoupleIntroduction({ blockInfo, id }: Props) {
   const updateBlock = useEditorStore(state => state.updateBlock);
@@ -32,8 +32,8 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
     groomImage = { id: crypto.randomUUID(), image: [] },
     brideImage = { id: crypto.randomUUID(), image: [] },
     title = DEFAULT_COUPLE_INTRODUCTION_TITLE,
-    checkedEnglishTitle = true,
-    englishTitle = DEFAULT_COUPLE_INTRODUCTION_ENGLISH_TITLE,
+    checkedSubTitle = true,
+    subTitle = DEFAULT_COUPLE_INTRODUCTION_SUB_TITLE,
     messageJson = null,
     showContent = false,
     brideFirst = false,
@@ -46,12 +46,12 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
   }, [id, title, updateBlock]);
 
   useEffect(() => {
-    if (englishTitle === '') {
+    if (subTitle === '') {
       updateBlock(id, {
-        englishTitle: DEFAULT_COUPLE_INTRODUCTION_ENGLISH_TITLE,
+        subTitle: DEFAULT_COUPLE_INTRODUCTION_SUB_TITLE,
       });
     }
-  }, [englishTitle, id, updateBlock]);
+  }, [subTitle, id, updateBlock]);
 
   const syncProfileImages = (
     nextGroomImage: { id: string; image: (File | string)[] },
@@ -96,11 +96,11 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
     });
   };
 
-  const handleEnglishTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const nextEnglishTitle = sanitizeEnglishTitleInput(e.target);
+  const handleSubTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const nextSubTitle = sanitizeEnglishTitleInput(e.target);
     updateBlock(id, {
-      englishTitle:
-        nextEnglishTitle || DEFAULT_COUPLE_INTRODUCTION_ENGLISH_TITLE,
+      subTitle:
+        nextSubTitle || DEFAULT_COUPLE_INTRODUCTION_SUB_TITLE,
     });
   };
 
@@ -174,17 +174,17 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
         className="w-full text-center py-1.5"
       />
 
-      {checkedEnglishTitle && (
+      {checkedSubTitle && (
         <TextField
           key={`english-title-${id}`}
           label="영문제목"
           inputProps={{
-            placeholder: DEFAULT_COUPLE_INTRODUCTION_ENGLISH_TITLE,
+            placeholder: DEFAULT_COUPLE_INTRODUCTION_SUB_TITLE,
             defaultValue:
-              englishTitle === DEFAULT_COUPLE_INTRODUCTION_ENGLISH_TITLE
+              subTitle === DEFAULT_COUPLE_INTRODUCTION_SUB_TITLE
                 ? ''
-                : englishTitle,
-            onChange: handleEnglishTitleChange,
+                : subTitle,
+            onChange: handleSubTitleChange,
           }}
           className="w-full text-center py-1.5"
         />
@@ -238,9 +238,9 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
           <div className="flex gap-2">
             <Checkbox
               className="gap-1 pl-1 text-text-secondary"
-              checked={checkedEnglishTitle}
+              checked={checkedSubTitle}
               onChange={e =>
-                updateBlock(id, { checkedEnglishTitle: e.target.checked })
+                updateBlock(id, { checkedSubTitle: e.target.checked })
               }
             >
               <span className="text-[13px]">영문 제목 추가</span>

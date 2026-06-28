@@ -44,12 +44,12 @@ export function Place({ blockInfo, id }: Props) {
 
   const {
     title,
-    englishTitle,
+    subTitle,
     placeName,
     placeDetail,
     placeAddress,
     placeTel,
-    checkedEnglishTitle,
+    checkedSubTitle,
     openMap,
     openNavi,
     mapLocked,
@@ -104,15 +104,15 @@ export function Place({ blockInfo, id }: Props) {
             className="w-full py-1.5 text-center"
           />
         </div>
-        {checkedEnglishTitle && (
+        {checkedSubTitle && (
           <TextField
             label="영문제목"
             inputProps={{
               placeholder: 'LOCATION',
-              value: englishTitle === 'LOCATION' ? '' : englishTitle,
+              value: subTitle === 'LOCATION' ? '' : subTitle,
               onChange: e =>
                 handleUpdateBlock(
-                  'englishTitle',
+                  'subTitle',
                   sanitizeEnglishTitleInput(e.target) || 'LOCATION'
                 ),
             }}
@@ -205,9 +205,9 @@ export function Place({ blockInfo, id }: Props) {
             <div className="flex flex-row gap-2 items-center">
               <Checkbox
                 onChange={e =>
-                  handleUpdateBlock('checkedEnglishTitle', e.target.checked)
+                  handleUpdateBlock('checkedSubTitle', e.target.checked)
                 }
-                checked={checkedEnglishTitle}
+                checked={checkedSubTitle}
               >
                 <span className="text-[13px]">영문 제목 추가</span>
               </Checkbox>

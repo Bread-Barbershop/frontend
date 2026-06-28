@@ -49,8 +49,8 @@ export const VideoPreview = ({
     title,
     ratio,
     checkThumbnail,
-    checkedEnglishTitle,
-    englishTitle,
+    checkedSubTitle,
+    subTitle,
   } = blockInfo.props;
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -61,8 +61,8 @@ export const VideoPreview = ({
   return (
     <MiddlePreviewWrapper
       className={className}
-      checkedSubTitle={checkedEnglishTitle}
-      subTitle={englishTitle}
+      checkedSubTitle={checkedSubTitle}
+      subTitle={subTitle}
       subTitleDefault="VIDEO"
       mainTitle={title}
       mainTitleDefault="동영상"

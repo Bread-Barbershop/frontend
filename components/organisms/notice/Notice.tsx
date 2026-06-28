@@ -37,7 +37,7 @@ export const Notice = ({ blockInfo, id }: Props) => {
   const noticeListTriggerRef = useRef<HTMLDivElement>(null);
   const [editorResetKey, setEditorResetKey] = useState(0);
 
-  const { noticeList, title, checkedEnglishTitle, englishTitle } =
+  const { noticeList, title, checkedSubTitle, subTitle } =
     blockInfo.props;
 
   const handleUpdateBlock = (key: string, value: string | boolean) => {
@@ -152,15 +152,15 @@ export const Notice = ({ blockInfo, id }: Props) => {
         }}
         className="w-full py-1.5 text-center"
       />
-      {checkedEnglishTitle && (
+      {checkedSubTitle && (
         <TextField
           label="영문제목"
           inputProps={{
             placeholder: 'INFORMATION',
-            value: englishTitle === 'INFORMATION' ? '' : englishTitle,
+            value: subTitle === 'INFORMATION' ? '' : subTitle,
             onChange: e =>
               handleUpdateBlock(
-                'englishTitle',
+                'subTitle',
                 sanitizeEnglishTitleInput(e.target) || 'INFORMATION'
               ),
           }}
@@ -171,9 +171,9 @@ export const Notice = ({ blockInfo, id }: Props) => {
         <Label className="font-semibold">추가기능</Label>
         <Checkbox
           onChange={e =>
-            handleUpdateBlock('checkedEnglishTitle', e.target.checked)
+            handleUpdateBlock('checkedSubTitle', e.target.checked)
           }
-          checked={checkedEnglishTitle}
+          checked={checkedSubTitle}
         >
           <span className="text-[13px]">영문 제목 추가</span>
         </Checkbox>

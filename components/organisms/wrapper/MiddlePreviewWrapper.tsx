@@ -40,17 +40,17 @@ export const MiddlePreviewWrapper = ({
     >
       {!noTitle && (
         <PreviewTitle
-          isKoTitle={checkedMainTitle}
-          enTitle={
+          isMainTitle={checkedMainTitle}
+          subTitle={
             checkedSubTitle
-              ? subTitle && subTitle.length > 1
+              ? subTitle && subTitle.length >= 1
                 ? subTitle
                 : subTitleDefault
               : ''
           }
-          koTitle={
+          mainTitle={
             checkedMainTitle
-              ? mainTitle && mainTitle.length > 1
+              ? mainTitle && mainTitle.length >= 1
                 ? mainTitle
                 : mainTitleDefault
               : ''

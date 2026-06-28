@@ -46,8 +46,8 @@ function GalleryPreview({
   return (
     <MiddlePreviewWrapper
       className={cn(className, 'px-0')}
-      checkedSubTitle={blockInfo.props.isEnglishTitle}
-      subTitle={blockInfo.props.enTitle}
+      checkedSubTitle={blockInfo.props.isSubTitle}
+      subTitle={blockInfo.props.subTitle}
       subTitleDefault="GALLERY"
       mainTitle={blockInfo.props.title}
       mainTitleDefault="갤러리"

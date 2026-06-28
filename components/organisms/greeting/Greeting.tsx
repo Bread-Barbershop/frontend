@@ -19,14 +19,14 @@ interface Props {
 }
 
 const DEFAULT_GREETING_TITLE = '인사말';
-const DEFAULT_GREETING_ENGLISH_TITLE = 'INVITATION';
+const DEFAULT_GREETING_SUB_TITLE = 'INVITATION';
 
 function Greeting({ blockInfo, id }: Props) {
   const updateBlock = useEditorStore(state => state.updateBlock);
   const {
     title,
-    checkedEnglishTitle = true,
-    englishTitle = DEFAULT_GREETING_ENGLISH_TITLE,
+    checkedSubTitle = true,
+    subTitle = DEFAULT_GREETING_SUB_TITLE,
     messageJson,
   } = blockInfo.props;
   useEffect(() => {
@@ -36,27 +36,27 @@ function Greeting({ blockInfo, id }: Props) {
   }, [id, title, updateBlock]);
 
   useEffect(() => {
-    if (englishTitle === '') {
-      updateBlock(id, { englishTitle: DEFAULT_GREETING_ENGLISH_TITLE });
+    if (subTitle === '') {
+      updateBlock(id, { subTitle: DEFAULT_GREETING_SUB_TITLE });
     }
-  }, [englishTitle, id, updateBlock]);
+  }, [subTitle, id, updateBlock]);
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const nextTitle = e.target.value;
     updateBlock(id, { title: nextTitle || DEFAULT_GREETING_TITLE });
   };
 
-  const handleEnglishTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const nextEnglishTitle = sanitizeEnglishTitleInput(e.target);
+  const handleSubTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const nextSubTitle = sanitizeEnglishTitleInput(e.target);
     updateBlock(id, {
-      englishTitle: nextEnglishTitle || DEFAULT_GREETING_ENGLISH_TITLE,
+      subTitle: nextSubTitle || DEFAULT_GREETING_SUB_TITLE,
     });
   };
 
   const handleEnglishTitleCheckedChange = (
     e: ChangeEvent<HTMLInputElement>
   ) => {
-    updateBlock(id, { checkedEnglishTitle: e.target.checked });
+    updateBlock(id, { checkedSubTitle: e.target.checked });
   };
 
   const handleEditorChange = (json: JSONContent) => {
@@ -79,17 +79,17 @@ function Greeting({ blockInfo, id }: Props) {
         }}
         className="text-center w-full"
       />
-      {checkedEnglishTitle && (
+      {checkedSubTitle && (
         <TextField
           key={`english-title-${id}`}
           label="영문제목"
           inputProps={{
-            placeholder: DEFAULT_GREETING_ENGLISH_TITLE,
+            placeholder: DEFAULT_GREETING_SUB_TITLE,
             defaultValue:
-              englishTitle === DEFAULT_GREETING_ENGLISH_TITLE
+              subTitle === DEFAULT_GREETING_SUB_TITLE
                 ? ''
-                : englishTitle,
-            onChange: handleEnglishTitleChange,
+                : subTitle,
+            onChange: handleSubTitleChange,
           }}
           className="text-center w-full"
         />
@@ -109,7 +109,7 @@ function Greeting({ blockInfo, id }: Props) {
         <section className="flex flex-row gap-2 items-center w-full">
           <Label className="font-semibold">추가기능</Label>
           <Checkbox
-            checked={checkedEnglishTitle}
+            checked={checkedSubTitle}
             onChange={handleEnglishTitleCheckedChange}
           >
             <span className="text-[13px]">영문 제목 추가</span>

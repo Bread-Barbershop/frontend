@@ -44,13 +44,13 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
   const handleOnChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { title: e.target.value || '후원사' });
   };
-  const handleOnChangeIsEnglishTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { isEnglishTitle: e.target.checked });
+  const handleOnChangeIsSubTitle = (e: ChangeEvent<HTMLInputElement>) => {
+    updateBlock(id, { isSubTitle: e.target.checked });
   };
 
   const handleOnchangeEnglishTitle = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, {
-      englishTitle: sanitizeEnglishTitleInput(e.target) || 'OUR SPONSORS',
+      subTitle: sanitizeEnglishTitleInput(e.target) || 'OUR SPONSORS',
     });
   };
   return (
@@ -68,7 +68,7 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
           }}
         />
       </div>
-      {blockInfo.props.isEnglishTitle && (
+      {blockInfo.props.isSubTitle && (
         <div className="w-full">
           <TextField
             label="영문 제목"
@@ -76,9 +76,9 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
             inputProps={{
               placeholder: 'OUR SPONSORS',
               value:
-                blockInfo.props.englishTitle === 'OUR SPONSORS'
+                blockInfo.props.subTitle === 'OUR SPONSORS'
                   ? ''
-                  : blockInfo.props.englishTitle,
+                  : blockInfo.props.subTitle,
               onChange: handleOnchangeEnglishTitle,
             }}
           />
@@ -103,8 +103,8 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
         <Label className="font-semibold shrink-0 text-center">추가기능</Label>
 
         <Checkbox
-          onChange={handleOnChangeIsEnglishTitle}
-          checked={blockInfo.props.isEnglishTitle}
+          onChange={handleOnChangeIsSubTitle}
+          checked={blockInfo.props.isSubTitle}
         >
           <span className="text-[13px]">영문 제목 추가</span>
         </Checkbox>

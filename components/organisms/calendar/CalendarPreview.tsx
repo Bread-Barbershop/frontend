@@ -29,7 +29,7 @@ export function CalendarPreview({
 }: Props) {
   const {
     title,
-    englishTitle,
+    subTitle,
     date,
     time,
     showStringDate,
@@ -38,7 +38,7 @@ export function CalendarPreview({
     showDday,
   } = blockInfo.props;
   const defaultTitle = blockInfo.type === 'wedding' ? '예식 일시' : '행사일시';
-  const defaultEnglishTitle =
+  const defaultSubTitle =
     blockInfo.type === 'wedding' ? 'THE WEDDING CEREMONY' : 'Date & Time';
 
   const {
@@ -70,13 +70,13 @@ export function CalendarPreview({
     >
       {/* Title */}
       <PreviewTitle
-        isKoTitle={true}
-        enTitle={
-          blockInfo.props.isEnglishTitle
-            ? englishTitle || defaultEnglishTitle
+        isMainTitle={true}
+        subTitle={
+          blockInfo.props.isSubTitle
+            ? subTitle || defaultSubTitle
             : ''
         }
-        koTitle={title || defaultTitle}
+        mainTitle={title || defaultTitle}
         titleClassName={titleClassName}
       />
 
