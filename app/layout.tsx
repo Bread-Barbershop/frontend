@@ -1,6 +1,6 @@
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { Metadata } from 'next';
+import { Metadata, Viewport } from 'next';
 import { Inter, Noto_Sans_KR } from 'next/font/google';
 import localFont from 'next/font/local';
 import Script from 'next/script';
@@ -9,7 +9,6 @@ import { ReactNode } from 'react';
 import { ConfirmContainer } from '@/components/molecules/confirm/ConfirmContainer';
 import { ToastContainer } from '@/components/molecules/toast/ToastContainer';
 import ClarityInit from '@/features/monitoring/ClarityInit';
-import DesktopViewportGuard from '@/features/session/components/DesktopViewportGuard';
 
 import './styles/globals.css';
 
@@ -89,6 +88,11 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -102,7 +106,6 @@ export default function RootLayout({
     >
       <body className="antialiased font-pretendard" suppressHydrationWarning>
         <div id="app-root">{children}</div>
-        <DesktopViewportGuard />
         <Analytics />
         <SpeedInsights />
         <ClarityInit />
