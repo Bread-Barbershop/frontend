@@ -86,29 +86,32 @@ export const BackgroundImagePanel = () => {
       obj.set('visible', false);
     });
 
-    canvas.requestRenderAll();
-    const previewDataUrl = canvas.toDataURL({
-      format: 'webp',
-      quality: 0.8,
-      left: 0,
-      top: 0,
-      width: canvas.getWidth(),
-      height: canvas.getHeight(),
-      multiplier: getPreviewExportMultiplier(
-        canvas.getWidth(),
-        canvas.getHeight()
-      ),
-    });
+    let previewDataUrl: string;
+    try {
+      canvas.requestRenderAll();
+      previewDataUrl = canvas.toDataURL({
+        format: 'webp',
+        quality: 0.8,
+        left: 0,
+        top: 0,
+        width: canvas.getWidth(),
+        height: canvas.getHeight(),
+        multiplier: getPreviewExportMultiplier(
+          canvas.getWidth(),
+          canvas.getHeight()
+        ),
+      });
+    } finally {
+      objectsToHide.forEach((obj, index) => {
+        obj.set('visible', visibilitySnapshot[index]);
+      });
 
-    objectsToHide.forEach((obj, index) => {
-      obj.set('visible', visibilitySnapshot[index]);
-    });
+      if (activeObject && activeObject !== target) {
+        canvas.setActiveObject(activeObject);
+      }
 
-    if (activeObject && activeObject !== target) {
-      canvas.setActiveObject(activeObject);
+      canvas.requestRenderAll();
     }
-
-    canvas.requestRenderAll();
     setImageSrc(previewDataUrl);
   };
 

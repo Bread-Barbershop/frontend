@@ -10,7 +10,7 @@ interface RangeControlProps {
   disabled?: boolean;
   allowNegative?: boolean;
   onChange: (value: number) => void;
-  onCommit: (value: number) => void;
+  onCommit?: (value: number) => void;
   onDisplayValueChange: (value: string) => void;
 }
 
@@ -60,7 +60,7 @@ export const RangeControl = ({
         ? value
         : parsedValue;
 
-    onCommit(nextValue);
+    onCommit?.(nextValue);
   };
 
   return (
@@ -81,10 +81,13 @@ export const RangeControl = ({
             onChange(Number(event.target.value));
           }}
           onMouseUp={event => {
-            onCommit(Number(event.currentTarget.value));
+            onCommit?.(Number(event.currentTarget.value));
           }}
           onTouchEnd={event => {
-            onCommit(Number(event.currentTarget.value));
+            onCommit?.(Number(event.currentTarget.value));
+          }}
+          onKeyUp={event => {
+            onCommit?.(Number(event.currentTarget.value));
           }}
         />
       </div>
