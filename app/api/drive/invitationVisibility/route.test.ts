@@ -12,6 +12,7 @@ jest.mock('@/app/api/drive/_lib/ensureDataJsonFile', () => ({
 }));
 
 jest.mock('@/app/api/drive/_lib/ensureInvitationMetaFile', () => ({
+  loadInvitationMeta: jest.fn(),
   upsertInvitationMeta: jest.fn(),
 }));
 
@@ -25,7 +26,10 @@ jest.mock('@/app/api/drive/_lib/revokePublicPermissionWithRetry', () => ({
 
 import { POST } from '@/app/api/drive/invitationVisibility/route';
 import { ensureDataJsonFile } from '@/app/api/drive/_lib/ensureDataJsonFile';
-import { upsertInvitationMeta } from '@/app/api/drive/_lib/ensureInvitationMetaFile';
+import {
+  loadInvitationMeta,
+  upsertInvitationMeta,
+} from '@/app/api/drive/_lib/ensureInvitationMetaFile';
 import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissionWithRetry';
 import { revokePublicPermissionWithRetry } from '@/app/api/drive/_lib/revokePublicPermissionWithRetry';
 
@@ -89,6 +93,7 @@ describe('invitationVisibility route', () => {
     (upsertInvitationMeta as jest.Mock).mockResolvedValue({
       metaFileId: 'meta-file-id',
     });
+    (loadInvitationMeta as jest.Mock).mockResolvedValue(null);
   });
 
   afterEach(() => {
@@ -153,5 +158,45 @@ describe('invitationVisibility route', () => {
       dataJsonFileId: 'data-json-file-id',
     });
     expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it('preserves an existing short guest URL when publishing', async () => {
+    (loadInvitationMeta as jest.Mock).mockResolvedValue({
+      metaFileId: 'meta-file-id',
+      payload: {
+        version: 1,
+        published: false,
+        guestUrl: '/i/aB7kQ2x',
+        dataJsonFileId: 'data-json-file-id',
+        kakaoShare: null,
+        updatedAt: '2026-06-10T10:00:00.000Z',
+      },
+    });
+    (publishPermissionWithRetry as jest.Mock).mockResolvedValue({
+      ok: true,
+      attempt: 1,
+    });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: jest.fn().mockResolvedValue(JSON.stringify(validGuestPayload)),
+    });
+
+    const res = await POST(createRequest(true));
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json).toEqual({
+      ok: true,
+      published: true,
+      ready: true,
+      guestUrl: '/i/aB7kQ2x',
+      dataJsonFileId: 'data-json-file-id',
+    });
+    expect(upsertInvitationMeta).toHaveBeenCalledWith('invitation-folder-id', {
+      published: true,
+      guestUrl: '/i/aB7kQ2x',
+      dataJsonFileId: 'data-json-file-id',
+    });
   });
 });

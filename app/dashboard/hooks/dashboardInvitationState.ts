@@ -254,7 +254,8 @@ export function resolvePendingTransition({
     ok: isComplete,
     published: patch.published,
     ready: pendingStartsPublic ? isGuestReady : undefined,
-    guestUrl: readinessPayload?.guestUrl ?? patch.guestUrl ?? pending.guestUrl,
+    // readiness 응답은 Drive 파일 기준 URL일 수 있으므로 이미 확보한 공유 URL을 우선 보존한다.
+    guestUrl: patch.guestUrl ?? pending.guestUrl ?? readinessPayload?.guestUrl,
     dataJsonFileId:
       readinessPayload?.dataJsonFileId ??
       patch.dataJsonFileId ??
@@ -299,7 +300,8 @@ export function mergeGuestReadinessResult(
   return {
     ...current,
     ...next,
-    guestUrl: next.guestUrl ?? current.guestUrl,
+    // polling 응답의 /guest/{id}가 기존 /i/{code} 공유 URL을 덮어쓰지 않게 한다.
+    guestUrl: current.guestUrl ?? next.guestUrl,
     dataJsonFileId: next.dataJsonFileId ?? dataJsonFileId,
   };
 }

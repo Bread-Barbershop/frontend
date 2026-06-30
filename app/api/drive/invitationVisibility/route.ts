@@ -4,7 +4,10 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 
 import { ensureDataJsonFile } from '@/app/api/drive/_lib/ensureDataJsonFile';
-import { upsertInvitationMeta } from '@/app/api/drive/_lib/ensureInvitationMetaFile';
+import {
+  loadInvitationMeta,
+  upsertInvitationMeta,
+} from '@/app/api/drive/_lib/ensureInvitationMetaFile';
 import {
   guestPath,
   waitUntilGuestReady,
@@ -25,6 +28,21 @@ function revalidateGuestCaches(dataJsonFileId: string) {
   revalidatePath(guestPath(dataJsonFileId));
 }
 
+async function resolveVisibilityGuestUrl(
+  invitationFolderId: string,
+  dataJsonFileId: string
+) {
+  try {
+    const meta = await loadInvitationMeta(invitationFolderId);
+    const savedGuestUrl = meta?.payload.guestUrl?.trim();
+
+    // shareUrl 저장 단계에서 만든 /i/{code}가 있으면 공개 상태 변경에서도 유지한다.
+    return savedGuestUrl || guestPath(dataJsonFileId);
+  } catch {
+    return guestPath(dataJsonFileId);
+  }
+}
+
 export async function POST(req: Request) {
   const { invitationFolderId, visible } = (await req.json()) as Body;
 
@@ -43,7 +61,10 @@ export async function POST(req: Request) {
   }
 
   const { dataJsonFileId } = await ensureDataJsonFile(invitationFolderId);
-  const guestUrl = guestPath(dataJsonFileId);
+  const guestUrl = await resolveVisibilityGuestUrl(
+    invitationFolderId,
+    dataJsonFileId
+  );
 
   if (!visible) {
     const revokeResult =
