@@ -6,12 +6,18 @@ jest.mock('@/app/api/drive/_lib/googleFetch', () => ({
   googleFetch: jest.fn(),
 }));
 
+jest.mock('@/app/api/short-url/_lib/shortUrlStore', () => ({
+  deleteShortCodeMapping: jest.fn(),
+}));
+
 import { DELETE } from '@/app/api/drive/deleteInvitation/route';
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
+import { deleteShortCodeMapping } from '@/app/api/short-url/_lib/shortUrlStore';
 
 describe('deleteInvitation Route Handler 테스트', () => {
   beforeEach(() => {
     jest.resetAllMocks();
+    (deleteShortCodeMapping as jest.Mock).mockResolvedValue(true);
   });
 
   it('folderId가 없으면 400을 반환한다', async () => {
@@ -30,6 +36,7 @@ describe('deleteInvitation Route Handler 테스트', () => {
       message: 'folderId가 필요합니다.',
     });
     expect(googleFetch).not.toHaveBeenCalled();
+    expect(deleteShortCodeMapping).not.toHaveBeenCalled();
   });
 
   it('삭제가 성공하면 success true를 반환한다', async () => {
@@ -54,6 +61,31 @@ describe('deleteInvitation Route Handler 테스트', () => {
       'https://www.googleapis.com/drive/v3/files/folder-123',
       { method: 'DELETE' }
     );
+    expect(deleteShortCodeMapping).toHaveBeenCalledWith('folder-123');
+  });
+
+  it('Redis 매핑 정리가 실패해도 Drive 삭제 성공 응답을 유지한다', async () => {
+    (googleFetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      status: 204,
+      json: jest.fn(),
+    });
+    (deleteShortCodeMapping as jest.Mock).mockRejectedValue(
+      new Error('redis failed')
+    );
+
+    const req = new Request('http://localhost/api/drive/deleteInvitation', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ folderId: 'folder-redis-fail' }),
+    });
+
+    const res = await DELETE(req);
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json).toEqual({ success: true });
+    expect(deleteShortCodeMapping).toHaveBeenCalledWith('folder-redis-fail');
   });
 
   it('Drive 삭제가 실패하면 에러 응답을 반환한다', async () => {
@@ -80,6 +112,7 @@ describe('deleteInvitation Route Handler 테스트', () => {
       message: '폴더 삭제에 실패했습니다.',
       error: { error: { message: 'forbidden' } },
     });
+    expect(deleteShortCodeMapping).not.toHaveBeenCalled();
   });
 
   it('예외가 발생하면 500을 반환한다', async () => {

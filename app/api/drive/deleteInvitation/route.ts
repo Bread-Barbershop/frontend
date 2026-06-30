@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
+import { deleteShortCodeMapping } from '@/app/api/short-url/_lib/shortUrlStore';
+
 import { googleFetch } from '../_lib/googleFetch';
 
 /**
@@ -34,6 +36,13 @@ export async function DELETE(req: Request) {
         },
         { status: res.status }
       );
+    }
+
+    try {
+      // Drive 삭제가 성공한 뒤 짧은 URL 매핑도 정리한다. Redis 실패는 삭제 성공을 막지 않는다.
+      await deleteShortCodeMapping(folderId);
+    } catch (error) {
+      console.error('Short URL mapping delete failed:', error);
     }
 
     return NextResponse.json({ success: true });

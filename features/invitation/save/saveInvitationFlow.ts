@@ -133,6 +133,7 @@ type CommitResult = {
   thumbnailSaveFailed: boolean;
   metaSaveFailed: boolean;
   thumbnailFileId?: string;
+  guestUrl: string;
 };
 
 type VisibilityResponsePayload = {
@@ -144,6 +145,22 @@ type VisibilityResponsePayload = {
   error?: string;
   status?: number;
 };
+
+type ShareUrlSaveResponsePayload = {
+  ok?: boolean;
+  data?: {
+    invitationUrl?: string;
+  } | null;
+  guestUrl?: string | null;
+};
+
+function toClientGuestUrl(url: string) {
+  if (url.startsWith('http')) return url;
+  if (typeof window === 'undefined') return url;
+
+  const path = url.startsWith('/') ? url : `/${url}`;
+  return `${window.location.origin}${path}`;
+}
 
 type InitialVisibilityResult = SaveInvitationFlowResult['visibility'];
 
@@ -353,6 +370,7 @@ async function commit(params: {
   );
 
   const invitationUrl = `${window.location.origin}/guest/${prep.dataJsonFileId}`;
+  let finalGuestUrl = invitationUrl;
 
   // 공유 URL 메타데이터가 비어 있으면 기본 문구로 보정한다.
   const normalizedShareUrl: ShareUrlState = {
@@ -569,6 +587,16 @@ async function commit(params: {
     if (!shareRes.ok) {
       throw new Error(`shareUrl save failed: ${shareRes.status}`);
     }
+    const sharePayload = (await shareRes
+      .json()
+      .catch(() => null)) as ShareUrlSaveResponsePayload | null;
+
+    // 서버가 짧은 URL을 발급한 경우 저장 결과와 대시보드 handoff에도 같은 URL을 사용한다.
+    finalGuestUrl = toClientGuestUrl(
+      sharePayload?.guestUrl ??
+        sharePayload?.data?.invitationUrl ??
+        finalGuestUrl
+    );
   } catch (error) {
     metaSaveFailed = true;
     console.error('Share data save failed:', error);
@@ -579,6 +607,7 @@ async function commit(params: {
     thumbnailSaveFailed,
     metaSaveFailed,
     thumbnailFileId: finalMainPoster.thumbnailFileId,
+    guestUrl: finalGuestUrl,
   };
 }
 
@@ -761,10 +790,7 @@ export async function saveInvitationFlow(
   return {
     success: totalFailed === 0,
     invitationUuid: prep.invitationUuid,
-    guestUrl:
-      typeof window !== 'undefined'
-        ? `${window.location.origin}/guest/${prep.dataJsonFileId}`
-        : `/guest/${prep.dataJsonFileId}`,
+    guestUrl: commitResult.guestUrl,
     results: {
       images: uploadResult.imagesStep.final,
       audio: uploadResult.audioStep.final,

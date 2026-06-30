@@ -46,6 +46,7 @@
     "@uiw/react-color-shade-slider": "^2.9.5",
     "@uiw/react-color-swatch": "^2.10.1",
     "@uiw/react-color-wheel": "^2.9.5",
+    "@upstash/redis": "^1.38.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "class-variance-authority": "^0.7.1",
