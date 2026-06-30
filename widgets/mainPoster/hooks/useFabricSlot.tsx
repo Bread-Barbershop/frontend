@@ -50,7 +50,7 @@ const ICON_PADDING = 8;
 const SLOT_IMAGE_POSITION_MIN = -50;
 const SLOT_IMAGE_POSITION_MAX = 50;
 const SLOT_IMAGE_SCALE_MIN = 100;
-const SLOT_IMAGE_SCALE_MAX = 300;
+const SLOT_IMAGE_SCALE_MAX = 400;
 
 const clampSlotImageOffset = (value: number) =>
   Math.min(SLOT_IMAGE_POSITION_MAX, Math.max(SLOT_IMAGE_POSITION_MIN, value));

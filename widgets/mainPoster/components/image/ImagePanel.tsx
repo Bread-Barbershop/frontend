@@ -195,7 +195,7 @@ const DefaultImagePanel = () => {
       <RangeControl
         label="배율"
         min={0}
-        max={200}
+        max={300}
         step={5}
         value={DISABLED_SCALE_VALUE}
         displayValue={String(DISABLED_SCALE_VALUE)}

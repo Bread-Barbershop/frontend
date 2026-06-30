@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { FabricImage } from 'fabric';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
@@ -17,9 +17,9 @@ import { ImagePreview } from '../image/ImagePreview';
 const POSITION_MIN = -50;
 const POSITION_MAX = 50;
 const SCALE_MIN = 100;
-const SCALE_MAX = 300;
+const SCALE_MAX = 400;
 const SCALE_OFFSET_MIN = 0;
-const SCALE_OFFSET_MAX = 300;
+const SCALE_OFFSET_MAX = SCALE_MAX - SCALE_MIN;
 
 const clampPosition = (value: number) =>
   Math.min(POSITION_MAX, Math.max(POSITION_MIN, value));
