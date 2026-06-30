@@ -47,7 +47,6 @@ type ControlDefaultsTarget = ControlStyleTarget & {
   snapThreshold?: number;
 };
 
-
 type SlotFrameControlTarget = FabricObjectLike & {
   slotFrameWidth?: number;
   slotFrameHeight?: number;
@@ -62,13 +61,12 @@ const hasSlotFrameBounds = (
 ): target is SlotFrameControlTarget => {
   return Boolean(
     target?.isType?.('image') &&
-      typeof (target as SlotFrameControlTarget).slotFrameWidth === 'number' &&
-      typeof (target as SlotFrameControlTarget).slotFrameHeight === 'number' &&
-      typeof (target as SlotFrameControlTarget).slotFrameLeft === 'number' &&
-      typeof (target as SlotFrameControlTarget).slotFrameTop === 'number'
+    typeof (target as SlotFrameControlTarget).slotFrameWidth === 'number' &&
+    typeof (target as SlotFrameControlTarget).slotFrameHeight === 'number' &&
+    typeof (target as SlotFrameControlTarget).slotFrameLeft === 'number' &&
+    typeof (target as SlotFrameControlTarget).slotFrameTop === 'number'
   );
 };
-
 
 const defaultPositionHandler: NonNullable<Control['positionHandler']> = (
   dim,
@@ -106,14 +104,24 @@ const invokePositionHandler = (
     );
   }
 
-  return defaultPositionHandler(dim, finalMatrix, fabricObject as never, currentControl);
+  return defaultPositionHandler(
+    dim,
+    finalMatrix,
+    fabricObject as never,
+    currentControl
+  );
 };
 const createFrameAwarePositionHandler = (
   fallback?: Control['positionHandler']
 ): NonNullable<Control['positionHandler']> => {
   return (dim, finalMatrix, fabricObject, currentControl) => {
     if (!fabricObject) {
-      return defaultPositionHandler(dim, finalMatrix, fabricObject as never, currentControl);
+      return defaultPositionHandler(
+        dim,
+        finalMatrix,
+        fabricObject as never,
+        currentControl
+      );
     }
 
     if (!hasSlotFrameBounds(fabricObject)) {
@@ -303,6 +311,9 @@ const createObjectControls = (img: HTMLImageElement) => {
       ctx.restore();
     },
   });
+  controls.center.positionHandler = createFrameAwarePositionHandler(
+    controls.center.positionHandler
+  );
 
   CORNERS_CONFIG.forEach(corner => {
     controls[corner.id] = new Control({
@@ -326,8 +337,6 @@ const createObjectControls = (img: HTMLImageElement) => {
       actionName: action,
       render: renderSquareControl,
     });
-
-    
   });
 
   return controls;
