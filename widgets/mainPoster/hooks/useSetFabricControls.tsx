@@ -1,7 +1,14 @@
-import { FabricObject, Textbox, Control, controlsUtils, util } from 'fabric';
+import {
+  FabricObject,
+  Textbox,
+  Control,
+  controlsUtils,
+  util,
+} from 'fabric';
 import { useEffect } from 'react';
 
 import { CORNERS_CONFIG, MOVE_ICON, SIDES_CONFIG } from '../constants/fabric';
+import { FabricImageWithLock } from '../types/fabric';
 import {
   createFabricControlImage,
   getRotatedCursorUrl,
@@ -36,6 +43,24 @@ type ControlDefaultsTarget = ControlStyleTarget & {
   snapAngle?: number;
   snapThreshold?: number;
 };
+
+type SlotFrameSelectableObject = FabricObject & {
+  borderDashArray?: number[] | null;
+  padding?: number;
+  slotFrameWidth?: number;
+  slotFrameHeight?: number;
+  slotFrameLeft?: number;
+  slotFrameTop?: number;
+  slotFrameAngle?: number;
+};
+
+type DrawBordersMethod = (
+  ctx: CanvasRenderingContext2D,
+  options?: unknown,
+  styleOverride?: unknown
+) => void;
+
+let hasPatchedDrawBorders = false;
 
 const isTextboxObject = (target?: FabricObjectLike | null) => {
   if (!target) return false;
@@ -154,7 +179,6 @@ const createRotateControl = (corner: (typeof CORNERS_CONFIG)[number]) => {
       return getRotatedCursorUrl(totalAngle);
     },
     actionName: 'rotate',
-
     render: () => {},
   });
 };
@@ -162,7 +186,6 @@ const createRotateControl = (corner: (typeof CORNERS_CONFIG)[number]) => {
 const createObjectControls = (img: HTMLImageElement) => {
   const controls: Record<string, Control> = {};
 
-  // 중앙 이동 인디케이터
   controls.center = new Control({
     x: 0,
     y: 0,
@@ -226,7 +249,6 @@ const createTextboxControls = () => {
     });
   });
 
-  // Textbox 회전 컨트롤 유지
   CORNERS_CONFIG.forEach(corner => {
     controls[`${corner.id}_rotate`] = createRotateControl(corner);
   });
@@ -251,12 +273,10 @@ export const applyTextboxControls = (textbox: Textbox) => {
     tr: false,
     bl: false,
     br: false,
-
     ml: true,
     mr: true,
     mt: true,
     mb: true,
-
     tl_rotate: true,
     tr_rotate: true,
     bl_rotate: true,
@@ -265,6 +285,91 @@ export const applyTextboxControls = (textbox: Textbox) => {
 
   textbox.setCoords();
   textbox.canvas?.requestRenderAll();
+};
+
+const hasSlotFrameSelectionBounds = (
+  target: FabricObject
+): target is SlotFrameSelectableObject & FabricImageWithLock => {
+  return (
+    target.isType('image') &&
+    typeof (target as SlotFrameSelectableObject).slotFrameWidth === 'number' &&
+    typeof (target as SlotFrameSelectableObject).slotFrameHeight === 'number' &&
+    typeof (target as SlotFrameSelectableObject).slotFrameLeft === 'number' &&
+    typeof (target as SlotFrameSelectableObject).slotFrameTop === 'number'
+  );
+};
+
+const getSlotFrameSelectionRect = (
+  target: SlotFrameSelectableObject,
+  zoom: number
+) => {
+  const frameWidth = target.slotFrameWidth;
+  const frameHeight = target.slotFrameHeight;
+  const frameLeft = target.slotFrameLeft;
+  const frameTop = target.slotFrameTop;
+  const frameAngle = target.slotFrameAngle ?? target.angle ?? 0;
+  const center = target.getCenterPoint();
+
+  if (
+    !frameWidth ||
+    !frameHeight ||
+    frameLeft === undefined ||
+    frameTop === undefined
+  ) {
+    return null;
+  }
+
+  const deltaX = frameLeft - center.x;
+  const deltaY = frameTop - center.y;
+  const radians = util.degreesToRadians(frameAngle);
+  const cos = Math.cos(radians);
+  const sin = Math.sin(radians);
+  const localCenterX = (deltaX * cos + deltaY * sin) * zoom;
+  const localCenterY = (-deltaX * sin + deltaY * cos) * zoom;
+  const padding = target.padding ?? 0;
+
+  return {
+    x: localCenterX - (frameWidth * zoom) / 2 - padding,
+    y: localCenterY - (frameHeight * zoom) / 2 - padding,
+    width: frameWidth * zoom + padding * 2,
+    height: frameHeight * zoom + padding * 2,
+  };
+};
+
+const patchDrawBordersForSlotFrames = () => {
+  if (hasPatchedDrawBorders) {
+    return;
+  }
+
+  const originalDrawBorders = FabricObject.prototype.drawBorders as DrawBordersMethod;
+
+  FabricObject.prototype.drawBorders = function (
+    this: FabricObject,
+    ctx: CanvasRenderingContext2D,
+    options?: unknown,
+    styleOverride?: unknown
+  ) {
+    if (!hasSlotFrameSelectionBounds(this) || !this.canvas) {
+      originalDrawBorders.call(this, ctx, options, styleOverride);
+      return;
+    }
+
+    const zoom = this.canvas.getZoom();
+    const rect = getSlotFrameSelectionRect(this, zoom);
+
+    if (!rect) {
+      originalDrawBorders.call(this, ctx, options, styleOverride);
+      return;
+    }
+
+    ctx.save();
+    ctx.strokeStyle = this.borderColor || '#1F72EF';
+    ctx.setLineDash(this.borderDashArray?.length ? this.borderDashArray : []);
+    ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+    ctx.restore();
+  } as DrawBordersMethod;
+
+  hasPatchedDrawBorders = true;
 };
 
 export const useSetFabricControls = () => {
@@ -277,21 +382,11 @@ export const useSetFabricControls = () => {
     const defaultControls =
       FabricObject.ownDefaults as unknown as ControlDefaultsTarget;
 
-    /**
-     * 회전 스냅 기본값
-     */
     defaultControls.snapAngle = 90;
     defaultControls.snapThreshold = 2;
-
-    /**
-     * 일반 객체 controls
-     */
     defaultControls.controls = objectControls;
     applyControlStyle(defaultControls);
 
-    /**
-     * Textbox 전용 controls
-     */
     const textboxClass = Textbox as unknown as {
       ownDefaults?: ControlDefaultsTarget;
       prototype: Textbox & ControlDefaultsTarget;
@@ -301,6 +396,8 @@ export const useSetFabricControls = () => {
       textboxClass.ownDefaults.controls = textboxControls;
       applyControlStyle(textboxClass.ownDefaults);
     }
+
+    patchDrawBordersForSlotFrames();
 
     textboxClass.prototype.controls = textboxControls;
     applyControlStyle(textboxClass.prototype);
