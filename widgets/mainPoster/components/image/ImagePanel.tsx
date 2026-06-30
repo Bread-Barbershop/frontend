@@ -9,6 +9,7 @@ import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrap
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import { getImagePanelMode } from '../../utils/imageSlot';
+import { getPreviewExportMultiplier } from '../../utils/previewExport';
 import { BackgroundImagePanel } from '../background/BackgroundImagePanel';
 
 import { AspectRatioSelector } from './AspectRatioSelector';
@@ -110,13 +111,10 @@ const DefaultImagePanel = () => {
       return;
     }
 
-    const MAX_SIZE = 335;
-    const maxDimension = Math.max(
+    const multiplier = getPreviewExportMultiplier(
       previewTarget.getScaledWidth(),
-      previewTarget.getScaledHeight(),
-      1
+      previewTarget.getScaledHeight()
     );
-    const multiplier = Math.min(1, MAX_SIZE / maxDimension);
     const newDataUrl = previewTarget.toDataURL({
       format: 'webp',
       quality: 0.8,

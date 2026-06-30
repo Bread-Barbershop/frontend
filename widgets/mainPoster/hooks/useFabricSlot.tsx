@@ -11,6 +11,7 @@ import {
   isImageReadyForCanvas,
 } from '../utils/fabricUtils';
 import { ImageSlotMeta, SlotTargetObject } from '../utils/imageSlot';
+import { getPreviewExportMultiplier } from '../utils/previewExport';
 
 interface Props {
   canvas: Canvas | null;
@@ -870,7 +871,7 @@ export const useFabricSlot = ({
       top: bounds.top,
       width: bounds.width,
       height: bounds.height,
-      multiplier: 1,
+      multiplier: getPreviewExportMultiplier(bounds.width, bounds.height),
     });
 
     objectsToHide.forEach((obj, index) => {

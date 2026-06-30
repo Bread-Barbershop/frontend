@@ -9,6 +9,7 @@ import { RangeControl } from '@/components/molecules/range-control/RangeControl'
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
+import { getPreviewExportMultiplier } from '@/widgets/mainPoster/utils/previewExport';
 
 import { AspectRatioSelector } from '../image/AspectRatioSelector';
 import { ImagePreview } from '../image/ImagePreview';
@@ -93,7 +94,10 @@ export const BackgroundImagePanel = () => {
       top: 0,
       width: canvas.getWidth(),
       height: canvas.getHeight(),
-      multiplier: 1,
+      multiplier: getPreviewExportMultiplier(
+        canvas.getWidth(),
+        canvas.getHeight()
+      ),
     });
 
     objectsToHide.forEach((obj, index) => {
