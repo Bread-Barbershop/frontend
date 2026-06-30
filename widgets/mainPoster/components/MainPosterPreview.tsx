@@ -45,6 +45,8 @@ export const MainPosterPreview = () => {
   const isInitialLoadDoneRef = useRef(false);
   const slotInputRef = useRef<HTMLInputElement>(null);
   const pendingSlotRef = useRef<SlotTargetObject | null>(null);
+  const suppressSelectionClearedRef = useRef(false);
+  const suppressOutsideClickRef = useRef(false);
   const [isCanvasLoading, setIsCanvasLoading] = useState(false);
 
   const { activeTab, selectedId, selectedBlock, setActiveTab, setIsEdit } =
@@ -79,6 +81,8 @@ export const MainPosterPreview = () => {
   }, []);
 
   const openSlotFilePicker = (target: SlotTargetObject) => {
+    suppressSelectionClearedRef.current = true;
+    suppressOutsideClickRef.current = true;
     pendingSlotRef.current = target;
     slotInputRef.current?.click();
   };
@@ -174,14 +178,6 @@ export const MainPosterPreview = () => {
         return;
       }
 
-      // 배경 레이어인 경우 배경 탭 유지
-      if (activeObj.get('id') === 'background-layer') {
-        if (!fabricCanvas.isDrawingMode) {
-          setActiveTab('image');
-        }
-        return;
-      }
-
       // 탭 전환 등의 기존 로직 수행
       const isActiveText =
         activeObj instanceof Textbox || activeObj instanceof IText;
@@ -212,15 +208,26 @@ export const MainPosterPreview = () => {
       }
     };
 
-    fabricCanvas.on('selection:created', handleSelection);
-    fabricCanvas.on('selection:updated', handleSelection);
-    fabricCanvas.on('selection:cleared', () => {
+    const handleSelectionCleared = () => {
+      if (suppressSelectionClearedRef.current) {
+        suppressSelectionClearedRef.current = false;
+        suppressOutsideClickRef.current = false;
+        return;
+      }
+
       if (!fabricCanvas.isDrawingMode) {
         setActiveTab('background');
       }
-    });
+    };
+
+    fabricCanvas.on('selection:created', handleSelection);
+    fabricCanvas.on('selection:updated', handleSelection);
+    fabricCanvas.on('selection:cleared', handleSelectionCleared);
 
     return () => {
+      fabricCanvas.off('selection:created', handleSelection);
+      fabricCanvas.off('selection:updated', handleSelection);
+      fabricCanvas.off('selection:cleared', handleSelectionCleared);
       fabricCanvas.dispose();
     };
   }, [isAdmin, setCanvas, setActiveTab]);
@@ -319,7 +326,7 @@ export const MainPosterPreview = () => {
             console.log(`[Fabric] 잠긴 객체 투과 -> ${getType(obj)} 선택`);
 
             fabricCanvas.setActiveObject(obj);
-            target = obj; // 타겟 교체
+            target = obj; // ?��?교체
             break;
           }
         }
@@ -410,6 +417,10 @@ export const MainPosterPreview = () => {
 
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
+      if (suppressOutsideClickRef.current) {
+        suppressOutsideClickRef.current = false;
+        return;
+      }
 
       if (
         target.classList.contains('upper-canvas') ||
@@ -436,6 +447,13 @@ export const MainPosterPreview = () => {
         className="hidden"
         onChange={async event => {
           const file = event.target.files?.[0];
+          if (!event.target.files?.length) {
+            pendingSlotRef.current = null;
+            suppressSelectionClearedRef.current = false;
+            suppressOutsideClickRef.current = false;
+            return;
+          }
+
           const slotTarget = pendingSlotRef.current;
           event.target.value = '';
 
@@ -447,8 +465,23 @@ export const MainPosterPreview = () => {
             if (typeof base64 !== 'string') return;
 
             const compressed = await compressImage(base64);
-            await replaceSlotImage(slotTarget, compressed);
-            pendingSlotRef.current = null;
+            suppressSelectionClearedRef.current = true;
+
+            try {
+              const replacedImage = await replaceSlotImage(
+                slotTarget,
+                compressed
+              );
+              if (replacedImage) {
+                setActiveTab('image');
+              } else {
+                suppressSelectionClearedRef.current = false;
+                suppressOutsideClickRef.current = false;
+              }
+            } finally {
+              pendingSlotRef.current = null;
+              suppressOutsideClickRef.current = false;
+            }
           };
           reader.readAsDataURL(file);
         }}

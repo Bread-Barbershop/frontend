@@ -17,7 +17,7 @@ interface Props {
 const BACKGROUND_POSITION_MIN = -50;
 const BACKGROUND_POSITION_MAX = 50;
 const BACKGROUND_SCALE_MIN = 100;
-const BACKGROUND_SCALE_MAX = 300;
+const BACKGROUND_SCALE_MAX = 400;
 
 const clampBackgroundPosition = (value: number) =>
   Math.min(BACKGROUND_POSITION_MAX, Math.max(BACKGROUND_POSITION_MIN, value));

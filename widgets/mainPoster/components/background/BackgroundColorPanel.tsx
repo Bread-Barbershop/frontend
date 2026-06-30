@@ -2,9 +2,12 @@ import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrap
 
 import { BackgroundColor } from './BackgroundColor';
 
-export const BackgroundPanel = () => {
+export const BackgroundColorPanel = () => {
   return (
-    <LeftEditorWrapper ariaLabel="배경색 편집" className="pb-0">
+    <LeftEditorWrapper
+      ariaLabel="배경색 편집"
+      className="relative z-20 overflow-visible pb-0"
+    >
       <div className="flex w-full items-center justify-center">
         <BackgroundColor />
       </div>

@@ -11,6 +11,7 @@ import {
   isImageReadyForCanvas,
 } from '../utils/fabricUtils';
 import { ImageSlotMeta, SlotTargetObject } from '../utils/imageSlot';
+import { getPreviewExportMultiplier } from '../utils/previewExport';
 
 interface Props {
   canvas: Canvas | null;
@@ -30,6 +31,9 @@ type SlotPlaceholderRect = SlotRect & {
 
 type SlotImageBehaviorObject = FabricImageWithLock & {
   __slotImageMovingHandler?: () => void;
+  __slotImageModifiedHandler?: () => void;
+  __slotDragLastFrameLeft?: number;
+  __slotDragLastFrameTop?: number;
 };
 
 type SlotFrameState = {
@@ -49,7 +53,7 @@ const ICON_PADDING = 8;
 const SLOT_IMAGE_POSITION_MIN = -50;
 const SLOT_IMAGE_POSITION_MAX = 50;
 const SLOT_IMAGE_SCALE_MIN = 100;
-const SLOT_IMAGE_SCALE_MAX = 300;
+const SLOT_IMAGE_SCALE_MAX = 400;
 
 const clampSlotImageOffset = (value: number) =>
   Math.min(SLOT_IMAGE_POSITION_MAX, Math.max(SLOT_IMAGE_POSITION_MIN, value));
@@ -112,6 +116,22 @@ const ensureSlotIconImage = (useSmallIcon: boolean) => {
   return slotUploadIconImage;
 };
 
+const preloadSlotIconImages = (onReady?: () => void) => {
+  const largeIcon = ensureSlotIconImage(false);
+  const smallIcon = ensureSlotIconImage(true);
+  const icons = [largeIcon, smallIcon].filter(
+    (icon): icon is HTMLImageElement => Boolean(icon)
+  );
+
+  icons.forEach(icon => {
+    if (isImageReadyForCanvas(icon)) {
+      return;
+    }
+
+    icon.addEventListener('load', () => onReady?.(), { once: true });
+  });
+};
+
 const getSlotIconSize = (rect: Rect, useSmallIcon: boolean) => {
   const width = rect.width || 0;
   const height = rect.height || 0;
@@ -137,7 +157,9 @@ const renderSlotPlaceholderIcon = (
   }
 
   if (!isImageReadyForCanvas(iconImage)) {
-    iconImage.onload = () => rect.canvas?.requestRenderAll();
+    iconImage.addEventListener('load', () => rect.canvas?.requestRenderAll(), {
+      once: true,
+    });
     return;
   }
 
@@ -369,16 +391,33 @@ const getLegacySlotTransform = (image: FabricImage, frame: SlotFrameState) => {
   };
 };
 
+const applySlotFrameControlVisibility = (image: FabricImageWithLock) => {
+  image.setControlsVisibility({
+    tl: false,
+    tr: false,
+    bl: false,
+    br: false,
+    mt: false,
+    mb: false,
+    ml: false,
+    mr: false,
+    mtr: false,
+    tl_rotate: true,
+    tr_rotate: true,
+    bl_rotate: true,
+    br_rotate: true,
+  });
+};
 const getSlotInteractionState = (image: FabricImageWithLock) => {
-  if (image.slotTransformLocked === false) {
+  if (!image.isLocked) {
     return {
       lockMovementX: false,
       lockMovementY: false,
-      lockScalingX: true,
-      lockScalingY: true,
-      lockRotation: true,
-      hasControls: false,
-      editable: false,
+      lockScalingX: false,
+      lockScalingY: false,
+      lockRotation: false,
+      hasControls: true,
+      editable: true,
     };
   }
 
@@ -469,56 +508,92 @@ const applySlotImageTransform = (
     slotImageOffsetX: offsetX,
     slotImageOffsetY: offsetY,
     slotZoomScale: zoomScale,
-    slotTransformLocked: slotImage.slotTransformLocked ?? true,
     ...getSlotInteractionState(slotImage),
   });
 
   image.clipPath = createSlotClipPath(frame);
+  applySlotFrameControlVisibility(slotImage);
   image.setCoords();
 
   return true;
 };
-
 const attachSlotImageBehavior = (image: FabricImage) => {
   const slotImage = image as SlotImageBehaviorObject;
 
-  if (slotImage.__slotImageMovingHandler) {
+  if (
+    slotImage.__slotImageMovingHandler ||
+    slotImage.__slotImageModifiedHandler
+  ) {
     return;
   }
 
   slotImage.__slotImageMovingHandler = () => {
-    if (slotImage.slotTransformLocked !== false) {
+    if (slotImage.isLocked) {
       return;
     }
-
     const frame = getSlotFrameState(slotImage);
+    const center = slotImage.getCenterPoint();
+    const currentFrameLeft = frame.left;
+    const currentFrameTop = frame.top;
+    const lastFrameLeft = slotImage.__slotDragLastFrameLeft ?? currentFrameLeft;
+    const lastFrameTop = slotImage.__slotDragLastFrameTop ?? currentFrameTop;
     const worldOffset = getSlotWorldOffset(
       frame,
       clampSlotImageOffset(slotImage.slotImageOffsetX ?? 0),
       clampSlotImageOffset(slotImage.slotImageOffsetY ?? 0)
     );
-    const center = slotImage.getCenterPoint();
+    const expectedImageLeft = currentFrameLeft + worldOffset.x;
+    const expectedImageTop = currentFrameTop + worldOffset.y;
+    const deltaX = center.x - expectedImageLeft;
+    const deltaY = center.y - expectedImageTop;
+    const nextFrameLeft = lastFrameLeft + deltaX;
+    const nextFrameTop = lastFrameTop + deltaY;
+    applySlotImageTransform(slotImage, {
+      left: nextFrameLeft,
+      top: nextFrameTop,
+    });
+    slotImage.__slotDragLastFrameLeft = nextFrameLeft;
+    slotImage.__slotDragLastFrameTop = nextFrameTop;
+    slotImage.canvas?.requestRenderAll();
+  };
+
+  slotImage.__slotImageModifiedHandler = () => {
+    if (slotImage.isLocked) {
+      return;
+    }
+
+    const frame = getSlotFrameState(slotImage);
+
+    delete slotImage.__slotDragLastFrameLeft;
+    delete slotImage.__slotDragLastFrameTop;
 
     applySlotImageTransform(slotImage, {
-      left: center.x - worldOffset.x,
-      top: center.y - worldOffset.y,
+      width: frame.width,
+      height: frame.height,
+      left: frame.left,
+      top: frame.top,
+      angle: slotImage.angle ?? frame.angle,
     });
 
     slotImage.canvas?.requestRenderAll();
   };
 
   slotImage.on('moving', slotImage.__slotImageMovingHandler);
+  slotImage.on('modified', slotImage.__slotImageModifiedHandler);
 };
 
 const detachSlotImageBehavior = (image: FabricImage) => {
   const slotImage = image as SlotImageBehaviorObject;
 
-  if (!slotImage.__slotImageMovingHandler) {
-    return;
+  if (slotImage.__slotImageMovingHandler) {
+    slotImage.off('moving', slotImage.__slotImageMovingHandler);
+    delete slotImage.__slotImageMovingHandler;
   }
 
-  slotImage.off('moving', slotImage.__slotImageMovingHandler);
-  delete slotImage.__slotImageMovingHandler;
+  if (slotImage.__slotImageModifiedHandler) {
+    slotImage.off('modified', slotImage.__slotImageModifiedHandler);
+    delete slotImage.__slotImageModifiedHandler;
+  }
 };
 
 export const useFabricSlot = ({
@@ -526,6 +601,12 @@ export const useFabricSlot = ({
   saveHistory,
   syncActiveObjectInfo,
 }: Props) => {
+  useEffect(() => {
+    if (!canvas) return;
+
+    preloadSlotIconImages(() => canvas.requestRenderAll());
+  }, [canvas]);
+
   useEffect(() => {
     if (!canvas) return;
 
@@ -684,7 +765,6 @@ export const useFabricSlot = ({
       flipY: targetImage.flipY,
       opacity: targetImage.opacity,
       visible: targetImage.visible,
-      slotTransformLocked: targetSlotImage?.slotTransformLocked ?? true,
       isLocked: targetSlotImage?.isLocked ?? false,
     });
 
@@ -870,7 +950,7 @@ export const useFabricSlot = ({
       top: bounds.top,
       width: bounds.width,
       height: bounds.height,
-      multiplier: 1,
+      multiplier: getPreviewExportMultiplier(bounds.width, bounds.height),
     });
 
     objectsToHide.forEach((obj, index) => {
@@ -899,3 +979,4 @@ export const useFabricSlot = ({
     exportSlotImagePreview,
   };
 };
+

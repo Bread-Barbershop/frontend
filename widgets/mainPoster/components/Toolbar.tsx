@@ -161,25 +161,29 @@ function Toolbar() {
 
   return (
     <div
-      className="absolute top-1/2 -translate-y-1/2 -left-6 -translate-x-full flex flex-col gap-3 items-end"
+      className="absolute z-30 top-1/2 -translate-y-1/2 -left-6 -translate-x-full flex flex-col gap-3 items-end"
       data-canvas="true"
     >
       {TOOLBAR_ITEMS.map(item => (
-        <Button
+        <div
           key={item.id}
-          className={`group size-11 hover:w-[105px] bg-bg-base hover:bg-bg-base rounded-full transition-width duration-150 ${item.className || ''}`}
-          onClick={item.onClick}
-          active={item.active}
-          shadow="custom"
-          aria-label={item.araiaLabel}
+          className="group/item relative flex h-11 w-[105px] justify-end"
         >
-          <span className="flex items-center justify-center group-hover:hidden">
-            {item.icon}
-          </span>
-          <span className="hidden items-center justify-center group-hover:inline-flex">
-            {item.hoverIcon}
-          </span>
-        </Button>
+          <Button
+            className={`absolute right-0 top-0 flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-bg-base transition-[width] duration-200 ease-out group-hover/item:w-[105px] group-focus-within/item:w-[105px] hover:bg-bg-base ${item.className || ''}`}
+            onClick={item.onClick}
+            active={item.active}
+            shadow="custom"
+            aria-label={item.araiaLabel}
+          >
+            <span className="absolute inset-0 flex items-center justify-center transition-all duration-150 ease-out group-hover/item:-translate-x-2 group-hover/item:opacity-0 group-focus-within/item:-translate-x-2 group-focus-within/item:opacity-0">
+              {item.icon}
+            </span>
+            <span className="absolute inset-y-0 left-0 flex translate-x-2 items-center pl-11 pr-4 text-left opacity-0 transition-all duration-200 ease-out group-hover/item:-translate-x-6 group-hover/item:opacity-100 group-focus-within/item:-translate-x-6 group-focus-within/item:opacity-100">
+              {item.hoverIcon}
+            </span>
+          </Button>
+        </div>
       ))}
     </div>
   );

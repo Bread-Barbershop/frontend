@@ -37,7 +37,6 @@ export interface FabricImageWithLock extends OriginalFabricImage {
   slotImageBaseScale?: number;
   slotImageOffsetX?: number;
   slotImageOffsetY?: number;
-  slotTransformLocked?: boolean;
 }
 
 export interface BaseShape {

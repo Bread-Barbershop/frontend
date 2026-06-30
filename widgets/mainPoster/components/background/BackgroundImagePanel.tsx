@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { FabricImage } from 'fabric';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
@@ -9,6 +9,7 @@ import { RangeControl } from '@/components/molecules/range-control/RangeControl'
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
+import { getPreviewExportMultiplier } from '@/widgets/mainPoster/utils/previewExport';
 
 import { AspectRatioSelector } from '../image/AspectRatioSelector';
 import { ImagePreview } from '../image/ImagePreview';
@@ -16,9 +17,9 @@ import { ImagePreview } from '../image/ImagePreview';
 const POSITION_MIN = -50;
 const POSITION_MAX = 50;
 const SCALE_MIN = 100;
-const SCALE_MAX = 300;
+const SCALE_MAX = 400;
 const SCALE_OFFSET_MIN = 0;
-const SCALE_OFFSET_MAX = 300;
+const SCALE_OFFSET_MAX = SCALE_MAX - SCALE_MIN;
 
 const clampPosition = (value: number) =>
   Math.min(POSITION_MAX, Math.max(POSITION_MIN, value));
@@ -29,7 +30,7 @@ const clampScaleOffset = (value: number) =>
 const scaleToOffset = (value: number) => clampScale(value) - SCALE_MIN;
 const offsetToScale = (value: number) => SCALE_MIN + clampScaleOffset(value);
 
-export const BackgroundImage = () => {
+export const BackgroundImagePanel = () => {
   const {
     canvas,
     compressImage,
@@ -85,26 +86,32 @@ export const BackgroundImage = () => {
       obj.set('visible', false);
     });
 
-    canvas.requestRenderAll();
-    const previewDataUrl = canvas.toDataURL({
-      format: 'webp',
-      quality: 0.8,
-      left: 0,
-      top: 0,
-      width: canvas.getWidth(),
-      height: canvas.getHeight(),
-      multiplier: 1,
-    });
+    let previewDataUrl: string;
+    try {
+      canvas.requestRenderAll();
+      previewDataUrl = canvas.toDataURL({
+        format: 'webp',
+        quality: 0.8,
+        left: 0,
+        top: 0,
+        width: canvas.getWidth(),
+        height: canvas.getHeight(),
+        multiplier: getPreviewExportMultiplier(
+          canvas.getWidth(),
+          canvas.getHeight()
+        ),
+      });
+    } finally {
+      objectsToHide.forEach((obj, index) => {
+        obj.set('visible', visibilitySnapshot[index]);
+      });
 
-    objectsToHide.forEach((obj, index) => {
-      obj.set('visible', visibilitySnapshot[index]);
-    });
+      if (activeObject && activeObject !== target) {
+        canvas.setActiveObject(activeObject);
+      }
 
-    if (activeObject && activeObject !== target) {
-      canvas.setActiveObject(activeObject);
+      canvas.requestRenderAll();
     }
-
-    canvas.requestRenderAll();
     setImageSrc(previewDataUrl);
   };
 
@@ -194,7 +201,7 @@ export const BackgroundImage = () => {
     <LeftEditorWrapper
       ariaLabel="배경 이미지 편집"
       data-crop-controls="true"
-      className="flex-1 min-h-0 max-h-none gap-2 overflow-y-scroll"
+      className="overflow-y-scroll gap-2"
     >
       <ImagePreview
         src={imageSrc}
@@ -269,7 +276,7 @@ export const BackgroundImage = () => {
           handleScaleCommit(offsetToScale(value));
         }}
       />
-      <div className="w-full pb-2 flex items-center gap-2">
+      <div className="w-full flex items-center gap-3">
         <Label className="font-semibold">추가기능</Label>
         <Checkbox
           checked={hasImage}
@@ -289,15 +296,16 @@ export const BackgroundImage = () => {
         </Checkbox>
       </div>
       <EditorNoticeList
+        className="pl-1"
         notices={[
           {
             id: 'image-crop',
-            text: '자르기 실행 후 원하는 형태로 자르기 하신 뒤 아무곳이나 클릭하시면 적용됩니다.',
+            text: '자르기 실행 후 원하는 형태로 자르기 하신 뒤 아무곳이나 클릭 하시면 적용됩니다.',
             colorClass: 'text-[#1F72EF]',
           },
           {
             id: 'image-position',
-            text: 'X축, Y축 조정을 통해 이미지가 보이는 위치를 변경할 수 있습니다.',
+            text: 'X축, Y축 조정을 통해 이미지가 보이는 위치를 변경할 수 있습니 다.',
           },
         ]}
       />

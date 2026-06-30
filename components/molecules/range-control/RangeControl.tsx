@@ -10,7 +10,7 @@ interface RangeControlProps {
   disabled?: boolean;
   allowNegative?: boolean;
   onChange: (value: number) => void;
-  onCommit: (value: number) => void;
+  onCommit?: (value: number) => void;
   onDisplayValueChange: (value: string) => void;
 }
 
@@ -60,15 +60,15 @@ export const RangeControl = ({
         ? value
         : parsedValue;
 
-    onCommit(nextValue);
+    onCommit?.(nextValue);
   };
 
   return (
-    <div className="bg-bg-base flex w-full items-center gap-4 py-1">
-      <p className="w-[52px] px-2 text-center text-sm font-semibold text-text-primary">
+    <div className="bg-bg-base flex w-full items-center py-1">
+      <p className="w-[47px] px-2 text-center text-sm font-semibold text-text-primary">
         {label}
       </p>
-      <div className="flex-1 px-1">
+      <div className="flex-1 px-4">
         <input
           type="range"
           min={min}
@@ -81,10 +81,13 @@ export const RangeControl = ({
             onChange(Number(event.target.value));
           }}
           onMouseUp={event => {
-            onCommit(Number(event.currentTarget.value));
+            onCommit?.(Number(event.currentTarget.value));
           }}
           onTouchEnd={event => {
-            onCommit(Number(event.currentTarget.value));
+            onCommit?.(Number(event.currentTarget.value));
+          }}
+          onKeyUp={event => {
+            onCommit?.(Number(event.currentTarget.value));
           }}
         />
       </div>
