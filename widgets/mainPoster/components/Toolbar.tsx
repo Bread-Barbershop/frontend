@@ -165,21 +165,25 @@ function Toolbar() {
       data-canvas="true"
     >
       {TOOLBAR_ITEMS.map(item => (
-        <Button
+        <div
           key={item.id}
-          className={`group relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-bg-base hover:w-[105px] hover:bg-bg-base transition-[width] duration-200 ease-out ${item.className || ''}`}
-          onClick={item.onClick}
-          active={item.active}
-          shadow="custom"
-          aria-label={item.araiaLabel}
+          className="group/item relative flex h-11 w-[105px] justify-end"
         >
-          <span className="absolute inset-0 flex items-center justify-center transition-all duration-150 ease-out group-hover:-translate-x-2 group-hover:opacity-0">
-            {item.icon}
-          </span>
-          <span className="absolute inset-y-0 left-0 flex translate-x-2 items-center pl-11 pr-4 text-left opacity-0 transition-all duration-200 ease-out group-hover:-translate-x-6 group-hover:opacity-100">
-            {item.hoverIcon}
-          </span>
-        </Button>
+          <Button
+            className={`absolute right-0 top-0 flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-bg-base transition-[width] duration-200 ease-out group-hover/item:w-[105px] group-focus-within/item:w-[105px] hover:bg-bg-base ${item.className || ''}`}
+            onClick={item.onClick}
+            active={item.active}
+            shadow="custom"
+            aria-label={item.araiaLabel}
+          >
+            <span className="absolute inset-0 flex items-center justify-center transition-all duration-150 ease-out group-hover/item:-translate-x-2 group-hover/item:opacity-0 group-focus-within/item:-translate-x-2 group-focus-within/item:opacity-0">
+              {item.icon}
+            </span>
+            <span className="absolute inset-y-0 left-0 flex translate-x-2 items-center pl-11 pr-4 text-left opacity-0 transition-all duration-200 ease-out group-hover/item:-translate-x-6 group-hover/item:opacity-100 group-focus-within/item:-translate-x-6 group-focus-within/item:opacity-100">
+              {item.hoverIcon}
+            </span>
+          </Button>
+        </div>
       ))}
     </div>
   );
