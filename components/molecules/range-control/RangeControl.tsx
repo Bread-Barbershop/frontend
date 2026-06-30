@@ -64,11 +64,11 @@ export const RangeControl = ({
   };
 
   return (
-    <div className="bg-bg-base flex w-full items-center gap-4 py-1">
-      <p className="w-[52px] px-2 text-center text-sm font-semibold text-text-primary">
+    <div className="bg-bg-base flex w-full items-center py-1">
+      <p className="w-[47px] px-2 text-center text-sm font-semibold text-text-primary">
         {label}
       </p>
-      <div className="flex-1 px-1">
+      <div className="flex-1 px-4">
         <input
           type="range"
           min={min}

@@ -7,7 +7,7 @@ import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationB
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
-import { BackgroundPanel } from './background/BackgroundPanel';
+import { BackgroundColorPanel } from './background/BackgroundColorPanel';
 import { GraphicPanel } from './graphic/GraphicPanel';
 import { ImagePanel } from './image/ImagePanel';
 import { RichTextPanel } from './richtext/RichTextPanel';
@@ -130,7 +130,8 @@ export const MainPoster = () => {
       <div className="w-full h-11 flex gap-2 items-center justify-center bg-white rounded-lg user-select-none">
         {PanelItems.map(item => {
           const isActive =
-            activeTab === item.id || (activeTab === 'template' && item.id === 'image');
+            activeTab === item.id ||
+            (activeTab === 'template' && item.id === 'image');
 
           return (
             <button
@@ -155,7 +156,7 @@ export const MainPoster = () => {
 
       {activeTab === 'shape' && <ShapePanel />}
 
-      {(activeTab === 'background' || !activeTab) && <BackgroundPanel />}
+      {(activeTab === 'background' || !activeTab) && <BackgroundColorPanel />}
     </div>
   );
 };

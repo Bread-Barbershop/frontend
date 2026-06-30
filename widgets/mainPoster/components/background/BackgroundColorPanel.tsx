@@ -2,7 +2,7 @@ import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrap
 
 import { BackgroundColor } from './BackgroundColor';
 
-export const BackgroundPanel = () => {
+export const BackgroundColorPanel = () => {
   return (
     <LeftEditorWrapper
       ariaLabel="배경색 편집"

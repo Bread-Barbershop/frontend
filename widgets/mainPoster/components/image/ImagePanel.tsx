@@ -9,7 +9,7 @@ import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrap
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import { getImagePanelMode } from '../../utils/imageSlot';
-import { BackgroundImage } from '../background/BackgroundImage';
+import { BackgroundImagePanel } from '../background/BackgroundImagePanel';
 
 import { AspectRatioSelector } from './AspectRatioSelector';
 import { ImagePreview } from './ImagePreview';
@@ -22,7 +22,7 @@ export const ImagePanel = () => {
   const { canvas } = useFabricContext();
   const panelMode = getImagePanelMode(canvas?.getActiveObject());
   if (panelMode === 'background-image') {
-    return <BackgroundImage />;
+    return <BackgroundImagePanel />;
   }
   if (panelMode === 'frame-image') {
     return <TemplateImagePanel />;
@@ -157,7 +157,7 @@ const DefaultImagePanel = () => {
   return (
     <LeftEditorWrapper
       ariaLabel="이미지 편집"
-      className="overflow-y-scroll pb-5"
+      className="overflow-y-scroll gap-2"
       data-crop-controls="true"
     >
       <ImagePreview
@@ -207,7 +207,7 @@ const DefaultImagePanel = () => {
         onCommit={() => {}}
       />
       {activeUserImage ? (
-        <div className="w-full pb-2 flex items-center gap-2">
+        <div className="w-full flex items-center gap-3">
           <Label className="font-semibold">추가기능</Label>
           <Checkbox
             checked={false}
@@ -220,15 +220,16 @@ const DefaultImagePanel = () => {
         </div>
       ) : null}
       <EditorNoticeList
+        className="pl-1"
         notices={[
           {
             id: 'image-crop',
-            text: '자르기 실행 후 원하는 형태로 자르기 하신 뒤 아무곳이나 클릭하시면 적용됩니다.',
+            text: '자르기 실행 후 원하는 형태로 자르기 하신 뒤 아무곳이나 클릭 하시면 적용됩니다.',
             colorClass: 'text-[#1F72EF]',
           },
           {
             id: 'image-position',
-            text: 'X축, Y축 조정을 통해 이미지가 보이는 위치를 변경할 수 있습니다.',
+            text: 'X축, Y축 조정을 통해 이미지가 보이는 위치를 변경할 수 있습니 다.',
           },
         ]}
       />
