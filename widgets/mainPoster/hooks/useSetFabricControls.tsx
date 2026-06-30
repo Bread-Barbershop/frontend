@@ -2,8 +2,10 @@ import {
   FabricObject,
   Textbox,
   Control,
+  Point,
   controlsUtils,
   util,
+  TMat2D,
 } from 'fabric';
 import { useEffect } from 'react';
 
@@ -24,6 +26,7 @@ type FabricObjectLike = {
   angle?: number;
   canvas?: {
     requestRenderAll?: () => void;
+    getZoom?: () => number;
   };
   isType?: (type: string) => boolean;
   getTotalAngle?: () => number;
@@ -44,6 +47,111 @@ type ControlDefaultsTarget = ControlStyleTarget & {
   snapThreshold?: number;
 };
 
+
+type SlotFrameControlTarget = FabricObjectLike & {
+  slotFrameWidth?: number;
+  slotFrameHeight?: number;
+  slotFrameLeft?: number;
+  slotFrameTop?: number;
+  slotFrameAngle?: number;
+  getCenterPoint: () => Point;
+};
+
+const hasSlotFrameBounds = (
+  target: FabricObjectLike | null | undefined
+): target is SlotFrameControlTarget => {
+  return Boolean(
+    target?.isType?.('image') &&
+      typeof (target as SlotFrameControlTarget).slotFrameWidth === 'number' &&
+      typeof (target as SlotFrameControlTarget).slotFrameHeight === 'number' &&
+      typeof (target as SlotFrameControlTarget).slotFrameLeft === 'number' &&
+      typeof (target as SlotFrameControlTarget).slotFrameTop === 'number'
+  );
+};
+
+
+const defaultPositionHandler: NonNullable<Control['positionHandler']> = (
+  dim,
+  finalMatrix,
+  _fabricObject,
+  currentControl
+) => {
+  const matrix = finalMatrix ?? [1, 0, 0, 1, 0, 0];
+  const controlX = currentControl?.x ?? 0;
+  const controlY = currentControl?.y ?? 0;
+  const offsetX = currentControl?.offsetX ?? 0;
+  const offsetY = currentControl?.offsetY ?? 0;
+  const dimX = dim?.x ?? 0;
+  const dimY = dim?.y ?? 0;
+
+  return new Point(
+    controlX * dimX + offsetX,
+    controlY * dimY + offsetY
+  ).transform(matrix);
+};
+const invokePositionHandler = (
+  handler: Control['positionHandler'] | undefined,
+  dim: Point,
+  finalMatrix: TMat2D,
+  fabricObject: FabricObjectLike,
+  currentControl: Control
+) => {
+  if (handler) {
+    return handler.call(
+      currentControl,
+      dim,
+      finalMatrix,
+      fabricObject as never,
+      currentControl
+    );
+  }
+
+  return defaultPositionHandler(dim, finalMatrix, fabricObject as never, currentControl);
+};
+const createFrameAwarePositionHandler = (
+  fallback?: Control['positionHandler']
+): NonNullable<Control['positionHandler']> => {
+  return (dim, finalMatrix, fabricObject, currentControl) => {
+    if (!fabricObject) {
+      return defaultPositionHandler(dim, finalMatrix, fabricObject as never, currentControl);
+    }
+
+    if (!hasSlotFrameBounds(fabricObject)) {
+      return invokePositionHandler(
+        fallback,
+        dim,
+        (finalMatrix ?? [1, 0, 0, 1, 0, 0]) as TMat2D,
+        fabricObject,
+        currentControl
+      );
+    }
+
+    const target = fabricObject as SlotFrameControlTarget;
+    const frameWidth = target.slotFrameWidth ?? 0;
+    const frameHeight = target.slotFrameHeight ?? 0;
+    const frameLeft = target.slotFrameLeft ?? 0;
+    const frameTop = target.slotFrameTop ?? 0;
+    const frameAngle = target.slotFrameAngle ?? target.angle ?? 0;
+    const center = target.getCenterPoint();
+    const radians = util.degreesToRadians(frameAngle);
+    const cos = Math.cos(radians);
+    const sin = Math.sin(radians);
+    const deltaX = frameLeft - center.x;
+    const deltaY = frameTop - center.y;
+    const localCenterX = deltaX * cos + deltaY * sin;
+    const localCenterY = -deltaX * sin + deltaY * cos;
+    const zoom = target.canvas?.getZoom?.() || 1;
+    const controlX = currentControl?.x ?? 0;
+    const controlY = currentControl?.y ?? 0;
+    const offsetX = (currentControl?.offsetX ?? 0) / zoom;
+    const offsetY = (currentControl?.offsetY ?? 0) / zoom;
+    const matrix = finalMatrix ?? [1, 0, 0, 1, 0, 0];
+    const localX = localCenterX + frameWidth * controlX + offsetX;
+    const localY = localCenterY + frameHeight * controlY + offsetY;
+
+    return util.transformPoint(new Point(localX, localY), matrix);
+  };
+};
 const isTextboxObject = (target?: FabricObjectLike | null) => {
   if (!target) return false;
 
@@ -146,7 +254,7 @@ const scaleOrResizeTextbox: ControlActionHandler = (
 };
 
 const createRotateControl = (corner: (typeof CORNERS_CONFIG)[number]) => {
-  return new Control({
+  const control = new Control({
     x: corner.x,
     y: corner.y,
     offsetX: corner.offX,
@@ -163,6 +271,12 @@ const createRotateControl = (corner: (typeof CORNERS_CONFIG)[number]) => {
     actionName: 'rotate',
     render: () => {},
   });
+
+  control.positionHandler = createFrameAwarePositionHandler(
+    control.positionHandler
+  );
+
+  return control;
 };
 
 const createObjectControls = (img: HTMLImageElement) => {
@@ -212,6 +326,8 @@ const createObjectControls = (img: HTMLImageElement) => {
       actionName: action,
       render: renderSquareControl,
     });
+
+    
   });
 
   return controls;

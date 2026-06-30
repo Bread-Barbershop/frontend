@@ -109,7 +109,6 @@ export const useFabric = () => {
         'slotImageBaseScale',
         'slotImageOffsetX',
         'slotImageOffsetY',
-        'slotTransformLocked',
       ])
     );
 
@@ -375,7 +374,6 @@ export const useFabric = () => {
 
       if (isReplaceableSlotImage) {
         activeObject.set({
-          slotTransformLocked: true,
           lockMovementX: true,
           lockMovementY: true,
           lockScalingX: true,
@@ -414,15 +412,14 @@ export const useFabric = () => {
 
       if (isReplaceableSlotImage) {
         activeObject.set({
-          slotTransformLocked: false,
           lockMovementX: false,
           lockMovementY: false,
-          lockScalingX: true,
-          lockScalingY: true,
-          lockRotation: true,
+          lockScalingX: false,
+          lockScalingY: false,
+          lockRotation: false,
           isLocked: false,
-          hasControls: false,
-          editable: false,
+          hasControls: true,
+          editable: true,
         });
       } else {
         activeObject.set({
@@ -701,7 +698,6 @@ export const useFabric = () => {
       'slotImageBaseScale',
       'slotImageOffsetX',
       'slotImageOffsetY',
-      'slotTransformLocked',
     ];
     const json = canvas.toObject(propertiesToInclude);
     json.objects = filteredData.map(obj => obj.toObject(propertiesToInclude));
