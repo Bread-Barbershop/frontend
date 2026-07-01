@@ -5,12 +5,12 @@ export const previewTitleVariants = cva(
   {
     variants: {
       language: {
-        en: 'text-[13px] text-[#FA7564] font-semibold tracking-wide',
-        ko: 'text-[20px] text-[#FA7564] font-semibold',
+        sub: 'text-[13px] text-[#FA7564] font-semibold tracking-wide',
+        main: 'text-[20px] text-[#FA7564] font-semibold',
       },
     },
     defaultVariants: {
-      language: 'ko',
+      language: 'sub',
     },
   }
 );

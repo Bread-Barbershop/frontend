@@ -8,9 +8,10 @@
 [<img src="https://img.shields.io/badge/-invia.co.kr-9c8e7e?style=flat&logo=google-chrome&logoColor=white" />](https://invia.co.kr) [<img src="https://img.shields.io/badge/-GitHub-black?style=flat&logo=github&logoColor=white" />](https://github.com/Bread-Barbershop/frontend) [<img src="https://img.shields.io/badge/release-v1.1.2-pink?style=flat&logo=google-chrome&logoColor=white" />]()
 
 </div>
+ 
+<br/>
 
-
-## 💐 우리는 이런 서비스예요!
+### 💐 우리는 이런 서비스예요!
 
 **누구나 무료로, 개인정보 걱정 없이 사용할 수 있는 모바일 초대장 서비스**입니다.
 
@@ -18,7 +19,9 @@
 
 인비아는 초대장을 만드는 과정에서 **사용자의 불필요한 개인정보를 수집하지 않으며**, 누구나 안심하고 이용할 수 있는 서비스를 만들어가고 있습니다.
 
-## 🌱 우리는 이런 세상을 꿈꿔요!
+<br/>
+
+### 🌱 우리는 이런 세상을 꿈꿔요!
 
 **비용과 개인정보에 대한 걱정 없이, 누구나 소중한 순간을 자유롭게 표현할 수 있는 세상.**
 

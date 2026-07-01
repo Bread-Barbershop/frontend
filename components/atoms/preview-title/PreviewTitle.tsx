@@ -23,32 +23,32 @@ export const PreviewTitle = ({
   className,
   titleClassName,
 }: PreviewTitleProps) => {
-  const koText = mainTitle?.trim() || '제목을 입력해 주세요';
-  const enText = subTitle?.trim();
-  const { koStyle, enStyle } = useTitleFontInfo();
+  const mainText = mainTitle?.trim() || '제목을 입력해 주세요';
+  const subText = subTitle?.trim();
+  const { mainStyle, subStyle } = useTitleFontInfo();
 
   return (
     <div className={cn('flex flex-col gap-1 w-full', className)}>
-      {enText && enText !== '' && (
+      {subText && subText !== '' && (
         <p
           className={cn(
-            previewTitleVariants({ language: 'en' }),
+            previewTitleVariants({ language: 'sub' }),
             titleClassName
           )}
-          style={enStyle}
+          style={subStyle}
         >
-          {enText}
+          {subText}
         </p>
       )}
       {isMainTitle && (
         <p
           className={cn(
-            previewTitleVariants({ language: 'ko' }),
+            previewTitleVariants({ language: 'main' }),
             titleClassName
           )}
-          style={koStyle}
+          style={mainStyle}
         >
-          {koText}
+          {mainText}
         </p>
       )}
     </div>

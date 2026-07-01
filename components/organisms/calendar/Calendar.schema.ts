@@ -53,7 +53,7 @@ export const calendarSchema = {
       required: false,
     },
     isSubTitle: {
-      default: false,
+      default: true,
       required: false,
     },
   },
