@@ -10,7 +10,6 @@ import { escapeDriveQueryValue } from '@/app/api/drive/_lib/escapeQueryValue';
 import { findWorkspaceFolderId } from '@/app/api/drive/_lib/findWorkspaceFolderId';
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
 import { InviteListItem, LoadInvitationResponse } from '@/app/dashboard/types';
-// import { measureAsync } from '@/shared/utils/performance';
 
 const APP_IDENTIFIER = 'Bread-Barbershop';
 const INVITATION_KIND = 'invitation';
@@ -86,7 +85,6 @@ async function loadDashboardMeta(invitationFolderId: string) {
 }
 
 export async function loadDashboardInvitations(): Promise<LoadInvitationResponse> {
-  // return measureAsync('Dashboard Load Total', async () => {
   const workspaceFolderId = await findWorkspaceFolderId();
 
   if (!workspaceFolderId) {
@@ -172,5 +170,4 @@ export async function loadDashboardInvitations(): Promise<LoadInvitationResponse
     invites,
     nextPageToken: listData.nextPageToken ?? null,
   };
-  // });
 }
