@@ -5,7 +5,7 @@
 
 ### 💌 모바일 초대장 서비스 Invia
 
-[<img src="https://img.shields.io/badge/-invia.co.kr-9c8e7e?style=flat&logo=google-chrome&logoColor=white" />](https://invia.co.kr) [<img src="https://img.shields.io/badge/-GitHub-black?style=flat&logo=github&logoColor=white" />](https://github.com/Bread-Barbershop/frontend) [<img src="https://img.shields.io/badge/release-v1.1.2-pink?style=flat&logo=google-chrome&logoColor=white" />]()
+[<img src="https://img.shields.io/badge/-invia.co.kr-9c8e7e?style=flat&logo=google-chrome&logoColor=white" />](https://invia.co.kr) [<img src="https://img.shields.io/badge/-GitHub-black?style=flat&logo=github&logoColor=white" />](https://github.com/Bread-Barbershop/frontend) [<img src="https://img.shields.io/badge/release-v1.1.0-pink?style=flat&logo=google-chrome&logoColor=white" />]()
 
 </div>
  
