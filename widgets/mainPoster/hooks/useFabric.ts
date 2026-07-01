@@ -5,6 +5,7 @@ import { useCallback, useRef, useState } from 'react';
 import { useConfirm } from '@/shared/hooks/useConfirm';
 
 import { ActiveObject } from '../types/fabric';
+import { containsFrameTarget, isFrameTarget } from '../utils/imageSlot';
 export const useFabric = () => {
   const [canvas, setCanvas] = useState<Canvas | null>(null);
   const [activeInfo, setActiveInfo] = useState<ActiveObject>({
@@ -240,6 +241,12 @@ export const useFabric = () => {
     if (!canvas) return;
     const activeObject = canvas.getActiveObject();
     if (!activeObject) return;
+
+    const activeObjects = canvas.getActiveObjects();
+    if (isFrameTarget(activeObject) || containsFrameTarget(activeObjects)) {
+      return;
+    }
+
     const cloned = await activeObject.clone();
     setClipboard(cloned);
   }, [canvas]);

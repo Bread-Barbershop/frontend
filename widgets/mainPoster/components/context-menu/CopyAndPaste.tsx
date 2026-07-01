@@ -1,5 +1,9 @@
 import { cn } from '@/shared/utils/cn';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
+import {
+  containsFrameTarget,
+  isFrameTarget,
+} from '@/widgets/mainPoster/utils/imageSlot';
 
 import { ActiveStyle, DisabledShortCutStyle, DisabledStyle } from './style';
 
@@ -8,8 +12,13 @@ interface Props {
 }
 
 function CopyAndPaste({ onClick }: Props) {
-  const { copy, paste, activeInfo, clipboard } = useFabricContext();
-  const hasActiveObject = activeInfo.type !== null;
+  const { copy, paste, activeInfo, clipboard, canvas } = useFabricContext();
+  const activeObject = canvas?.getActiveObject() ?? null;
+  const activeObjects = canvas?.getActiveObjects() ?? [];
+  const hasCopyRestrictedFrame =
+    (activeObject ? isFrameTarget(activeObject) : false) ||
+    containsFrameTarget(activeObjects);
+  const hasActiveObject = activeInfo.type !== null && !hasCopyRestrictedFrame;
   const hasClipboard = clipboard !== null;
 
   return (
