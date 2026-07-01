@@ -29,6 +29,7 @@ export const weddingComponents: ListType[] = [
   { contents: '공지사항', component: 'notice', isType: false },
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
+  { contents: '마무리문구', component: 'closingComment', isType: false },
   // { contents: '세례명', component: null, isType: false },
 ];
 export const firstBirthdayComponents: ListType[] = [
@@ -47,6 +48,7 @@ export const firstBirthdayComponents: ListType[] = [
   { contents: '공지사항', component: 'notice', isType: false },
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
+  { contents: '마무리문구', component: 'closingComment', isType: false },
 ];
 export const birthdayComponents: ListType[] = [
   { contents: '인사말', component: 'greeting', isType: false },
@@ -59,6 +61,7 @@ export const birthdayComponents: ListType[] = [
   { contents: '공지사항', component: 'notice', isType: false },
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
+  { contents: '마무리문구', component: 'closingComment', isType: false },
 ];
 export const seminarComponents: ListType[] = [
   { contents: '인사말', component: 'greeting', isType: false },
@@ -72,6 +75,7 @@ export const seminarComponents: ListType[] = [
   { contents: '연락처', component: 'phone', isType: false },
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
+  { contents: '마무리문구', component: 'closingComment', isType: false },
 ];
 export const etcComponents: ListType[] = [
   { contents: '인사말', component: 'greeting', isType: false },
@@ -81,6 +85,7 @@ export const etcComponents: ListType[] = [
   { contents: '연락처', component: 'phone', isType: false },
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
+  { contents: '마무리문구', component: 'closingComment', isType: false },
 ];
 
 export const componentCls: SampleDataType[] = [
