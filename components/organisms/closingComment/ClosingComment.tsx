@@ -37,7 +37,7 @@ function ClosingComment({ blockInfo, id }: Props) {
   };
 
   return (
-    <LeftEditorWrapper ariaLabel="인사말" className="gap-4">
+    <LeftEditorWrapper ariaLabel="인사말" className="gap-1">
       <NavigationBar
         action={
           <div ref={questionListTriggerRef}>
