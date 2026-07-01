@@ -15,9 +15,6 @@ const meta = {
     },
     onDelete: { action: 'deleted' },
   },
-  args: {
-    onDelete: (src: string) => console.log('Delete:', src),
-  },
 } satisfies Meta<typeof PicturePreview>;
 
 export default meta;
