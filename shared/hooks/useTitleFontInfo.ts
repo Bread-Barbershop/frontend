@@ -15,8 +15,8 @@ export const useTitleFontInfo = () => {
     return {
       font: titleData.font,
       resolvedFontFamily,
-      koStyle: toStyle(titleData, true),
-      enStyle: toStyle(titleData, true, true),
+      mainStyle: toStyle(titleData, true),
+      subStyle: toStyle(titleData, true, true),
     };
   }, [titleData]);
 };
