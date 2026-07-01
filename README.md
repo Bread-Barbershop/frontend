@@ -148,10 +148,19 @@ frontend/
 
 ## 💁‍♂️ 프로젝트 팀원
 
-|            프로젝트 멘토            |                   프론트엔드                    |                    프론트엔드                     |                  프론트엔드                  |                   프론트엔드                   |             UI/UX 디자이너              |
-| :---------------------------------: | :---------------------------------------------: | :-----------------------------------------------: | :------------------------------------------: | :--------------------------------------------: | :-------------------------------------: |
-| ![](/public/assets/readme/bred.png) | ![](https://github.com/YooJeong01.png?size=120) | ![](https://github.com/HyoYoung0829.png?size=120) | ![](https://github.com/kimym98.png?size=120) | ![](https://github.com/hb-k-3376.png?size=120) |     <!-- 디자이너 프로필 이미지 -->     |
-|  [bred](<!-- 멘토 GitHub 링크 -->)  |     [황유정](https://github.com/YooJeong01)     |     [백효영](https://github.com/HyoYoung0829)     |     [김영민](https://github.com/kimym98)     |     [김현빈](https://github.com/hb-k-3376)     | [황준호](<!-- 디자이너 GitHub 링크 -->) |
+### 멘토 & 디자이너
+
+|                                         프로젝트 멘토                                         |                               UI/UX 디자이너                                |
+| :-------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------: |
+| <img src="/public/assets/readme/bred.png" width="120" height="120" style="border-radius:50%"> | <img src="디자이너경로" width="120" height="120" style="border-radius:50%"> |
+|                                       [bred](멘토링크)                                        |                           [황준호](디자이너링크)                            |
+
+### 프론트엔드 개발자
+
+|                                                프론트엔드                                                 |                                                 프론트엔드                                                  |                                               프론트엔드                                               |                                                프론트엔드                                                |
+| :-------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------: |
+| <img src="https://github.com/YooJeong01.png?size=120" width="120" height="120" style="border-radius:50%"> | <img src="https://github.com/HyoYoung0829.png?size=120" width="120" height="120" style="border-radius:50%"> | <img src="https://github.com/kimym98.png?size=120" width="120" height="120" style="border-radius:50%"> | <img src="https://github.com/hb-k-3376.png?size=120" width="120" height="120" style="border-radius:50%"> |
+|                                  [황유정](https://github.com/YooJeong01)                                  |                                  [백효영](https://github.com/HyoYoung0829)                                  |                                  [김영민](https://github.com/kimym98)                                  |                                  [김현빈](https://github.com/hb-k-3376)                                  |
 
 **팀 소개**: 브레드 이발소 (Bread Barbershop)
 
