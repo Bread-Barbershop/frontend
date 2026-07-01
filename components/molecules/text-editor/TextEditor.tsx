@@ -71,6 +71,7 @@ interface TextEditorProps {
 
 export interface TextEditorRef {
   insertText: (text: string) => void;
+  setText: (text: string) => void;
   getEditor: () => Editor | null;
 }
 
@@ -500,6 +501,11 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
         insertText: (text: string) => {
           if (editor) {
             editor.chain().focus().insertContent(text).run();
+          }
+        },
+        setText: (text: string) => {
+          if (editor) {
+            editor.chain().focus().setContent(text).run();
           }
         },
         getEditor: () => editor,

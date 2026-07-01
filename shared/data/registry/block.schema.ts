@@ -1,6 +1,7 @@
 import { accountSchema } from '@/components/organisms/account/Account.schema';
 import { bgmSchema } from '@/components/organisms/bgm/Bgm.schema';
 import { calendarSchema } from '@/components/organisms/calendar/Calendar.schema';
+import { closingCommentSchema } from '@/components/organisms/closingComment/ClosingComment.schema';
 import { coupleIntroductionSchema } from '@/components/organisms/couple-introduction/CoupleIntroduction.schema';
 import { gallerySchema } from '@/components/organisms/gallery/Gallery.schema';
 import { greetingSchema } from '@/components/organisms/greeting/Greeting.schema';
@@ -36,4 +37,5 @@ export const blockSchema = {
   myFamilyWedding: myFamilyWeddingSchema,
   sponsorshipInfomation: sponsorshipInfomationSchema,
   picture: pictureSchema,
+  closingComment: closingCommentSchema,
 } as const;
