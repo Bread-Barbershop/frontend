@@ -204,19 +204,18 @@ const DefaultImagePanel = () => {
         onChange={() => {}}
         onCommit={() => {}}
       />
-      {activeUserImage ? (
-        <div className="w-full flex items-center gap-3">
-          <Label className="font-semibold">추가기능</Label>
-          <Checkbox
-            checked={false}
-            onChange={async event => {
-              await handleSetAsBackground(event.target.checked);
-            }}
-          >
-            <span className="text-[13px]">해당 이미지를 배경으로 적용하기</span>
-          </Checkbox>
-        </div>
-      ) : null}
+      <div className="w-full flex items-center gap-3">
+        <Label className="font-semibold">추가기능</Label>
+        <Checkbox
+          checked={false}
+          disabled={!activeUserImage}
+          onChange={async event => {
+            await handleSetAsBackground(event.target.checked);
+          }}
+        >
+          <span className="text-[13px]">해당 이미지를 배경으로 적용하기</span>
+        </Checkbox>
+      </div>
       <EditorNoticeList
         className="pl-1"
         notices={[
