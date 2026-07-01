@@ -1,11 +1,11 @@
 'use client';
 
-import { PreviewTitle } from '@/components/atoms/preview-title/PreviewTitle';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
 import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { EditorBlock } from '@/shared/types/block';
-import { cn } from '@/shared/utils/cn';
+
+import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
 
 import { CalendarTemplates, DDayCountdown } from './components';
 import { useCalendarData } from './hooks/useCalendarData';
@@ -36,6 +36,7 @@ export function CalendarPreview({
     template,
     showCalendar,
     showDday,
+    isSubTitle,
   } = blockInfo.props;
   const defaultTitle = blockInfo.type === 'wedding' ? '예식 일시' : '행사일시';
   const defaultSubTitle =
@@ -61,25 +62,16 @@ export function CalendarPreview({
     CalendarTemplates[template as string] || CalendarTemplates['calendarType1'];
 
   return (
-    <div
-      className={cn(
-        'w-full py-8 px-5 flex flex-col items-center gap-6 isolate',
-        className
-      )}
+    <MiddlePreviewWrapper
+      className={`${className} relative`}
+      titleClassName={titleClassName}
+      checkedSubTitle={isSubTitle}
+      subTitle={subTitle}
+      subTitleDefault={defaultSubTitle}
+      mainTitle={title}
+      mainTitleDefault={defaultTitle}
       {...rest}
     >
-      {/* Title */}
-      <PreviewTitle
-        isMainTitle={true}
-        subTitle={
-          blockInfo.props.isSubTitle
-            ? subTitle || defaultSubTitle
-            : ''
-        }
-        mainTitle={title || defaultTitle}
-        titleClassName={titleClassName}
-      />
-
       {/* String Date Display */}
       {showStringDate && (
         <div
@@ -128,6 +120,6 @@ export function CalendarPreview({
           }
         />
       )}
-    </div>
+    </MiddlePreviewWrapper>
   );
 }
