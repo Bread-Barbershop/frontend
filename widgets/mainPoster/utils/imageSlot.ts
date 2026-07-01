@@ -56,6 +56,12 @@ export const isReplaceableSlotImage = (
   target: unknown
 ): target is SlotImageObject => getImageSlot(target) !== null;
 
+export const isFrameTarget = (target: unknown): target is SlotTargetObject =>
+  isReplaceableSlotTarget(target);
+
+export const containsFrameTarget = (targets: readonly unknown[]) =>
+  targets.some(target => isFrameTarget(target));
+
 export const isFilledSlotImage = (
   target: unknown
 ): target is SlotImageObject => {
@@ -64,7 +70,9 @@ export const isFilledSlotImage = (
 };
 
 export const isBackgroundImage = (target: unknown): target is FabricImage => {
-  return target instanceof FabricImage && target.get('id') === 'background-layer';
+  return (
+    target instanceof FabricImage && target.get('id') === 'background-layer'
+  );
 };
 
 export const getImagePanelMode = (target: unknown): ImagePanelMode => {

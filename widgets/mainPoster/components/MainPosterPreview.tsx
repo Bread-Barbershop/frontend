@@ -29,6 +29,7 @@ import { preloadPreviewFonts } from '../utils/fontLoader';
 import {
   getImagePanelMode,
   isFilledSlotImage,
+  isFrameTarget,
   isReplaceableSlotImage,
   isReplaceableSlotTarget,
   SlotTargetObject,
@@ -292,25 +293,10 @@ export const MainPosterPreview = () => {
       const targetId = target?.get('id');
       const isBackground = targetId === 'background-layer';
       const isLocked = (target as any)?.isLocked;
-
-      const getType = (obj: any) => {
-        if (!obj) return '빈 공간';
-        if (obj.get('id') === 'background-layer') return '배경';
-        if (obj.isType('textbox') || obj.isType('itext') || obj.isType('text'))
-          return '텍스트';
-        if (obj.isType('image')) return '이미지';
-        if (
-          obj.isType('rect') ||
-          obj.isType('circle') ||
-          obj.isType('triangle')
-        )
-          return '도형';
-        if (obj.isType('path') || obj.isType('line')) return '선/경로';
-        return obj.type;
-      };
+      const isFrame = isFrameTarget(target);
 
       // 잠긴 객체가 잡혔을 때, 그 위치에 있는 다른 (잠기지 않은) 객체를 찾아서 선택해줌
-      if (target && isLocked && !isBackground) {
+      if (target && (isLocked || isFrame) && !isBackground) {
         const pointer =
           options.scenePoint || (fabricCanvas as any).getScenePoint(e);
         const objects = fabricCanvas.getObjects();
@@ -321,12 +307,11 @@ export const MainPosterPreview = () => {
           if (
             obj !== target &&
             !(obj as any).isLocked &&
+            !isFrameTarget(obj) &&
             obj.containsPoint(pointer)
           ) {
-            console.log(`[Fabric] 잠긴 객체 투과 -> ${getType(obj)} 선택`);
-
             fabricCanvas.setActiveObject(obj);
-            target = obj; // ?��?교체
+            target = obj;
             break;
           }
         }
@@ -337,7 +322,9 @@ export const MainPosterPreview = () => {
         fabricCanvas.getObjects().forEach(obj => {
           const t = obj as FabricObjectWithLock;
           if (
-            (t.isLocked || t.get('id') === 'background-layer') &&
+            (t.isLocked ||
+              t.get('id') === 'background-layer' ||
+              isFrameTarget(t)) &&
             t !== target
           ) {
             t.set({ selectable: false });
@@ -356,7 +343,11 @@ export const MainPosterPreview = () => {
       // 드래그 종료 시 (또는 클릭 종료 시) 잠긴 객체와 배경 레이어의 selectable 다시 복구
       fabricCanvas.getObjects().forEach(obj => {
         const target = obj as FabricObjectWithLock;
-        if (target.isLocked || target.get('id') === 'background-layer') {
+        if (
+          target.isLocked ||
+          target.get('id') === 'background-layer' ||
+          isFrameTarget(target)
+        ) {
           target.set({ selectable: true });
         }
       });
