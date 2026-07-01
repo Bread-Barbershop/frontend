@@ -1,4 +1,4 @@
-import { Canvas, FabricImage, FabricObject, Pattern, Rect } from 'fabric';
+import { Canvas, FabricImage, FabricObject, Intersection, Pattern, Point, Rect } from 'fabric';
 import { useEffect } from 'react';
 
 import {
@@ -10,7 +10,12 @@ import {
   createFabricControlImage,
   isImageReadyForCanvas,
 } from '../utils/fabricUtils';
-import { ImageSlotMeta, SlotTargetObject } from '../utils/imageSlot';
+import {
+  ImageSlotMeta,
+  isPointInsideSlotFrame,
+  isReplaceableSlotImage,
+  SlotTargetObject,
+} from '../utils/imageSlot';
 import { getPreviewExportMultiplier } from '../utils/previewExport';
 
 interface Props {
@@ -34,6 +39,7 @@ type SlotImageBehaviorObject = FabricImageWithLock & {
   __slotImageModifiedHandler?: () => void;
   __slotDragLastFrameLeft?: number;
   __slotDragLastFrameTop?: number;
+  __slotOriginalContainsPoint?: FabricObject['containsPoint'];
 };
 
 type SlotFrameState = {
@@ -42,6 +48,13 @@ type SlotFrameState = {
   left: number;
   top: number;
   angle: number;
+};
+
+type SlotCanvasWithSelectionAreaPatch = Canvas & {
+  __slotOriginalPointIsInObjectSelectionArea?: (
+    obj: FabricObject,
+    point: Point
+  ) => boolean;
 };
 
 const PATTERN_BASE_WIDTH = 335;
@@ -343,6 +356,28 @@ const createSlotClipPath = (frame: SlotFrameState) =>
     absolutePositioned: true,
   });
 
+const getSlotFrameCoords = (frame: SlotFrameState): Point[] => {
+  const radians = (frame.angle * Math.PI) / 180;
+  const halfWidth = frame.width / 2;
+  const halfHeight = frame.height / 2;
+  const cos = Math.cos(radians);
+  const sin = Math.sin(radians);
+  const corners = [
+    { x: -halfWidth, y: -halfHeight },
+    { x: halfWidth, y: -halfHeight },
+    { x: halfWidth, y: halfHeight },
+    { x: -halfWidth, y: halfHeight },
+  ];
+
+  return corners.map(
+    corner =>
+      new Point(
+        frame.left + corner.x * cos - corner.y * sin,
+        frame.top + corner.x * sin + corner.y * cos
+      )
+  );
+};
+
 const getSlotBoundingBox = (frame: SlotFrameState) => {
   const radians = (frame.angle * Math.PI) / 180;
   const absCos = Math.abs(Math.cos(radians));
@@ -407,6 +442,30 @@ const applySlotFrameControlVisibility = (image: FabricImageWithLock) => {
     bl_rotate: true,
     br_rotate: true,
   });
+};
+
+const attachSlotImageHitArea = (image: FabricImage) => {
+  const slotImage = image as SlotImageBehaviorObject;
+
+  if (slotImage.__slotOriginalContainsPoint) {
+    return;
+  }
+
+  slotImage.__slotOriginalContainsPoint = image.containsPoint.bind(image);
+  image.containsPoint = function (point: Point) {
+    return isPointInsideSlotFrame(this, point);
+  };
+};
+
+const detachSlotImageHitArea = (image: FabricImage) => {
+  const slotImage = image as SlotImageBehaviorObject;
+
+  if (!slotImage.__slotOriginalContainsPoint) {
+    return;
+  }
+
+  image.containsPoint = slotImage.__slotOriginalContainsPoint;
+  delete slotImage.__slotOriginalContainsPoint;
 };
 const getSlotInteractionState = (image: FabricImageWithLock) => {
   if (!image.isLocked) {
@@ -596,6 +655,59 @@ const detachSlotImageBehavior = (image: FabricImage) => {
   }
 };
 
+const attachSlotSelectionAreaPatch = (canvas: Canvas) => {
+  const slotCanvas = canvas as SlotCanvasWithSelectionAreaPatch;
+
+  if (slotCanvas.__slotOriginalPointIsInObjectSelectionArea) {
+    return;
+  }
+
+  slotCanvas.__slotOriginalPointIsInObjectSelectionArea = (
+    canvas as any)._pointIsInObjectSelectionArea.bind(canvas);
+  (canvas as any)._pointIsInObjectSelectionArea = function (
+    obj: FabricObject,
+    point: Point
+  ) {
+    if (obj instanceof FabricImage && isReplaceableSlotImage(obj)) {
+      const frame = getSlotFrameState(obj);
+      const coords = getSlotFrameCoords(frame);
+      const padding = (obj.padding || 0) / this.getZoom();
+
+      if (padding) {
+        const [tl, tr, br, bl] = coords;
+        const angleRadians = Math.atan2(tr.y - tl.y, tr.x - tl.x);
+        const cosP = Math.cos(angleRadians) * padding;
+        const sinP = Math.sin(angleRadians) * padding;
+        const cosPSinP = cosP + sinP;
+        const cosPMinusSinP = cosP - sinP;
+
+        return Intersection.isPointInPolygon(point, [
+          new Point(tl.x - cosPMinusSinP, tl.y - cosPSinP),
+          new Point(tr.x + cosPSinP, tr.y - cosPMinusSinP),
+          new Point(br.x + cosPMinusSinP, br.y + cosPSinP),
+          new Point(bl.x - cosPSinP, bl.y + cosPMinusSinP),
+        ]);
+      }
+
+      return Intersection.isPointInPolygon(point, coords);
+    }
+
+    return slotCanvas.__slotOriginalPointIsInObjectSelectionArea?.(obj, point) ?? false;
+  };
+};
+
+const detachSlotSelectionAreaPatch = (canvas: Canvas) => {
+  const slotCanvas = canvas as SlotCanvasWithSelectionAreaPatch;
+
+  if (!slotCanvas.__slotOriginalPointIsInObjectSelectionArea) {
+    return;
+  }
+
+  (canvas as any)._pointIsInObjectSelectionArea =
+    slotCanvas.__slotOriginalPointIsInObjectSelectionArea;
+  delete slotCanvas.__slotOriginalPointIsInObjectSelectionArea;
+};
+
 export const useFabricSlot = ({
   canvas,
   saveHistory,
@@ -604,7 +716,12 @@ export const useFabricSlot = ({
   useEffect(() => {
     if (!canvas) return;
 
+    attachSlotSelectionAreaPatch(canvas);
     preloadSlotIconImages(() => canvas.requestRenderAll());
+
+    return () => {
+      detachSlotSelectionAreaPatch(canvas);
+    };
   }, [canvas]);
 
   useEffect(() => {
@@ -629,6 +746,7 @@ export const useFabricSlot = ({
         }
 
         applySlotImageTransform(target);
+        attachSlotImageHitArea(target);
         attachSlotImageBehavior(target);
       }
     };
@@ -654,6 +772,7 @@ export const useFabricSlot = ({
 
         if (obj instanceof FabricImage) {
           detachSlotImageBehavior(obj);
+          detachSlotImageHitArea(obj);
         }
       });
     };

@@ -4,6 +4,7 @@ import {
   Canvas,
   FabricObject,
   FabricImage,
+  Point,
   Rect,
   Circle,
   Triangle,
@@ -30,6 +31,7 @@ import {
   getImagePanelMode,
   isFilledSlotImage,
   isFrameTarget,
+  isPointInsideSlotFrame,
   isReplaceableSlotImage,
   isReplaceableSlotTarget,
   SlotTargetObject,
@@ -284,21 +286,34 @@ export const MainPosterPreview = () => {
       }
     };
 
+    const isSelectableAtPointer = (
+      object: FabricObject | undefined,
+      pointer: Point
+    ) => {
+      if (!object) return false;
+      if (isReplaceableSlotImage(object)) {
+        return isPointInsideSlotFrame(object, pointer);
+      }
+      return object.containsPoint(pointer);
+    };
     // 마우스 드래그해 그룹으로 영역 선택시 잠금 객체 제외하고 선택될수있게
     const handleMouseDown = (options: TPointerEventInfo) => {
       const e = options.e as MouseEvent;
       if (e.button === 2) return; // 우클릭(Right Click)은 무시
 
+      const pointer = options.scenePoint || fabricCanvas.getScenePoint(e);
       let target = options.target;
+
+      if (target && !isSelectableAtPointer(target, pointer)) {
+        target = undefined;
+      }
+
       const targetId = target?.get('id');
       const isBackground = targetId === 'background-layer';
-      const isLocked = (target as any)?.isLocked;
+      const isLocked = (target as FabricObjectWithLock | undefined)?.isLocked;
       const isFrame = isFrameTarget(target);
-
       // 잠긴 객체가 잡혔을 때, 그 위치에 있는 다른 (잠기지 않은) 객체를 찾아서 선택해줌
       if (target && (isLocked || isFrame) && !isBackground) {
-        const pointer =
-          options.scenePoint || (fabricCanvas as any).getScenePoint(e);
         const objects = fabricCanvas.getObjects();
 
         // 역순(맨 위 객체부터)으로 탐색하여 잠기지 않은 객체가 있는지 확인
@@ -306,9 +321,9 @@ export const MainPosterPreview = () => {
           const obj = objects[i];
           if (
             obj !== target &&
-            !(obj as any).isLocked &&
+            !(obj as FabricObjectWithLock).isLocked &&
             !isFrameTarget(obj) &&
-            obj.containsPoint(pointer)
+            isSelectableAtPointer(obj, pointer)
           ) {
             fabricCanvas.setActiveObject(obj);
             target = obj;
@@ -354,12 +369,20 @@ export const MainPosterPreview = () => {
 
       if (isCropping) return;
 
-      if (isReplaceableSlotTarget(options.target)) {
-        fabricCanvas.setActiveObject(options.target);
+      const pointer =
+        options.scenePoint || fabricCanvas.getScenePoint(options.e);
+      const slotTarget =
+        isReplaceableSlotTarget(options.target) &&
+        isSelectableAtPointer(options.target, pointer)
+          ? options.target
+          : null;
+
+      if (slotTarget) {
+        fabricCanvas.setActiveObject(slotTarget);
         setActiveTab('image');
 
-        if (!isAdmin && !isFilledSlotImage(options.target)) {
-          openSlotFilePicker(options.target);
+        if (!isAdmin && !isFilledSlotImage(slotTarget)) {
+          openSlotFilePicker(slotTarget);
         }
       }
     };
