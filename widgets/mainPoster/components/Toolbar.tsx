@@ -1,4 +1,4 @@
-import { useSearchParams } from 'next/navigation';
+// import { useSearchParams } from 'next/navigation';
 import React from 'react';
 import { useShallow } from 'zustand/shallow';
 
@@ -13,7 +13,8 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 function Toolbar() {
-  const { canvas, createTextBox, setDrawingType, drawingType, addSlotRect } =
+  // const { canvas, createTextBox, setDrawingType, drawingType, addSlotRect } = useFabricContext();
+  const { canvas, createTextBox, setDrawingType, drawingType } =
     useFabricContext();
   const { activeTab, setActiveTab } = useEditorStore(
     useShallow(state => ({
@@ -21,8 +22,9 @@ function Toolbar() {
       setActiveTab: state.setActiveTab,
     }))
   );
-  const searchParams = useSearchParams();
-  const isAdmin = searchParams.get('type') === 'admin';
+
+  // const searchParams = useSearchParams();
+  // const isAdmin = searchParams.get('type') === 'admin';
 
   if (!canvas) return null;
 
@@ -98,66 +100,66 @@ function Toolbar() {
     },
   ];
 
-  if (isAdmin) {
-    TOOLBAR_ITEMS.unshift({
-      id: 'slot',
-      active: activeTab === 'slot',
-      araiaLabel: '슬롯 추가',
-      icon: (
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-          <path d="M3 9h18"></path>
-          <path d="M9 3v18"></path>
-        </svg>
-      ),
-      hoverIcon: (
-        <p className="w-26.25 font-bold text-[16px] text-text-plain">
-          슬롯 추가
-        </p>
-      ),
-      onClick: () => {
-        setActiveTab('slot');
-        addSlotRect();
-      },
-    });
+  // if (isAdmin) {
+  //   TOOLBAR_ITEMS.unshift({
+  //     id: 'slot',
+  //     active: activeTab === 'slot',
+  //     araiaLabel: '슬롯 추가',
+  //     icon: (
+  //       <svg
+  //         width="14"
+  //         height="14"
+  //         viewBox="0 0 24 24"
+  //         fill="none"
+  //         stroke="currentColor"
+  //         strokeWidth="2"
+  //         strokeLinecap="round"
+  //         strokeLinejoin="round"
+  //       >
+  //         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+  //         <path d="M3 9h18"></path>
+  //         <path d="M9 3v18"></path>
+  //       </svg>
+  //     ),
+  //     hoverIcon: (
+  //       <p className="w-26.25 font-bold text-[16px] text-text-plain">
+  //         슬롯 추가
+  //       </p>
+  //     ),
+  //     onClick: () => {
+  //       setActiveTab('slot');
+  //       addSlotRect();
+  //     },
+  //   });
 
-    TOOLBAR_ITEMS.unshift({
-      id: 'shape',
-      active: activeTab === 'shape',
-      araiaLabel: '도형 추가',
-      icon: (
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-        </svg>
-      ),
-      hoverIcon: (
-        <p className="w-26.25 font-bold text-[16px] text-text-plain">
-          도형 추가
-        </p>
-      ),
-      onClick: () => {
-        setActiveTab('shape');
-      },
-    });
-  }
+  //   TOOLBAR_ITEMS.unshift({
+  //     id: 'shape',
+  //     active: activeTab === 'shape',
+  //     araiaLabel: '도형 추가',
+  //     icon: (
+  //       <svg
+  //         width="14"
+  //         height="14"
+  //         viewBox="0 0 24 24"
+  //         fill="none"
+  //         stroke="currentColor"
+  //         strokeWidth="2"
+  //         strokeLinecap="round"
+  //         strokeLinejoin="round"
+  //       >
+  //         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+  //       </svg>
+  //     ),
+  //     hoverIcon: (
+  //       <p className="w-26.25 font-bold text-[16px] text-text-plain">
+  //         도형 추가
+  //       </p>
+  //     ),
+  //     onClick: () => {
+  //       setActiveTab('shape');
+  //     },
+  //   });
+  // }
 
   return (
     <div

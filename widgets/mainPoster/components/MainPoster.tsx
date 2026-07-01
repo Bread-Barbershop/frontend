@@ -1,8 +1,8 @@
-import { useSearchParams } from 'next/navigation';
+// import { useSearchParams } from 'next/navigation';
 import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
-import { Label } from '@/components/atoms/label/Label';
+// import { Label } from '@/components/atoms/label/Label';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
@@ -21,10 +21,11 @@ export const MainPoster = () => {
       setActiveTab: state.setActiveTab,
     }))
   );
-  const searchParams = useSearchParams();
-  const isAdmin = searchParams.get('type') === 'admin';
-  const { canvas, exportCanvasPreview, exportIntersectedJSON, createTextBox } =
-    useFabricContext();
+  // const searchParams = useSearchParams();
+  // const isAdmin = searchParams.get('type') === 'admin';
+  // const { canvas, exportCanvasPreview, exportIntersectedJSON, createTextBox } =
+  //   useFabricContext();
+  const { canvas, createTextBox } = useFabricContext();
 
   if (!canvas) return null;
 
@@ -60,28 +61,28 @@ export const MainPoster = () => {
     },
   ];
 
-  const handleDownloadImage = () => {
-    const preview = exportCanvasPreview();
-    if (!preview) return;
-    const link = document.createElement('a');
-    link.href = preview.dataUrl;
-    link.download = preview.name;
-    link.click();
-  };
+  // const handleDownloadImage = () => {
+  //   const preview = exportCanvasPreview();
+  //   if (!preview) return;
+  //   const link = document.createElement('a');
+  //   link.href = preview.dataUrl;
+  //   link.download = preview.name;
+  //   link.click();
+  // };
 
-  const handleDownloadJSON = () => {
-    const json = exportIntersectedJSON();
-    if (!json) return;
-    const blob = new Blob([JSON.stringify(json, null, 2)], {
-      type: 'application/json',
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'template.json';
-    link.click();
-    URL.revokeObjectURL(url);
-  };
+  // const handleDownloadJSON = () => {
+  //   const json = exportIntersectedJSON();
+  //   if (!json) return;
+  //   const blob = new Blob([JSON.stringify(json, null, 2)], {
+  //     type: 'application/json',
+  //   });
+  //   const url = URL.createObjectURL(blob);
+  //   const link = document.createElement('a');
+  //   link.href = url;
+  //   link.download = 'template.json';
+  //   link.click();
+  //   URL.revokeObjectURL(url);
+  // };
 
   if (!canvas) return null;
 
@@ -90,7 +91,7 @@ export const MainPoster = () => {
       className="flex flex-col pb-3.5 px-5 items-center w-full max-h-[812px] overflow-y-scroll overflow-x-hidden scrollbar-hide"
       data-canvas="true"
     >
-      {isAdmin && (
+      {/* {isAdmin && (
         <div className="flex gap-2 w-full py-3">
           <Label className="text-sm text-text-secondary">개발용</Label>
           <UtilityButton
@@ -108,7 +109,7 @@ export const MainPoster = () => {
             데이터 다운로드
           </UtilityButton>
         </div>
-      )}
+      )} */}
 
       <NavigationBar
         action={

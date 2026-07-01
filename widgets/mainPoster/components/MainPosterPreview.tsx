@@ -5,14 +5,14 @@ import {
   FabricObject,
   FabricImage,
   Point,
-  Rect,
-  Circle,
-  Triangle,
+  // Rect,
+  // Circle,
+  // Triangle,
   TPointerEventInfo,
   Textbox,
   IText,
 } from 'fabric';
-import { useSearchParams } from 'next/navigation';
+// import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
@@ -41,8 +41,8 @@ import { ContextMenu } from './context-menu/ContextMenu';
 import Toolbar from './Toolbar';
 
 export const MainPosterPreview = () => {
-  const searchParams = useSearchParams();
-  const isAdmin = searchParams.get('type') === 'admin';
+  // const searchParams = useSearchParams();
+  // const isAdmin = searchParams.get('type') === 'admin';
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isMouseInCanvasRef = useRef(false);
   const isInitialLoadDoneRef = useRef(false);
@@ -185,11 +185,11 @@ export const MainPosterPreview = () => {
       const isActiveText =
         activeObj instanceof Textbox || activeObj instanceof IText;
       const imagePanelMode = getImagePanelMode(activeObj);
-      const isActiveShape =
-        activeObj instanceof Rect ||
-        activeObj instanceof Circle ||
-        activeObj instanceof Triangle ||
-        activeObj.isType('line');
+      // const isActiveShape =
+      //   activeObj instanceof Rect ||
+      //   activeObj instanceof Circle ||
+      //   activeObj instanceof Triangle ||
+      //   activeObj.isType('line');
       const isCropZone =
         (activeObj as FabricObject & { name?: string })?.name === 'crop-zone';
 
@@ -204,9 +204,11 @@ export const MainPosterPreview = () => {
         setActiveTab('image');
       } else if (imagePanelMode === 'empty-frame') {
         setActiveTab('image');
-      } else if (isActiveShape && isAdmin) {
-        setActiveTab('shape');
-      } else {
+      }
+      // else if (isActiveShape && isAdmin) {
+      //   setActiveTab('shape');
+      // }
+      else {
         setActiveTab('background');
       }
     };
@@ -233,7 +235,8 @@ export const MainPosterPreview = () => {
       fabricCanvas.off('selection:cleared', handleSelectionCleared);
       fabricCanvas.dispose();
     };
-  }, [isAdmin, setCanvas, setActiveTab]);
+    // }, [isAdmin, setCanvas, setActiveTab]);
+  }, [setCanvas, setActiveTab]);
 
   useEffect(() => {
     if (!canvas) return;
@@ -381,7 +384,8 @@ export const MainPosterPreview = () => {
         fabricCanvas.setActiveObject(slotTarget);
         setActiveTab('image');
 
-        if (!isAdmin && !isFilledSlotImage(slotTarget)) {
+        // if (!isAdmin && !isFilledSlotImage(slotTarget)) {
+        if (!isFilledSlotImage(slotTarget)) {
           openSlotFilePicker(slotTarget);
         }
       }
@@ -406,7 +410,7 @@ export const MainPosterPreview = () => {
     setActiveTab,
     setupEventListeners,
     startCrop,
-    isAdmin,
+    // isAdmin,
   ]);
 
   // 마우스가 캔버스에 들어왔는지 나갔는지 확인
