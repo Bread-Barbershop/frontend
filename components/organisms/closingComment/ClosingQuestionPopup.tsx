@@ -54,7 +54,7 @@ function ClosingQuestionPopup({
       wrapperClassName="h-[370px] w-[280px] px-0"
       contentClassName="min-h-0 flex-1 px-0 pb-3.5 flex flex-col "
     >
-      <div className="flex border-b border-border-neutral">
+      <div className="flex px-2.5 gap-2.5 pt-2.5 pb-1.5">
         {CLOSING_CATEGORIES.map(category => (
           <button
             key={category.value}
@@ -63,9 +63,9 @@ function ClosingQuestionPopup({
               setSelectedText('');
             }}
             className={cn(
-              'flex-1 py-3 px-2 text-xs font-normal transition-colors',
+              'flex-1 py-1.5 text-[13px] font-normal transition-colors',
               activeCategory === category.value
-                ? 'border-b-2 border-text-primary text-text-primary font-medium'
+                ? 'border-b-[1.5px] border-text-primary text-text-primary font-medium'
                 : 'text-text-secondary hover:text-text-primary'
             )}
           >
@@ -76,7 +76,7 @@ function ClosingQuestionPopup({
 
       <ul
         className={cn(
-          'flex-1 max-h-full space-y-3 overflow-y-auto scrollbar-hide px-4 pt-3'
+          'flex-1 max-h-full space-y-3 overflow-y-auto scrollbar-hide px-3 pt-1'
         )}
       >
         {options.length === 0 && (
@@ -88,9 +88,9 @@ function ClosingQuestionPopup({
         {options.map((text, index) => (
           <li
             key={`${text}-${index}`}
-            className={cn('flex h-9 items-center justify-center gap-2.5 p-0')}
+            className={cn('flex h-9 items-center justify-center gap-1 p-0')}
           >
-            <div className={cn('flex shrink-0 items-center')}>
+            <div className={cn('flex-center shrink-0 w-8 h-8')}>
               <Radio
                 name={radioName}
                 value={text}
@@ -101,7 +101,7 @@ function ClosingQuestionPopup({
 
             <PopupText
               text={text}
-              className="flex-1 "
+              className="flex-1 text-[13px]"
               twoLineEllipsis={false}
             />
           </li>
