@@ -5,6 +5,7 @@ import { useCallback, useRef, useState } from 'react';
 import { useConfirm } from '@/shared/hooks/useConfirm';
 
 import { ActiveObject } from '../types/fabric';
+import { containsFrameTarget, isFrameTarget } from '../utils/imageSlot';
 export const useFabric = () => {
   const [canvas, setCanvas] = useState<Canvas | null>(null);
   const [activeInfo, setActiveInfo] = useState<ActiveObject>({
@@ -23,50 +24,50 @@ export const useFabric = () => {
   const isRestoringCanvasState = useRef<boolean>(false);
   const { confirm } = useConfirm();
   const MAX_STACK_SIZE = 30;
-  const shouldLogSelection =
-    typeof window !== 'undefined' &&
-    new URLSearchParams(window.location.search).get('type') === 'admin';
+  // const shouldLogSelection =
+  //   typeof window !== 'undefined' &&
+  //   new URLSearchParams(window.location.search).get('type') === 'admin';
 
-  const logSelectionSnapshot = useCallback(
-    (label: string, targetCanvas?: Canvas | null) => {
-      const currentCanvas = targetCanvas ?? canvas;
-      if (!currentCanvas || !shouldLogSelection) return;
+  // const logSelectionSnapshot = useCallback(
+  //   (label: string, targetCanvas?: Canvas | null) => {
+  //     const currentCanvas = targetCanvas ?? canvas;
+  //     if (!currentCanvas || !shouldLogSelection) return;
 
-      const activeObject = currentCanvas.getActiveObject();
-      const activeObjects = currentCanvas.getActiveObjects();
+  //     const activeObject = currentCanvas.getActiveObject();
+  //     const activeObjects = currentCanvas.getActiveObjects();
 
-      console.groupCollapsed(`[Fabric][Selection] ${label}`);
-      console.log('activeObject', {
-        id: activeObject?.get?.('id'),
-        type: activeObject?.type,
-        selectable: activeObject?.selectable,
-        evented: activeObject?.evented,
-        isLocked: (activeObject as any)?.isLocked,
-      });
-      console.log(
-        'activeObjects',
-        activeObjects.map(obj => ({
-          id: obj.get?.('id'),
-          type: obj.type,
-          selectable: obj.selectable,
-          evented: obj.evented,
-          isLocked: (obj as any)?.isLocked,
-        }))
-      );
-      console.log(
-        'allObjects',
-        currentCanvas.getObjects().map(obj => ({
-          id: obj.get?.('id'),
-          type: obj.type,
-          selectable: obj.selectable,
-          evented: obj.evented,
-          isLocked: (obj as any)?.isLocked,
-        }))
-      );
-      console.groupEnd();
-    },
-    [canvas, shouldLogSelection]
-  );
+  //     console.groupCollapsed(`[Fabric][Selection] ${label}`);
+  //     console.log('activeObject', {
+  //       id: activeObject?.get?.('id'),
+  //       type: activeObject?.type,
+  //       selectable: activeObject?.selectable,
+  //       evented: activeObject?.evented,
+  //       isLocked: (activeObject as any)?.isLocked,
+  //     });
+  //     console.log(
+  //       'activeObjects',
+  //       activeObjects.map(obj => ({
+  //         id: obj.get?.('id'),
+  //         type: obj.type,
+  //         selectable: obj.selectable,
+  //         evented: obj.evented,
+  //         isLocked: (obj as any)?.isLocked,
+  //       }))
+  //     );
+  //     console.log(
+  //       'allObjects',
+  //       currentCanvas.getObjects().map(obj => ({
+  //         id: obj.get?.('id'),
+  //         type: obj.type,
+  //         selectable: obj.selectable,
+  //         evented: obj.evented,
+  //         isLocked: (obj as any)?.isLocked,
+  //       }))
+  //     );
+  //     console.groupEnd();
+  //   },
+  //   [canvas, shouldLogSelection]
+  // );
 
   const saveHistory = useCallback(() => {
     if (isUpdating.current || isRestoringCanvasState.current || !canvas) return;
@@ -94,6 +95,21 @@ export const useFabric = () => {
         'shadow',
         'paintFirst',
         'slot',
+        'imageBaseScale',
+        'imageSliderX',
+        'imageSliderY',
+        'imageSliderScale',
+        'slotBaseCropWidth',
+        'slotBaseCropHeight',
+        'slotZoomScale',
+        'slotFrameWidth',
+        'slotFrameHeight',
+        'slotFrameLeft',
+        'slotFrameTop',
+        'slotFrameAngle',
+        'slotImageBaseScale',
+        'slotImageOffsetX',
+        'slotImageOffsetY',
       ])
     );
 
@@ -225,6 +241,12 @@ export const useFabric = () => {
     if (!canvas) return;
     const activeObject = canvas.getActiveObject();
     if (!activeObject) return;
+
+    const activeObjects = canvas.getActiveObjects();
+    if (isFrameTarget(activeObject) || containsFrameTarget(activeObjects)) {
+      return;
+    }
+
     const cloned = await activeObject.clone();
     setClipboard(cloned);
   }, [canvas]);
@@ -352,16 +374,35 @@ export const useFabric = () => {
   const lock = useCallback(
     (activeObject: FabricObject) => {
       if (!activeObject || !canvas) return;
-      activeObject.set({
-        lockMovementX: true,
-        lockMovementY: true,
-        lockScalingX: true,
-        lockScalingY: true,
-        lockRotation: true,
-        hasControls: false,
-        editable: false,
-        isLocked: true,
-      });
+
+      const isReplaceableSlotImage =
+        activeObject.isType('image') &&
+        Boolean((activeObject as any).slot?.replaceable);
+
+      if (isReplaceableSlotImage) {
+        activeObject.set({
+          lockMovementX: true,
+          lockMovementY: true,
+          lockScalingX: true,
+          lockScalingY: true,
+          lockRotation: true,
+          hasControls: false,
+          editable: false,
+          isLocked: true,
+        });
+      } else {
+        activeObject.set({
+          lockMovementX: true,
+          lockMovementY: true,
+          lockScalingX: true,
+          lockScalingY: true,
+          lockRotation: true,
+          hasControls: false,
+          editable: false,
+          isLocked: true,
+        });
+      }
+
       canvas?.requestRenderAll();
       saveHistory();
     },
@@ -371,16 +412,35 @@ export const useFabric = () => {
   const unLock = useCallback(
     (activeObject: FabricObject) => {
       if (!activeObject || !canvas) return;
-      activeObject.set({
-        lockMovementX: false,
-        lockMovementY: false,
-        lockScalingX: false,
-        lockScalingY: false,
-        lockRotation: false,
-        isLocked: false,
-        hasControls: true,
-        editable: true,
-      });
+
+      const isReplaceableSlotImage =
+        activeObject.isType('image') &&
+        Boolean((activeObject as any).slot?.replaceable);
+
+      if (isReplaceableSlotImage) {
+        activeObject.set({
+          lockMovementX: false,
+          lockMovementY: false,
+          lockScalingX: false,
+          lockScalingY: false,
+          lockRotation: false,
+          isLocked: false,
+          hasControls: true,
+          editable: true,
+        });
+      } else {
+        activeObject.set({
+          lockMovementX: false,
+          lockMovementY: false,
+          lockScalingX: false,
+          lockScalingY: false,
+          lockRotation: false,
+          isLocked: false,
+          hasControls: true,
+          editable: true,
+        });
+      }
+
       canvas?.requestRenderAll();
       saveHistory();
     },
@@ -391,34 +451,34 @@ export const useFabric = () => {
     const activeObjects = canvas.getActiveObjects();
 
     if (activeObjects.length === 0) {
-      if (shouldLogSelection) {
-        console.log('[Fabric] 선택 해제됨');
-      }
+      // if (shouldLogSelection) {
+      //   console.log('[Fabric] 선택 해제됨');
+      // }
       setActiveInfo({ type: null, isLocked: false, filters: [], styles: {} });
       return;
     }
 
     const primaryObject = activeObjects[0];
-    const getKoreanType = (obj: any) => {
-      if (obj.get('id') === 'background-layer') return '배경';
-      if (obj.isType('textbox') || obj.isType('itext') || obj.isType('text'))
-        return '텍스트';
-      if (obj.isType('image')) return '이미지';
-      if (obj.isType('rect') || obj.isType('circle') || obj.isType('triangle'))
-        return '도형';
-      if (obj.isType('path') || obj.isType('line')) return '선/경로';
-      if (obj.isType('activeSelection')) return '다중 선택';
-      return obj.type;
-    };
+    // const getKoreanType = (obj: any) => {
+    //   if (obj.get('id') === 'background-layer') return '배경';
+    //   if (obj.isType('textbox') || obj.isType('itext') || obj.isType('text'))
+    //     return '텍스트';
+    //   if (obj.isType('image')) return '이미지';
+    //   if (obj.isType('rect') || obj.isType('circle') || obj.isType('triangle'))
+    //     return '도형';
+    //   if (obj.isType('path') || obj.isType('line')) return '선/경로';
+    //   if (obj.isType('activeSelection')) return '다중 선택';
+    //   return obj.type;
+    // };
 
-    if (shouldLogSelection) {
-      console.log(`[Fabric] 객체 활성화: ${getKoreanType(primaryObject)}`, {
-        id: primaryObject.get('id'),
-        isLocked: (primaryObject as any).isLocked,
-        selectable: primaryObject.selectable,
-        evented: primaryObject.evented,
-      });
-    }
+    // if (shouldLogSelection) {
+    //   console.log(`[Fabric] 객체 활성화: ${getKoreanType(primaryObject)}`, {
+    //     id: primaryObject.get('id'),
+    //     isLocked: (primaryObject as any).isLocked,
+    //     selectable: primaryObject.selectable,
+    //     evented: primaryObject.evented,
+    //   });
+    // }
 
     // UI 버튼 활성화를 위해 필요한 정보만 추출
     setActiveInfo({
@@ -557,11 +617,12 @@ export const useFabric = () => {
       await canvas.loadFromJSON(prevState);
     });
 
-    logSelectionSnapshot('undo:after-render');
+    // logSelectionSnapshot('undo:after-render');
     // 저장된 필터 효과를 다시 렌더링하도록 applyFilters 호출
     setCanUndo(undoStack.current.length > 1);
     setCanRedo(redoStack.current.length > 0);
-  }, [canvas, logSelectionSnapshot, runHistoryTransaction]);
+    // }, [canvas, logSelectionSnapshot, runHistoryTransaction]);
+  }, [canvas, runHistoryTransaction]);
 
   const redo = useCallback(async () => {
     if (redoStack.current.length === 0 || isUpdating.current || !canvas) return;
@@ -574,11 +635,12 @@ export const useFabric = () => {
       });
 
       // 저장된 필터 효과를 다시 렌더링하도록 applyFilters 호출
-      logSelectionSnapshot('redo:after-render');
+      // logSelectionSnapshot('redo:after-render');
     }
     setCanUndo(undoStack.current.length > 1);
     setCanRedo(redoStack.current.length > 0);
-  }, [canvas, logSelectionSnapshot, runHistoryTransaction]);
+    // }, [canvas, logSelectionSnapshot, runHistoryTransaction]);
+  }, [canvas, runHistoryTransaction]);
 
   const exportIntersectedJSON = useCallback(() => {
     if (!canvas) return;
@@ -630,6 +692,21 @@ export const useFabric = () => {
       'shadow',
       'paintFirst',
       'slot',
+      'imageBaseScale',
+      'imageSliderX',
+      'imageSliderY',
+      'imageSliderScale',
+      'slotBaseCropWidth',
+      'slotBaseCropHeight',
+      'slotZoomScale',
+      'slotFrameWidth',
+      'slotFrameHeight',
+      'slotFrameLeft',
+      'slotFrameTop',
+      'slotFrameAngle',
+      'slotImageBaseScale',
+      'slotImageOffsetX',
+      'slotImageOffsetY',
     ];
     const json = canvas.toObject(propertiesToInclude);
     json.objects = filteredData.map(obj => obj.toObject(propertiesToInclude));

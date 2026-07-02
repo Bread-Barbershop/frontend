@@ -9,46 +9,46 @@ import { cn } from '@/shared/utils/cn';
 import { previewTitleVariants } from './PreviewTitle.style';
 
 interface PreviewTitleProps extends VariantProps<typeof previewTitleVariants> {
-  isKoTitle?: boolean;
-  koTitle?: string;
-  enTitle?: string;
+  isMainTitle?: boolean;
+  mainTitle?: string;
+  subTitle?: string;
   className?: string;
   titleClassName?: string;
 }
 
 export const PreviewTitle = ({
-  isKoTitle,
-  koTitle,
-  enTitle,
+  isMainTitle,
+  mainTitle,
+  subTitle,
   className,
   titleClassName,
 }: PreviewTitleProps) => {
-  const koText = koTitle?.trim() || '제목을 입력해 주세요';
-  const enText = enTitle?.trim();
-  const { koStyle, enStyle } = useTitleFontInfo();
+  const mainText = mainTitle?.trim() || '제목을 입력해 주세요';
+  const subText = subTitle?.trim();
+  const { mainStyle, subStyle } = useTitleFontInfo();
 
   return (
     <div className={cn('flex flex-col gap-1 w-full', className)}>
-      {enText && enText !== '' && (
+      {subText && subText !== '' && (
         <p
           className={cn(
-            previewTitleVariants({ language: 'en' }),
+            previewTitleVariants({ language: 'sub' }),
             titleClassName
           )}
-          style={enStyle}
+          style={subStyle}
         >
-          {enText}
+          {subText}
         </p>
       )}
-      {isKoTitle && (
+      {isMainTitle && (
         <p
           className={cn(
-            previewTitleVariants({ language: 'ko' }),
+            previewTitleVariants({ language: 'main' }),
             titleClassName
           )}
-          style={koStyle}
+          style={mainStyle}
         >
-          {koText}
+          {mainText}
         </p>
       )}
     </div>

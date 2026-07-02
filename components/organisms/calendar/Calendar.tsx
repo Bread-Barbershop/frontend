@@ -95,15 +95,15 @@ export function Calendar({ blockInfo, id }: Props) {
       messageHtml: tiptapJsonToHtmlInBrowser(json),
     });
   };
-  const handleEnglishTitleCheck = useCallback(
+  const handleSubTitleCheck = useCallback(
     ({ target: { checked } }: React.ChangeEvent<HTMLInputElement>) => {
-      updateBlock(id, { isEnglishTitle: checked });
+      updateBlock(id, { isSubTitle: checked });
     },
     [id, updateBlock]
   );
-  const handleEnglishTitleChange = useCallback(
+  const handleSubTitleChange = useCallback(
     ({ target }: React.ChangeEvent<HTMLInputElement>) => {
-      updateBlock(id, { englishTitle: sanitizeEnglishTitleInput(target) });
+      updateBlock(id, { subTitle: sanitizeEnglishTitleInput(target) });
     },
     [id, updateBlock]
   );
@@ -130,7 +130,7 @@ export function Calendar({ blockInfo, id }: Props) {
         className="w-full text-center py-1.5"
       />
 
-      {blockInfo.props.isEnglishTitle && (
+      {blockInfo.props.isSubTitle && (
         <TextField
           key={`english-title-${id}`}
           label="영문제목"
@@ -139,8 +139,8 @@ export function Calendar({ blockInfo, id }: Props) {
               blockInfo.type === 'wedding'
                 ? 'THE WEDDING DATE'
                 : 'THE EVENT DATE',
-            defaultValue: blockInfo.props.englishTitle,
-            onChange: handleEnglishTitleChange,
+            defaultValue: blockInfo.props.subTitle,
+            onChange: handleSubTitleChange,
           }}
           className="w-full text-center py-1.5"
         />
@@ -204,8 +204,8 @@ export function Calendar({ blockInfo, id }: Props) {
           <div className="flex flex-col">
             <div className="flex gap-3">
               <Checkbox
-                checked={blockInfo.props.isEnglishTitle}
-                onChange={handleEnglishTitleCheck}
+                checked={blockInfo.props.isSubTitle}
+                onChange={handleSubTitleCheck}
               >
                 <span className="text-[13px]">영문 제목 추가</span>
               </Checkbox>

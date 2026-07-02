@@ -1,69 +1,103 @@
 import { FabricImage } from 'fabric';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
-import { ImageUploadButton } from '@/components/atoms/button/ImageUploadButton';
+import { Label } from '@/components/atoms/label/Label';
+import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { EditorNoticeList } from '@/components/molecules/editor-notice';
-import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
+import { RangeControl } from '@/components/molecules/range-control/RangeControl';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 import { SlotImageObject } from '../../utils/imageSlot';
 
-const clampPercent = (value: number) => Math.min(100, Math.max(0, value));
-const clampSliderOffset = (value: number) => Math.min(50, Math.max(-50, value));
-const percentToSliderOffset = (value: number) =>
-  clampSliderOffset(Math.round(clampPercent(value) - 50));
-const sliderOffsetToPercent = (value: number) =>
-  clampPercent(clampSliderOffset(value) + 50);
+import { AspectRatioSelector } from './AspectRatioSelector';
+import { ImagePreview } from './ImagePreview';
 
-const sliderClassName =
-  'h-1 w-full cursor-pointer appearance-none rounded-full bg-[#E5E7EB] accent-[#3B82F6] disabled:cursor-not-allowed disabled:opacity-50 ' +
-  '[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:size-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#3B82F6] ' +
-  '[&::-moz-range-thumb]:size-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#3B82F6] [&::-moz-range-thumb]:border-none';
+const POSITION_MIN = -50;
+const POSITION_MAX = 50;
+const SCALE_MIN = 100;
+const SCALE_MAX = 400;
+const SCALE_OFFSET_MIN = 0;
+const SCALE_OFFSET_MAX = SCALE_MAX - SCALE_MIN;
+
+const clampPosition = (value: number) =>
+  Math.min(POSITION_MAX, Math.max(POSITION_MIN, value));
+const clampScale = (value: number) =>
+  Math.min(SCALE_MAX, Math.max(SCALE_MIN, value));
+const clampScaleOffset = (value: number) =>
+  Math.min(SCALE_OFFSET_MAX, Math.max(SCALE_OFFSET_MIN, value));
+const scaleToOffset = (value: number) => clampScale(value) - SCALE_MIN;
 
 export const TemplateImagePanel = () => {
   const {
     canvas,
+    activeInfo,
     compressImage,
     replaceSlotImage,
+    restoreSlotPlaceholder,
     getSlotImagePosition,
     updateSlotImagePosition,
+    getSlotImageScale,
+    updateSlotImageScale,
+    exportSlotImagePreview,
+    setBackgroundImage,
+    runHistoryTransaction,
   } = useFabricContext();
+  const setActiveTab = useEditorStore(state => state.setActiveTab);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [imageSrc, setImageSrc] = useState('');
+  const [displayValue, setDisplayValue] = useState({
+    x: '0',
+    y: '0',
+    scale: '0',
+  });
   const activeObject = canvas?.getActiveObject();
   const activeSlotImage =
     activeObject instanceof FabricImage &&
     (activeObject as SlotImageObject).slot?.replaceable
       ? (activeObject as SlotImageObject)
       : null;
+
   const position = activeSlotImage
     ? getSlotImagePosition(activeSlotImage)
-    : { x: 50, y: 50, canMoveX: false, canMoveY: false };
+    : { x: 0, y: 0 };
+  const scale = activeSlotImage
+    ? getSlotImageScale(activeSlotImage)
+    : SCALE_MIN;
+
   const activeSlotKey = activeSlotImage?.slot?.key ?? null;
-  const [dragPosition, setDragPosition] = useState<{
-    slotKey: string;
-    x: number;
-    y: number;
-  } | null>(null);
-  const [displayValue, setDisplayValue] = useState({ x: '0', y: '0' });
-  const sliderPosition =
-    dragPosition && dragPosition.slotKey === activeSlotKey
-      ? {
-          x: percentToSliderOffset(dragPosition.x),
-          y: percentToSliderOffset(dragPosition.y),
-        }
-      : {
-          x: percentToSliderOffset(position.x),
-          y: percentToSliderOffset(position.y),
-        };
+
+  const syncBackgroundSelection = () => {
+    if (!canvas) return;
+
+    const backgroundObject = canvas
+      .getObjects()
+      .find(obj => obj.get('id') === 'background-layer');
+
+    if (!backgroundObject) return;
+
+    backgroundObject.set({ selectable: true, evented: true });
+    canvas.setActiveObject(backgroundObject);
+    canvas.requestRenderAll();
+  };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDisplayValue({
-      x: String(sliderPosition.x),
-      y: String(sliderPosition.y),
+      x: String(clampPosition(position.x)),
+      y: String(clampPosition(position.y)),
+      scale: String(scaleToOffset(scale)),
     });
-  }, [sliderPosition.x, sliderPosition.y, activeSlotKey]);
+  }, [activeSlotKey, position.x, position.y, scale]);
+
+  useEffect(() => {
+    if (!activeSlotImage) {
+      setImageSrc('');
+      return;
+    }
+    setImageSrc(exportSlotImagePreview(activeSlotImage));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canvas, activeInfo, activeSlotKey]);
 
   const handleUploadClick = () => {
     inputRef.current?.click();
@@ -72,14 +106,12 @@ export const TemplateImagePanel = () => {
   const handleChangeImage = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     event.target.value = '';
-
     if (!file || !canvas || !activeSlotImage) return;
 
     const reader = new FileReader();
     reader.onload = async loadEvent => {
       const base64 = loadEvent.target?.result;
       if (typeof base64 !== 'string') return;
-
       const compressed = await compressImage(base64);
       await replaceSlotImage(activeSlotImage, compressed);
     };
@@ -87,30 +119,11 @@ export const TemplateImagePanel = () => {
   };
 
   const handleSlotPositionChange = (axis: 'x' | 'y', value: number) => {
-    const nextSliderValue = clampSliderOffset(value);
-    const nextValue = sliderOffsetToPercent(nextSliderValue);
-
+    const nextValue = clampPosition(value);
     setDisplayValue(current => ({
       ...current,
-      [axis]: String(nextSliderValue),
+      [axis]: String(nextValue),
     }));
-
-    if (activeSlotKey) {
-      const currentX =
-        dragPosition?.slotKey === activeSlotKey
-          ? dragPosition.x
-          : clampPercent(position.x);
-      const currentY =
-        dragPosition?.slotKey === activeSlotKey
-          ? dragPosition.y
-          : clampPercent(position.y);
-
-      setDragPosition({
-        slotKey: activeSlotKey,
-        x: axis === 'x' ? nextValue : currentX,
-        y: axis === 'y' ? nextValue : currentY,
-      });
-    }
 
     if (canvas && activeSlotImage) {
       updateSlotImagePosition(activeSlotImage, axis, nextValue);
@@ -118,176 +131,174 @@ export const TemplateImagePanel = () => {
   };
 
   const handleSlotPositionCommit = (axis: 'x' | 'y', value: number) => {
-    const nextSliderValue = clampSliderOffset(value);
-    const nextValue = sliderOffsetToPercent(nextSliderValue);
+    const nextValue = clampPosition(value);
+    setDisplayValue(current => ({
+      ...current,
+      [axis]: String(nextValue),
+    }));
 
     if (canvas && activeSlotImage) {
       updateSlotImagePosition(activeSlotImage, axis, nextValue, {
         saveHistory: true,
         syncActiveObjectInfo: true,
       });
+      setImageSrc(exportSlotImagePreview(activeSlotImage));
     }
+  };
 
+  const handleSlotScaleChange = (value: number) => {
+    const nextScale = clampScale(value);
     setDisplayValue(current => ({
       ...current,
-      [axis]: String(nextSliderValue),
+      scale: String(scaleToOffset(nextScale)),
     }));
-    setDragPosition(null);
+
+    if (canvas && activeSlotImage) {
+      updateSlotImageScale(activeSlotImage, nextScale);
+    }
+  };
+
+  const handleSlotScaleCommit = (value: number) => {
+    const nextScale = clampScale(value);
+    setDisplayValue(current => ({
+      ...current,
+      scale: String(scaleToOffset(nextScale)),
+    }));
+
+    if (canvas && activeSlotImage) {
+      updateSlotImageScale(activeSlotImage, nextScale, {
+        saveHistory: true,
+        syncActiveObjectInfo: true,
+      });
+      setImageSrc(exportSlotImagePreview(activeSlotImage));
+    }
+  };
+
+  const handleSetAsBackground = async (checked: boolean) => {
+    if (!checked || !canvas || !activeSlotImage) return;
+
+    const previewDataUrl = exportSlotImagePreview(activeSlotImage);
+    if (!previewDataUrl) return;
+
+    await runHistoryTransaction(
+      async () => {
+        await setBackgroundImage(previewDataUrl, { saveHistory: false });
+        restoreSlotPlaceholder(activeSlotImage, { saveHistory: false });
+      },
+      { save: true }
+    );
+    syncBackgroundSelection();
+    setActiveTab('image');
   };
 
   return (
-    <LeftEditorWrapper ariaLabel="이미지 위치 조절">
-      <NavigationBar>템플릿 이미지</NavigationBar>
-      <div className="py-5" data-crop-controls="true">
-        <ImageUploadButton
-          ref={inputRef}
-          onButtonClick={handleUploadClick}
-          onInputChange={handleChangeImage}
+    <LeftEditorWrapper
+      ariaLabel="프레임 이미지 편집"
+      className="overflow-y-scroll gap-2"
+      data-crop-controls="true"
+    >
+      <ImagePreview
+        src={imageSrc}
+        alt="프레임 이미지 미리보기"
+        inputRef={inputRef}
+        onUploadClick={handleUploadClick}
+        onInputChange={handleChangeImage}
+        allowPreviewClick={true}
+        emptyStateContent={
+          <p className="text-base font-medium text-black">
+            이미지를 추가해주세요
+          </p>
+        }
+      />
+      <AspectRatioSelector disabled startCrop={() => {}} />
+      <RangeControl
+        label="X축"
+        min={POSITION_MIN}
+        max={POSITION_MAX}
+        step={1}
+        value={position.x}
+        displayValue={displayValue.x}
+        allowNegative
+        disabled={!activeSlotImage || !canvas}
+        onDisplayValueChange={value => {
+          setDisplayValue(current => ({
+            ...current,
+            x: value,
+          }));
+        }}
+        onChange={value => {
+          handleSlotPositionChange('x', value);
+        }}
+        onCommit={value => {
+          handleSlotPositionCommit('x', value);
+        }}
+      />
+      <RangeControl
+        label="Y축"
+        min={POSITION_MIN}
+        max={POSITION_MAX}
+        step={1}
+        value={position.y}
+        displayValue={displayValue.y}
+        allowNegative
+        disabled={!activeSlotImage || !canvas}
+        onDisplayValueChange={value => {
+          setDisplayValue(current => ({
+            ...current,
+            y: value,
+          }));
+        }}
+        onChange={value => {
+          handleSlotPositionChange('y', value);
+        }}
+        onCommit={value => {
+          handleSlotPositionCommit('y', value);
+        }}
+      />
+      <RangeControl
+        label="배율"
+        min={SCALE_OFFSET_MIN}
+        max={SCALE_OFFSET_MAX}
+        step={5}
+        value={scaleToOffset(scale)}
+        displayValue={displayValue.scale}
+        disabled={!activeSlotImage || !canvas}
+        onDisplayValueChange={value => {
+          setDisplayValue(current => ({
+            ...current,
+            scale: value,
+          }));
+        }}
+        onChange={value => {
+          handleSlotScaleChange(SCALE_MIN + clampScaleOffset(value));
+        }}
+        onCommit={value => {
+          handleSlotScaleCommit(SCALE_MIN + clampScaleOffset(value));
+        }}
+      />
+      <div className="w-full flex items-center gap-3">
+        <Label className="font-semibold">추가기능</Label>
+        <Checkbox
+          checked={false}
+          disabled={!activeSlotImage}
+          onChange={async event => {
+            await handleSetAsBackground(event.target.checked);
+          }}
         >
-          <p className="text-base font-[500] text-black">
-            <span className="font-[600] text-[#1F72EF]">이곳</span>을 클릭하여
-            이미지를 추가해주세요.
-          </p>
-        </ImageUploadButton>
-      </div>
-      <div className="w-full space-y-3 pb-5" data-crop-controls="true">
-        <div className="bg-bg-base flex w-full items-center gap-4 py-1">
-          <p className="w-[52px] px-2 text-center text-sm font-semibold text-text-primary">
-            X축
-          </p>
-          <div className="flex-1 px-1">
-            <input
-              type="range"
-              min={-50}
-              max={50}
-              step={1}
-              value={sliderPosition.x}
-              disabled={!position.canMoveX || !activeSlotImage || !canvas}
-              className={sliderClassName}
-              onChange={event => {
-                handleSlotPositionChange('x', Number(event.target.value));
-              }}
-              onMouseUp={event => {
-                handleSlotPositionCommit(
-                  'x',
-                  Number(event.currentTarget.value)
-                );
-              }}
-              onTouchEnd={event => {
-                handleSlotPositionCommit(
-                  'x',
-                  Number(event.currentTarget.value)
-                );
-              }}
-            />
-          </div>
-          <input
-            type="text"
-            value={displayValue.x}
-            disabled={!position.canMoveX || !activeSlotImage || !canvas}
-            onChange={event => {
-              const numericValue = event.target.value.replace(/[^0-9-]/g, '');
-              if (
-                numericValue !== '' &&
-                numericValue !== '-' &&
-                !/^-?\d+$/.test(numericValue)
-              )
-                return;
-
-              setDisplayValue(current => ({
-                ...current,
-                x: numericValue,
-              }));
-
-              if (numericValue !== '' && numericValue !== '-') {
-                handleSlotPositionChange('x', Number(numericValue));
-              }
-            }}
-            onBlur={() => {
-              const parsed = Number(displayValue.x);
-              const nextValue =
-                displayValue.x === '' || displayValue.x === '-' || isNaN(parsed)
-                  ? sliderPosition.x
-                  : parsed;
-              handleSlotPositionCommit('x', nextValue);
-            }}
-            className="flex h-[32px] w-[47px] items-center justify-center rounded-lg border border-border-neutral bg-bg-base text-center text-xs focus:border-primary focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-          />
-        </div>
-        <div className="bg-bg-base flex w-full items-center gap-4 py-1">
-          <p className="w-[52px] px-2 text-center text-sm font-semibold text-text-primary">
-            Y축
-          </p>
-          <div className="flex-1 px-1">
-            <input
-              type="range"
-              min={-50}
-              max={50}
-              step={1}
-              value={sliderPosition.y}
-              disabled={!position.canMoveY || !activeSlotImage || !canvas}
-              className={sliderClassName}
-              onChange={event => {
-                handleSlotPositionChange('y', Number(event.target.value));
-              }}
-              onMouseUp={event => {
-                handleSlotPositionCommit(
-                  'y',
-                  Number(event.currentTarget.value)
-                );
-              }}
-              onTouchEnd={event => {
-                handleSlotPositionCommit(
-                  'y',
-                  Number(event.currentTarget.value)
-                );
-              }}
-            />
-          </div>
-          <input
-            type="text"
-            value={displayValue.y}
-            disabled={!position.canMoveY || !activeSlotImage || !canvas}
-            onChange={event => {
-              const numericValue = event.target.value.replace(/[^0-9-]/g, '');
-              if (
-                numericValue !== '' &&
-                numericValue !== '-' &&
-                !/^-?\d+$/.test(numericValue)
-              )
-                return;
-
-              setDisplayValue(current => ({
-                ...current,
-                y: numericValue,
-              }));
-
-              if (numericValue !== '' && numericValue !== '-') {
-                handleSlotPositionChange('y', Number(numericValue));
-              }
-            }}
-            onBlur={() => {
-              const parsed = Number(displayValue.y);
-              const nextValue =
-                displayValue.y === '' || displayValue.y === '-' || isNaN(parsed)
-                  ? sliderPosition.y
-                  : parsed;
-              handleSlotPositionCommit('y', nextValue);
-            }}
-            className="flex h-[32px] w-[47px] items-center justify-center rounded-lg border border-border-neutral bg-bg-base text-center text-xs focus:border-primary focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-          />
-        </div>
+          <span className="text-[13px]">해당 이미지를 배경으로 적용하기</span>
+        </Checkbox>
       </div>
       <EditorNoticeList
+        className="pl-1"
         notices={[
           {
-            id: 'template-slot-image-crop',
-            text: '자르기 실행 후 원하는 형태로 자르기 하신 뒤 아무곳이나 클릭하시면 적용됩니다.',
+            id: 'image-crop',
+            text: '자르기 실행 후 원하는 형태로 자르기 하신 뒤 아무곳이나 클릭 하시면 적용됩니다.',
             colorClass: 'text-[#1F72EF]',
           },
           {
-            id: 'template-slot-image-position',
-            text: 'X축, Y축 조정을 통해 이미지가 보이는 위치를 변경할 수 있습니다.',
+            id: 'image-position',
+            text: 'X축, Y축 조정을 통해 이미지가 보이는 위치를 변경할 수 있습니 다.',
           },
         ]}
       />

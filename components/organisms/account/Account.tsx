@@ -39,7 +39,7 @@ export const Account = ({ blockInfo, id }: Props) => {
   );
   const [isGroupPopupOpen, setIsGroupPopupOpen] = useState(false);
   const groupPopupTriggerRef = useRef<HTMLDivElement>(null);
-  const { title, checkedEnglishTitle, englishTitle } = blockInfo.props;
+  const { title, checkedSubTitle, subTitle } = blockInfo.props;
 
   const handleUpdateBlock = (
     key: string,
@@ -123,15 +123,15 @@ export const Account = ({ blockInfo, id }: Props) => {
         }}
         className="w-full text-center"
       />
-      {checkedEnglishTitle && (
+      {checkedSubTitle && (
         <TextField
           label="영문제목"
           inputProps={{
             placeholder: 'ACCOUNT',
-            value: englishTitle === 'ACCOUNT' ? '' : englishTitle,
+            value: subTitle === 'ACCOUNT' ? '' : subTitle,
             onChange: e =>
               handleUpdateBlock(
-                'englishTitle',
+                'subTitle',
                 sanitizeEnglishTitleInput(e.target) || 'ACCOUNT'
               ),
           }}
@@ -152,9 +152,9 @@ export const Account = ({ blockInfo, id }: Props) => {
         <Label className="font-semibold">추가기능</Label>
         <Checkbox
           onChange={e =>
-            handleUpdateBlock('checkedEnglishTitle', e.target.checked)
+            handleUpdateBlock('checkedSubTitle', e.target.checked)
           }
-          checked={checkedEnglishTitle}
+          checked={checkedSubTitle}
         >
           <span className="text-[13px]">영문 제목 추가</span>
         </Checkbox>

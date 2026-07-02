@@ -7,11 +7,11 @@ export const myChildSchema = {
       default: '',
       required: true,
     },
-    checkedEnglishTitle: {
+    checkedSubTitle: {
       default: true,
       required: true,
     },
-    englishTitle: {
+    subTitle: {
       default: 'MY CHILD',
       required: false,
     },

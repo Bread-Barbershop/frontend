@@ -2,7 +2,7 @@ export const TEMPLATE_CATEGORIES = {
   all: '전체',
   wedding: '결혼식',
   birthday: '생일',
-  conference: '컨퍼런스',
+  seminar: '세미나',
   firstBirthday: '돌잔치',
 } as const;
 

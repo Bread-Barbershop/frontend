@@ -22,7 +22,7 @@ interface Props {
 
 function Gallery({ blockInfo, id }: Props) {
   const {
-    isEnglishTitle = true,
+    isSubTitle = true,
     isPopupViewer = false,
     ratio,
   } = blockInfo.props;
@@ -38,9 +38,9 @@ function Gallery({ blockInfo, id }: Props) {
   const handleOnChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { title: e.target.value || '갤러리' });
   };
-  const handleOnChangeEngTitle = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleOnChangeSubTitle = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, {
-      enTitle: sanitizeEnglishTitleInput(e.target) || 'GALLERY',
+      subTitle: sanitizeEnglishTitleInput(e.target) || 'GALLERY',
     });
   };
 
@@ -69,8 +69,8 @@ function Gallery({ blockInfo, id }: Props) {
   const handlePopViewChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { isPopupViewer: e.target.checked });
   };
-  const handleEnglishTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { isEnglishTitle: e.target.checked });
+  const handleSubTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    updateBlock(id, { isSubTitle: e.target.checked });
   };
 
   const handleAspectRatioChange = (e: PointerEvent<HTMLButtonElement>) => {
@@ -91,17 +91,17 @@ function Gallery({ blockInfo, id }: Props) {
               blockInfo.props.title === '갤러리' ? '' : blockInfo.props.title,
           }}
         />
-        {blockInfo.props.isEnglishTitle && (
+        {blockInfo.props.isSubTitle && (
           <TextField
             label="영문 제목"
             className="py-1.5 text-center"
             inputProps={{
               placeholder: 'GALLERY',
-              onChange: e => handleOnChangeEngTitle(e),
+              onChange: e => handleOnChangeSubTitle(e),
               value:
-                blockInfo.props.enTitle === 'GALLERY'
+                blockInfo.props.subTitle === 'GALLERY'
                   ? ''
-                  : blockInfo.props.enTitle,
+                  : blockInfo.props.subTitle,
             }}
           />
         )}
@@ -136,8 +136,8 @@ function Gallery({ blockInfo, id }: Props) {
           <Label className="font-semibold shrink-0 text-center">추가기능</Label>
           <div>
             <Checkbox
-              onChange={handleEnglishTitleChange}
-              checked={isEnglishTitle}
+              onChange={handleSubTitleChange}
+              checked={isSubTitle}
             >
               <span className="text-[13px]">영문 제목 추가</span>
             </Checkbox>

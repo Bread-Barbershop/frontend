@@ -26,8 +26,8 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
   const {
     family,
     title,
-    englishTitle,
-    checkedEnglishTitle,
+    subTitle,
+    checkedSubTitle,
     checkedMessage,
     messageJson,
   } = blockInfo.props;
@@ -48,7 +48,7 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
 
   const handleEnglishTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, {
-      englishTitle: sanitizeEnglishTitleInput(e.target) || 'MY FAMILY',
+      subTitle: sanitizeEnglishTitleInput(e.target) || 'MY FAMILY',
     });
   };
 
@@ -110,14 +110,14 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
 
   const handleCheckedChange = (
     e: ChangeEvent<HTMLInputElement>,
-    type: 'checkedEnglishTitle' | 'checkedMessage'
+    type: 'checkedSubTitle' | 'checkedMessage'
   ) => {
     const isChecked = e.target.checked;
     const updateData: Record<string, unknown> = { [type]: isChecked };
 
     if (!isChecked) {
-      if (type === 'checkedEnglishTitle') {
-        updateData.englishTitle = '';
+      if (type === 'checkedSubTitle') {
+        updateData.subTitle = '';
       } else if (type === 'checkedMessage') {
         updateData.messageJson = null;
         updateData.messageHtml = null;
@@ -181,12 +181,12 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
         }}
         className="w-full py-1.5 text-center"
       />
-      {checkedEnglishTitle && (
+      {checkedSubTitle && (
         <TextField
           label="영문제목"
           inputProps={{
             placeholder: 'MY FAMILY',
-            value: englishTitle === 'MY FAMILY' ? '' : englishTitle,
+            value: subTitle === 'MY FAMILY' ? '' : subTitle,
             onChange: handleEnglishTitleChange,
           }}
           className="w-full py-1.5 text-center"
@@ -226,8 +226,8 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
       <section className="flex w-full -mx-2 gap-1 py-1.5">
         <Label className="font-semibold">추가기능</Label>
         <Checkbox
-          checked={checkedEnglishTitle}
-          onChange={e => handleCheckedChange(e, 'checkedEnglishTitle')}
+          checked={checkedSubTitle}
+          onChange={e => handleCheckedChange(e, 'checkedSubTitle')}
         >
           <span className="text-[13px]">영문 제목 추가</span>
         </Checkbox>

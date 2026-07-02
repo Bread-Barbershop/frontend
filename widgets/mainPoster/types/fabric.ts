@@ -22,6 +22,21 @@ export interface TextboxWithLock extends OriginalTextbox {
 export interface FabricImageWithLock extends OriginalFabricImage {
   isLocked?: boolean;
   slot?: ImageSlotMeta;
+  imageBaseScale?: number;
+  imageSliderX?: number;
+  imageSliderY?: number;
+  imageSliderScale?: number;
+  slotBaseCropWidth?: number;
+  slotBaseCropHeight?: number;
+  slotZoomScale?: number;
+  slotFrameWidth?: number;
+  slotFrameHeight?: number;
+  slotFrameLeft?: number;
+  slotFrameTop?: number;
+  slotFrameAngle?: number;
+  slotImageBaseScale?: number;
+  slotImageOffsetX?: number;
+  slotImageOffsetY?: number;
 }
 
 export interface BaseShape {

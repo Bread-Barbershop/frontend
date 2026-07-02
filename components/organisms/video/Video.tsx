@@ -22,7 +22,7 @@ interface Props {
 const ratioOptions = ['1:1', '3:4', '4:3', '9:16', '16:9'];
 
 export const Video = ({ blockInfo, id }: Props) => {
-  const { title, videoUrl, checkThumbnail, checkedEnglishTitle, englishTitle } =
+  const { title, videoUrl, checkThumbnail, checkedSubTitle, subTitle } =
     blockInfo.props;
   const { updateBlock, updateImage } = useEditorStore(
     useShallow(state => ({
@@ -53,15 +53,15 @@ export const Video = ({ blockInfo, id }: Props) => {
         }}
         className="w-full py-1.5 text-center"
       />
-      {checkedEnglishTitle && (
+      {checkedSubTitle && (
         <TextField
           label="영문제목"
           inputProps={{
             placeholder: 'VIDEO',
-            value: englishTitle === 'VIDEO' ? '' : englishTitle,
+            value: subTitle === 'VIDEO' ? '' : subTitle,
             onChange: e =>
               handleUpdateBlock(
-                'englishTitle',
+                'subTitle',
                 sanitizeEnglishTitleInput(e.target) || 'VIDEO'
               ),
           }}
@@ -109,9 +109,9 @@ export const Video = ({ blockInfo, id }: Props) => {
           <span className="text-[13px]">썸네일 이미지 추가</span>
         </Checkbox>
         <Checkbox
-          checked={checkedEnglishTitle}
+          checked={checkedSubTitle}
           onChange={e =>
-            handleUpdateBlock('checkedEnglishTitle', e.target.checked)
+            handleUpdateBlock('checkedSubTitle', e.target.checked)
           }
         >
           <span className="text-[13px]">영문 제목 추가</span>

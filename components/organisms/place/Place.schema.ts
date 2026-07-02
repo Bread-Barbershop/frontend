@@ -5,7 +5,7 @@ export const placeSchema = {
       default: '행사 장소',
       required: true,
     },
-    englishTitle: {
+    subTitle: {
       default: 'LOCATION',
       required: true,
     },
@@ -29,7 +29,7 @@ export const placeSchema = {
       default: '',
       required: true,
     },
-    checkedEnglishTitle: {
+    checkedSubTitle: {
       default: true,
       required: true,
     },

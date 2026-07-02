@@ -30,11 +30,11 @@ function SponsorshipInfomationPreview({
   return (
     <MiddlePreviewWrapper
       className={className}
-      checkedEnglishTitle={blockInfo.props.isEnglishTitle}
-      enTitle={blockInfo.props.englishTitle}
-      enTitleDefault="OUR SPONSORS"
-      koTitle={blockInfo.props.title}
-      koTitleDefault="후원사"
+      checkedSubTitle={blockInfo.props.isSubTitle}
+      subTitle={blockInfo.props.subTitle}
+      subTitleDefault="OUR SPONSORS"
+      mainTitle={blockInfo.props.title}
+      mainTitleDefault="후원사"
       {...rest}
     >
       {(!displayPreview || displayPreview.length === 0) && !isGuestPage && (

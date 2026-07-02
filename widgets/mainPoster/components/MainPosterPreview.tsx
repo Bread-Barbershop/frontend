@@ -4,14 +4,15 @@ import {
   Canvas,
   FabricObject,
   FabricImage,
-  Rect,
-  Circle,
-  Triangle,
+  Point,
+  // Rect,
+  // Circle,
+  // Triangle,
   TPointerEventInfo,
   Textbox,
   IText,
 } from 'fabric';
-import { useSearchParams } from 'next/navigation';
+// import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
@@ -27,7 +28,10 @@ import { initAligningGuidelines } from '../libs/aligning-guidelines';
 import { FabricObjectWithLock } from '../types/fabric';
 import { preloadPreviewFonts } from '../utils/fontLoader';
 import {
+  getImagePanelMode,
   isFilledSlotImage,
+  isFrameTarget,
+  isPointInsideSlotFrame,
   isReplaceableSlotImage,
   isReplaceableSlotTarget,
   SlotTargetObject,
@@ -37,13 +41,15 @@ import { ContextMenu } from './context-menu/ContextMenu';
 import Toolbar from './Toolbar';
 
 export const MainPosterPreview = () => {
-  const searchParams = useSearchParams();
-  const isAdmin = searchParams.get('type') === 'admin';
+  // const searchParams = useSearchParams();
+  // const isAdmin = searchParams.get('type') === 'admin';
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isMouseInCanvasRef = useRef(false);
   const isInitialLoadDoneRef = useRef(false);
   const slotInputRef = useRef<HTMLInputElement>(null);
   const pendingSlotRef = useRef<SlotTargetObject | null>(null);
+  const suppressSelectionClearedRef = useRef(false);
+  const suppressOutsideClickRef = useRef(false);
   const [isCanvasLoading, setIsCanvasLoading] = useState(false);
 
   const { activeTab, selectedId, selectedBlock, setActiveTab, setIsEdit } =
@@ -78,6 +84,8 @@ export const MainPosterPreview = () => {
   }, []);
 
   const openSlotFilePicker = (target: SlotTargetObject) => {
+    suppressSelectionClearedRef.current = true;
+    suppressOutsideClickRef.current = true;
     pendingSlotRef.current = target;
     slotInputRef.current?.click();
   };
@@ -173,56 +181,61 @@ export const MainPosterPreview = () => {
         return;
       }
 
-      // 배경 레이어인 경우 배경 탭 유지
-      if (activeObj.get('id') === 'background-layer') {
-        if (!fabricCanvas.isDrawingMode) {
-          setActiveTab('background');
-        }
-        return;
-      }
-
       // 탭 전환 등의 기존 로직 수행
       const isActiveText =
         activeObj instanceof Textbox || activeObj instanceof IText;
-      const isActiveImage = activeObj instanceof FabricImage;
-      const isActiveShape =
-        activeObj instanceof Rect ||
-        activeObj instanceof Circle ||
-        activeObj instanceof Triangle ||
-        activeObj.isType('line');
+      const imagePanelMode = getImagePanelMode(activeObj);
+      // const isActiveShape =
+      //   activeObj instanceof Rect ||
+      //   activeObj instanceof Circle ||
+      //   activeObj instanceof Triangle ||
+      //   activeObj.isType('line');
       const isCropZone =
         (activeObj as FabricObject & { name?: string })?.name === 'crop-zone';
 
       if (isActiveText) {
         setActiveTab('text');
-      } else if (isReplaceableSlotImage(activeObj)) {
-        setActiveTab('template');
-      } else if (isActiveImage || isCropZone) {
-        setActiveTab('image');
       } else if (
-        isAdmin &&
-        activeObj.get('name') === 'slot-placeholder' &&
-        !(activeObj instanceof FabricImage)
+        imagePanelMode === 'user-image' ||
+        imagePanelMode === 'background-image' ||
+        imagePanelMode === 'frame-image' ||
+        isCropZone
       ) {
-        setActiveTab('slot');
-      } else if (isActiveShape && isAdmin) {
-        setActiveTab('shape');
-      } else {
+        setActiveTab('image');
+      } else if (imagePanelMode === 'empty-frame') {
+        setActiveTab('image');
+      }
+      // else if (isActiveShape && isAdmin) {
+      //   setActiveTab('shape');
+      // }
+      else {
+        setActiveTab('background');
+      }
+    };
+
+    const handleSelectionCleared = () => {
+      if (suppressSelectionClearedRef.current) {
+        suppressSelectionClearedRef.current = false;
+        suppressOutsideClickRef.current = false;
+        return;
+      }
+
+      if (!fabricCanvas.isDrawingMode) {
         setActiveTab('background');
       }
     };
 
     fabricCanvas.on('selection:created', handleSelection);
     fabricCanvas.on('selection:updated', handleSelection);
-    fabricCanvas.on('selection:cleared', () => {
-      if (!fabricCanvas.isDrawingMode) {
-        setActiveTab('background');
-      }
-    });
+    fabricCanvas.on('selection:cleared', handleSelectionCleared);
 
     return () => {
+      fabricCanvas.off('selection:created', handleSelection);
+      fabricCanvas.off('selection:updated', handleSelection);
+      fabricCanvas.off('selection:cleared', handleSelectionCleared);
       fabricCanvas.dispose();
     };
+    // }, [isAdmin, setCanvas, setActiveTab]);
   }, [setCanvas, setActiveTab]);
 
   useEffect(() => {
@@ -276,36 +289,34 @@ export const MainPosterPreview = () => {
       }
     };
 
+    const isSelectableAtPointer = (
+      object: FabricObject | undefined,
+      pointer: Point
+    ) => {
+      if (!object) return false;
+      if (isReplaceableSlotImage(object)) {
+        return isPointInsideSlotFrame(object, pointer);
+      }
+      return object.containsPoint(pointer);
+    };
     // 마우스 드래그해 그룹으로 영역 선택시 잠금 객체 제외하고 선택될수있게
     const handleMouseDown = (options: TPointerEventInfo) => {
       const e = options.e as MouseEvent;
       if (e.button === 2) return; // 우클릭(Right Click)은 무시
 
+      const pointer = options.scenePoint || fabricCanvas.getScenePoint(e);
       let target = options.target;
+
+      if (target && !isSelectableAtPointer(target, pointer)) {
+        target = undefined;
+      }
+
       const targetId = target?.get('id');
       const isBackground = targetId === 'background-layer';
-      const isLocked = (target as any)?.isLocked;
-
-      const getType = (obj: any) => {
-        if (!obj) return '빈 공간';
-        if (obj.get('id') === 'background-layer') return '배경';
-        if (obj.isType('textbox') || obj.isType('itext') || obj.isType('text'))
-          return '텍스트';
-        if (obj.isType('image')) return '이미지';
-        if (
-          obj.isType('rect') ||
-          obj.isType('circle') ||
-          obj.isType('triangle')
-        )
-          return '도형';
-        if (obj.isType('path') || obj.isType('line')) return '선/경로';
-        return obj.type;
-      };
-
+      const isLocked = (target as FabricObjectWithLock | undefined)?.isLocked;
+      const isFrame = isFrameTarget(target);
       // 잠긴 객체가 잡혔을 때, 그 위치에 있는 다른 (잠기지 않은) 객체를 찾아서 선택해줌
-      if (target && isLocked && !isBackground) {
-        const pointer =
-          options.scenePoint || (fabricCanvas as any).getScenePoint(e);
+      if (target && (isLocked || isFrame) && !isBackground) {
         const objects = fabricCanvas.getObjects();
 
         // 역순(맨 위 객체부터)으로 탐색하여 잠기지 않은 객체가 있는지 확인
@@ -313,13 +324,12 @@ export const MainPosterPreview = () => {
           const obj = objects[i];
           if (
             obj !== target &&
-            !(obj as any).isLocked &&
-            obj.containsPoint(pointer)
+            !(obj as FabricObjectWithLock).isLocked &&
+            !isFrameTarget(obj) &&
+            isSelectableAtPointer(obj, pointer)
           ) {
-            console.log(`[Fabric] 잠긴 객체 투과 -> ${getType(obj)} 선택`);
-
             fabricCanvas.setActiveObject(obj);
-            target = obj; // 타겟 교체
+            target = obj;
             break;
           }
         }
@@ -330,7 +340,9 @@ export const MainPosterPreview = () => {
         fabricCanvas.getObjects().forEach(obj => {
           const t = obj as FabricObjectWithLock;
           if (
-            (t.isLocked || t.get('id') === 'background-layer') &&
+            (t.isLocked ||
+              t.get('id') === 'background-layer' ||
+              isFrameTarget(t)) &&
             t !== target
           ) {
             t.set({ selectable: false });
@@ -349,21 +361,32 @@ export const MainPosterPreview = () => {
       // 드래그 종료 시 (또는 클릭 종료 시) 잠긴 객체와 배경 레이어의 selectable 다시 복구
       fabricCanvas.getObjects().forEach(obj => {
         const target = obj as FabricObjectWithLock;
-        if (target.isLocked || target.get('id') === 'background-layer') {
+        if (
+          target.isLocked ||
+          target.get('id') === 'background-layer' ||
+          isFrameTarget(target)
+        ) {
           target.set({ selectable: true });
         }
       });
 
       if (isCropping) return;
 
-      if (isReplaceableSlotTarget(options.target)) {
-        fabricCanvas.setActiveObject(options.target);
-        setActiveTab(
-          options.target instanceof FabricImage ? 'template' : 'slot'
-        );
+      const pointer =
+        options.scenePoint || fabricCanvas.getScenePoint(options.e);
+      const slotTarget =
+        isReplaceableSlotTarget(options.target) &&
+        isSelectableAtPointer(options.target, pointer)
+          ? options.target
+          : null;
 
-        if (!isAdmin && !isFilledSlotImage(options.target)) {
-          openSlotFilePicker(options.target);
+      if (slotTarget) {
+        fabricCanvas.setActiveObject(slotTarget);
+        setActiveTab('image');
+
+        // if (!isAdmin && !isFilledSlotImage(slotTarget)) {
+        if (!isFilledSlotImage(slotTarget)) {
+          openSlotFilePicker(slotTarget);
         }
       }
     };
@@ -387,6 +410,7 @@ export const MainPosterPreview = () => {
     setActiveTab,
     setupEventListeners,
     startCrop,
+    // isAdmin,
   ]);
 
   // 마우스가 캔버스에 들어왔는지 나갔는지 확인
@@ -411,10 +435,15 @@ export const MainPosterPreview = () => {
 
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
+      if (suppressOutsideClickRef.current) {
+        suppressOutsideClickRef.current = false;
+        return;
+      }
 
       if (
         target.classList.contains('upper-canvas') ||
         target.closest('[data-canvas="true"]')
+        // || target.closest('[data-crop-controls="true"]')
       ) {
         return;
       }
@@ -436,6 +465,13 @@ export const MainPosterPreview = () => {
         className="hidden"
         onChange={async event => {
           const file = event.target.files?.[0];
+          if (!event.target.files?.length) {
+            pendingSlotRef.current = null;
+            suppressSelectionClearedRef.current = false;
+            suppressOutsideClickRef.current = false;
+            return;
+          }
+
           const slotTarget = pendingSlotRef.current;
           event.target.value = '';
 
@@ -447,8 +483,23 @@ export const MainPosterPreview = () => {
             if (typeof base64 !== 'string') return;
 
             const compressed = await compressImage(base64);
-            await replaceSlotImage(slotTarget, compressed);
-            pendingSlotRef.current = null;
+            suppressSelectionClearedRef.current = true;
+
+            try {
+              const replacedImage = await replaceSlotImage(
+                slotTarget,
+                compressed
+              );
+              if (replacedImage) {
+                setActiveTab('image');
+              } else {
+                suppressSelectionClearedRef.current = false;
+                suppressOutsideClickRef.current = false;
+              }
+            } finally {
+              pendingSlotRef.current = null;
+              suppressOutsideClickRef.current = false;
+            }
           };
           reader.readAsDataURL(file);
         }}

@@ -1,41 +1,95 @@
 import { FabricImage } from 'fabric';
-import Image from 'next/image';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
-import { ImageUploadButton } from '@/components/atoms/button/ImageUploadButton';
+import { Label } from '@/components/atoms/label/Label';
+import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { EditorNoticeList } from '@/components/molecules/editor-notice';
+import { RangeControl } from '@/components/molecules/range-control/RangeControl';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
-// import { PhotoPresetOptions } from '../../types/fabric';
+import { getImagePanelMode } from '../../utils/imageSlot';
+import { getPreviewExportMultiplier } from '../../utils/previewExport';
+import { BackgroundImagePanel } from '../background/BackgroundImagePanel';
 
 import { AspectRatioSelector } from './AspectRatioSelector';
-// import { ImageFilterSelector } from './ImageFilterSelector';
+import { ImagePreview } from './ImagePreview';
+import { TemplateImagePanel } from './TemplateImagePanel';
+
+const DISABLED_POSITION_VALUE = 0;
+const DISABLED_SCALE_VALUE = 0;
 
 export const ImagePanel = () => {
+  const { canvas } = useFabricContext();
+  const panelMode = getImagePanelMode(canvas?.getActiveObject());
+  if (panelMode === 'background-image') {
+    return <BackgroundImagePanel />;
+  }
+  if (panelMode === 'frame-image') {
+    return <TemplateImagePanel />;
+  }
+  return <DefaultImagePanel />;
+};
+
+const DefaultImagePanel = () => {
   const {
     canvas,
-    // applyImageFilter,
     addImage,
     startCrop,
     activeInfo,
     compressImage,
+    setBackgroundImage,
+    runHistoryTransaction,
   } = useFabricContext();
-
   const inputRef = useRef<HTMLInputElement>(null);
   const [imageSrc, setImageSrc] = useState('');
+  const activeObject = canvas?.getActiveObject();
+  const activeUserImage =
+    activeObject instanceof FabricImage &&
+    getImagePanelMode(activeObject) === 'user-image'
+      ? activeObject
+      : null;
+
+  const syncBackgroundSelection = () => {
+    if (!canvas) return;
+
+    const backgroundObject = canvas
+      .getObjects()
+      .find(obj => obj.get('id') === 'background-layer');
+    if (!backgroundObject) return;
+
+    backgroundObject.set({ selectable: true, evented: true });
+    canvas.setActiveObject(backgroundObject);
+    canvas.requestRenderAll();
+  };
+
+  const handleSetAsBackground = async (checked: boolean) => {
+    if (!checked || !canvas || !activeUserImage) return;
+
+    const imageDataUrl = activeUserImage.toDataURL({
+      format: 'png',
+      quality: 1,
+    });
+
+    await runHistoryTransaction(
+      async () => {
+        await setBackgroundImage(imageDataUrl, { saveHistory: false });
+        canvas.remove(activeUserImage);
+      },
+      { save: true }
+    );
+    syncBackgroundSelection();
+  };
 
   const getPreviewTargetImage = () => {
     if (!canvas) return null;
 
-    const activeObject = canvas.getActiveObject();
-
-    if (activeObject instanceof FabricImage) {
-      if (activeObject.get('id') === 'background-layer') {
+    const selectedObject = canvas.getActiveObject();
+    if (selectedObject instanceof FabricImage) {
+      if (selectedObject.get('id') === 'background-layer') {
         return null;
       }
-
-      return activeObject;
+      return selectedObject;
     }
 
     const cropGhostImage = canvas
@@ -45,85 +99,28 @@ export const ImagePanel = () => {
           obj instanceof FabricImage &&
           (obj as unknown as { name?: string }).name === 'ghost-image'
       );
-
     return cropGhostImage instanceof FabricImage ? cropGhostImage : null;
   };
 
-  // 이미지 Preview 업데이트 함수
-  const updateImageSrc = async () => {
+  const updateImageSrc = () => {
     if (!canvas) return;
-    const activeObject = getPreviewTargetImage();
 
-    // 선택된 객체가 없거나, FabricImage가 아니거나, 배경 레이어인 경우 프리뷰 비우기
-    if (!activeObject) {
+    const previewTarget = getPreviewTargetImage();
+    if (!previewTarget) {
       setImageSrc('');
       return;
     }
 
-    // 1. 객체 복제 (원본 객체에 영향 주지 않기 위함)
-    const clonedObject = await activeObject.clone();
-
-    // 2. 리사이징용 캔버스 생성 (300px 제한) - 필터 적용 속도 최적화
-    const originalElem = clonedObject.getElement(); // 원본 엘리먼트 가져오기
-    const offscreenCanvas = document.createElement('canvas');
-    const MAX_SIZE = 335;
-
-    let width = originalElem.width;
-    let height = originalElem.height;
-
-    // 비율 유지 리사이징 계산
-    if (width > height) {
-      if (width > MAX_SIZE) {
-        height *= MAX_SIZE / width;
-        width = MAX_SIZE;
-      }
-    } else {
-      if (height > MAX_SIZE) {
-        width *= MAX_SIZE / height;
-        height = MAX_SIZE;
-      }
-    }
-
-    offscreenCanvas.width = width;
-    offscreenCanvas.height = height;
-    const ctx = offscreenCanvas.getContext('2d');
-    if (!ctx) return;
-
-    // 원본 이미지를 작게 그리기 (Downscaling)
-    ctx.drawImage(originalElem, 0, 0, width, height);
-
-    // 3. 복제된 객체의 소스를 작은 이미지로 교체
-    // 이제 applyFilters()는 이 작은 캔버스(300px)에 대해 수행되므로 매우 빠름
-    clonedObject.setElement(offscreenCanvas);
-
-    // 4. 변환 초기화 (정자세, 리사이징된 크기 반영)
-    clonedObject.set({
-      angle: 0,
-      scaleX: 1,
-      scaleY: 1,
-      left: 0,
-      top: 0,
-      width: width, // 실제 렌더링될 크기 업데이트
-      height: height,
-      cropX: 0,
-      cropY: 0,
-    });
-
-    // 5. 필터 적용
-    if (activeObject.filters && activeObject.filters.length > 0) {
-      // clone()이 필터를 제대로 복사하지 못했을 경우를 대비해 수동 복사
-      if (!clonedObject.filters || clonedObject.filters.length === 0) {
-        clonedObject.filters = [...activeObject.filters];
-      }
-
-      // 필터 적용 (작은 이미지라 빠름)
-      clonedObject.applyFilters();
-    }
-
-    const newDataUrl = clonedObject.toDataURL({
+    const multiplier = getPreviewExportMultiplier(
+      previewTarget.getScaledWidth(),
+      previewTarget.getScaledHeight()
+    );
+    const newDataUrl = previewTarget.toDataURL({
       format: 'webp',
       quality: 0.8,
+      multiplier,
     });
+
     setImageSrc(newDataUrl);
   };
 
@@ -131,66 +128,105 @@ export const ImagePanel = () => {
     inputRef.current?.click();
   };
 
-  const handleChangeImage = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleChangeImage = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (!file) return;
+
     const reader = new FileReader();
-    reader.onload = async e => {
-      const base64 = e.target?.result as string;
-
+    reader.onload = async loadEvent => {
+      const base64 = loadEvent.target?.result as string;
       const compressed = await compressImage(base64);
-
-      if (canvas) addImage(compressed, canvas);
+      if (canvas) {
+        addImage(compressed, canvas);
+      }
     };
     reader.readAsDataURL(file);
   };
-
-  // const handleApply = (
-  //   options: PhotoPresetOptions,
-  //   type: 'bw' | 'warm' | 'cool' | 'fade' | 'filmGrain' | 'vignette' | null
-  // ) => {
-  //   if (canvas) applyImageFilter(options, canvas, type);
-  //   updateImageSrc(); // 필터 적용 후 Preview 갱신
-  // };
 
   const handleStartCrop = (ratio: number | 'free') => {
     if (canvas) startCrop(canvas, ratio);
   };
 
-  // 객체가 변경될 때마다 Preview 업데이트
   useEffect(() => {
-    updateImageSrc();
+    void updateImageSrc();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canvas, activeInfo]);
 
   return (
-    <LeftEditorWrapper ariaLabel="이미지 편집">
-      <div className="py-5">
-        {imageSrc ? (
-          <Image
-            src={imageSrc}
-            alt="Active Object Preview"
-            className="object-contain"
-            width={335}
-            height={335}
-          />
-        ) : (
-          <ImageUploadButton
-            ref={inputRef}
-            onButtonClick={handleImageUpload}
-            onInputChange={handleChangeImage}
-          />
-        )}
-      </div>
-      <div data-crop-controls="true">
-        <AspectRatioSelector startCrop={handleStartCrop} />
+    <LeftEditorWrapper
+      ariaLabel="이미지 편집"
+      className="overflow-y-scroll gap-2"
+      data-crop-controls="true"
+    >
+      <ImagePreview
+        src={imageSrc}
+        alt="이미지 미리보기"
+        inputRef={inputRef}
+        onUploadClick={handleImageUpload}
+        onInputChange={handleChangeImage}
+      />
+      <AspectRatioSelector startCrop={handleStartCrop} />
+      <RangeControl
+        label="X축"
+        min={-50}
+        max={50}
+        step={1}
+        value={DISABLED_POSITION_VALUE}
+        displayValue={String(DISABLED_POSITION_VALUE)}
+        disabled
+        allowNegative
+        onDisplayValueChange={() => {}}
+        onChange={() => {}}
+        onCommit={() => {}}
+      />
+      <RangeControl
+        label="Y축"
+        min={-50}
+        max={50}
+        step={1}
+        value={DISABLED_POSITION_VALUE}
+        displayValue={String(DISABLED_POSITION_VALUE)}
+        disabled
+        allowNegative
+        onDisplayValueChange={() => {}}
+        onChange={() => {}}
+        onCommit={() => {}}
+      />
+      <RangeControl
+        label="배율"
+        min={0}
+        max={300}
+        step={5}
+        value={DISABLED_SCALE_VALUE}
+        displayValue={String(DISABLED_SCALE_VALUE)}
+        disabled
+        onDisplayValueChange={() => {}}
+        onChange={() => {}}
+        onCommit={() => {}}
+      />
+      <div className="w-full flex items-center gap-3">
+        <Label className="font-semibold">추가기능</Label>
+        <Checkbox
+          checked={false}
+          disabled={!activeUserImage}
+          onChange={async event => {
+            await handleSetAsBackground(event.target.checked);
+          }}
+        >
+          <span className="text-[13px]">해당 이미지를 배경으로 적용하기</span>
+        </Checkbox>
       </div>
       <EditorNoticeList
+        className="pl-1"
         notices={[
           {
-            id: 'poster-image-crop',
-            text: '자르기 실행 후 원하는 형태로 자르기 하신 뒤 아무곳이나 클릭하시면 적용됩니다.',
+            id: 'image-crop',
+            text: '자르기 실행 후 원하는 형태로 자르기 하신 뒤 아무곳이나 클릭 하시면 적용됩니다.',
             colorClass: 'text-[#1F72EF]',
+          },
+          {
+            id: 'image-position',
+            text: 'X축, Y축 조정을 통해 이미지가 보이는 위치를 변경할 수 있습니 다.',
           },
         ]}
       />

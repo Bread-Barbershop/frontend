@@ -9,12 +9,12 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
   isGuestPage?: boolean;
   noTitle?: boolean;
   titleClassName?: string;
-  checkedEnglishTitle?: boolean;
-  checkedKoTitle?: boolean;
-  enTitle?: string;
-  enTitleDefault?: string;
-  koTitle?: string;
-  koTitleDefault?: string;
+  checkedSubTitle?: boolean;
+  checkedMainTitle?: boolean;
+  subTitle?: string;
+  subTitleDefault?: string;
+  mainTitle?: string;
+  mainTitleDefault?: string;
   childClassName?: string;
 }
 
@@ -23,12 +23,12 @@ export const MiddlePreviewWrapper = ({
   className,
   noTitle = false,
   titleClassName,
-  checkedEnglishTitle,
-  checkedKoTitle = true,
-  enTitle,
-  enTitleDefault,
-  koTitle,
-  koTitleDefault,
+  checkedSubTitle,
+  checkedMainTitle = true,
+  subTitle,
+  subTitleDefault,
+  mainTitle,
+  mainTitleDefault,
   childClassName,
   isGuestPage: _isGuestPage,
   ...rest
@@ -40,19 +40,19 @@ export const MiddlePreviewWrapper = ({
     >
       {!noTitle && (
         <PreviewTitle
-          isKoTitle={checkedKoTitle}
-          enTitle={
-            checkedEnglishTitle
-              ? enTitle && enTitle.length > 1
-                ? enTitle
-                : enTitleDefault
+          isMainTitle={checkedMainTitle}
+          subTitle={
+            checkedSubTitle
+              ? subTitle && subTitle.length >= 1
+                ? subTitle
+                : subTitleDefault
               : ''
           }
-          koTitle={
-            checkedKoTitle
-              ? koTitle && koTitle.length > 1
-                ? koTitle
-                : koTitleDefault
+          mainTitle={
+            checkedMainTitle
+              ? mainTitle && mainTitle.length >= 1
+                ? mainTitle
+                : mainTitleDefault
               : ''
           }
           titleClassName={titleClassName}

@@ -5,11 +5,11 @@ export const sponsorshipInfomationSchema = {
       default: '후원사',
       required: true,
     },
-    isEnglishTitle: {
+    isSubTitle: {
       default: true,
       required: false,
     },
-    englishTitle: {
+    subTitle: {
       default: 'OUR SPONSORS',
       required: false,
     },

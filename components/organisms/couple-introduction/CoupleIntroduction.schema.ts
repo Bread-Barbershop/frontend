@@ -29,11 +29,11 @@ export const coupleIntroductionSchema = {
       default: '신랑・신부 소개',
       required: false,
     },
-    checkedEnglishTitle: {
+    checkedSubTitle: {
       default: true,
       required: false,
     },
-    englishTitle: {
+    subTitle: {
       default: 'INTRODUCTION',
       required: false,
     },

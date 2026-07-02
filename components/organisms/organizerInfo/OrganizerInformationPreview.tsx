@@ -31,8 +31,8 @@ export const OrganizerInformationPreview = ({
     messageJson,
     image,
     hasUrl,
-    englishTitle,
-    checkedEnglishTitle,
+    subTitle,
+    checkedSubTitle,
   } = blockInfo.props;
   const { fontFamily } = useBodyFontInfo();
   const html = messageHtml ?? tiptapJsonToHtmlUniversal(messageJson);
@@ -51,11 +51,11 @@ export const OrganizerInformationPreview = ({
   return (
     <MiddlePreviewWrapper
       className={className}
-      checkedEnglishTitle={checkedEnglishTitle}
-      enTitle={englishTitle}
-      enTitleDefault="ORGANIZER INFORMATION"
-      koTitle={title}
-      koTitleDefault="주최사"
+      checkedSubTitle={checkedSubTitle}
+      subTitle={subTitle}
+      subTitleDefault="ORGANIZER INFORMATION"
+      mainTitle={title}
+      mainTitleDefault="주최사"
       titleClassName={titleClassName}
       childClassName="gap-6"
       {...rest}

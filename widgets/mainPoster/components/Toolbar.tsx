@@ -1,4 +1,4 @@
-import { useSearchParams } from 'next/navigation';
+// import { useSearchParams } from 'next/navigation';
 import React from 'react';
 import { useShallow } from 'zustand/shallow';
 
@@ -13,7 +13,8 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 function Toolbar() {
-  const { canvas, createTextBox, setDrawingType, drawingType, addSlotRect } =
+  // const { canvas, createTextBox, setDrawingType, drawingType, addSlotRect } = useFabricContext();
+  const { canvas, createTextBox, setDrawingType, drawingType } =
     useFabricContext();
   const { activeTab, setActiveTab } = useEditorStore(
     useShallow(state => ({
@@ -21,8 +22,9 @@ function Toolbar() {
       setActiveTab: state.setActiveTab,
     }))
   );
-  const searchParams = useSearchParams();
-  const isAdmin = searchParams.get('type') === 'admin';
+
+  // const searchParams = useSearchParams();
+  // const isAdmin = searchParams.get('type') === 'admin';
 
   if (!canvas) return null;
 
@@ -44,7 +46,7 @@ function Toolbar() {
       araiaLabel: '텍스트 추가',
       icon: <AddText width={19} height={22} />,
       hoverIcon: (
-        <p className="w-26.25 font-bold text-[16px] text-text-plain ">
+        <p className="w-24 font-semibold text-sm text-text-plain ">
           텍스트 추가
         </p>
       ),
@@ -62,7 +64,7 @@ function Toolbar() {
         setActiveTab('image');
       },
       hoverIcon: (
-        <p className="w-26.25 font-bold text-[16px] text-text-plain">
+        <p className="w-24 font-semibold text-sm text-text-plain">
           이미지 추가
         </p>
       ),
@@ -73,7 +75,7 @@ function Toolbar() {
       araiaLabel: '그림 그리기',
       icon: <AddDrawing width={22} height={20} />,
       hoverIcon: (
-        <p className="w-26.25 font-bold text-[16px] text-text-plain">
+        <p className="w-24 font-semibold text-sm text-text-plain">
           그림 그리기
         </p>
       ),
@@ -88,7 +90,7 @@ function Toolbar() {
       araiaLabel: '배경 변경',
       icon: <Background width={22} height={22} />,
       hoverIcon: (
-        <p className="w-26.25 font-bold text-[16px] text-text-plain">
+        <p className="w-24 font-semibold text-sm text-text-plain">
           배경색 변경
         </p>
       ),
@@ -98,88 +100,92 @@ function Toolbar() {
     },
   ];
 
-  if (isAdmin) {
-    TOOLBAR_ITEMS.unshift({
-      id: 'slot',
-      active: activeTab === 'slot',
-      araiaLabel: '슬롯 추가',
-      icon: (
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-          <path d="M3 9h18"></path>
-          <path d="M9 3v18"></path>
-        </svg>
-      ),
-      hoverIcon: (
-        <p className="w-26.25 font-bold text-[16px] text-text-plain">
-          슬롯 추가
-        </p>
-      ),
-      onClick: () => {
-        setActiveTab('slot');
-        addSlotRect();
-      },
-    });
+  // if (isAdmin) {
+  //   TOOLBAR_ITEMS.unshift({
+  //     id: 'slot',
+  //     active: activeTab === 'slot',
+  //     araiaLabel: '슬롯 추가',
+  //     icon: (
+  //       <svg
+  //         width="14"
+  //         height="14"
+  //         viewBox="0 0 24 24"
+  //         fill="none"
+  //         stroke="currentColor"
+  //         strokeWidth="2"
+  //         strokeLinecap="round"
+  //         strokeLinejoin="round"
+  //       >
+  //         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+  //         <path d="M3 9h18"></path>
+  //         <path d="M9 3v18"></path>
+  //       </svg>
+  //     ),
+  //     hoverIcon: (
+  //       <p className="w-26.25 font-bold text-[16px] text-text-plain">
+  //         슬롯 추가
+  //       </p>
+  //     ),
+  //     onClick: () => {
+  //       setActiveTab('slot');
+  //       addSlotRect();
+  //     },
+  //   });
 
-    TOOLBAR_ITEMS.unshift({
-      id: 'shape',
-      active: activeTab === 'shape',
-      araiaLabel: '도형 추가',
-      icon: (
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-        </svg>
-      ),
-      hoverIcon: (
-        <p className="w-26.25 font-bold text-[16px] text-text-plain">
-          도형 추가
-        </p>
-      ),
-      onClick: () => {
-        setActiveTab('shape');
-      },
-    });
-  }
+  //   TOOLBAR_ITEMS.unshift({
+  //     id: 'shape',
+  //     active: activeTab === 'shape',
+  //     araiaLabel: '도형 추가',
+  //     icon: (
+  //       <svg
+  //         width="14"
+  //         height="14"
+  //         viewBox="0 0 24 24"
+  //         fill="none"
+  //         stroke="currentColor"
+  //         strokeWidth="2"
+  //         strokeLinecap="round"
+  //         strokeLinejoin="round"
+  //       >
+  //         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+  //       </svg>
+  //     ),
+  //     hoverIcon: (
+  //       <p className="w-26.25 font-bold text-[16px] text-text-plain">
+  //         도형 추가
+  //       </p>
+  //     ),
+  //     onClick: () => {
+  //       setActiveTab('shape');
+  //     },
+  //   });
+  // }
 
   return (
     <div
-      className="absolute top-1/2 -translate-y-1/2 -left-6 -translate-x-full flex flex-col gap-3 items-end"
+      className="absolute z-30 top-1/2 -translate-y-1/2 -left-6 -translate-x-full flex flex-col gap-3 items-end"
       data-canvas="true"
     >
       {TOOLBAR_ITEMS.map(item => (
-        <Button
+        <div
           key={item.id}
-          className={`group size-11 hover:w-[105px] bg-bg-base hover:bg-bg-base rounded-full transition-width duration-150 ${item.className || ''}`}
-          onClick={item.onClick}
-          active={item.active}
-          shadow="custom"
-          aria-label={item.araiaLabel}
+          className="group/item relative flex h-11 w-[105px] justify-end"
         >
-          <span className="flex items-center justify-center group-hover:hidden">
-            {item.icon}
-          </span>
-          <span className="hidden items-center justify-center group-hover:inline-flex">
-            {item.hoverIcon}
-          </span>
-        </Button>
+          <Button
+            className={`absolute right-0 top-0 flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-bg-base transition-[width] duration-200 ease-out group-hover/item:w-[105px] group-focus-within/item:w-[105px] hover:bg-bg-base ${item.className || ''}`}
+            onClick={item.onClick}
+            active={item.active}
+            shadow="custom"
+            aria-label={item.araiaLabel}
+          >
+            <span className="absolute inset-0 flex items-center justify-center transition-all duration-150 ease-out group-hover/item:-translate-x-2 group-hover/item:opacity-0 group-focus-within/item:-translate-x-2 group-focus-within/item:opacity-0">
+              {item.icon}
+            </span>
+            <span className="absolute inset-y-0 left-0 flex translate-x-2 items-center pl-11 pr-4 text-left opacity-0 transition-all duration-200 ease-out group-hover/item:-translate-x-6 group-hover/item:opacity-100 group-focus-within/item:-translate-x-6 group-focus-within/item:opacity-100">
+              {item.hoverIcon}
+            </span>
+          </Button>
+        </div>
       ))}
     </div>
   );

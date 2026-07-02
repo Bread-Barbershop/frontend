@@ -86,8 +86,7 @@ export const useInvitationUpload = () => {
   const [loadingMessage, setLoadingMessage] = useState(
     SAVE_PROGRESS_MESSAGES.checkingContent
   );
-  const currentProgressStepRef =
-    useRef<SaveProgressStep>('checkingContent');
+  const currentProgressStepRef = useRef<SaveProgressStep>('checkingContent');
   const pendingProgressStepRef = useRef<SaveProgressStep | null>(null);
   const progressMessageShownAtRef = useRef(0);
   const progressMessageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
@@ -177,10 +176,6 @@ export const useInvitationUpload = () => {
     saveResult: Awaited<ReturnType<typeof saveInvitationFlow>>,
     allTasks: { id: string; file: File | string }[]
   ) => {
-    console.log(
-      '[applySaveResult] 시작, saveResult.success:',
-      saveResult.success
-    );
     if (!saveResult.success) {
       console.error('[applySaveResult] 저장 실패:', saveResult.results);
       throw new Error('Invitation save failed.');
@@ -200,7 +195,6 @@ export const useInvitationUpload = () => {
       ready: saveResult.visibility.ready,
       createdAt: new Date().toISOString(),
     });
-    console.log('[applySaveResult] folderIds 설정 완료');
 
     // 성공한 File 객체들에 driveFileId 속성 심기 (다음 저장 시 참조용)
     saveResult.results.images.ok.forEach(ok => {
@@ -219,7 +213,6 @@ export const useInvitationUpload = () => {
     );
 
     clearHashFiles();
-    console.log('[applySaveResult] hashFiles 초기화');
 
     // allTasks의 모든 File 객체에 대해 hashFiles 업데이트
     // 성공한 것: 새로운 fileId
@@ -230,40 +223,24 @@ export const useInvitationUpload = () => {
         // 이번 업로드에서 성공한 파일인가?
         const newFileId = successfulFilesMap.get(file);
         if (newFileId) {
-          console.log(
-            '[applySaveResult] 신규 업로드 파일 등록:',
-            imageId,
-            '→',
-            newFileId
-          );
           setHashFiles(`${fileKey}::${newFileId}`);
         } else {
           // 이전에 업로드된 파일인가? (driveFileId 속성 확인)
           const oldFileId = (file as any).driveFileId;
           if (oldFileId) {
-            console.log(
-              '[applySaveResult] 재사용 파일 등록:',
-              imageId,
-              '→',
-              oldFileId
-            );
             setHashFiles(`${fileKey}::${oldFileId}`);
           }
         }
       }
     }
-    console.log('[applySaveResult] hashFiles 업데이트 완료');
   };
 
   const performCleanup = async (fileIds: string[]) => {
-    console.log('[cleanup] performCleanup 시작', 'fileIds:', fileIds);
     if (fileIds.length === 0) {
-      console.log('[cleanup] 삭제할 파일이 없습니다');
       return;
     }
 
     setIsCleaningUp(true);
-    console.log('[cleanup] isCleaningUp=true, 토스트 표시 시작');
     info('파일 정리 중...', { placement: 'top-right' });
 
     try {
@@ -275,7 +252,6 @@ export const useInvitationUpload = () => {
         });
 
       const attempt = async (ids: string[]) => {
-        console.log('[cleanup] DELETE 요청 시작:', ids.length, 'items');
         const results = await Promise.allSettled(ids.map(deleteFolder));
         return ids.filter((id, idx) => {
           const result = results[idx];
@@ -298,16 +274,13 @@ export const useInvitationUpload = () => {
     } catch (error) {
       console.error('[cleanup] DELETE 중 오류:', error);
     } finally {
-      console.log('[cleanup] 정리 중 상태 해제');
       clearCleanUpFiles();
       setIsCleaningUp(false);
-      console.log('[cleanup] isCleaningUp=false');
     }
   };
 
   const handleUpload = async () => {
     try {
-      console.log('[uploadFlow] handleUpload 시작');
       isSaveLoadingRef.current = true;
       pendingProgressStepRef.current = null;
       clearProgressMessageTimer();
@@ -321,15 +294,10 @@ export const useInvitationUpload = () => {
         item.file.map(file => ({ id: item.id, file }))
       );
       queueProgressStep('organizingContent');
-      console.log('[uploadFlow] allTasks:', allTasks.length, 'items');
 
       // 이전 hashFiles의 fileId들을 캡처
       const oldHashFileIds = new Set(
         hashFiles.map(h => h.split('::')[1]).filter(Boolean)
-      );
-      console.log(
-        '[uploadFlow] oldHashFileIds (저장 전):',
-        Array.from(oldHashFileIds)
       );
 
       // hashFiles를 빠른 조회를 위해 Map으로 변환: fileKey -> driveFileId
@@ -351,7 +319,6 @@ export const useInvitationUpload = () => {
         const fileKey = await getFileKey(task.file, task.id);
         const existingFileId = hashFileMap.get(fileKey);
         if (existingFileId) {
-          console.log('[uploadFlow] 재사용 파일:', existingFileId);
           // 새 File 인스턴스에 driveFileId 주입 → replaceFiles에서 교체 가능해짐
           Object.defineProperty(task.file, 'driveFileId', {
             value: existingFileId,
@@ -360,15 +327,9 @@ export const useInvitationUpload = () => {
             enumerable: false,
           });
         } else {
-          console.log('[uploadFlow] 신규 업로드 파일:', task.id);
           newTasks.push(task);
         }
       }
-      console.log(
-        '[uploadFlow] newTasks (신규 업로드):',
-        newTasks.length,
-        'items'
-      );
       queueProgressStep('collectingText');
 
       const bgmData = {
@@ -401,7 +362,6 @@ export const useInvitationUpload = () => {
       };
 
       if (editorData.invitationUuid === '') {
-        console.log('[uploadFlow] 신규 저장 (invitationUuid 없음)');
         const saveResult = await saveInvitationFlow({
           bulkData,
           images: allTasks as { id: string; file: File }[],
@@ -414,27 +374,18 @@ export const useInvitationUpload = () => {
           invitationThumbnail,
           onProgress: queueProgressStep,
         });
-        console.log('[uploadFlow] saveInvitationFlow 완료');
         await applySaveResult(saveResult, allTasks);
-        console.log('[uploadFlow] applySaveResult 완료');
         useEditorStore.getState().setIsDirty(false);
       } else {
-        console.log(
-          '[uploadFlow] 재저장 (invitationUuid:',
-          editorData.invitationUuid,
-          ')'
-        );
         const result = hasPreparedInvitation(editorData.invitationUuid)
           ? true
           : await trashFolder();
         //실패 토스트 알람 표시
         if (!result) {
-          console.log('[uploadFlow] 폴더 삭제 실패');
           setIsLoading(false);
           setIsFail(true);
           return;
         }
-        console.log('[uploadFlow] 폴더 준비 완료');
         const saveResult = await saveInvitationFlow({
           bulkData,
           images: allTasks as { id: string; file: File }[],
@@ -448,9 +399,7 @@ export const useInvitationUpload = () => {
           invitationUuid: editorData.invitationUuid,
           onProgress: queueProgressStep,
         });
-        console.log('[uploadFlow] saveInvitationFlow 완료');
         await applySaveResult(saveResult, allTasks);
-        console.log('[uploadFlow] applySaveResult 완료');
         useEditorStore.getState().setIsDirty(false);
 
         // 클린업 대상 계산 및 실행 (non-blocking)
@@ -460,14 +409,10 @@ export const useInvitationUpload = () => {
             .hashFiles.map(h => h.split('::')[1])
             .filter(Boolean)
         );
-        console.log(
-          '[uploadFlow] newHashFileIds (저장 후):',
-          Array.from(newHashFileIds)
-        );
+
         const toCleanIds = [...oldHashFileIds].filter(
           id => !newHashFileIds.has(id)
         );
-        console.log('[uploadFlow] 삭제 대상 fileIds:', toCleanIds);
         toCleanIds.forEach(id => setCleanUpFiles(id));
         performCleanup(toCleanIds);
       }
@@ -475,7 +420,6 @@ export const useInvitationUpload = () => {
       console.error('[uploadFlow] 저장 중 오류 발생:', error);
       setIsFail(true);
     } finally {
-      console.log('[uploadFlow] handleUpload finally - isLoading=false');
       isSaveLoadingRef.current = false;
       pendingProgressStepRef.current = null;
       clearProgressMessageTimer();

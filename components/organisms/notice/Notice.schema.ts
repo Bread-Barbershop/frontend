@@ -7,11 +7,11 @@ export const noticeSchema = {
       default: '공지사항',
       required: true,
     },
-    checkedEnglishTitle: {
+    checkedSubTitle: {
       default: true,
       required: true,
     },
-    englishTitle: {
+    subTitle: {
       default: 'INFORMATION',
       required: false,
     },

@@ -7,11 +7,11 @@ export const accountSchema = {
       default: '마음 보내실 곳',
       required: true,
     },
-    checkedEnglishTitle: {
+    checkedSubTitle: {
       default: true,
       required: true,
     },
-    englishTitle: {
+    subTitle: {
       default: 'ACCOUNT',
       required: false,
     },

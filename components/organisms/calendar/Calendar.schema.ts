@@ -9,7 +9,7 @@ export const calendarSchema = {
       default: '',
       required: true,
     },
-    englishTitle: {
+    subTitle: {
       default: '',
       required: true,
     },
@@ -52,8 +52,8 @@ export const calendarSchema = {
       default: null as string | null,
       required: false,
     },
-    isEnglishTitle: {
-      default: false,
+    isSubTitle: {
+      default: true,
       required: false,
     },
   },

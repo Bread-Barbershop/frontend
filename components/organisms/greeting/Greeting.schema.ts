@@ -7,11 +7,11 @@ export const greetingSchema = {
       default: '인사말',
       required: true,
     },
-    checkedEnglishTitle: {
+    checkedSubTitle: {
       default: true,
       required: true,
     },
-    englishTitle: {
+    subTitle: {
       default: 'INVITATION',
       required: false,
     },

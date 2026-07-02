@@ -30,12 +30,12 @@ export const PlacePreview = ({
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const {
     title,
-    englishTitle,
+    subTitle,
     placeName,
     placeDetail,
     placeAddress,
     placeTel,
-    checkedEnglishTitle,
+    checkedSubTitle,
     mapLocked,
   } = blockInfo.props;
   const defaultTitle = getDefaultPlaceTitle(blockInfo.type);
@@ -46,11 +46,11 @@ export const PlacePreview = ({
       className={className}
       childClassName="gap-6"
       titleClassName={titleClassName}
-      checkedEnglishTitle={checkedEnglishTitle}
-      enTitle={englishTitle}
-      enTitleDefault="LOCATION"
-      koTitle={normalizePlaceTitle(title, blockInfo.type)}
-      koTitleDefault={defaultTitle}
+      checkedSubTitle={checkedSubTitle}
+      subTitle={subTitle}
+      subTitleDefault="LOCATION"
+      mainTitle={normalizePlaceTitle(title, blockInfo.type)}
+      mainTitleDefault={defaultTitle}
       {...rest}
     >
       <NaverMapScript onReady={() => setIsScriptLoaded(true)} />

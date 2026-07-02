@@ -22,7 +22,7 @@ export const MyFamilyWeddingPreview = ({
   return (
     <MiddlePreviewWrapper
       className={className}
-      enTitle="MY FAMILY"
+      subTitle="MY FAMILY"
       noTitle={true}
       titleClassName={titleClassName}
       childClassName="w-full flex flex-col gap-1"

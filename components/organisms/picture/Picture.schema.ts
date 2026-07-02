@@ -15,11 +15,11 @@ export const pictureSchema = {
       default: '사진',
       required: false,
     },
-    isEnglishTitle: {
+    isSubTitle: {
       default: false,
       required: false,
     },
-    enTitle: {
+    subTitle: {
       default: 'PICTURE',
       required: false,
     },

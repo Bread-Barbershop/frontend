@@ -21,7 +21,7 @@ export const InterviewPreview = ({
   titleClassName,
   ...rest
 }: Props) => {
-  const { title, questions, checkedEnglishTitle, englishTitle } =
+  const { title, questions, checkedSubTitle, subTitle } =
     blockInfo.props;
   const questionCount = questions?.length ?? 0;
   const isMultiple = questionCount > 1;
@@ -55,11 +55,11 @@ export const InterviewPreview = ({
   return (
     <MiddlePreviewWrapper
       className={cn('px-0', className)}
-      checkedEnglishTitle={checkedEnglishTitle}
-      enTitle={englishTitle}
-      enTitleDefault="INTERVIEW"
-      koTitle={title}
-      koTitleDefault="인터뷰"
+      checkedSubTitle={checkedSubTitle}
+      subTitle={subTitle}
+      subTitleDefault="INTERVIEW"
+      mainTitle={title}
+      mainTitleDefault="인터뷰"
       titleClassName={cn('px-5', titleClassName)}
       {...rest}
     >

@@ -25,8 +25,8 @@ export const AccountPreview = ({
     groupList,
     accountList,
     title,
-    checkedEnglishTitle,
-    englishTitle,
+    checkedSubTitle,
+    subTitle,
   } = blockInfo.props;
   const html = messageHtml ?? tiptapJsonToHtmlUniversal(messageJson);
 
@@ -34,11 +34,11 @@ export const AccountPreview = ({
     <MiddlePreviewWrapper
       className={`${className} relative`}
       titleClassName={titleClassName}
-      checkedEnglishTitle={checkedEnglishTitle}
-      enTitle={englishTitle}
-      enTitleDefault="ACCOUNT"
-      koTitle={title}
-      koTitleDefault="마음 보내실 곳"
+      checkedSubTitle={checkedSubTitle}
+      subTitle={subTitle}
+      subTitleDefault="ACCOUNT"
+      mainTitle={title}
+      mainTitleDefault="마음 보내실 곳"
       {...rest}
     >
       <PreviewBody html={html} />
