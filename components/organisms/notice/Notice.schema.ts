@@ -1,4 +1,4 @@
-import type { NoticeListItem } from './noticeList';
+import { createNoticeItem, type NoticeListItem } from './noticeList';
 
 export const noticeSchema = {
   type: null,
@@ -16,7 +16,7 @@ export const noticeSchema = {
       required: false,
     },
     noticeList: {
-      default: [] as NoticeListItem[],
+      default: () => [createNoticeItem()] as NoticeListItem[],
       required: false,
     },
   },

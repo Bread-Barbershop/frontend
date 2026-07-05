@@ -1,4 +1,7 @@
-import type { InterviewQuestion } from './interviewList';
+import {
+  createInterviewQuestion,
+  type InterviewQuestion,
+} from './interviewList';
 
 export const interviewSchema = {
   type: null,
@@ -16,7 +19,7 @@ export const interviewSchema = {
       required: false,
     },
     questions: {
-      default: [] as InterviewQuestion[],
+      default: () => [createInterviewQuestion()] as InterviewQuestion[],
       required: false,
     },
   },
