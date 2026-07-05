@@ -58,7 +58,7 @@ function PhonePreviewPopup({ groups = [] }: Props) {
     <>
       <button
         type="button"
-        className="flex justify-center items-center py-2 px-10 rounded-lg border border-[#e5e5e8] hover:bg-gray-50 hover:border-gray-300 cursor-pointer"
+        className="flex justify-center items-center py-2 px-10 rounded-lg border border-[#e5e5e8] bg-[#FFFFFF] hover:bg-gray-50 hover:border-gray-300 cursor-pointer"
         onClick={() => setIsPopupOpen(true)}
       >
         <PhoneIcon className="size-5.5 text-text-secondary" />
@@ -143,14 +143,14 @@ function PhonePreviewPopup({ groups = [] }: Props) {
                             <a
                               href={`sms:${getPhoneHrefNumber(contact.number)}`}
                               aria-label="문자 보내기"
-                              className="flex items-center justify-center size-11 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors"
+                              className="flex items-center justify-center size-11 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors outline-none ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
                             >
                               <MessageIcon className="text-text-tertiary" />
                             </a>
                             <a
                               href={`tel:${getPhoneHrefNumber(contact.number)}`}
                               aria-label="전화 걸기"
-                              className="flex items-center justify-center size-11 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors"
+                              className="flex items-center justify-center size-11 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors outline-none ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
                             >
                               <PhoneActionIcon className="text-text-tertiary" />
                             </a>

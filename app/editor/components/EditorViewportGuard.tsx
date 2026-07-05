@@ -4,6 +4,7 @@ import { ArrowUpRight, Home, Maximize2 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
+import FooterPolicyLink from '@/features/session/components/FooterPolicyLink';
 import HeaderPrivacyNoticeButton from '@/features/session/components/HeaderPrivacyNoticeButton';
 import HomeButton from '@/features/session/components/HomeButton';
 import homeBackgroundImage from '@/shared/assets/images/home/home-background.png';
@@ -107,9 +108,7 @@ function EditorDesktopNotice({
       </main>
 
       <footer className="relative flex h-10 items-center justify-between bg-transparent px-10">
-        <Link href="/policy" className="text-text-secondary">
-          개인정보 처리방침
-        </Link>
+        <FooterPolicyLink className="text-text-secondary" />
 
         <div className="text-text-secondary">
           © {new Date().getFullYear()}{' '}
