@@ -5,6 +5,7 @@ import { getAuthSession } from '@/app/api/auth/_lib/getAuthSession';
 import { DASHBOARD_SHELL_NAV_MENU } from '@/features/session/config/dashboardShell.config';
 import homeBackgroundImage from '@/shared/assets/images/home/home-background.png';
 
+import FooterPolicyLink from './FooterPolicyLink';
 import HeaderAuthControl from './HeaderAuthControl';
 import HeaderPrivacyNoticeButton from './HeaderPrivacyNoticeButton';
 import HomeButton from './HomeButton';
@@ -68,9 +69,7 @@ export default async function DashboardShell({
       </main>
 
       <footer className="h-10 bg-transparent flex items-center justify-between px-10">
-        <Link href="/policy" className="text-text-secondary">
-          개인정보 처리방침
-        </Link>
+        <FooterPolicyLink className="text-text-secondary" />
 
         <div className="text-text-secondary">
           © {new Date().getFullYear()}{' '}
