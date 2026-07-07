@@ -1,4 +1,4 @@
-import { hasLegacySlotFrame } from '../../slot/legacy';
+import { hasSlotFrameBounds } from '../../slot/frameGeometry';
 
 import { getDistanceList } from './basic';
 
@@ -64,7 +64,7 @@ function collectPoints(props: CollectItemLineProps) {
 
     // Slot frames currently use frame-space guide points but image-space mutation.
     // Until a frame-aware setter is introduced, keep the guide visual only.
-    if (hasLegacySlotFrame(target)) {
+    if (hasSlotFrameBounds(target)) {
       continue;
     }
 

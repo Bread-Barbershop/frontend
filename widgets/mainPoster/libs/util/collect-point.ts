@@ -1,4 +1,4 @@
-import { hasLegacySlotFrame } from '../../slot/legacy';
+import { hasSlotFrameBounds } from '../../slot/frameGeometry';
 
 import { getDistanceList } from './basic';
 
@@ -46,7 +46,7 @@ export function collectVerticalPoint(
 
   // Slot frames currently use frame-space guide points but image-space mutation.
   // Until a frame-aware resize setter is introduced, keep the guide visual only.
-  if (hasLegacySlotFrame(target)) {
+  if (hasSlotFrameBounds(target)) {
     return arr.map(target => ({ origin: point, target }));
   }
 
@@ -96,7 +96,7 @@ export function collectHorizontalPoint(
 
   // Slot frames currently use frame-space guide points but image-space mutation.
   // Until a frame-aware resize setter is introduced, keep the guide visual only.
-  if (hasLegacySlotFrame(target)) {
+  if (hasSlotFrameBounds(target)) {
     return arr.map(target => ({ origin: point, target }));
   }
 

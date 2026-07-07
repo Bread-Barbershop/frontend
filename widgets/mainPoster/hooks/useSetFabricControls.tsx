@@ -20,6 +20,7 @@ import {
   toFrameLocalPoint,
   toFrameWorldPoint,
 } from '../slot/frameGeometry';
+import { toSlotFrameFields, toSlotImageTransformFields } from '../slot/objectFields';
 import {
   createFabricControlImage,
   getRotatedCursorUrl,
@@ -100,12 +101,13 @@ const applySlotFrameTransform = (
     angle: frame.angle,
     scaleX: placement.appliedScale,
     scaleY: placement.appliedScale,
-    slotFrameWidth: frame.width,
-    slotFrameHeight: frame.height,
-    slotFrameLeft: frame.left,
-    slotFrameTop: frame.top,
-    slotFrameAngle: frame.angle,
-    slotImageBaseScale: placement.baseScale,
+    ...toSlotFrameFields(frame),
+    ...toSlotImageTransformFields({
+      baseScale: placement.baseScale,
+      zoomScale,
+      offsetX,
+      offsetY,
+    }),
     objectCaching: false,
     selectable: true,
     evented: true,

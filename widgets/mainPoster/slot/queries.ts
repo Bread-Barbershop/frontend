@@ -1,14 +1,14 @@
 import { Canvas, FabricImage, FabricObject } from 'fabric';
 
-import { buildSlotEntityFromLegacyTarget, getLegacySlotMeta } from './legacy';
-import { SlotEntity, SlotLegacyImageObject, SlotLegacyObject } from './types';
+import { buildSlotEntityFromObject, getSlotMeta } from './objectFields';
 
-// 현재 레거시 Fabric 객체 형태에서 슬롯 ID를 읽어오기
-export const getSlotId = (target: unknown) =>
-  getLegacySlotMeta(target)?.key ?? null;
+import type { SlotEntity, SlotLegacyImageObject, SlotLegacyObject } from './types';
+
+// Read slot id from a slot-enabled Fabric object.
+export const getSlotId = (target: unknown) => getSlotMeta(target)?.key ?? null;
 
 export const isSlotObject = (target: unknown): target is SlotLegacyObject =>
-  getLegacySlotMeta(target) !== null;
+  getSlotMeta(target) !== null;
 
 export const isSlotImageObject = (
   target: unknown
@@ -22,11 +22,11 @@ export const isSlotPlaceholderObject = (target: unknown) =>
   !(target instanceof FabricImage) &&
   target.get('name') === 'slot-placeholder';
 
-// 레거시 Fabric 객체 형태에서 슬롯 엔티티 생성
+// Build a normalized slot entity from a Fabric object.
 export const getSlotEntityByTarget = (target: unknown): SlotEntity | null =>
-  buildSlotEntityFromLegacyTarget(target);
+  buildSlotEntityFromObject(target);
 
-// 슬롯 ID가 같은 모든 객체 찾기
+// Find all Fabric objects that share the same slot id.
 export const findSlotTargetsBySlotId = (canvas: Canvas, slotId: string) =>
   canvas
     .getObjects()
@@ -34,7 +34,7 @@ export const findSlotTargetsBySlotId = (canvas: Canvas, slotId: string) =>
       (target): target is SlotLegacyObject => getSlotId(target) === slotId
     );
 
-// 플레이스홀더가 없는 경우에는 슬롯 ID가 같은 첫 번째 객체를 반환
+// Prefer the image target when both placeholder and image share the same slot id.
 export const findPrimarySlotTargetBySlotId = (
   canvas: Canvas,
   slotId: string

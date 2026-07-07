@@ -1,116 +1,48 @@
-import { FabricImage, FabricObject, Point, util } from 'fabric';
+import { FabricObject, Point, util } from 'fabric';
 
 import {
-  createDefaultSlotFrame,
-  createDefaultSlotImageTransform,
-  DEFAULT_SLOT_ZOOM_SCALE,
-} from './model';
-import {
+  applySlotEntityToObject,
+  buildSlotEntityFromObject,
+  getSlotMeta,
+  hasSlotFrameFields,
+  readSlotFrameFields,
+  readSlotImageTransformFields,
+  toSlotFrameFields,
+  toSlotImageTransformFields,
+} from './objectFields';
+
+import type {
   SlotEntity,
   SlotFrame,
   SlotImageTransform,
   SlotLegacyFrameFields,
   SlotLegacyImageFields,
-  SlotLegacyImageObject,
   SlotLegacyObject,
 } from './types';
 
-// 레거시 JSON 기반 Fabric 객체에서 슬롯 메타데이터 읽어오기
-export const getLegacySlotMeta = (target: unknown) => {
-  if (!(target instanceof FabricObject)) {
-    return null;
-  }
+// Compatibility wrappers for legacy JSON-backed slot fields.
+export const getLegacySlotMeta = getSlotMeta;
 
-  const slot = (target as SlotLegacyObject).slot;
-  if (!slot?.replaceable || !slot.key) {
-    return null;
-  }
-
-  return slot;
-};
-
-// 레거시 이미지가 이미 프레임 경계를 저장하고 있는지 확인
-export const hasLegacySlotFrame = (
-  target: unknown
-): target is SlotLegacyImageObject & SlotLegacyFrameFields => {
-  if (!(target instanceof FabricImage)) {
-    return false;
-  }
-
-  const legacyTarget = target as SlotLegacyImageObject & SlotLegacyFrameFields;
-
-  return (
-    typeof legacyTarget.slotFrameWidth === 'number' &&
-    typeof legacyTarget.slotFrameHeight === 'number' &&
-    typeof legacyTarget.slotFrameLeft === 'number' &&
-    typeof legacyTarget.slotFrameTop === 'number'
-  );
-};
+export const hasLegacySlotFrame = hasSlotFrameFields;
 
 export const getLegacySlotFrame = (target: unknown): SlotFrame | null => {
-  if (!hasLegacySlotFrame(target)) {
-    return null;
-  }
-
-  return {
-    width: target.slotFrameWidth ?? 0,
-    height: target.slotFrameHeight ?? 0,
-    left: target.slotFrameLeft ?? 0,
-    top: target.slotFrameTop ?? 0,
-    angle: target.slotFrameAngle ?? target.angle ?? 0,
-  };
+  return readSlotFrameFields(target);
 };
 
 export const getLegacySlotImageTransform = (
   target: unknown
 ): SlotImageTransform | null => {
-  const slot = getLegacySlotMeta(target);
-  if (!slot || !(target instanceof FabricObject)) {
-    return null;
-  }
-
-  const legacyTarget = target as SlotLegacyObject & SlotLegacyImageFields;
-
-  return {
-    baseScale: legacyTarget.slotImageBaseScale ?? 1,
-    zoomScale: legacyTarget.slotZoomScale ?? DEFAULT_SLOT_ZOOM_SCALE,
-    offsetX: legacyTarget.slotImageOffsetX ?? 0,
-    offsetY: legacyTarget.slotImageOffsetY ?? 0,
-  };
+  return readSlotImageTransformFields(target);
 };
 
-// 레거시 Fabric 객체를 새로운 슬롯 엔티티 형태로 변환
 export const buildSlotEntityFromLegacyTarget = (
   target: unknown
 ): SlotEntity | null => {
-  const meta = getLegacySlotMeta(target);
-  if (!meta) {
-    return null;
-  }
-
-  const frame = getLegacySlotFrame(target);
-  const image = getLegacySlotImageTransform(target);
-  const slotTarget = target as SlotLegacyObject;
-
-  return {
-    slotId: meta.key,
-    meta,
-    frame:
-      frame ??
-      createDefaultSlotFrame({
-        left: slotTarget.left ?? 0,
-        top: slotTarget.top ?? 0,
-        width: slotTarget.getScaledWidth?.() ?? slotTarget.width ?? 0,
-        height: slotTarget.getScaledHeight?.() ?? slotTarget.height ?? 0,
-        angle: slotTarget.angle ?? 0,
-      }),
-    image: image ?? createDefaultSlotImageTransform(),
-    imageObjectId: String(slotTarget.get('id') ?? meta.key),
-  };
+  return buildSlotEntityFromObject(target);
 };
 
 export const isPointInsideLegacySlotFrame = (target: unknown, point: Point) => {
-  const frame = getLegacySlotFrame(target);
+  const frame = readSlotFrameFields(target);
   if (!frame) {
     return target instanceof FabricObject ? target.containsPoint(point) : false;
   }
@@ -128,31 +60,19 @@ export const isPointInsideLegacySlotFrame = (target: unknown, point: Point) => {
 
 export const toLegacySlotFrameFields = (
   frame: SlotFrame
-): Required<SlotLegacyFrameFields> => ({
-  slotFrameWidth: frame.width,
-  slotFrameHeight: frame.height,
-  slotFrameLeft: frame.left,
-  slotFrameTop: frame.top,
-  slotFrameAngle: frame.angle,
-});
+): Required<SlotLegacyFrameFields> => {
+  return toSlotFrameFields(frame);
+};
 
 export const toLegacySlotImageFields = (
   image: SlotImageTransform
-): Required<SlotLegacyImageFields> => ({
-  slotZoomScale: image.zoomScale,
-  slotImageBaseScale: image.baseScale,
-  slotImageOffsetX: image.offsetX,
-  slotImageOffsetY: image.offsetY,
-});
+): Required<SlotLegacyImageFields> => {
+  return toSlotImageTransformFields(image);
+};
 
-// 레거시 JSON 필드에 새로운 슬롯 엔티티 상태를 다시 씀
 export const applySlotEntityToLegacyTarget = (
   target: SlotLegacyObject,
   entity: SlotEntity
 ) => {
-  target.set({
-    slot: entity.meta,
-    ...toLegacySlotFrameFields(entity.frame),
-    ...toLegacySlotImageFields(entity.image),
-  });
+  applySlotEntityToObject(target, entity);
 };

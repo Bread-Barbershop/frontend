@@ -25,6 +25,12 @@ import {
   resolveSlotImagePlacement,
 } from '../slot/frameGeometry';
 import {
+  applySlotEntityToObject,
+  getSlotMeta,
+  toSlotFrameFields,
+  toSlotImageTransformFields,
+} from '../slot/objectFields';
+import {
   findPrimarySlotTargetBySlotId,
   getSlotEntityByTarget,
 } from '../slot/queries';
@@ -565,15 +571,13 @@ const applySlotImageTransform = (
     selectable: true,
     evented: true,
     isLocked: slotImage.isLocked ?? false,
-    slotFrameWidth: frame.width,
-    slotFrameHeight: frame.height,
-    slotFrameLeft: frame.left,
-    slotFrameTop: frame.top,
-    slotFrameAngle: frame.angle,
-    slotImageBaseScale: placement.baseScale,
-    slotImageOffsetX: offsetX,
-    slotImageOffsetY: offsetY,
-    slotZoomScale: zoomScale,
+    ...toSlotFrameFields(frame),
+    ...toSlotImageTransformFields({
+      baseScale: placement.baseScale,
+      zoomScale,
+      offsetX,
+      offsetY,
+    }),
     ...getSlotInteractionState(slotImage),
   });
 
@@ -970,8 +974,8 @@ export const useFabricSlot = ({
     if (objectIndex < 0) return null;
 
     const frame = getSlotFrameState(targetImage);
-    const slot = ((targetImage as SlotTargetObject).slot ||
-      {}) as ImageSlotMeta;
+    const slot = getSlotMeta(targetImage);
+    if (!slot) return null;
     const targetSlotImage =
       targetImage instanceof FabricImage
         ? getSlotImageState(targetImage)
@@ -980,12 +984,24 @@ export const useFabricSlot = ({
       crossOrigin: 'anonymous',
     });
 
-    nextImage.set({
-      id: targetImage.get('id'),
-      slot: {
+    applySlotEntityToObject(nextImage as SlotTargetObject, {
+      slotId: slot.key,
+      meta: {
         ...slot,
         filled: true,
       },
+      frame,
+      image: {
+        baseScale: 1,
+        zoomScale: SLOT_IMAGE_SCALE_MIN,
+        offsetX: 0,
+        offsetY: 0,
+      },
+      imageObjectId: String(targetImage.get('id') ?? slot.key),
+    });
+
+    nextImage.set({
+      id: targetImage.get('id'),
       flipX: targetImage.flipX,
       flipY: targetImage.flipY,
       opacity: targetImage.opacity,
@@ -1024,7 +1040,7 @@ export const useFabricSlot = ({
   ) => {
     if (!canvas) return null;
 
-    const slot = (targetImage as SlotTargetObject).slot;
+    const slot = getSlotMeta(targetImage);
     if (!slot?.replaceable) return null;
 
     const objectIndex = canvas.getObjects().indexOf(targetImage);
@@ -1045,10 +1061,20 @@ export const useFabricSlot = ({
       hasControls: true,
     }) as SlotRect;
 
-    placeholder.slot = {
-      ...slot,
-      filled: false,
-    };
+    applySlotEntityToObject(placeholder, {
+      slotId: slot.key,
+      meta: {
+        ...slot,
+        filled: false,
+      },
+      frame,
+      image: {
+        baseScale: 1,
+        zoomScale: SLOT_IMAGE_SCALE_MIN,
+        offsetX: 0,
+        offsetY: 0,
+      },
+    });
 
     applySlotMetadata(placeholder);
     attachSlotRectBehavior(placeholder as Rect);

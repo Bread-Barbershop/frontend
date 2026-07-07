@@ -1,5 +1,7 @@
 import { FabricImage, FabricObject, Point, Rect } from 'fabric';
 
+import { hasSlotFrameFields, readSlotFrameFields } from './objectFields';
+
 import type { SlotFrame, SlotLegacyImageObject } from './types';
 
 export const SLOT_IMAGE_SCALE_MIN = 100;
@@ -19,25 +21,23 @@ export type SlotImagePlacement = {
 export const hasSlotFrameBounds = (
   target: unknown
 ): target is SlotFrameTransformTarget => {
-  return (
-    target instanceof FabricImage &&
-    typeof target.slotFrameWidth === 'number' &&
-    typeof target.slotFrameHeight === 'number' &&
-    typeof target.slotFrameLeft === 'number' &&
-    typeof target.slotFrameTop === 'number'
-  );
+  return hasSlotFrameFields(target);
 };
 
 export const getSlotFrameState = (target: FabricObject): SlotFrame => {
+  const frame = readSlotFrameFields(target);
+  if (frame) {
+    return frame;
+  }
+
   const center = target.getCenterPoint();
-  const slotTarget = target as SlotLegacyImageObject;
 
   return {
-    width: slotTarget.slotFrameWidth ?? target.getScaledWidth(),
-    height: slotTarget.slotFrameHeight ?? target.getScaledHeight(),
-    left: slotTarget.slotFrameLeft ?? center.x,
-    top: slotTarget.slotFrameTop ?? center.y,
-    angle: slotTarget.slotFrameAngle ?? target.angle ?? 0,
+    width: target.getScaledWidth(),
+    height: target.getScaledHeight(),
+    left: center.x,
+    top: center.y,
+    angle: target.angle ?? 0,
   };
 };
 
@@ -103,6 +103,21 @@ export const resolveSlotImagePlacement = (
     left: frame.left + worldOffset.x,
     top: frame.top + worldOffset.y,
   };
+};
+
+export const isPointInsideFrame = (frame: SlotFrame, point: Point) => {
+  const local = toFrameLocalPoint(frame, point.x, point.y);
+
+  return (
+    Math.abs(local.x) <= frame.width / 2 && Math.abs(local.y) <= frame.height / 2
+  );
+};
+
+export const isPointInsideSlotFrameBounds = (
+  target: FabricObject,
+  point: Point
+) => {
+  return isPointInsideFrame(getSlotFrameState(target), point);
 };
 
 export const createSlotClipPath = (frame: SlotFrame) =>

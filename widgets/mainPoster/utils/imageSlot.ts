@@ -1,7 +1,12 @@
 import { FabricImage, FabricObject, Point } from 'fabric';
 
-import { hasSlotFrameBounds } from '../slot/frameGeometry';
-import { getLegacySlotMeta, isPointInsideLegacySlotFrame } from '../slot/legacy';
+import {
+  getSlotFrameCoords,
+  getSlotFrameState,
+  hasSlotFrameBounds,
+  isPointInsideSlotFrameBounds,
+} from '../slot/frameGeometry';
+import { getSlotMeta as readSlotMeta } from '../slot/objectFields';
 import { FabricObjectWithLock } from '../types/fabric';
 
 import type { ImageSlotMeta } from '../slot/types';
@@ -22,15 +27,8 @@ export type ImagePanelMode =
   | 'empty-frame'
   | null;
 
-type SlotFrameBoundsTarget = SlotTargetObject & {
-  slotFrameWidth?: number;
-  slotFrameHeight?: number;
-  slotFrameLeft?: number;
-  slotFrameTop?: number;
-  slotFrameAngle?: number;
-};
 export const getSlotMeta = (target: unknown) => {
-  return getLegacySlotMeta(target);
+  return readSlotMeta(target);
 };
 
 export const getImageSlot = (target: unknown) => {
@@ -55,10 +53,6 @@ export const isFrameTarget = (target: unknown): target is SlotTargetObject =>
 export const containsFrameTarget = (targets: readonly unknown[]) =>
   targets.some(target => isFrameTarget(target));
 
-const getSlotFrameCenterPoint = (target: SlotFrameBoundsTarget) => {
-  return new Point(target.slotFrameLeft ?? 0, target.slotFrameTop ?? 0);
-};
-
 export const getFramePointMap = (target: FabricObject) => {
   if (!hasSlotFrameBounds(target)) {
     const coords = target.getCoords();
@@ -76,21 +70,9 @@ export const getFramePointMap = (target: FabricObject) => {
     };
   }
 
-  const width = target.slotFrameWidth ?? 0;
-  const height = target.slotFrameHeight ?? 0;
-  const angle = target.slotFrameAngle ?? target.angle ?? 0;
-  const center = getSlotFrameCenterPoint(target);
-  const radians = (angle * Math.PI) / 180;
-  const halfWidth = width / 2;
-  const halfHeight = height / 2;
-  const cos = Math.cos(radians);
-  const sin = Math.sin(radians);
-  const toWorld = (x: number, y: number) =>
-    new Point(center.x + x * cos - y * sin, center.y + x * sin + y * cos);
-  const tl = toWorld(-halfWidth, -halfHeight);
-  const tr = toWorld(halfWidth, -halfHeight);
-  const br = toWorld(halfWidth, halfHeight);
-  const bl = toWorld(-halfWidth, halfHeight);
+  const frame = getSlotFrameState(target);
+  const [tl, tr, br, bl] = getSlotFrameCoords(frame);
+  const center = new Point(frame.left, frame.top);
 
   return {
     tl,
@@ -134,7 +116,9 @@ export const getFramePointList = (target: FabricObject) => {
 };
 
 export const isPointInsideSlotFrame = (target: unknown, point: Point) => {
-  return isPointInsideLegacySlotFrame(target, point);
+  return target instanceof FabricObject
+    ? isPointInsideSlotFrameBounds(target, point)
+    : false;
 };
 export const isFilledSlotImage = (
   target: unknown
