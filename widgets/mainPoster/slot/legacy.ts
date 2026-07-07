@@ -15,6 +15,7 @@ import {
   SlotLegacyObject,
 } from './types';
 
+// 레거시 JSON 기반 Fabric 객체에서 슬롯 메타데이터 읽어오기
 export const getLegacySlotMeta = (target: unknown) => {
   if (!(target instanceof FabricObject)) {
     return null;
@@ -28,6 +29,7 @@ export const getLegacySlotMeta = (target: unknown) => {
   return slot;
 };
 
+// 레거시 이미지가 이미 프레임 경계를 저장하고 있는지 확인
 export const hasLegacySlotFrame = (
   target: unknown
 ): target is SlotLegacyImageObject & SlotLegacyFrameFields => {
@@ -77,6 +79,7 @@ export const getLegacySlotImageTransform = (
   };
 };
 
+// 레거시 Fabric 객체를 새로운 슬롯 엔티티 형태로 변환
 export const buildSlotEntityFromLegacyTarget = (
   target: unknown
 ): SlotEntity | null => {
@@ -142,6 +145,7 @@ export const toLegacySlotImageFields = (
   slotImageOffsetY: image.offsetY,
 });
 
+// 레거시 JSON 필드에 새로운 슬롯 엔티티 상태를 다시 씀
 export const applySlotEntityToLegacyTarget = (
   target: SlotLegacyObject,
   entity: SlotEntity
