@@ -14,6 +14,17 @@ import {
   SLOT_UPLOAD_SMALL_ICON_SVG,
 } from '../constants/fabric';
 import {
+  SLOT_IMAGE_SCALE_MIN,
+  createSlotClipPath,
+  getSlotBoundingBox,
+  getSlotCoverScale,
+  getSlotFrameCoords,
+  getSlotFrameState,
+  getSlotSourceSize as getImageSourceSize,
+  getSlotWorldOffset,
+  resolveSlotImagePlacement,
+} from '../slot/frameGeometry';
+import {
   findPrimarySlotTargetBySlotId,
   getSlotEntityByTarget,
 } from '../slot/queries';
@@ -57,13 +68,7 @@ type SlotPlaceholderRect = SlotRect & {
 
 type SlotImageBehaviorObject = FabricImageWithLock;
 
-type SlotFrameState = {
-  width: number;
-  height: number;
-  left: number;
-  top: number;
-  angle: number;
-};
+type SlotFrameState = import('../slot/types').SlotFrame;
 
 type CanvasSelectionAreaPatched = {
   _pointIsInObjectSelectionArea?: (obj: FabricObject, point: Point) => boolean;
@@ -77,7 +82,6 @@ const ICON_SMALL_SIZE = 24;
 const ICON_PADDING = 8;
 const SLOT_IMAGE_POSITION_MIN = -50;
 const SLOT_IMAGE_POSITION_MAX = 50;
-const SLOT_IMAGE_SCALE_MIN = 100;
 const SLOT_IMAGE_SCALE_MAX = 400;
 
 const clampSlotImageOffset = (value: number) =>
@@ -319,106 +323,6 @@ const detachSlotRectBehavior = (rect: Rect) => {
 
 const getSlotImageState = (image: FabricImage) => image as FabricImageWithLock;
 
-const getImageSourceSize = (image: FabricImage) => {
-  const element = image.getElement();
-
-  if (element instanceof HTMLImageElement) {
-    return {
-      width: element.naturalWidth || image.width || 0,
-      height: element.naturalHeight || image.height || 0,
-    };
-  }
-
-  return {
-    width: image.width || 0,
-    height: image.height || 0,
-  };
-};
-
-const getSlotFrameState = (target: FabricObject): SlotFrameState => {
-  const slotImage = target as FabricImageWithLock;
-  const center = target.getCenterPoint();
-
-  return {
-    width: slotImage.slotFrameWidth ?? target.getScaledWidth(),
-    height: slotImage.slotFrameHeight ?? target.getScaledHeight(),
-    left: slotImage.slotFrameLeft ?? center.x,
-    top: slotImage.slotFrameTop ?? center.y,
-    angle: slotImage.slotFrameAngle ?? target.angle ?? 0,
-  };
-};
-
-const getSlotCoverScale = (
-  frameWidth: number,
-  frameHeight: number,
-  sourceWidth: number,
-  sourceHeight: number
-) => Math.max(frameWidth / sourceWidth, frameHeight / sourceHeight);
-
-const getSlotWorldOffset = (
-  frame: SlotFrameState,
-  offsetX: number,
-  offsetY: number
-) => {
-  const offsetXPx = (frame.width * offsetX) / 100;
-  const offsetYPx = (frame.height * offsetY) / 100;
-  const radians = (frame.angle * Math.PI) / 180;
-
-  return {
-    x: offsetXPx * Math.cos(radians) - offsetYPx * Math.sin(radians),
-    y: offsetXPx * Math.sin(radians) + offsetYPx * Math.cos(radians),
-  };
-};
-
-const createSlotClipPath = (frame: SlotFrameState) =>
-  new Rect({
-    left: frame.left,
-    top: frame.top,
-    width: frame.width,
-    height: frame.height,
-    angle: frame.angle,
-    originX: 'center',
-    originY: 'center',
-    absolutePositioned: true,
-  });
-
-const getSlotFrameCoords = (frame: SlotFrameState): Point[] => {
-  const radians = (frame.angle * Math.PI) / 180;
-  const halfWidth = frame.width / 2;
-  const halfHeight = frame.height / 2;
-  const cos = Math.cos(radians);
-  const sin = Math.sin(radians);
-  const corners = [
-    { x: -halfWidth, y: -halfHeight },
-    { x: halfWidth, y: -halfHeight },
-    { x: halfWidth, y: halfHeight },
-    { x: -halfWidth, y: halfHeight },
-  ];
-
-  return corners.map(
-    corner =>
-      new Point(
-        frame.left + corner.x * cos - corner.y * sin,
-        frame.top + corner.x * sin + corner.y * cos
-      )
-  );
-};
-
-const getSlotBoundingBox = (frame: SlotFrameState) => {
-  const radians = (frame.angle * Math.PI) / 180;
-  const absCos = Math.abs(Math.cos(radians));
-  const absSin = Math.abs(Math.sin(radians));
-  const width = frame.width * absCos + frame.height * absSin;
-  const height = frame.width * absSin + frame.height * absCos;
-
-  return {
-    left: frame.left - width / 2,
-    top: frame.top - height / 2,
-    width,
-    height,
-  };
-};
-
 const getLegacySlotTransform = (image: FabricImage, frame: SlotFrameState) => {
   const slotImage = getSlotImageState(image);
   const { width: sourceWidth, height: sourceHeight } =
@@ -567,10 +471,16 @@ const detachSlotImageHitArea = (image: FabricImage) => {
   image.containsPoint = runtime.originalContainsPoint;
   delete runtime.originalContainsPoint;
 
-  if (!runtime.movingHandler && !runtime.modifiedHandler) {
+  if (
+    !runtime.movingHandler &&
+    !runtime.scalingHandler &&
+    !runtime.rotatingHandler &&
+    !runtime.modifiedHandler
+  ) {
     clearSlotImageRuntime(image);
   }
 };
+
 const getSlotInteractionState = (image: FabricImageWithLock) => {
   if (!image.isLocked) {
     return {
@@ -629,22 +539,28 @@ const applySlotImageTransform = (
   const offsetY = clampSlotImageOffset(
     transformOverride?.offsetY ?? resolved.offsetY
   );
-  const baseScale = transformOverride?.baseScale ?? resolved.baseScale;
-  const appliedScale = baseScale * (zoomScale / 100);
-  const worldOffset = getSlotWorldOffset(frame, offsetX, offsetY);
+  const placement = resolveSlotImagePlacement(
+    frame,
+    resolved.sourceWidth,
+    resolved.sourceHeight,
+    zoomScale,
+    offsetX,
+    offsetY,
+    transformOverride?.baseScale ?? resolved.baseScale
+  );
 
   image.set({
     originX: 'center',
     originY: 'center',
-    left: frame.left + worldOffset.x,
-    top: frame.top + worldOffset.y,
+    left: placement.left,
+    top: placement.top,
     angle: frame.angle,
     width: resolved.sourceWidth,
     height: resolved.sourceHeight,
     cropX: 0,
     cropY: 0,
-    scaleX: appliedScale,
-    scaleY: appliedScale,
+    scaleX: placement.appliedScale,
+    scaleY: placement.appliedScale,
     objectCaching: false,
     selectable: true,
     evented: true,
@@ -654,7 +570,7 @@ const applySlotImageTransform = (
     slotFrameLeft: frame.left,
     slotFrameTop: frame.top,
     slotFrameAngle: frame.angle,
-    slotImageBaseScale: baseScale,
+    slotImageBaseScale: placement.baseScale,
     slotImageOffsetX: offsetX,
     slotImageOffsetY: offsetY,
     slotZoomScale: zoomScale,
@@ -771,9 +687,6 @@ const attachSlotImageBehavior = (image: FabricImage) => {
     syncSlotFrameFromImageTransform(slotImage, 'rotate');
   };
   nextRuntime.modifiedHandler = () => {
-    delete nextRuntime.dragLastFrameLeft;
-    delete nextRuntime.dragLastFrameTop;
-
     syncSlotFrameFromImageTransform(
       slotImage,
       nextRuntime.lastTransformMode ?? 'resize'
@@ -811,8 +724,6 @@ const detachSlotImageBehavior = (image: FabricImage) => {
   }
 
   if (runtime) {
-    delete runtime.dragLastFrameLeft;
-    delete runtime.dragLastFrameTop;
     delete runtime.isSyncingTransform;
     delete runtime.lastTransformMode;
   }
@@ -1236,7 +1147,6 @@ export const useFabricSlot = ({
     }
   };
 
-  // ?�재 ?�브�?객체?�서 ?�롯 ?�메???�이?��? ?�어?�기
   const getSlotEntity = (target?: FabricObject | null) => {
     if (!target) {
       return null;
@@ -1245,7 +1155,6 @@ export const useFabricSlot = ({
     return getSlotEntityByTarget(target);
   };
 
-  // ?�티브된 캔버?�의 ?�택 객체�??�롯 ?�티?�로 ?�어?�기
   const getActiveSlotEntity = () => {
     if (!canvas) {
       return null;
@@ -1254,7 +1163,6 @@ export const useFabricSlot = ({
     return getSlotEntity(canvas.getActiveObject());
   };
 
-  // ?�롯 id�?기반?�로 ?�롯 ?�메??객체�?찾아 반환
   const findSlotTargetBySlotId = (slotId: string) => {
     if (!canvas) {
       return null;
@@ -1263,14 +1171,12 @@ export const useFabricSlot = ({
     return findPrimarySlotTargetBySlotId(canvas, slotId);
   };
 
-  // ?�롯 id�?기반?�로 ?�더링된 ?��?지 객체�?찾아 반환
   const findSlotImageBySlotId = (slotId: string) => {
     const target = findSlotTargetBySlotId(slotId);
 
     return target instanceof FabricImage ? target : null;
   };
 
-  // ?��?지 교체�??�롯 ?�이?��? 기반?�로 ?�행?�는 ?�트�??�인??
   const replaceSlotImageBySlot = async (slotId: string, url: string) => {
     const target = findSlotTargetBySlotId(slotId);
     if (!target) {
@@ -1280,7 +1186,6 @@ export const useFabricSlot = ({
     return replaceSlotImage(target, url);
   };
 
-  // ?�레?�스?�??복원???�롯 ?�이?��? 기반?�로 ?�행?�는 ?�트�??�인??
   const restoreSlotPlaceholderBySlot = (
     slotId: string,
     options?: {
@@ -1296,21 +1201,18 @@ export const useFabricSlot = ({
     return restoreSlotPlaceholder(target, options);
   };
 
-  // ?�롯 ?�이?��? 기반?�로 ?�치�??�어?�는 ?�트�??�인??
   const getSlotImagePositionBySlot = (slotId: string) => {
     const image = findSlotImageBySlotId(slotId);
 
     return image ? getSlotImagePosition(image) : null;
   };
 
-  // ?�롯 ?�이?��? 기반?�로 ?��?지 ?��??�을 ?�어?�는 ?�트�??�인??
   const getSlotImageScaleBySlot = (slotId: string) => {
     const image = findSlotImageBySlotId(slotId);
 
     return image ? getSlotImageScale(image) : null;
   };
 
-  // ?�롯 ?�이?��? 기반?�로 ?��?지 ?��??�을 ?�데?�트?�는 ?�트�??�인??
   const updateSlotImageScaleBySlot = (
     slotId: string,
     value: number,
@@ -1329,7 +1231,6 @@ export const useFabricSlot = ({
     return true;
   };
 
-  // ?�롯 ?�이?��? 기반?�로 ?��?지 ?�치�??�데?�트?�는 ?�트�??�인??
   const updateSlotImagePositionBySlot = (
     slotId: string,
     axis: 'x' | 'y',
@@ -1349,7 +1250,6 @@ export const useFabricSlot = ({
     return true;
   };
 
-  // ?�롯 ?�이?��? 기반?�로 ?��?지 ?�리뷰�? ?�보?�는 ?�트�??�인??
   const exportSlotImagePreviewBySlot = (slotId: string) => {
     const image = findSlotImageBySlotId(slotId);
 
@@ -1405,7 +1305,6 @@ export const useFabricSlot = ({
     convertActiveRectToSlot,
     unregisterActiveSlot,
 
-    // ?�거?��? ?�한 Object 기반 API
     replaceSlotImage,
     restoreSlotPlaceholder,
     getSlotImagePosition,
@@ -1414,7 +1313,6 @@ export const useFabricSlot = ({
     updateSlotImageScale,
     exportSlotImagePreview,
 
-    // ?�롯 ID 기반 API
     replaceSlotImageBySlot,
     restoreSlotPlaceholderBySlot,
     getSlotImagePositionBySlot,
@@ -1426,5 +1324,3 @@ export const useFabricSlot = ({
     getActiveSlotEntity,
   };
 };
-
-

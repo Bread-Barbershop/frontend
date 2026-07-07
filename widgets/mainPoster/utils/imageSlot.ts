@@ -1,10 +1,7 @@
 import { FabricImage, FabricObject, Point } from 'fabric';
 
-import {
-  getLegacySlotMeta,
-  hasLegacySlotFrame,
-  isPointInsideLegacySlotFrame,
-} from '../slot/legacy';
+import { hasSlotFrameBounds } from '../slot/frameGeometry';
+import { getLegacySlotMeta, isPointInsideLegacySlotFrame } from '../slot/legacy';
 import { FabricObjectWithLock } from '../types/fabric';
 
 import type { ImageSlotMeta } from '../slot/types';
@@ -57,12 +54,6 @@ export const isFrameTarget = (target: unknown): target is SlotTargetObject =>
 
 export const containsFrameTarget = (targets: readonly unknown[]) =>
   targets.some(target => isFrameTarget(target));
-
-const hasSlotFrameBounds = (
-  target: unknown
-): target is SlotFrameBoundsTarget & FabricImage => {
-  return hasLegacySlotFrame(target);
-};
 
 const getSlotFrameCenterPoint = (target: SlotFrameBoundsTarget) => {
   return new Point(target.slotFrameLeft ?? 0, target.slotFrameTop ?? 0);

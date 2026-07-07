@@ -3,7 +3,6 @@ import {
   Textbox,
   Control,
   Point,
-  Rect,
   controlsUtils,
   util,
   TMat2D,
@@ -12,16 +11,28 @@ import { useEffect } from 'react';
 
 import { CORNERS_CONFIG, MOVE_ICON, SIDES_CONFIG } from '../constants/fabric';
 import {
+  SLOT_IMAGE_SCALE_MIN,
+  createSlotClipPath,
+  getSlotFrameState,
+  getSlotSourceSize,
+  hasSlotFrameBounds,
+  resolveSlotImagePlacement,
+  toFrameLocalPoint,
+  toFrameWorldPoint,
+} from '../slot/frameGeometry';
+import {
   createFabricControlImage,
   getRotatedCursorUrl,
   isImageReadyForCanvas,
 } from '../utils/fabricUtils';
 import { patchSlotSelectionBorder } from '../utils/slotSelectionBorder';
 
+import type { SlotFrameTransformTarget } from '../slot/frameGeometry';
+import type { SlotFrame } from '../slot/types';
+
 const DIAGONAL_CORNERS = ['tl', 'tr', 'bl', 'br'];
 const HORIZONTAL_CORNERS = ['ml', 'mr'];
 const VERTICAL_CORNERS = ['mt', 'mb'];
-const SLOT_IMAGE_SCALE_MIN = 100;
 
 type FabricObjectLike = {
   type?: string;
@@ -58,124 +69,7 @@ type SlotFrameControlTarget = FabricObjectLike & {
   getCenterPoint: () => Point;
 };
 
-type SlotFrameTransformTarget = FabricObject &
-  SlotFrameControlTarget & {
-    width?: number;
-    height?: number;
-    scaleX?: number;
-    scaleY?: number;
-    angle?: number;
-    slotZoomScale?: number;
-    slotImageBaseScale?: number;
-    slotImageOffsetX?: number;
-    slotImageOffsetY?: number;
-    objectCaching?: boolean;
-    selectable?: boolean;
-    evented?: boolean;
-    getElement?: () => HTMLImageElement | HTMLCanvasElement;
-  };
-
-type SlotFrameState = {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-  angle: number;
-};
-
-const hasSlotFrameBounds = (
-  target: FabricObjectLike | null | undefined
-): target is SlotFrameControlTarget => {
-  return Boolean(
-    target?.isType?.('image') &&
-      typeof (target as SlotFrameControlTarget).slotFrameWidth === 'number' &&
-      typeof (target as SlotFrameControlTarget).slotFrameHeight === 'number' &&
-      typeof (target as SlotFrameControlTarget).slotFrameLeft === 'number' &&
-      typeof (target as SlotFrameControlTarget).slotFrameTop === 'number'
-  );
-};
-
-const getSlotFrameState = (target: SlotFrameTransformTarget): SlotFrameState => ({
-  left: target.slotFrameLeft ?? target.getCenterPoint().x,
-  top: target.slotFrameTop ?? target.getCenterPoint().y,
-  width: target.slotFrameWidth ?? target.getScaledWidth(),
-  height: target.slotFrameHeight ?? target.getScaledHeight(),
-  angle: target.slotFrameAngle ?? target.angle ?? 0,
-});
-
-const getSlotSourceSize = (target: SlotFrameTransformTarget) => {
-  const element = target.getElement?.();
-
-  if (element instanceof HTMLImageElement) {
-    return {
-      width: element.naturalWidth || target.width || 0,
-      height: element.naturalHeight || target.height || 0,
-    };
-  }
-
-  return {
-    width: target.width || 0,
-    height: target.height || 0,
-  };
-};
-
-const getSlotCoverScale = (
-  frameWidth: number,
-  frameHeight: number,
-  sourceWidth: number,
-  sourceHeight: number
-) => Math.max(frameWidth / sourceWidth, frameHeight / sourceHeight);
-
-const getSlotWorldOffset = (
-  frame: SlotFrameState,
-  offsetX: number,
-  offsetY: number
-) => {
-  const offsetXPx = (frame.width * offsetX) / 100;
-  const offsetYPx = (frame.height * offsetY) / 100;
-  const radians = util.degreesToRadians(frame.angle);
-
-  return {
-    x: offsetXPx * Math.cos(radians) - offsetYPx * Math.sin(radians),
-    y: offsetXPx * Math.sin(radians) + offsetYPx * Math.cos(radians),
-  };
-};
-
-const toFrameLocalPoint = (frame: SlotFrameState, x: number, y: number) => {
-  const radians = util.degreesToRadians(frame.angle);
-  const dx = x - frame.left;
-  const dy = y - frame.top;
-
-  return {
-    x: dx * Math.cos(radians) + dy * Math.sin(radians),
-    y: -dx * Math.sin(radians) + dy * Math.cos(radians),
-  };
-};
-
-const toFrameWorldPoint = (
-  frame: SlotFrameState,
-  localX: number,
-  localY: number
-) => {
-  const radians = util.degreesToRadians(frame.angle);
-
-  return new Point(
-    frame.left + localX * Math.cos(radians) - localY * Math.sin(radians),
-    frame.top + localX * Math.sin(radians) + localY * Math.cos(radians)
-  );
-};
-
-const createSlotClipPath = (frame: SlotFrameState) =>
-  new Rect({
-    left: frame.left,
-    top: frame.top,
-    width: frame.width,
-    height: frame.height,
-    angle: frame.angle,
-    originX: 'center',
-    originY: 'center',
-    absolutePositioned: true,
-  });
+type SlotFrameState = SlotFrame;
 
 const applySlotFrameTransform = (
   target: SlotFrameTransformTarget,
@@ -187,31 +81,31 @@ const applySlotFrameTransform = (
   }
 
   const zoomScale = target.slotZoomScale ?? SLOT_IMAGE_SCALE_MIN;
-  const baseScale = getSlotCoverScale(
-    frame.width,
-    frame.height,
-    sourceSize.width,
-    sourceSize.height
-  );
-  const appliedScale = baseScale * (zoomScale / 100);
   const offsetX = target.slotImageOffsetX ?? 0;
   const offsetY = target.slotImageOffsetY ?? 0;
-  const worldOffset = getSlotWorldOffset(frame, offsetX, offsetY);
+  const placement = resolveSlotImagePlacement(
+    frame,
+    sourceSize.width,
+    sourceSize.height,
+    zoomScale,
+    offsetX,
+    offsetY
+  );
 
   target.set({
     originX: 'center',
     originY: 'center',
-    left: frame.left + worldOffset.x,
-    top: frame.top + worldOffset.y,
+    left: placement.left,
+    top: placement.top,
     angle: frame.angle,
-    scaleX: appliedScale,
-    scaleY: appliedScale,
+    scaleX: placement.appliedScale,
+    scaleY: placement.appliedScale,
     slotFrameWidth: frame.width,
     slotFrameHeight: frame.height,
     slotFrameLeft: frame.left,
     slotFrameTop: frame.top,
     slotFrameAngle: frame.angle,
-    slotImageBaseScale: baseScale,
+    slotImageBaseScale: placement.baseScale,
     objectCaching: false,
     selectable: true,
     evented: true,

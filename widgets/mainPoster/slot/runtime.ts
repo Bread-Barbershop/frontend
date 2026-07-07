@@ -10,8 +10,6 @@ type SlotImageRuntimeState = {
   scalingHandler?: () => void;
   rotatingHandler?: () => void;
   modifiedHandler?: () => void;
-  dragLastFrameLeft?: number;
-  dragLastFrameTop?: number;
   isSyncingTransform?: boolean;
   lastTransformMode?: 'move' | 'resize' | 'rotate';
   originalContainsPoint?: FabricObject['containsPoint'];
