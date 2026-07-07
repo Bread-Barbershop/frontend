@@ -5,6 +5,21 @@ import {
   SLOT_UPLOAD_ICON_SVG,
   SLOT_UPLOAD_SMALL_ICON_SVG,
 } from '../constants/fabric';
+import {
+  findPrimarySlotTargetBySlotId,
+  getSlotEntityByTarget,
+} from '../slot/queries';
+import {
+  clearSlotCanvasRuntime,
+  clearSlotImageRuntime,
+  clearSlotPlaceholderRuntime,
+  ensureSlotCanvasRuntime,
+  ensureSlotImageRuntime,
+  ensureSlotPlaceholderRuntime,
+  getSlotCanvasRuntime,
+  getSlotImageRuntime,
+  getSlotPlaceholderRuntime,
+} from '../slot/runtime';
 import { FabricImageWithLock } from '../types/fabric';
 import {
   createFabricControlImage,
@@ -30,17 +45,9 @@ type SlotRect = Rect & {
 
 type SlotPlaceholderRect = SlotRect & {
   _render: (ctx: CanvasRenderingContext2D) => void;
-  __slotPlaceholderBaseRender?: (ctx: CanvasRenderingContext2D) => void;
-  __slotPlaceholderModifiedHandler?: () => void;
 };
 
-type SlotImageBehaviorObject = FabricImageWithLock & {
-  __slotImageMovingHandler?: () => void;
-  __slotImageModifiedHandler?: () => void;
-  __slotDragLastFrameLeft?: number;
-  __slotDragLastFrameTop?: number;
-  __slotOriginalContainsPoint?: FabricObject['containsPoint'];
-};
+type SlotImageBehaviorObject = FabricImageWithLock;
 
 type SlotFrameState = {
   width: number;
@@ -50,13 +57,13 @@ type SlotFrameState = {
   angle: number;
 };
 
-type SlotCanvasWithSelectionAreaPatch = Canvas & {
-  __slotOriginalPointIsInObjectSelectionArea?: (
+type CanvasSelectionAreaPatched = {
+  _pointIsInObjectSelectionArea?: (
     obj: FabricObject,
     point: Point
   ) => boolean;
+  getZoom: () => number;
 };
-
 const PATTERN_BASE_WIDTH = 335;
 const PATTERN_VISIBLE_COLUMNS = 9;
 const ICON_SWITCH_SIZE = 44;
@@ -185,24 +192,31 @@ const renderSlotPlaceholderIcon = (
 };
 
 const attachSlotPlaceholderRender = (rect: SlotPlaceholderRect) => {
-  if (rect.__slotPlaceholderBaseRender) {
+  const runtime = getSlotPlaceholderRuntime(rect);
+  if (runtime?.baseRender) {
     return;
   }
 
-  rect.__slotPlaceholderBaseRender = rect._render.bind(rect);
+  const nextRuntime = ensureSlotPlaceholderRuntime(rect);
+  nextRuntime.baseRender = rect._render.bind(rect);
   rect._render = (ctx: CanvasRenderingContext2D) => {
-    rect.__slotPlaceholderBaseRender?.(ctx);
+    nextRuntime.baseRender?.(ctx);
     renderSlotPlaceholderIcon(rect, ctx);
   };
 };
 
 const detachSlotPlaceholderRender = (rect: SlotPlaceholderRect) => {
-  if (!rect.__slotPlaceholderBaseRender) {
+  const runtime = getSlotPlaceholderRuntime(rect);
+  if (!runtime?.baseRender) {
     return;
   }
 
-  rect._render = rect.__slotPlaceholderBaseRender;
-  delete rect.__slotPlaceholderBaseRender;
+  rect._render = runtime.baseRender;
+  delete runtime.baseRender;
+
+  if (!runtime.modifiedHandler) {
+    clearSlotPlaceholderRuntime(rect);
+  }
 };
 
 const updateSlotRectPattern = (rect: Rect) => {
@@ -268,27 +282,34 @@ const attachSlotRectBehavior = (rect: Rect) => {
 
   attachSlotPlaceholderRender(slotRect);
 
-  if (slotRect.__slotPlaceholderModifiedHandler) {
+  const runtime = getSlotPlaceholderRuntime(slotRect);
+  if (runtime?.modifiedHandler) {
     return;
   }
 
-  slotRect.__slotPlaceholderModifiedHandler = () => {
+  const nextRuntime = ensureSlotPlaceholderRuntime(slotRect);
+  nextRuntime.modifiedHandler = () => {
     normalizeSlotRectScale(slotRect);
     updateSlotRectPattern(slotRect);
   };
 
-  slotRect.on('modified', slotRect.__slotPlaceholderModifiedHandler);
+  slotRect.on('modified', nextRuntime.modifiedHandler);
 };
 
 const detachSlotRectBehavior = (rect: Rect) => {
   const slotRect = rect as SlotPlaceholderRect;
+  const runtime = getSlotPlaceholderRuntime(slotRect);
 
-  if (slotRect.__slotPlaceholderModifiedHandler) {
-    slotRect.off('modified', slotRect.__slotPlaceholderModifiedHandler);
-    delete slotRect.__slotPlaceholderModifiedHandler;
+  if (runtime?.modifiedHandler) {
+    slotRect.off('modified', runtime.modifiedHandler);
+    delete runtime.modifiedHandler;
   }
 
   detachSlotPlaceholderRender(slotRect);
+
+  if (runtime && !runtime.baseRender && !runtime.modifiedHandler) {
+    clearSlotPlaceholderRuntime(slotRect);
+  }
 };
 
 const getSlotImageState = (image: FabricImage) => image as FabricImageWithLock;
@@ -445,27 +466,30 @@ const applySlotFrameControlVisibility = (image: FabricImageWithLock) => {
 };
 
 const attachSlotImageHitArea = (image: FabricImage) => {
-  const slotImage = image as SlotImageBehaviorObject;
-
-  if (slotImage.__slotOriginalContainsPoint) {
+  const runtime = getSlotImageRuntime(image);
+  if (runtime?.originalContainsPoint) {
     return;
   }
 
-  slotImage.__slotOriginalContainsPoint = image.containsPoint.bind(image);
+  const nextRuntime = ensureSlotImageRuntime(image);
+  nextRuntime.originalContainsPoint = image.containsPoint.bind(image);
   image.containsPoint = function (point: Point) {
     return isPointInsideSlotFrame(this, point);
   };
 };
 
 const detachSlotImageHitArea = (image: FabricImage) => {
-  const slotImage = image as SlotImageBehaviorObject;
-
-  if (!slotImage.__slotOriginalContainsPoint) {
+  const runtime = getSlotImageRuntime(image);
+  if (!runtime?.originalContainsPoint) {
     return;
   }
 
-  image.containsPoint = slotImage.__slotOriginalContainsPoint;
-  delete slotImage.__slotOriginalContainsPoint;
+  image.containsPoint = runtime.originalContainsPoint;
+  delete runtime.originalContainsPoint;
+
+  if (!runtime.movingHandler && !runtime.modifiedHandler) {
+    clearSlotImageRuntime(image);
+  }
 };
 const getSlotInteractionState = (image: FabricImageWithLock) => {
   if (!image.isLocked) {
@@ -578,15 +602,14 @@ const applySlotImageTransform = (
 };
 const attachSlotImageBehavior = (image: FabricImage) => {
   const slotImage = image as SlotImageBehaviorObject;
+  const runtime = getSlotImageRuntime(slotImage);
 
-  if (
-    slotImage.__slotImageMovingHandler ||
-    slotImage.__slotImageModifiedHandler
-  ) {
+  if (runtime?.movingHandler || runtime?.modifiedHandler) {
     return;
   }
 
-  slotImage.__slotImageMovingHandler = () => {
+  const nextRuntime = ensureSlotImageRuntime(slotImage);
+  nextRuntime.movingHandler = () => {
     if (slotImage.isLocked) {
       return;
     }
@@ -594,8 +617,8 @@ const attachSlotImageBehavior = (image: FabricImage) => {
     const center = slotImage.getCenterPoint();
     const currentFrameLeft = frame.left;
     const currentFrameTop = frame.top;
-    const lastFrameLeft = slotImage.__slotDragLastFrameLeft ?? currentFrameLeft;
-    const lastFrameTop = slotImage.__slotDragLastFrameTop ?? currentFrameTop;
+    const lastFrameLeft = nextRuntime.dragLastFrameLeft ?? currentFrameLeft;
+    const lastFrameTop = nextRuntime.dragLastFrameTop ?? currentFrameTop;
     const worldOffset = getSlotWorldOffset(
       frame,
       clampSlotImageOffset(slotImage.slotImageOffsetX ?? 0),
@@ -611,20 +634,20 @@ const attachSlotImageBehavior = (image: FabricImage) => {
       left: nextFrameLeft,
       top: nextFrameTop,
     });
-    slotImage.__slotDragLastFrameLeft = nextFrameLeft;
-    slotImage.__slotDragLastFrameTop = nextFrameTop;
+    nextRuntime.dragLastFrameLeft = nextFrameLeft;
+    nextRuntime.dragLastFrameTop = nextFrameTop;
     slotImage.canvas?.requestRenderAll();
   };
 
-  slotImage.__slotImageModifiedHandler = () => {
+  nextRuntime.modifiedHandler = () => {
     if (slotImage.isLocked) {
       return;
     }
 
     const frame = getSlotFrameState(slotImage);
 
-    delete slotImage.__slotDragLastFrameLeft;
-    delete slotImage.__slotDragLastFrameTop;
+    delete nextRuntime.dragLastFrameLeft;
+    delete nextRuntime.dragLastFrameTop;
 
     applySlotImageTransform(slotImage, {
       width: frame.width,
@@ -637,34 +660,60 @@ const attachSlotImageBehavior = (image: FabricImage) => {
     slotImage.canvas?.requestRenderAll();
   };
 
-  slotImage.on('moving', slotImage.__slotImageMovingHandler);
-  slotImage.on('modified', slotImage.__slotImageModifiedHandler);
+  slotImage.on('moving', nextRuntime.movingHandler);
+  slotImage.on('modified', nextRuntime.modifiedHandler);
 };
 
 const detachSlotImageBehavior = (image: FabricImage) => {
-  const slotImage = image as SlotImageBehaviorObject;
+  const runtime = getSlotImageRuntime(image);
 
-  if (slotImage.__slotImageMovingHandler) {
-    slotImage.off('moving', slotImage.__slotImageMovingHandler);
-    delete slotImage.__slotImageMovingHandler;
+  if (runtime?.movingHandler) {
+    image.off('moving', runtime.movingHandler);
+    delete runtime.movingHandler;
   }
 
-  if (slotImage.__slotImageModifiedHandler) {
-    slotImage.off('modified', slotImage.__slotImageModifiedHandler);
-    delete slotImage.__slotImageModifiedHandler;
+  if (runtime?.modifiedHandler) {
+    image.off('modified', runtime.modifiedHandler);
+    delete runtime.modifiedHandler;
+  }
+
+  if (runtime) {
+    delete runtime.dragLastFrameLeft;
+    delete runtime.dragLastFrameTop;
+  }
+
+  if (runtime && !runtime.originalContainsPoint && !runtime.movingHandler && !runtime.modifiedHandler) {
+    clearSlotImageRuntime(image);
   }
 };
 
-const attachSlotSelectionAreaPatch = (canvas: Canvas) => {
-  const slotCanvas = canvas as SlotCanvasWithSelectionAreaPatch;
+const getCanvasSelectionAreaMethod = (
+  canvas: CanvasSelectionAreaPatched
+): ((obj: FabricObject, point: Point) => boolean) | null => {
+  const method = canvas._pointIsInObjectSelectionArea;
 
-  if (slotCanvas.__slotOriginalPointIsInObjectSelectionArea) {
+  if (typeof method !== 'function') {
+    return null;
+  }
+
+  return method.bind(canvas);
+};
+
+const attachSlotSelectionAreaPatch = (canvas: Canvas) => {
+  const selectionCanvas = canvas as unknown as CanvasSelectionAreaPatched;
+  const runtime = getSlotCanvasRuntime(canvas);
+  if (runtime?.originalPointIsInObjectSelectionArea) {
     return;
   }
 
-  slotCanvas.__slotOriginalPointIsInObjectSelectionArea = (
-    canvas as any)._pointIsInObjectSelectionArea.bind(canvas);
-  (canvas as any)._pointIsInObjectSelectionArea = function (
+  const originalSelectionAreaMethod = getCanvasSelectionAreaMethod(selectionCanvas);
+  if (!originalSelectionAreaMethod) {
+    return;
+  }
+
+  const nextRuntime = ensureSlotCanvasRuntime(canvas);
+  nextRuntime.originalPointIsInObjectSelectionArea = originalSelectionAreaMethod;
+  selectionCanvas._pointIsInObjectSelectionArea = function (
     obj: FabricObject,
     point: Point
   ) {
@@ -692,20 +741,20 @@ const attachSlotSelectionAreaPatch = (canvas: Canvas) => {
       return Intersection.isPointInPolygon(point, coords);
     }
 
-    return slotCanvas.__slotOriginalPointIsInObjectSelectionArea?.(obj, point) ?? false;
+    return nextRuntime.originalPointIsInObjectSelectionArea?.(obj, point) ?? false;
   };
 };
 
 const detachSlotSelectionAreaPatch = (canvas: Canvas) => {
-  const slotCanvas = canvas as SlotCanvasWithSelectionAreaPatch;
-
-  if (!slotCanvas.__slotOriginalPointIsInObjectSelectionArea) {
+  const selectionCanvas = canvas as unknown as CanvasSelectionAreaPatched;
+  const runtime = getSlotCanvasRuntime(canvas);
+  if (!runtime?.originalPointIsInObjectSelectionArea) {
     return;
   }
 
-  (canvas as any)._pointIsInObjectSelectionArea =
-    slotCanvas.__slotOriginalPointIsInObjectSelectionArea;
-  delete slotCanvas.__slotOriginalPointIsInObjectSelectionArea;
+  selectionCanvas._pointIsInObjectSelectionArea =
+    runtime.originalPointIsInObjectSelectionArea;
+  clearSlotCanvasRuntime(canvas);
 };
 
 export const useFabricSlot = ({
@@ -1041,6 +1090,115 @@ export const useFabricSlot = ({
     }
   };
 
+  const getSlotEntity = (target?: FabricObject | null) => {
+    if (!target) {
+      return null;
+    }
+
+    return getSlotEntityByTarget(target);
+  };
+
+  const getActiveSlotEntity = () => {
+    if (!canvas) {
+      return null;
+    }
+
+    return getSlotEntity(canvas.getActiveObject());
+  };
+
+  const getSlotTargetBySlotId = (slotId: string) => {
+    if (!canvas) {
+      return null;
+    }
+
+    return findPrimarySlotTargetBySlotId(canvas, slotId);
+  };
+
+  const getSlotImageBySlotId = (slotId: string) => {
+    const target = getSlotTargetBySlotId(slotId);
+
+    return target instanceof FabricImage ? target : null;
+  };
+
+  const replaceSlotImageBySlot = async (slotId: string, url: string) => {
+    const target = getSlotTargetBySlotId(slotId);
+    if (!target) {
+      return null;
+    }
+
+    return replaceSlotImage(target, url);
+  };
+
+  const restoreSlotPlaceholderBySlot = (
+    slotId: string,
+    options?: {
+      saveHistory?: boolean;
+      syncActiveObjectInfo?: boolean;
+    }
+  ) => {
+    const target = getSlotTargetBySlotId(slotId);
+    if (!target) {
+      return null;
+    }
+
+    return restoreSlotPlaceholder(target, options);
+  };
+
+  const getSlotImagePositionBySlot = (slotId: string) => {
+    const image = getSlotImageBySlotId(slotId);
+
+    return image ? getSlotImagePosition(image) : null;
+  };
+
+  const getSlotImageScaleBySlot = (slotId: string) => {
+    const image = getSlotImageBySlotId(slotId);
+
+    return image ? getSlotImageScale(image) : null;
+  };
+
+  const updateSlotImageScaleBySlot = (
+    slotId: string,
+    value: number,
+    options?: {
+      saveHistory?: boolean;
+      syncActiveObjectInfo?: boolean;
+    }
+  ) => {
+    const image = getSlotImageBySlotId(slotId);
+    if (!image) {
+      return false;
+    }
+
+    updateSlotImageScale(image, value, options);
+
+    return true;
+  };
+
+  const updateSlotImagePositionBySlot = (
+    slotId: string,
+    axis: 'x' | 'y',
+    value: number,
+    options?: {
+      saveHistory?: boolean;
+      syncActiveObjectInfo?: boolean;
+    }
+  ) => {
+    const image = getSlotImageBySlotId(slotId);
+    if (!image) {
+      return false;
+    }
+
+    updateSlotImagePosition(image, axis, value, options);
+
+    return true;
+  };
+
+  const exportSlotImagePreviewBySlot = (slotId: string) => {
+    const image = getSlotImageBySlotId(slotId);
+
+    return image ? exportSlotImagePreview(image) : '';
+  };
+
   const exportSlotImagePreview = (image: FabricImage) => {
     if (!canvas) return '';
 
@@ -1090,12 +1248,21 @@ export const useFabricSlot = ({
     convertActiveRectToSlot,
     unregisterActiveSlot,
     replaceSlotImage,
+    replaceSlotImageBySlot,
     restoreSlotPlaceholder,
+    restoreSlotPlaceholderBySlot,
     getSlotImagePosition,
+    getSlotImagePositionBySlot,
     updateSlotImagePosition,
+    updateSlotImagePositionBySlot,
     getSlotImageScale,
+    getSlotImageScaleBySlot,
     updateSlotImageScale,
+    updateSlotImageScaleBySlot,
     exportSlotImagePreview,
+    exportSlotImagePreviewBySlot,
+    getSlotEntity,
+    getActiveSlotEntity,
   };
 };
 

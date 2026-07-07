@@ -1,6 +1,11 @@
 import { FabricImage, FabricObject, Point, util } from 'fabric';
 
 import {
+  createDefaultSlotFrame,
+  createDefaultSlotImageTransform,
+  DEFAULT_SLOT_ZOOM_SCALE,
+} from './model';
+import {
   SlotEntity,
   SlotFrame,
   SlotImageTransform,
@@ -9,12 +14,6 @@ import {
   SlotLegacyImageObject,
   SlotLegacyObject,
 } from './types';
-import {
-  createDefaultSlotFrame,
-  createDefaultSlotImageTransform,
-  DEFAULT_SLOT_ZOOM_SCALE,
-} from './model';
-
 
 export const getLegacySlotMeta = (target: unknown) => {
   if (!(target instanceof FabricObject)) {
@@ -36,11 +35,13 @@ export const hasLegacySlotFrame = (
     return false;
   }
 
+  const legacyTarget = target as SlotLegacyImageObject & SlotLegacyFrameFields;
+
   return (
-    typeof target.slotFrameWidth === 'number' &&
-    typeof target.slotFrameHeight === 'number' &&
-    typeof target.slotFrameLeft === 'number' &&
-    typeof target.slotFrameTop === 'number'
+    typeof legacyTarget.slotFrameWidth === 'number' &&
+    typeof legacyTarget.slotFrameHeight === 'number' &&
+    typeof legacyTarget.slotFrameLeft === 'number' &&
+    typeof legacyTarget.slotFrameTop === 'number'
   );
 };
 

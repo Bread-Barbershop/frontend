@@ -1,4 +1,4 @@
-import { FabricImage, FabricObject } from 'fabric';
+import { Canvas, FabricImage, FabricObject } from 'fabric';
 
 import {
   buildSlotEntityFromLegacyTarget,
@@ -26,3 +26,17 @@ export const isSlotPlaceholderObject = (target: unknown) =>
 
 export const getSlotEntityByTarget = (target: unknown): SlotEntity | null =>
   buildSlotEntityFromLegacyTarget(target);
+
+export const findSlotTargetsBySlotId = (
+  canvas: Canvas,
+  slotId: string
+) => canvas.getObjects().filter((target): target is SlotLegacyObject => getSlotId(target) === slotId);
+
+export const findPrimarySlotTargetBySlotId = (
+  canvas: Canvas,
+  slotId: string
+) => {
+  const targets = findSlotTargetsBySlotId(canvas, slotId);
+
+  return targets.find(target => target instanceof FabricImage) ?? targets[0] ?? null;
+};

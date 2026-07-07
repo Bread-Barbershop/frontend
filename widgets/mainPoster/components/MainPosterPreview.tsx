@@ -25,6 +25,7 @@ import { useKeyboardEvents } from '../hooks/useKeyboardEvents';
 import { useSetFabricControls } from '../hooks/useSetFabricControls';
 import { preloadFonts, stabilizeCanvasAfterLoad } from '../hooks/useTemplate';
 import { initAligningGuidelines } from '../libs/aligning-guidelines';
+import { findPrimarySlotTargetBySlotId, getSlotId } from '../slot/queries';
 import { FabricObjectWithLock } from '../types/fabric';
 import { preloadPreviewFonts } from '../utils/fontLoader';
 import {
@@ -47,7 +48,7 @@ export const MainPosterPreview = () => {
   const isMouseInCanvasRef = useRef(false);
   const isInitialLoadDoneRef = useRef(false);
   const slotInputRef = useRef<HTMLInputElement>(null);
-  const pendingSlotRef = useRef<SlotTargetObject | null>(null);
+  const pendingSlotRef = useRef<string | null>(null);
   const suppressSelectionClearedRef = useRef(false);
   const suppressOutsideClickRef = useRef(false);
   const [isCanvasLoading, setIsCanvasLoading] = useState(false);
@@ -73,7 +74,7 @@ export const MainPosterPreview = () => {
     initialData,
     toggleDrawingMode,
     compressImage,
-    replaceSlotImage,
+    replaceSlotImageBySlot,
   } = useFabricContext();
 
   useSetFabricControls();
@@ -84,9 +85,14 @@ export const MainPosterPreview = () => {
   }, []);
 
   const openSlotFilePicker = (target: SlotTargetObject) => {
+    const slotId = getSlotId(target);
+    if (!slotId) {
+      return;
+    }
+
     suppressSelectionClearedRef.current = true;
     suppressOutsideClickRef.current = true;
-    pendingSlotRef.current = target;
+    pendingSlotRef.current = slotId;
     slotInputRef.current?.click();
   };
 
@@ -406,7 +412,7 @@ export const MainPosterPreview = () => {
     compressImage,
     handleDeleteEmptyShape,
     isCropping,
-    replaceSlotImage,
+    replaceSlotImageBySlot,
     setActiveTab,
     setupEventListeners,
     startCrop,
@@ -472,10 +478,18 @@ export const MainPosterPreview = () => {
             return;
           }
 
-          const slotTarget = pendingSlotRef.current;
+          const pendingSlotId = pendingSlotRef.current;
           event.target.value = '';
 
-          if (!file || !canvas || !slotTarget) return;
+          if (!file || !canvas || !pendingSlotId) return;
+
+          const slotTarget = findPrimarySlotTargetBySlotId(canvas, pendingSlotId);
+          if (!slotTarget) {
+            pendingSlotRef.current = null;
+            suppressSelectionClearedRef.current = false;
+            suppressOutsideClickRef.current = false;
+            return;
+          }
 
           const reader = new FileReader();
           reader.onload = async loadEvent => {
@@ -486,8 +500,8 @@ export const MainPosterPreview = () => {
             suppressSelectionClearedRef.current = true;
 
             try {
-              const replacedImage = await replaceSlotImage(
-                slotTarget,
+              const replacedImage = await replaceSlotImageBySlot(
+                pendingSlotId,
                 compressed
               );
               if (replacedImage) {
