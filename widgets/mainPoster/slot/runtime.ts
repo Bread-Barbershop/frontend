@@ -7,9 +7,13 @@ type SlotPlaceholderRuntimeState = {
 
 type SlotImageRuntimeState = {
   movingHandler?: () => void;
+  scalingHandler?: () => void;
+  rotatingHandler?: () => void;
   modifiedHandler?: () => void;
   dragLastFrameLeft?: number;
   dragLastFrameTop?: number;
+  isSyncingTransform?: boolean;
+  lastTransformMode?: 'move' | 'resize' | 'rotate';
   originalContainsPoint?: FabricObject['containsPoint'];
 };
 
@@ -68,3 +72,4 @@ export const ensureSlotCanvasRuntime = (canvas: Canvas) => {
 export const clearSlotCanvasRuntime = (canvas: Canvas) => {
   slotCanvasRuntime.delete(canvas);
 };
+

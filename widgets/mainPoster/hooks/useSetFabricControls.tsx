@@ -3,6 +3,7 @@ import {
   Textbox,
   Control,
   Point,
+  Rect,
   controlsUtils,
   util,
   TMat2D,
@@ -20,6 +21,7 @@ import { patchSlotSelectionBorder } from '../utils/slotSelectionBorder';
 const DIAGONAL_CORNERS = ['tl', 'tr', 'bl', 'br'];
 const HORIZONTAL_CORNERS = ['ml', 'mr'];
 const VERTICAL_CORNERS = ['mt', 'mb'];
+const SLOT_IMAGE_SCALE_MIN = 100;
 
 type FabricObjectLike = {
   type?: string;
@@ -56,16 +58,266 @@ type SlotFrameControlTarget = FabricObjectLike & {
   getCenterPoint: () => Point;
 };
 
+type SlotFrameTransformTarget = FabricObject &
+  SlotFrameControlTarget & {
+    width?: number;
+    height?: number;
+    scaleX?: number;
+    scaleY?: number;
+    angle?: number;
+    slotZoomScale?: number;
+    slotImageBaseScale?: number;
+    slotImageOffsetX?: number;
+    slotImageOffsetY?: number;
+    objectCaching?: boolean;
+    selectable?: boolean;
+    evented?: boolean;
+    getElement?: () => HTMLImageElement | HTMLCanvasElement;
+  };
+
+type SlotFrameState = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  angle: number;
+};
+
 const hasSlotFrameBounds = (
   target: FabricObjectLike | null | undefined
 ): target is SlotFrameControlTarget => {
   return Boolean(
     target?.isType?.('image') &&
-    typeof (target as SlotFrameControlTarget).slotFrameWidth === 'number' &&
-    typeof (target as SlotFrameControlTarget).slotFrameHeight === 'number' &&
-    typeof (target as SlotFrameControlTarget).slotFrameLeft === 'number' &&
-    typeof (target as SlotFrameControlTarget).slotFrameTop === 'number'
+      typeof (target as SlotFrameControlTarget).slotFrameWidth === 'number' &&
+      typeof (target as SlotFrameControlTarget).slotFrameHeight === 'number' &&
+      typeof (target as SlotFrameControlTarget).slotFrameLeft === 'number' &&
+      typeof (target as SlotFrameControlTarget).slotFrameTop === 'number'
   );
+};
+
+const getSlotFrameState = (target: SlotFrameTransformTarget): SlotFrameState => ({
+  left: target.slotFrameLeft ?? target.getCenterPoint().x,
+  top: target.slotFrameTop ?? target.getCenterPoint().y,
+  width: target.slotFrameWidth ?? target.getScaledWidth(),
+  height: target.slotFrameHeight ?? target.getScaledHeight(),
+  angle: target.slotFrameAngle ?? target.angle ?? 0,
+});
+
+const getSlotSourceSize = (target: SlotFrameTransformTarget) => {
+  const element = target.getElement?.();
+
+  if (element instanceof HTMLImageElement) {
+    return {
+      width: element.naturalWidth || target.width || 0,
+      height: element.naturalHeight || target.height || 0,
+    };
+  }
+
+  return {
+    width: target.width || 0,
+    height: target.height || 0,
+  };
+};
+
+const getSlotCoverScale = (
+  frameWidth: number,
+  frameHeight: number,
+  sourceWidth: number,
+  sourceHeight: number
+) => Math.max(frameWidth / sourceWidth, frameHeight / sourceHeight);
+
+const getSlotWorldOffset = (
+  frame: SlotFrameState,
+  offsetX: number,
+  offsetY: number
+) => {
+  const offsetXPx = (frame.width * offsetX) / 100;
+  const offsetYPx = (frame.height * offsetY) / 100;
+  const radians = util.degreesToRadians(frame.angle);
+
+  return {
+    x: offsetXPx * Math.cos(radians) - offsetYPx * Math.sin(radians),
+    y: offsetXPx * Math.sin(radians) + offsetYPx * Math.cos(radians),
+  };
+};
+
+const toFrameLocalPoint = (frame: SlotFrameState, x: number, y: number) => {
+  const radians = util.degreesToRadians(frame.angle);
+  const dx = x - frame.left;
+  const dy = y - frame.top;
+
+  return {
+    x: dx * Math.cos(radians) + dy * Math.sin(radians),
+    y: -dx * Math.sin(radians) + dy * Math.cos(radians),
+  };
+};
+
+const toFrameWorldPoint = (
+  frame: SlotFrameState,
+  localX: number,
+  localY: number
+) => {
+  const radians = util.degreesToRadians(frame.angle);
+
+  return new Point(
+    frame.left + localX * Math.cos(radians) - localY * Math.sin(radians),
+    frame.top + localX * Math.sin(radians) + localY * Math.cos(radians)
+  );
+};
+
+const createSlotClipPath = (frame: SlotFrameState) =>
+  new Rect({
+    left: frame.left,
+    top: frame.top,
+    width: frame.width,
+    height: frame.height,
+    angle: frame.angle,
+    originX: 'center',
+    originY: 'center',
+    absolutePositioned: true,
+  });
+
+const applySlotFrameTransform = (
+  target: SlotFrameTransformTarget,
+  frame: SlotFrameState
+) => {
+  const sourceSize = getSlotSourceSize(target);
+  if (!sourceSize.width || !sourceSize.height) {
+    return false;
+  }
+
+  const zoomScale = target.slotZoomScale ?? SLOT_IMAGE_SCALE_MIN;
+  const baseScale = getSlotCoverScale(
+    frame.width,
+    frame.height,
+    sourceSize.width,
+    sourceSize.height
+  );
+  const appliedScale = baseScale * (zoomScale / 100);
+  const offsetX = target.slotImageOffsetX ?? 0;
+  const offsetY = target.slotImageOffsetY ?? 0;
+  const worldOffset = getSlotWorldOffset(frame, offsetX, offsetY);
+
+  target.set({
+    originX: 'center',
+    originY: 'center',
+    left: frame.left + worldOffset.x,
+    top: frame.top + worldOffset.y,
+    angle: frame.angle,
+    scaleX: appliedScale,
+    scaleY: appliedScale,
+    slotFrameWidth: frame.width,
+    slotFrameHeight: frame.height,
+    slotFrameLeft: frame.left,
+    slotFrameTop: frame.top,
+    slotFrameAngle: frame.angle,
+    slotImageBaseScale: baseScale,
+    objectCaching: false,
+    selectable: true,
+    evented: true,
+  });
+  target.clipPath = createSlotClipPath(frame);
+  target.setCoords();
+  target.canvas?.requestRenderAll?.();
+
+  return true;
+};
+
+const SLOT_RESIZE_CURSORS = [
+  'ns-resize',
+  'nesw-resize',
+  'ew-resize',
+  'nwse-resize',
+] as const;
+
+const getSlotResizeCursor = (
+  corner: string,
+  fabricObject: FabricObjectLike
+) => {
+  const angle = fabricObject.getTotalAngle?.() ?? fabricObject.angle ?? 0;
+  const normalized = ((angle % 180) + 180) % 180;
+  const quarterTurn = Math.round(normalized / 45) % 4;
+  const baseIndex = HORIZONTAL_CORNERS.includes(corner)
+    ? 2
+    : VERTICAL_CORNERS.includes(corner)
+      ? 0
+      : corner === 'tr' || corner === 'bl'
+        ? 1
+        : 3;
+
+  return SLOT_RESIZE_CURSORS[(baseIndex + quarterTurn) % 4];
+};
+
+const getScaledFrameFromSideControl = (
+  frame: SlotFrameState,
+  corner: string,
+  x: number,
+  y: number
+): SlotFrameState | null => {
+  const local = toFrameLocalPoint(frame, x, y);
+  const halfWidth = frame.width / 2;
+  const halfHeight = frame.height / 2;
+
+  if (corner === 'ml') {
+    const fixedX = halfWidth;
+    const nextX = Math.min(local.x, fixedX - 1);
+    const center = toFrameWorldPoint(frame, (fixedX + nextX) / 2, 0);
+    return { ...frame, left: center.x, top: center.y, width: fixedX - nextX };
+  }
+
+  if (corner === 'mr') {
+    const fixedX = -halfWidth;
+    const nextX = Math.max(local.x, fixedX + 1);
+    const center = toFrameWorldPoint(frame, (fixedX + nextX) / 2, 0);
+    return { ...frame, left: center.x, top: center.y, width: nextX - fixedX };
+  }
+
+  if (corner === 'mt') {
+    const fixedY = halfHeight;
+    const nextY = Math.min(local.y, fixedY - 1);
+    const center = toFrameWorldPoint(frame, 0, (fixedY + nextY) / 2);
+    return { ...frame, left: center.x, top: center.y, height: fixedY - nextY };
+  }
+
+  if (corner === 'mb') {
+    const fixedY = -halfHeight;
+    const nextY = Math.max(local.y, fixedY + 1);
+    const center = toFrameWorldPoint(frame, 0, (fixedY + nextY) / 2);
+    return { ...frame, left: center.x, top: center.y, height: nextY - fixedY };
+  }
+
+  return null;
+};
+
+const getScaledFrameFromCornerControl = (
+  frame: SlotFrameState,
+  corner: string,
+  x: number,
+  y: number
+): SlotFrameState | null => {
+  const signX = corner.includes('l') ? -1 : 1;
+  const signY = corner.includes('t') ? -1 : 1;
+  const local = toFrameLocalPoint(frame, x, y);
+  const fixedX = (-signX * frame.width) / 2;
+  const fixedY = (-signY * frame.height) / 2;
+  const nextWidth = Math.max(1, (local.x - fixedX) * signX);
+  const nextHeight = Math.max(1, (local.y - fixedY) * signY);
+  const scale = Math.max(nextWidth / frame.width, nextHeight / frame.height);
+  const width = Math.max(1, frame.width * scale);
+  const height = Math.max(1, frame.height * scale);
+  const center = toFrameWorldPoint(
+    frame,
+    fixedX + (signX * width) / 2,
+    fixedY + (signY * height) / 2
+  );
+
+  return {
+    left: center.x,
+    top: center.y,
+    width,
+    height,
+    angle: frame.angle,
+  };
 };
 
 const defaultPositionHandler: NonNullable<Control['positionHandler']> = (
@@ -87,6 +339,7 @@ const defaultPositionHandler: NonNullable<Control['positionHandler']> = (
     controlY * dimY + offsetY
   ).transform(matrix);
 };
+
 const invokePositionHandler = (
   handler: Control['positionHandler'] | undefined,
   dim: Point,
@@ -111,6 +364,7 @@ const invokePositionHandler = (
     currentControl
   );
 };
+
 const createFrameAwarePositionHandler = (
   fallback?: Control['positionHandler']
 ): NonNullable<Control['positionHandler']> => {
@@ -160,6 +414,7 @@ const createFrameAwarePositionHandler = (
     return util.transformPoint(new Point(localX, localY), matrix);
   };
 };
+
 const isTextboxObject = (target?: FabricObjectLike | null) => {
   if (!target) return false;
 
@@ -230,6 +485,90 @@ const scaleCursorStyleHandler: ControlCursorStyleHandler = function (
   );
 };
 
+const normalizeAngle = (angle: number) => {
+  if (angle < 0) {
+    return (360 + (angle % 360)) % 360;
+  }
+
+  return angle % 360;
+};
+
+const applyRotationSnap = (
+  angle: number,
+  target: SlotFrameTransformTarget
+): number => {
+  const snapAngle = target.snapAngle;
+  if (!snapAngle || snapAngle <= 0) {
+    return normalizeAngle(angle);
+  }
+
+  const snapThreshold = target.snapThreshold || snapAngle;
+  const rightAngleLocked = Math.ceil(angle / snapAngle) * snapAngle;
+  const leftAngleLocked = Math.floor(angle / snapAngle) * snapAngle;
+
+  if (Math.abs(angle - leftAngleLocked) < snapThreshold) {
+    return normalizeAngle(leftAngleLocked);
+  }
+
+  if (Math.abs(angle - rightAngleLocked) < snapThreshold) {
+    return normalizeAngle(rightAngleLocked);
+  }
+
+  return normalizeAngle(angle);
+};
+
+const rotateSlotFrameTarget: ControlActionHandler = (
+  _eventData,
+  transform,
+  x,
+  y
+) => {
+  const target = transform.target;
+  if (!target || !hasSlotFrameBounds(target)) {
+    return false;
+  }
+
+  const frame = getSlotFrameState(target as SlotFrameTransformTarget);
+  const currentAngle = Math.atan2(y - frame.top, x - frame.left);
+  const startAngle = Math.atan2(transform.ey - frame.top, transform.ex - frame.left);
+  const theta = transform.theta ?? util.degreesToRadians(frame.angle);
+  const angle = applyRotationSnap(
+    util.radiansToDegrees(currentAngle - startAngle + theta),
+    target as SlotFrameTransformTarget
+  );
+
+  return applySlotFrameTransform(target as SlotFrameTransformTarget, {
+    ...frame,
+    angle,
+  });
+};
+
+const scaleSlotFrameTarget: ControlActionHandler = (
+  _eventData,
+  transform,
+  x,
+  y
+) => {
+  const target = transform.target;
+  const corner = transform.corner;
+
+  if (!target || !corner || !hasSlotFrameBounds(target)) {
+    return false;
+  }
+
+  const frame = getSlotFrameState(target as SlotFrameTransformTarget);
+  const nextFrame =
+    HORIZONTAL_CORNERS.includes(corner) || VERTICAL_CORNERS.includes(corner)
+      ? getScaledFrameFromSideControl(frame, corner, x, y)
+      : getScaledFrameFromCornerControl(frame, corner, x, y);
+
+  if (!nextFrame) {
+    return false;
+  }
+
+  return applySlotFrameTransform(target as SlotFrameTransformTarget, nextFrame);
+};
+
 const scaleOrResizeTextbox: ControlActionHandler = (
   eventData,
   transform,
@@ -240,6 +579,10 @@ const scaleOrResizeTextbox: ControlActionHandler = (
   const corner = transform.corner;
 
   if (!target || !corner) return false;
+
+  if (!isTextboxObject(target) && hasSlotFrameBounds(target)) {
+    return scaleSlotFrameTarget(eventData, transform, x, y);
+  }
 
   const isTextbox = isTextboxObject(target);
   let result = false;
@@ -269,7 +612,13 @@ const createRotateControl = (corner: (typeof CORNERS_CONFIG)[number]) => {
     offsetY: corner.offY,
     sizeX: 10,
     sizeY: 10,
-    actionHandler: controlsUtils.rotationWithSnapping,
+    actionHandler: (eventData, transform, x, y) => {
+      if (hasSlotFrameBounds(transform.target)) {
+        return rotateSlotFrameTarget(eventData, transform, x, y);
+      }
+
+      return controlsUtils.rotationWithSnapping(eventData, transform, x, y);
+    },
     cursorStyleHandler: (_, __, fabricObject) => {
       const totalAngle =
         (fabricObject.getTotalAngle() + corner.angleOffset) % 360;
@@ -320,10 +669,24 @@ const createObjectControls = (img: HTMLImageElement) => {
       x: corner.x,
       y: corner.y,
       actionHandler: scaleOrResizeTextbox,
-      cursorStyleHandler: scaleCursorStyleHandler,
+      cursorStyleHandler: (eventData, control, fabricObject, coord) => {
+        if (hasSlotFrameBounds(fabricObject)) {
+          return getSlotResizeCursor(corner.id, fabricObject);
+        }
+
+        return scaleCursorStyleHandler(
+          eventData,
+          control,
+          fabricObject,
+          coord
+        );
+      },
       actionName: 'scale',
       render: renderSquareControl,
     });
+    controls[corner.id].positionHandler = createFrameAwarePositionHandler(
+      controls[corner.id].positionHandler
+    );
 
     controls[`${corner.id}_rotate`] = createRotateControl(corner);
   });
@@ -333,10 +696,24 @@ const createObjectControls = (img: HTMLImageElement) => {
       x,
       y,
       actionHandler: scaleOrResizeTextbox,
-      cursorStyleHandler: scaleCursorStyleHandler,
+      cursorStyleHandler: (eventData, control, fabricObject, coord) => {
+        if (hasSlotFrameBounds(fabricObject)) {
+          return getSlotResizeCursor(id, fabricObject);
+        }
+
+        return scaleCursorStyleHandler(
+          eventData,
+          control,
+          fabricObject,
+          coord
+        );
+      },
       actionName: action,
       render: renderSquareControl,
     });
+    controls[id].positionHandler = createFrameAwarePositionHandler(
+      controls[id].positionHandler
+    );
   });
 
   return controls;

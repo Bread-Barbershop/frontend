@@ -7,7 +7,12 @@ import {
   util,
 } from 'fabric';
 
-import { getContraryMap, getPointMap } from './util/basic';
+import {
+  getFrameContraryMap,
+  getFramePointList,
+  getFramePointMap,
+} from '../utils/imageSlot';
+
 import { collectLine } from './util/collect-line';
 import {
   collectHorizontalPoint,
@@ -67,8 +72,8 @@ export function initAligningGuidelines(
     closeVLine: false,
     closeHLine: false,
     getObjectsByTarget: (target: FabricObject) => getObjectsByTarget(target),
-    getPointMap: (target: FabricObject) => getPointMap(target),
-    getContraryMap: (target: FabricObject) => getContraryMap(target),
+    getPointMap: (target: FabricObject) => getFramePointMap(target),
+    getContraryMap: (target: FabricObject) => getFrameContraryMap(target),
     drawLine: function (origin: Point, target: Point) {
       drawLine.call(this, origin, target);
     },
@@ -80,11 +85,11 @@ export function initAligningGuidelines(
         object.calcTransformMatrix().toString(),
         object.width,
         object.height,
+        object.angle,
       ].join();
       const cacheValue = state.cacheMap.get(cacheKey);
       if (cacheValue) return cacheValue;
-      const value = object.getCoords();
-      value.push(object.getCenterPoint());
+      const value = getFramePointList(object);
       state.cacheMap.set(cacheKey, value);
       return value;
     },
@@ -121,7 +126,7 @@ export function initAligningGuidelines(
     state.onlyDrawPoint = corner.includes('m');
     if (state.onlyDrawPoint) {
       const angle = target.getTotalAngle();
-      if (angle % 90 != 0) return;
+      if (angle % 90 !== 0) return;
     }
 
     const contraryMap = state.getContraryMap(target);
@@ -129,8 +134,8 @@ export function initAligningGuidelines(
     let diagonalPoint = contraryMap[corner];
 
     const isCenter =
-      e.transform.original.originX == 'center' &&
-      e.transform.original.originY == 'center';
+      e.transform.original.originX === 'center' &&
+      e.transform.original.originY === 'center';
     if (isCenter) {
       const p = target.group
         ? point.transform(
@@ -197,8 +202,9 @@ export function initAligningGuidelines(
     if (state.canvas.width && state.canvas.height) {
       points.push(new Point(state.canvas.width / 2, state.canvas.height / 2));
     }
-    for (const object of objects)
+    for (const object of objects) {
       points.push(...state.getCaCheMapValue(object));
+    }
 
     const { vLines, hLines } = collectLine.call(state, target, points);
     vLines.forEach(o => {
