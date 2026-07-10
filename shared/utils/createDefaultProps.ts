@@ -14,7 +14,13 @@ export function createDefaultProps<T extends BlockType>(
   const fields = blockRegistry[type].fields;
 
   const props = Object.fromEntries(
-    Object.entries(fields).map(([key, value]) => [key, value.default])
+    Object.entries(fields).map(([key, value]) => {
+      const defaultValue = value.default;
+      return [
+        key,
+        typeof defaultValue === 'function' ? defaultValue() : defaultValue,
+      ];
+    })
   ) as DefaultProps<T>;
 
   if (type === 'calendar' && invitationType && invitationType !== 'wedding') {

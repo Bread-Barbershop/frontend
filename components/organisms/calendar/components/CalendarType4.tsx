@@ -29,11 +29,10 @@ export function CalendarType4({
               key={dayObj.num + '-' + idx}
               className="flex items-center justify-center relative aspect-square h-8 mx-auto"
             >
-              <div className="flex items-center justify-center relative z-1 text-[16px] text-[#2D3748]">
-                {dayObj.num}
+              <div className="relative flex size-8 items-center justify-center text-[16px] text-[#2D3748]">
                 {isTarget && (
                   <svg
-                    className="absolute w-[200%] h-[200%] top-1/2 left-1/2 -translate-x-[48%] -translate-y-[52%] text-[#D92D20] -z-1"
+                    className="pointer-events-none absolute left-1/2 top-1/2 size-9 -translate-x-[48%] -translate-y-[52%] text-[#D92D20]"
                     viewBox="0 0 50 50"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -46,6 +45,7 @@ export function CalendarType4({
                     />
                   </svg>
                 )}
+                <span className="relative z-1 leading-none">{dayObj.num}</span>
               </div>
             </div>
           );
