@@ -34,7 +34,7 @@ function LeftPanel() {
 
         <div
           key={`bulk-edit-${isEdit}`}
-          className={`grid ${isEdit ? 'animate-grow-height opacity-100 mt-0' : 'grid-rows-[0fr] opacity-0'}`}
+          className={`grid min-h-158 ${isEdit ? 'animate-grow-height opacity-100 mt-0' : 'grid-rows-[0fr] opacity-0'}`}
         >
           <div className="overflow-hidden rounded-b-lg">
             <BulkEdit />
