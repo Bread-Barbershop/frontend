@@ -28,17 +28,10 @@ export const MyFamilyWeddingPreview = ({
       childClassName="w-full flex flex-col gap-1"
       {...rest}
     >
-      <div className="flex flex-row items-center gap-1" style={{ fontFamily }}>
-        {brideFamily?.map((member, index) => (
-          <p key={index} className="flex items-center">
-            {brideFamily.length > 1 && index !== 0 && '•'}
-            {member.flower && <Flower />}
-            {member.name}
-          </p>
-        ))}
-        <span>의 딸</span>
-      </div>
-      <div className="flex flex-row items-center gap-1" style={{ fontFamily }}>
+      <div
+        className="flex flex-row items-center text-sm"
+        style={{ fontFamily }}
+      >
         {groomFamily?.map((member, index) => (
           <p key={index} className="flex items-center">
             {groomFamily.length > 1 && index !== 0 && '•'}
@@ -47,6 +40,19 @@ export const MyFamilyWeddingPreview = ({
           </p>
         ))}
         <span>의 아들</span>
+      </div>
+      <div
+        className="flex flex-row items-center text-sm"
+        style={{ fontFamily }}
+      >
+        {brideFamily?.map((member, index) => (
+          <p key={index} className="flex items-center">
+            {brideFamily.length > 1 && index !== 0 && '•'}
+            {member.flower && <Flower />}
+            {member.name}
+          </p>
+        ))}
+        <span>의 딸</span>
       </div>
     </MiddlePreviewWrapper>
   );
