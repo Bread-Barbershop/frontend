@@ -75,14 +75,14 @@ function TitleEdit({
             }`}
           >
             <p
-              className="sub-title text-center"
+              className="sub-title text-center wrap-break-word"
               style={toStyle(bulkTitleData, true, true)}
             >
               ENG TITLE
             </p>
 
             <p
-              className="main-title text-center"
+              className="main-title text-center wrap-break-word"
               style={toStyle(bulkTitleData, true)}
             >
               제목입니다
