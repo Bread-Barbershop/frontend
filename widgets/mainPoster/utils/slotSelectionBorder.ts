@@ -1,16 +1,6 @@
 import { FabricObject, util } from 'fabric';
 
-import { FabricImageWithLock } from '../types/fabric';
-
-type SlotFrameSelectableObject = FabricObject & {
-  borderDashArray?: number[] | null;
-  padding?: number;
-  slotFrameWidth?: number;
-  slotFrameHeight?: number;
-  slotFrameLeft?: number;
-  slotFrameTop?: number;
-  slotFrameAngle?: number;
-};
+import { getSlotFrameState, hasSlotFrameBounds } from '../slot/frameGeometry';
 
 type DrawBordersMethod = (
   ctx: CanvasRenderingContext2D,
@@ -20,41 +10,12 @@ type DrawBordersMethod = (
 
 let hasPatchedDrawBorders = false;
 
-const hasSlotFrameSelectionBounds = (
-  target: FabricObject
-): target is SlotFrameSelectableObject & FabricImageWithLock => {
-  return (
-    target.isType('image') &&
-    typeof (target as SlotFrameSelectableObject).slotFrameWidth === 'number' &&
-    typeof (target as SlotFrameSelectableObject).slotFrameHeight === 'number' &&
-    typeof (target as SlotFrameSelectableObject).slotFrameLeft === 'number' &&
-    typeof (target as SlotFrameSelectableObject).slotFrameTop === 'number'
-  );
-};
-
-const getSlotFrameSelectionRect = (
-  target: SlotFrameSelectableObject,
-  zoom: number
-) => {
-  const frameWidth = target.slotFrameWidth;
-  const frameHeight = target.slotFrameHeight;
-  const frameLeft = target.slotFrameLeft;
-  const frameTop = target.slotFrameTop;
-  const frameAngle = target.slotFrameAngle ?? target.angle ?? 0;
+const getSlotFrameSelectionRect = (target: FabricObject, zoom: number) => {
+  const frame = getSlotFrameState(target);
   const center = target.getCenterPoint();
-
-  if (
-    !frameWidth ||
-    !frameHeight ||
-    frameLeft === undefined ||
-    frameTop === undefined
-  ) {
-    return null;
-  }
-
-  const deltaX = frameLeft - center.x;
-  const deltaY = frameTop - center.y;
-  const radians = util.degreesToRadians(frameAngle);
+  const deltaX = frame.left - center.x;
+  const deltaY = frame.top - center.y;
+  const radians = util.degreesToRadians(frame.angle);
   const cos = Math.cos(radians);
   const sin = Math.sin(radians);
   const localCenterX = (deltaX * cos + deltaY * sin) * zoom;
@@ -62,10 +23,10 @@ const getSlotFrameSelectionRect = (
   const padding = target.padding ?? 0;
 
   return {
-    x: localCenterX - (frameWidth * zoom) / 2 - padding,
-    y: localCenterY - (frameHeight * zoom) / 2 - padding,
-    width: frameWidth * zoom + padding * 2,
-    height: frameHeight * zoom + padding * 2,
+    x: localCenterX - (frame.width * zoom) / 2 - padding,
+    y: localCenterY - (frame.height * zoom) / 2 - padding,
+    width: frame.width * zoom + padding * 2,
+    height: frame.height * zoom + padding * 2,
   };
 };
 
@@ -82,18 +43,13 @@ export const patchSlotSelectionBorder = () => {
     options?: unknown,
     styleOverride?: unknown
   ) {
-    if (!hasSlotFrameSelectionBounds(this) || !this.canvas) {
+    if (!hasSlotFrameBounds(this) || !this.canvas) {
       originalDrawBorders.call(this, ctx, options, styleOverride);
       return;
     }
 
     const zoom = this.canvas.getZoom();
     const rect = getSlotFrameSelectionRect(this, zoom);
-
-    if (!rect) {
-      originalDrawBorders.call(this, ctx, options, styleOverride);
-      return;
-    }
 
     ctx.save();
     ctx.strokeStyle = this.borderColor || '#1F72EF';

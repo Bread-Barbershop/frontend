@@ -1,3 +1,5 @@
+import { hasSlotFrameBounds } from '../../slot/frameGeometry';
+
 import { getDistanceList } from './basic';
 
 import type { AligningGuidelinesState } from '../aligning-guidelines';
@@ -6,19 +8,12 @@ import type { FabricObject, Point } from 'fabric';
 
 type CollectPointProps = {
   target: FabricObject;
-  /** Operation points of the target element: top-left, bottom-left, top-right, bottom-right */
   point: Point;
-  /** Position using diagonal points when resizing/scaling. */
   diagonalPoint: Point;
-  /** Set of points to consider for alignment: [tl, tr, br, bl, center] */
   list: Point[];
-  /** Change the zoom or change the size, determine by whether e.transform.action starts with the string "scale" */
   isScale: boolean;
-  /** Whether to change uniformly is determined by canvas.uniformScaling and canvas.uniScaleKey. */
   isUniform: boolean;
-  /** When holding the centerKey (default is altKey), the shape will scale based on the center point, with the reference point being the center. */
   isCenter: boolean;
-  /** tl、tr、br、bl、mt、mr、mb、ml */
   corner: string;
 };
 
@@ -40,18 +35,21 @@ export function collectVerticalPoint(
   const margin = this.margin / this.canvas.getZoom();
   if (dis > margin) return [];
   let v = arr[arr.length - 1].x - point.x;
-  // tl bl ml
-  // If modifying on the left side, the size decreases; conversely, it increases.
   const dirX = corner.includes('l') ? -1 : 1;
   v *= dirX;
 
   const { width, height, scaleX, scaleY } = target;
-  // Because when modifying through the center point, isUniform is always false, so skew does not need to be considered.
   const dStrokeWidth = target.strokeUniform ? 0 : target.strokeWidth;
   const scaleWidth = scaleX * width + dStrokeWidth;
   const sx = (v + scaleWidth) / scaleWidth;
-  // When v equals -scaleWidth, sx equals 0.
-  if (sx == 0) return [];
+  if (sx === 0) return [];
+
+  // Slot frames currently use frame-space guide points but image-space mutation.
+  // Until a frame-aware resize setter is introduced, keep the guide visual only.
+  if (hasSlotFrameBounds(target)) {
+    return arr.map(target => ({ origin: point, target }));
+  }
+
   if (isScale) {
     target.set('scaleX', scaleX * sx);
     if (isUniform) target.set('scaleY', scaleY * sx);
@@ -87,18 +85,21 @@ export function collectHorizontalPoint(
   const margin = this.margin / this.canvas.getZoom();
   if (dis > margin) return [];
   let v = arr[arr.length - 1].y - point.y;
-  // tl mt tr
-  // If modifying on the top side, the size decreases; conversely, it increases.
   const dirY = corner.includes('t') ? -1 : 1;
   v *= dirY;
 
   const { width, height, scaleX, scaleY } = target;
-  // Because when modifying through the center point, isUniform is always false, so skew does not need to be considered.
   const dStrokeWidth = target.strokeUniform ? 0 : target.strokeWidth;
   const scaleHeight = scaleY * height + dStrokeWidth;
   const sy = (v + scaleHeight) / scaleHeight;
-  // When v equals -scaleHeight, sy equals 0.
-  if (sy == 0) return [];
+  if (sy === 0) return [];
+
+  // Slot frames currently use frame-space guide points but image-space mutation.
+  // Until a frame-aware resize setter is introduced, keep the guide visual only.
+  if (hasSlotFrameBounds(target)) {
+    return arr.map(target => ({ origin: point, target }));
+  }
+
   if (isScale) {
     target.set('scaleY', scaleY * sy);
     if (isUniform) target.set('scaleX', scaleX * sy);

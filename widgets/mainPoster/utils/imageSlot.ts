@@ -1,16 +1,16 @@
-import { FabricImage, FabricObject, Point, util } from 'fabric';
+import { FabricImage, FabricObject, Point } from 'fabric';
 
+import {
+  getSlotFrameCoords,
+  getSlotFrameState,
+  hasSlotFrameBounds,
+  isPointInsideSlotFrameBounds,
+} from '../slot/frameGeometry';
+import { getSlotMeta as readSlotMeta } from '../slot/objectFields';
 import { FabricObjectWithLock } from '../types/fabric';
 
-export interface ImageSlotMeta {
-  key: string;
-  label?: string;
-  replaceable?: boolean;
-  aspectMode?: 'cover' | 'contain';
-  required?: boolean;
-  order?: number;
-  filled?: boolean;
-}
+import type { ImageSlotMeta } from '../slot/types';
+export type { ImageSlotMeta } from '../slot/types';
 
 export type SlotImageObject = FabricImage & {
   slot?: ImageSlotMeta;
@@ -27,24 +27,8 @@ export type ImagePanelMode =
   | 'empty-frame'
   | null;
 
-type SlotFrameBoundsTarget = SlotTargetObject & {
-  slotFrameWidth?: number;
-  slotFrameHeight?: number;
-  slotFrameLeft?: number;
-  slotFrameTop?: number;
-  slotFrameAngle?: number;
-};
 export const getSlotMeta = (target: unknown) => {
-  if (!(target instanceof FabricObject)) {
-    return null;
-  }
-
-  const slot = (target as SlotTargetObject).slot;
-  if (!slot?.replaceable || !slot.key) {
-    return null;
-  }
-
-  return slot;
+  return readSlotMeta(target);
 };
 
 export const getImageSlot = (target: unknown) => {
@@ -69,43 +53,72 @@ export const isFrameTarget = (target: unknown): target is SlotTargetObject =>
 export const containsFrameTarget = (targets: readonly unknown[]) =>
   targets.some(target => isFrameTarget(target));
 
-const hasSlotFrameBounds = (
-  target: unknown
-): target is SlotFrameBoundsTarget & FabricImage => {
-  if (!(target instanceof FabricImage)) {
-    return false;
+export const getFramePointMap = (target: FabricObject) => {
+  if (!hasSlotFrameBounds(target)) {
+    const coords = target.getCoords();
+
+    return {
+      tl: coords[0],
+      tr: coords[1],
+      br: coords[2],
+      bl: coords[3],
+      mt: coords[0].add(coords[1]).scalarDivide(2),
+      mr: coords[1].add(coords[2]).scalarDivide(2),
+      mb: coords[2].add(coords[3]).scalarDivide(2),
+      ml: coords[3].add(coords[0]).scalarDivide(2),
+      center: target.getCenterPoint(),
+    };
   }
 
-  const slotTarget = target as SlotFrameBoundsTarget & FabricImage;
+  const frame = getSlotFrameState(target);
+  const [tl, tr, br, bl] = getSlotFrameCoords(frame);
+  const center = new Point(frame.left, frame.top);
 
-  return (
-    typeof slotTarget.slotFrameWidth === 'number' &&
-    typeof slotTarget.slotFrameHeight === 'number' &&
-    typeof slotTarget.slotFrameLeft === 'number' &&
-    typeof slotTarget.slotFrameTop === 'number'
-  );
+  return {
+    tl,
+    tr,
+    br,
+    bl,
+    mt: tl.add(tr).scalarDivide(2),
+    mr: tr.add(br).scalarDivide(2),
+    mb: br.add(bl).scalarDivide(2),
+    ml: bl.add(tl).scalarDivide(2),
+    center,
+  };
+};
+
+export const getFrameContraryMap = (target: FabricObject) => {
+  const pointMap = getFramePointMap(target);
+
+  return {
+    tl: pointMap.br,
+    tr: pointMap.bl,
+    br: pointMap.tl,
+    bl: pointMap.tr,
+    mt: pointMap.br.add(pointMap.bl).scalarDivide(2),
+    mr: pointMap.bl.add(pointMap.tl).scalarDivide(2),
+    mb: pointMap.tl.add(pointMap.tr).scalarDivide(2),
+    ml: pointMap.tr.add(pointMap.br).scalarDivide(2),
+    center: pointMap.center,
+  };
+};
+
+export const getFramePointList = (target: FabricObject) => {
+  const pointMap = getFramePointMap(target);
+
+  return [
+    pointMap.tl,
+    pointMap.tr,
+    pointMap.br,
+    pointMap.bl,
+    pointMap.center,
+  ];
 };
 
 export const isPointInsideSlotFrame = (target: unknown, point: Point) => {
-  if (!hasSlotFrameBounds(target)) {
-    return target instanceof FabricObject ? target.containsPoint(point) : false;
-  }
-
-  const frameWidth = target.slotFrameWidth ?? 0;
-  const frameHeight = target.slotFrameHeight ?? 0;
-  const frameLeft = target.slotFrameLeft ?? 0;
-  const frameTop = target.slotFrameTop ?? 0;
-  const frameAngle = target.slotFrameAngle ?? target.angle ?? 0;
-  const radians = util.degreesToRadians(frameAngle);
-  const dx = point.x - frameLeft;
-  const dy = point.y - frameTop;
-  const localX = dx * Math.cos(radians) + dy * Math.sin(radians);
-  const localY = -dx * Math.sin(radians) + dy * Math.cos(radians);
-
-  return (
-    Math.abs(localX) <= frameWidth / 2 &&
-    Math.abs(localY) <= frameHeight / 2
-  );
+  return target instanceof FabricObject
+    ? isPointInsideSlotFrameBounds(target, point)
+    : false;
 };
 export const isFilledSlotImage = (
   target: unknown

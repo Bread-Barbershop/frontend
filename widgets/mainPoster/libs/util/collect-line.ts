@@ -1,3 +1,5 @@
+import { hasSlotFrameBounds } from '../../slot/frameGeometry';
+
 import { getDistanceList } from './basic';
 
 import type { AligningGuidelinesState } from '../aligning-guidelines';
@@ -9,8 +11,14 @@ export function collectLine(
   target: FabricObject,
   points: Point[]
 ) {
-  const list = target.getCoords();
-  list.push(target.getCenterPoint());
+  const pointMap = this.getPointMap(target);
+  const list = [
+    pointMap.tl,
+    pointMap.tr,
+    pointMap.br,
+    pointMap.bl,
+    pointMap.center,
+  ];
   const margin = this.margin / this.canvas.getZoom();
   const opts = { target, list, points, margin };
   const vLines = collectPoints({ ...opts, type: 'x' });
@@ -44,17 +52,23 @@ function collectPoints(props: CollectItemLineProps) {
     if (min > o.dis) min = o.dis;
   }
   if (min > margin) return res;
-  let b = false;
+  let moved = false;
   for (let i = 0; i < list.length; i++) {
-    if (arr[i].dis != min) continue;
+    if (arr[i].dis !== min) continue;
     for (const item of arr[i].arr) {
       res.push({ origin: list[i], target: item });
     }
 
-    if (b) continue;
-    b = true;
+    if (moved) continue;
+    moved = true;
+
+    // Slot frames currently use frame-space guide points but image-space mutation.
+    // Until a frame-aware setter is introduced, keep the guide visual only.
+    if (hasSlotFrameBounds(target)) {
+      continue;
+    }
+
     const d = arr[i].arr[0][type] - list[i][type];
-    // It will change the original data, and the next time we collect y, use the modified data.
     list.forEach(item => {
       item[type] += d;
     });
