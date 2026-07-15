@@ -69,6 +69,11 @@ function OrderPanel() {
   // 각 탭 아이템에 연결
   const handleContextMenu = (e: React.MouseEvent, tabId: string) => {
     e.preventDefault(); // 기본 브라우저 메뉴 차단
+    // 일부 PC(확장 프로그램, 마우스 드라이버 등)에서 preventDefault가
+    // 늦게 처리되거나 다른 리스너에 의해 무시되는 경우를 방지하기 위해
+    // 네이티브 이벤트 레벨에서도 한 번 더 차단한다.
+    e.nativeEvent.preventDefault();
+    e.nativeEvent.stopImmediatePropagation();
     const containerRect = containerRef.current?.getBoundingClientRect();
     if (containerRect) {
       setContextMenu({
@@ -78,6 +83,20 @@ function OrderPanel() {
       });
     }
   };
+
+  // 캡처 단계에서 한 번 더 네이티브 컨텍스트 메뉴를 차단 (일부 PC 환경 방어)
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const blockNativeMenu = (e: MouseEvent) => e.preventDefault();
+    container.addEventListener('contextmenu', blockNativeMenu, {
+      capture: true,
+    });
+    return () =>
+      container.removeEventListener('contextmenu', blockNativeMenu, {
+        capture: true,
+      });
+  }, []);
 
   // 메뉴 닫기 (바깥 클릭 시)
   useEffect(() => {

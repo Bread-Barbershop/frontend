@@ -17,7 +17,7 @@ function BulkEdit() {
 
   return (
     <div className="w-full bg-white rounded-b-lg shadow-edit border border-t-0 border-black/5 transition-default">
-      <LeftEditorWrapper className="overflow-x-hidden">
+      <LeftEditorWrapper className="overflow-x-hidden max-h-158">
         <TitleEdit
           activeColorPickerId={activeColorPickerId}
           onActiveColorPickerChange={setActiveColorPickerId}
