@@ -983,6 +983,13 @@ export const useFabricSlot = ({
     const nextImage = await FabricImage.fromURL(url, {
       crossOrigin: 'anonymous',
     });
+    const sourceSize = getImageSourceSize(nextImage);
+    const initialBaseScale = getSlotCoverScale(
+      frame.width,
+      frame.height,
+      sourceSize.width,
+      sourceSize.height
+    );
 
     applySlotEntityToObject(nextImage as SlotTargetObject, {
       slotId: slot.key,
@@ -992,7 +999,7 @@ export const useFabricSlot = ({
       },
       frame,
       image: {
-        baseScale: 1,
+        baseScale: initialBaseScale,
         zoomScale: SLOT_IMAGE_SCALE_MIN,
         offsetX: 0,
         offsetY: 0,
@@ -1015,6 +1022,7 @@ export const useFabricSlot = ({
     }
 
     applySlotImageTransform(nextImage, frame, {
+      baseScale: initialBaseScale,
       offsetX: 0,
       offsetY: 0,
       zoomScale: SLOT_IMAGE_SCALE_MIN,
@@ -1350,3 +1358,4 @@ export const useFabricSlot = ({
     getActiveSlotEntity,
   };
 };
+
