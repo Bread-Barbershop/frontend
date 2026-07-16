@@ -6,7 +6,7 @@ import {
 } from 'fabric';
 
 import { PhotoPresetOptions } from '@/components/molecules/image-editor';
-import { ImageSlotMeta } from '@/widgets/mainPoster/utils/imageSlot';
+import { ImageSlotMeta } from '@/widgets/mainPoster/slot/types';
 
 export type ShapeType = 'image' | 'text';
 

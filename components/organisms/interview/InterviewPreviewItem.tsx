@@ -78,7 +78,7 @@ export const InterviewPreviewItem = ({
       </div>
       <button
         type="button"
-        className="flex justify-center items-center py-2 px-10 rounded-lg border border-[#e5e5e8] hover:bg-gray-50 hover:border-gray-300 cursor-pointer select-none [-webkit-tap-highlight-color:transparent]"
+        className="flex justify-center items-center py-2 px-10 rounded-lg border border-[#e5e5e8] bg-[#FFFFFF] hover:bg-gray-50 hover:border-gray-300 cursor-pointer select-none [-webkit-tap-highlight-color:transparent]"
         draggable={false}
         onDragStart={event => event.preventDefault()}
         onClick={onToggle}

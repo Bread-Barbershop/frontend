@@ -1,4 +1,3 @@
-import { FabricImage } from 'fabric';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import { Label } from '@/components/atoms/label/Label';
@@ -8,8 +7,6 @@ import { RangeControl } from '@/components/molecules/range-control/RangeControl'
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
-
-import { SlotImageObject } from '../../utils/imageSlot';
 
 import { AspectRatioSelector } from './AspectRatioSelector';
 import { ImagePreview } from './ImagePreview';
@@ -34,15 +31,16 @@ export const TemplateImagePanel = () => {
     canvas,
     activeInfo,
     compressImage,
-    replaceSlotImage,
-    restoreSlotPlaceholder,
-    getSlotImagePosition,
-    updateSlotImagePosition,
-    getSlotImageScale,
-    updateSlotImageScale,
-    exportSlotImagePreview,
+    replaceSlotImageBySlot,
+    restoreSlotPlaceholderBySlot,
+    getSlotImagePositionBySlot,
+    updateSlotImagePositionBySlot,
+    getSlotImageScaleBySlot,
+    updateSlotImageScaleBySlot,
+    exportSlotImagePreviewBySlot,
     setBackgroundImage,
     runHistoryTransaction,
+    getActiveSlotEntity,
   } = useFabricContext();
   const setActiveTab = useEditorStore(state => state.setActiveTab);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -52,21 +50,15 @@ export const TemplateImagePanel = () => {
     y: '0',
     scale: '0',
   });
-  const activeObject = canvas?.getActiveObject();
-  const activeSlotImage =
-    activeObject instanceof FabricImage &&
-    (activeObject as SlotImageObject).slot?.replaceable
-      ? (activeObject as SlotImageObject)
-      : null;
-
-  const position = activeSlotImage
-    ? getSlotImagePosition(activeSlotImage)
+  const activeSlotEntity = getActiveSlotEntity();
+  const activeSlotKey = activeSlotEntity?.slotId ?? null;
+  const hasActiveSlot = Boolean(activeSlotKey);
+  const position = activeSlotKey
+    ? getSlotImagePositionBySlot(activeSlotKey) ?? { x: 0, y: 0 }
     : { x: 0, y: 0 };
-  const scale = activeSlotImage
-    ? getSlotImageScale(activeSlotImage)
+  const scale = activeSlotKey
+    ? getSlotImageScaleBySlot(activeSlotKey) ?? SCALE_MIN
     : SCALE_MIN;
-
-  const activeSlotKey = activeSlotImage?.slot?.key ?? null;
 
   const syncBackgroundSelection = () => {
     if (!canvas) return;
@@ -91,11 +83,11 @@ export const TemplateImagePanel = () => {
   }, [activeSlotKey, position.x, position.y, scale]);
 
   useEffect(() => {
-    if (!activeSlotImage) {
+    if (!activeSlotKey) {
       setImageSrc('');
       return;
     }
-    setImageSrc(exportSlotImagePreview(activeSlotImage));
+    setImageSrc(exportSlotImagePreviewBySlot(activeSlotKey));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canvas, activeInfo, activeSlotKey]);
 
@@ -106,14 +98,14 @@ export const TemplateImagePanel = () => {
   const handleChangeImage = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     event.target.value = '';
-    if (!file || !canvas || !activeSlotImage) return;
+    if (!file || !canvas || !activeSlotKey) return;
 
     const reader = new FileReader();
     reader.onload = async loadEvent => {
       const base64 = loadEvent.target?.result;
       if (typeof base64 !== 'string') return;
       const compressed = await compressImage(base64);
-      await replaceSlotImage(activeSlotImage, compressed);
+      await replaceSlotImageBySlot(activeSlotKey, compressed);
     };
     reader.readAsDataURL(file);
   };
@@ -125,8 +117,8 @@ export const TemplateImagePanel = () => {
       [axis]: String(nextValue),
     }));
 
-    if (canvas && activeSlotImage) {
-      updateSlotImagePosition(activeSlotImage, axis, nextValue);
+    if (canvas && activeSlotKey) {
+      updateSlotImagePositionBySlot(activeSlotKey, axis, nextValue);
     }
   };
 
@@ -137,12 +129,12 @@ export const TemplateImagePanel = () => {
       [axis]: String(nextValue),
     }));
 
-    if (canvas && activeSlotImage) {
-      updateSlotImagePosition(activeSlotImage, axis, nextValue, {
+    if (canvas && activeSlotKey) {
+      updateSlotImagePositionBySlot(activeSlotKey, axis, nextValue, {
         saveHistory: true,
         syncActiveObjectInfo: true,
       });
-      setImageSrc(exportSlotImagePreview(activeSlotImage));
+      setImageSrc(exportSlotImagePreviewBySlot(activeSlotKey));
     }
   };
 
@@ -153,8 +145,8 @@ export const TemplateImagePanel = () => {
       scale: String(scaleToOffset(nextScale)),
     }));
 
-    if (canvas && activeSlotImage) {
-      updateSlotImageScale(activeSlotImage, nextScale);
+    if (canvas && activeSlotKey) {
+      updateSlotImageScaleBySlot(activeSlotKey, nextScale);
     }
   };
 
@@ -165,25 +157,25 @@ export const TemplateImagePanel = () => {
       scale: String(scaleToOffset(nextScale)),
     }));
 
-    if (canvas && activeSlotImage) {
-      updateSlotImageScale(activeSlotImage, nextScale, {
+    if (canvas && activeSlotKey) {
+      updateSlotImageScaleBySlot(activeSlotKey, nextScale, {
         saveHistory: true,
         syncActiveObjectInfo: true,
       });
-      setImageSrc(exportSlotImagePreview(activeSlotImage));
+      setImageSrc(exportSlotImagePreviewBySlot(activeSlotKey));
     }
   };
 
   const handleSetAsBackground = async (checked: boolean) => {
-    if (!checked || !canvas || !activeSlotImage) return;
+    if (!checked || !canvas || !activeSlotKey) return;
 
-    const previewDataUrl = exportSlotImagePreview(activeSlotImage);
+    const previewDataUrl = exportSlotImagePreviewBySlot(activeSlotKey);
     if (!previewDataUrl) return;
 
     await runHistoryTransaction(
       async () => {
         await setBackgroundImage(previewDataUrl, { saveHistory: false });
-        restoreSlotPlaceholder(activeSlotImage, { saveHistory: false });
+        restoreSlotPlaceholderBySlot(activeSlotKey, { saveHistory: false });
       },
       { save: true }
     );
@@ -219,7 +211,7 @@ export const TemplateImagePanel = () => {
         value={position.x}
         displayValue={displayValue.x}
         allowNegative
-        disabled={!activeSlotImage || !canvas}
+        disabled={!hasActiveSlot || !canvas}
         onDisplayValueChange={value => {
           setDisplayValue(current => ({
             ...current,
@@ -241,7 +233,7 @@ export const TemplateImagePanel = () => {
         value={position.y}
         displayValue={displayValue.y}
         allowNegative
-        disabled={!activeSlotImage || !canvas}
+        disabled={!hasActiveSlot || !canvas}
         onDisplayValueChange={value => {
           setDisplayValue(current => ({
             ...current,
@@ -262,7 +254,7 @@ export const TemplateImagePanel = () => {
         step={5}
         value={scaleToOffset(scale)}
         displayValue={displayValue.scale}
-        disabled={!activeSlotImage || !canvas}
+        disabled={!hasActiveSlot || !canvas}
         onDisplayValueChange={value => {
           setDisplayValue(current => ({
             ...current,
@@ -280,7 +272,7 @@ export const TemplateImagePanel = () => {
         <Label className="font-semibold">추가기능</Label>
         <Checkbox
           checked={false}
-          disabled={!activeSlotImage}
+          disabled={!hasActiveSlot}
           onChange={async event => {
             await handleSetAsBackground(event.target.checked);
           }}
