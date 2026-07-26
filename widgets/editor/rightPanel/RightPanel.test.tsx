@@ -12,7 +12,7 @@ jest.mock('./components/TypePanel', () => ({
 }));
 jest.mock('./components/PosterPanel', () => ({
   __esModule: true,
-  default: () => <div data-testid="poster-panel">PosterPanel</div>,
+  PosterPanel: () => <div data-testid="poster-panel">PosterPanel</div>,
 }));
 
 const STABLE_TYPE_ARRAY = ['type1'];
@@ -63,7 +63,10 @@ describe('RightPanel 컴포넌트 테스트', () => {
 
     // Assert
     const posterButton = screen.getByRole('button', { name: /포스터/i });
+    const typeButton = screen.getByRole('button', { name: /타입/i });
     expect(posterButton).toHaveClass('border-b text-text-primary');
+    expect(typeButton).toBeDisabled();
+    expect(typeButton).toHaveClass('cursor-not-allowed');
   });
 
   it('유저가 수동으로 탭을 변경할 수 있다', () => {
@@ -85,6 +88,28 @@ describe('RightPanel 컴포넌트 테스트', () => {
     // Assert
     expect(posterButton).toHaveClass('border-b text-text-primary');
   });
+
+  it.each(['gallery', 'calendar'])(
+    '%s 컴포넌트 선택 시 포스터 탭을 클릭할 수 없다',
+    component => {
+      mockUseEditorStore.mockReturnValue({
+        block: [{ id: 'component-1', component }],
+        selectedId: 'component-1',
+      } as any);
+      mockUseComponentType.mockReturnValue({
+        typeArray: STABLE_TYPE_ARRAY,
+      });
+
+      render(<RightPanel />);
+      const posterButton = screen.getByRole('button', { name: /포스터/i });
+
+      fireEvent.pointerDown(posterButton);
+
+      expect(posterButton).toBeDisabled();
+      expect(screen.getByTestId('type-panel')).toBeInTheDocument();
+      expect(screen.queryByTestId('poster-panel')).not.toBeInTheDocument();
+    }
+  );
 
   it('selectedId가 변경되어 typeArray가 달라지면 탭이 자동으로 재설정된다', () => {
     // Stage 1: comp-1 with types
