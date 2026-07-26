@@ -19,6 +19,7 @@ import {
 } from '@/shared/utils/phoneNumber';
 import {
   getDefaultPlaceTitle,
+  getPlaceFieldCopy,
   isDefaultPlaceTitle,
 } from '@/shared/utils/placeTitle';
 import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
@@ -58,6 +59,7 @@ export function Place({ blockInfo, id }: Props) {
     country,
   } = blockInfo.props;
   const defaultTitle = getDefaultPlaceTitle(blockInfo.type);
+  const fieldCopy = getPlaceFieldCopy(blockInfo.type);
 
   const searchAddress = (query: string) => {
     if (!isScriptLoaded || !window.naver) {
@@ -167,18 +169,18 @@ export function Place({ blockInfo, id }: Props) {
           />
         </section>
         <TextField
-          label="예식장명"
+          label={fieldCopy.placeNameLabel}
           inputProps={{
-            placeholder: '예식장 이름 입력',
+            placeholder: fieldCopy.placeNamePlaceholder,
             onChange: e => handleUpdateBlock('placeName', e.target.value),
             value: placeName,
           }}
           className="w-full py-1.5 text-center"
         />
         <TextField
-          label="층과 홀"
+          label={fieldCopy.placeDetailLabel}
           inputProps={{
-            placeholder: '층과 웨딩홀 이름 입력',
+            placeholder: fieldCopy.placeDetailPlaceholder,
             onChange: e => handleUpdateBlock('placeDetail', e.target.value),
             value: placeDetail,
           }}
@@ -187,7 +189,7 @@ export function Place({ blockInfo, id }: Props) {
         <TextField
           label="연락처"
           inputProps={{
-            placeholder: '예식장 연락처, ex.02-000-000',
+            placeholder: fieldCopy.placeTelPlaceholder,
             type: 'tel',
             inputMode: 'numeric',
             onChange: e =>

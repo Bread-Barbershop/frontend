@@ -17,6 +17,11 @@ function RightPanel() {
     }))
   );
   const { typeArray } = useComponentType({ block, selectedId });
+  const selectedBlock = block.find(item => item.id === selectedId);
+  const hasTypeArray = Boolean(typeArray && typeArray.length > 0);
+  const isPosterTabDisabled =
+    selectedBlock?.component === 'gallery' ||
+    selectedBlock?.component === 'calendar';
 
   const [prevTypeArray, setPrevTypeArray] = useState(typeArray);
   const [tab, setTab] = useState(
@@ -36,15 +41,23 @@ function RightPanel() {
         <div className="w-full h-11">
           <button
             type="button"
-            className={`w-41.5 h-11 cursor-pointer select-none text-sm ${tab === 'poster' ? 'border-b font-semibold text-text-primary' : 'font-normal text-[#838383]'}`}
-            onPointerDown={() => setTab('poster')}
+            disabled={isPosterTabDisabled}
+            className={`w-41.5 h-11 select-none text-sm ${isPosterTabDisabled ? 'cursor-not-allowed text-text-disabled' : 'cursor-pointer'} ${tab === 'poster' ? 'border-b font-semibold text-text-primary' : 'font-normal text-[#838383]'}`}
+            onPointerDown={() => {
+              if (isPosterTabDisabled) return;
+              setTab('poster');
+            }}
           >
             포스터
           </button>
           <button
             type="button"
-            className={`w-41.75 h-11 cursor-pointer select-none text-sm ${typeArray && typeArray.length > 0 ? 'pointer-events-auto' : 'pointer-events-none'} ${tab === 'type' ? 'border-b font-semibold text-text-primary' : 'font-normal text-[#838383]'}`}
-            onPointerDown={() => setTab('type')}
+            disabled={!hasTypeArray}
+            className={`w-41.75 h-11 select-none text-sm ${hasTypeArray ? 'cursor-pointer' : 'cursor-not-allowed text-text-disabled'} ${tab === 'type' ? 'border-b font-semibold text-text-primary' : 'font-normal text-[#838383]'}`}
+            onPointerDown={() => {
+              if (!hasTypeArray) return;
+              setTab('type');
+            }}
           >
             타입
           </button>
