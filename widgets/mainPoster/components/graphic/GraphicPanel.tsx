@@ -55,8 +55,8 @@ export function GraphicPanel() {
   if (!canvas) return null;
 
   return (
-    <LeftEditorWrapper ariaLabel="그리기 설정" className="pb-0">
-      <div className="flex flex-col w-full items-center">
+    <LeftEditorWrapper ariaLabel="그리기 설정" className="min-h-0 pb-0 px-0">
+      <div className="flex w-full flex-col items-stretch">
         <section className="w-full h-11 flex flex-row gap-2 items-center justify-center bg-bg-base">
           <p className="w-[47px] h-8 flex items-center justify-center text-[13px] font-semibold text-text-primary">
             굵기
@@ -87,7 +87,7 @@ export function GraphicPanel() {
         <LargeColorPicker
           value={drawingConfig.color}
           onChange={e => setDrawingConfig({ color: e.hsva })}
-          className="border-none pl-6 pr-4"
+          className="w-full border-none"
         />
       </div>
     </LeftEditorWrapper>
