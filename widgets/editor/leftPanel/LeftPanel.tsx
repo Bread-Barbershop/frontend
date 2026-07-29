@@ -42,7 +42,7 @@ function LeftPanel() {
 
           <div
             key={`bulk-edit-${isEdit}`}
-            className={`grid max-h-158 ${isEdit ? 'animate-grow-height opacity-100 mt-0' : 'grid-rows-[0fr] opacity-0'}`}
+            className={isEdit ? 'max-h-158 overflow-hidden mt-0' : 'hidden'}
           >
             <div className="overflow-hidden rounded-b-lg">
               <BulkEdit />
@@ -67,9 +67,9 @@ function LeftPanel() {
         ) : (
           <div
             key={`edit-${isEdit}`}
-            className={`grid ${!isEdit ? 'animate-grow-height opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+            className={!isEdit ? 'overflow-hidden' : 'hidden'}
           >
-            <div className="w-full overflow-hidden max-h-[750px]">
+            <div className="w-full">
               <Edit />
             </div>
           </div>

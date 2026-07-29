@@ -42,7 +42,6 @@ export const MainPoster = () => {
       value: '텍스트',
       onClick: () => {
         setActiveTab('text');
-        createTextBox(canvas);
       },
     },
     {
@@ -88,7 +87,7 @@ export const MainPoster = () => {
 
   return (
     <div
-      className="flex flex-col pb-3.5 px-5 items-center w-full max-h-[812px] overflow-y-scroll overflow-x-hidden scrollbar-hide"
+      className="flex w-full flex-col items-center pb-3.5 max-h-[812px] overflow-y-scroll overflow-x-hidden scrollbar-hide"
       data-canvas="true"
     >
       {/* {isAdmin && (
@@ -111,42 +110,44 @@ export const MainPoster = () => {
         </div>
       )} */}
 
-      <NavigationBar
-        action={
-          activeTab === 'text' ? (
-            <UtilityButton
-              size="md"
-              variant="primary"
-              className="text-sm"
-              onClick={() => createTextBox(canvas)}
-            >
-              텍스트 추가
-            </UtilityButton>
-          ) : null
-        }
-        direction="right"
-      >
-        포스터
-      </NavigationBar>
-      <div className="w-full h-11 flex gap-2 items-center justify-center bg-white rounded-lg user-select-none">
-        {PanelItems.map(item => {
-          const isActive =
-            activeTab === item.id ||
-            (activeTab === 'template' && item.id === 'image');
+      <div className="w-full px-5">
+        <NavigationBar
+          action={
+            activeTab === 'text' ? (
+              <UtilityButton
+                size="md"
+                variant="primary"
+                className="text-sm"
+                onClick={() => createTextBox(canvas)}
+              >
+                텍스트 추가
+              </UtilityButton>
+            ) : null
+          }
+          direction="right"
+        >
+          포스터
+        </NavigationBar>
 
-          return (
-            <button
-              key={item.id}
-              type="button"
-              className={`w-[54px] h-8 font-medium text-sm ${isActive ? 'border-b text-text-primary' : 'text-text-secondary'}`}
-              onClick={item.onClick}
-            >
-              <p>{item.value}</p>
-            </button>
-          );
-        })}
+        <div className="w-full h-11 flex gap-2 items-center justify-center bg-white rounded-lg user-select-none">
+          {PanelItems.map(item => {
+            const isActive =
+              activeTab === item.id ||
+              (activeTab === 'template' && item.id === 'image');
+
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className={`w-[54px] h-8 font-medium text-sm ${isActive ? 'border-b text-text-primary' : 'text-text-secondary'}`}
+                onClick={item.onClick}
+              >
+                <p>{item.value}</p>
+              </button>
+            );
+          })}
+        </div>
       </div>
-
       {activeTab === 'text' && <RichTextPanel />}
 
       {(activeTab === 'image' || activeTab === 'template') && <ImagePanel />}
