@@ -42,7 +42,6 @@ export const MainPoster = () => {
       value: '텍스트',
       onClick: () => {
         setActiveTab('text');
-        createTextBox(canvas);
       },
     },
     {
