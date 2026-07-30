@@ -17,6 +17,9 @@ function ComponentsPopup({ onPopClose }: Props) {
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isManualScrolling = useRef(false);
+  const manualScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
 
   useEffect(() => {
     const closeIfViewportGuardActive = () => {
@@ -60,8 +63,19 @@ function ComponentsPopup({ onPopClose }: Props) {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (manualScrollTimeoutRef.current) {
+        clearTimeout(manualScrollTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleTabClick = (english: string) => {
-    if (isManualScrolling.current) return;
+    if (manualScrollTimeoutRef.current) {
+      clearTimeout(manualScrollTimeoutRef.current);
+    }
+
     isManualScrolling.current = true;
     setActive(english);
     sectionRefs.current[english]?.scrollIntoView({
@@ -70,8 +84,9 @@ function ComponentsPopup({ onPopClose }: Props) {
     });
 
     // 스크롤 이동이 끝날 때까지 감지 일시 중단
-    setTimeout(() => {
+    manualScrollTimeoutRef.current = setTimeout(() => {
       isManualScrolling.current = false;
+      manualScrollTimeoutRef.current = null;
     }, 800);
   };
 
