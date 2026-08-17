@@ -43,9 +43,9 @@ export default async function DashboardShell({
           <HomeButton />
 
           <nav className="flex h-full items-center gap-6">
-            <HeaderAuthControl initialIsLoggedIn={session.isLoggedIn} />
-
             <NavMenu />
+
+            <HeaderAuthControl initialIsLoggedIn={session.isLoggedIn} />
           </nav>
         </div>
 
