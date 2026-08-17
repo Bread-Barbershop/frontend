@@ -5,6 +5,7 @@ import { CalendarTemplateProps } from '../types/calendar';
 export function CalendarType2({
   calendarDays,
   headerDays,
+  accentColor,
 }: CalendarTemplateProps) {
   return (
     <div className="w-full flex flex-col font-lineseed">
@@ -37,6 +38,11 @@ export function CalendarType2({
                     dayObj.isTargetDate &&
                       'size-5.5 rounded-full bg-text-wedding text-white'
                   )}
+                  style={
+                    dayObj.isTargetDate
+                      ? { backgroundColor: accentColor }
+                      : undefined
+                  }
                 >
                   <span
                     className={cn(

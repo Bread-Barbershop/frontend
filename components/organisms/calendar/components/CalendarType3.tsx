@@ -8,6 +8,7 @@ export function CalendarType3({
   headerDays,
   timeInfo,
   monthText,
+  accentColor,
 }: CalendarTemplateProps) {
   return (
     <div className="w-full px-4 flex flex-col shadow-[0px_4px_24px_rgba(0,0,0,0.06)] font-lineseed">
@@ -38,6 +39,11 @@ export function CalendarType3({
                 dayObj.isTargetDate && 'text-white',
                 dayObj.isTargetDate && 'bg-text-wedding'
               )}
+              style={
+                dayObj.isTargetDate
+                  ? { backgroundColor: accentColor }
+                  : undefined
+              }
             >
               <span>{dayObj.num}</span>
               {dayObj.isTargetDate && (
