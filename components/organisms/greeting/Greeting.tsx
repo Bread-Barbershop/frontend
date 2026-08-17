@@ -103,6 +103,7 @@ function Greeting({ blockInfo, id }: Props) {
           value={messageJson}
           defaultText="내용을 입력해 주세요"
           defaultAlign="center"
+          editorClassName="px-1.5"
           onChange={handleEditorChange}
         />
 

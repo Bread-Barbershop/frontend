@@ -4,6 +4,7 @@ import { Image } from '@/components/atoms/image';
 import AutoScrollCarousel from '@/features/EmblaCarousel/AutoScrollCarousel/AutoScrollCarousel';
 import { useResolvedImageSources } from '@/shared/hooks/useResolvedImageSources';
 import { EditorBlock } from '@/shared/types/block';
+import { cn } from '@/shared/utils/cn';
 
 import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
 
@@ -18,6 +19,7 @@ interface Props {
 function SponsorshipInfomationPreview({
   blockInfo,
   className,
+  titleClassName,
   isGuestPage = false,
   ...rest
 }: Props) {
@@ -29,16 +31,17 @@ function SponsorshipInfomationPreview({
 
   return (
     <MiddlePreviewWrapper
-      className={className}
+      className={cn('px-0', className)}
       checkedSubTitle={blockInfo.props.isSubTitle}
       subTitle={blockInfo.props.subTitle}
       subTitleDefault="OUR SPONSORS"
+      titleClassName={cn('px-5', titleClassName)}
       mainTitle={blockInfo.props.title}
       mainTitleDefault="후원사"
       {...rest}
     >
       {(!displayPreview || displayPreview.length === 0) && !isGuestPage && (
-        <div className="w-full flex justify-between">
+        <div className="w-full flex justify-between px-5">
           <div className="w-21 h-21 bg-border-neutral rounded-lg" />
           <div className="w-21 h-21 bg-border-neutral rounded-lg" />
           <div className="w-21 h-21 bg-border-neutral rounded-lg" />

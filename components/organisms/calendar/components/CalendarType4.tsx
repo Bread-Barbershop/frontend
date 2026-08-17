@@ -4,6 +4,7 @@ export function CalendarType4({
   calendarDays,
   headerDays,
   monthText,
+  accentColor,
 }: CalendarTemplateProps) {
   return (
     <div className="w-full flex flex-col items-center font-lineseed">
@@ -33,6 +34,7 @@ export function CalendarType4({
                 {isTarget && (
                   <svg
                     className="pointer-events-none absolute left-1/2 top-1/2 size-9 -translate-x-[48%] -translate-y-[52%] text-[#D92D20]"
+                    style={{ color: accentColor }}
                     viewBox="0 0 50 50"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"

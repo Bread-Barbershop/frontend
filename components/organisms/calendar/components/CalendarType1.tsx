@@ -7,6 +7,7 @@ export function CalendarType1({
   currentMonth,
   calendarDays,
   headerDays,
+  accentColor,
 }: CalendarTemplateProps) {
   return (
     <div className="flex flex-col w-full font-lineseed">
@@ -23,6 +24,7 @@ export function CalendarType1({
               'text-center font-bold text-sm text-text-tertiary',
               idx === 0 && 'text-text-wedding'
             )}
+            style={idx === 0 ? { color: accentColor } : undefined}
           >
             {day}
           </div>
@@ -38,6 +40,7 @@ export function CalendarType1({
                 idx % 7 === 0 && 'text-text-wedding',
                 !dayObj.isCurrentMonth && 'opacity-30'
               )}
+              style={idx % 7 === 0 ? { color: accentColor } : undefined}
             >
               <span
                 className={cn(
@@ -45,6 +48,11 @@ export function CalendarType1({
                   dayObj.isTargetDate &&
                     'size-5.5 rounded-full bg-text-wedding text-white'
                 )}
+                style={
+                  dayObj.isTargetDate
+                    ? { backgroundColor: accentColor }
+                    : undefined
+                }
               >
                 <span
                   className={cn(

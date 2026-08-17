@@ -32,15 +32,15 @@ export const SpeakerInformationPreview = ({
     return speakers;
   }, [speakers]);
 
-  const isAutoScrollActive = (speakers?.length ?? 0) > 1;
+  const isCarouselActive = (speakers?.length ?? 0) > 1;
 
   const carouselOptions: EmblaOptionsType = useMemo(
     () => ({
       align: 'center',
       containScroll: false,
-      loop: isAutoScrollActive,
+      loop: isCarouselActive,
     }),
-    [isAutoScrollActive]
+    [isCarouselActive]
   );
 
   const autoscrollOptions = useMemo(
@@ -65,28 +65,35 @@ export const SpeakerInformationPreview = ({
       {...rest}
     >
       <div className="w-full flex justify-center relative overflow-hidden px-px">
-        <Carousel
-          options={carouselOptions}
-          isButtonShow={false}
-          className="h-full w-full"
-          carouselClassName="gap-3"
-          autoscroll={isAutoScrollActive}
-          autoscrollOptions={autoscrollOptions}
-          loop={isAutoScrollActive}
-        >
-          {displayItems?.map((speaker, index) => (
-            <div
-              key={`${speaker.id}-${index}`}
-              className={cn(
-                'w-full',
-                (displayItems?.length ?? 0) > 1 && index === 0 ? 'ml-3' : '',
-                (displayItems?.length ?? 0) === 1 && 'flex-center'
-              )}
-            >
+        {isCarouselActive ? (
+          <Carousel
+            options={carouselOptions}
+            isButtonShow={false}
+            className="h-full w-full"
+            carouselClassName="gap-3"
+            autoscroll
+            autoscrollOptions={autoscrollOptions}
+            loop
+          >
+            {displayItems?.map((speaker, index) => (
+              <div
+                key={`${speaker.id}-${index}`}
+                className={cn('w-full', index === 0 ? 'ml-3' : '')}
+              >
+                <InformationPreview
+                  speaker={speaker}
+                  isGuestPage={isGuestPage}
+                />
+              </div>
+            ))}
+          </Carousel>
+        ) : (
+          speakers?.map(speaker => (
+            <div key={speaker.id} className="w-full flex-center">
               <InformationPreview speaker={speaker} isGuestPage={isGuestPage} />
             </div>
-          ))}
-        </Carousel>
+          ))
+        )}
       </div>
     </MiddlePreviewWrapper>
   );
