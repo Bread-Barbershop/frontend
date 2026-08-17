@@ -19,7 +19,7 @@ function GalleryCategoryTabs() {
           <button
             key={category}
             type="button"
-            className={`cursor-pointer rounded-full px-8 py-3 text-[16px] font-semibold transition-colors ${
+            className={`h-12 cursor-pointer rounded-full px-8 text-[20px] font-semibold transition-colors ${
               selected
                 ? 'bg-black text-white'
                 : 'bg-white text-text-plain hover:bg-[#FAFAFB]'
