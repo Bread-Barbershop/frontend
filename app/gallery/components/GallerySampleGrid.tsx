@@ -1,39 +1,135 @@
 'use client';
 
-import { useState } from 'react';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 import PhonePreviewFrame from '@/app/dashboard/components/preview/PhonePreviewFrame';
+import {
+  parseGuestPayload,
+  type NormalizedGuestPayload,
+} from '@/app/guest/[id]/validation/parseGuestPayload';
 
 const CARD_WIDTH = 240;
 const CARD_HEIGHT = 520;
 const MAX_GRID_COLUMNS = 7;
 const GRID_COLUMN_GAP = 26;
 const GRID_ROW_GAP = 40;
-const PLACEHOLDER_CARD_COUNT = 21;
 const CARD_PADDING_X = 20;
 const CARD_PADDING_Y = 32;
 const ACTION_BUTTON_SHADOW =
   '0 8px 24px 0 rgb(0 0 0 / 6%), 0 2px 10px 0 rgb(0 0 0 / 8%)';
+const SAMPLES_MANIFEST_URL = '/samples/manifest.json';
 
 const gridWidth =
   CARD_WIDTH * MAX_GRID_COLUMNS + GRID_COLUMN_GAP * (MAX_GRID_COLUMNS - 1);
 
-const placeholderCards = Array.from(
-  { length: PLACEHOLDER_CARD_COUNT },
-  (_, index) => index + 1
-);
+type GallerySample = {
+  id: string;
+  title: string;
+  category: string;
+  thumbnailUrl: string;
+  dataUrl: string;
+};
+
+type SamplesManifest = {
+  samples: GallerySample[];
+};
+
+type PreviewState =
+  | {
+      status: 'closed';
+      payload: null;
+      title: '';
+    }
+  | {
+      status: 'loading' | 'error';
+      payload: null;
+      title: string;
+    }
+  | {
+      status: 'success';
+      payload: NormalizedGuestPayload;
+      title: string;
+    };
 
 function GallerySampleGrid({ pagePaddingX }: { pagePaddingX: number }) {
-  const [selectedCard, setSelectedCard] = useState<number | null>(null);
-  const [previewCard, setPreviewCard] = useState<number | null>(null);
+  const [samples, setSamples] = useState<GallerySample[]>([]);
+  const [selectedSampleId, setSelectedSampleId] = useState<string | null>(null);
+  const [preview, setPreview] = useState<PreviewState>({
+    status: 'closed',
+    payload: null,
+    title: '',
+  });
 
-  const selectCard = (cardNumber: number, element: HTMLElement) => {
-    setSelectedCard(cardNumber);
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadSamples() {
+      const response = await fetch(SAMPLES_MANIFEST_URL);
+      if (!response.ok) return;
+
+      const manifest = (await response.json()) as SamplesManifest;
+      if (!cancelled) {
+        setSamples(manifest.samples);
+      }
+    }
+
+    void loadSamples();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!selectedSampleId) return;
+
+    const clearSelectionOnOutsideClick = (event: PointerEvent) => {
+      if (!(event.target instanceof Element)) return;
+      if (event.target.closest('[data-gallery-sample-card]')) return;
+
+      setSelectedSampleId(null);
+    };
+
+    document.addEventListener('pointerdown', clearSelectionOnOutsideClick);
+
+    return () => {
+      document.removeEventListener('pointerdown', clearSelectionOnOutsideClick);
+    };
+  }, [selectedSampleId]);
+
+  const selectCard = (sampleId: string, element: HTMLElement) => {
+    setSelectedSampleId(sampleId);
     element.scrollIntoView({
       behavior: 'smooth',
       block: 'center',
       inline: 'nearest',
     });
+  };
+
+  const openPreview = async (sample: GallerySample) => {
+    setPreview({ status: 'loading', payload: null, title: sample.title });
+
+    try {
+      const response = await fetch(sample.dataUrl);
+      if (!response.ok) {
+        throw new Error(`sample_load_failed:${response.status}`);
+      }
+
+      const result = parseGuestPayload(await response.json());
+      if (!result.ok) {
+        throw new Error(`sample_parse_failed:${result.reason}`);
+      }
+
+      setPreview({
+        status: 'success',
+        payload: result.payload,
+        title: sample.title,
+      });
+    } catch (error) {
+      console.error('샘플 미리보기 로드 실패:', error);
+      setPreview({ status: 'error', payload: null, title: sample.title });
+    }
   };
 
   return (
@@ -47,38 +143,37 @@ function GallerySampleGrid({ pagePaddingX }: { pagePaddingX: number }) {
           rowGap: GRID_ROW_GAP,
         }}
       >
-        {placeholderCards.map(cardNumber => (
+        {samples.map(sample => (
           <article
-            key={cardNumber}
+            key={sample.id}
+            data-gallery-sample-card
             role="button"
             tabIndex={0}
-            aria-pressed={selectedCard === cardNumber}
-            className="relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-white/35 bg-white/72 shadow-edit backdrop-blur-sm outline-none focus-visible:ring-2 focus-visible:ring-black/50"
+            aria-pressed={selectedSampleId === sample.id}
+            className="relative cursor-pointer overflow-hidden rounded-2xl bg-white/72 shadow-edit backdrop-blur-sm outline-none focus-visible:ring-2 focus-visible:ring-black/50"
             style={{
               width: CARD_WIDTH,
               height: CARD_HEIGHT,
             }}
-            onClick={event => selectCard(cardNumber, event.currentTarget)}
+            onClick={event => selectCard(sample.id, event.currentTarget)}
             onKeyDown={event => {
               if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
-                selectCard(cardNumber, event.currentTarget);
+                selectCard(sample.id, event.currentTarget);
               }
             }}
           >
-            <div className="flex flex-1 items-center justify-center bg-[#F5F1EA] text-[15px] font-semibold text-text-secondary">
-              Sample {cardNumber}
-            </div>
-            <div className="border-t border-black/5 bg-white px-4 py-3">
-              <p className="text-[15px] font-semibold text-text-plain">
-                샘플 초대장
-              </p>
-              <p className="mt-1 text-[13px] text-text-secondary">
-                상세 UI는 다음 단계에서 조정
-              </p>
+            <div className="relative h-full bg-[#F5F1EA]">
+              <Image
+                src={sample.thumbnailUrl}
+                alt={sample.title}
+                fill
+                sizes="240px"
+                className="object-cover"
+              />
             </div>
 
-            {selectedCard === cardNumber && (
+            {selectedSampleId === sample.id && (
               <div
                 className="absolute inset-0 flex flex-col justify-end bg-black/16"
                 style={{
@@ -88,7 +183,7 @@ function GallerySampleGrid({ pagePaddingX }: { pagePaddingX: number }) {
                 <div className="flex flex-col gap-2">
                   <GalleryCardActionButton
                     variant="dark"
-                    onClick={() => setPreviewCard(cardNumber)}
+                    onClick={() => openPreview(sample)}
                   >
                     디자인 미리보기
                   </GalleryCardActionButton>
@@ -102,8 +197,13 @@ function GallerySampleGrid({ pagePaddingX }: { pagePaddingX: number }) {
         ))}
       </section>
 
-      {previewCard && (
-        <GalleryPreviewModal onClose={() => setPreviewCard(null)} />
+      {preview.status !== 'closed' && (
+        <GalleryPreviewModal
+          preview={preview}
+          onClose={() =>
+            setPreview({ status: 'closed', payload: null, title: '' })
+          }
+        />
       )}
     </>
   );
@@ -146,21 +246,42 @@ function GalleryCardActionButton({
   );
 }
 
-function GalleryPreviewModal({ onClose }: { onClose: () => void }) {
+function GalleryPreviewModal({
+  onClose,
+  preview,
+}: {
+  onClose: () => void;
+  preview: Exclude<PreviewState, { status: 'closed' }>;
+}) {
+  const isSuccess = preview.status === 'success';
+
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/58 px-6 py-6"
       role="dialog"
       aria-modal="true"
-      aria-label="디자인 미리보기"
+      aria-label={`${preview.title} 디자인 미리보기`}
       onClick={onClose}
     >
       <div onClick={event => event.stopPropagation()}>
-        <PhonePreviewFrame folderId="">
+        <PhonePreviewFrame
+          folderId=""
+          isPosterReady={isSuccess}
+          payload={isSuccess ? preview.payload : null}
+        >
           <div className="flex min-h-full flex-col items-center justify-center px-8 text-center">
-            <p className="font-pretendard text-[15px] font-semibold leading-[22px] text-text-plain">
-              미리보기 영역
-            </p>
+            {preview.status === 'loading' ? (
+              <>
+                <div className="h-9 w-9 animate-spin rounded-full border-2 border-black/10 border-t-border-plain" />
+                <p className="mt-5 font-pretendard text-[15px] font-semibold leading-[22px] text-text-plain">
+                  샘플을 불러오고 있어요.
+                </p>
+              </>
+            ) : (
+              <p className="font-pretendard text-[15px] font-semibold leading-[22px] text-text-plain">
+                샘플 미리보기를 불러오지 못했습니다.
+              </p>
+            )}
           </div>
         </PhonePreviewFrame>
       </div>

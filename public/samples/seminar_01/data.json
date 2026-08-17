@@ -1,0 +1,1565 @@
+{
+  "bulkData": {
+    "backgroundColor": "#FFFFFF",
+    "titleData": {
+      "font": "LINESeedKR",
+      "fontSize": "20px",
+      "color": "#3b82f6",
+      "fontWeight": "700",
+      "isDefault": false
+    },
+    "bodyData": {
+      "font": "LINESeedKR",
+      "fontSize": "14px",
+      "color": "#000000",
+      "fontWeight": "400",
+      "isDefault": false
+    },
+    "isZoom": false
+  },
+  "blocks": [
+    {
+      "id": "22e0ac31-5026-421a-b466-eafaf735cbcb",
+      "type": "seminar",
+      "component": "greeting",
+      "props": {
+        "title": "인사말",
+        "checkedSubTitle": true,
+        "subTitle": "INVITATION",
+        "messageJson": {
+          "type": "doc",
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "textStyle",
+                      "attrs": {
+                        "color": null,
+                        "fontFamily": null,
+                        "fontWeight": "700",
+                        "fontSize": "16px",
+                        "fontStyleOverride": null,
+                        "textDecorationOverride": null
+                      }
+                    }
+                  ],
+                  "text": "2026 Leadership, Innovation & Growth"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              }
+            },
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "급변하는 시장 환경 속에서"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "지속 가능한 성장과 미래 전략을 함께 논의하는 자리에"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "귀하를 정중히 초대합니다."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              }
+            },
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "textStyle",
+                      "attrs": {
+                        "color": null,
+                        "fontFamily": null,
+                        "fontWeight": "700",
+                        "fontSize": null,
+                        "fontStyleOverride": null,
+                        "textDecorationOverride": null
+                      }
+                    }
+                  ],
+                  "text": "ANNUAL BUSINESS CONFERENCE 2026"
+                },
+                {
+                  "type": "text",
+                  "text": "는"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "비즈니스 리더, 전략 담당자, 실무 책임자들이 한자리에 모여"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "산업 변화에 대한 인사이트를 공유하고"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "새로운 협업의 기회를 모색하는 연례 컨퍼런스입니다."
+                }
+              ]
+            }
+          ]
+        },
+        "messageHtml": "<p><span style=\"font-weight: 700; font-size: 16px;\">2026 Leadership, Innovation &amp; Growth</span></p><p><br /></p><p>급변하는 시장 환경 속에서</p><p>지속 가능한 성장과 미래 전략을 함께 논의하는 자리에</p><p>귀하를 정중히 초대합니다.</p><p><br /></p><p><span style=\"font-weight: 700;\">ANNUAL BUSINESS CONFERENCE 2026</span>는</p><p>비즈니스 리더, 전략 담당자, 실무 책임자들이 한자리에 모여</p><p>산업 변화에 대한 인사이트를 공유하고</p><p>새로운 협업의 기회를 모색하는 연례 컨퍼런스입니다.</p>"
+      }
+    },
+    {
+      "id": "32db775d-1410-4b59-8ec8-6fba6903f6d7",
+      "type": "seminar",
+      "component": "sponsorshipInfomation",
+      "props": {
+        "title": "후원사",
+        "isSubTitle": true,
+        "subTitle": "OUR SPONSORS",
+        "images": [
+          "/samples/seminar_01/images/sponsor_01.png",
+          "/samples/seminar_01/images/sponsor_02.png",
+          "/samples/seminar_01/images/sponsor_03.png",
+          "/samples/seminar_01/images/sponsor_04.png",
+          "/samples/seminar_01/images/sponsor_05.png"
+        ]
+      }
+    },
+    {
+      "id": "cf056f18-63f2-4265-b5e4-82cccdf14362",
+      "type": "seminar",
+      "component": "speakerInformation",
+      "props": {
+        "title": "연사정보",
+        "subTitle": "SPEAKER INFORMATION",
+        "checkedSubTitle": true,
+        "speakers": [
+          {
+            "id": "2497c2fe-f684-4c2a-b780-6c12b8d48696",
+            "name": "",
+            "messageJson": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "textAlign": null
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "marks": [
+                        {
+                          "type": "textStyle",
+                          "attrs": {
+                            "color": null,
+                            "fontFamily": null,
+                            "fontWeight": "700",
+                            "fontSize": "20px",
+                            "fontStyleOverride": null,
+                            "textDecorationOverride": null
+                          }
+                        }
+                      ],
+                      "text": "Andrew Jackson"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "textAlign": null
+                  }
+                },
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "textAlign": null
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "marks": [
+                        {
+                          "type": "textStyle",
+                          "attrs": {
+                            "color": null,
+                            "fontFamily": null,
+                            "fontWeight": "700",
+                            "fontSize": null,
+                            "fontStyleOverride": null,
+                            "textDecorationOverride": null
+                          }
+                        }
+                      ],
+                      "text": "Chief Strategy Officer · Horizon Business Group"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "textAlign": null
+                  }
+                },
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "textAlign": null
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "글로벌 비즈니스 전략과 기업 혁신 분야의 전문가로, 다양한 산업의 성장 전략과 조직 혁신을 이끌어왔습니다."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "textAlign": null
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "이번 컨퍼런스"
+                    }
+                  ]
+                }
+              ]
+            },
+            "messageHtml": "<p><span style=\"font-weight: 700; font-size: 20px;\">Andrew Jackson</span></p><p><br /></p><p><span style=\"font-weight: 700;\">Chief Strategy Officer · Horizon Business Group</span></p><p><br /></p><p>글로벌 비즈니스 전략과 기업 혁신 분야의 전문가로, 다양한 산업의 성장 전략과 조직 혁신을 이끌어왔습니다.</p><p>이번 컨퍼런스</p>",
+            "image": [
+              "/samples/seminar_01/images/speaker_profile.png"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d22ac7e5-02fb-48fd-8492-8d7628178a11",
+      "type": "seminar",
+      "component": "calendar",
+      "props": {
+        "title": "행사 일시",
+        "subTitle": "",
+        "date": "2026-08-29",
+        "time": "오후 01:30",
+        "showStringDate": true,
+        "template": "calendarType1",
+        "showCalendar": true,
+        "showDday": true,
+        "messageJson": {
+          "type": "doc",
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "textStyle",
+                      "attrs": {
+                        "color": "rgba(0, 0, 0, 0.4337349397590361)",
+                        "fontFamily": null,
+                        "fontWeight": "700",
+                        "fontSize": null,
+                        "fontStyleOverride": null,
+                        "textDecorationOverride": null
+                      }
+                    }
+                  ],
+                  "text": "함께할 특별한 순간까지 (D-Day)일 남았습니다."
+                }
+              ]
+            }
+          ]
+        },
+        "messageHtml": "<p><span style=\"color: rgba(0, 0, 0, 0.435); font-weight: 700;\">함께할 특별한 순간까지 (D-Day)일 남았습니다.</span></p>",
+        "isSubTitle": true,
+        "englishTitle": "THE EVENT TIME"
+      }
+    },
+    {
+      "id": "404f6f89-c769-4456-8b2d-2e9d210d0590",
+      "type": "seminar",
+      "component": "place",
+      "props": {
+        "title": "행사 장소",
+        "subTitle": "LOCATION",
+        "country": "국내",
+        "placeName": "코엑스 컨퍼런스룸 401호",
+        "placeDetail": "",
+        "placeAddress": "서울특별시 강남구 영동대로 513 코엑스",
+        "placeTel": "020000000",
+        "checkedSubTitle": true,
+        "openMap": true,
+        "openNavi": true,
+        "mapLocked": true,
+        "lng": 127.0591591,
+        "lat": 37.5118239
+      }
+    },
+    {
+      "id": "e5c87e27-956d-417f-9cf5-9f7bff823a09",
+      "type": "seminar",
+      "component": "phone",
+      "props": {
+        "groups": [
+          {
+            "id": "b38b09a8-2860-4459-9e2e-887c7128a7fd",
+            "name": "문의처",
+            "contacts": [
+              {
+                "id": "f100c3e7-1a9d-49db-ab13-189eef19e97a",
+                "label": "컨퍼런스 운영사무국",
+                "number": "0262002847"
+              }
+            ]
+          },
+          {
+            "id": "01664977-1fdb-4f02-9a2f-9093ec78b8d4",
+            "name": "행사 문의",
+            "contacts": [
+              {
+                "id": "90cb0ed5-25eb-40dc-9da1-15d95c830204",
+                "label": "김서연 · 컨퍼런스 운영팀",
+                "number": "0262002847"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "6c0c333c-6b57-4b19-9511-97d3f8785631",
+      "type": "seminar",
+      "component": "notice",
+      "props": {
+        "title": "공지사항",
+        "checkedSubTitle": true,
+        "subTitle": "INFORMATION",
+        "noticeList": [
+          {
+            "id": "b6a01970-a63e-4522-a2e8-3a003daf5876",
+            "notice": "행사 입장 안내",
+            "content": {
+              "messageJson": {
+                "type": "doc",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "attrs": {
+                      "textAlign": null
+                    },
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "원활한 행사 진행을 위해 행사 시작 20~30분 전까지 도착해 주시기 바랍니다."
+                      }
+                    ]
+                  },
+                  {
+                    "type": "paragraph",
+                    "attrs": {
+                      "textAlign": null
+                    },
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "현장 등록 데스크에서 참석자 확인 후 입장이 가능하며, 행사 시작 이후에는 일부 프로그램 참여가 제한될 수 있습니다. 여유 있게 방문해 주세요."
+                      }
+                    ]
+                  }
+                ]
+              },
+              "messageHtml": "<p>원활한 행사 진행을 위해 행사 시작 20~30분 전까지 도착해 주시기 바랍니다.</p><p>현장 등록 데스크에서 참석자 확인 후 입장이 가능하며, 행사 시작 이후에는 일부 프로그램 참여가 제한될 수 있습니다. 여유 있게 방문해 주세요.</p>"
+            },
+            "image": [
+              "/samples/seminar_01/images/entry_time.jpg"
+            ]
+          },
+          {
+            "id": "79b9a580-296b-4124-a459-fe17e77259cf",
+            "presetId": "parking",
+            "notice": "주차 및 교통 안내",
+            "content": {
+              "messageJson": {
+                "type": "doc",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "attrs": {
+                      "textAlign": null
+                    },
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "행사장 내 주차 공간을 이용하실 수 있으나, 행사 당일에는 많은 참석자로 인해 주차장이 혼잡할 수 있습니다."
+                      }
+                    ]
+                  },
+                  {
+                    "type": "paragraph",
+                    "attrs": {
+                      "textAlign": null
+                    },
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "원활한 입장을 위해 가급적 대중교통 이용을 권장드리며, 차량 이용 시에는 행사장 안내 표지와 현장 스태프의 안내에 따라 주차해 주세요."
+                      }
+                    ]
+                  }
+                ]
+              },
+              "messageHtml": "<p>행사장 내 주차 공간을 이용하실 수 있으나, 행사 당일에는 많은 참석자로 인해 주차장이 혼잡할 수 있습니다.</p><p>원활한 입장을 위해 가급적 대중교통 이용을 권장드리며, 차량 이용 시에는 행사장 안내 표지와 현장 스태프의 안내에 따라 주차해 주세요.</p>"
+            },
+            "image": []
+          },
+          {
+            "id": "8e85eb21-5b4e-45c0-8186-966bc74f7da4",
+            "notice": "촬영 및 행사 운영 안내",
+            "content": {
+              "messageJson": {
+                "type": "doc",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "attrs": {
+                      "textAlign": null
+                    },
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "행사 현장에서는 컨퍼런스 기록 및 홍보 콘텐츠 제작을 위한 사진과 영상 촬영이 진행될 예정입니다."
+                      }
+                    ]
+                  },
+                  {
+                    "type": "paragraph",
+                    "attrs": {
+                      "textAlign": null
+                    },
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "촬영된 자료는 공식 홈페이지, SNS 및 향후 행사 홍보 자료 등에 활용될 수 있습니다. 또한 원활한 프로그램 진행을 위해 세션 중에는 휴대전화 알림을 무음으로 설정해 주시기 바랍니다."
+                      }
+                    ]
+                  }
+                ]
+              },
+              "messageHtml": "<p>행사 현장에서는 컨퍼런스 기록 및 홍보 콘텐츠 제작을 위한 사진과 영상 촬영이 진행될 예정입니다.</p><p>촬영된 자료는 공식 홈페이지, SNS 및 향후 행사 홍보 자료 등에 활용될 수 있습니다. 또한 원활한 프로그램 진행을 위해 세션 중에는 휴대전화 알림을 무음으로 설정해 주시기 바랍니다.</p>"
+            },
+            "image": [
+              "/samples/seminar_01/images/photo_booth.png"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "4ae7d2f2-a5e3-4f8e-8b3f-1590327980ea",
+      "type": "seminar",
+      "component": "video",
+      "props": {
+        "title": "동영상",
+        "checkedSubTitle": true,
+        "subTitle": "VIDEO",
+        "videoUrl": "https://www.youtube.com/watch?v=P2J6g-36_Rs&list=PLv--d1-kJU2KmgEKEqU-6Eqkf-EfCMpkJ",
+        "ratio": "1:1",
+        "image": [],
+        "checkThumbnail": false
+      }
+    },
+    {
+      "id": "6e71bbc2-7a7a-4d38-9206-97c1b0c19877",
+      "type": "seminar",
+      "component": "organizerInformation",
+      "props": {
+        "title": "주최사",
+        "checkedSubTitle": true,
+        "subTitle": "ORGANIZER INFORMATION",
+        "organizer": "",
+        "hasUrl": false,
+        "url": "",
+        "messageJson": null,
+        "messageHtml": null,
+        "image": [
+          "/samples/seminar_01/images/organizer.png"
+        ]
+      }
+    }
+  ],
+  "shareUrl": {
+    "title": "소중한 분들을 초대합니다.",
+    "description": "뜻깊은 날, 귀한 걸음으로 저희와 함께해 주세요.",
+    "images": [],
+    "urlTitle": "소중한 분들을 초대합니다.",
+    "urlDescription": "뜻깊은 날, 귀한 걸음으로 저희와 함께해 주세요.",
+    "urlImage": [],
+    "showLocationButton": false,
+    "locationInfo": {
+      "lat": 0,
+      "lng": 0,
+      "placeName": ""
+    }
+  },
+  "bgm": {
+    "selectedBgmId": null,
+    "isLoop": false,
+    "volume": 0.2,
+    "userBgmTitle": null,
+    "userBgmDuration": null,
+    "userBgmFileId": null
+  },
+  "mainPoster": {
+    "version": "7.2.0",
+    "objects": [
+      {
+        "rx": 0,
+        "ry": 0,
+        "lockMovementX": false,
+        "lockMovementY": false,
+        "lockScalingX": false,
+        "lockScalingY": false,
+        "lockRotation": false,
+        "hasControls": true,
+        "editable": true,
+        "selectable": true,
+        "evented": true,
+        "fill": "#3b82f6",
+        "stroke": "#000000",
+        "strokeWidth": 0,
+        "strokeUniform": true,
+        "shadow": null,
+        "paintFirst": "fill",
+        "type": "Rect",
+        "version": "7.2.0",
+        "originX": "center",
+        "originY": "center",
+        "left": 187.5,
+        "top": 539,
+        "width": 101.3455,
+        "height": 101.4772,
+        "strokeDashArray": null,
+        "strokeLineCap": "butt",
+        "strokeDashOffset": 0,
+        "strokeLineJoin": "miter",
+        "strokeMiterLimit": 4,
+        "scaleX": 3.7002,
+        "scaleY": 5.3805,
+        "angle": 0,
+        "flipX": false,
+        "flipY": false,
+        "opacity": 1,
+        "visible": true,
+        "backgroundColor": "",
+        "fillRule": "nonzero",
+        "globalCompositeOperation": "source-over",
+        "skewX": 0,
+        "skewY": 0
+      },
+      {
+        "fontSize": 172,
+        "fontWeight": "400",
+        "fontFamily": "Anton",
+        "fontStyle": "normal",
+        "lineHeight": 1.16,
+        "text": "2026",
+        "charSpacing": 20,
+        "textAlign": "left",
+        "styles": [],
+        "pathStartOffset": 0,
+        "pathSide": "left",
+        "pathAlign": "baseline",
+        "underline": false,
+        "overline": false,
+        "linethrough": false,
+        "textBackgroundColor": "",
+        "direction": "ltr",
+        "textDecorationThickness": 66.667,
+        "minWidth": 20,
+        "splitByGrapheme": true,
+        "id": "text-1781688943205",
+        "lockMovementX": false,
+        "lockMovementY": false,
+        "lockScalingX": false,
+        "lockScalingY": false,
+        "lockRotation": false,
+        "hasControls": true,
+        "editable": true,
+        "selectable": true,
+        "evented": true,
+        "fill": "rgb(0,0,0)",
+        "stroke": null,
+        "strokeWidth": 1,
+        "strokeUniform": false,
+        "shadow": null,
+        "paintFirst": "fill",
+        "type": "Textbox",
+        "version": "7.2.0",
+        "originX": "center",
+        "originY": "center",
+        "left": 187.5,
+        "top": 241.5136,
+        "width": 350.5,
+        "height": 194.36,
+        "strokeDashArray": null,
+        "strokeLineCap": "butt",
+        "strokeDashOffset": 0,
+        "strokeLineJoin": "miter",
+        "strokeMiterLimit": 4,
+        "scaleX": 1,
+        "scaleY": 1,
+        "angle": 0,
+        "flipX": false,
+        "flipY": false,
+        "opacity": 1,
+        "visible": true,
+        "backgroundColor": "",
+        "fillRule": "nonzero",
+        "globalCompositeOperation": "source-over",
+        "skewX": 0,
+        "skewY": 0
+      },
+      {
+        "rx": 0,
+        "ry": 0,
+        "lockMovementX": false,
+        "lockMovementY": false,
+        "lockScalingX": false,
+        "lockScalingY": false,
+        "lockRotation": false,
+        "hasControls": true,
+        "editable": true,
+        "selectable": true,
+        "evented": true,
+        "fill": "#ffffff",
+        "stroke": "#000000",
+        "strokeWidth": 0,
+        "strokeUniform": true,
+        "shadow": null,
+        "paintFirst": "fill",
+        "type": "Rect",
+        "version": "7.2.0",
+        "originX": "center",
+        "originY": "center",
+        "left": 187,
+        "top": 479.5068,
+        "width": 98.5967,
+        "height": 93.8759,
+        "strokeDashArray": null,
+        "strokeLineCap": "butt",
+        "strokeDashOffset": 0,
+        "strokeLineJoin": "miter",
+        "strokeMiterLimit": 4,
+        "scaleX": 2.85,
+        "scaleY": 5.0704,
+        "angle": 0,
+        "flipX": false,
+        "flipY": false,
+        "opacity": 1,
+        "visible": true,
+        "backgroundColor": "",
+        "fillRule": "nonzero",
+        "globalCompositeOperation": "source-over",
+        "skewX": 0,
+        "skewY": 0
+      },
+      {
+        "fontSize": 64,
+        "fontWeight": "400",
+        "fontFamily": "Bebas Neue",
+        "fontStyle": "normal",
+        "lineHeight": 0.9743999999999999,
+        "text": "ANNUAL\nBUSINESS\nCONFERENCE",
+        "charSpacing": 0,
+        "textAlign": "center",
+        "styles": [],
+        "pathStartOffset": 0,
+        "pathSide": "left",
+        "pathAlign": "baseline",
+        "underline": false,
+        "overline": false,
+        "linethrough": false,
+        "textBackgroundColor": "",
+        "direction": "ltr",
+        "textDecorationThickness": 66.667,
+        "minWidth": 20,
+        "splitByGrapheme": true,
+        "id": "text-1781689080420",
+        "lockMovementX": false,
+        "lockMovementY": false,
+        "lockScalingX": false,
+        "lockScalingY": false,
+        "lockRotation": false,
+        "hasControls": true,
+        "editable": true,
+        "selectable": true,
+        "evented": true,
+        "fill": "rgb(0,0,0)",
+        "stroke": null,
+        "strokeWidth": 1,
+        "strokeUniform": false,
+        "shadow": null,
+        "paintFirst": "fill",
+        "type": "Textbox",
+        "version": "7.2.0",
+        "originX": "center",
+        "originY": "center",
+        "left": 187,
+        "top": 375.7726,
+        "width": 250,
+        "height": 213.2572,
+        "strokeDashArray": null,
+        "strokeLineCap": "butt",
+        "strokeDashOffset": 0,
+        "strokeLineJoin": "miter",
+        "strokeMiterLimit": 4,
+        "scaleX": 1,
+        "scaleY": 1,
+        "angle": 0,
+        "flipX": false,
+        "flipY": false,
+        "opacity": 1,
+        "visible": true,
+        "backgroundColor": "",
+        "fillRule": "nonzero",
+        "globalCompositeOperation": "source-over",
+        "skewX": 0,
+        "skewY": 0
+      },
+      {
+        "fontSize": 32,
+        "fontWeight": "400",
+        "fontFamily": "Bebas Neue",
+        "fontStyle": "normal",
+        "lineHeight": 1.16,
+        "text": "FOR 2026",
+        "charSpacing": 0,
+        "textAlign": "left",
+        "styles": [],
+        "pathStartOffset": 0,
+        "pathSide": "left",
+        "pathAlign": "baseline",
+        "underline": false,
+        "overline": false,
+        "linethrough": false,
+        "textBackgroundColor": "",
+        "direction": "ltr",
+        "textDecorationThickness": 66.667,
+        "minWidth": 20,
+        "splitByGrapheme": true,
+        "id": "text-1781689213722",
+        "lockMovementX": false,
+        "lockMovementY": false,
+        "lockScalingX": false,
+        "lockScalingY": false,
+        "lockRotation": false,
+        "hasControls": true,
+        "editable": true,
+        "selectable": true,
+        "evented": true,
+        "fill": "rgb(0,0,0)",
+        "stroke": null,
+        "strokeWidth": 1,
+        "strokeUniform": false,
+        "shadow": null,
+        "paintFirst": "fill",
+        "type": "Textbox",
+        "version": "7.2.0",
+        "originX": "center",
+        "originY": "center",
+        "left": 187.5,
+        "top": 502.5136,
+        "width": 96.5,
+        "height": 36.16,
+        "strokeDashArray": null,
+        "strokeLineCap": "butt",
+        "strokeDashOffset": 0,
+        "strokeLineJoin": "miter",
+        "strokeMiterLimit": 4,
+        "scaleX": 1,
+        "scaleY": 1,
+        "angle": 0,
+        "flipX": false,
+        "flipY": false,
+        "opacity": 1,
+        "visible": true,
+        "backgroundColor": "",
+        "fillRule": "nonzero",
+        "globalCompositeOperation": "source-over",
+        "skewX": 0,
+        "skewY": 0
+      },
+      {
+        "fontSize": 13,
+        "fontWeight": "400",
+        "fontFamily": "LINESeedKR",
+        "fontStyle": "normal",
+        "lineHeight": 1.16,
+        "text": "서울 강남구 테헤란로 1길 19 000홀",
+        "charSpacing": 0,
+        "textAlign": "left",
+        "styles": [],
+        "pathStartOffset": 0,
+        "pathSide": "left",
+        "pathAlign": "baseline",
+        "underline": false,
+        "overline": false,
+        "linethrough": false,
+        "textBackgroundColor": "",
+        "direction": "ltr",
+        "textDecorationThickness": 66.667,
+        "minWidth": 20,
+        "splitByGrapheme": true,
+        "id": "text-1781689265566",
+        "lockMovementX": false,
+        "lockMovementY": false,
+        "lockScalingX": false,
+        "lockScalingY": false,
+        "lockRotation": false,
+        "hasControls": true,
+        "editable": true,
+        "selectable": true,
+        "evented": true,
+        "fill": "rgb(0,0,0)",
+        "stroke": null,
+        "strokeWidth": 1,
+        "strokeUniform": false,
+        "shadow": null,
+        "paintFirst": "fill",
+        "type": "Textbox",
+        "version": "7.2.0",
+        "originX": "center",
+        "originY": "center",
+        "left": 187.5,
+        "top": 677.4864,
+        "width": 185,
+        "height": 14.69,
+        "strokeDashArray": null,
+        "strokeLineCap": "butt",
+        "strokeDashOffset": 0,
+        "strokeLineJoin": "miter",
+        "strokeMiterLimit": 4,
+        "scaleX": 1,
+        "scaleY": 1,
+        "angle": 0,
+        "flipX": false,
+        "flipY": false,
+        "opacity": 1,
+        "visible": true,
+        "backgroundColor": "",
+        "fillRule": "nonzero",
+        "globalCompositeOperation": "source-over",
+        "skewX": 0,
+        "skewY": 0
+      },
+      {
+        "fontSize": 14,
+        "fontWeight": "400",
+        "fontFamily": "IBM Plex Sans",
+        "fontStyle": "normal",
+        "lineHeight": 1.16,
+        "text": "Sun 15:00PM, August 11",
+        "charSpacing": 0,
+        "textAlign": "left",
+        "styles": [],
+        "pathStartOffset": 0,
+        "pathSide": "left",
+        "pathAlign": "baseline",
+        "underline": false,
+        "overline": false,
+        "linethrough": false,
+        "textBackgroundColor": "",
+        "direction": "ltr",
+        "textDecorationThickness": 66.667,
+        "minWidth": 20,
+        "splitByGrapheme": true,
+        "id": "text-1781689341194",
+        "lockMovementX": false,
+        "lockMovementY": false,
+        "lockScalingX": false,
+        "lockScalingY": false,
+        "lockRotation": false,
+        "hasControls": true,
+        "editable": true,
+        "selectable": true,
+        "evented": true,
+        "fill": "rgb(0,0,0)",
+        "stroke": null,
+        "strokeWidth": 1,
+        "strokeUniform": false,
+        "shadow": null,
+        "paintFirst": "fill",
+        "type": "Textbox",
+        "version": "7.2.0",
+        "originX": "center",
+        "originY": "center",
+        "left": 187.5,
+        "top": 661.2314,
+        "width": 156.5223,
+        "height": 15.82,
+        "strokeDashArray": null,
+        "strokeLineCap": "butt",
+        "strokeDashOffset": 0,
+        "strokeLineJoin": "miter",
+        "strokeMiterLimit": 4,
+        "scaleX": 1,
+        "scaleY": 1,
+        "angle": 0,
+        "flipX": false,
+        "flipY": false,
+        "opacity": 1,
+        "visible": true,
+        "backgroundColor": "",
+        "fillRule": "nonzero",
+        "globalCompositeOperation": "source-over",
+        "skewX": 0,
+        "skewY": 0
+      },
+      {
+        "fontSize": 13,
+        "fontWeight": "500",
+        "fontFamily": "IBM Plex Sans",
+        "fontStyle": "normal",
+        "lineHeight": 1.16,
+        "text": "Speaker by Andrew Jackson",
+        "charSpacing": 0,
+        "textAlign": "left",
+        "styles": [],
+        "pathStartOffset": 0,
+        "pathSide": "left",
+        "pathAlign": "baseline",
+        "underline": false,
+        "overline": false,
+        "linethrough": false,
+        "textBackgroundColor": "",
+        "direction": "ltr",
+        "textDecorationThickness": 66.667,
+        "minWidth": 20,
+        "splitByGrapheme": true,
+        "id": "text-1781689408867",
+        "lockMovementX": false,
+        "lockMovementY": false,
+        "lockScalingX": false,
+        "lockScalingY": false,
+        "lockRotation": false,
+        "hasControls": true,
+        "editable": true,
+        "selectable": true,
+        "evented": true,
+        "fill": "rgb(0,0,0)",
+        "stroke": null,
+        "strokeWidth": 1,
+        "strokeUniform": false,
+        "shadow": null,
+        "paintFirst": "fill",
+        "type": "Textbox",
+        "version": "7.2.0",
+        "originX": "center",
+        "originY": "center",
+        "left": 187.5,
+        "top": 620.4864,
+        "width": 168.5,
+        "height": 14.69,
+        "strokeDashArray": null,
+        "strokeLineCap": "butt",
+        "strokeDashOffset": 0,
+        "strokeLineJoin": "miter",
+        "strokeMiterLimit": 4,
+        "scaleX": 1,
+        "scaleY": 1,
+        "angle": 0,
+        "flipX": false,
+        "flipY": false,
+        "opacity": 1,
+        "visible": true,
+        "backgroundColor": "",
+        "fillRule": "nonzero",
+        "globalCompositeOperation": "source-over",
+        "skewX": 0,
+        "skewY": 0
+      },
+      {
+        "fontSize": 13,
+        "fontWeight": "400",
+        "fontFamily": "Pretendard",
+        "fontStyle": "normal",
+        "lineHeight": 1.16,
+        "text": "SPONSER",
+        "charSpacing": 0,
+        "textAlign": "left",
+        "styles": [],
+        "pathStartOffset": 0,
+        "pathSide": "left",
+        "pathAlign": "baseline",
+        "underline": false,
+        "overline": false,
+        "linethrough": false,
+        "textBackgroundColor": "",
+        "direction": "ltr",
+        "textDecorationThickness": 66.667,
+        "minWidth": 20,
+        "splitByGrapheme": true,
+        "id": "text-1781689524969",
+        "lockMovementX": false,
+        "lockMovementY": false,
+        "lockScalingX": false,
+        "lockScalingY": false,
+        "lockRotation": false,
+        "hasControls": true,
+        "editable": true,
+        "selectable": true,
+        "evented": true,
+        "fill": "rgb(0,0,0)",
+        "stroke": null,
+        "strokeWidth": 1,
+        "strokeUniform": false,
+        "shadow": null,
+        "paintFirst": "fill",
+        "type": "Textbox",
+        "version": "7.2.0",
+        "originX": "center",
+        "originY": "center",
+        "left": 187,
+        "top": 751.5,
+        "width": 57.75,
+        "height": 14.69,
+        "strokeDashArray": null,
+        "strokeLineCap": "butt",
+        "strokeDashOffset": 0,
+        "strokeLineJoin": "miter",
+        "strokeMiterLimit": 4,
+        "scaleX": 1,
+        "scaleY": 1,
+        "angle": 0,
+        "flipX": false,
+        "flipY": false,
+        "opacity": 1,
+        "visible": true,
+        "backgroundColor": "",
+        "fillRule": "nonzero",
+        "globalCompositeOperation": "source-over",
+        "skewX": 0,
+        "skewY": 0
+      },
+      {
+        "fontSize": 13,
+        "fontWeight": "400",
+        "fontFamily": "Pretendard",
+        "fontStyle": "normal",
+        "lineHeight": 1.16,
+        "text": "SPONSER",
+        "charSpacing": 0,
+        "textAlign": "left",
+        "styles": [],
+        "pathStartOffset": 0,
+        "pathSide": "left",
+        "pathAlign": "baseline",
+        "underline": false,
+        "overline": false,
+        "linethrough": false,
+        "textBackgroundColor": "",
+        "direction": "ltr",
+        "textDecorationThickness": 66.667,
+        "minWidth": 20,
+        "splitByGrapheme": true,
+        "lockMovementX": false,
+        "lockMovementY": false,
+        "lockScalingX": false,
+        "lockScalingY": false,
+        "lockRotation": false,
+        "hasControls": true,
+        "editable": true,
+        "selectable": true,
+        "evented": true,
+        "fill": "rgb(0,0,0)",
+        "stroke": null,
+        "strokeWidth": 1,
+        "strokeUniform": false,
+        "shadow": null,
+        "paintFirst": "fill",
+        "type": "Textbox",
+        "version": "7.2.0",
+        "originX": "center",
+        "originY": "center",
+        "left": 151.875,
+        "top": 771.3864,
+        "width": 57.75,
+        "height": 14.69,
+        "strokeDashArray": null,
+        "strokeLineCap": "butt",
+        "strokeDashOffset": 0,
+        "strokeLineJoin": "miter",
+        "strokeMiterLimit": 4,
+        "scaleX": 1,
+        "scaleY": 1,
+        "angle": 0,
+        "flipX": false,
+        "flipY": false,
+        "opacity": 1,
+        "visible": true,
+        "backgroundColor": "",
+        "fillRule": "nonzero",
+        "globalCompositeOperation": "source-over",
+        "skewX": 0,
+        "skewY": 0
+      },
+      {
+        "fontSize": 13,
+        "fontWeight": "400",
+        "fontFamily": "Pretendard",
+        "fontStyle": "normal",
+        "lineHeight": 1.16,
+        "text": "SPONSER",
+        "charSpacing": 0,
+        "textAlign": "left",
+        "styles": [],
+        "pathStartOffset": 0,
+        "pathSide": "left",
+        "pathAlign": "baseline",
+        "underline": false,
+        "overline": false,
+        "linethrough": false,
+        "textBackgroundColor": "",
+        "direction": "ltr",
+        "textDecorationThickness": 66.667,
+        "minWidth": 20,
+        "splitByGrapheme": true,
+        "lockMovementX": false,
+        "lockMovementY": false,
+        "lockScalingX": false,
+        "lockScalingY": false,
+        "lockRotation": false,
+        "hasControls": true,
+        "editable": true,
+        "selectable": true,
+        "evented": true,
+        "fill": "rgb(0,0,0)",
+        "stroke": null,
+        "strokeWidth": 1,
+        "strokeUniform": false,
+        "shadow": null,
+        "paintFirst": "fill",
+        "type": "Textbox",
+        "version": "7.2.0",
+        "originX": "center",
+        "originY": "center",
+        "left": 261.5,
+        "top": 751.5,
+        "width": 57.75,
+        "height": 14.69,
+        "strokeDashArray": null,
+        "strokeLineCap": "butt",
+        "strokeDashOffset": 0,
+        "strokeLineJoin": "miter",
+        "strokeMiterLimit": 4,
+        "scaleX": 1,
+        "scaleY": 1,
+        "angle": 0,
+        "flipX": false,
+        "flipY": false,
+        "opacity": 1,
+        "visible": true,
+        "backgroundColor": "",
+        "fillRule": "nonzero",
+        "globalCompositeOperation": "source-over",
+        "skewX": 0,
+        "skewY": 0
+      },
+      {
+        "fontSize": 13,
+        "fontWeight": "400",
+        "fontFamily": "Pretendard",
+        "fontStyle": "normal",
+        "lineHeight": 1.16,
+        "text": "SPONSER",
+        "charSpacing": 0,
+        "textAlign": "left",
+        "styles": [],
+        "pathStartOffset": 0,
+        "pathSide": "left",
+        "pathAlign": "baseline",
+        "underline": false,
+        "overline": false,
+        "linethrough": false,
+        "textBackgroundColor": "",
+        "direction": "ltr",
+        "textDecorationThickness": 66.667,
+        "minWidth": 20,
+        "splitByGrapheme": true,
+        "lockMovementX": false,
+        "lockMovementY": false,
+        "lockScalingX": false,
+        "lockScalingY": false,
+        "lockRotation": false,
+        "hasControls": true,
+        "editable": true,
+        "selectable": true,
+        "evented": true,
+        "fill": "rgb(0,0,0)",
+        "stroke": null,
+        "strokeWidth": 1,
+        "strokeUniform": false,
+        "shadow": null,
+        "paintFirst": "fill",
+        "type": "Textbox",
+        "version": "7.2.0",
+        "originX": "center",
+        "originY": "center",
+        "left": 114.125,
+        "top": 751.5,
+        "width": 57.75,
+        "height": 14.69,
+        "strokeDashArray": null,
+        "strokeLineCap": "butt",
+        "strokeDashOffset": 0,
+        "strokeLineJoin": "miter",
+        "strokeMiterLimit": 4,
+        "scaleX": 1,
+        "scaleY": 1,
+        "angle": 0,
+        "flipX": false,
+        "flipY": false,
+        "opacity": 1,
+        "visible": true,
+        "backgroundColor": "",
+        "fillRule": "nonzero",
+        "globalCompositeOperation": "source-over",
+        "skewX": 0,
+        "skewY": 0
+      },
+      {
+        "fontSize": 13,
+        "fontWeight": "400",
+        "fontFamily": "Pretendard",
+        "fontStyle": "normal",
+        "lineHeight": 1.16,
+        "text": "SPONSER",
+        "charSpacing": 0,
+        "textAlign": "left",
+        "styles": [],
+        "pathStartOffset": 0,
+        "pathSide": "left",
+        "pathAlign": "baseline",
+        "underline": false,
+        "overline": false,
+        "linethrough": false,
+        "textBackgroundColor": "",
+        "direction": "ltr",
+        "textDecorationThickness": 66.667,
+        "minWidth": 20,
+        "splitByGrapheme": true,
+        "lockMovementX": false,
+        "lockMovementY": false,
+        "lockScalingX": false,
+        "lockScalingY": false,
+        "lockRotation": false,
+        "hasControls": true,
+        "editable": true,
+        "selectable": true,
+        "evented": true,
+        "fill": "rgb(0,0,0)",
+        "stroke": null,
+        "strokeWidth": 1,
+        "strokeUniform": false,
+        "shadow": null,
+        "paintFirst": "fill",
+        "type": "Textbox",
+        "version": "7.2.0",
+        "originX": "center",
+        "originY": "center",
+        "left": 225.875,
+        "top": 771.3864,
+        "width": 57.75,
+        "height": 14.69,
+        "strokeDashArray": null,
+        "strokeLineCap": "butt",
+        "strokeDashOffset": 0,
+        "strokeLineJoin": "miter",
+        "strokeMiterLimit": 4,
+        "scaleX": 1,
+        "scaleY": 1,
+        "angle": 0,
+        "flipX": false,
+        "flipY": false,
+        "opacity": 1,
+        "visible": true,
+        "backgroundColor": "",
+        "fillRule": "nonzero",
+        "globalCompositeOperation": "source-over",
+        "skewX": 0,
+        "skewY": 0
+      },
+      {
+        "fontSize": 14,
+        "fontWeight": "400",
+        "fontFamily": "Pretendard",
+        "fontStyle": "normal",
+        "lineHeight": 1.16,
+        "text": "LOGO",
+        "charSpacing": 0,
+        "textAlign": "left",
+        "styles": [],
+        "pathStartOffset": 0,
+        "pathSide": "left",
+        "pathAlign": "baseline",
+        "underline": false,
+        "overline": false,
+        "linethrough": false,
+        "textBackgroundColor": "",
+        "direction": "ltr",
+        "textDecorationThickness": 66.667,
+        "minWidth": 20,
+        "splitByGrapheme": true,
+        "id": "text-1781689662964",
+        "lockMovementX": false,
+        "lockMovementY": false,
+        "lockScalingX": false,
+        "lockScalingY": false,
+        "lockRotation": false,
+        "hasControls": true,
+        "editable": true,
+        "selectable": true,
+        "evented": true,
+        "fill": "rgb(0,0,0)",
+        "stroke": null,
+        "strokeWidth": 1,
+        "strokeUniform": false,
+        "shadow": null,
+        "paintFirst": "fill",
+        "type": "Textbox",
+        "version": "7.2.0",
+        "originX": "center",
+        "originY": "center",
+        "left": 187.5,
+        "top": 127.2936,
+        "width": 38.25,
+        "height": 15.82,
+        "strokeDashArray": null,
+        "strokeLineCap": "butt",
+        "strokeDashOffset": 0,
+        "strokeLineJoin": "miter",
+        "strokeMiterLimit": 4,
+        "scaleX": 1,
+        "scaleY": 1,
+        "angle": 0,
+        "flipX": false,
+        "flipY": false,
+        "opacity": 1,
+        "visible": true,
+        "backgroundColor": "",
+        "fillRule": "nonzero",
+        "globalCompositeOperation": "source-over",
+        "skewX": 0,
+        "skewY": 0
+      },
+      {
+        "cropX": 0,
+        "cropY": 0,
+        "filters": [],
+        "id": "slot-1781689699361",
+        "isLocked": false,
+        "lockMovementX": false,
+        "lockMovementY": false,
+        "lockScalingX": false,
+        "lockScalingY": false,
+        "lockRotation": false,
+        "hasControls": true,
+        "editable": true,
+        "selectable": true,
+        "evented": true,
+        "fill": "rgb(0,0,0)",
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeUniform": false,
+        "shadow": null,
+        "paintFirst": "fill",
+        "slot": {
+          "key": "slot-1781689699361",
+          "label": "Photo Slot 1781689699361",
+          "replaceable": true,
+          "aspectMode": "cover",
+          "required": false,
+          "order": 1,
+          "filled": true
+        },
+        "slotZoomScale": 100,
+        "slotFrameWidth": 42.75,
+        "slotFrameHeight": 42.3836,
+        "slotFrameLeft": 187.5,
+        "slotFrameTop": 92.6918,
+        "slotFrameAngle": 0,
+        "slotImageBaseScale": 0.106875,
+        "slotImageOffsetX": 0,
+        "slotImageOffsetY": 0,
+        "type": "Image",
+        "version": "7.2.0",
+        "originX": "center",
+        "originY": "center",
+        "left": 187.5,
+        "top": 92.6918,
+        "width": 400,
+        "height": 400,
+        "strokeDashArray": null,
+        "strokeLineCap": "butt",
+        "strokeDashOffset": 0,
+        "strokeLineJoin": "miter",
+        "strokeMiterLimit": 4,
+        "scaleX": 0.1069,
+        "scaleY": 0.1069,
+        "angle": 0,
+        "flipX": false,
+        "flipY": false,
+        "opacity": 1,
+        "visible": true,
+        "backgroundColor": "",
+        "fillRule": "nonzero",
+        "globalCompositeOperation": "source-over",
+        "skewX": 0,
+        "skewY": 0,
+        "clipPath": {
+          "rx": 0,
+          "ry": 0,
+          "lockMovementX": false,
+          "lockMovementY": false,
+          "lockScalingX": false,
+          "lockScalingY": false,
+          "lockRotation": false,
+          "hasControls": true,
+          "selectable": true,
+          "evented": true,
+          "fill": "rgb(0,0,0)",
+          "stroke": null,
+          "strokeWidth": 1,
+          "strokeUniform": false,
+          "shadow": null,
+          "paintFirst": "fill",
+          "inverted": false,
+          "absolutePositioned": true,
+          "type": "Rect",
+          "version": "7.2.0",
+          "originX": "center",
+          "originY": "center",
+          "left": 187.5,
+          "top": 92.6918,
+          "width": 42.75,
+          "height": 42.3836,
+          "strokeDashArray": null,
+          "strokeLineCap": "butt",
+          "strokeDashOffset": 0,
+          "strokeLineJoin": "miter",
+          "strokeMiterLimit": 4,
+          "scaleX": 1,
+          "scaleY": 1,
+          "angle": 0,
+          "flipX": false,
+          "flipY": false,
+          "opacity": 1,
+          "visible": true,
+          "backgroundColor": "",
+          "fillRule": "nonzero",
+          "globalCompositeOperation": "source-over",
+          "skewX": 0,
+          "skewY": 0
+        },
+        "src": "data:image/webp;base64,UklGRugfAABXRUJQVlA4WAoAAAAwAAAAjwEAjwEASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZBTFBI8RkAAAHwQNuWIrnVtkVVc7fULbbYJGbJzAwyMzMzM7MFZmZmZpJMV3jNtpiZocVSd1VljEjYERnnRN58sCPCoW27dHTRaPqYuiLI/IFo8D81+I8G/9HgPxr8x//aRoP/yJRUNWlSU178XwN0OGnIL3NWbcrl6tcsmjpy0DFbpvjBKETxdo9NLEjpeV6hUCh4niellPNe2Tnrf1Uar1XduVRK9SxOoddJueDxtim8UvX8JlkIJzPFO61Strbk/pyqxUtS3uYr03PZab3MR8dgjMrcziKbjmsZ8VRQi4+8J69W1VRcysbJHNDEfeizTCYFl+plnqrbSjk5tTiTet/RdI1mMIY2PDBp75KLyjIpF6VLPO3s5BUkTIFRaD5rZlEm3cqpmqvoXnxJVx0jUmzOimHqhzQrN+OkyY+qnF7rF6gf0mrNK/jz9hKpFe1wCbTxKugDa0tTax7nabSxM1I9m1ZVh6qbIOzmzVOqXKp5wkoGHzkinYpzldQ/EfseZDWdUqlcjt9gK3lRfJRGMVAjbQnwoXVNUihGQ7cXJNuXL0mfqNE+Y08VwU/pE8dAaReR03VVqRNvIZ9nGdGZbte0icwCj0aij70lbaKpiphR48u0iZ7qreDNlnP0a2dmUyYOVnsYaqwpS5m4Aj1pG2An2ixl4k74pOULwHzapkw8RAY0nLdImXiCHHnZOWXiUbIDWn5smTJxH/1j+c1SJi6lx8bqlIkD6fehy4rSa1yAKk4zPm3GaZqouFl0hUaFt9ImihaDLrW664HBhEtS5/8uH6MbaaC2PakTJ6HAmd1zcGc2daKqvkCQ1doDfOmHIn2mUUgQyJzcI4XieAXrlwvoQxeJFIqy9ejUGtDS/AqRRtP9ahoCwpJEaV1pJo2iug72rG15tkin6U4l0D0W3gBtZqbIpFOU1CqBsgUdestOIq2m3ZSAF+Np1fdB3ftKplRkxIsqw2qst+G0pswvqTXP8qcjqIxRw7KnSLOpWSjcH/M3AkvBN10o0m3q5o863bjTwJ/YtOXu8E0pVtXX72q9wosk/4v05d6gpNzc2yuo/jZMBvaRl5cEJfXmjmtlzqyYDNfcXn5Jw6nx3+ouo2Iwoc1sJcIpBStvlEoZXysf97XpObcZI6X6jRiagif/6eKXVJ12+s3fcEYUJnuhcXuJFJ56vLdexQDMNJs+3EGk9FR18vBN4WCAv+uJRAjWf3l+jUjrKZiYqvte+tynvy1avX7j+oW/f/zg8Z0qxH8JUkll4+qqkpS9bvi/xanBfxQ3ata8SUX2vwTIdDr83h+m1m7K5XNr5o8bfv8hbdxqdHFlTbNm1eXFqQGNdn9tqpRSegUvnKSU+UkPbeUCqjrud+PrX/0yfema9WtrF8z4ZfiHdx3RvVkm4X1by/6nDH7vy2EjRo35afiH95zYvdo6un2yQUovX9Cl4NY/T+DdI40PfPGXNQUZGGDU/MJp49QPz9sik9DXutzyzbR6qUurf3lghzJrDkqIXf+Snq8xS3lPLr/I/zim773gt/qg/42aGzaIuUN7Ja4i2/PpZSGbNhpRq1/q5HegjVq/f6LPm1fm72hxkrJoe6XHfpOTXkE1OGaL5cLbWvlWyHTW58hl5WXzpN+HcVj8q79PYtyPr/ggXIvbH1+Uq87gxViboeulLATJQpMLnwTkJWKtw7P10ovP4vft4n79zhtk3kp3yJU9VV8wYmzrDzylsZikHLNnElZavqG4tNOB8lafwxhdcrX0PZWt8XEKn65o+oEM2Z7dyojNE2/xcFdBcWmNxEmtVQ8al5dkzmZnDFaZhTY7qF5fs2TODxcrZYI9dVCt4tImh/mdRNbw+39QxWQ9VYgueg2+/0XVEwwo26sWeBP/h2JV9ITIFbslV6n+F+LS1pA6SWWj7x9mUoeLdYN5PicfVfZEzVj5NzKv09qtPO+PgUQqxxeChZhtx3+mYtDg+99QY1tLtD6pZYq2eonqCFrG9tioGDPsYZMmG7I3Z2uVE6eWyXwdmWvM+zBEqgGFBysGtZ1yniomNSOF5vP7kDImHjZy7kEgwLjFylMbLGYK+yvPkDTaVos8g7nGnEUPfluhm7YJWylzwvN0rISbWFueoSslvxrMkupa7KQMR2/PV6pqspR+OeVptLvNOB2ooXy5NmyzwDP6ePMbUD/8qPqBirH2qxVjOsKitbhtVjzr8rNJkrPiLGWoesuO3YNo5A1XBMJuuQ+2wEZnwH44hKrs4BW0HWoxaRczn6mcHOUWWa/zM1ZIRPlE2Ia22KCsDA7U1JUlNGUfdZuh1qIS8jdC5aQog7WO3w6Xqr/BV64uQ/3yIzYQS58PvvIKkjJQMWaktarU5JEqJ8MTQ30y8VxjzahRD94GGtEd6qx1BfjMZaUUOwNV7NXMV5ea/KXKSVAfpCFTORqLFIJPXVcZ7ZifkaVHv97mBHim/bJ/YMDx/IAl/4K//Gn1o+7Xb9CVkJexP6QujbRiCwoJDWey/bWoiQEzqF6qqq6XE01cDUUPTouQ9zqSVjsCfGpXy4x1KOBlQKhGVsG876+y22UnTbE+C6Mh0SOEilWoCTTD+w27KF8d4/32X4/NKb+126WTKtDxU1h0tBMGhXCcRMPE8udHX1xqlbIJapWsrZFWYV5c7DIqN5KbdhR/h6DC0sBrUZlTX5vlRYMNFm0VD4ZPlcpdOQm7bBr+NA833wSmILLhfZNFxk5QDgUXZvkclV0t7ygyzVapNFNOLyHEIWqoxESsQG90eNtDO1U32qjRPoBDNu1dLceoAlepxAjFah4Hn2H/68HwLreF7GI40/iFR4YNme7oob3O1VDjDiHEP6hDrZ8A39DTlgW/ooaRRsdCaFoyxE3VbLVM5YQ3hShfjq7YhlqhRb/3FEuMDVRvMJMsXg4WNC7qntEsjOgxQoh2eQCCPoheuN4OStbr6owywtwi9/KOqvAw7Sj+EWIHdCehOT1kx4I/kLgwy8BhP8RIZW0mXoEDgBwwxd+FssDrVijrZ7LjYXlPFx46y9s45PlZYIIQlwNQutthViibp3mCWYYtmpZxSwyAJSCOgfpPIR4AoHBQUYy1UW5Vy1GdQ+F1Ge9GnSqlK9VMzA2fiGA6IQQwJwtor3co7JSgTRuauKR7QZHJxbbBxz8sxGgWmGiBtHF4OcwSqFFvO/RIdxwQoCUNGFOwQB7HApPiU7+Poox5wfPHLk7tQJHkgn2FmBSFpMTkTGyXshzreB7gqJ9d7IruUkauH33+5kJMJAVYrmfiUnadogwWphkOkbsdqTfKoTeSL4NAn6wqFWIyKcDqNu6hyqfMDtgYd66dG/LdUEs9JsDr4yksDtOzMSl7DrsxH/xVHzvxSH+4b6CfcwFuFELMYIG4h46GuzXem59tXJAzUDPpLRi5rC0ZIR5lv3umlHGODkx1QJyObZvPlXlBN83yOGBGvJNdsOSd4Ug5nX2p3MRJok55Kgwet8SR/vZA/4wLj6wt5657EraRE7oGjeJ/OFZJ7bkbjzzGXKWJOjE6nyL4HGZl49jwUuhR2Ce1u0K/0IG3/MVDhZNzv0g4cbjExKOwfiES3yvhSHifk2/f2CgTGNlsFphTZI5yPOG6AKjaiakIDx04E3Oy3CfDjZotOWCm+UEboXFDgNgqY5wEJaupto0PNvsepbYUXHIjIy9wHE8EnqwWuRp6luAS6/VIq2YygfGEe6dBhIb/SyRo5jy28eWrlavhpEMLn5aRZs1kEhewIh1JeFF/GVNUbEKmzYqkoapdkRMmcUxTeZ/UFEeqyNTXM92M3gNdDSdZWx4dStMl4xdV1+cdBO6lh2l/wXwmhnMNfYEUnQsaNlUy3ocOgoNEOinqWnGUQxhxGawOwUQjEFgcpmYNPfxGvOdxKSN632AoqnJIMnAgMGLGDVPM6FZv0UiXBFwsbclPPiN5RmiegC2bwgKTM2YhgfUGxZ0XAnv/gp1oAX+C/CYYW1hcnHHi5FpKST9Bo/b2YbYDFe9CLjnpdlCNg2B7qCS9Tr9gQhT/xS6+j66TUwM75THVNn4nWaOAMnYpLueBvOSnEvQevUQNWFKUceOwRB+hce0lYItcxCl3gaZN/ltQDlCN44d/THCGWtbTgtOa6UROcjSyL068DAotdRx40Vws3RZzsnzytjLHBTi0MC668uQVN5togD3gYtfRhJg+mo3Eps3pJzZTXaY9YQI9Z5PVVI7gupjJJt5/oGoLGwl1FxuY2zQmt1iYcR18CeL6dC5yJhxNfMpfvo7l4c+MlrPvkZ8i2qRxoBwa4txiNlLHJSEhiFOvLSzROD/Lkw4S9SNZQT6Jw+VLWUBJhrqcvMKofTxPXkGgaEyIKA4KaIoLSjIMcJjkqPsjouP/ohro5oi1xM4WfvWFHORsPhLq2pvNj9M5YhClDYe1JlXqy2sq6XEslMTX4ZbnrEgLWe57NC2pqEP9R1MMqzRDALX+evqnlyId9Q5U+0auJ+M0LboS2jCLq6S0IFFFXBNXmu8b7Ns55LGDaiPfk/EZ3JIVaDRZr+uGYp4+w28ebFUa/WdRb9R88rn0zqCNbB+bhHEKtGH7BYa/vdCX5OFFkmEACNjUlFY+bXidxDDR58+K6NjGBUwD/PYl/Fcj9+8Hb35hSnjXRkkM+uZ3Fe+EuRWbACZ2Mn3NjY7f4Sjo4q0veVDJ31sdakSnCaoL2Kj6UMqv4fez0T0baqbhLUzUcJ2IBgOhE1m2FWjGqyrT+iiEnwlFN7g4ZqNbonbG5lY3ldvJzoTXEUsb28BB8TxcUhEPhd3p5PgCQ7lvnHZy2YcC0sZKYMOELJ2m6YYx5BlsBsjE0Xx+AhE7LBYFU1hgKmhWL0Sa7Q6D5jNZsYRz4zrkpojZP5nqsAzV2eg83+8wV0/LoAA/GWlwtttPy8y1tAMDfvPqChpcr76cCaA13RpqJ8t9T5ThGdGB1J6uy5D5KKl3IiUrkJEQ8/8QSb0mp4rxue1pGYa5Iw7bOC7ABBH5OZKE7ux4A25OJL6MOiDXgeKZ5ySXYragMY1jssCcbLgNWyifQgfwuXNNOqO4VtcXhB74JzUibObwxgsyyeaZD/2WslWDvovgU2jEtmmKG/0+B3o7AoG/+Wj7corHROL4X4tMzKbyOMwvDqEzXTwDms/KMiNuSlaiwUXSCwjLy2zn46Bko7sq1FTu+55FxSEj/hcaXnQ9ZRxuvUb1ByXUN8P4iGVVVR3cgnLZgc4MGs7/seXFQekHp3vC+G9zQ+dRFlym5Ad+9HZ2dV8pH8vvJ7ZXreUMsGBqKYQoXk7nU+Cge9WYnSuhIFbNKbGZ92Kjg+7qU7+xnG8BJP3RvKj7bGj+1scN+t6tjFG5AY0QGqCeGKRU1mTRckYBs+iAqWshWB+gvdUtkR6aHjy68u8Y9AyCgkSF//GwVsR7cMJjE7+8JtRezvseZHEetGFKr35ADDTNEQvI0LzijKVyuNKZ/AR1kxdn/Cbzfsw0UU4qsXj6WH0fsYAbQaWyghYeLGzkweH22tr30NicYaH0tpfFIqiDWjXSdgteElyosg05S/lW84gA6Sxg+YSkykIi619TGa9/Rkgwi5C7q0L/+DkrPmCk0y2SrJ4QC0LSYO8+HJOgnqpnwCRJnje0VzluOU+FOJBko3teLV9snzCpEjCFDGiLuBT96aGRQj5CFjeJe3VvVeeig1StCnkdqy+izKh/aN366NgM7QHnHvoxMqs0XtlRYzRs5CW2lvfghNL0YPfQYt/YDGWCnS6xU4e9Mq0iTtnOL+iNxECfP9ufK23fQuwP6PiC+xELFJ0sqUeLGtcwz2+uOibOVTY62M69rAWHGByo7QcRdbkFF1JcCwWDvHaASS0wjYtVYVPHZjvBXvCUwYGNH1nd2AZJV6HvJJtkNQ7wwSKj0P534R9i0hnI6lQ82Vrw1N9v8QLpm61wVLqWQQ9plqDLj9LjzE1+OAB1H6Pys8Vg9szowXVZaGeHpHuQDyOdSmC8dcG1TREaHz838g4uXQF9QEdh74QTiN/ySiyWYE/Vcegk7a657o9HD+65VZdeA4f8VSc9TeE0J98rgmTrMadPcAzDFksvwKFMng2CDEFsnFeB8eSijM2D00CU/2KNps149FM0lAHGTb6Qz4ef1/wQo+vHCGFVnQw4xB5Nb6KPpXUINhKrOWCGEMl4Al3egqw9R7Klmul5jBwLhdccsKNdOL3vQY7kPps8jZU8oJuiDBwnM58zSgiaExefBh1a38omdsaCX4VRF+CQaydBdHD6+lt2iZrqweFDXDG9g0kHwCH+phBEaqff3M0uDoM2z2D0GNzPcErON89QwWU5MgZPhpFGGO5nYY66tbW/umYnrxDCkRNW69DdbTN1ATIhNhSEEldO50X/buEfx2TgogBVsxVRlkXJGrsLMDfDT5CXA0RSHuBi4Az7VN1u9yWuh5/GCevwZwFXAXpyZaO4MPpvBEYzk0lCdKeEu6b7oCBITwBha7px1+WENxDW1a4CObqOFKjJJ5qATrwu/BNJ+CK4MhsuSNL70JA4XWf4EzeSUDo5eouz53tqQBLNTJxn4C5qvvoJCkyIwtXzmYIofQlFgsk9aBgd7zjUm6nQHQZrkqv8QsTob1E4OtMuK8lQ5X+h1WzS/ASMJxNhhDVwDWNcLshSN3g5qX7iZSpCP47CzetrKwVdGolEokhE6bomVHgNGLiTtvucIEQfJazBzQkgJ08i4/NRABdloW0YVBMusqdEktPp6LwFwEX5oSDFNgn0EkxEHzqc6x7gyqcLKTJivK3Ljq6PPifk8xAAB8n6lyBOO0GROBGBXMsMHfoDOLhR20WBWPwNp8CYcJDROynpbJfz3ALsutmCPO2ihA24uX1YlMkQonJNFO6dHy/o0yS4kEqAm6Dcl5TLrB/odyrjqCsDbCtz4BcSRTdcxZNJyfxKumXbiK0rBIc0GooEeSbfipjLW5X3dwhwollenOGATnDVniDyNmouByK4xdYNQpfoon4JIdSKHzV/XobawNuqBx0CDPOVZXigqTqAy4khdyansmgBsGynQjTXCS7pWQlOCgnxxncZUPmNBNkhub6SDaoLKCXDMxsaM/A3ZyI4JO8SfNIQuBlNBHlElEniyIAjTHpY8kGmeC0SSVC+58Hln54bTKrxg+i6V+DEYV0Kqm4WqFtbw2N1dBNyvM5cr1ZgJMQvsCeclydGqaR+KeLRlaXoHYJXau/lkHC8fKYCNEyY/MWJm+F0v0KFBJjlwVDl9htrG7Hh83hEJGf7ReZ7kvATK1V2CVQ5Lbfjw2T5RuRoXDDfWb434ZZ2VPFllF2rw/ICJz7fhZM8V/PVBDIYpi/wCx17I46XcTLvHvw9Pxw2w4LCTlVVr+BmxkGJ7qx4FBOQhfF3J+0Fy3QMVjlUx3Sez4zHo6DgrnseFV6G/JUiDmUnb/pKTcZ8l0bc16KVGaa5dHUBqtx7u7ewiB2dx0q4mWNMWE4eI9imvoo4NEzce0Ndqww/RzMVOjPOuhHBT3BVXaBUcKC48Db8hh04ErkNXHtxs19IWF3zUHHiHhfq0NncxtO6v5VI8F2LHipUYpyLFmOT41/XhctY0li9CTpiroufDwTz1MZTAj3AvUCXPJGt778Sb64Zzbb4jSp+yT3voVSwyvoqLrVlGbaO/zfsZ1jOtn1EOHG+5yq1HYXZkbKxJWPjbu6TiKpMGMN+6zYhHMhvSgcuqpbhku/Mmsf9NGbNrnyu3LsTeZSum1hq8RMFrydzFp/UOH5mi5+5Wb84kf/yqYN3cSw4eX2ixs33Hk0mL3iArAt2PI7kX33qjO5iMw9r6gVcuIafVPwMWzWj2Ta3lVDJmfy3rspNq3mih3DAuFuo3Q+2alJ/oumL3kK4lEf40y+u8Klpy/qOwglf08krsPAzmtm8IHcRwq083M8MK2q060bIoiaueP7e0s/kC25tLxyiDNi1/HrQadxe6WnLn2pT7QyJnXJBxqtViqc09SOD4lo+K2zMeMlNvpzT2tVLTnG52UrfCHV2bVurGdbebkFxL/fYENzF5jWqF/Q2daLi0ikWq6YZkGjRgPWU1fcSjqbGf6juM8ge5f04rr9oc2Xarpn1MJk3YNHS/frxvKBVpO6i8tLgLhMFQc1A+6Z6h4MkXhieOK36/tCH6t/xaSga4Gzeap5vzQbcFSzXTLQbD1SW7SSJPecHfsZE4ZkS5vlmY0L5Jb7W7XSf9LQOP7R50ZJnzqSi3WgkfFfpJpdBW5+SBTQVa9kMUoStEGFGlOXlP9HbXFa2/jv0kJlBh261YdS6LceSncyodGfBPT0gMX6KYSpX+7UkSIctjpBn8DO+GzRYsWKaTbx+3Q3FrpN45Er1GzYqhv5kbGuT4qp/OW+VgTkTUBkYTOGdxsrPuE/itUGFojZvz3AtISrZKzZYqsS8Qw7zF9eJQGLxyTOlz6JlyqYdLEIpQSolly+Rnh2F6QzsyfwbXZVhJwePu37jSU/tgyxRVpDet7uLRErH/Smlb6W2nw99qJRzrmtpiUSXIjfXL5QhGi1QtvbhDiKxUvvbF0nrjwdMbvxql2yIxKTxNVteNynnXwrBaJkUhJ+9NW/uWCpASiTyOt0314w7UzIDKjcNP7QiwWisOezZKZsiOwOw4YlugDaMva5biUjC1OHanzaEmIvT/5FNXW7xi/tUJh+N1Vtd/tJnfy/dsClX8MkK/E7dsj8+f/rULcpFgqbKLoM/W5gLhfq0S6SQTQf3Lhn25OEtsgnKZFnNZh279Ok9oF+vTu1q1N4skVO2Vc9Tn/pw5Kz1niYOu3rGqI+euXyntsrD/CdLCTeT1XTo2m/XfQcOPPjAvXYf0KVNRUIbdYP/qcF/NPiPBv/R4Bga/IcAAFZQOCAABAAA8DcAnQEqkAGQAT5tNpZJpCYlJCB0mNDADYlpbvwP04CuHNN26MgFwQu/qD9r81bj4ZzcMmPoinmrO7u9HAEVg+kuukuukuukuukuukuukuukuukuukuukuukuukuukuukuukuukuukuukut1YkxOQA4KAcmwfSXXSXXSW6zvm71j+InaVlBT78z78z78z1fTyVvIPi05i05i05i0YhWCNIhdNx5y6S66S66SQqwf7CCn35n35n35n3uxwhAoBjneqgunG8xpJOAVIFLpypuCuUjOQnQETCaBGDDFpQHoD8Yb2g1+FTFpuLT9iWfnozRYQQuIA+kt7Q4N3bwnhwdAevZEUsIyPKmLAEO2auwJZX8hfqwXDC/U/K/vEuulVLOSMHzyYjZE8fpEeTl0luMOiPoueRl1MwVgGaPkORDz92B2h6GvLVzFz27bAeXcEsqTmlmKqa45QdqGqcxH2hrqPV4tOYok+X/fmffPty7jvDKKu/Lki85cl/b/txIiDBEl/35n35mFJ+ecqGvApw4N5Jcg6bCf0l36ZlKzmffnCIByDYpdOYzMUunMWnMWnMWnMWnMWnMWnMWnMWnMWnMWnMWnMWnMWjAAAP73gIAAAAKYHlvRWq/jG4YLTZ+lEgKMfs9FDvlBxJYkIgmgF4jr7CduGLUClGxR1Gt8AStVivgpifnU2AXtrJxt2qot38lXDThUVbVnCXJJcY4yIe6DE7ijcc5PHEANLFQzAxI801xeWw/V9pFS6Yk8P7fMWvApbnqDBM2YinHujn+Q7MWAuUrbKpHS9zg66ajN8G/xLASN0ij2NnP2iDPkKmcVRHwSZEd9sD4gfTiE2MvAMy1qfcvFOB9DY58EX8cRToq0VWPY1gIzKL/0p5SbFk1sRx4m9J718WbeDVAYnAfWyCxhnjeL7sF3kM70PRhyCgcEyM6FP21pyCBfIyhNYAST37RiVRyMbIuB2Cfj1o4AZ5Q2rtfZnpDRdM2bXEoLEwxhuTjE/8cJAsu7xQH37dsXLlo/9aFwvEXsWkloQJby8oBFruScwkBmNZmKmcWrGT3hWI7iLhM0Ad5Ql5U69XourXVGZsoik7d5kx2+s5H0gVzma/Deg57uhDs9oOf1mtKjgqMqxd8Y2mw5aidaYXy0M+CXm6UOjS6T9anHMCVwoVzmnk+aLr3npriTfB0CAihY9bCcUAgPblunrffTppcLNZ/lDapkO7Kk3CsrQwEIra9HBMxcD9di4PSQFohAEHoIcM02sc1dRF+r5kb+1KCGb4h2Xeg58wsVu2Anf8/bW4/gH7j0qQlhrlKwR7NnyvgMSVRfo1slK6gmjY+edcxhoO2bjugQbXDB3qIxAAAAAAAAAA==",
+        "crossOrigin": "anonymous"
+      }
+    ],
+    "background": "#ffffff",
+    "thumbnailFileId": "/samples/seminar_01/poster.png"
+  },
+  "invitationImage": [],
+  "renderHints": {
+    "schemaVersion": 1,
+    "fonts": [
+      "Pretendard",
+      "LINESeedKR"
+    ],
+    "primaryImageFileIds": [
+      "/samples/seminar_01/poster.png",
+      "INVITATION",
+      "/samples/seminar_01/images/sponsor_01.png",
+      "/samples/seminar_01/images/sponsor_02.png",
+      "/samples/seminar_01/images/sponsor_03.png",
+      "/samples/seminar_01/images/sponsor_04.png",
+      "/samples/seminar_01/images/sponsor_05.png"
+    ],
+    "aboveTheFoldBlockIds": [
+      "22e0ac31-5026-421a-b466-eafaf735cbcb",
+      "32db775d-1410-4b59-8ec8-6fba6903f6d7"
+    ]
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "samples": [
+    {
+      "id": "seminar_01",
+      "title": "2026 Annual Business Conference",
+      "category": "seminar",
+      "thumbnailUrl": "/samples/seminar_01/poster.png",
+      "dataUrl": "/samples/seminar_01/data.json"
+    },
+    {
+      "id": "seminar_02",
+      "title": "2026 Annual Business Conference",
+      "category": "seminar",
+      "thumbnailUrl": "/samples/seminar_01/poster.png",
+      "dataUrl": "/samples/seminar_01/data.json"
+    },
+    {
+      "id": "seminar_03",
+      "title": "2026 Annual Business Conference",
+      "category": "seminar",
+      "thumbnailUrl": "/samples/seminar_01/poster.png",
+      "dataUrl": "/samples/seminar_01/data.json"
+    },
+    {
+      "id": "seminar_04",
+      "title": "2026 Annual Business Conference",
+      "category": "seminar",
+      "thumbnailUrl": "/samples/seminar_01/poster.png",
+      "dataUrl": "/samples/seminar_01/data.json"
+    },
+    {
+      "id": "seminar_05",
+      "title": "2026 Annual Business Conference",
+      "category": "seminar",
+      "thumbnailUrl": "/samples/seminar_01/poster.png",
+      "dataUrl": "/samples/seminar_01/data.json"
+    },
+    {
+      "id": "seminar_06",
+      "title": "2026 Annual Business Conference",
+      "category": "seminar",
+      "thumbnailUrl": "/samples/seminar_01/poster.png",
+      "dataUrl": "/samples/seminar_01/data.json"
+    },
+    {
+      "id": "seminar_07",
+      "title": "2026 Annual Business Conference",
+      "category": "seminar",
+      "thumbnailUrl": "/samples/seminar_01/poster.png",
+      "dataUrl": "/samples/seminar_01/data.json"
+    },
+    {
+      "id": "seminar_08",
+      "title": "2026 Annual Business Conference",
+      "category": "seminar",
+      "thumbnailUrl": "/samples/seminar_01/poster.png",
+      "dataUrl": "/samples/seminar_01/data.json"
+    },
+    {
+      "id": "seminar_09",
+      "title": "2026 Annual Business Conference",
+      "category": "seminar",
+      "thumbnailUrl": "/samples/seminar_01/poster.png",
+      "dataUrl": "/samples/seminar_01/data.json"
+    },
+    {
+      "id": "seminar_10",
+      "title": "2026 Annual Business Conference",
+      "category": "seminar",
+      "thumbnailUrl": "/samples/seminar_01/poster.png",
+      "dataUrl": "/samples/seminar_01/data.json"
+    },
+    {
+      "id": "seminar_11",
+      "title": "2026 Annual Business Conference",
+      "category": "seminar",
+      "thumbnailUrl": "/samples/seminar_01/poster.png",
+      "dataUrl": "/samples/seminar_01/data.json"
+    },
+    {
+      "id": "seminar_12",
+      "title": "2026 Annual Business Conference",
+      "category": "seminar",
+      "thumbnailUrl": "/samples/seminar_01/poster.png",
+      "dataUrl": "/samples/seminar_01/data.json"
+    },
+    {
+      "id": "seminar_13",
+      "title": "2026 Annual Business Conference",
+      "category": "seminar",
+      "thumbnailUrl": "/samples/seminar_01/poster.png",
+      "dataUrl": "/samples/seminar_01/data.json"
+    },
+    {
+      "id": "seminar_14",
+      "title": "2026 Annual Business Conference",
+      "category": "seminar",
+      "thumbnailUrl": "/samples/seminar_01/poster.png",
+      "dataUrl": "/samples/seminar_01/data.json"
+    }
+  ]
+}
