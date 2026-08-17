@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import PhonePreviewFrame from '@/app/dashboard/components/preview/PhonePreviewFrame';
@@ -8,6 +9,10 @@ import {
   parseGuestPayload,
   type NormalizedGuestPayload,
 } from '@/app/guest/[id]/validation/parseGuestPayload';
+import DrivePermissionRequiredModal from '@/features/session/components/DrivePermissionRequiredModal';
+import LoginModal from '@/features/session/components/LoginModal';
+import PrivacyNoticeModal from '@/features/session/components/PrivacyNoticeModal';
+import { useAuthGate } from '@/features/session/hooks/useAuthGate';
 
 const CARD_WIDTH = 240;
 const CARD_HEIGHT = 520;
@@ -52,7 +57,14 @@ type PreviewState =
       title: string;
     };
 
-function GallerySampleGrid({ pagePaddingX }: { pagePaddingX: number }) {
+function GallerySampleGrid({
+  initialIsLoggedIn,
+  pagePaddingX,
+}: {
+  initialIsLoggedIn: boolean;
+  pagePaddingX: number;
+}) {
+  const router = useRouter();
   const [samples, setSamples] = useState<GallerySample[]>([]);
   const [selectedSampleId, setSelectedSampleId] = useState<string | null>(null);
   const [preview, setPreview] = useState<PreviewState>({
@@ -60,6 +72,19 @@ function GallerySampleGrid({ pagePaddingX }: { pagePaddingX: number }) {
     payload: null,
     title: '',
   });
+  const {
+    isBusy,
+    isLoginOpen,
+    isLoginPending,
+    isPrivacyNoticeOpen,
+    isDrivePermissionRequiredOpen,
+    closeLogin,
+    closePrivacyNotice,
+    closeDrivePermissionRequired,
+    loginWithGoogle,
+    retryDrivePermission,
+    runAfterAuth,
+  } = useAuthGate({ initialIsLoggedIn });
 
   useEffect(() => {
     let cancelled = false;
@@ -132,6 +157,12 @@ function GallerySampleGrid({ pagePaddingX }: { pagePaddingX: number }) {
     }
   };
 
+  const openEditorWithSample = (sample: GallerySample) => {
+    runAfterAuth(() => {
+      router.push(`/editor?sample=${encodeURIComponent(sample.id)}`);
+    });
+  };
+
   return (
     <>
       <section
@@ -187,7 +218,11 @@ function GallerySampleGrid({ pagePaddingX }: { pagePaddingX: number }) {
                   >
                     디자인 미리보기
                   </GalleryCardActionButton>
-                  <GalleryCardActionButton variant="light">
+                  <GalleryCardActionButton
+                    disabled={isBusy}
+                    variant="light"
+                    onClick={() => openEditorWithSample(sample)}
+                  >
                     이 디자인으로 만들기
                   </GalleryCardActionButton>
                 </div>
@@ -205,16 +240,34 @@ function GallerySampleGrid({ pagePaddingX }: { pagePaddingX: number }) {
           }
         />
       )}
+      <LoginModal
+        open={isLoginOpen}
+        isLoading={isLoginPending}
+        onClose={closeLogin}
+        onGoogleLogin={loginWithGoogle}
+      />
+      <PrivacyNoticeModal
+        open={isPrivacyNoticeOpen}
+        onClose={closePrivacyNotice}
+      />
+      <DrivePermissionRequiredModal
+        open={isDrivePermissionRequiredOpen}
+        isLoading={isLoginPending}
+        onClose={closeDrivePermissionRequired}
+        onRetry={retryDrivePermission}
+      />
     </>
   );
 }
 
 function GalleryCardActionButton({
   children,
+  disabled = false,
   onClick,
   variant,
 }: {
   children: string;
+  disabled?: boolean;
   onClick?: () => void;
   variant: 'dark' | 'light';
 }) {
@@ -223,7 +276,8 @@ function GalleryCardActionButton({
   return (
     <button
       type="button"
-      className={`grid h-11 cursor-pointer grid-cols-[28px_1fr_28px] items-center rounded-lg px-2 py-2 text-[14px] font-semibold transition-colors ${
+      disabled={disabled}
+      className={`grid h-11 cursor-pointer grid-cols-[28px_1fr_28px] items-center rounded-lg px-2 py-2 text-[14px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
         isDark
           ? 'bg-[#121212] text-white hover:bg-[#202020]'
           : 'bg-white text-[#121212] hover:bg-[#FAFAFB]'
@@ -231,6 +285,7 @@ function GalleryCardActionButton({
       style={{ boxShadow: ACTION_BUTTON_SHADOW }}
       onClick={event => {
         event.stopPropagation();
+        if (disabled) return;
         onClick?.();
       }}
     >

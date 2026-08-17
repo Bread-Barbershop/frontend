@@ -1,3 +1,4 @@
+import { getAuthSession } from '@/app/api/auth/_lib/getAuthSession';
 import DashboardShell from '@/features/session/components/DashboardShell';
 import homeBackgroundImage from '@/shared/assets/images/home/home-background.png';
 
@@ -29,7 +30,9 @@ const curtainStyle: CSSProperties = {
   backgroundSize: 'cover',
 };
 
-export default function GalleryPage() {
+export default async function GalleryPage() {
+  const session = await getAuthSession();
+
   return (
     <DashboardShell>
       <div className="fixed inset-x-0 bottom-10 top-14 overflow-y-auto overflow-x-hidden px-10 pb-24 pt-[20vh] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/20 [&::-webkit-scrollbar-track]:bg-transparent">
@@ -57,7 +60,10 @@ export default function GalleryPage() {
           </div>
         </section>
 
-        <GallerySampleGrid pagePaddingX={PAGE_PADDING_X} />
+        <GallerySampleGrid
+          initialIsLoggedIn={session.isLoggedIn}
+          pagePaddingX={PAGE_PADDING_X}
+        />
       </div>
     </DashboardShell>
   );
