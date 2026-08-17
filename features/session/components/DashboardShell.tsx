@@ -38,7 +38,7 @@ export default async function DashboardShell({
         />
       )}
 
-      <header className="h-14 bg-transparent flex items-center justify-between px-10">
+      <header className="relative z-30 h-14 bg-transparent flex items-center justify-between px-10">
         <div className="flex h-full items-center gap-8">
           <HomeButton />
 

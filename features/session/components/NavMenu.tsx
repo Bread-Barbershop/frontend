@@ -18,7 +18,7 @@ function NavMenu() {
   const { confirm } = useConfirm();
   const isDirty = useEditorStore(state => state.isDirty);
 
-  const handleNavMenuClick = async (e: React.MouseEvent) => {
+  const handleNavMenuClick = async (e: React.MouseEvent, href: string) => {
     if (pathname.startsWith('/editor') && isDirty) {
       e.preventDefault();
       const isConfirm = await confirm({
@@ -31,7 +31,7 @@ function NavMenu() {
         e.preventDefault();
         return;
       }
-      router.push('/faq');
+      router.push(href);
     }
   };
   return (
@@ -41,7 +41,7 @@ function NavMenu() {
           key={`${menu.title}-${menu.href}`}
           href={menu.href}
           className={HEADER_NAV_LINK_CLASS}
-          onClick={handleNavMenuClick}
+          onClick={event => handleNavMenuClick(event, menu.href)}
         >
           {menu.title}
         </Link>
