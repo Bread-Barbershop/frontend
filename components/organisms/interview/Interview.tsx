@@ -10,8 +10,10 @@ import { EditorNoticeList } from '@/components/molecules/editor-notice';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
+import { useToast } from '@/shared/hooks/useToast';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
+import { compressImages } from '@/shared/utils/imageCompression';
 import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import PopupOptions from '../popup/PopupOptions';
@@ -31,11 +33,16 @@ export const Interview = ({ blockInfo, id }: Props) => {
       updateImage: state.updateImage,
     }))
   );
+  const { warning } = useToast();
   const [isQuestionListOpen, setIsQuestionListOpen] = useState(false);
   const questionListTriggerRef = useRef<HTMLDivElement>(null);
   const questionItemRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const pendingScrollQuestionIdRef = useRef<string | null>(null);
   const [editorResetKey, setEditorResetKey] = useState(0);
+  const [pendingUpload, setPendingUpload] = useState<{
+    id: string;
+    count: number;
+  } | null>(null);
   const { title, questions, checkedSubTitle, subTitle } =
     blockInfo.props;
 
@@ -83,21 +90,35 @@ export const Interview = ({ blockInfo, id }: Props) => {
     updateBlock(id, { questions: newQuestions });
   };
 
-  const handleQuestionImageChange = (
+  const handleQuestionImageChange = async (
     questionId: string,
     file: (File | string)[]
   ) => {
-    const newQuestions = (questions || []).map(question =>
-      question.id === questionId
-        ? {
-            ...question,
-            image: file,
-          }
-        : question
-    );
+    const files = file.filter((f): f is File => f instanceof File);
+    setPendingUpload({ id: questionId, count: files.length });
+    try {
+      const compressedFiles = await compressImages(files);
+      const compressed = file.map(
+        f => compressedFiles[files.indexOf(f as File)] ?? f
+      );
 
-    updateBlock(id, { questions: newQuestions });
-    updateImage(questionId, file);
+      const newQuestions = (questions || []).map(question =>
+        question.id === questionId
+          ? {
+              ...question,
+              image: compressed,
+            }
+          : question
+      );
+
+      updateBlock(id, { questions: newQuestions });
+      updateImage(questionId, compressed);
+    } catch (error) {
+      console.error('[Interview] 이미지 압축 실패:', error);
+      warning('이미지 처리 중 문제가 발생했어요. 다시 시도해주세요.');
+    } finally {
+      setPendingUpload(null);
+    }
   };
 
   const handleQuestionImageDelete = (questionId: string) => {
@@ -226,6 +247,9 @@ export const Interview = ({ blockInfo, id }: Props) => {
               }
               onPictureDelete={() => handleQuestionImageDelete(question.id)}
               onDelete={() => handleQuestionDelete(question.id)}
+              loadingCount={
+                pendingUpload?.id === question.id ? pendingUpload.count : 0
+              }
             />
           </div>
         ))}

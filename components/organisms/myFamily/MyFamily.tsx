@@ -9,8 +9,10 @@ import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationB
 import { TextEditor } from '@/components/molecules/text-editor';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field/TextField';
+import { useToast } from '@/shared/hooks/useToast';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+import { compressImages } from '@/shared/utils/imageCompression';
 import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
@@ -33,8 +35,10 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
   } = blockInfo.props;
   const updateBlock = useEditorStore(state => state.updateBlock);
   const updateImage = useEditorStore(state => state.updateImage);
+  const { warning } = useToast();
 
   const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
+  const [loadingIndex, setLoadingIndex] = useState<number | null>(null);
 
   const handleMenuToggle = (index: number) => {
     setOpenMenuIndex(prev => (prev === index ? null : index));
@@ -127,16 +131,33 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
     updateBlock(id, updateData);
   };
 
-  const handleImageChange = (index: number, value: (File | string)[]) => {
-    const selectId = family?.[index].id ?? '';
-    const newFamily = (family || []).map((member, i) =>
-      i === index ? { ...member, image: value } : member
-    );
+  const handleImageChange = async (
+    index: number,
+    value: (File | string)[]
+  ) => {
+    setLoadingIndex(index);
+    try {
+      const files = value.filter((f): f is File => f instanceof File);
+      const compressedFiles = await compressImages(files);
+      const compressed = value.map(
+        f => compressedFiles[files.indexOf(f as File)] ?? f
+      );
 
-    updateBlock(id, {
-      family: newFamily,
-    });
-    updateImage(selectId, value);
+      const selectId = family?.[index].id ?? '';
+      const newFamily = (family || []).map((member, i) =>
+        i === index ? { ...member, image: compressed } : member
+      );
+
+      updateBlock(id, {
+        family: newFamily,
+      });
+      updateImage(selectId, compressed);
+    } catch (error) {
+      console.error('[MyFamily] 이미지 압축 실패:', error);
+      warning('이미지 처리 중 문제가 발생했어요. 다시 시도해주세요.');
+    } finally {
+      setLoadingIndex(null);
+    }
   };
 
   const handleImageDelete = (index: number) => {
@@ -208,6 +229,7 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
               onFlowerChange={handleFlowerChange}
               isOpen={openMenuIndex === index}
               onToggle={handleMenuToggle}
+              loadingCount={loadingIndex === index ? 1 : 0}
             />
           </div>
         ))}

@@ -9,8 +9,10 @@ import { EditorNoticeList } from '@/components/molecules/editor-notice';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
+import { useToast } from '@/shared/hooks/useToast';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
+import { compressImages } from '@/shared/utils/imageCompression';
 import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import PopupOptions from '../popup/PopupOptions';
@@ -33,11 +35,16 @@ export const Notice = ({ blockInfo, id }: Props) => {
       updateImage: state.updateImage,
     }))
   );
+  const { warning } = useToast();
   const [isNoticeListOpen, setIsNoticeListOpen] = useState(false);
   const noticeListTriggerRef = useRef<HTMLDivElement>(null);
   const noticeItemRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const pendingScrollNoticeIdRef = useRef<string | null>(null);
   const [editorResetKey, setEditorResetKey] = useState(0);
+  const [pendingUpload, setPendingUpload] = useState<{
+    id: string;
+    count: number;
+  } | null>(null);
 
   const { noticeList, title, checkedSubTitle, subTitle } =
     blockInfo.props;
@@ -84,21 +91,35 @@ export const Notice = ({ blockInfo, id }: Props) => {
     updateBlock(id, { noticeList: newNoticeList });
   };
 
-  const handleNoticePictureChange = (
+  const handleNoticePictureChange = async (
     noticeId: string,
     file: (File | string)[]
   ) => {
-    const newNoticeList = (noticeList || []).map(notice =>
-      notice.id === noticeId
-        ? {
-            ...notice,
-            image: file,
-          }
-        : notice
-    );
+    const files = file.filter((f): f is File => f instanceof File);
+    setPendingUpload({ id: noticeId, count: files.length });
+    try {
+      const compressedFiles = await compressImages(files);
+      const compressed = file.map(
+        f => compressedFiles[files.indexOf(f as File)] ?? f
+      );
 
-    updateBlock(id, { noticeList: newNoticeList });
-    updateImage(noticeId, file);
+      const newNoticeList = (noticeList || []).map(notice =>
+        notice.id === noticeId
+          ? {
+              ...notice,
+              image: compressed,
+            }
+          : notice
+      );
+
+      updateBlock(id, { noticeList: newNoticeList });
+      updateImage(noticeId, compressed);
+    } catch (error) {
+      console.error('[Notice] 이미지 압축 실패:', error);
+      warning('이미지 처리 중 문제가 발생했어요. 다시 시도해주세요.');
+    } finally {
+      setPendingUpload(null);
+    }
   };
 
   const handleNoticePictureDelete = (noticeId: string) => {
@@ -225,6 +246,9 @@ export const Notice = ({ blockInfo, id }: Props) => {
               }
               onPictureDelete={() => handleNoticePictureDelete(notice.id)}
               onDelete={() => handleDeleteNotice(notice.id)}
+              loadingCount={
+                pendingUpload?.id === notice.id ? pendingUpload.count : 0
+              }
             />
           </div>
         ))}

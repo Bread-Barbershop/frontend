@@ -1,5 +1,5 @@
 import { JSONContent } from '@tiptap/core';
-import { useCallback, useEffect, ChangeEvent } from 'react';
+import { useCallback, useEffect, useState, ChangeEvent } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
@@ -10,8 +10,10 @@ import { EditorNoticeList } from '@/components/molecules/editor-notice';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
+import { useToast } from '@/shared/hooks/useToast';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+import { compressImages } from '@/shared/utils/imageCompression';
 import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
@@ -38,6 +40,11 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
       updateImage: state.updateImage,
     }))
   );
+  const { warning } = useToast();
+  const [pendingUpload, setPendingUpload] = useState<{
+    id: string;
+    count: number;
+  } | null>(null);
   const { speakers, title, checkedSubTitle, subTitle } =
     blockInfo.props;
 
@@ -85,15 +92,32 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
     updateBlock(id, { speakers: newItems });
   };
 
-  const handlePictureChange = (speakerId: string, file: (File | string)[]) => {
-    const newSpeakers = (speakers || []).map(speaker =>
-      speaker.id === speakerId ? { ...speaker, image: file } : speaker
-    );
+  const handlePictureChange = async (
+    speakerId: string,
+    file: (File | string)[]
+  ) => {
+    const files = file.filter((f): f is File => f instanceof File);
+    setPendingUpload({ id: speakerId, count: files.length });
+    try {
+      const compressedFiles = await compressImages(files);
+      const compressed = file.map(
+        f => compressedFiles[files.indexOf(f as File)] ?? f
+      );
 
-    updateBlock(id, {
-      speakers: newSpeakers,
-    });
-    updateImage(speakerId, file);
+      const newSpeakers = (speakers || []).map(speaker =>
+        speaker.id === speakerId ? { ...speaker, image: compressed } : speaker
+      );
+
+      updateBlock(id, {
+        speakers: newSpeakers,
+      });
+      updateImage(speakerId, compressed);
+    } catch (error) {
+      console.error('[SpeakerInformation] 이미지 압축 실패:', error);
+      warning('이미지 처리 중 문제가 발생했어요. 다시 시도해주세요.');
+    } finally {
+      setPendingUpload(null);
+    }
   };
   const handlePictureDelete = (speakerId: string) => {
     const newSpeakers = (speakers || []).map(speaker =>
@@ -193,6 +217,9 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
             onPictureChange={file => handlePictureChange(speaker.id, file)}
             onPictureDelete={() => handlePictureDelete(speaker.id)}
             onDelete={() => handleDeleteSpeaker(speaker.id)}
+            loadingCount={
+              pendingUpload?.id === speaker.id ? pendingUpload.count : 0
+            }
           />
         </section>
       ))}

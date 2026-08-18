@@ -1,4 +1,4 @@
-import { ChangeEvent, PointerEvent } from 'react';
+import { ChangeEvent, PointerEvent, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { Label } from '@/components/atoms/label';
@@ -11,6 +11,7 @@ import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrap
 import { useToast } from '@/shared/hooks/useToast';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+import { compressImages } from '@/shared/utils/imageCompression';
 import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { ASPECT_RATIO_OPTIONS } from './constants/AspectRatio';
@@ -35,6 +36,7 @@ function Gallery({ blockInfo, id }: Props) {
     }))
   );
   const { warning } = useToast();
+  const [loadingCount, setLoadingCount] = useState(0);
   const handleOnChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { title: e.target.value || '갤러리' });
   };
@@ -44,16 +46,31 @@ function Gallery({ blockInfo, id }: Props) {
     });
   };
 
-  const handlePictureChange = (file: (File | string)[]) => {
+  const handlePictureChange = async (file: (File | string)[]) => {
     const curerentImage = images.filter(img => img.id === id);
     if (curerentImage.length > 30 || curerentImage.length + file.length > 30) {
       warning('갤러리 이미지는 최대 30개까지 추가할 수 있습니다.');
       return;
     }
-    const currentBlock = block as EditorBlock<'gallery'>[];
-    const image = currentBlock.find(b => b.id === id)?.props.images;
-    updateBlock(id, { images: [...(image ?? []), ...file] });
-    updateImage(id, [...(image ?? []), ...file]);
+
+    const files = file.filter((f): f is File => f instanceof File);
+    setLoadingCount(files.length);
+    try {
+      const compressedFiles = await compressImages(files);
+      const compressed = file.map(
+        f => compressedFiles[files.indexOf(f as File)] ?? f
+      );
+
+      const currentBlock = block as EditorBlock<'gallery'>[];
+      const image = currentBlock.find(b => b.id === id)?.props.images;
+      updateBlock(id, { images: [...(image ?? []), ...compressed] });
+      updateImage(id, [...(image ?? []), ...compressed]);
+    } catch (error) {
+      console.error('[Gallery] 이미지 압축 실패:', error);
+      warning('이미지 처리 중 문제가 발생했어요. 다시 시도해주세요.');
+    } finally {
+      setLoadingCount(0);
+    }
   };
 
   const handlePictureDelete = (files?: (File | string)[]) => {
@@ -117,6 +134,7 @@ function Gallery({ blockInfo, id }: Props) {
             updateImage(id, file);
           }}
           onDelete={file => handlePictureDelete(file)}
+          loadingCount={loadingCount}
         />
         {blockInfo.props.images && blockInfo.props.images?.length > 0 && (
           <ButtonSelector

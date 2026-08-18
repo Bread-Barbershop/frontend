@@ -1,4 +1,4 @@
-﻿import { Fragment, type ChangeEvent, useEffect } from 'react';
+﻿import { Fragment, type ChangeEvent, useEffect, useState } from 'react';
 
 import { Divider } from '@/components/atoms/divider';
 import { Label } from '@/components/atoms/label';
@@ -9,8 +9,10 @@ import { TextEditor } from '@/components/molecules/text-editor';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
+import { useToast } from '@/shared/hooks/useToast';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+import { compressImages } from '@/shared/utils/imageCompression';
 import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import type { JSONContent } from '@tiptap/core';
@@ -26,6 +28,10 @@ const DEFAULT_COUPLE_INTRODUCTION_SUB_TITLE = 'INTRODUCTION';
 function CoupleIntroduction({ blockInfo, id }: Props) {
   const updateBlock = useEditorStore(state => state.updateBlock);
   const updateImage = useEditorStore(state => state.updateImage);
+  const { warning } = useToast();
+  const [loadingProfile, setLoadingProfile] = useState<
+    'groom' | 'bride' | null
+  >(null);
   const {
     groom = '',
     bride = '',
@@ -75,18 +81,46 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
     updateBlock(id, { bride: e.target.value });
   };
 
-  const handleGroomImageChange = (files: (File | string)[]) => {
-    syncProfileImages(
-      { id: crypto.randomUUID(), image: files.slice(0, 1) },
-      brideImage
-    );
+  const handleGroomImageChange = async (files: (File | string)[]) => {
+    setLoadingProfile('groom');
+    try {
+      const target = files.slice(0, 1);
+      const targetFiles = target.filter((f): f is File => f instanceof File);
+      const compressedFiles = await compressImages(targetFiles);
+      const compressed = target.map(
+        f => compressedFiles[targetFiles.indexOf(f as File)] ?? f
+      );
+      syncProfileImages(
+        { id: crypto.randomUUID(), image: compressed },
+        brideImage
+      );
+    } catch (error) {
+      console.error('[CoupleIntroduction] 이미지 압축 실패:', error);
+      warning('이미지 처리 중 문제가 발생했어요. 다시 시도해주세요.');
+    } finally {
+      setLoadingProfile(null);
+    }
   };
 
-  const handleBrideImageChange = (files: (File | string)[]) => {
-    syncProfileImages(groomImage, {
-      id: crypto.randomUUID(),
-      image: files.slice(0, 1),
-    });
+  const handleBrideImageChange = async (files: (File | string)[]) => {
+    setLoadingProfile('bride');
+    try {
+      const target = files.slice(0, 1);
+      const targetFiles = target.filter((f): f is File => f instanceof File);
+      const compressedFiles = await compressImages(targetFiles);
+      const compressed = target.map(
+        f => compressedFiles[targetFiles.indexOf(f as File)] ?? f
+      );
+      syncProfileImages(groomImage, {
+        id: crypto.randomUUID(),
+        image: compressed,
+      });
+    } catch (error) {
+      console.error('[CoupleIntroduction] 이미지 압축 실패:', error);
+      warning('이미지 처리 중 문제가 발생했어요. 다시 시도해주세요.');
+    } finally {
+      setLoadingProfile(null);
+    }
   };
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -116,7 +150,15 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
   const handleBrideDelete = () => {
     syncProfileImages(groomImage, { id: brideImage.id, image: [] });
   };
-  const profileFields = brideFirst
+  const profileFields: {
+    key: 'groom' | 'bride';
+    label: string;
+    value: string;
+    imageValue: { id: string; image: (File | string)[] };
+    onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+    onDelete: () => void;
+    onImageChange: (files: (File | string)[]) => void;
+  }[] = brideFirst
     ? [
         {
           key: 'bride',
@@ -212,6 +254,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
               onChange={profile.onImageChange}
               onDelete={profile.onDelete}
               className="text-center"
+              loadingCount={loadingProfile === profile.key ? 1 : 0}
             />
           </div>
         </Fragment>
