@@ -38,7 +38,24 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
   const { warning } = useToast();
 
   const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
-  const [loadingIndex, setLoadingIndex] = useState<number | null>(null);
+  // 가족 구성원 index별로 독립적으로 로딩 상태를 추적한다.
+  // 단일 loadingIndex 값으로 관리하면 여러 구성원의 이미지를 연달아
+  // 업로드할 때 나중 업로드가 이전 업로드의 로딩 상태를 덮어써서
+  // 이미지가 실제로 들어오기 전에 스피너가 먼저 사라지는 문제가 생긴다.
+  const [loadingIndices, setLoadingIndices] = useState<Set<number>>(
+    new Set()
+  );
+  const setIndexLoading = (index: number, loading: boolean) => {
+    setLoadingIndices(prev => {
+      const next = new Set(prev);
+      if (loading) {
+        next.add(index);
+      } else {
+        next.delete(index);
+      }
+      return next;
+    });
+  };
 
   const handleMenuToggle = (index: number) => {
     setOpenMenuIndex(prev => (prev === index ? null : index));
@@ -135,7 +152,7 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
     index: number,
     value: (File | string)[]
   ) => {
-    setLoadingIndex(index);
+    setIndexLoading(index, true);
     try {
       const files = value.filter((f): f is File => f instanceof File);
       const compressedFiles = await compressImages(files);
@@ -143,8 +160,16 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
         f => compressedFiles[files.indexOf(f as File)] ?? f
       );
 
-      const selectId = family?.[index].id ?? '';
-      const newFamily = (family || []).map((member, i) =>
+      // await 이후에는 렌더 시점 클로저(family)가 stale할 수 있으므로
+      // 최신 store 상태를 다시 읽어서 병합한다. 그렇지 않으면 두 구성원의
+      // 이미지가 동시에 처리될 때 나중에 끝난 쪽이 먼저 끝난 쪽의 결과를
+      // 낡은 배열로 덮어써 이미지가 사라진다.
+      const latestBlock = useEditorStore.getState()
+        .block as EditorBlock<'myFamily'>[];
+      const latestFamily =
+        latestBlock.find(b => b.id === id)?.props.family ?? [];
+      const selectId = latestFamily[index]?.id ?? '';
+      const newFamily = latestFamily.map((member, i) =>
         i === index ? { ...member, image: compressed } : member
       );
 
@@ -156,7 +181,7 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
       console.error('[MyFamily] 이미지 압축 실패:', error);
       warning('이미지 처리 중 문제가 발생했어요. 다시 시도해주세요.');
     } finally {
-      setLoadingIndex(null);
+      setIndexLoading(index, false);
     }
   };
 
@@ -229,7 +254,7 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
               onFlowerChange={handleFlowerChange}
               isOpen={openMenuIndex === index}
               onToggle={handleMenuToggle}
-              loadingCount={loadingIndex === index ? 1 : 0}
+              loadingCount={loadingIndices.has(index) ? 1 : 0}
             />
           </div>
         ))}

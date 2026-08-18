@@ -41,10 +41,24 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
     }))
   );
   const { warning } = useToast();
-  const [pendingUpload, setPendingUpload] = useState<{
-    id: string;
-    count: number;
-  } | null>(null);
+  // 연사 id별로 독립적으로 로딩 상태를 추적한다.
+  // 단일 pendingUpload 값으로 관리하면 여러 연사의 이미지를 연달아
+  // 업로드할 때 나중 업로드가 이전 업로드의 로딩 상태를 덮어써서
+  // 이미지가 실제로 들어오기 전에 스피너가 먼저 사라지는 문제가 생긴다.
+  const [loadingSpeakers, setLoadingSpeakers] = useState<Map<string, number>>(
+    new Map()
+  );
+  const setSpeakerLoading = (speakerId: string, count: number) => {
+    setLoadingSpeakers(prev => {
+      const next = new Map(prev);
+      if (count > 0) {
+        next.set(speakerId, count);
+      } else {
+        next.delete(speakerId);
+      }
+      return next;
+    });
+  };
   const { speakers, title, checkedSubTitle, subTitle } =
     blockInfo.props;
 
@@ -97,14 +111,22 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
     file: (File | string)[]
   ) => {
     const files = file.filter((f): f is File => f instanceof File);
-    setPendingUpload({ id: speakerId, count: files.length });
+    setSpeakerLoading(speakerId, files.length);
     try {
       const compressedFiles = await compressImages(files);
       const compressed = file.map(
         f => compressedFiles[files.indexOf(f as File)] ?? f
       );
 
-      const newSpeakers = (speakers || []).map(speaker =>
+      // await 이후에는 렌더 시점 클로저(speakers)가 stale할 수 있으므로
+      // 최신 store 상태를 다시 읽어서 병합한다. 그렇지 않으면 두 연사의
+      // 이미지가 동시에 처리될 때 나중에 끝난 쪽이 먼저 끝난 쪽의 결과를
+      // 낡은 배열로 덮어써 이미지가 사라진다.
+      const latestBlock = useEditorStore.getState()
+        .block as EditorBlock<'speakerInformation'>[];
+      const latestSpeakers = latestBlock.find(b => b.id === id)?.props
+        .speakers ?? [];
+      const newSpeakers = latestSpeakers.map(speaker =>
         speaker.id === speakerId ? { ...speaker, image: compressed } : speaker
       );
 
@@ -116,7 +138,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
       console.error('[SpeakerInformation] 이미지 압축 실패:', error);
       warning('이미지 처리 중 문제가 발생했어요. 다시 시도해주세요.');
     } finally {
-      setPendingUpload(null);
+      setSpeakerLoading(speakerId, 0);
     }
   };
   const handlePictureDelete = (speakerId: string) => {
@@ -217,9 +239,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
             onPictureChange={file => handlePictureChange(speaker.id, file)}
             onPictureDelete={() => handlePictureDelete(speaker.id)}
             onDelete={() => handleDeleteSpeaker(speaker.id)}
-            loadingCount={
-              pendingUpload?.id === speaker.id ? pendingUpload.count : 0
-            }
+            loadingCount={loadingSpeakers.get(speaker.id) ?? 0}
           />
         </section>
       ))}
