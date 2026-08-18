@@ -87,9 +87,17 @@ const DEFAULT_TEXT_ALIGN_OPTION: TextAlignOption = {
   value: 'center',
 };
 
+export type EditorFallbackStyle = {
+  fontFamily?: string;
+  fontWeight?: string;
+  fontSize?: string;
+  color?: string;
+};
+
 export function getInitialEditorStyles(
   content: JSONContent | null | undefined,
-  defaultAlign: TextAlignValue
+  defaultAlign: TextAlignValue,
+  fallback?: EditorFallbackStyle
 ): InitialEditorStyles {
   let textAlign: TextAlignOption | undefined;
   let fontFamily: FontFamilyOption | undefined;
@@ -152,19 +160,31 @@ export function getInitialEditorStyles(
     }
   }
 
-  // fontFamily 기본값 결정
+  // fontFamily 기본값 결정 (콘텐츠에 없으면 fallback, 그마저 없으면 전역 기본값)
   if (!fontFamily) {
-    fontFamily = getDefaultFontFamilyOption();
+    fontFamily = fallback?.fontFamily
+      ? getFontFamilyOption(fallback.fontFamily)
+      : getDefaultFontFamilyOption();
   }
 
   // fontWeight는 fontFamily에 따라 결정
   if (!fontWeight) {
-    fontWeight = getDefaultFontWeightOption(fontFamily);
+    fontWeight = fallback?.fontWeight
+      ? findFontWeightOption(
+          createFontWeightOptions(fontFamily),
+          fallback.fontWeight
+        )
+      : getDefaultFontWeightOption(fontFamily);
   }
 
   // fontSize 기본값
   if (!fontSize) {
-    fontSize = DEFAULT_FONT_SIZE_OPTION;
+    fontSize = fallback?.fontSize
+      ? (FONT_SIZE_OPTIONS.find(opt => opt.value === fallback?.fontSize) ?? {
+          label: fallback.fontSize.replace('px', ''),
+          value: fallback.fontSize,
+        })
+      : DEFAULT_FONT_SIZE_OPTION;
   }
 
   // textAlign 기본값
@@ -181,7 +201,7 @@ export function getInitialEditorStyles(
 
   // color 기본값
   if (!color) {
-    color = '#000000';
+    color = fallback?.color ?? '#000000';
   }
 
   return {

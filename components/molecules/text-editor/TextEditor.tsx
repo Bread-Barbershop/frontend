@@ -37,6 +37,7 @@ import {
   FontWeightOption,
   getFallbackWeight,
 } from '@/shared/fonts/fontOptions';
+import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { cn } from '@/shared/utils/cn';
 
 import { Selector } from '../selector';
@@ -218,8 +219,24 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
   ) => {
     const [, forceUpdate] = useReducer((count: number) => count + 1, 0);
 
-    const [editorBaseStyles] = useState(() =>
-      getInitialEditorStyles(null, defaultAlign)
+    const bodyFontInfo = useBodyFontInfo();
+    const fallbackStyle = useMemo(
+      () => ({
+        fontFamily: bodyFontInfo.resolvedFontFamily,
+        fontWeight: bodyFontInfo.fontWeight
+          ? String(bodyFontInfo.fontWeight)
+          : undefined,
+        fontSize: bodyFontInfo.fontSize
+          ? String(bodyFontInfo.fontSize)
+          : undefined,
+        color: bodyFontInfo.color ? String(bodyFontInfo.color) : undefined,
+      }),
+      [bodyFontInfo]
+    );
+
+    const editorBaseStyles = useMemo(
+      () => getInitialEditorStyles(null, defaultAlign, fallbackStyle),
+      [defaultAlign, fallbackStyle]
     );
     const initialStyles = editorBaseStyles;
 
@@ -481,6 +498,42 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
     const italicActive = editor
       ? isTextMarkFullyActive(editor, 'italic')
       : false;
+
+    useEffect(() => {
+      if (!editor) return;
+
+      const isSameAsEditorContent =
+        JSON.stringify(value ?? null) === JSON.stringify(editor.getJSON());
+      if (isSameAsEditorContent) return;
+
+      editor.commands.setContent(value ?? null, { emitUpdate: false });
+      syncToolbarState(editor);
+      forceUpdate();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [value, editor]);
+
+    useEffect(() => {
+      if (!editor) return;
+
+      // 콘텐츠가 비어있으면(=아직 타이핑 전) 새로 입력할 텍스트가 최신 본문
+      // 일괄편집 폰트를 물려받도록 stored mark를 갱신한다.
+      if (editor.isEmpty) {
+        const textStyleType = editor.schema.marks.textStyle;
+        if (textStyleType) {
+          const mark = textStyleType.create({
+            fontFamily: fallbackStyle.fontFamily,
+            fontWeight: fallbackStyle.fontWeight,
+            fontSize: fallbackStyle.fontSize,
+            color: fallbackStyle.color,
+          });
+          editor.view.dispatch(editor.state.tr.setStoredMarks([mark]));
+        }
+      }
+
+      syncToolbarState(editor);
+      forceUpdate();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [fallbackStyle, editor]);
 
     useEffect(() => {
       void loadEditorFont(
