@@ -83,10 +83,11 @@ export async function compressImage(
 
     const blob = await drawToBlob(bitmap, width, height, quality);
     if (!blob || blob.size >= file.size) return file;
-    console.log(
-      `[imageCompression] ${file.name} 압축 완료: ${file.size} -> ${blob.size}`
-    );
-    return new File([blob], file.name, {
+
+    // 압축 결과는 항상 jpeg이므로 확장자도 실제 MIME 타입에 맞게 보정한다
+    const compressedFileName = file.name.replace(/\.\w+$/, '.jpg');
+
+    return new File([blob], compressedFileName, {
       type: blob.type,
       lastModified: file.lastModified,
     });

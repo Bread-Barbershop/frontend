@@ -47,8 +47,9 @@ function Gallery({ blockInfo, id }: Props) {
   };
 
   const handlePictureChange = async (file: (File | string)[]) => {
-    const curerentImage = images.filter(img => img.id === id);
-    if (curerentImage.length > 30 || curerentImage.length + file.length > 30) {
+    const currentEntry = images.find(img => img.id === id);
+    const currentCount = currentEntry?.file.length ?? 0;
+    if (currentCount + file.length > 30) {
       warning('갤러리 이미지는 최대 30개까지 추가할 수 있습니다.');
       return;
     }
