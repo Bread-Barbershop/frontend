@@ -326,7 +326,8 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
     const runAtSavedSelection = useCallback(
       (
         editor: Editor,
-        applyCommand: (command: ChainedCommands) => ChainedCommands
+        applyCommand: (command: ChainedCommands) => ChainedCommands,
+        focusEditor: boolean = true
       ) => {
         const savedSelection = savedSelectionRef.current;
         const selectionIsEmpty =
@@ -349,7 +350,9 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
         }
 
         command.run();
-        editor.view.focus();
+        if (focusEditor) {
+          editor.view.focus();
+        }
         saveSelection(editor);
       },
       [getCommandAtSavedSelection, saveSelection]
@@ -626,7 +629,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
     };
 
     const handleFontSizeInputChange = (value: string) => {
-      const numericValue = value.replace(/[^0-9]/g, '');
+      const numericValue = value.replace(/[^0-9]/g, '').slice(0, 2);
       const option: FontSizeOption = {
         label: numericValue,
         value: numericValue ? `${numericValue}px` : '',
@@ -634,8 +637,10 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       setFontSizeSelected(option);
 
       if (numericValue) {
-        runAtSavedSelection(editor, command =>
-          command.setFontSize(option.value)
+        runAtSavedSelection(
+          editor,
+          command => command.setFontSize(option.value),
+          false
         );
       }
     };
@@ -820,7 +825,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
         <div
           data-state={editorFocused ? 'focused' : 'default'}
           className={cn(
-            'relative rounded-lg border px-4 py-3 transition-colors duration-150',
+            'relative rounded-lg border px-1 py-3 transition-colors duration-150',
             editorFocused
               ? 'border-primary bg-bg-base'
               : 'border-transparent bg-border-neutral'

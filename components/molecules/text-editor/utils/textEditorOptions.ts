@@ -39,8 +39,6 @@ export const FONT_SIZE_OPTIONS: FontSizeOption[] = [
   { label: '32', value: '32px' },
   { label: '48', value: '48px' },
   { label: '64', value: '64px' },
-  { label: '100', value: '100px' },
-  { label: '148', value: '148px' },
 ];
 
 const DEFAULT_FONT_SIZE_OPTION =
