@@ -21,6 +21,7 @@ import type {
   PickerHsva,
 } from './components/colorPicker.types';
 import type { GlassPointerSize } from './components/GlassPointer';
+import type { PointerEvent as ReactPointerEvent } from 'react';
 
 export type ColorPickerBaseProps = {
   value?: ColorPickerValue;
@@ -86,23 +87,28 @@ function ColorPickerBase({
     removePointerEndListenersRef.current = null;
   }, []);
 
-  const handleColorControlPointerDown = useCallback(() => {
-    if (typeof window === 'undefined') return;
+  const handleColorControlPointerDown = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      event.stopPropagation();
 
-    clearPointerEndListeners();
+      if (typeof window === 'undefined') return;
 
-    const handlePointerEnd = () => {
-      commitColorHistory();
       clearPointerEndListeners();
-    };
 
-    window.addEventListener('pointerup', handlePointerEnd);
-    window.addEventListener('pointercancel', handlePointerEnd);
-    removePointerEndListenersRef.current = () => {
-      window.removeEventListener('pointerup', handlePointerEnd);
-      window.removeEventListener('pointercancel', handlePointerEnd);
-    };
-  }, [clearPointerEndListeners, commitColorHistory]);
+      const handlePointerEnd = () => {
+        commitColorHistory();
+        clearPointerEndListeners();
+      };
+
+      window.addEventListener('pointerup', handlePointerEnd);
+      window.addEventListener('pointercancel', handlePointerEnd);
+      removePointerEndListenersRef.current = () => {
+        window.removeEventListener('pointerup', handlePointerEnd);
+        window.removeEventListener('pointercancel', handlePointerEnd);
+      };
+    },
+    [clearPointerEndListeners, commitColorHistory]
+  );
 
   useEffect(() => clearPointerEndListeners, [clearPointerEndListeners]);
 

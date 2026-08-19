@@ -35,6 +35,7 @@ export function InputModeSelector({
     position: 'fixed',
     visibility: 'hidden',
   });
+  const [portalTarget, setPortalTarget] = useState<Element | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const selectedOption =
@@ -48,6 +49,10 @@ export function InputModeSelector({
     const updatePosition = () => {
       const trigger = containerRef.current;
       if (!trigger) return;
+
+      setPortalTarget(
+        trigger.closest('[popover], [data-color-picker-portal-root]') ?? null
+      );
 
       const rect = trigger.getBoundingClientRect();
       const dropdownHeight =
@@ -130,6 +135,7 @@ export function InputModeSelector({
             className="overflow-hidden rounded-sm border-[0.5px] border-[#1F72EF] bg-white shadow-lg"
             style={dropdownStyle}
             role="listbox"
+            onPointerDown={event => event.stopPropagation()}
           >
             {INPUT_MODE_OPTIONS.map(option => (
               <li key={option.value}>
@@ -146,7 +152,7 @@ export function InputModeSelector({
               </li>
             ))}
           </ul>,
-          document.body
+          portalTarget ?? document.body
         )}
     </div>
   );
