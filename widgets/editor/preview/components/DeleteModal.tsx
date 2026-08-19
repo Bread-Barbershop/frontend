@@ -53,8 +53,8 @@ const DeleteModal = forwardRef<HTMLDivElement, DeleteModalProps>(
           aria-modal="true"
           aria-labelledby="delete-modal-title"
           tabIndex={-1}
-          className="flex flex-col gap-5 px-5 w-57 box-border border border-white/22 bg-white rounded-xl
-      shadow-[0_24px_60px_-20px_rgba(0,0,0,0.12),0_8px_24px_-8px_rgba(0,0,0,0.18),0_1px_8px_-2px_rgba(255,255,255,0.35)] backdrop-blur-2xl
+          className="flex flex-col gap-5 px-5 w-57 box-border border border-black/5 bg-white rounded-xl
+      shadow-[0_24px_60px_-20px_rgba(0,0,0,0.12),0_8px_24px_-8px_rgba(0,0,0,0.18)]
       "
         >
           <div className="pt-5">
