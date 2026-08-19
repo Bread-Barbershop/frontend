@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 import { Button } from '@/components/atoms/button';
@@ -7,9 +8,11 @@ import { EditorNoticeList } from '@/components/molecules/editor-notice';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { Picture } from '@/components/molecules/picture/Picture';
 import { TextField } from '@/components/molecules/text-field';
+import { useToast } from '@/shared/hooks/useToast';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
+import { compressImages } from '@/shared/utils/imageCompression';
 import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
@@ -30,12 +33,27 @@ export const Video = ({ blockInfo, id }: Props) => {
       updateImage: state.updateImage,
     }))
   );
+  const { warning } = useToast();
+  const [loadingCount, setLoadingCount] = useState(0);
   const handleUpdateBlock = (key: string, value: string | number | boolean) => {
     updateBlock(id, { [key]: value });
   };
-  const handlePictureChange = (file: (File | string)[]) => {
-    updateBlock(id, { image: file });
-    updateImage(id, file);
+  const handlePictureChange = async (file: (File | string)[]) => {
+    const files = file.filter((f): f is File => f instanceof File);
+    setLoadingCount(files.length);
+    try {
+      const compressedFiles = await compressImages(files);
+      const compressed = file.map(
+        f => compressedFiles[files.indexOf(f as File)] ?? f
+      );
+      updateBlock(id, { image: compressed });
+      updateImage(id, compressed);
+    } catch (error) {
+      console.error('[Video] 이미지 압축 실패:', error);
+      warning('이미지 처리 중 문제가 발생했어요. 다시 시도해주세요.');
+    } finally {
+      setLoadingCount(0);
+    }
   };
   const handlePictureDelete = () => {
     updateBlock(id, { image: [] });
@@ -125,6 +143,7 @@ export const Video = ({ blockInfo, id }: Props) => {
           value={blockInfo.props.image}
           onChange={file => handlePictureChange(file)}
           onDelete={handlePictureDelete}
+          loadingCount={loadingCount}
         />
       )}
       <EditorNoticeList

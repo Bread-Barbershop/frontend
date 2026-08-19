@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { Label } from '@/components/atoms/label';
 import { PictureInput } from '@/components/atoms/picture/PictureInput';
+import { PictureLoadingSkeleton } from '@/components/atoms/picture/PictureLoadingSkeleton';
 import { PicturePreview } from '@/components/atoms/picture/PicturePreview';
 import SortableItem from '@/features/DndKit/Sort/SortableItem';
 import SortableWrapper from '@/features/DndKit/Sort/SortableWrapper';
@@ -22,6 +23,8 @@ interface PictureProps {
   className?: string;
   previewClassName?: string;
   inputClassName?: string;
+  /** 이미지 압축 등 비동기 처리 중인 파일 개수. 개수만큼 스켈레톤을 보여주고 입력을 비활성화한다. */
+  loadingCount?: number;
 }
 
 export const Picture = ({
@@ -35,6 +38,7 @@ export const Picture = ({
   className,
   previewClassName,
   inputClassName,
+  loadingCount = 0,
 }: PictureProps) => {
   const [preview, setPreview] = useState<
     { id: string; src: string; file: File | string }[]
@@ -150,15 +154,22 @@ export const Picture = ({
         }}
         className="flex-row flex-wrap gap-2"
         suffix={
-          (multiple || preview.length === 0) && (
-            <li>
-              <PictureInput
-                multiple={multiple}
-                className={inputClassName}
-                onChange={handleChange}
-              />
-            </li>
-          )
+          <>
+            {Array.from({ length: loadingCount }).map((_, index) => (
+              <li key={`picture-loading-${index}`}>
+                <PictureLoadingSkeleton className={previewClassName} />
+              </li>
+            ))}
+            {(multiple || preview.length === 0) && loadingCount === 0 && (
+              <li>
+                <PictureInput
+                  multiple={multiple}
+                  className={inputClassName}
+                  onChange={handleChange}
+                />
+              </li>
+            )}
+          </>
         }
       >
         {item => (

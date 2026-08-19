@@ -1,5 +1,5 @@
 import { JSONContent } from '@tiptap/core';
-import { useCallback, useEffect, ChangeEvent } from 'react';
+import { useCallback, useEffect, useState, ChangeEvent } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
@@ -10,8 +10,10 @@ import { EditorNoticeList } from '@/components/molecules/editor-notice';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
+import { useToast } from '@/shared/hooks/useToast';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+import { compressImages } from '@/shared/utils/imageCompression';
 import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
@@ -38,6 +40,25 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
       updateImage: state.updateImage,
     }))
   );
+  const { warning } = useToast();
+  // 연사 id별로 독립적으로 로딩 상태를 추적한다.
+  // 단일 pendingUpload 값으로 관리하면 여러 연사의 이미지를 연달아
+  // 업로드할 때 나중 업로드가 이전 업로드의 로딩 상태를 덮어써서
+  // 이미지가 실제로 들어오기 전에 스피너가 먼저 사라지는 문제가 생긴다.
+  const [loadingSpeakers, setLoadingSpeakers] = useState<Map<string, number>>(
+    new Map()
+  );
+  const setSpeakerLoading = (speakerId: string, count: number) => {
+    setLoadingSpeakers(prev => {
+      const next = new Map(prev);
+      if (count > 0) {
+        next.set(speakerId, count);
+      } else {
+        next.delete(speakerId);
+      }
+      return next;
+    });
+  };
   const { speakers, title, checkedSubTitle, subTitle } =
     blockInfo.props;
 
@@ -85,15 +106,40 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
     updateBlock(id, { speakers: newItems });
   };
 
-  const handlePictureChange = (speakerId: string, file: (File | string)[]) => {
-    const newSpeakers = (speakers || []).map(speaker =>
-      speaker.id === speakerId ? { ...speaker, image: file } : speaker
-    );
+  const handlePictureChange = async (
+    speakerId: string,
+    file: (File | string)[]
+  ) => {
+    const files = file.filter((f): f is File => f instanceof File);
+    setSpeakerLoading(speakerId, files.length);
+    try {
+      const compressedFiles = await compressImages(files);
+      const compressed = file.map(
+        f => compressedFiles[files.indexOf(f as File)] ?? f
+      );
 
-    updateBlock(id, {
-      speakers: newSpeakers,
-    });
-    updateImage(speakerId, file);
+      // await 이후에는 렌더 시점 클로저(speakers)가 stale할 수 있으므로
+      // 최신 store 상태를 다시 읽어서 병합한다. 그렇지 않으면 두 연사의
+      // 이미지가 동시에 처리될 때 나중에 끝난 쪽이 먼저 끝난 쪽의 결과를
+      // 낡은 배열로 덮어써 이미지가 사라진다.
+      const latestBlock = useEditorStore.getState()
+        .block as EditorBlock<'speakerInformation'>[];
+      const latestSpeakers = latestBlock.find(b => b.id === id)?.props
+        .speakers ?? [];
+      const newSpeakers = latestSpeakers.map(speaker =>
+        speaker.id === speakerId ? { ...speaker, image: compressed } : speaker
+      );
+
+      updateBlock(id, {
+        speakers: newSpeakers,
+      });
+      updateImage(speakerId, compressed);
+    } catch (error) {
+      console.error('[SpeakerInformation] 이미지 압축 실패:', error);
+      warning('이미지 처리 중 문제가 발생했어요. 다시 시도해주세요.');
+    } finally {
+      setSpeakerLoading(speakerId, 0);
+    }
   };
   const handlePictureDelete = (speakerId: string) => {
     const newSpeakers = (speakers || []).map(speaker =>
@@ -193,6 +239,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
             onPictureChange={file => handlePictureChange(speaker.id, file)}
             onPictureDelete={() => handlePictureDelete(speaker.id)}
             onDelete={() => handleDeleteSpeaker(speaker.id)}
+            loadingCount={loadingSpeakers.get(speaker.id) ?? 0}
           />
         </section>
       ))}

@@ -46,3 +46,9 @@ storybook-static
 .swc/
 
 .gitkeep
+
+.claude/
+
+.mcp.json
+
+CLAUDE.md
