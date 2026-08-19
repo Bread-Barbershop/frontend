@@ -15,15 +15,17 @@ export function CalendarType3({
       <p className="flex items-center justify-end h-11.5 text-sm font-semibold text-[#1f2937] font-pretendard">
         {currentYear}
       </p>
-      <div className="text-[44px]  text-[#111827] leading-none tracking-tight mb-2 ml-3 ">
-        {monthText}
+      <div className="flex items-center justify-start h-17 px-3">
+        <span className="text-[44px] font-bold text-[#111827] leading-none tracking-tight">
+          {monthText}
+        </span>
       </div>
 
       <div className="grid grid-cols-7 gap-y-1">
         {headerDays.map((day, idx) => (
           <div
             key={`${day}-${idx}`}
-            className="flex-center text-center font-medium font-lineseed text-[#6B7280] h-8 mb-3"
+            className="flex-center text-center font-medium font-lineseed text-[#6B7280] h-8"
           >
             {day}
           </div>
