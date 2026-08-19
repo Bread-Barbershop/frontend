@@ -7,7 +7,7 @@ export function CalendarType1({
   currentMonth,
   calendarDays,
   headerDays,
-  pointColor,
+  accentColor,
 }: CalendarTemplateProps) {
   const color = pointColor || '#FA7564';
 
@@ -22,8 +22,11 @@ export function CalendarType1({
         {headerDays.map((day, idx) => (
           <div
             key={day}
-            className="text-center font-bold text-sm text-text-tertiary"
-            style={idx === 0 ? { color } : undefined}
+            className={cn(
+              'text-center font-bold text-sm text-text-tertiary',
+              idx === 0 && 'text-text-wedding'
+            )}
+            style={idx === 0 ? { color: accentColor } : undefined}
           >
             {day}
           </div>
@@ -38,14 +41,18 @@ export function CalendarType1({
                 'flex items-center justify-center relative z-1 transition-colors w-8 h-8 text-sm text-text-tertiary',
                 !dayObj.isCurrentMonth && 'opacity-30'
               )}
-              style={idx % 7 === 0 ? { color } : undefined}
+              style={idx % 7 === 0 ? { color: accentColor } : undefined}
             >
               <span
                 className={cn(
                   'flex items-center justify-center leading-none',
                   dayObj.isTargetDate && 'size-5.5 rounded-full text-white'
                 )}
-                style={dayObj.isTargetDate ? { backgroundColor: color } : undefined}
+                style={
+                  dayObj.isTargetDate
+                    ? { backgroundColor: accentColor }
+                    : undefined
+                }
               >
                 <span
                   className={cn(

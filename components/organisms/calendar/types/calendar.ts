@@ -20,5 +20,5 @@ export interface CalendarTemplateProps {
   monthText: string;
   targetLabel: string;
   timeLabel: string;
-  pointColor?: string;
+  accentColor?: string;
 }

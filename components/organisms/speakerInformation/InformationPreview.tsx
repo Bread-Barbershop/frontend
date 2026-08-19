@@ -53,7 +53,9 @@ export const InformationPreview = ({
       >
         {speaker.name}
       </p>
-      <PreviewBody html={html} />
+      <div className="w-full px-5">
+        <PreviewBody html={html} />
+      </div>
     </div>
   );
 };

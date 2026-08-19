@@ -5,7 +5,7 @@ import { CalendarTemplateProps } from '../types/calendar';
 export function CalendarType2({
   calendarDays,
   headerDays,
-  pointColor,
+  accentColor,
 }: CalendarTemplateProps) {
   const color = pointColor || '#FA7564';
 
@@ -40,7 +40,9 @@ export function CalendarType2({
                     dayObj.isTargetDate && 'size-5.5 rounded-full text-white'
                   )}
                   style={
-                    dayObj.isTargetDate ? { backgroundColor: color } : undefined
+                    dayObj.isTargetDate
+                      ? { backgroundColor: accentColor }
+                      : undefined
                   }
                 >
                   <span

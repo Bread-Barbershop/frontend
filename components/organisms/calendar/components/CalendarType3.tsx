@@ -8,7 +8,7 @@ export function CalendarType3({
   headerDays,
   timeInfo,
   monthText,
-  pointColor,
+  accentColor,
 }: CalendarTemplateProps) {
   const color = pointColor || '#FA7564';
 
@@ -41,7 +41,9 @@ export function CalendarType3({
                 dayObj.isTargetDate && 'text-white'
               )}
               style={
-                dayObj.isTargetDate ? { backgroundColor: color } : undefined
+                dayObj.isTargetDate
+                  ? { backgroundColor: accentColor }
+                  : undefined
               }
             >
               <span>{dayObj.num}</span>

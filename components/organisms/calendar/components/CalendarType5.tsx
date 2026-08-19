@@ -10,7 +10,7 @@ export function CalendarType5({
   monthText,
   targetLabel,
   timeLabel,
-  pointColor,
+  accentColor,
 }: CalendarTemplateProps) {
   const color = pointColor || '#FA7564';
 
@@ -29,8 +29,11 @@ export function CalendarType5({
           return (
             <div
               key={idx}
-              className="w-full h-11 shrink-0 flex items-center justify-between py-2 border-b border-[#EAEAEA] text-[#1f2937]"
-              style={isTarget ? { color } : undefined}
+              className={cn(
+                'w-full h-11 shrink-0 flex items-center justify-between py-2 border-b border-[#EAEAEA] text-[#1f2937]',
+                isTarget && 'text-text-wedding'
+              )}
+              style={isTarget ? { color: accentColor } : undefined}
             >
               <div className="flex items-center gap-3">
                 <span className={cn('w-8 text-sm font-bold')}>

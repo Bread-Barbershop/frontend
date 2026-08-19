@@ -68,6 +68,7 @@ interface TextEditorProps {
   onChange?: (json: JSONContent) => void;
   additionalSlot?: React.ReactNode;
   placeholderMode?: 'tiptap' | 'overlay';
+  editorClassName?: string;
 }
 
 export interface TextEditorRef {
@@ -214,6 +215,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       onChange,
       additionalSlot = null,
       placeholderMode = 'tiptap',
+      editorClassName,
     },
     ref
   ) => {
@@ -828,7 +830,8 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
             'relative rounded-lg border px-1 py-3 transition-colors duration-150',
             editorFocused
               ? 'border-primary bg-bg-base'
-              : 'border-transparent bg-border-neutral'
+              : 'border-transparent bg-border-neutral',
+            editorClassName
           )}
           style={editorContentStyle}
         >

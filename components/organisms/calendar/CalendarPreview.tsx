@@ -3,7 +3,7 @@
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
 import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
-import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { useTitleFontInfo } from '@/shared/hooks/useTitleFontInfo';
 import { EditorBlock } from '@/shared/types/block';
 
 import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
@@ -58,7 +58,7 @@ export function CalendarPreview({
 
   const isDateIncomplete = !date || date.length < 10;
   const { fontFamily } = useBodyFontInfo();
-  const pointColor = useEditorStore(state => state.titleData.color);
+  const { mainStyle } = useTitleFontInfo();
 
   const TemplateComponent =
     CalendarTemplates[template as string] || CalendarTemplates['calendarType1'];
@@ -108,7 +108,7 @@ export function CalendarPreview({
           monthText={monthText}
           targetLabel={targetLabel}
           timeLabel={timeLabel}
-          pointColor={pointColor}
+          accentColor={mainStyle.color}
         />
       )}
 
