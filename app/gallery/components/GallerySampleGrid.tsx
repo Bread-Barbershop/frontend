@@ -1,8 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 
 import PhonePreviewFrame from '@/app/dashboard/components/preview/PhonePreviewFrame';
 import {
@@ -65,7 +65,11 @@ function GallerySampleGrid({
   pagePaddingX: number;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const selectedCategory = searchParams.get('category') || 'all';
   const [samples, setSamples] = useState<GallerySample[]>([]);
+  const [isLoadingSamples, setIsLoadingSamples] = useState(true);
+  const [hasSamplesError, setHasSamplesError] = useState(false);
   const [selectedSampleId, setSelectedSampleId] = useState<string | null>(null);
   const [preview, setPreview] = useState<PreviewState>({
     status: 'closed',
@@ -90,12 +94,26 @@ function GallerySampleGrid({
     let cancelled = false;
 
     async function loadSamples() {
-      const response = await fetch(SAMPLES_MANIFEST_URL);
-      if (!response.ok) return;
+      try {
+        setIsLoadingSamples(true);
+        setHasSamplesError(false);
 
-      const manifest = (await response.json()) as SamplesManifest;
-      if (!cancelled) {
-        setSamples(manifest.samples);
+        const response = await fetch(SAMPLES_MANIFEST_URL);
+        if (!response.ok) throw new Error(`manifest_load_failed:${response.status}`);
+
+        const manifest = (await response.json()) as SamplesManifest;
+        if (!cancelled) {
+          setSamples(manifest.samples);
+        }
+      } catch (error) {
+        console.error('갤러리 샘플 목록 로드 실패:', error);
+        if (!cancelled) {
+          setHasSamplesError(true);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoadingSamples(false);
+        }
       }
     }
 
@@ -122,6 +140,11 @@ function GallerySampleGrid({
       document.removeEventListener('pointerdown', clearSelectionOnOutsideClick);
     };
   }, [selectedSampleId]);
+
+  const filteredSamples = useMemo(() => {
+    if (selectedCategory === 'all') return samples;
+    return samples.filter(sample => sample.category === selectedCategory);
+  }, [samples, selectedCategory]);
 
   const selectCard = (sampleId: string, element: HTMLElement) => {
     setSelectedSampleId(sampleId);
@@ -174,14 +197,17 @@ function GallerySampleGrid({
           rowGap: GRID_ROW_GAP,
         }}
       >
-        {samples.map(sample => (
+        {filteredSamples.map(sample => {
+          const isSelected = selectedSampleId === sample.id;
+
+          return (
           <article
             key={sample.id}
             data-gallery-sample-card
             role="button"
             tabIndex={0}
-            aria-pressed={selectedSampleId === sample.id}
-            className="relative cursor-pointer overflow-hidden rounded-2xl bg-white/72 shadow-edit backdrop-blur-sm outline-none focus-visible:ring-2 focus-visible:ring-black/50"
+            aria-pressed={isSelected}
+            className="group relative cursor-pointer overflow-hidden rounded-2xl bg-white/72 shadow-edit backdrop-blur-sm outline-none transition-transform duration-200 hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-black/50"
             style={{
               width: CARD_WIDTH,
               height: CARD_HEIGHT,
@@ -200,11 +226,14 @@ function GallerySampleGrid({
                 alt={sample.title}
                 fill
                 sizes="240px"
-                className="object-cover"
+                className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
               />
             </div>
+            {!isSelected && (
+              <div className="pointer-events-none absolute inset-0 bg-black/0 transition-colors duration-200 group-hover:bg-black/[0.06]" />
+            )}
 
-            {selectedSampleId === sample.id && (
+            {isSelected && (
               <div
                 className="absolute inset-0 flex flex-col justify-end bg-black/16"
                 style={{
@@ -229,7 +258,18 @@ function GallerySampleGrid({
               </div>
             )}
           </article>
-        ))}
+          );
+        })}
+
+        {(isLoadingSamples || hasSamplesError || filteredSamples.length === 0) && (
+          <div className="col-span-full rounded-2xl bg-white/72 p-8 text-lg font-semibold text-text-secondary shadow-edit backdrop-blur-sm">
+            {isLoadingSamples
+              ? '샘플을 불러오고 있습니다.'
+              : hasSamplesError
+                ? '샘플을 불러오지 못했습니다.'
+                : '해당 카테고리에 등록된 샘플이 없습니다.'}
+          </div>
+        )}
       </section>
 
       {preview.status !== 'closed' && (

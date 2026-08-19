@@ -1,3 +1,5 @@
+import { Suspense, type CSSProperties } from 'react';
+
 import { getAuthSession } from '@/app/api/auth/_lib/getAuthSession';
 import DashboardShell from '@/features/session/components/DashboardShell';
 import homeBackgroundImage from '@/shared/assets/images/home/home-background.png';
@@ -8,7 +10,6 @@ import GallerySampleGrid from './components/GallerySampleGrid';
 import GalleryTitleBox from './components/GalleryTitleBox';
 
 import type { Metadata } from 'next';
-import type { CSSProperties } from 'react';
 
 export const metadata: Metadata = {
   title: '초대장 갤러리',
@@ -68,14 +69,18 @@ export default async function GalleryPage({
                 }}
               />
               <div className="relative z-10">
-                <GalleryCategoryTabs />
+                <Suspense fallback={null}>
+                  <GalleryCategoryTabs />
+                </Suspense>
               </div>
             </section>
 
-            <GallerySampleGrid
-              initialIsLoggedIn={session.isLoggedIn}
-              pagePaddingX={PAGE_PADDING_X}
-            />
+            <Suspense fallback={null}>
+              <GallerySampleGrid
+                initialIsLoggedIn={session.isLoggedIn}
+                pagePaddingX={PAGE_PADDING_X}
+              />
+            </Suspense>
           </>
         )}
       </div>

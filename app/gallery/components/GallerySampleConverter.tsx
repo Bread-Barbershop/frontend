@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from 'react';
 
+import { BGM_LIST } from '@/components/organisms/bgm/data/bgmList';
+
 import type { ReactNode } from 'react';
 
 type AssetSlot = {
@@ -18,7 +20,12 @@ type ZipEntry = {
 };
 
 const IMAGE_KEY_PATTERN = /image|images|photo|thumbnail|poster/i;
-const AUDIO_KEY_PATTERN = /audio|bgm|music|sound/i;
+const SAMPLE_CATEGORIES = [
+  { label: '결혼식', value: 'wedding' },
+  { label: '생일', value: 'birthday' },
+  { label: '세미나', value: 'seminar' },
+  { label: '돌잔치', value: 'firstBirthday' },
+] as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -28,6 +35,10 @@ function pathToLabel(path: Array<string | number>) {
   return path
     .map(part => (typeof part === 'number' ? `[${part}]` : part))
     .join('.');
+}
+
+function fileNameFromPath(value: string) {
+  return value.split('/').pop() || value;
 }
 
 function fileExtension(file: File, fallback: string) {
@@ -55,6 +66,15 @@ function cloneJson<T>(value: T): T {
 
 function stripLeadingSlash(path: string) {
   return path.replace(/^\/+/, '');
+}
+
+function sampleIdFrom(category: string, sampleNumber: string) {
+  const number = Number.parseInt(sampleNumber, 10);
+  const paddedNumber = Number.isFinite(number)
+    ? String(number).padStart(2, '0')
+    : '01';
+
+  return `${category}_${paddedNumber}`;
 }
 
 function createCrc32Table() {
@@ -216,30 +236,29 @@ function collectSlots(input: unknown, pattern: RegExp, skipPoster = false) {
 }
 
 function GallerySampleConverter() {
-  const [sampleId, setSampleId] = useState('seminar_01');
   const [title, setTitle] = useState('2026 Annual Business Conference');
   const [category, setCategory] = useState('seminar');
+  const [sampleNumber, setSampleNumber] = useState('1');
   const [posterFile, setPosterFile] = useState<File | null>(null);
+  const [selectedBgmId, setSelectedBgmId] = useState<string | null>(null);
   const [sourceJson, setSourceJson] = useState<unknown>(null);
   const [imageFiles, setImageFiles] = useState<FileMap>({});
-  const [audioFiles, setAudioFiles] = useState<FileMap>({});
   const [jsonError, setJsonError] = useState('');
+  const [copyMessage, setCopyMessage] = useState('');
+  const sampleId = sampleIdFrom(category, sampleNumber);
 
   const imageSlots = useMemo(
     () => collectSlots(sourceJson, IMAGE_KEY_PATTERN, true),
     [sourceJson]
   );
-  const audioSlots = useMemo(
-    () => collectSlots(sourceJson, AUDIO_KEY_PATTERN),
-    [sourceJson]
-  );
+  const mappedImageCount = imageSlots.filter(slot => imageFiles[slot.id]).length;
+  const missingImageCount = imageSlots.length - mappedImageCount;
 
   const output = useMemo(() => {
     if (!sampleId || !sourceJson || !posterFile) return null;
 
     const nextJson = cloneJson(sourceJson);
     const copiedImages: Array<{ from: string; to: string }> = [];
-    const copiedAudios: Array<{ from: string; to: string }> = [];
     const posterTarget = `/samples/${sampleId}/poster${fileExtension(posterFile, '.png')}`;
 
     if (isRecord(nextJson)) {
@@ -255,23 +274,26 @@ function GallerySampleConverter() {
       copiedImages.push({ from: file.name, to: targetPath });
     });
 
-    audioSlots.forEach((slot, index) => {
-      const file = audioFiles[slot.id];
-      if (!file) return;
-
-      const targetPath = `/samples/${sampleId}/audios/${safeFileName(file, index, 'audio')}`;
-      setValueAtPath(nextJson, slot.path, targetPath);
-      copiedAudios.push({ from: file.name, to: targetPath });
-    });
-
     if (isRecord(nextJson) && isRecord(nextJson.mainPoster)) {
       nextJson.mainPoster.thumbnailFileId = posterTarget;
+    }
+
+    if (isRecord(nextJson)) {
+      nextJson.bgm = {
+        selectedBgmId,
+        isLoop: false,
+        volume: 0.2,
+        userBgmTitle: null,
+        userBgmDuration: null,
+        userBgmFileId: null,
+      };
     }
 
     const manifestItem = {
       id: sampleId,
       title,
       category,
+      posterTemplateId: sampleId,
       thumbnailUrl: posterTarget,
       dataUrl: `/samples/${sampleId}/data.json`,
     };
@@ -279,18 +301,16 @@ function GallerySampleConverter() {
     return {
       dataJson: JSON.stringify(nextJson, null, 2),
       copiedImages,
-      copiedAudios,
       manifestItem: JSON.stringify(manifestItem, null, 2),
       posterTarget,
     };
   }, [
-    audioFiles,
-    audioSlots,
     category,
     imageFiles,
     imageSlots,
     posterFile,
     sampleId,
+    selectedBgmId,
     sourceJson,
     title,
   ]);
@@ -301,12 +321,18 @@ function GallerySampleConverter() {
     try {
       setSourceJson(JSON.parse(await file.text()));
       setImageFiles({});
-      setAudioFiles({});
       setJsonError('');
     } catch {
       setSourceJson(null);
       setJsonError('JSON 파일을 읽을 수 없습니다.');
     }
+  };
+
+  const copyManifestItem = async () => {
+    if (!output) return;
+
+    await navigator.clipboard.writeText(output.manifestItem);
+    setCopyMessage('manifest 항목을 복사했습니다.');
   };
 
   const downloadDataJson = () => {
@@ -347,15 +373,6 @@ function GallerySampleConverter() {
               : '',
           };
         }),
-        ...audioSlots.map((slot, index) => {
-          const file = audioFiles[slot.id];
-          return {
-            file,
-            target: file
-              ? `/samples/${sampleId}/audios/${safeFileName(file, index, 'audio')}`
-              : '',
-          };
-        }),
       ].map(async item => {
         if (!item.file || !item.target) return;
 
@@ -391,11 +408,42 @@ function GallerySampleConverter() {
 
       <div className="grid grid-cols-[360px_1fr] gap-8">
         <div className="flex flex-col gap-4">
-          <Field label="Sample ID">
+          <Field label="카테고리">
+            <div className="grid grid-cols-2 gap-2">
+              {SAMPLE_CATEGORIES.map(item => {
+                const selected = item.value === category;
+
+                return (
+                  <button
+                    key={item.value}
+                    type="button"
+                    className={`h-11 rounded-lg border px-3 text-sm font-semibold ${
+                      selected
+                        ? 'border-black bg-black text-white'
+                        : 'border-black/10 bg-white text-text-plain'
+                    }`}
+                    onClick={() => setCategory(item.value)}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+          </Field>
+          <Field label="디자인 번호">
             <input
               className="h-11 rounded-lg border border-black/10 px-3"
+              min={1}
+              type="number"
+              value={sampleNumber}
+              onChange={event => setSampleNumber(event.target.value)}
+            />
+          </Field>
+          <Field label="생성될 Sample ID">
+            <input
+              readOnly
+              className="h-11 rounded-lg border border-black/10 bg-[#F6F7F8] px-3"
               value={sampleId}
-              onChange={event => setSampleId(event.target.value.trim())}
             />
           </Field>
           <Field label="Title">
@@ -403,13 +451,6 @@ function GallerySampleConverter() {
               className="h-11 rounded-lg border border-black/10 px-3"
               value={title}
               onChange={event => setTitle(event.target.value)}
-            />
-          </Field>
-          <Field label="Category">
-            <input
-              className="h-11 rounded-lg border border-black/10 px-3"
-              value={category}
-              onChange={event => setCategory(event.target.value.trim())}
             />
           </Field>
           <FileField
@@ -422,10 +463,47 @@ function GallerySampleConverter() {
             label="data.json"
             onChange={readJsonFile}
           />
+          <Field label="샘플 배경음악">
+            <select
+              className="h-11 rounded-lg border border-black/10 bg-white px-3"
+              value={selectedBgmId ?? ''}
+              onChange={event => setSelectedBgmId(event.target.value || null)}
+            >
+              <option value="">음악 없음</option>
+              {BGM_LIST.map(bgm => (
+                <option key={bgm.id} value={bgm.id}>
+                  {bgm.title} · {bgm.duration}
+                </option>
+              ))}
+            </select>
+          </Field>
           {jsonError && <p className="text-sm text-red-500">{jsonError}</p>}
+          <div className="rounded-2xl bg-white p-4 text-sm text-text-secondary shadow-edit">
+            <p className="font-semibold text-text-plain">사용 방법</p>
+            <p className="mt-2">ZIP은 압축 해제 후 public/ 안에 붙여넣습니다.</p>
+            <p className="mt-1">manifest 항목은 public/samples/manifest.json에 추가합니다.</p>
+          </div>
         </div>
 
         <div className="min-w-0">
+          <div className="mb-4 rounded-2xl bg-white p-4 text-sm shadow-edit">
+            <p className="font-semibold">매핑 상태</p>
+            <p className="mt-2 text-text-secondary">
+              이미지 {mappedImageCount}/{imageSlots.length}
+              {missingImageCount > 0 && ` · 누락 ${missingImageCount}개`}
+            </p>
+            <p className="text-text-secondary">
+              배경음악: {selectedBgmId ? '선택됨' : '없음'}
+            </p>
+            {missingImageCount > 0 && (
+              <p className="mt-2 text-red-500">
+                이미지가 누락되면 해당 JSON 값은 원본 경로 그대로 남습니다. 그
+                파일이 번들에 없으면 갤러리 미리보기에서 이미지가 깨질 수
+                있습니다.
+              </p>
+            )}
+          </div>
+
           <MappingSection
             accept="image/*"
             files={imageFiles}
@@ -433,16 +511,6 @@ function GallerySampleConverter() {
             title="이미지 매핑"
             onChange={(slotId, file) =>
               setImageFiles(prev => ({ ...prev, [slotId]: file }))
-            }
-          />
-
-          <MappingSection
-            accept="audio/*"
-            files={audioFiles}
-            slots={audioSlots}
-            title="오디오 매핑"
-            onChange={(slotId, file) =>
-              setAudioFiles(prev => ({ ...prev, [slotId]: file }))
             }
           />
 
@@ -457,29 +525,42 @@ function GallerySampleConverter() {
                     ...output.copiedImages.map(
                       item => `${item.from} → ${item.to}`
                     ),
-                    ...output.copiedAudios.map(
-                      item => `${item.from} → ${item.to}`
-                    ),
                   ].join('\n')}
                 />
                 <ResultBox title="manifest 항목" value={output.manifestItem} />
               </div>
-              <button
-                type="button"
-                className="mt-4 h-11 rounded-lg bg-black px-5 font-semibold text-white"
-                onClick={downloadDataJson}
-              >
-                변환된 data.json 다운로드
-              </button>
-              <button
-                type="button"
-                className="ml-3 mt-4 h-11 rounded-lg bg-black px-5 font-semibold text-white"
-                onClick={() => {
-                  void downloadSampleZip();
-                }}
-              >
-                샘플 ZIP 다운로드
-              </button>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  className="h-11 rounded-lg bg-black px-5 font-semibold text-white"
+                  onClick={downloadDataJson}
+                >
+                  변환된 data.json 다운로드
+                </button>
+                <button
+                  type="button"
+                  className="h-11 rounded-lg bg-black px-5 font-semibold text-white"
+                  onClick={() => {
+                    void downloadSampleZip();
+                  }}
+                >
+                  샘플 ZIP 다운로드
+                </button>
+                <button
+                  type="button"
+                  className="h-11 rounded-lg bg-white px-5 font-semibold text-text-plain shadow-edit"
+                  onClick={() => {
+                    void copyManifestItem();
+                  }}
+                >
+                  manifest 항목 복사
+                </button>
+              </div>
+              {copyMessage && (
+                <p className="mt-3 text-sm text-text-secondary">
+                  {copyMessage}
+                </p>
+              )}
             </div>
           )}
         </div>
@@ -557,9 +638,14 @@ function MappingSection({
               className="grid grid-cols-[1fr_220px] gap-3 rounded-xl border border-black/10 p-3"
             >
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">{slot.label}</p>
+                <p className="truncate text-sm font-semibold">
+                  현재 파일: {fileNameFromPath(slot.currentValue)}
+                </p>
                 <p className="mt-1 truncate text-xs text-text-secondary">
-                  현재 값: {slot.currentValue}
+                  위치: {slot.label}
+                </p>
+                <p className="mt-1 truncate text-xs text-text-secondary">
+                  원본 값: {slot.currentValue}
                 </p>
               </div>
               <input
