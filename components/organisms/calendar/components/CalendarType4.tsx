@@ -6,19 +6,17 @@ export function CalendarType4({
   monthText,
   accentColor,
 }: CalendarTemplateProps) {
-  const color = pointColor || '#FA7564';
-
   return (
     <div className="w-full flex flex-col items-center font-lineseed">
       <h3 className="h-[68px] text-[44px] text-[#111827] tracking-wide uppercase mb-1">
         {monthText}
       </h3>
 
-      <div className="grid grid-cols-7 w-full gap-y-6">
+      <div className="grid grid-cols-7 w-full gap-y-1">
         {headerDays.map((day, idx) => (
           <div
             key={idx}
-            className="text-center text-[12px] text-[#A0AEC0] font-sans font-medium"
+            className="flex-center text-center text-[12px] text-[#A0AEC0] font-sans font-medium h-11"
           >
             {day}
           </div>
@@ -30,9 +28,9 @@ export function CalendarType4({
           return (
             <div
               key={dayObj.num + '-' + idx}
-              className="flex items-center justify-center relative aspect-square h-8 mx-auto"
+              className="flex items-center justify-center relative aspect-square h-11 mx-auto"
             >
-              <div className="relative flex size-8 items-center justify-center text-[16px] text-[#2D3748]">
+              <div className="relative flex size-8 items-center justify-center text-[14px] text-[#2D3748]">
                 {isTarget && (
                   <svg
                     className="pointer-events-none absolute left-1/2 top-1/2 size-9 -translate-x-[48%] -translate-y-[52%] text-[#D92D20]"

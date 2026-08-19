@@ -72,6 +72,7 @@ export function CalendarPreview({
       subTitleDefault={defaultSubTitle}
       mainTitle={title}
       mainTitleDefault={defaultTitle}
+      childClassName="gap-6"
       {...rest}
     >
       {/* String Date Display */}

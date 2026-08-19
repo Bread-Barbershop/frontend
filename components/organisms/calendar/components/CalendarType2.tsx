@@ -7,11 +7,9 @@ export function CalendarType2({
   headerDays,
   accentColor,
 }: CalendarTemplateProps) {
-  const color = pointColor || '#FA7564';
-
   return (
     <div className="w-full flex flex-col font-lineseed">
-      <div className="grid grid-cols-7 gap-y-4 gap-x-1">
+      <div className="grid grid-cols-7 gap-y-1 gap-x-1">
         {headerDays.map((day, idx) => (
           <div
             key={`${day}-${idx}`}

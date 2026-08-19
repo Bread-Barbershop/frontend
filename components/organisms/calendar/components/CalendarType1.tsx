@@ -9,8 +9,6 @@ export function CalendarType1({
   headerDays,
   accentColor,
 }: CalendarTemplateProps) {
-  const color = pointColor || '#FA7564';
-
   return (
     <div className="flex flex-col w-full font-lineseed">
       <div className="flex items-end justify-center mb-6 ">
@@ -18,7 +16,7 @@ export function CalendarType1({
           {currentYear}. {currentMonth.toString().padStart(2, '0')}
         </h3>
       </div>
-      <div className="grid grid-cols-7 gap-y-4 gap-x-1 mb-4">
+      <div className="grid grid-cols-7 gap-y-1 gap-x-1 mb-4">
         {headerDays.map((day, idx) => (
           <div
             key={day}
