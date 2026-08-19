@@ -5,7 +5,10 @@ import { CalendarTemplateProps } from '../types/calendar';
 export function CalendarType2({
   calendarDays,
   headerDays,
+  pointColor,
 }: CalendarTemplateProps) {
+  const color = pointColor || '#FA7564';
+
   return (
     <div className="w-full flex flex-col font-lineseed">
       <div className="grid grid-cols-7 gap-y-4 gap-x-1">
@@ -34,9 +37,11 @@ export function CalendarType2({
                 <span
                   className={cn(
                     'flex items-center justify-center leading-none',
-                    dayObj.isTargetDate &&
-                      'size-5.5 rounded-full bg-text-wedding text-white'
+                    dayObj.isTargetDate && 'size-5.5 rounded-full text-white'
                   )}
+                  style={
+                    dayObj.isTargetDate ? { backgroundColor: color } : undefined
+                  }
                 >
                   <span
                     className={cn(

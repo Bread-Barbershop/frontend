@@ -8,7 +8,10 @@ export function CalendarType3({
   headerDays,
   timeInfo,
   monthText,
+  pointColor,
 }: CalendarTemplateProps) {
+  const color = pointColor || '#FA7564';
+
   return (
     <div className="w-full px-4 flex flex-col shadow-[0px_4px_24px_rgba(0,0,0,0.06)] font-lineseed">
       <p className="flex items-center justify-end h-11 text-sm font-semibold text-[#1f2937] font-pretendard">
@@ -35,9 +38,11 @@ export function CalendarType3({
               className={cn(
                 'relative flex flex-col items-center justify-start text-sm font-lineseed z-1 h-11 text-text-tertiary',
                 !dayObj.isCurrentMonth && 'opacity-30',
-                dayObj.isTargetDate && 'text-white',
-                dayObj.isTargetDate && 'bg-text-wedding'
+                dayObj.isTargetDate && 'text-white'
               )}
+              style={
+                dayObj.isTargetDate ? { backgroundColor: color } : undefined
+              }
             >
               <span>{dayObj.num}</span>
               {dayObj.isTargetDate && (

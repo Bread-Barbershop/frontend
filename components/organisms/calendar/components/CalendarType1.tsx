@@ -7,7 +7,10 @@ export function CalendarType1({
   currentMonth,
   calendarDays,
   headerDays,
+  pointColor,
 }: CalendarTemplateProps) {
+  const color = pointColor || '#FA7564';
+
   return (
     <div className="flex flex-col w-full font-lineseed">
       <div className="flex items-end justify-center mb-6 ">
@@ -19,10 +22,8 @@ export function CalendarType1({
         {headerDays.map((day, idx) => (
           <div
             key={day}
-            className={cn(
-              'text-center font-bold text-sm text-text-tertiary',
-              idx === 0 && 'text-text-wedding'
-            )}
+            className="text-center font-bold text-sm text-text-tertiary"
+            style={idx === 0 ? { color } : undefined}
           >
             {day}
           </div>
@@ -35,16 +36,16 @@ export function CalendarType1({
             <div
               className={cn(
                 'flex items-center justify-center relative z-1 transition-colors w-8 h-8 text-sm text-text-tertiary',
-                idx % 7 === 0 && 'text-text-wedding',
                 !dayObj.isCurrentMonth && 'opacity-30'
               )}
+              style={idx % 7 === 0 ? { color } : undefined}
             >
               <span
                 className={cn(
                   'flex items-center justify-center leading-none',
-                  dayObj.isTargetDate &&
-                    'size-5.5 rounded-full bg-text-wedding text-white'
+                  dayObj.isTargetDate && 'size-5.5 rounded-full text-white'
                 )}
+                style={dayObj.isTargetDate ? { backgroundColor: color } : undefined}
               >
                 <span
                   className={cn(

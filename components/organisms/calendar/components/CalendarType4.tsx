@@ -4,7 +4,10 @@ export function CalendarType4({
   calendarDays,
   headerDays,
   monthText,
+  pointColor,
 }: CalendarTemplateProps) {
+  const color = pointColor || '#FA7564';
+
   return (
     <div className="w-full flex flex-col items-center font-lineseed">
       <h3 className="h-[68px] text-[44px] text-[#111827] tracking-wide uppercase mb-1">
@@ -32,7 +35,8 @@ export function CalendarType4({
               <div className="relative flex size-8 items-center justify-center text-[16px] text-[#2D3748]">
                 {isTarget && (
                   <svg
-                    className="pointer-events-none absolute left-1/2 top-1/2 size-9 -translate-x-[48%] -translate-y-[52%] text-[#D92D20]"
+                    className="pointer-events-none absolute left-1/2 top-1/2 size-9 -translate-x-[48%] -translate-y-[52%]"
+                    style={{ color }}
                     viewBox="0 0 50 50"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
