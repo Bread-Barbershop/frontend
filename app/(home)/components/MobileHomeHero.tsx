@@ -188,10 +188,9 @@ function MobileHomeHero() {
                 id="mobile-pc-guide-description"
                 className="mt-6 text-[14px] font-medium leading-[22px]"
               >
-                아직 모바일 편집 기능을 개발 중에 있습니다.
+                현재 화면에서는 해당 기능을 이용하기 어려워요.
                 <br />
-                원활한 편집을 위해 {DESKTOP_CONTENT_MIN_WIDTH}px 이상의
-                브라우저에서 이용해주세요.
+                브라우저 창을 넓히거나 더 큰 화면에서 이용해 주세요.
               </p>
               <button
                 type="button"
