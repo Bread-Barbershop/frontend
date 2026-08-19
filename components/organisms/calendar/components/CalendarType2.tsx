@@ -23,7 +23,7 @@ export function CalendarType2({
           return (
             <div
               key={idx}
-              className="flex items-center justify-center flex-col relative h-10"
+              className="flex items-center justify-center flex-col relative h-5.5"
             >
               <div
                 className={cn(
