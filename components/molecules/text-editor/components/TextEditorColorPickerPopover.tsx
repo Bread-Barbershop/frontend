@@ -131,6 +131,7 @@ export default function TextEditorColorPickerPopover({
       {isOpen && (
         <motion.div
           ref={pickerRef}
+          data-color-picker-portal-root=""
           className="rounded-lg shadow-xl"
           style={popoverStyle}
           initial={{ opacity: 0 }}

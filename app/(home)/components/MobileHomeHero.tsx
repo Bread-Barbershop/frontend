@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 
 import homeBackgroundImage from '@/shared/assets/images/home/home-background.png';
+import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 
 import { MobileShowcaseCardStack } from './MobileShowcaseCardStack';
 import { showcaseItems } from './showcaseItems';
@@ -28,7 +29,8 @@ function useMobileHomeViewport() {
     const updateViewportHeight = () => {
       if (!mediaQuery.matches) return;
 
-      const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+      const viewportHeight =
+        window.visualViewport?.height ?? window.innerHeight;
       root.style.setProperty(
         '--mobile-home-viewport-height',
         `${Math.round(viewportHeight)}px`
@@ -85,8 +87,14 @@ function useMobileHomeViewport() {
       mediaQuery.removeEventListener('change', syncMobileViewport);
       window.removeEventListener('resize', syncMobileViewport);
       window.removeEventListener('orientationchange', syncMobileViewport);
-      window.visualViewport?.removeEventListener('resize', updateViewportHeight);
-      window.visualViewport?.removeEventListener('scroll', updateViewportHeight);
+      window.visualViewport?.removeEventListener(
+        'resize',
+        updateViewportHeight
+      );
+      window.visualViewport?.removeEventListener(
+        'scroll',
+        updateViewportHeight
+      );
       unlockScroll();
     };
   }, []);
@@ -174,15 +182,15 @@ function MobileHomeHero() {
                 id="mobile-pc-guide-title"
                 className="text-[20px] font-bold leading-none tracking-[-0.01em]"
               >
-                PC로 이용해 주세요!
+                {DESKTOP_CONTENT_MIN_WIDTH}px 이상의 브라우저에서 이용해 주세요!
               </h2>
               <p
                 id="mobile-pc-guide-description"
                 className="mt-6 text-[14px] font-medium leading-[22px]"
               >
-                아직 모바일 편집 기능을 개발 중에 있습니다.
+                현재 화면에서는 해당 기능을 이용하기 어려워요.
                 <br />
-                원활한 편집을 위해 PC에서 이용해주세요.
+                브라우저 창을 넓히거나 더 큰 화면에서 이용해 주세요.
               </p>
               <button
                 type="button"
@@ -195,7 +203,6 @@ function MobileHomeHero() {
           </motion.div>
         )}
       </AnimatePresence>
-
     </>
   );
 }
