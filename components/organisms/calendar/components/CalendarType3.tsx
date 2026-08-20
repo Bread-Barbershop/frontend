@@ -8,21 +8,24 @@ export function CalendarType3({
   headerDays,
   timeInfo,
   monthText,
+  accentColor,
 }: CalendarTemplateProps) {
   return (
-    <div className="w-full px-4 flex flex-col shadow-[0px_4px_24px_rgba(0,0,0,0.06)] font-lineseed">
-      <p className="flex items-center justify-end h-11 text-sm font-semibold text-[#1f2937] font-pretendard">
+    <div className="w-full px-4 flex flex-col shadow-edit font-lineseed">
+      <p className="flex items-center justify-end h-11.5 text-sm font-semibold text-[#1f2937] font-pretendard">
         {currentYear}
       </p>
-      <div className="text-6xl  text-[#111827] leading-none tracking-tight mb-2 ml-3 ">
-        {monthText}
+      <div className="flex items-center justify-start h-17 px-3">
+        <span className="text-[44px] font-bold text-[#111827] leading-none tracking-tight">
+          {monthText}
+        </span>
       </div>
 
-      <div className="grid grid-cols-7">
+      <div className="grid grid-cols-7 gap-y-1">
         {headerDays.map((day, idx) => (
           <div
             key={`${day}-${idx}`}
-            className="flex-center text-center font-medium font-lineseed text-[#6B7280] h-8 mb-3"
+            className="flex-center text-center font-medium font-lineseed text-[#6B7280] h-8"
           >
             {day}
           </div>
@@ -33,11 +36,15 @@ export function CalendarType3({
             <div
               key={idx}
               className={cn(
-                'relative flex flex-col items-center justify-start text-sm font-lineseed z-1 h-11 text-text-tertiary',
+                'relative flex flex-col items-center justify-start text-sm font-lineseed z-1 h-11.5 text-text-tertiary',
                 !dayObj.isCurrentMonth && 'opacity-30',
-                dayObj.isTargetDate && 'text-white',
-                dayObj.isTargetDate && 'bg-text-wedding'
+                dayObj.isTargetDate && 'text-white'
               )}
+              style={
+                dayObj.isTargetDate
+                  ? { backgroundColor: accentColor }
+                  : undefined
+              }
             >
               <span>{dayObj.num}</span>
               {dayObj.isTargetDate && (

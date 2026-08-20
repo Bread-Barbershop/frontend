@@ -8,19 +8,26 @@ type RichTextPair = {
   htmlKey: 'messageHtml' | 'contentsHtml';
 };
 
+export type BulkTextStyle = {
+  fontSize: string;
+  fontFamily: string;
+  fontWeight: string;
+  color: string;
+};
+
 const RICH_TEXT_PAIRS: RichTextPair[] = [
   { jsonKey: 'messageJson', htmlKey: 'messageHtml' },
   { jsonKey: 'contentsJson', htmlKey: 'contentsHtml' },
 ];
 
-function applyFontSizeToContent(
+function applyBulkStyleToContent(
   content: TiptapJsonContent | null | undefined,
-  fontSize: string
+  style: BulkTextStyle
 ): TiptapJsonContent | null | undefined {
   if (!content) return content;
 
   const nextContent = Array.isArray(content.content)
-    ? content.content.map(child => applyFontSizeToContent(child, fontSize))
+    ? content.content.map(child => applyBulkStyleToContent(child, style))
     : content.content;
 
   if (content.type !== 'text') {
@@ -39,14 +46,20 @@ function applyFontSizeToContent(
       ...textStyle,
       attrs: {
         ...textStyle.attrs,
-        fontSize,
+        fontSize: style.fontSize,
+        fontFamily: style.fontFamily,
+        fontWeight: style.fontWeight,
+        color: style.color,
       },
     };
   } else {
     marks.push({
       type: 'textStyle',
       attrs: {
-        fontSize,
+        fontSize: style.fontSize,
+        fontFamily: style.fontFamily,
+        fontWeight: style.fontWeight,
+        color: style.color,
       },
     });
   }
@@ -57,9 +70,9 @@ function applyFontSizeToContent(
   };
 }
 
-function updateRichTextProps<T>(value: T, fontSize: string): T {
+function updateRichTextProps<T>(value: T, style: BulkTextStyle): T {
   if (Array.isArray(value)) {
-    return value.map(item => updateRichTextProps(item, fontSize)) as T;
+    return value.map(item => updateRichTextProps(item, style)) as T;
   }
 
   if (!value || typeof value !== 'object') {
@@ -80,7 +93,7 @@ function updateRichTextProps<T>(value: T, fontSize: string): T {
 
     if (!richTextJson) return;
 
-    const nextJson = applyFontSizeToContent(richTextJson, fontSize);
+    const nextJson = applyBulkStyleToContent(richTextJson, style);
     nextValue[jsonKey] = nextJson;
     nextValue[htmlKey] = nextJson ? tiptapJsonToHtmlInBrowser(nextJson) : null;
   });
@@ -95,18 +108,18 @@ function updateRichTextProps<T>(value: T, fontSize: string): T {
       return;
     }
 
-    nextValue[key] = updateRichTextProps(currentValue, fontSize);
+    nextValue[key] = updateRichTextProps(currentValue, style);
   });
 
   return nextValue as T;
 }
 
-export function applyBulkBodyFontSizeToBlocks(
+export function applyBulkBodyStyleToBlocks(
   blocks: EditorBlock[],
-  fontSize: string
+  style: BulkTextStyle
 ) {
   return blocks.map(block => ({
     ...block,
-    props: updateRichTextProps(block.props, fontSize),
+    props: updateRichTextProps(block.props, style),
   }));
 }

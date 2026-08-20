@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { MultiRowInput } from '@/components/atoms/input/MultiRowInput';
@@ -9,8 +9,10 @@ import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationB
 import { Picture } from '@/components/molecules/picture/Picture';
 import { TextField } from '@/components/molecules/text-field';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
+import { useToast } from '@/shared/hooks/useToast';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+import { compressImages } from '@/shared/utils/imageCompression';
 import { DEFAULT_TITLE } from '@/shared/utils/shareUrlDefaults';
 
 import { SHARE_NOTICES } from './constants/share';
@@ -34,6 +36,10 @@ function ShareUrl() {
       updateShareUrl: state.updateShareUrl,
       updateImage: state.updateImage,
     }))
+  );
+  const { warning } = useToast();
+  const [loadingTab, setLoadingTab] = useState<typeof shareUrlTab | null>(
+    null
   );
 
   const placeBlock = block.find(
@@ -73,24 +79,41 @@ function ShareUrl() {
     }
   };
 
-  const handlePictureChange = (newFiles: (File | string)[]) => {
+  const handlePictureChange = async (newFiles: (File | string)[]) => {
     const isKakaoTab = shareUrlTab === 'kakao';
+    setLoadingTab(shareUrlTab);
+    try {
+      const files = newFiles.filter((f): f is File => f instanceof File);
+      const compressedFiles = await compressImages(files);
+      const compressedNewFiles = newFiles.map(
+        f => compressedFiles[files.indexOf(f as File)] ?? f
+      );
 
-    // 각 탭의 이미지 리스트 결정 (현재 탭인 경우 새 파일 합산)
-    const kakaoImages = isKakaoTab ? newFiles : (shareUrl.images ?? []);
-    const urlImages = !isKakaoTab ? newFiles : (shareUrl.urlImage ?? []);
+      // 각 탭의 이미지 리스트 결정 (현재 탭인 경우 새 파일 합산)
+      const kakaoImages = isKakaoTab
+        ? compressedNewFiles
+        : (shareUrl.images ?? []);
+      const urlImages = !isKakaoTab
+        ? compressedNewFiles
+        : (shareUrl.urlImage ?? []);
 
-    // 1. 공유 URL 전역 상태 업데이트 (현재 탭 필드만 반영)
-    updateShareUrl(
-      isKakaoTab ? { images: kakaoImages } : { urlImage: urlImages }
-    );
+      // 1. 공유 URL 전역 상태 업데이트 (현재 탭 필드만 반영)
+      updateShareUrl(
+        isKakaoTab ? { images: kakaoImages } : { urlImage: urlImages }
+      );
 
-    // 2. 업로드 큐에는 양쪽 탭의 모든 File 객체를 합산해서 전달
-    const allFilesToUpload = [...kakaoImages, ...urlImages].filter(
-      f => f instanceof File
-    ) as File[];
+      // 2. 업로드 큐에는 양쪽 탭의 모든 File 객체를 합산해서 전달
+      const allFilesToUpload = [...kakaoImages, ...urlImages].filter(
+        f => f instanceof File
+      ) as File[];
 
-    updateImage(SHARE_URL_IMAGE_ID, allFilesToUpload);
+      updateImage(SHARE_URL_IMAGE_ID, allFilesToUpload);
+    } catch (error) {
+      console.error('[ShareUrl] 이미지 압축 실패:', error);
+      warning('이미지 처리 중 문제가 발생했어요. 다시 시도해주세요.');
+    } finally {
+      setLoadingTab(null);
+    }
   };
 
   return (
@@ -154,6 +177,7 @@ function ShareUrl() {
           value={shareUrlTab === 'kakao' ? shareUrl.images : shareUrl.urlImage}
           onChange={handlePictureChange}
           onDelete={() => handlePictureChange([])}
+          loadingCount={loadingTab === shareUrlTab ? 1 : 0}
         />
         {shareUrlTab === 'kakao' && (
           <div className="flex gap-2 py-2">

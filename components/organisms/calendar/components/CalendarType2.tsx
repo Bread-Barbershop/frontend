@@ -5,10 +5,11 @@ import { CalendarTemplateProps } from '../types/calendar';
 export function CalendarType2({
   calendarDays,
   headerDays,
+  accentColor,
 }: CalendarTemplateProps) {
   return (
     <div className="w-full flex flex-col font-lineseed">
-      <div className="grid grid-cols-7 gap-y-4 gap-x-1">
+      <div className="grid grid-cols-7 gap-y-1 gap-x-1">
         {headerDays.map((day, idx) => (
           <div
             key={`${day}-${idx}`}
@@ -22,7 +23,7 @@ export function CalendarType2({
           return (
             <div
               key={idx}
-              className="flex items-center justify-center flex-col relative h-10"
+              className="flex items-center justify-center flex-col relative h-5.5"
             >
               <div
                 className={cn(
@@ -34,9 +35,13 @@ export function CalendarType2({
                 <span
                   className={cn(
                     'flex items-center justify-center leading-none',
-                    dayObj.isTargetDate &&
-                      'size-5.5 rounded-full bg-text-wedding text-white'
+                    dayObj.isTargetDate && 'size-5.5 rounded-full text-white'
                   )}
+                  style={
+                    dayObj.isTargetDate
+                      ? { backgroundColor: accentColor }
+                      : undefined
+                  }
                 >
                   <span
                     className={cn(

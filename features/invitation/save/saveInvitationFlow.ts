@@ -495,7 +495,7 @@ async function commit(params: {
     shareUrl: replacedShareUrl,
     bgm: finalBgm,
     mainPoster: finalMainPoster,
-    invitationImage: images,
+    invitationImage: replaceFiles(images) as typeof images,
     renderHints,
   };
 
