@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 
+import { captureDriveError } from '../_lib/captureDriveError';
 import { googleFetch } from '../_lib/googleFetch';
 
 export async function POST(req: Request) {
@@ -42,6 +43,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true, audio: audioFiles });
   } catch (error) {
+    captureDriveError({ error, operation: 'drive_audio_asset_load' });
     return NextResponse.json(
       { success: false, error: (error as Error).message },
       { status: 500 }

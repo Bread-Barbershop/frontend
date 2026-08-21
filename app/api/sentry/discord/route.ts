@@ -4,7 +4,6 @@ import { NextResponse } from 'next/server';
 
 import {
   buildDiscordWebhookBody,
-  isAuthorizedSentryWebhook,
   type SentryWebhookPayload,
 } from '@/app/api/sentry/discord/_lib/discordWebhook';
 
@@ -12,13 +11,6 @@ export const dynamic = 'force-dynamic';
 
 function getDiscordWebhookUrl() {
   return process.env.DISCORD_SENTRY_WEBHOOK_URL?.trim();
-}
-
-export async function GET() {
-  return NextResponse.json({
-    ok: true,
-    message: 'Sentry Discord webhook endpoint is ready.',
-  });
 }
 
 export async function POST(request: Request) {
@@ -31,16 +23,6 @@ export async function POST(request: Request) {
         error: 'DISCORD_SENTRY_WEBHOOK_URL is not configured.',
       },
       { status: 500 }
-    );
-  }
-
-  if (!isAuthorizedSentryWebhook(request)) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error: 'Unauthorized webhook request.',
-      },
-      { status: 401 }
     );
   }
 

@@ -3,6 +3,7 @@ import 'server-only';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 
+import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
 import { ensureDataJsonFile } from '@/app/api/drive/_lib/ensureDataJsonFile';
 import {
   loadInvitationMeta,
@@ -76,6 +77,18 @@ export async function POST(req: Request) {
           ? revokeResult.status
           : 502;
 
+      captureDriveError({
+        error: new Error(
+          revokeResult.error ?? 'Drive public permission revoke failed'
+        ),
+        operation: 'drive_visibility_revoke',
+        status: responseStatus,
+        context: {
+          attempts: revokeResult.attempt,
+          immediateFail: Boolean(revokeResult.immediateFail),
+        },
+      });
+
       return NextResponse.json(
         {
           ok: false,
@@ -117,7 +130,19 @@ export async function POST(req: Request) {
     const responseStatus =
       permissionResult.status && permissionResult.status >= 400
         ? permissionResult.status
-        : 502;
+          : 502;
+
+    captureDriveError({
+      error: new Error(
+        permissionResult.error ?? 'Drive public permission publish failed'
+      ),
+      operation: 'drive_visibility_publish',
+      status: responseStatus,
+      context: {
+        attempts: permissionResult.attempt,
+        immediateFail: Boolean(permissionResult.immediateFail),
+      },
+    });
 
     return NextResponse.json(
       {

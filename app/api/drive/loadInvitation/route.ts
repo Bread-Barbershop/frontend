@@ -2,6 +2,7 @@ import 'server-only';
 
 import { NextResponse } from 'next/server';
 
+import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import { loadDashboardInvitations } from '@/app/dashboard/server/loadDashboardInvitations';
 
@@ -22,6 +23,11 @@ export async function GET() {
     });
   } catch (err) {
     if (err instanceof DriveHttpError) {
+      captureDriveError({
+        error: err,
+        operation: 'drive_dashboard_load',
+        status: err.status,
+      });
       return NextResponse.json(
         { message: err.message, details: err.details },
         { status: err.status }
@@ -45,6 +51,8 @@ export async function GET() {
         { status: 401 }
       );
     }
+
+    captureDriveError({ error: err, operation: 'drive_dashboard_load' });
 
     return NextResponse.json(
       {

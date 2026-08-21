@@ -6,8 +6,19 @@ jest.mock('./updateFileToDrive', () => ({
   updateFileToDrive: jest.fn(),
 }));
 
+jest.mock('@sentry/nextjs', () => ({
+  withScope: jest.fn((callback: CallableFunction) =>
+    callback({
+      setTag: jest.fn(),
+      setContext: jest.fn(),
+    })
+  ),
+  captureException: jest.fn(),
+}));
+
 import { saveInvitationFlow } from './saveInvitationFlow';
 import { updateFileToDrive } from './updateFileToDrive';
+import * as Sentry from '@sentry/nextjs';
 
 const mockFetch = jest.fn();
 
@@ -65,6 +76,13 @@ function jsonResponse(body: unknown, init: { ok?: boolean; status?: number } = {
 describe('saveInvitationFlow', () => {
   beforeEach(() => {
     jest.resetAllMocks();
+    (Sentry.withScope as jest.Mock).mockImplementation(
+      (callback: CallableFunction) =>
+        callback({
+          setTag: jest.fn(),
+          setContext: jest.fn(),
+        })
+    );
     global.fetch = mockFetch as unknown as typeof fetch;
     (updateFileToDrive as jest.Mock).mockResolvedValue({
       fileId: 'data-json-file-id',
@@ -98,6 +116,15 @@ describe('saveInvitationFlow', () => {
               ...shareUrl,
               invitationUrl: '/i/aB7kQ2x',
             },
+          })
+        );
+      }
+
+      if (url === '/api/drive/thumbnail') {
+        return Promise.resolve(
+          jsonResponse({ ok: false, error: 'Drive upload failed' }, {
+            ok: false,
+            status: 503,
           })
         );
       }
@@ -146,6 +173,54 @@ describe('saveInvitationFlow', () => {
       '/api/drive/shareUrl',
       expect.objectContaining({
         method: 'POST',
+      })
+    );
+  });
+
+  it('저장 결과로 처리된 실패는 단계 정보와 함께 한 번만 Sentry에 기록한다', async () => {
+    const scope = {
+      setTag: jest.fn(),
+      setContext: jest.fn(),
+    };
+    (Sentry.withScope as jest.Mock).mockImplementation(
+      (callback: CallableFunction) => callback(scope)
+    );
+
+    const result = await saveInvitationFlow({
+      bulkData,
+      images: [],
+      audio: null,
+      data: [],
+      shareUrl,
+      bgmData,
+      mainPoster: {
+        version: '7.1.0',
+        objects: [],
+      },
+      invitationThumbnail: {
+        name: 'invitation-thumbnail.png',
+        mimeType: 'image/png',
+        dataUrl: 'data:image/png;base64,aGVsbG8=',
+        width: 1,
+        height: 1,
+        createdAt: '',
+      },
+    });
+
+    expect(result.success).toBe(false);
+    expect(Sentry.captureException).toHaveBeenCalledTimes(1);
+    expect(Sentry.captureException).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'thumbnail save failed: 503' })
+    );
+    expect(scope.setTag).toHaveBeenCalledWith('operation', 'invitation_save');
+    expect(scope.setTag).toHaveBeenCalledWith('failed_stage', 'save_thumbnail');
+    expect(scope.setContext).toHaveBeenCalledWith(
+      'invitation_save',
+      expect.objectContaining({
+        imageFailureCount: 0,
+        audioFailureCount: 0,
+        dataFailureCount: 0,
+        httpStatus: 503,
       })
     );
   });

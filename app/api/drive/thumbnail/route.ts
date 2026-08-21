@@ -2,6 +2,7 @@ import 'server-only';
 
 import { NextResponse } from 'next/server';
 
+import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
 import {
   APP_IDENTIFIER,
   ensureThumbnailFile,
@@ -63,11 +64,17 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     if (err instanceof DriveHttpError) {
+      captureDriveError({
+        error: err,
+        operation: 'drive_thumbnail_save',
+        status: err.status,
+      });
       return NextResponse.json(
         { ok: false, error: err.message, details: err.details },
         { status: err.status }
       );
     }
+    captureDriveError({ error: err, operation: 'drive_thumbnail_save' });
     return NextResponse.json(
       {
         ok: false,
@@ -107,11 +114,17 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: true, thumbnailFileId, data });
   } catch (err) {
     if (err instanceof DriveHttpError) {
+      captureDriveError({
+        error: err,
+        operation: 'drive_thumbnail_load',
+        status: err.status,
+      });
       return NextResponse.json(
         { ok: false, error: err.message, details: err.details },
         { status: err.status }
       );
     }
+    captureDriveError({ error: err, operation: 'drive_thumbnail_load' });
     return NextResponse.json(
       {
         ok: false,
