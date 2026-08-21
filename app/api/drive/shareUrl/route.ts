@@ -2,6 +2,7 @@ import 'server-only';
 
 import { NextResponse } from 'next/server';
 
+import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
 import {
   loadInvitationMeta,
   ShareUrlPayload,
@@ -202,11 +203,18 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     if (err instanceof DriveHttpError) {
+      captureDriveError({
+        error: err,
+        operation: 'drive_share_metadata_save',
+        status: err.status,
+      });
       return NextResponse.json(
         { ok: false, error: err.message, details: err.details },
         { status: err.status }
       );
     }
+
+    captureDriveError({ error: err, operation: 'drive_share_metadata_save' });
 
     return NextResponse.json(
       {
@@ -258,11 +266,18 @@ export async function GET(req: Request) {
     );
   } catch (err) {
     if (err instanceof DriveHttpError) {
+      captureDriveError({
+        error: err,
+        operation: 'drive_share_metadata_load',
+        status: err.status,
+      });
       return NextResponse.json(
         { ok: false, error: err.message, details: err.details },
         { status: err.status }
       );
     }
+
+    captureDriveError({ error: err, operation: 'drive_share_metadata_load' });
 
     return NextResponse.json(
       {

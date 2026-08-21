@@ -2,6 +2,7 @@ import 'server-only';
 
 import { NextResponse } from 'next/server';
 
+import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
 import {
   createAssetsFolders,
   ensureAssetsFolder,
@@ -86,11 +87,18 @@ export async function POST(req: Request) {
     }
 
     if (err instanceof DriveHttpError) {
+      captureDriveError({
+        error: err,
+        operation: 'drive_save_prepare',
+        status: err.status,
+      });
       return NextResponse.json(
         { message: err.message, details: err.details },
         { status: err.status }
       );
     }
+
+    captureDriveError({ error: err, operation: 'drive_save_prepare' });
 
     return NextResponse.json(
       {
