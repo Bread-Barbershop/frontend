@@ -47,6 +47,8 @@ storybook-static
 
 .gitkeep
 
+.env.sentry-build-plugin
+
 .claude/
 
 .mcp.json
