@@ -2,7 +2,6 @@
 
 import * as Sentry from '@sentry/nextjs';
 import Head from 'next/head';
-import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 class SentryExampleFrontendError extends Error {
@@ -15,7 +14,6 @@ class SentryExampleFrontendError extends Error {
 export default function Page() {
   const [hasSentError, setHasSentError] = useState(false);
   const [isConnected, setIsConnected] = useState(true);
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     Sentry.logger.info('Sentry example page loaded');
@@ -27,6 +25,7 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
     const mode = searchParams.get('mode');
 
     if (mode !== 'auto-client' && mode !== 'auto-full') {
@@ -53,7 +52,7 @@ export default function Page() {
     }
 
     void runAutomaticTest();
-  }, [searchParams]);
+  }, []);
 
   return (
     <div>
