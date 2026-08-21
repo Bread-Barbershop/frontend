@@ -46,3 +46,5 @@ storybook-static
 .swc/
 
 .gitkeep
+# Sentry Config File
+.env.sentry-build-plugin
