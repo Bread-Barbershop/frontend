@@ -1,4 +1,4 @@
-﻿import { Fragment, type ChangeEvent, useEffect } from 'react';
+﻿import { Fragment, type ChangeEvent, useEffect, useState } from 'react';
 
 import { Divider } from '@/components/atoms/divider';
 import { Label } from '@/components/atoms/label';
@@ -9,8 +9,10 @@ import { TextEditor } from '@/components/molecules/text-editor';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
+import { useToast } from '@/shared/hooks/useToast';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+import { compressImages } from '@/shared/utils/imageCompression';
 import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import type { JSONContent } from '@tiptap/core';
@@ -26,6 +28,24 @@ const DEFAULT_COUPLE_INTRODUCTION_SUB_TITLE = 'INTRODUCTION';
 function CoupleIntroduction({ blockInfo, id }: Props) {
   const updateBlock = useEditorStore(state => state.updateBlock);
   const updateImage = useEditorStore(state => state.updateImage);
+  const { warning } = useToast();
+  // 신랑/신부 각각 독립적으로 로딩 상태를 추적한다.
+  // 단일 상태(하나의 값)로 관리하면 두 업로드가 겹칠 때 한쪽이 다른
+  // 쪽의 로딩 상태를 덮어써 스피너가 이미지보다 먼저 사라지는 문제가 생긴다.
+  const [loadingProfiles, setLoadingProfiles] = useState<
+    Set<'groom' | 'bride'>
+  >(new Set());
+  const setProfileLoading = (key: 'groom' | 'bride', loading: boolean) => {
+    setLoadingProfiles(prev => {
+      const next = new Set(prev);
+      if (loading) {
+        next.add(key);
+      } else {
+        next.delete(key);
+      }
+      return next;
+    });
+  };
   const {
     groom = '',
     bride = '',
@@ -53,16 +73,24 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
     }
   }, [subTitle, id, updateBlock]);
 
-  const syncProfileImages = (
-    nextGroomImage: { id: string; image: (File | string)[] },
-    nextBrideImage: { id: string; image: (File | string)[] }
-  ) => {
-    updateBlock(id, {
-      groomImage: nextGroomImage,
-      brideImage: nextBrideImage,
-    });
+  // 신랑/신부 이미지를 각각 자기 필드만 갱신한다.
+  // updateBlock은 최신 state를 기준으로 병합하므로, 상대방 필드를 함께
+  // 넘기지 않으면 두 핸들러가 비동기 압축 중 겹쳐 실행되어도 서로의
+  // 결과를 stale 클로저 값으로 덮어쓰지 않는다.
+  const updateGroomImage = (nextGroomImage: {
+    id: string;
+    image: (File | string)[];
+  }) => {
+    updateBlock(id, { groomImage: nextGroomImage });
     if (nextGroomImage.id !== '')
       updateImage(nextGroomImage.id, nextGroomImage.image);
+  };
+
+  const updateBrideImage = (nextBrideImage: {
+    id: string;
+    image: (File | string)[];
+  }) => {
+    updateBlock(id, { brideImage: nextBrideImage });
     if (nextBrideImage.id !== '')
       updateImage(nextBrideImage.id, nextBrideImage.image);
   };
@@ -75,18 +103,40 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
     updateBlock(id, { bride: e.target.value });
   };
 
-  const handleGroomImageChange = (files: (File | string)[]) => {
-    syncProfileImages(
-      { id: crypto.randomUUID(), image: files.slice(0, 1) },
-      brideImage
-    );
+  const handleGroomImageChange = async (files: (File | string)[]) => {
+    setProfileLoading('groom', true);
+    try {
+      const target = files.slice(0, 1);
+      const targetFiles = target.filter((f): f is File => f instanceof File);
+      const compressedFiles = await compressImages(targetFiles);
+      const compressed = target.map(
+        f => compressedFiles[targetFiles.indexOf(f as File)] ?? f
+      );
+      updateGroomImage({ id: crypto.randomUUID(), image: compressed });
+    } catch (error) {
+      console.error('[CoupleIntroduction] 이미지 압축 실패:', error);
+      warning('이미지 처리 중 문제가 발생했어요. 다시 시도해주세요.');
+    } finally {
+      setProfileLoading('groom', false);
+    }
   };
 
-  const handleBrideImageChange = (files: (File | string)[]) => {
-    syncProfileImages(groomImage, {
-      id: crypto.randomUUID(),
-      image: files.slice(0, 1),
-    });
+  const handleBrideImageChange = async (files: (File | string)[]) => {
+    setProfileLoading('bride', true);
+    try {
+      const target = files.slice(0, 1);
+      const targetFiles = target.filter((f): f is File => f instanceof File);
+      const compressedFiles = await compressImages(targetFiles);
+      const compressed = target.map(
+        f => compressedFiles[targetFiles.indexOf(f as File)] ?? f
+      );
+      updateBrideImage({ id: crypto.randomUUID(), image: compressed });
+    } catch (error) {
+      console.error('[CoupleIntroduction] 이미지 압축 실패:', error);
+      warning('이미지 처리 중 문제가 발생했어요. 다시 시도해주세요.');
+    } finally {
+      setProfileLoading('bride', false);
+    }
   };
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -111,12 +161,20 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
     });
   };
   const handleGroomDelete = () => {
-    syncProfileImages({ id: groomImage.id, image: [] }, brideImage);
+    updateGroomImage({ id: groomImage.id, image: [] });
   };
   const handleBrideDelete = () => {
-    syncProfileImages(groomImage, { id: brideImage.id, image: [] });
+    updateBrideImage({ id: brideImage.id, image: [] });
   };
-  const profileFields = brideFirst
+  const profileFields: {
+    key: 'groom' | 'bride';
+    label: string;
+    value: string;
+    imageValue: { id: string; image: (File | string)[] };
+    onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+    onDelete: () => void;
+    onImageChange: (files: (File | string)[]) => void;
+  }[] = brideFirst
     ? [
         {
           key: 'bride',
@@ -212,6 +270,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
               onChange={profile.onImageChange}
               onDelete={profile.onDelete}
               className="text-center"
+              loadingCount={loadingProfiles.has(profile.key) ? 1 : 0}
             />
           </div>
         </Fragment>

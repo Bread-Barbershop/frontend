@@ -99,7 +99,7 @@ export const Image = ({
       {showLoadingSpinner && (
         <div
           className={cn(
-            'absolute inset-0 flex items-center justify-center',
+            'absolute inset-0 flex items-center justify-center animate-pulse',
             loadingClassName
           )}
         >

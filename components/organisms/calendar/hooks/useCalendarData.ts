@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
 
+import { InvitationType } from '@/shared/types/block';
+
 import { ENG_DAYS, KOR_DAYS } from '../constants/calendar';
 import {
   generateCalendarGrid,
@@ -18,11 +20,13 @@ export function useCalendarData({
   time,
   language,
   template,
+  type,
 }: {
   date?: string;
   time?: string;
   language: 'ko' | 'en';
   template?: string;
+  type?: InvitationType;
 }) {
   // 1) 원본 날짜 파싱
   const { year, month, day, dayOfWeek } = useMemo(
@@ -81,7 +85,12 @@ export function useCalendarData({
     [currentMonth, language, template]
   );
 
-  const targetLabel = language === 'ko' ? '결혼식' : 'Wedding day';
+  const targetLabel =
+    type === 'wedding'
+      ? language === 'ko'
+        ? '결혼식'
+        : 'Wedding day'
+      : 'D-Day';
 
   const timeLabel = useMemo(
     () => getFormattedTimeLabel(time || '', language),

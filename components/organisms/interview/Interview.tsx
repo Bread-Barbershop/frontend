@@ -10,8 +10,10 @@ import { EditorNoticeList } from '@/components/molecules/editor-notice';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
+import { useToast } from '@/shared/hooks/useToast';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
+import { compressImages } from '@/shared/utils/imageCompression';
 import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import PopupOptions from '../popup/PopupOptions';
@@ -31,11 +33,30 @@ export const Interview = ({ blockInfo, id }: Props) => {
       updateImage: state.updateImage,
     }))
   );
+  const { warning } = useToast();
   const [isQuestionListOpen, setIsQuestionListOpen] = useState(false);
   const questionListTriggerRef = useRef<HTMLDivElement>(null);
   const questionItemRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const pendingScrollQuestionIdRef = useRef<string | null>(null);
   const [editorResetKey, setEditorResetKey] = useState(0);
+  // 질문 id별로 독립적으로 로딩 상태를 추적한다.
+  // 단일 pendingUpload 값으로 관리하면 여러 질문의 이미지를 연달아
+  // 업로드할 때 나중 업로드가 이전 업로드의 로딩 상태를 덮어써서
+  // 이미지가 실제로 들어오기 전에 스피너가 먼저 사라지는 문제가 생긴다.
+  const [loadingQuestions, setLoadingQuestions] = useState<
+    Map<string, number>
+  >(new Map());
+  const setQuestionLoading = (questionId: string, count: number) => {
+    setLoadingQuestions(prev => {
+      const next = new Map(prev);
+      if (count > 0) {
+        next.set(questionId, count);
+      } else {
+        next.delete(questionId);
+      }
+      return next;
+    });
+  };
   const { title, questions, checkedSubTitle, subTitle } =
     blockInfo.props;
 
@@ -83,21 +104,43 @@ export const Interview = ({ blockInfo, id }: Props) => {
     updateBlock(id, { questions: newQuestions });
   };
 
-  const handleQuestionImageChange = (
+  const handleQuestionImageChange = async (
     questionId: string,
     file: (File | string)[]
   ) => {
-    const newQuestions = (questions || []).map(question =>
-      question.id === questionId
-        ? {
-            ...question,
-            image: file,
-          }
-        : question
-    );
+    const files = file.filter((f): f is File => f instanceof File);
+    setQuestionLoading(questionId, files.length);
+    try {
+      const compressedFiles = await compressImages(files);
+      const compressed = file.map(
+        f => compressedFiles[files.indexOf(f as File)] ?? f
+      );
 
-    updateBlock(id, { questions: newQuestions });
-    updateImage(questionId, file);
+      // await 이후에는 렌더 시점 클로저(questions)가 stale할 수 있으므로
+      // 최신 store 상태를 다시 읽어서 병합한다. 그렇지 않으면 두 질문의
+      // 이미지가 동시에 처리될 때 나중에 끝난 쪽이 먼저 끝난 쪽의 결과를
+      // 낡은 배열로 덮어써 이미지가 사라진다.
+      const latestBlock = useEditorStore.getState()
+        .block as EditorBlock<'interview'>[];
+      const latestQuestions =
+        latestBlock.find(b => b.id === id)?.props.questions ?? [];
+      const newQuestions = latestQuestions.map(question =>
+        question.id === questionId
+          ? {
+              ...question,
+              image: compressed,
+            }
+          : question
+      );
+
+      updateBlock(id, { questions: newQuestions });
+      updateImage(questionId, compressed);
+    } catch (error) {
+      console.error('[Interview] 이미지 압축 실패:', error);
+      warning('이미지 처리 중 문제가 발생했어요. 다시 시도해주세요.');
+    } finally {
+      setQuestionLoading(questionId, 0);
+    }
   };
 
   const handleQuestionImageDelete = (questionId: string) => {
@@ -226,6 +269,7 @@ export const Interview = ({ blockInfo, id }: Props) => {
               }
               onPictureDelete={() => handleQuestionImageDelete(question.id)}
               onDelete={() => handleQuestionDelete(question.id)}
+              loadingCount={loadingQuestions.get(question.id) ?? 0}
             />
           </div>
         ))}

@@ -8,9 +8,10 @@ import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationB
 import { TextEditorPreview } from '@/components/molecules/preview-text-editor';
 import type { BulkColorPickerId } from '@/components/molecules/preview-text-editor/types';
 import { BODY_BULK_DATA } from '@/shared/data/sample/bulkData';
+import { resolveFontFamily } from '@/shared/fonts/fontRegistry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { BulkData } from '@/shared/types/block';
-import { applyBulkBodyFontSizeToBlocks } from '@/shared/utils/applyBulkBodyFontSize';
+import { applyBulkBodyStyleToBlocks } from '@/shared/utils/applyBulkBodyStyle';
 import { toStyle } from '@/shared/utils/toStyle';
 
 type BodyEditProps = {
@@ -43,7 +44,14 @@ function BodyEdit({
 
   const handleApply = () => {
     setBodyData({ ...bulkBodyData, isDefault: false });
-    setBlock(applyBulkBodyFontSizeToBlocks(block, bulkBodyData.fontSize));
+    setBlock(
+      applyBulkBodyStyleToBlocks(block, {
+        fontSize: bulkBodyData.fontSize,
+        fontFamily: resolveFontFamily(bulkBodyData.font),
+        fontWeight: bulkBodyData.fontWeight,
+        color: bulkBodyData.color,
+      })
+    );
   };
 
   return (

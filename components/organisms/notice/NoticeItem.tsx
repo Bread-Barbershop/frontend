@@ -20,6 +20,7 @@ interface Props {
   onPictureChange: (file: (File | string)[]) => void;
   onPictureDelete: () => void;
   onDelete: () => void;
+  loadingCount?: number;
 }
 
 export const NoticeItem = ({
@@ -32,6 +33,7 @@ export const NoticeItem = ({
   onPictureChange,
   onPictureDelete,
   onDelete,
+  loadingCount = 0,
 }: Props) => {
   return (
     <div className="flex flex-col gap-1 relative group">
@@ -67,6 +69,7 @@ export const NoticeItem = ({
           value={notice.image}
           onChange={onPictureChange}
           onDelete={onPictureDelete}
+          loadingCount={loadingCount}
         />
       </div>
     </div>
