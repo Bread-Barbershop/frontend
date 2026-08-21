@@ -26,25 +26,28 @@ describe('sentry discord webhook route', () => {
     global.fetch = originalFetch;
   });
 
-  it('forwards a sentry payload to discord with an environment label', async () => {
+  it('formats an invitation save failure for quick diagnosis', async () => {
     const request = new Request('https://example.com/api/sentry/discord', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        action: 'triggered',
+        action: 'created',
         project: 'frontend',
         data: {
-          issue: {
+          error: {
             title: 'TypeError: Cannot read properties of undefined',
             culprit: 'app/payment/page.tsx',
-            permalink: 'https://sentry.io/issues/123',
-          },
-          event: {
+            web_url: 'https://sentry.io/issues/123',
             level: 'error',
             release: 'frontend@1.2.3',
-            environment: 'production',
+            tags: [
+              ['environment', 'production'],
+              ['operation', 'invitation_save'],
+              ['failed_stage', 'upload_images'],
+              ['image_failure_count', '17'],
+              ['audio_failure_count', '0'],
+              ['data_failure_count', '0'],
+            ],
           },
         },
       }),
@@ -55,33 +58,36 @@ describe('sentry discord webhook route', () => {
 
     expect(response.status).toBe(200);
     expect(json).toEqual({ ok: true });
-    expect(global.fetch).toHaveBeenCalledTimes(1);
     expect(global.fetch).toHaveBeenCalledWith(
       'https://discord.example/webhook',
       expect.objectContaining({
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
       })
     );
 
     const [, options] = (global.fetch as jest.Mock).mock.calls[0];
     const discordBody = JSON.parse(options.body as string);
 
-    expect(discordBody.content).toBe('[운영] Sentry triggered');
-    expect(discordBody.embeds[0].title).toBe(
-      '[운영] TypeError: Cannot read properties of undefined'
-    );
+    expect(discordBody.content).toBe('[운영] 초대장 저장 실패');
+    expect(discordBody.embeds[0]).toMatchObject({
+      title: '초대장 저장 실패',
+      description:
+        '이미지 업로드(upload_images) 단계에서 이미지 17개 업로드에 실패했습니다.',
+    });
     expect(discordBody.embeds[0].fields).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          name: '환경',
-          value: '운영 (production)',
+          name: '단계',
+          value: '이미지 업로드(upload_images)',
         }),
         expect.objectContaining({
-          name: '프로젝트',
-          value: 'frontend',
+          name: '오류',
+          value: 'TypeError: Cannot read properties of undefined',
+        }),
+        expect.objectContaining({
+          name: '환경',
+          value: '운영(production)',
         }),
       ])
     );
@@ -96,25 +102,37 @@ describe('sentry discord webhook route', () => {
 
     const request = new Request('https://example.com/api/sentry/discord', {
       method: 'POST',
+      body: JSON.stringify({ data: { error: { title: 'Drive error' } } }),
+    });
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(502);
+    await expect(response.json()).resolves.toEqual({
+      ok: false,
+      error: 'Discord webhook request failed.',
+      status: 400,
+      details: 'bad request',
+    });
+  });
+
+  it('forwards a payload without a drive operation tag', async () => {
+    const request = new Request('https://example.com/api/sentry/discord', {
+      method: 'POST',
       body: JSON.stringify({
         action: 'triggered',
         data: {
-          event: {
-            environment: 'preview',
+          error: {
+            title: 'Unhandled error',
+            tags: [['environment', 'preview']],
           },
         },
       }),
     });
 
     const response = await POST(request);
-    const json = await response.json();
 
-    expect(response.status).toBe(502);
-    expect(json).toEqual({
-      ok: false,
-      error: 'Discord webhook request failed.',
-      status: 400,
-      details: 'bad request',
-    });
+    expect(response.status).toBe(200);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
   });
 });
