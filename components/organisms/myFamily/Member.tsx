@@ -27,6 +27,7 @@ interface Props {
   onFlowerChange: (index: number, value: boolean) => void;
   isOpen: boolean;
   onToggle: (index: number) => void;
+  loadingCount?: number;
 }
 
 export const Member = ({
@@ -40,6 +41,7 @@ export const Member = ({
   onFlowerChange,
   isOpen,
   onToggle,
+  loadingCount = 0,
 }: Props) => {
   return (
     <div className="flex flex-col gap-1">
@@ -98,6 +100,7 @@ export const Member = ({
         value={member.image}
         onChange={value => onImageChange(index, value)}
         onDelete={() => onImageDelete(index)}
+        loadingCount={loadingCount}
       />
     </div>
   );

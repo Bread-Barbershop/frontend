@@ -23,6 +23,7 @@ interface Props {
   onPictureDelete: () => void;
   onDelete: () => void;
   speakerLength: number;
+  loadingCount?: number;
 }
 export const Information = ({
   speaker,
@@ -32,6 +33,7 @@ export const Information = ({
   onPictureChange,
   onPictureDelete,
   onDelete,
+  loadingCount = 0,
 }: Props) => {
   return (
     <section className="flex flex-col gap-1">
@@ -68,6 +70,7 @@ export const Information = ({
           value={speaker.image}
           onChange={onPictureChange}
           onDelete={onPictureDelete}
+          loadingCount={loadingCount}
         />
       </div>
     </section>
