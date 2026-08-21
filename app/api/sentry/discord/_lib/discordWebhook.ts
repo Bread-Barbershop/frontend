@@ -34,12 +34,38 @@ type SentryEvent = {
   environment?: string;
 };
 
+type SentryError = {
+  culprit?: string;
+  issue_id?: string;
+  issue_url?: string;
+  level?: string;
+  location?: string;
+  logger?: string;
+  metadata?: {
+    type?: string;
+    value?: string;
+    filename?: string;
+  };
+  platform?: string;
+  project?: number | string;
+  release?: string | null;
+  request?: {
+    url?: string;
+  };
+  tags?: Array<[string, string]>;
+  title?: string;
+  type?: string;
+  url?: string;
+  web_url?: string;
+};
+
 export type SentryWebhookPayload = {
   action?: string;
   actor?: {
     name?: string;
   };
   data?: {
+    error?: SentryError;
     issue?: SentryIssue;
     event?: SentryEvent;
   };
@@ -72,8 +98,13 @@ function findTagValue(
   return tags?.find((tag) => tag.key === key)?.value;
 }
 
+function findTupleTagValue(tags: SentryError['tags'] | undefined, key: string) {
+  return tags?.find((tag) => tag[0] === key)?.[1];
+}
+
 function getEnvironmentName(payload: SentryWebhookPayload) {
   return (
+    findTupleTagValue(payload.data?.error?.tags, 'environment') ||
     payload.data?.event?.environment ||
     findTagValue(payload.data?.event?.tags, 'environment') ||
     'unknown'
@@ -131,6 +162,8 @@ function getEnvironmentColor(environment: string) {
 
 function getIssueTitle(payload: SentryWebhookPayload) {
   return (
+    payload.data?.error?.title ||
+    payload.data?.error?.metadata?.value ||
     payload.data?.issue?.title ||
     payload.data?.issue?.metadata?.value ||
     payload.data?.event?.title ||
@@ -141,6 +174,9 @@ function getIssueTitle(payload: SentryWebhookPayload) {
 
 function getIssueUrl(payload: SentryWebhookPayload) {
   return (
+    payload.data?.error?.web_url ||
+    payload.data?.error?.issue_url ||
+    payload.data?.error?.url ||
     payload.data?.issue?.permalink ||
     payload.data?.issue?.web_url ||
     payload.data?.event?.web_url ||
@@ -150,6 +186,7 @@ function getIssueUrl(payload: SentryWebhookPayload) {
 
 function getProjectName(payload: SentryWebhookPayload) {
   return (
+    String(payload.data?.error?.project || '').trim() ||
     payload.data?.issue?.project?.slug ||
     payload.data?.issue?.project?.name ||
     payload.project ||
@@ -159,8 +196,10 @@ function getProjectName(payload: SentryWebhookPayload) {
 
 function getLevel(payload: SentryWebhookPayload) {
   return (
+    payload.data?.error?.level ||
     payload.data?.issue?.level ||
     payload.data?.event?.level ||
+    findTupleTagValue(payload.data?.error?.tags, 'level') ||
     findTagValue(payload.data?.event?.tags, 'level') ||
     'error'
   );
@@ -168,14 +207,24 @@ function getLevel(payload: SentryWebhookPayload) {
 
 function getRelease(payload: SentryWebhookPayload) {
   return (
+    payload.data?.error?.release ||
     payload.data?.event?.release ||
+    findTupleTagValue(payload.data?.error?.tags, 'release') ||
     findTagValue(payload.data?.event?.tags, 'release') ||
     '-'
   );
 }
 
 function getCulprit(payload: SentryWebhookPayload) {
-  return payload.data?.issue?.culprit || payload.data?.event?.platform || '-';
+  return (
+    payload.data?.error?.culprit ||
+    payload.data?.error?.location ||
+    payload.data?.error?.request?.url ||
+    payload.data?.error?.logger ||
+    payload.data?.issue?.culprit ||
+    payload.data?.event?.platform ||
+    '-'
+  );
 }
 
 function truncate(value: string, maxLength: number) {
@@ -247,9 +296,4 @@ export function buildDiscordWebhookBody(
       },
     ],
   };
-}
-
-export function isAuthorizedSentryWebhook(request: Request) {
-  void request;
-  return true;
 }

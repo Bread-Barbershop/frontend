@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-import { GET, POST } from '@/app/api/sentry/discord/route';
+import { POST } from '@/app/api/sentry/discord/route';
 
 describe('sentry discord webhook route', () => {
   const originalEnv = process.env;
@@ -24,17 +24,6 @@ describe('sentry discord webhook route', () => {
   afterAll(() => {
     process.env = originalEnv;
     global.fetch = originalFetch;
-  });
-
-  it('health check responds successfully', async () => {
-    const response = await GET();
-    const json = await response.json();
-
-    expect(response.status).toBe(200);
-    expect(json).toEqual({
-      ok: true,
-      message: 'Sentry Discord webhook endpoint is ready.',
-    });
   });
 
   it('forwards a sentry payload to discord with an environment label', async () => {
