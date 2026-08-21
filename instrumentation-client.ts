@@ -18,6 +18,7 @@ Sentry.init({
   environment,
   release,
   enabled: Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN),
+  debug: process.env.NEXT_PUBLIC_SENTRY_DEBUG === 'true',
 
   dataCollection: {
     // To disable sending user data and HTTP bodies, uncomment the lines below. For more info visit:
@@ -26,5 +27,15 @@ Sentry.init({
     // httpBodies: [],
   },
 });
+
+if (process.env.NEXT_PUBLIC_SENTRY_DEBUG === 'true') {
+  const client = Sentry.getClient();
+
+  console.info('[Sentry] client initialization', {
+    enabled: client?.getOptions().enabled,
+    hasDsn: Boolean(client?.getOptions().dsn),
+    environment,
+  });
+}
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
