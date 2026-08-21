@@ -211,6 +211,9 @@ function captureSaveFailure(params: {
   Sentry.withScope(scope => {
     scope.setTag('operation', 'invitation_save');
     scope.setTag('failed_stage', params.failedStages.join(','));
+    scope.setTag('image_failure_count', String(params.imageFailureCount ?? 0));
+    scope.setTag('audio_failure_count', String(params.audioFailureCount ?? 0));
+    scope.setTag('data_failure_count', String(params.dataFailureCount ?? 0));
     scope.setContext('invitation_save', {
       imageFailureCount: params.imageFailureCount ?? 0,
       audioFailureCount: params.audioFailureCount ?? 0,
