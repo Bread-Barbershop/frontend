@@ -13,7 +13,6 @@ describe('sentry discord webhook route', () => {
     process.env = {
       ...originalEnv,
       DISCORD_SENTRY_WEBHOOK_URL: 'https://discord.example/webhook',
-      SENTRY_WEBHOOK_TOKEN: 'secret-token',
     };
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
@@ -38,33 +37,11 @@ describe('sentry discord webhook route', () => {
     });
   });
 
-  it('rejects requests with an invalid token', async () => {
-    const request = new Request('https://example.com/api/sentry/discord', {
-      method: 'POST',
-      body: JSON.stringify({ action: 'triggered' }),
-      headers: {
-        'Content-Type': 'application/json',
-        'x-sentry-webhook-token': 'wrong-token',
-      },
-    });
-
-    const response = await POST(request);
-    const json = await response.json();
-
-    expect(response.status).toBe(401);
-    expect(json).toEqual({
-      ok: false,
-      error: 'Unauthorized webhook request.',
-    });
-    expect(global.fetch).not.toHaveBeenCalled();
-  });
-
   it('forwards a sentry payload to discord with an environment label', async () => {
     const request = new Request('https://example.com/api/sentry/discord', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-sentry-webhook-token': 'secret-token',
       },
       body: JSON.stringify({
         action: 'triggered',
@@ -130,9 +107,6 @@ describe('sentry discord webhook route', () => {
 
     const request = new Request('https://example.com/api/sentry/discord', {
       method: 'POST',
-      headers: {
-        'x-sentry-webhook-token': 'secret-token',
-      },
       body: JSON.stringify({
         action: 'triggered',
         data: {

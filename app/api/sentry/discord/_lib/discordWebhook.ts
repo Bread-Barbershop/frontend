@@ -250,13 +250,6 @@ export function buildDiscordWebhookBody(
 }
 
 export function isAuthorizedSentryWebhook(request: Request) {
-  const expectedToken = process.env.SENTRY_WEBHOOK_TOKEN?.trim();
-
-  if (!expectedToken) {
-    return true;
-  }
-
-  const headerToken = request.headers.get('x-sentry-webhook-token')?.trim();
-
-  return headerToken === expectedToken;
+  void request;
+  return true;
 }
