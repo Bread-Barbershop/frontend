@@ -7,6 +7,14 @@
       "posterTemplateId": "seminar_01",
       "thumbnailUrl": "/samples/seminar_01/poster.png",
       "dataUrl": "/samples/seminar_01/data.json"
+    },
+    {
+      "id": "wedding_14",
+      "title": "wedding_14",
+      "category": "wedding",
+      "posterTemplateId": "wedding_14",
+      "thumbnailUrl": "/samples/wedding_14/poster.png",
+      "dataUrl": "/samples/wedding_14/data.json"
     }
   ]
 }
