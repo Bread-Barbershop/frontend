@@ -220,7 +220,7 @@ function GallerySampleGrid({
               }
             }}
           >
-            <div className="relative h-full bg-[#F5F1EA]">
+            <div className="relative h-full bg-white">
               <Image
                 src={sample.thumbnailUrl}
                 alt={sample.title}
