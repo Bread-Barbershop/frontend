@@ -16,7 +16,7 @@ export function CalendarType1({
           {currentYear}. {currentMonth.toString().padStart(2, '0')}
         </h3>
       </div>
-      <div className="grid grid-cols-7 gap-y-4 gap-x-1 mb-4">
+      <div className="grid grid-cols-7 gap-y-1 gap-x-1 mb-4">
         {headerDays.map((day, idx) => (
           <div
             key={day}
@@ -37,7 +37,6 @@ export function CalendarType1({
             <div
               className={cn(
                 'flex items-center justify-center relative z-1 transition-colors w-8 h-8 text-sm text-text-tertiary',
-                idx % 7 === 0 && 'text-text-wedding',
                 !dayObj.isCurrentMonth && 'opacity-30'
               )}
               style={idx % 7 === 0 ? { color: accentColor } : undefined}
@@ -45,8 +44,7 @@ export function CalendarType1({
               <span
                 className={cn(
                   'flex items-center justify-center leading-none',
-                  dayObj.isTargetDate &&
-                    'size-5.5 rounded-full bg-text-wedding text-white'
+                  dayObj.isTargetDate && 'size-5.5 rounded-full text-white'
                 )}
                 style={
                   dayObj.isTargetDate

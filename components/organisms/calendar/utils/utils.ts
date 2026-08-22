@@ -149,15 +149,15 @@ export const getFormattedStringDate = (
   year: number,
   month: number,
   day: number
-) => {
-  const dayOfWeek = new Date(year, month - 1, day).getDay();
-  return `${year}년 ${month}월 ${day}일 ${KOR_DAYS[dayOfWeek]}요일`;
-};
+) => `${year}년 ${month}월 ${day}일`;
 
 /**
  * 시간 문자열 포맷팅
  */
-export const getFormattedTimeStr = (baseDayOfWeek: number, timeStr?: string) => {
+export const getFormattedTimeStr = (
+  baseDayOfWeek: number,
+  timeStr?: string
+) => {
   let formattedTime = `${KOR_DAYS[baseDayOfWeek]}요일`;
   if (timeStr) {
     const hasAMPM = timeStr.includes(' ');
@@ -177,7 +177,6 @@ export const getFormattedTimeStr = (baseDayOfWeek: number, timeStr?: string) => 
   }
   return formattedTime;
 };
-
 
 /**
  * 월 텍스트 가져오기 (EN/KO)
@@ -210,28 +209,33 @@ export const getWeekdayStr = (date: Date, language: 'ko' | 'en') => {
 /**
  * 시간 포맷팅 (Type 5용) - "12:00" -> "12시" or "12 PM"
  */
-export const getFormattedTimeLabel = (timeStr: string, language: 'ko' | 'en') => {
+export const getFormattedTimeLabel = (
+  timeStr: string,
+  language: 'ko' | 'en'
+) => {
   if (!timeStr) return '';
-  
+
   // "오후 02:30" 또는 "14:30" 형식 모두 대응
   const hasAMPM = timeStr.includes(' ');
   const parts = timeStr.split(' ');
   const ampmPart = hasAMPM ? parts[0] : '';
   const timePart = hasAMPM ? parts[1] : parts[0];
-  
+
   const [h, m] = timePart.split(':');
   const hour = parseInt(h, 10);
-  
+
   // 오전/오후 문자열에 따른 PM 판단
   const isPM = ampmPart === '오후' || hour >= 12;
   const ampmEN = isPM ? 'PM' : 'AM';
-  
+
   // 12시간제로 변환 (표시용)
   const displayHour = hour % 12 || 12;
 
   if (language === 'ko') {
     return m === '00' ? `${displayHour}시` : `${displayHour}시 ${m}분`;
   } else {
-    return m === '00' ? `${displayHour} ${ampmEN}` : `${displayHour}:${m} ${ampmEN}`;
+    return m === '00'
+      ? `${displayHour} ${ampmEN}`
+      : `${displayHour}:${m} ${ampmEN}`;
   }
 };

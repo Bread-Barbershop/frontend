@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { Label } from '@/components/atoms/label';
@@ -6,8 +6,10 @@ import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { Picture } from '@/components/molecules/picture';
 import { TextField } from '@/components/molecules/text-field';
+import { useToast } from '@/shared/hooks/useToast';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+import { compressImages } from '@/shared/utils/imageCompression';
 import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
@@ -25,6 +27,8 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
       updateImage: state.updateImage,
     }))
   );
+  const { warning } = useToast();
+  const [loadingCount, setLoadingCount] = useState(0);
   const handlePictureDelete = (files?: (File | string)[]) => {
     if (!files) {
       updateBlock(id, { images: [] });
@@ -34,11 +38,25 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
     updateBlock(id, { images: files });
     updateImage(id, files);
   };
-  const handlePictureChange = (file: (File | string)[]) => {
-    const currentBlock = block as EditorBlock<'sponsorshipInfomation'>[];
-    const image = currentBlock.find(b => b.id === id)?.props.images;
-    updateBlock(id, { images: [...(image ?? []), ...file] });
-    updateImage(id, [...(image ?? []), ...file]);
+  const handlePictureChange = async (file: (File | string)[]) => {
+    const files = file.filter((f): f is File => f instanceof File);
+    setLoadingCount(files.length);
+    try {
+      const compressedFiles = await compressImages(files);
+      const compressed = file.map(
+        f => compressedFiles[files.indexOf(f as File)] ?? f
+      );
+
+      const currentBlock = block as EditorBlock<'sponsorshipInfomation'>[];
+      const image = currentBlock.find(b => b.id === id)?.props.images;
+      updateBlock(id, { images: [...(image ?? []), ...compressed] });
+      updateImage(id, [...(image ?? []), ...compressed]);
+    } catch (error) {
+      console.error('[SponsorshipInfomation] 이미지 압축 실패:', error);
+      warning('이미지 처리 중 문제가 발생했어요. 다시 시도해주세요.');
+    } finally {
+      setLoadingCount(0);
+    }
   };
 
   const handleOnChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
@@ -97,6 +115,7 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
           }}
           onChange={handlePictureChange}
           onDelete={handlePictureDelete}
+          loadingCount={loadingCount}
         />
       </div>
       <div className="w-full pb-2 flex gap-2 items-center">

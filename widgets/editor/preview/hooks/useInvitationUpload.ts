@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
-import { hasPreparedInvitation } from '@/features/invitation/save/prepareCache';
 import {
   saveInvitationFlow,
   type SaveProgressStep,
@@ -377,15 +376,6 @@ export const useInvitationUpload = () => {
         await applySaveResult(saveResult, allTasks);
         useEditorStore.getState().setIsDirty(false);
       } else {
-        const result = hasPreparedInvitation(editorData.invitationUuid)
-          ? true
-          : await trashFolder();
-        //실패 토스트 알람 표시
-        if (!result) {
-          setIsLoading(false);
-          setIsFail(true);
-          return;
-        }
         const saveResult = await saveInvitationFlow({
           bulkData,
           images: allTasks as { id: string; file: File }[],
@@ -427,26 +417,6 @@ export const useInvitationUpload = () => {
     }
   };
 
-  const trashFolder = async () => {
-    try {
-      const responses = await Promise.all([
-        fetch(`/api/drive/deleteInvitation`, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ folderId: editorData.imageFolderId }),
-        }),
-        fetch(`/api/drive/deleteInvitation`, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ folderId: editorData.audioFolderId }),
-        }),
-      ]);
-      return responses.every(response => response.ok);
-    } catch (error) {
-      console.error('삭제 중 오류 발생:', error);
-      return false;
-    }
-  };
   return {
     handleUpload,
     isLoading,

@@ -46,3 +46,11 @@ storybook-static
 .swc/
 
 .gitkeep
+
+.env.sentry-build-plugin
+
+.claude/
+
+.mcp.json
+
+CLAUDE.md

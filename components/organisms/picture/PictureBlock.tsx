@@ -1,6 +1,6 @@
 'use client';
 import { JSONContent } from '@tiptap/core';
-import React, { ChangeEvent, useEffect } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { Label } from '@/components/atoms/label';
@@ -10,8 +10,10 @@ import { Picture } from '@/components/molecules/picture';
 import { TextEditor } from '@/components/molecules/text-editor';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
+import { useToast } from '@/shared/hooks/useToast';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
+import { compressImages } from '@/shared/utils/imageCompression';
 import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
@@ -31,6 +33,8 @@ function PictureBlock({ blockInfo, id }: Props) {
       updateImage: state.updateImage,
     }))
   );
+  const { warning } = useToast();
+  const [loadingCount, setLoadingCount] = useState(0);
 
   useEffect(() => {
     if (!blockInfo.props.subTitle) {
@@ -38,9 +42,22 @@ function PictureBlock({ blockInfo, id }: Props) {
     }
   }, [blockInfo.props.subTitle, id, updateBlock]);
 
-  const handlePictureChange = (file: (File | string)[]) => {
-    updateBlock(id, { image: file });
-    updateImage(id, file);
+  const handlePictureChange = async (file: (File | string)[]) => {
+    const files = file.filter((f): f is File => f instanceof File);
+    setLoadingCount(files.length);
+    try {
+      const compressedFiles = await compressImages(files);
+      const compressed = file.map(
+        f => compressedFiles[files.indexOf(f as File)] ?? f
+      );
+      updateBlock(id, { image: compressed });
+      updateImage(id, compressed);
+    } catch (error) {
+      console.error('[PictureBlock] 이미지 압축 실패:', error);
+      warning('이미지 처리 중 문제가 발생했어요. 다시 시도해주세요.');
+    } finally {
+      setLoadingCount(0);
+    }
   };
   const handlePictureDelete = () => {
     updateBlock(id, { image: [] });
@@ -86,6 +103,7 @@ function PictureBlock({ blockInfo, id }: Props) {
           onChange={handlePictureChange}
           onDelete={handlePictureDelete}
           className="text-center py-1"
+          loadingCount={loadingCount}
         />
         {blockInfo.props.isTitle && (
           <TextField

@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
 import { JsonData } from '@/app/editor/[id]/types/savedata';
@@ -32,7 +33,7 @@ export async function loadInvitations(
 ): Promise<DriveListResponse | null> {
   if (!id) return null;
   try {
-    const listRes = await googleFetch(
+  const listRes = await googleFetch(
       `https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents&fields=files(id, name, mimeType)`,
       { cache: 'no-store' }
     );
@@ -50,6 +51,7 @@ export async function loadInvitations(
 
     return listData;
   } catch (error) {
+    captureDriveError({ error, operation: 'drive_editor_load_list' });
     console.error(error);
     return null;
   }
@@ -57,7 +59,7 @@ export async function loadInvitations(
 
 export async function downloadFiles(id: string): Promise<JsonData | null> {
   try {
-    const listRes = await googleFetch(
+  const listRes = await googleFetch(
       `https://www.googleapis.com/drive/v3/files/${id}?alt=media`,
       { cache: 'no-store' }
     );
@@ -73,6 +75,7 @@ export async function downloadFiles(id: string): Promise<JsonData | null> {
 
     return listData;
   } catch (error) {
+    captureDriveError({ error, operation: 'drive_editor_load_data' });
     console.error(error);
     return null;
   }
@@ -106,6 +109,7 @@ export async function getFilesInFolder(
 
     return data; // { files: [...] }
   } catch (error) {
+    captureDriveError({ error, operation: 'drive_editor_load_assets' });
     console.error(error);
     return null;
   }

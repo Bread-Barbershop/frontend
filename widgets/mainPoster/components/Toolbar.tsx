@@ -14,7 +14,7 @@ import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 function Toolbar() {
   // const { canvas, createTextBox, setDrawingType, drawingType, addSlotRect } = useFabricContext();
-  const { canvas, createTextBox, setDrawingType, drawingType } =
+  const { canvas, createTextBox, setDrawingType, drawingType, toggleDrawingMode } =
     useFabricContext();
   const { activeTab, setActiveTab } = useEditorStore(
     useShallow(state => ({
@@ -27,6 +27,11 @@ function Toolbar() {
   // const isAdmin = searchParams.get('type') === 'admin';
 
   if (!canvas) return null;
+
+  const selectNonDrawingTool = (tab: 'text' | 'image' | 'background') => {
+    toggleDrawingMode(canvas, { enable: false });
+    setActiveTab(tab);
+  };
 
   type ToolbarItem = {
     id: string;
@@ -51,7 +56,7 @@ function Toolbar() {
         </p>
       ),
       onClick: () => {
-        setActiveTab('text');
+        selectNonDrawingTool('text');
         createTextBox(canvas);
       },
     },
@@ -61,7 +66,7 @@ function Toolbar() {
       araiaLabel: '이미지 추가',
       icon: <AddImage width={24} height={24} />,
       onClick: () => {
-        setActiveTab('image');
+        selectNonDrawingTool('image');
       },
       hoverIcon: (
         <p className="w-24 font-semibold text-sm text-text-plain">
@@ -95,7 +100,7 @@ function Toolbar() {
         </p>
       ),
       onClick: () => {
-        setActiveTab('background');
+        selectNonDrawingTool('background');
       },
     },
   ];

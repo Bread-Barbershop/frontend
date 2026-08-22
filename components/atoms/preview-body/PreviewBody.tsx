@@ -17,7 +17,7 @@ export const PreviewBody = ({ html }: { html: string }) => {
 
   return (
     <div
-      className={`text-sm select-none ${previewTextClassName}`}
+      className={`text-sm select-none px-0.5 ${previewTextClassName}`}
       dangerouslySetInnerHTML={{ __html: html }}
       style={{
         fontFamily,

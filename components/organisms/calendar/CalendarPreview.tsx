@@ -54,7 +54,7 @@ export function CalendarPreview({
     monthText,
     targetLabel,
     timeLabel,
-  } = useCalendarData({ date, time, language, template });
+  } = useCalendarData({ date, time, language, template, type: blockInfo.type });
 
   const isDateIncomplete = !date || date.length < 10;
   const { fontFamily } = useBodyFontInfo();
@@ -72,6 +72,7 @@ export function CalendarPreview({
       subTitleDefault={defaultSubTitle}
       mainTitle={title}
       mainTitleDefault={defaultTitle}
+      childClassName="gap-6"
       {...rest}
     >
       {/* String Date Display */}

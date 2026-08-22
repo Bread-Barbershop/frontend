@@ -58,10 +58,10 @@ export const PlacePreview = ({
         className="flex flex-col justify-center items-center text-text-primary"
         style={{ fontFamily }}
       >
+        <p className="font-normal text-[16px]">{placeAddress}</p>
         <p className="font-normal text-[16px]">
           {placeName} {placeDetail}
         </p>
-        <p className="font-normal text-[16px]">{placeAddress}</p>
       </section>
       <p className="font-normal text-text-tertiary" style={{ fontFamily }}>
         TEL. {formatPhoneNumber(placeTel)}

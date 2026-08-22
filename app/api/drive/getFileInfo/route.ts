@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import sharp from 'sharp';
 
+import { captureDriveError } from '../_lib/captureDriveError';
 import { googleFetch } from '../_lib/googleFetch';
 
 export async function POST(req: Request) {
@@ -45,6 +46,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true, images: resizedImages });
   } catch (error) {
+    captureDriveError({ error, operation: 'drive_image_asset_load' });
     return NextResponse.json(
       { success: false, error: (error as Error).message },
       { status: 500 }

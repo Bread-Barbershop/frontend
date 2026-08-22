@@ -34,6 +34,12 @@ export const useKeyboardEvents = (
     if (!canvas) return;
 
     const handleKeyboard = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isEditableTarget =
+        target?.matches('input, textarea, [contenteditable="true"]') ?? false;
+
+      if (isEditableTarget) return;
+
       const hasActiveObj = canvas.getActiveObjects().length > 0;
       if (!isMouseInCanvasRef.current && !hasActiveObj) return;
 
