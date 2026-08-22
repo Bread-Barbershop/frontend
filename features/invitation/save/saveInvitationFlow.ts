@@ -1,3 +1,5 @@
+import * as Sentry from '@sentry/nextjs';
+
 import type {
   EditorBlock,
   PersistedEditorBlock,
@@ -121,6 +123,19 @@ type TokenState = {
   refreshAccessToken: () => Promise<string>;
 };
 
+type SaveFailureStage =
+  | 'prepare'
+  | 'upload_images'
+  | 'upload_audio'
+  | 'save_thumbnail'
+  | 'save_data_json'
+  | 'save_share_meta'
+  | 'publish_visibility';
+
+type SaveDiagnostics = {
+  currentStage: SaveFailureStage;
+};
+
 type UploadResult = {
   imagesStep: StepResult;
   audioStep: StepResult;
@@ -131,7 +146,9 @@ type UploadResult = {
 type CommitResult = {
   dataStep: StepResult;
   thumbnailSaveFailed: boolean;
+  thumbnailSaveError?: unknown;
   metaSaveFailed: boolean;
+  metaSaveError?: unknown;
   thumbnailFileId?: string;
   guestUrl: string;
 };
@@ -160,6 +177,54 @@ function toClientGuestUrl(url: string) {
 
   const path = url.startsWith('/') ? url : `/${url}`;
   return `${window.location.origin}${path}`;
+}
+
+function toError(error: unknown, fallbackMessage: string): Error {
+  if (error instanceof Error) return error;
+  if (typeof error === 'string' && error) return new Error(error);
+  return new Error(fallbackMessage);
+}
+
+function getHttpStatus(error: unknown): number | undefined {
+  if (error instanceof Error) {
+    const match = error.message.match(/:\s*(\d{3})$/);
+    if (match?.[1]) return Number(match[1]);
+  }
+
+  const candidate = error as { status?: unknown; code?: unknown };
+  const status = candidate?.status ?? candidate?.code;
+  return typeof status === 'number' ? status : undefined;
+}
+
+function captureSaveFailure(params: {
+  error: unknown;
+  failedStages: SaveFailureStage[];
+  imageFailureCount?: number;
+  audioFailureCount?: number;
+  dataFailureCount?: number;
+  tokenRefreshed?: boolean;
+  usedPrepareFallback?: boolean;
+  visibilityStatus?: number;
+}) {
+  const error = toError(params.error, 'Invitation save failed');
+
+  Sentry.withScope(scope => {
+    scope.setTag('operation', 'invitation_save');
+    scope.setTag('failed_stage', params.failedStages.join(','));
+    scope.setTag('image_failure_count', String(params.imageFailureCount ?? 0));
+    scope.setTag('audio_failure_count', String(params.audioFailureCount ?? 0));
+    scope.setTag('data_failure_count', String(params.dataFailureCount ?? 0));
+    scope.setContext('invitation_save', {
+      imageFailureCount: params.imageFailureCount ?? 0,
+      audioFailureCount: params.audioFailureCount ?? 0,
+      dataFailureCount: params.dataFailureCount ?? 0,
+      tokenRefreshed: Boolean(params.tokenRefreshed),
+      usedPrepareFallback: Boolean(params.usedPrepareFallback),
+      visibilityStatus: params.visibilityStatus,
+      httpStatus: getHttpStatus(error),
+    });
+    Sentry.captureException(error);
+  });
 }
 
 type InitialVisibilityResult = SaveInvitationFlowResult['visibility'];
@@ -247,9 +312,10 @@ async function upload(params: {
   images: UploadTask[];
   audio: File | null;
   token: TokenState;
+  diagnostics: SaveDiagnostics;
   onProgress?: (step: SaveProgressStep) => void;
 }): Promise<UploadResult> {
-  const { prep, images, audio, token, onProgress } = params;
+  const { prep, images, audio, token, diagnostics, onProgress } = params;
 
   // 공통 업로드 실행기: 1차 업로드 후 실패한 파일만 1회 재시도한다.
   const runUploadStep = async (step: {
@@ -299,6 +365,7 @@ async function upload(params: {
   };
 
   onProgress?.('loadingPhotos');
+  diagnostics.currentStage = 'upload_images';
   const imagesStep = await runUploadStep({
     originFile: images,
     folderId: prep.imageFolderId,
@@ -318,6 +385,7 @@ async function upload(params: {
   });
 
   onProgress?.('arrangingContent');
+  diagnostics.currentStage = 'upload_audio';
   const audioStep = await runUploadStep({
     originFile: audio ? [{ id: 'bgm', file: audio }] : [],
     folderId: prep.audioFolderId,
@@ -345,6 +413,7 @@ async function commit(params: {
   bgmData: BgmData;
   mainPoster: MainPosterData;
   invitationThumbnail: InvitationThumbnail;
+  diagnostics: SaveDiagnostics;
   onProgress?: (step: SaveProgressStep) => void;
 }): Promise<CommitResult> {
   const {
@@ -359,6 +428,7 @@ async function commit(params: {
     bgmData,
     mainPoster,
     invitationThumbnail,
+    diagnostics,
     onProgress,
   } = params;
   const { fileToId, uploadedAudioFileId } = uploadResult;
@@ -451,9 +521,11 @@ async function commit(params: {
   onProgress?.('polishingInvitation');
   let thumbnailFileId: string | undefined = undefined;
   let thumbnailSaveFailed = false;
+  let thumbnailSaveError: unknown;
 
   // 초대장 썸네일 데이터 먼저 저장하여 URL(fileId) 확보
   if (invitationThumbnail && invitationThumbnail.dataUrl) {
+    diagnostics.currentStage = 'save_thumbnail';
     try {
       const thumbnailResponse = await fetch('/api/drive/thumbnail', {
         method: 'POST',
@@ -473,6 +545,7 @@ async function commit(params: {
       thumbnailFileId = thumbnailResult.thumbnailFileId;
     } catch (error) {
       thumbnailSaveFailed = true;
+      thumbnailSaveError = error;
       console.error('초대장 썸네일 데이터 저장 실패:', error);
     }
   }
@@ -504,6 +577,7 @@ async function commit(params: {
   });
 
   onProgress?.('reviewingDetails');
+  diagnostics.currentStage = 'save_data_json';
   // data.json PATCH가 저장 완료의 핵심 단계다. 실패하면 401/5xx에 한해 1회 재시도한다.
   const dataFirstAttempt: BatchResult = await (async () => {
     try {
@@ -543,8 +617,10 @@ async function commit(params: {
   onProgress?.('checkingPresentation');
   // 공유 데이터 저장 실패는 기존 정책대로 전체 저장 실패로 보지 않는다.
   let metaSaveFailed = false;
+  let metaSaveError: unknown;
 
   try {
+    diagnostics.currentStage = 'save_share_meta';
     const primaryImage =
       replacedShareUrl.images?.[0] ?? replacedShareUrl.urlImage?.[0];
 
@@ -599,13 +675,16 @@ async function commit(params: {
     );
   } catch (error) {
     metaSaveFailed = true;
+    metaSaveError = error;
     console.error('Share data save failed:', error);
   }
 
   return {
     dataStep,
     thumbnailSaveFailed,
+    thumbnailSaveError,
     metaSaveFailed,
+    metaSaveError,
     thumbnailFileId: finalMainPoster.thumbnailFileId,
     guestUrl: finalGuestUrl,
   };
@@ -686,8 +765,9 @@ async function requestInitialPublicVisibility(
 
 // saveInvitationFlow: 저장 버튼에서 호출되는 최상위 오케스트레이션 함수다.
 // prepare -> upload -> commit 순서로 실행하고, 기존 UI가 기대하는 결과 형태를 그대로 반환한다.
-export async function saveInvitationFlow(
-  params: SaveInvitationFlowParams
+async function runSaveInvitationFlow(
+  params: SaveInvitationFlowParams,
+  diagnostics: SaveDiagnostics
 ): Promise<SaveInvitationFlowResult> {
   const {
     bulkData,
@@ -701,7 +781,10 @@ export async function saveInvitationFlow(
     invitationThumbnail,
   } = params;
 
+  let usedPrepareFallback = false;
+
   params.onProgress?.('checkingContent');
+  diagnostics.currentStage = 'prepare';
   let prep = await prepare(invitationUuid);
   let token = createTokenState(prep);
   let uploadResult = await upload({
@@ -709,6 +792,7 @@ export async function saveInvitationFlow(
     images: params.uploadImages ?? images,
     audio,
     token,
+    diagnostics,
     onProgress: params.onProgress,
   });
   let commitResult = await commit({
@@ -723,6 +807,7 @@ export async function saveInvitationFlow(
     bgmData,
     mainPoster,
     invitationThumbnail,
+    diagnostics,
     onProgress: params.onProgress,
   });
 
@@ -733,7 +818,9 @@ export async function saveInvitationFlow(
       dataFailures: commitResult.dataStep.final.fail,
     })
   ) {
+    usedPrepareFallback = true;
     params.onProgress?.('checkingContent');
+    diagnostics.currentStage = 'prepare';
     prep = await prepareFallback(prep.invitationUuid);
     token = createTokenState(prep);
     uploadResult = await upload({
@@ -741,6 +828,7 @@ export async function saveInvitationFlow(
       images: params.uploadImages ?? images,
       audio,
       token,
+      diagnostics,
       onProgress: params.onProgress,
     });
     commitResult = await commit({
@@ -755,6 +843,7 @@ export async function saveInvitationFlow(
       bgmData,
       mainPoster,
       invitationThumbnail,
+      diagnostics,
       onProgress: params.onProgress,
     });
   }
@@ -766,6 +855,7 @@ export async function saveInvitationFlow(
     (commitResult.thumbnailSaveFailed ? 1 : 0) +
     (commitResult.metaSaveFailed ? 1 : 0);
   params.onProgress?.('finishingInvitation');
+  diagnostics.currentStage = 'publish_visibility';
   const visibility =
     saveFailedBeforeVisibility === 0
       ? await requestInitialPublicVisibility(prep.invitationFolderId)
@@ -787,7 +877,7 @@ export async function saveInvitationFlow(
     saveFailedBeforeVisibility +
     (visibility.attempted && !visibility.ok ? 1 : 0);
 
-  return {
+  const result = {
     success: totalFailed === 0,
     invitationUuid: prep.invitationUuid,
     guestUrl: commitResult.guestUrl,
@@ -812,4 +902,63 @@ export async function saveInvitationFlow(
     },
     visibility,
   };
+
+  if (!result.success) {
+    const failedStages: SaveFailureStage[] = [];
+    const firstFailure =
+      uploadResult.imagesStep.final.fail[0]?.error ??
+      uploadResult.audioStep.final.fail[0]?.error ??
+      commitResult.dataStep.final.fail[0]?.error ??
+      commitResult.thumbnailSaveError ??
+      commitResult.metaSaveError ??
+      visibility.error;
+
+    if (uploadResult.imagesStep.final.fail.length) {
+      failedStages.push('upload_images');
+    }
+    if (uploadResult.audioStep.final.fail.length) {
+      failedStages.push('upload_audio');
+    }
+    if (commitResult.dataStep.final.fail.length) {
+      failedStages.push('save_data_json');
+    }
+    if (commitResult.thumbnailSaveFailed) {
+      failedStages.push('save_thumbnail');
+    }
+    if (commitResult.metaSaveFailed) {
+      failedStages.push('save_share_meta');
+    }
+    if (visibility.attempted && !visibility.ok) {
+      failedStages.push('publish_visibility');
+    }
+
+    captureSaveFailure({
+      error: firstFailure,
+      failedStages,
+      imageFailureCount: uploadResult.imagesStep.final.fail.length,
+      audioFailureCount: uploadResult.audioStep.final.fail.length,
+      dataFailureCount: commitResult.dataStep.final.fail.length,
+      tokenRefreshed: token.refreshedToken,
+      usedPrepareFallback,
+      visibilityStatus: visibility.status,
+    });
+  }
+
+  return result;
+}
+
+export async function saveInvitationFlow(
+  params: SaveInvitationFlowParams
+): Promise<SaveInvitationFlowResult> {
+  const diagnostics: SaveDiagnostics = { currentStage: 'prepare' };
+
+  try {
+    return await runSaveInvitationFlow(params, diagnostics);
+  } catch (error) {
+    captureSaveFailure({
+      error,
+      failedStages: [diagnostics.currentStage],
+    });
+    throw error;
+  }
 }
