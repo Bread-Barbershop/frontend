@@ -534,12 +534,17 @@ export const MainPosterPreview = () => {
           />
         )}
 
-        {canvas && <ContextMenu />}
-        <div className="overflow-hidden">
+        {canvas && !isCanvasLoading && <ContextMenu />}
+        <div
+          className={cn(
+            'overflow-hidden',
+            isCanvasLoading && 'pointer-events-none cursor-progress'
+          )}
+        >
           <canvas ref={canvasRef} className="w-full h-full" />
         </div>
         {isCanvasLoading && (
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-white/82 backdrop-blur-[1px]">
+          <div className="absolute inset-0 z-20 flex cursor-progress flex-col items-center justify-center gap-3 bg-white/82 backdrop-blur-[1px]">
             <LoadingSpinner className="h-7 w-7 animate-spin text-text-primary" />
             <p className="text-sm text-text-primary">
               저장된 포스터를 불러오는 중...

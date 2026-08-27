@@ -1,0 +1,28 @@
+{
+  "samples": [
+    {
+      "id": "seminar_01",
+      "title": "seminar_01",
+      "category": "seminar",
+      "posterTemplateId": "seminar_01",
+      "thumbnailUrl": "/samples/seminar_01/poster.png",
+      "dataUrl": "/samples/seminar_01/data.json"
+    },
+    {
+      "id": "wedding_14",
+      "title": "wedding_14",
+      "category": "wedding",
+      "posterTemplateId": "wedding_14",
+      "thumbnailUrl": "/samples/wedding_14/poster.png",
+      "dataUrl": "/samples/wedding_14/data.json"
+    },
+    {
+      "id": "birthday_03",
+      "title": "birthday_03",
+      "category": "birthday",
+      "posterTemplateId": "birthday_03",
+      "thumbnailUrl": "/samples/birthday_03/poster.png",
+      "dataUrl": "/samples/birthday_03/data.json"
+    }
+  ]
+}

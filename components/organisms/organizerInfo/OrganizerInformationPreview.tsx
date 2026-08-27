@@ -1,4 +1,3 @@
-import { Image } from '@/components/atoms/image';
 import { PreviewBody } from '@/components/atoms/preview-body/PreviewBody';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
@@ -70,7 +69,7 @@ export const OrganizerInformationPreview = ({
           type="button"
           onClick={handleClick}
           className={cn(
-            'w-83.75 h-83.75 overflow-hidden rounded-3xl',
+            'w-83.75 max-w-full overflow-hidden rounded-3xl',
             hasUrl &&
               url &&
               'cursor-pointer hover:opacity-80 transition-opacity'
@@ -78,11 +77,11 @@ export const OrganizerInformationPreview = ({
           aria-label={url && `${organizer} 홈페이지로 이동`}
           title={url && `${organizer} 홈페이지로 이동`}
         >
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src={preview}
             alt="주최사 이미지"
-            fill
-            className="object-cover"
+            className="block h-auto w-full"
           />
         </button>
       )}

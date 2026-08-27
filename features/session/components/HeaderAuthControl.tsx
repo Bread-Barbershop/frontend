@@ -99,20 +99,20 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
       <>
         <button
           type="button"
-          onClick={handleLogoutClick}
-          disabled={isBusy}
-          className={HEADER_ACTION_CLASS}
-        >
-          Logout
-        </button>
-        <button
-          type="button"
           onClick={handleDashboardClick}
           disabled={isBusy}
           aria-label="Go to dashboard"
           className={HEADER_ACTION_CLASS}
         >
           My Page
+        </button>
+        <button
+          type="button"
+          onClick={handleLogoutClick}
+          disabled={isBusy}
+          className={HEADER_ACTION_CLASS}
+        >
+          Logout
         </button>
         {modals}
       </>

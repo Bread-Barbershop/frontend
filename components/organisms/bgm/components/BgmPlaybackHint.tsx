@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from 'react';
 
-export function BgmPlaybackHint({ isDismissed }: { isDismissed: boolean }) {
+export function BgmPlaybackHint({
+  className = '',
+  isDismissed,
+}: {
+  className?: string;
+  isDismissed: boolean;
+}) {
   const [isMounted, setIsMounted] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -24,7 +30,7 @@ export function BgmPlaybackHint({ isDismissed }: { isDismissed: boolean }) {
     <div
       className={`pointer-events-none absolute right-14 top-4 z-50 flex h-8 items-center rounded-full bg-black/55 px-3 text-xs font-medium text-white shadow-sm backdrop-blur-md transition-opacity duration-700 ${
         isVisible && !isDismissed ? 'opacity-100' : 'opacity-0'
-      }`}
+      } ${className}`}
     >
       클릭하면 음악이 재생됩니다
     </div>

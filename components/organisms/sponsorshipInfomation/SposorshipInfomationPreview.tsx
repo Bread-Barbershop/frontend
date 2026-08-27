@@ -54,7 +54,7 @@ function SponsorshipInfomationPreview({
               src={item}
               alt="후원사 로고 이미지"
               fill
-              className="object-cover rounded-lg"
+              className="object-contain rounded-lg"
             />
           </div>
         ))}
@@ -69,7 +69,7 @@ function SponsorshipInfomationPreview({
                 src={item}
                 alt="후원사 로고 이미지"
                 fill
-                className="object-cover rounded-lg"
+                className="object-contain rounded-lg"
               />
             </div>
           ))}
