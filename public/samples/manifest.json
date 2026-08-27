@@ -15,6 +15,14 @@
       "posterTemplateId": "wedding_14",
       "thumbnailUrl": "/samples/wedding_14/poster.png",
       "dataUrl": "/samples/wedding_14/data.json"
+    },
+    {
+      "id": "birthday_03",
+      "title": "birthday_03",
+      "category": "birthday",
+      "posterTemplateId": "birthday_03",
+      "thumbnailUrl": "/samples/birthday_03/poster.png",
+      "dataUrl": "/samples/birthday_03/data.json"
     }
   ]
 }
