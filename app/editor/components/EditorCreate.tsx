@@ -138,6 +138,7 @@ function EditorCreate() {
 
     async function loadSample() {
       if (!sampleId) {
+        setSavedData(null);
         setIsLoading(false);
         setLoadError(false);
         return;
