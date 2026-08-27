@@ -204,14 +204,28 @@ function GuestBgm({
     setRequestedAudioKey(selectedAudioKey);
     setIsOn(prev => !prev);
   };
+  const isDashboardPreview = mode === 'dashboard-preview';
 
   return (
     <>
       <audio ref={audioRef} preload="none" />
       {selectedAudioSrc && (
         <>
-          {isPosterReady && <BgmPlaybackHint isDismissed={isHintDismissed} />}
-          <BgmToggleButton isOn={isOn} onToggle={handleToggle} />
+          {isPosterReady && (
+            <BgmPlaybackHint
+              className={
+                isDashboardPreview
+                  ? '!right-[72px] !top-8 !bg-white/72 !text-text-plain'
+                  : ''
+              }
+              isDismissed={isHintDismissed}
+            />
+          )}
+          <BgmToggleButton
+            className={isDashboardPreview ? '!right-8 !top-8' : ''}
+            isOn={isOn}
+            onToggle={handleToggle}
+          />
         </>
       )}
     </>
