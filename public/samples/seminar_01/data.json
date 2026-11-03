@@ -345,7 +345,8 @@
         "openNavi": true,
         "mapLocked": true,
         "lng": 127.0591591,
-        "lat": 37.5118239
+        "lat": 37.5118239,
+        "checkedPlaceTel": true
       }
     },
     {

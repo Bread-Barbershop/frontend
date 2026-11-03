@@ -51,6 +51,7 @@ export function Place({ blockInfo, id }: Props) {
     placeAddress,
     placeTel,
     checkedSubTitle,
+    checkedPlaceTel = false,
     openMap,
     openNavi,
     mapLocked,
@@ -186,25 +187,27 @@ export function Place({ blockInfo, id }: Props) {
           }}
           className="w-full py-1.5 text-center"
         />
-        <TextField
-          label="연락처"
-          inputProps={{
-            placeholder: fieldCopy.placeTelPlaceholder,
-            type: 'tel',
-            inputMode: 'numeric',
-            onChange: e =>
-              handleUpdateBlock(
-                'placeTel',
-                normalizePhoneNumber(e.target.value)
-              ),
-            value: formatPhoneNumber(placeTel),
-          }}
-          className="w-full py-1.5 text-center"
-        />
+        {checkedPlaceTel && (
+          <TextField
+            label="연락처"
+            inputProps={{
+              placeholder: fieldCopy.placeTelPlaceholder,
+              type: 'tel',
+              inputMode: 'numeric',
+              onChange: e =>
+                handleUpdateBlock(
+                  'placeTel',
+                  normalizePhoneNumber(e.target.value)
+                ),
+              value: formatPhoneNumber(placeTel),
+            }}
+            className="w-full py-1.5 text-center"
+          />
+        )}
         <section className="flex flex-row gap-2 items-center w-full py-1.5">
-          <Label className="font-semibold">추가기능</Label>
+          <Label className="font-semibold shrink-0">추가기능</Label>
           <div>
-            <div className="flex flex-row gap-2 items-center">
+            <div className="flex flex-row flex-wrap gap-2 items-center">
               <Checkbox
                 onChange={e =>
                   handleUpdateBlock('checkedSubTitle', e.target.checked)
@@ -212,6 +215,14 @@ export function Place({ blockInfo, id }: Props) {
                 checked={checkedSubTitle}
               >
                 <span className="text-[13px]">영문 제목 추가</span>
+              </Checkbox>
+              <Checkbox
+                onChange={e =>
+                  handleUpdateBlock('checkedPlaceTel', e.target.checked)
+                }
+                checked={checkedPlaceTel}
+              >
+                <span className="text-[13px]">연락처 추가</span>
               </Checkbox>
               <Checkbox
                 direction="right"
