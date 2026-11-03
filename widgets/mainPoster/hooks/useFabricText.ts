@@ -10,6 +10,7 @@ import {
   TextboxWithLock,
   TextSelectionStyleKey,
 } from '../types/fabric';
+import { isTextboxObject } from '../utils/fabricUtils';
 import { MIXED_VALUE, normalizeFontWeight } from '../utils/fontUtils';
 
 interface Props {
@@ -136,7 +137,7 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
   const applyRichStyle = useCallback(
     (styleObj: RichStyle, canvas: Canvas) => {
       const activeObject = canvas.getActiveObject() as TextboxWithLock;
-      if (!activeObject || activeObject.isLocked) return;
+      if (!isTextboxObject(activeObject) || activeObject.isLocked) return;
       if (handleNumberInValidity(styleObj)) return;
 
       const isLayout = isLayoutStyle(styleObj);
@@ -213,7 +214,7 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
     styleKeys: T,
     onChange: (values: RichStyleResult<T>) => void
   ) => {
-    if (!activeObject) return;
+    if (!isTextboxObject(activeObject)) return;
 
     const selectionStart = activeObject.selectionStart ?? 0;
     const selectionEnd = activeObject.selectionEnd ?? 0;
@@ -225,7 +226,10 @@ export const useFabricText = ({ syncActiveObjectInfo, saveHistory }: Props) => {
       ? selectionEnd
       : (activeObject.text?.length ?? 0);
 
-    const selectionStyles = activeObject.getSelectionStyles(start, end, true);
+    const selectionStyles =
+      typeof activeObject.getSelectionStyles === 'function'
+        ? activeObject.getSelectionStyles(start, end, true)
+        : [];
 
     const getStyleValue = (style: RichStyleKey): string => {
       const values = selectionStyles

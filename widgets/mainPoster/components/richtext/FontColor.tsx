@@ -1,5 +1,4 @@
 import { hsvaToHex } from '@uiw/color-convert';
-import { Textbox } from 'fabric';
 import { ChevronDown } from 'lucide-react';
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 
@@ -15,7 +14,7 @@ import {
 } from '@/shared/utils/floatingPosition';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
-import { convertFabricColor } from '../../utils/fabricUtils';
+import { convertFabricColor, isTextboxObject } from '../../utils/fabricUtils';
 
 const VIEWPORT_GAP = 12;
 const PANEL_GAP = 12;
@@ -50,7 +49,8 @@ function FontColor() {
   const containerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const isPickingColorRef = useRef(false);
-  const activeObject = canvas?.getActiveObject() as Textbox;
+  const rawActiveObject = canvas?.getActiveObject();
+  const activeObject = isTextboxObject(rawActiveObject) ? rawActiveObject : null;
   const baseId = useId();
   const popoverId = `color-picker-${baseId}`;
 
@@ -141,6 +141,7 @@ function FontColor() {
     }
     const handleSync = () => {
       if (isPickingColorRef.current) return;
+      if (!isTextboxObject(activeObject)) return;
 
       getRichStyles(activeObject, ['fill'], ([color]) => setPickerColor(color));
     };
