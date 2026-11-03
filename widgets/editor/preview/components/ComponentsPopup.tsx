@@ -1,6 +1,6 @@
 'use client';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 
 import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
@@ -13,8 +13,14 @@ interface Props {
   onPopClose: () => void;
 }
 
+const emptySubscribe = () => () => {};
+
 function ComponentsPopup({ open = true, onPopClose }: Props) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
   const [active, setActive] = useState('wedding');
 
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -23,10 +29,6 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
   const manualScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (!open) return;
