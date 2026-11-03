@@ -1,7 +1,10 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+
+import { disableBodyScroll } from '@/shared/utils/focusTrap';
 
 type PrivacyNoticeModalProps = {
   open: boolean;
@@ -15,6 +18,11 @@ function PrivacyNoticeModal({
   variant = 'default',
 }: PrivacyNoticeModalProps) {
   const isMobileHome = variant === 'mobileHome';
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleClose = useCallback(() => {
     onClose();
@@ -22,6 +30,8 @@ function PrivacyNoticeModal({
 
   useEffect(() => {
     if (!open) return;
+
+    const enableRestore = disableBodyScroll();
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
@@ -33,22 +43,21 @@ function PrivacyNoticeModal({
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
+      enableRestore();
     };
   }, [handleClose, open]);
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
-          className={`fixed inset-0 z-[50000] flex items-center justify-center px-5 ${
-            isMobileHome
-              ? 'bg-[rgb(0_0_0_/_16%)]'
-              : 'bg-[rgb(0_0_0_/_8%)]'
-          }`}
+          className="fixed inset-0 z-[50000] flex items-center justify-center px-5 bg-black/50"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
+          transition={{ duration: 0.25, ease: 'easeOut' }}
           onClick={handleClose}
         >
           <motion.div
@@ -58,7 +67,7 @@ function PrivacyNoticeModal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
             onClick={event => event.stopPropagation()}
           >
             <div
@@ -125,7 +134,8 @@ function PrivacyNoticeModal({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
 
