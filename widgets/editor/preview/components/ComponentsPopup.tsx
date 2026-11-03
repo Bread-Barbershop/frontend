@@ -1,4 +1,5 @@
 'use client';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -8,10 +9,12 @@ import ContentsArea from './ContentsArea';
 import TabArea from './TabArea';
 
 interface Props {
+  open?: boolean;
   onPopClose: () => void;
 }
 
-function ComponentsPopup({ onPopClose }: Props) {
+function ComponentsPopup({ open = true, onPopClose }: Props) {
+  const [mounted, setMounted] = useState(false);
   const [active, setActive] = useState('wedding');
 
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -22,6 +25,12 @@ function ComponentsPopup({ onPopClose }: Props) {
   );
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+
     const closeIfViewportGuardActive = () => {
       if (window.innerWidth < DESKTOP_CONTENT_MIN_WIDTH) {
         onPopClose();
@@ -31,11 +40,22 @@ function ComponentsPopup({ onPopClose }: Props) {
     closeIfViewportGuardActive();
     window.addEventListener('resize', closeIfViewportGuardActive);
 
-    return () =>
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onPopClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
       window.removeEventListener('resize', closeIfViewportGuardActive);
-  }, [onPopClose]);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [open, onPopClose]);
 
   useEffect(() => {
+    if (!open) return;
     const container = scrollContainerRef.current;
     if (!container) return;
 
@@ -61,7 +81,7 @@ function ComponentsPopup({ onPopClose }: Props) {
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [open]);
 
   useEffect(() => {
     return () => {
@@ -90,27 +110,40 @@ function ComponentsPopup({ onPopClose }: Props) {
     }, 800);
   };
 
+  if (!mounted) return null;
+
   return createPortal(
-    <div className="fixed inset-0 z-[30000] pointer-events-none">
-      <div
-        className="absolute inset-0 pointer-events-auto"
-        onClick={onPopClose}
-      />
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-164 h-99.5 shadow-edit bg-white rounded-md flex flex-col gap-3 pointer-events-auto">
-        <div>
-          <TabArea
-            active={active}
-            tabClick={english => handleTabClick(english)}
-            closeClick={onPopClose}
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className="fixed inset-0 z-[30000] pointer-events-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25, ease: 'easeOut' }}
+        >
+          <div
+            className="absolute inset-0 pointer-events-auto"
+            onClick={onPopClose}
           />
-        </div>
-        <ContentsArea
-          scrollContainerRef={scrollContainerRef}
-          sectionRefs={sectionRefs}
-        />
-      </div>
-    </div>,
+          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-164 h-99.5 shadow-edit bg-white rounded-md flex flex-col gap-3 pointer-events-auto">
+            <div>
+              <TabArea
+                active={active}
+                tabClick={english => handleTabClick(english)}
+                closeClick={onPopClose}
+              />
+            </div>
+            <ContentsArea
+              scrollContainerRef={scrollContainerRef}
+              sectionRefs={sectionRefs}
+            />
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>,
     document.body
   );
 }
+
 export default ComponentsPopup;
