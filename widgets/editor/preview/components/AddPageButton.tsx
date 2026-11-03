@@ -10,14 +10,14 @@ function AddPageButton() {
   };
   return (
     <div className="w-full">
-      {isTab && <ComponentsPopup onPopClose={handlePopClose} />}
+      <ComponentsPopup open={isTab} onPopClose={handlePopClose} />
 
       <button
         type="button"
         className="w-full h-11 bg-white rounded-lg shadow-edit flex-center gap-2 font-semibold text-sm"
         onClick={() => setIsTab(props => !props)}
       >
-        +페이지추가
+        +페이지 추가
       </button>
     </div>
   );
