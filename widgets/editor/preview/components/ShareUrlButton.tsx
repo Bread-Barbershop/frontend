@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useShallow } from 'zustand/shallow';
@@ -97,14 +98,16 @@ export const ShareUrlButton = () => {
         공유 썸네일
       </button>
 
-      {isOpen &&
-        previewContainer &&
+      {previewContainer &&
         createPortal(
-          shareUrlTab === 'kakao' ? (
-            <KakaoShareUrlView shareUrl={shareUrl} />
-          ) : (
-            <UrlShareUrlView shareUrl={shareUrl} />
-          ),
+          <AnimatePresence mode="wait">
+            {isOpen &&
+              (shareUrlTab === 'kakao' ? (
+                <KakaoShareUrlView key="kakao" shareUrl={shareUrl} />
+              ) : (
+                <UrlShareUrlView key="url" shareUrl={shareUrl} />
+              ))}
+          </AnimatePresence>,
           previewContainer
         )}
     </>
@@ -120,7 +123,7 @@ const UrlShareUrlView = ({ shareUrl }: { shareUrl: ShareUrlState }) => {
   const imageUrl = useImageObjectUrl(urlImage[0]);
 
   return (
-    <div className="absolute top-0 left-0 z-50 size-full overflow-hidden bg-[#FEFFFF]">
+    <motion.div key="url" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: 'easeOut' }} className="absolute top-0 left-0 z-50 size-full overflow-hidden bg-[#FEFFFF]">
       {/* Status bar */}
       <div className="flex h-10 items-center justify-between px-[29px] pl-[49px]">
         <span className="text-[17px] font-semibold">9:41</span>
@@ -234,7 +237,7 @@ const UrlShareUrlView = ({ shareUrl }: { shareUrl: ShareUrlState }) => {
 
       {/* Home indicator */}
       <div className="absolute bottom-[8px] left-1/2 h-[5px] w-[134px] -translate-x-1/2 rounded-full bg-black" />
-    </div>
+    </motion.div>
   );
 };
 
@@ -262,7 +265,7 @@ const KakaoShareUrlView = ({ shareUrl }: { shareUrl: ShareUrlState }) => {
   const imageUrl = useImageObjectUrl(images[0]);
 
   return (
-    <div className="absolute top-0 left-0 w-full h-[812px] bg-[#ABC1D1] flex flex-col justify-between overflow-hidden z-50">
+    <motion.div key="kakao" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: 'easeOut' }} className="absolute top-0 left-0 w-full h-[812px] bg-[#ABC1D1] flex flex-col justify-between overflow-hidden z-50">
       {/* 상단바 */}
       <header>
         <div className="flex justify-between h-10 px-[29px] pl-[49px]">
@@ -341,6 +344,6 @@ const KakaoShareUrlView = ({ shareUrl }: { shareUrl: ShareUrlState }) => {
           <div className="bg-black h-[5px] mt-[21px] w-[134px] rounded-full" />
         </div>
       </footer>
-    </div>
+    </motion.div>
   );
 };
