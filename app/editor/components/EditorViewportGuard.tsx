@@ -3,6 +3,7 @@
 import { ArrowUpRight, Home, Maximize2 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useSyncExternalStore } from 'react';
+import { createPortal } from 'react-dom';
 
 import FooterPolicyLink from '@/features/session/components/FooterPolicyLink';
 import HeaderPrivacyNoticeButton from '@/features/session/components/HeaderPrivacyNoticeButton';
@@ -21,8 +22,12 @@ function EditorDesktopNotice({
 }: {
   viewportWidth: number | null;
 }) {
-  return (
-    <div className="fixed inset-0 isolate z-[40000] grid min-h-dvh grid-rows-[auto_1fr_auto] overflow-y-auto text-[#171717]">
+  const content = (
+    <div
+      role="region"
+      aria-label="데스크톱 브라우저 권장 안내"
+      className="fixed inset-0 isolate z-[40000] grid min-h-dvh grid-rows-[auto_1fr_auto] overflow-y-auto bg-[#F8F9FA] text-[#171717]"
+    >
       <div
         aria-hidden="true"
         className="fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat"
@@ -118,6 +123,12 @@ function EditorDesktopNotice({
       </footer>
     </div>
   );
+
+  if (typeof document === 'undefined') {
+    return content;
+  }
+
+  return createPortal(content, document.body);
 }
 
 const subscribeResize = (callback: () => void) => {
