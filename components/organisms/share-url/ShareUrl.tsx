@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
@@ -141,8 +142,17 @@ function ShareUrl() {
           카카오
         </div>
       </nav>
-      <div className="w-full flex flex-col gap-1 mb-2">
-        <TextField
+      <div className="w-full mb-2">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={shareUrlTab}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="w-full flex flex-col gap-1"
+          >
+            <TextField
           key={`title-${shareUrlTab}`}
           label="제목"
           className="py-1.5"
@@ -197,6 +207,8 @@ function ShareUrl() {
           </div>
         )}
         <EditorNoticeList notices={SHARE_NOTICES} />
+          </motion.div>
+        </AnimatePresence>
       </div>
     </LeftEditorWrapper>
   );
