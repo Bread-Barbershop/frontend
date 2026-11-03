@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Selector } from '@/components/molecules/selector';
 import { selectorOptions } from '@/widgets/mainPoster/types/editor';
 import { RichStyle } from '@/widgets/mainPoster/types/fabric';
+import { isTextboxObject } from '@/widgets/mainPoster/utils/fabricUtils';
 
 import ColorPicker from './ColorPicker';
 
@@ -57,10 +58,13 @@ function Stroke({
         <div className="absolute z-9999 flex gap-5">
           <ColorPicker
             onColorSelect={color => {
-              if (!activeObject) return null;
+              if (!isTextboxObject(activeObject)) return null;
               setPickerColor(color);
 
-              const selectionStyles = activeObject.getSelectionStyles();
+              const selectionStyles =
+                typeof activeObject.getSelectionStyles === 'function'
+                  ? activeObject.getSelectionStyles()
+                  : [];
               const currentWidth =
                 selectionStyles.length > 0 && selectionStyles[0].strokeWidth
                   ? selectionStyles[0].strokeWidth

@@ -1,15 +1,16 @@
-import { Textbox } from 'fabric';
 import { useEffect, useState } from 'react';
 
 import { clamp } from '@/shared/utils/calculationUtils';
 
 import { useFabricContext } from '../../context/FabricContext';
+import { isTextboxObject } from '../../utils/fabricUtils';
 
 const BASE_LINE_HEIGHT = 1.16;
 
 function LineHeight() {
   const { canvas, applyRichStyle } = useFabricContext();
-  const activeObject = canvas?.getActiveObject() as Textbox | null;
+  const rawActiveObject = canvas?.getActiveObject();
+  const activeObject = isTextboxObject(rawActiveObject) ? rawActiveObject : null;
   const [value, setValue] = useState<number>(0);
   const [showValue, setShowValue] = useState<string>('0');
 
@@ -17,8 +18,8 @@ function LineHeight() {
     if (!canvas) return;
 
     const sync = () => {
-      const obj = canvas.getActiveObject() as Textbox | null;
-      if (!obj) return;
+      const obj = canvas.getActiveObject();
+      if (!isTextboxObject(obj)) return;
 
       const lineHeight = Number(obj.get('lineHeight') ?? BASE_LINE_HEIGHT);
 

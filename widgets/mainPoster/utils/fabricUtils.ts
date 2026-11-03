@@ -1,5 +1,5 @@
 import { hsvaToHex, hsvaToRgba } from '@uiw/color-convert';
-import { Canvas, FabricObject, TPointerEventInfo } from 'fabric';
+import { Canvas, FabricObject, Textbox, TPointerEventInfo } from 'fabric';
 
 import { ColorPickerChange, ColorPickerValue } from '@/components/molecules/color-picker/components/colorPicker.types';
 
@@ -231,4 +231,23 @@ export const convertFabricColor = (color: ColorPickerChange | ColorPickerValue) 
   }
   const { r, g, b, a } = hsvaToRgba(color);
   return `rgba(${r}, ${g}, ${b}, ${a})`;
+};
+
+/**
+ * Fabric 객체가 텍스트(Textbox 또는 IText) 객체인지 확인하는 타입 가드 함수입니다.
+ * getSelectionStyles 메서드가 존재하는지도 함께 검증하여 텍스트 메서드 호출 시 런타임 오류를 방지합니다.
+ */
+export const isTextboxObject = (target?: unknown): target is Textbox => {
+  if (!target || typeof target !== 'object') return false;
+  const obj = target as {
+    isType?: (type: string) => boolean;
+    type?: string;
+    getSelectionStyles?: unknown;
+  };
+  const isTextType =
+    typeof obj.isType === 'function'
+      ? obj.isType('textbox') || obj.isType('itext')
+      : obj.type === 'textbox' || obj.type === 'itext';
+
+  return isTextType && typeof obj.getSelectionStyles === 'function';
 };
