@@ -63,13 +63,13 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, {
-      title: e.target.value || '저희 가족을 소개합니다.',
+      title: e.target.value,
     });
   };
 
   const handleEnglishTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, {
-      subTitle: sanitizeEnglishTitleInput(e.target) || 'MY FAMILY',
+      subTitle: sanitizeEnglishTitleInput(e.target),
     });
   };
 
@@ -222,7 +222,7 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
         label="제목"
         inputProps={{
           placeholder: '저희 가족을 소개합니다.',
-          value: title === '저희 가족을 소개합니다.' ? '' : title,
+          value: title ?? '',
           onChange: handleTitleChange,
         }}
         className="w-full py-1.5 text-center"
@@ -232,7 +232,7 @@ export const MyFamily = ({ blockInfo, id }: Props) => {
           label="영문제목"
           inputProps={{
             placeholder: 'MY FAMILY',
-            value: subTitle === 'MY FAMILY' ? '' : subTitle,
+            value: subTitle ?? '',
             onChange: handleEnglishTitleChange,
           }}
           className="w-full py-1.5 text-center"

@@ -117,9 +117,9 @@ export const Account = ({ blockInfo, id }: Props) => {
         label="제목"
         inputProps={{
           placeholder: '마음 보내실 곳',
-          value: title === '마음 보내실 곳' ? '' : title,
+          value: title ?? '',
           onChange: e =>
-            handleUpdateBlock('title', e.target.value || '마음 보내실 곳'),
+            handleUpdateBlock('title', e.target.value),
         }}
         className="w-full text-center"
       />
@@ -128,12 +128,9 @@ export const Account = ({ blockInfo, id }: Props) => {
           label="영문제목"
           inputProps={{
             placeholder: 'ACCOUNT',
-            value: subTitle === 'ACCOUNT' ? '' : subTitle,
+            value: subTitle ?? '',
             onChange: e =>
-              handleUpdateBlock(
-                'subTitle',
-                sanitizeEnglishTitleInput(e.target) || 'ACCOUNT'
-              ),
+              handleUpdateBlock('subTitle', sanitizeEnglishTitleInput(e.target)),
           }}
           className="text-center w-full pt-3"
         />

@@ -83,13 +83,12 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
     key: 'title' | 'subTitle',
     e: ChangeEvent<HTMLInputElement>
   ) => {
-    const fallback = key === 'title' ? '연사정보' : 'SPEAKER INFORMATION';
     const value =
       key === 'subTitle'
         ? sanitizeEnglishTitleInput(e.target)
         : e.target.value;
 
-    updateBlock(id, { [key]: value || fallback });
+    updateBlock(id, { [key]: value });
   };
 
   const handleCheckedChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -203,7 +202,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
           label="제목"
           inputProps={{
             placeholder: '연사정보',
-            value: title === '연사정보' ? '' : title,
+            value: title ?? '',
             onChange: e => handleValueChange('title', e),
           }}
           className="w-full py-1.5 text-center"
@@ -213,7 +212,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
             label="영문제목"
             inputProps={{
               placeholder: 'SPEAKER INFORMATION',
-              value: subTitle === 'SPEAKER INFORMATION' ? '' : subTitle,
+              value: subTitle ?? '',
               onChange: e => handleValueChange('subTitle', e),
             }}
             className="w-full py-1.5 text-center"

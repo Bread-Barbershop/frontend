@@ -1,4 +1,4 @@
-﻿import { Fragment, type ChangeEvent, useEffect, useState } from 'react';
+import { Fragment, type ChangeEvent, useState } from 'react';
 
 import { Divider } from '@/components/atoms/divider';
 import { Label } from '@/components/atoms/label';
@@ -58,20 +58,6 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
     showContent = false,
     brideFirst = false,
   } = blockInfo.props;
-
-  useEffect(() => {
-    if (title === '') {
-      updateBlock(id, { title: DEFAULT_COUPLE_INTRODUCTION_TITLE });
-    }
-  }, [id, title, updateBlock]);
-
-  useEffect(() => {
-    if (subTitle === '') {
-      updateBlock(id, {
-        subTitle: DEFAULT_COUPLE_INTRODUCTION_SUB_TITLE,
-      });
-    }
-  }, [subTitle, id, updateBlock]);
 
   // 신랑/신부 이미지를 각각 자기 필드만 갱신한다.
   // updateBlock은 최신 state를 기준으로 병합하므로, 상대방 필드를 함께
@@ -142,15 +128,14 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const nextTitle = e.target.value;
     updateBlock(id, {
-      title: nextTitle || DEFAULT_COUPLE_INTRODUCTION_TITLE,
+      title: nextTitle,
     });
   };
 
   const handleSubTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const nextSubTitle = sanitizeEnglishTitleInput(e.target);
     updateBlock(id, {
-      subTitle:
-        nextSubTitle || DEFAULT_COUPLE_INTRODUCTION_SUB_TITLE,
+      subTitle: nextSubTitle,
     });
   };
 
@@ -225,8 +210,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
         label="제목"
         inputProps={{
           placeholder: DEFAULT_COUPLE_INTRODUCTION_TITLE,
-          defaultValue:
-            title === DEFAULT_COUPLE_INTRODUCTION_TITLE ? '' : title,
+          value: title ?? '',
           onChange: handleTitleChange,
         }}
         className="w-full text-center py-1.5"
@@ -238,10 +222,7 @@ function CoupleIntroduction({ blockInfo, id }: Props) {
           label="영문제목"
           inputProps={{
             placeholder: DEFAULT_COUPLE_INTRODUCTION_SUB_TITLE,
-            defaultValue:
-              subTitle === DEFAULT_COUPLE_INTRODUCTION_SUB_TITLE
-                ? ''
-                : subTitle,
+            value: subTitle ?? '',
             onChange: handleSubTitleChange,
           }}
           className="w-full text-center py-1.5"

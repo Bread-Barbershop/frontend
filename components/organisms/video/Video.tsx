@@ -66,8 +66,8 @@ export const Video = ({ blockInfo, id }: Props) => {
         label="제목"
         inputProps={{
           placeholder: '동영상',
-          onChange: e => handleUpdateBlock('title', e.target.value || '동영상'),
-          value: title === '동영상' ? '' : title,
+          onChange: e => handleUpdateBlock('title', e.target.value),
+          value: title ?? '',
         }}
         className="w-full py-1.5 text-center"
       />
@@ -76,12 +76,9 @@ export const Video = ({ blockInfo, id }: Props) => {
           label="영문제목"
           inputProps={{
             placeholder: 'VIDEO',
-            value: subTitle === 'VIDEO' ? '' : subTitle,
+            value: subTitle ?? '',
             onChange: e =>
-              handleUpdateBlock(
-                'subTitle',
-                sanitizeEnglishTitleInput(e.target) || 'VIDEO'
-              ),
+              handleUpdateBlock('subTitle', sanitizeEnglishTitleInput(e.target)),
           }}
           className="w-full py-1.5 text-center"
         />

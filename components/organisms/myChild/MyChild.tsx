@@ -49,9 +49,7 @@ export const MyChild = ({ blockInfo, id }: Props) => {
   ) => {
     updateBlock(id, {
       [type]:
-        type === 'subTitle'
-          ? sanitizeEnglishTitleInput(e.target) || 'MY CHILD'
-          : e.target.value,
+        type === 'subTitle' ? sanitizeEnglishTitleInput(e.target) : e.target.value,
     });
   };
 
@@ -122,7 +120,7 @@ export const MyChild = ({ blockInfo, id }: Props) => {
             label="영문제목"
             inputProps={{
               placeholder: 'MY CHILD',
-              value: subTitle === 'MY CHILD' ? '' : subTitle,
+              value: subTitle ?? '',
               onChange: e => handleStringChange('subTitle', e),
             }}
             className="w-full py-1.5 text-center"

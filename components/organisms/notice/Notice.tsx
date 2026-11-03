@@ -211,9 +211,9 @@ export const Notice = ({ blockInfo, id }: Props) => {
         label="제목"
         inputProps={{
           placeholder: '공지사항',
-          value: title === '공지사항' ? '' : title,
+          value: title ?? '',
           onChange: e =>
-            handleUpdateBlock('title', e.target.value || '공지사항'),
+            handleUpdateBlock('title', e.target.value),
         }}
         className="w-full py-1.5 text-center"
       />
@@ -222,12 +222,9 @@ export const Notice = ({ blockInfo, id }: Props) => {
           label="영문제목"
           inputProps={{
             placeholder: 'INFORMATION',
-            value: subTitle === 'INFORMATION' ? '' : subTitle,
+            value: subTitle ?? '',
             onChange: e =>
-              handleUpdateBlock(
-                'subTitle',
-                sanitizeEnglishTitleInput(e.target) || 'INFORMATION'
-              ),
+              handleUpdateBlock('subTitle', sanitizeEnglishTitleInput(e.target)),
           }}
           className="w-full py-1.5 text-center"
         />

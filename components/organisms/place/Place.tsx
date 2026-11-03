@@ -20,7 +20,6 @@ import {
 import {
   getDefaultPlaceTitle,
   getPlaceFieldCopy,
-  isDefaultPlaceTitle,
 } from '@/shared/utils/placeTitle';
 import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
@@ -100,8 +99,8 @@ export function Place({ blockInfo, id }: Props) {
             inputProps={{
               placeholder: defaultTitle,
               onChange: e =>
-                handleUpdateBlock('title', e.target.value || defaultTitle),
-              value: isDefaultPlaceTitle(title, blockInfo.type) ? '' : title,
+                handleUpdateBlock('title', e.target.value),
+              value: title ?? '',
             }}
             className="w-full py-1.5 text-center"
           />
@@ -111,12 +110,9 @@ export function Place({ blockInfo, id }: Props) {
             label="영문제목"
             inputProps={{
               placeholder: 'LOCATION',
-              value: subTitle === 'LOCATION' ? '' : subTitle,
+              value: subTitle ?? '',
               onChange: e =>
-                handleUpdateBlock(
-                  'subTitle',
-                  sanitizeEnglishTitleInput(e.target) || 'LOCATION'
-                ),
+                handleUpdateBlock('subTitle', sanitizeEnglishTitleInput(e.target)),
             }}
             className="w-full py-1.5 text-center"
           />

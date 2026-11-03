@@ -79,11 +79,11 @@ function PictureBlock({ blockInfo, id }: Props) {
   };
 
   const handleOnChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { title: e.target.value || '사진' });
+    updateBlock(id, { title: e.target.value });
   };
   const handleOnChangeSubTitle = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, {
-      subTitle: sanitizeEnglishTitleInput(e.target) || DEFAULT_SUB_TITLE,
+      subTitle: sanitizeEnglishTitleInput(e.target),
     });
   };
   const handleEditorChange = (json: JSONContent) => {
@@ -113,7 +113,7 @@ function PictureBlock({ blockInfo, id }: Props) {
               placeholder: '사진',
               onChange: e => handleOnChangeTitle(e),
               value:
-                blockInfo.props.title === '사진' ? '' : blockInfo.props.title,
+                blockInfo.props.title ?? '',
               maxLength: 20,
             }}
           />
@@ -125,7 +125,7 @@ function PictureBlock({ blockInfo, id }: Props) {
             inputProps={{
               placeholder: 'PICTURE',
               onChange: e => handleOnChangeSubTitle(e),
-              value: subTitle === DEFAULT_SUB_TITLE ? '' : subTitle,
+              value: subTitle ?? '',
             }}
           />
         )}

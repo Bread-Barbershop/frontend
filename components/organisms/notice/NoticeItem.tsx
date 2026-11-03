@@ -6,7 +6,7 @@ import { Picture } from '@/components/molecules/picture/Picture';
 import { TextEditor } from '@/components/molecules/text-editor';
 import { cn } from '@/shared/utils/cn';
 
-import { DEFAULT_NOTICE_TITLE, type NoticeListItem } from './noticeList';
+import { type NoticeListItem } from './noticeList';
 
 import type { JSONContent } from '@tiptap/react';
 
@@ -41,7 +41,7 @@ export const NoticeItem = ({
         label="공지제목"
         inputProps={{
           placeholder: '제목을 입력해 주세요',
-          value: notice.notice === DEFAULT_NOTICE_TITLE ? '' : notice.notice,
+          value: notice.notice ?? '',
           onChange: onNoticeChange,
         }}
         className="w-full py-1.5 text-center"
