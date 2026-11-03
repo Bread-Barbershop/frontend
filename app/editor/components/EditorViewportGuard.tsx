@@ -121,6 +121,7 @@ function EditorDesktopNotice({
 }
 
 const subscribeResize = (callback: () => void) => {
+  if (typeof window === 'undefined') return () => {};
   window.addEventListener('resize', callback);
   return () => window.removeEventListener('resize', callback);
 };
@@ -128,7 +129,7 @@ const subscribeResize = (callback: () => void) => {
 function EditorViewportGuard({ children }: { children: ReactNode }) {
   const viewportWidth = useSyncExternalStore(
     subscribeResize,
-    () => window.innerWidth,
+    () => (typeof window !== 'undefined' ? window.innerWidth : null),
     () => null
   );
   const hideAllCallouts = useEditorCalloutStore(state => state.hideAllCallouts);

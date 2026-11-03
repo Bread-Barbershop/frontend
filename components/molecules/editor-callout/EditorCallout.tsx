@@ -85,7 +85,10 @@ const defaultAnchorBySide: Record<
   left: { x: 1, y: 0.5 },
 };
 
+const emptySubscribe = () => () => {};
+
 const subscribeResize = (callback: () => void) => {
+  if (typeof window === 'undefined') return () => {};
   window.addEventListener('resize', callback);
   return () => window.removeEventListener('resize', callback);
 };
@@ -102,10 +105,15 @@ function EditorCallout({
   className,
   zIndex = 20000,
 }: EditorCalloutProps) {
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
   const isDesktop = useSyncExternalStore(
     subscribeResize,
     () => window.innerWidth >= DESKTOP_CONTENT_MIN_WIDTH,
-    () => true
+    () => false
   );
   const bubbleRef = useRef<HTMLDivElement>(null);
   const [arrowStyle, setArrowStyle] = useState<CSSProperties>({});
@@ -223,7 +231,7 @@ function EditorCallout({
     };
   }, [arrowOffset, arrowSide, offset, open, targetAnchor, targetRef, zIndex]);
 
-  if (!isDesktop || typeof document === 'undefined') return null;
+  if (!mounted || !isDesktop || typeof document === 'undefined') return null;
 
   return createPortal(
     <AnimatePresence>
