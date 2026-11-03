@@ -31,5 +31,9 @@ export const gallerySchema = {
       default: true,
       required: true,
     },
+    isAutoPlay: {
+      default: false,
+      required: false,
+    },
   },
 } as const;

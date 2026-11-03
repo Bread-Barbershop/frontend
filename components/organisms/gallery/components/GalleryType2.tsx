@@ -1,11 +1,15 @@
+import AutoScroll from 'embla-carousel-auto-scroll';
 import useEmblaCarousel from 'embla-carousel-react';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { Image } from '@/components/atoms/image';
 import { cn } from '@/shared/utils/cn';
 
 import { GalleryItemVariants } from '../GalleryCarouselType';
+import { useGallerySwipeClick } from '../hooks/useGallerySwipeClick';
 import { GalleryTemplateProps } from '../types/galleryType';
+
+import GalleryNavButtons from './GalleryNavButtons';
 
 // 중앙으로부터의 거리(0~3+)에 따라 transform 계산
 function getSlideStyle(distance: number) {
@@ -24,7 +28,7 @@ function getSlideStyle(distance: number) {
     { scale: 0.3, rotate: 15, z: 2 }, // 3
   ];
 
-  // abs가 3 이상이면 숨김
+  // abs가 3.5 이상이면 숨김
   if (abs >= 3.5) {
     return { opacity: 0, scale: 0.3, rotate: 15 * sign, y: 20, z: 1 };
   }
@@ -44,28 +48,71 @@ function getSlideStyle(distance: number) {
   return { opacity: Math.max(0, opacity), scale, rotate, y: 0, z };
 }
 
-function GalleryType2({ preview, ratio, imageClick }: GalleryTemplateProps) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    loop: false,
-    align: 'center',
-    containScroll: false,
-  });
+function GalleryType2({
+  preview,
+  ratio,
+  imageClick,
+  isAutoPlay = false,
+}: GalleryTemplateProps) {
+  const isLoopActive = Boolean(isAutoPlay && preview.length > 1);
+
+  const slides = useMemo(() => {
+    if (!isLoopActive) return preview;
+    if (preview.length < 6) {
+      return [...preview, ...preview, ...preview];
+    }
+    return preview;
+  }, [preview, isLoopActive]);
+
+  const plugins = useMemo(() => {
+    if (!isLoopActive) return [];
+    return [
+      AutoScroll({
+        playOnInit: true,
+        speed: 0.8,
+        startDelay: 0,
+        direction: 'forward',
+        stopOnInteraction: false,
+        stopOnMouseEnter: true,
+      }),
+    ];
+  }, [isLoopActive]);
+
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    {
+      loop: isLoopActive,
+      align: 'center',
+      containScroll: isLoopActive ? false : 'trimSnaps',
+      watchDrag: true,
+    },
+    plugins
+  );
 
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const applyStyles = useCallback(() => {
     if (!emblaApi) return;
 
-    const scrollProgress = emblaApi.scrollProgress();
+    const rawProgress = emblaApi.scrollProgress();
     const slidesCount = emblaApi.slideNodes().length;
+    if (slidesCount === 0) return;
 
-    // scrollProgress 0~1을 슬라이드 인덱스로 변환
     const maxIndex = slidesCount - 1;
-    const currentCenter = scrollProgress * maxIndex;
+    let currentCenter: number;
+    if (isLoopActive) {
+      const normalizedProgress = ((rawProgress % 1) + 1) % 1;
+      currentCenter = normalizedProgress * slidesCount;
+    } else {
+      currentCenter = rawProgress * maxIndex;
+    }
 
     slideRefs.current.forEach((el, i) => {
       if (!el) return;
-      const distance = i - currentCenter; // 중앙에서의 거리
+      let distance = i - currentCenter;
+      if (isLoopActive) {
+        if (distance > slidesCount / 2) distance -= slidesCount;
+        if (distance < -slidesCount / 2) distance += slidesCount;
+      }
       const style = getSlideStyle(distance);
 
       el.style.opacity = `${style.opacity}`;
@@ -73,14 +120,12 @@ function GalleryType2({ preview, ratio, imageClick }: GalleryTemplateProps) {
       el.style.zIndex = `${style.z}`;
       el.style.pointerEvents = style.opacity > 0.5 ? 'auto' : 'none';
     });
-  }, [emblaApi]);
+  }, [emblaApi, isLoopActive]);
 
   useEffect(() => {
     if (!emblaApi) return;
 
-    applyStyles(); // 초기 적용
-
-    // scroll 이벤트 = 드래그 중에도 계속 발생
+    applyStyles();
     emblaApi.on('scroll', applyStyles);
     emblaApi.on('reInit', applyStyles);
 
@@ -90,39 +135,53 @@ function GalleryType2({ preview, ratio, imageClick }: GalleryTemplateProps) {
     };
   }, [emblaApi, applyStyles]);
 
+  useEffect(() => {
+    if (emblaApi) emblaApi.reInit();
+  }, [emblaApi, isAutoPlay, slides.length]);
+
+  const { handlePointerDown, handlePointerMove, handleCardClick } =
+    useGallerySwipeClick(imageClick, emblaApi);
+
   return (
-    <div className="w-full min-h-[120px]">
-      <div ref={emblaRef} className="py-10 overflow-hidden">
+    <div className="relative w-full min-h-[120px] group/gallery">
+      <div
+        ref={emblaRef}
+        className="py-10 overflow-hidden touch-pan-y touch-pinch-zoom select-none cursor-grab active:cursor-grabbing"
+      >
         <div className="flex items-center px-[20%]">
-          {preview.map((src, i) => (
+          {slides.map((src, i) => (
             <div
               key={i}
               ref={el => {
                 slideRefs.current[i] = el;
               }}
-              className="flex-[0_0_70%] -mx-10"
+              className="flex-[0_0_70%] -mx-10 shrink-0"
               style={{ transformOrigin: 'bottom center', transition: 'none' }}
             >
               <div
                 role="button"
                 tabIndex={0}
                 className={cn(
-                  'relative overflow-hidden rounded-lg min-h-[120px] shadow-gallery-image',
+                  'relative overflow-hidden rounded-lg min-h-[120px] shadow-gallery-image select-none',
                   GalleryItemVariants({ ratio })
                 )}
-                onClick={() => imageClick(i)}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onClick={() => handleCardClick(i % preview.length)}
               >
                 <Image
                   src={src}
-                  alt={`slide-${i}`}
+                  alt={`slide-${i % preview.length}`}
                   fill
-                  className="object-cover"
+                  className="object-cover pointer-events-none select-none"
+                  draggable={false}
                 />
               </div>
             </div>
           ))}
         </div>
       </div>
+      {preview.length > 1 && <GalleryNavButtons emblaApi={emblaApi} />}
     </div>
   );
 }

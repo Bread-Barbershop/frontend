@@ -2,6 +2,7 @@ import { ComponentType } from 'react';
 
 import { GalleryTemplateProps, GalleryVariant } from '../types/galleryType';
 
+import GalleryNavButtons from './GalleryNavButtons';
 import GalleryType1 from './GalleryType1';
 import GalleryType2 from './GalleryType2';
 import GalleryType3 from './GalleryType3';
@@ -19,3 +20,5 @@ export const GalleryTemplate = {
   galleryType6: GalleryType6,
   galleryType7: GalleryType7,
 } satisfies Record<GalleryVariant, ComponentType<GalleryTemplateProps>>;
+
+export { GalleryNavButtons };
