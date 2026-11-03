@@ -2,7 +2,7 @@
 
 import { ArrowUpRight, Home, Maximize2 } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 
 import FooterPolicyLink from '@/features/session/components/FooterPolicyLink';
 import HeaderPrivacyNoticeButton from '@/features/session/components/HeaderPrivacyNoticeButton';
@@ -120,22 +120,19 @@ function EditorDesktopNotice({
   );
 }
 
+const subscribeResize = (callback: () => void) => {
+  if (typeof window === 'undefined') return () => {};
+  window.addEventListener('resize', callback);
+  return () => window.removeEventListener('resize', callback);
+};
+
 function EditorViewportGuard({ children }: { children: ReactNode }) {
-  const [viewportWidth, setViewportWidth] = useState<number | null>(null);
+  const viewportWidth = useSyncExternalStore(
+    subscribeResize,
+    () => (typeof window !== 'undefined' ? window.innerWidth : null),
+    () => null
+  );
   const hideAllCallouts = useEditorCalloutStore(state => state.hideAllCallouts);
-
-  useEffect(() => {
-    const updateViewportWidth = () => {
-      const nextViewportWidth = window.innerWidth;
-
-      setViewportWidth(nextViewportWidth);
-    };
-
-    updateViewportWidth();
-    window.addEventListener('resize', updateViewportWidth);
-
-    return () => window.removeEventListener('resize', updateViewportWidth);
-  }, []);
 
   const shouldShowDesktopNotice =
     viewportWidth !== null && viewportWidth < DESKTOP_CONTENT_MIN_WIDTH;

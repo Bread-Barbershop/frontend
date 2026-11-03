@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { EditorBgmPlayerProvider } from '@/components/organisms/bgm/context/EditorBgmPlayerContext';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
+import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 import { usePreventBack } from '@/shared/hooks/usePreventBack';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useEditorCalloutStore } from '@/shared/store/useEditorCalloutStore';
@@ -38,7 +39,9 @@ function MainContentsArea({ savedData }: { savedData?: SavedData | null }) {
 
   useEffect(() => {
     resetBgm();
-    showAllCalloutsFor(6000);
+    if (window.innerWidth >= DESKTOP_CONTENT_MIN_WIDTH) {
+      showAllCalloutsFor(6000);
+    }
 
     return () => {
       reset();
