@@ -8,9 +8,11 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  useSyncExternalStore,
 } from 'react';
 import { createPortal } from 'react-dom';
 
+import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 import { cn } from '@/shared/utils/cn';
 
 export type EditorCalloutArrowSide = 'top' | 'right' | 'bottom' | 'left';
@@ -83,6 +85,11 @@ const defaultAnchorBySide: Record<
   left: { x: 1, y: 0.5 },
 };
 
+const subscribeResize = (callback: () => void) => {
+  window.addEventListener('resize', callback);
+  return () => window.removeEventListener('resize', callback);
+};
+
 function EditorCallout({
   targetRef,
   children,
@@ -95,6 +102,11 @@ function EditorCallout({
   className,
   zIndex = 20000,
 }: EditorCalloutProps) {
+  const isDesktop = useSyncExternalStore(
+    subscribeResize,
+    () => window.innerWidth >= DESKTOP_CONTENT_MIN_WIDTH,
+    () => true
+  );
   const bubbleRef = useRef<HTMLDivElement>(null);
   const [arrowStyle, setArrowStyle] = useState<CSSProperties>({});
   const [style, setStyle] = useState<CSSProperties>({
@@ -211,7 +223,7 @@ function EditorCallout({
     };
   }, [arrowOffset, arrowSide, offset, open, targetAnchor, targetRef, zIndex]);
 
-  if (typeof document === 'undefined') return null;
+  if (!isDesktop || typeof document === 'undefined') return null;
 
   return createPortal(
     <AnimatePresence>
