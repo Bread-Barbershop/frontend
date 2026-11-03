@@ -1,4 +1,3 @@
-import { Textbox } from 'fabric';
 import { useEffect, useState } from 'react';
 
 import AlignCenterIcon from '@/shared/assets/icons/alignCenter.svg';
@@ -7,6 +6,7 @@ import AlignRightIcon from '@/shared/assets/icons/alignRight.svg';
 import { cn } from '@/shared/utils/cn';
 
 import { useFabricContext } from '../../context/FabricContext';
+import { isTextboxObject } from '../../utils/fabricUtils';
 
 const ALIGN_OPTIONS = [
   {
@@ -29,7 +29,8 @@ const ALIGN_OPTIONS = [
 
 function TextAlign() {
   const { getRichStyles, canvas, applyRichStyle } = useFabricContext();
-  const activeObject = canvas?.getActiveObject() as Textbox;
+  const rawActiveObject = canvas?.getActiveObject();
+  const activeObject = isTextboxObject(rawActiveObject) ? rawActiveObject : null;
 
   const [selectedAlign, setSelectedAlign] = useState('right');
 
@@ -37,6 +38,7 @@ function TextAlign() {
     if (!activeObject) return;
 
     const handleSync = () => {
+      if (!isTextboxObject(activeObject)) return;
       getRichStyles(activeObject, ['textAlign'], ([textAlign]) => {
         setSelectedAlign(textAlign);
       });

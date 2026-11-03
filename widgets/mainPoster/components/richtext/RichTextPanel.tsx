@@ -1,8 +1,8 @@
-import { Textbox } from 'fabric';
 import { useEffect, useState } from 'react';
 
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
+import { isTextboxObject } from '@/widgets/mainPoster/utils/fabricUtils';
 
 import CharSpacing from './CharSpacing';
 import FontColor from './FontColor';
@@ -20,7 +20,8 @@ type activeStyle = {
 
 export const RichTextPanel = () => {
   const { getRichStyles, canvas } = useFabricContext();
-  const activeObject = canvas?.getActiveObject() as Textbox;
+  const rawActiveObject = canvas?.getActiveObject();
+  const activeObject = isTextboxObject(rawActiveObject) ? rawActiveObject : null;
 
   const [activeStyles, setActiveStyles] = useState<activeStyle>({
     fontWeight: '400',
@@ -32,6 +33,7 @@ export const RichTextPanel = () => {
     if (!activeObject) return;
 
     const handleSync = () => {
+      if (!isTextboxObject(activeObject)) return;
       getRichStyles(
         activeObject,
         ['fontWeight', 'fontStyle', 'underline'],
@@ -55,7 +57,7 @@ export const RichTextPanel = () => {
       activeObject.off('changed', handleSync);
       activeObject.off('selection:changed', handleSync);
     };
-  }, [activeObject]);
+  }, [activeObject, getRichStyles]);
 
   if (!canvas) return null;
 

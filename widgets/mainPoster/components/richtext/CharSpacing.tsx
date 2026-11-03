@@ -1,13 +1,14 @@
-import { Textbox } from 'fabric';
 import { useEffect, useState } from 'react';
 
 import { clamp } from '@/shared/utils/calculationUtils';
 
 import { useFabricContext } from '../../context/FabricContext';
+import { isTextboxObject } from '../../utils/fabricUtils';
 
 function CharSpacing() {
   const { canvas, applyRichStyle } = useFabricContext();
-  const activeObject = canvas?.getActiveObject() as Textbox | null;
+  const rawActiveObject = canvas?.getActiveObject();
+  const activeObject = isTextboxObject(rawActiveObject) ? rawActiveObject : null;
 
   const [value, setValue] = useState<number>(0);
   const [showValue, setShowValue] = useState<string>('0');
@@ -16,8 +17,8 @@ function CharSpacing() {
     if (!canvas) return;
 
     const sync = () => {
-      const obj = canvas.getActiveObject() as Textbox | null;
-      if (!obj) return;
+      const obj = canvas.getActiveObject();
+      if (!isTextboxObject(obj)) return;
 
       const cs = Number(obj.get('charSpacing') ?? 0);
       const p = clamp(cs / 10, -20, 20);

@@ -1,4 +1,3 @@
-import { Textbox } from 'fabric';
 import { CSSProperties, useEffect, useMemo, useState } from 'react';
 
 import { Selector } from '@/components/molecules/selector';
@@ -13,6 +12,7 @@ import {
 } from '@/shared/fonts/fontRegistry';
 
 import { useFabricContext } from '../../context/FabricContext';
+import { isTextboxObject } from '../../utils/fabricUtils';
 import {
   hasCustomFontFace,
   loadCustomFont,
@@ -35,7 +35,8 @@ type FontOption = {
 function FontFamily() {
   const { canvas, activeInfo, getRichStyles, applyRichStyle } =
     useFabricContext();
-  const activeObject = canvas?.getActiveObject() as Textbox;
+  const rawActiveObject = canvas?.getActiveObject();
+  const activeObject = isTextboxObject(rawActiveObject) ? rawActiveObject : null;
 
   const currentFontFamily =
     (activeInfo?.styles?.fontFamily as string) || 'Pretendard';
@@ -55,6 +56,7 @@ function FontFamily() {
     if (!activeObject) return;
 
     const handleSync = () => {
+      if (!isTextboxObject(activeObject)) return;
       getRichStyles(
         activeObject,
         ['fontFamily', 'fontWeight'],
