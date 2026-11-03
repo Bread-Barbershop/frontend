@@ -11,6 +11,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { AnimatePresence } from 'framer-motion';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
@@ -181,6 +182,7 @@ function OrderPanel() {
                   isSelected={selectedId === items.id}
                   onContextMenu={handleContextMenu}
                   onSelect={handleSelect}
+                  onDeleteRequest={id => setDeleteTargetId(id)}
                 />
               ))}
             </SortableContext>
@@ -219,15 +221,17 @@ function OrderPanel() {
         offset={0}
         text="우클릭으로 삭제 혹은 꾹 누른 상태로 순서를 변경할 수 있어요!"
       />
-      {deleteTargetId && (
-        <DeleteModal
-          onDelete={() => {
-            deleteBlock(deleteTargetId);
-            setDeleteTargetId(null);
-          }}
-          setIsDeleteModal={value => !value && setDeleteTargetId(null)}
-        />
-      )}
+      <AnimatePresence>
+        {deleteTargetId && (
+          <DeleteModal
+            onDelete={() => {
+              deleteBlock(deleteTargetId);
+              setDeleteTargetId(null);
+            }}
+            setIsDeleteModal={value => !value && setDeleteTargetId(null)}
+          />
+        )}
+      </AnimatePresence>
     </DndContext>
   );
 }

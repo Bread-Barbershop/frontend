@@ -1,5 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { X } from 'lucide-react';
 import React from 'react';
 
 import { componentCls } from '@/shared/data/componentsInfo/componentInfo';
@@ -12,6 +13,7 @@ interface Props {
   isSelected?: boolean;
   onSelect: (id: string) => void;
   onContextMenu: (e: React.MouseEvent, tabId: string) => void;
+  onDeleteRequest?: (id: string) => void;
 }
 
 const ItemContent = React.memo(
@@ -22,7 +24,14 @@ const ItemContent = React.memo(
 ItemContent.displayName = 'ItemContent';
 
 const SortableItems = React.memo(
-  ({ id, blockInfo, isSelected, onSelect, onContextMenu }: Props) => {
+  ({
+    id,
+    blockInfo,
+    isSelected,
+    onSelect,
+    onContextMenu,
+    onDeleteRequest,
+  }: Props) => {
     const {
       setNodeRef,
       attributes,
@@ -50,7 +59,7 @@ const SortableItems = React.memo(
     };
 
     return (
-      <div className="relative">
+      <div className="relative group">
         <div
           ref={setNodeRef}
           style={style}
@@ -60,11 +69,28 @@ const SortableItems = React.memo(
           onContextMenu={e => onContextMenu(e, id)}
           onPointerDown={handlePointerDown}
           className={cn(
-            'flex-center py-2 cursor-pointer rounded-sm w-24 transition-colors duration-200 select-none ',
+            'flex-center py-2 cursor-pointer rounded-sm w-24 transition-colors duration-200 select-none relative',
             isSelected ? 'bg-[#DBE8FC]' : ''
           )}
         >
           <ItemContent contents={componentName?.contents} />
+          {!isDragging && onDeleteRequest && (
+            <button
+              type="button"
+              aria-label="삭제하기"
+              onPointerDown={e => {
+                e.stopPropagation();
+              }}
+              onClick={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                onDeleteRequest(id);
+              }}
+              className="absolute right-1 top-1 z-10 flex size-4 items-center justify-center rounded-full bg-neutral-400/80 text-white opacity-0 transition-all duration-200 hover:bg-[#FF4D4D] hover:scale-110 active:scale-95 group-hover:opacity-100 cursor-pointer"
+            >
+              <X size={10} strokeWidth={2.5} />
+            </button>
+          )}
         </div>
       </div>
     );
