@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 
 import { disableBodyScroll } from '@/shared/utils/focusTrap';
@@ -12,17 +12,19 @@ type PrivacyNoticeModalProps = {
   variant?: 'default' | 'mobileHome';
 };
 
+const emptySubscribe = () => () => {};
+
 function PrivacyNoticeModal({
   open,
   onClose,
   variant = 'default',
 }: PrivacyNoticeModalProps) {
   const isMobileHome = variant === 'mobileHome';
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
   const handleClose = useCallback(() => {
     onClose();

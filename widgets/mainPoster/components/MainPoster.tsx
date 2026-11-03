@@ -1,3 +1,5 @@
+'use client';
+
 import { AnimatePresence, motion } from 'framer-motion';
 // import { useSearchParams } from 'next/navigation';
 import { useShallow } from 'zustand/shallow';
