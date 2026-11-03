@@ -43,12 +43,12 @@ describe('stringUtils', () => {
   });
 
   describe('sanitizeEnglishTitleInput', () => {
-    it('updates input.value and returns trimmed string', () => {
+    it('updates input.value and returns sanitized string preserving spaces', () => {
       const input = document.createElement('input');
       input.value = "  Don't Be Late! 123  ";
 
       const result = sanitizeEnglishTitleInput(input);
-      expect(result).toBe("Don't Be Late! 123");
+      expect(result).toBe("  Don't Be Late! 123  ");
       expect(input.value).toBe("  Don't Be Late! 123  ");
     });
 
@@ -57,8 +57,17 @@ describe('stringUtils', () => {
       input.value = "한글 Don't Be Late!";
 
       const result = sanitizeEnglishTitleInput(input);
-      expect(result).toBe("Don't Be Late!");
+      expect(result).toBe(" Don't Be Late!");
       expect(input.value).toBe(" Don't Be Late!");
+    });
+
+    it('preserves trailing spaces during input so typing spaces works', () => {
+      const input = document.createElement('input');
+      input.value = 'ACCOUNT ';
+
+      const result = sanitizeEnglishTitleInput(input);
+      expect(result).toBe('ACCOUNT ');
+      expect(input.value).toBe('ACCOUNT ');
     });
   });
 });
