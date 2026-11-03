@@ -1,6 +1,6 @@
 'use client';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 
 import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
@@ -22,6 +22,7 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
     () => false
   );
   const [active, setActive] = useState('wedding');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -30,12 +31,17 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
     null
   );
 
+  const handleClose = useCallback(() => {
+    setSearchQuery('');
+    onPopClose();
+  }, [onPopClose]);
+
   useEffect(() => {
     if (!open) return;
 
     const closeIfViewportGuardActive = () => {
       if (window.innerWidth < DESKTOP_CONTENT_MIN_WIDTH) {
-        onPopClose();
+        handleClose();
       }
     };
 
@@ -45,7 +51,7 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault();
-        onPopClose();
+        handleClose();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -54,7 +60,7 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
       window.removeEventListener('resize', closeIfViewportGuardActive);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [open, onPopClose]);
+  }, [open, handleClose]);
 
   useEffect(() => {
     if (!open) return;
@@ -83,7 +89,7 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
     });
 
     return () => observer.disconnect();
-  }, [open]);
+  }, [open, searchQuery]);
 
   useEffect(() => {
     return () => {
@@ -94,6 +100,10 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
   }, []);
 
   const handleTabClick = (english: string) => {
+    if (searchQuery) {
+      setSearchQuery('');
+    }
+
     if (manualScrollTimeoutRef.current) {
       clearTimeout(manualScrollTimeoutRef.current);
     }
@@ -105,7 +115,6 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
       block: 'start',
     });
 
-    // 스크롤 이동이 끝날 때까지 감지 일시 중단
     manualScrollTimeoutRef.current = setTimeout(() => {
       isManualScrolling.current = false;
       manualScrollTimeoutRef.current = null;
@@ -126,19 +135,22 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
         >
           <div
             className="absolute inset-0 pointer-events-auto"
-            onClick={onPopClose}
+            onClick={handleClose}
           />
           <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-164 h-99.5 shadow-edit bg-white rounded-md flex flex-col gap-3 pointer-events-auto">
             <div>
               <TabArea
                 active={active}
                 tabClick={english => handleTabClick(english)}
-                closeClick={onPopClose}
+                closeClick={handleClose}
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
               />
             </div>
             <ContentsArea
               scrollContainerRef={scrollContainerRef}
               sectionRefs={sectionRefs}
+              searchQuery={searchQuery}
             />
           </div>
         </motion.div>
