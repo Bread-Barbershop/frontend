@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 
-function getPrefersReducedMotion(): boolean {
+function getSnapshot(): boolean {
   return (
     typeof window !== 'undefined' &&
     typeof window.matchMedia === 'function' &&
@@ -10,29 +10,24 @@ function getPrefersReducedMotion(): boolean {
   );
 }
 
-/** OS 모션 설정이 화면 사용 중 변경되어도 자동 스크롤에 즉시 반영한다. */
+function subscribe(onStoreChange: () => void): () => void {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return () => {};
+  }
+
+  const mediaQuery = window.matchMedia(REDUCED_MOTION_QUERY);
+  if (typeof mediaQuery.addEventListener === 'function') {
+    mediaQuery.addEventListener('change', onStoreChange);
+    return () => mediaQuery.removeEventListener('change', onStoreChange);
+  }
+  if (typeof mediaQuery.addListener === 'function') {
+    mediaQuery.addListener(onStoreChange);
+    return () => mediaQuery.removeListener(onStoreChange);
+  }
+  return () => {};
+}
+
+/** OS의 실시간 모션 설정을 React 외부 스토어로 안전하게 구독한다. */
 export function usePrefersReducedMotion(): boolean {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(
-    getPrefersReducedMotion
-  );
-
-  useEffect(() => {
-    if (typeof window.matchMedia !== 'function') return;
-    const mediaQuery = window.matchMedia(REDUCED_MOTION_QUERY);
-    setPrefersReducedMotion(mediaQuery.matches);
-
-    const onChange = (event: MediaQueryListEvent) =>
-      setPrefersReducedMotion(event.matches);
-
-    if (typeof mediaQuery.addEventListener === 'function') {
-      mediaQuery.addEventListener('change', onChange);
-      return () => mediaQuery.removeEventListener('change', onChange);
-    }
-    if (typeof mediaQuery.addListener === 'function') {
-      mediaQuery.addListener(onChange);
-      return () => mediaQuery.removeListener(onChange);
-    }
-  }, []);
-
-  return prefersReducedMotion;
+  return useSyncExternalStore(subscribe, getSnapshot, () => false);
 }
