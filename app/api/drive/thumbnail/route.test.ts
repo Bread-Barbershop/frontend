@@ -2,6 +2,10 @@
  * @jest-environment node
  */
 
+jest.mock('@/app/api/drive/_lib/captureDriveError', () => ({
+  captureDriveError: jest.fn(),
+}));
+
 jest.mock('@/app/api/drive/_lib/googleFetch', () => ({
   googleFetch: jest.fn(),
 }));
@@ -179,6 +183,77 @@ describe('/api/drive/thumbnail route', () => {
       const deleteCall = (googleFetch as jest.Mock).mock.calls[2];
       expect(deleteCall[0]).toContain('old-thumbnail-id');
       expect(deleteCall[1].method).toBe('DELETE');
+    });
+  });
+
+
+  describe('데이터 포맷 검증 및 오류 복구', () => {
+    it('data URL과 실제 이미지 서명이 불일치하면 400을 반환하고 업로드하지 않는다', async () => {
+      (ensureThumbnailFile as jest.Mock).mockResolvedValue({
+        thumbnailFileId: null,
+        reused: false,
+      });
+
+      const req = new Request('http://localhost/api/drive/thumbnail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invitationFolderId: 'folder-123',
+          thumbnailData: {
+            name: THUMBNAIL_NAME_WEBP,
+            mimeType: 'image/webp',
+            dataUrl: 'data:image/webp;base64,aGVsbG8=',
+          },
+        }),
+      });
+
+      const res = await POST(req);
+      expect(res.status).toBe(400);
+      expect(googleFetch).not.toHaveBeenCalled();
+    });
+
+    it('새 파일 저장 뒤 이전 파일 삭제가 실패해도 새 썸네일 ID를 반환한다', async () => {
+      (ensureThumbnailFile as jest.Mock).mockResolvedValue({
+        thumbnailFileId: 'old-png-file-id',
+        reused: true,
+      });
+      (googleFetch as jest.Mock)
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => ({ id: 'new-webp-file-id' }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => ({}),
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 503,
+          json: async () => ({ message: 'temporarily unavailable' }),
+        });
+
+      const req = new Request('http://localhost/api/drive/thumbnail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invitationFolderId: 'folder-123',
+          thumbnailData: {
+            name: THUMBNAIL_NAME_WEBP,
+            mimeType: 'image/webp',
+            dataUrl: 'data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAQAcJaACdLoB+AA/v24A',
+          },
+        }),
+      });
+
+      const res = await POST(req);
+      expect(res.status).toBe(200);
+      await expect(res.json()).resolves.toMatchObject({
+        ok: true,
+        thumbnailFileId: 'new-webp-file-id',
+      });
+      expect(googleFetch).toHaveBeenCalledTimes(3);
     });
   });
 
