@@ -7,6 +7,7 @@ import { cn } from '@/shared/utils/cn';
 
 import { GalleryItemVariants } from '../GalleryCarouselType';
 import { useGallerySwipeClick } from '../hooks/useGallerySwipeClick';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 import { GalleryTemplateProps } from '../types/galleryType';
 
 import GalleryNavButtons from './GalleryNavButtons';
@@ -27,10 +28,7 @@ function GalleryType1({
     return preview;
   }, [preview, isLoopActive]);
 
-  const prefersReducedMotion =
-    typeof window !== 'undefined' &&
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   const plugins = useMemo(() => {
     if (!isLoopActive || prefersReducedMotion) return [];
@@ -42,6 +40,7 @@ function GalleryType1({
         direction: 'forward',
         stopOnInteraction: false,
         stopOnMouseEnter: true,
+        stopOnFocusIn: true,
       }),
     ];
   }, [isLoopActive, prefersReducedMotion]);
