@@ -64,7 +64,7 @@ function GalleryPreview({
         />
       )}
 
-      {blockInfo.props.isPopupViewer && (
+      {blockInfo.props.isPopupViewer && isOpen && (
         <PicturePopViewer
           isOpen={isOpen}
           images={preview}
