@@ -200,9 +200,9 @@ export function Place({ blockInfo, id }: Props) {
             className="w-full py-1.5 text-center"
           />
         )}
-        <section className="flex flex-row gap-2 items-center w-full py-1.5">
-          <Label className="font-semibold shrink-0">추가기능</Label>
-          <div>
+        <section className="flex flex-row gap-2 items-start w-full py-1.5">
+          <Label className="font-semibold shrink-0 pt-0.5">추가기능</Label>
+          <div className="flex flex-col gap-2 w-full">
             <div className="flex flex-row flex-wrap gap-2 items-center">
               <Checkbox
                 onChange={e =>
@@ -228,16 +228,17 @@ export function Place({ blockInfo, id }: Props) {
                 <span className="text-[13px]">지도</span>
               </Checkbox>
             </div>
-          </div>
-        </section>
-        {openMap && (
-          <div className="flex w-full flex-col gap-1">
-            {isScriptLoaded && Number.isFinite(lng) && Number.isFinite(lat) && (
-              <PlaceMap lng={lng} lat={lat} locked={Boolean(mapLocked)} />
-            )}
-            <section className="flex flex-row gap-2 items-center w-full py-1.5">
-              <Label className="font-semibold">추가기능</Label>
-              <div>
+            {openMap && (
+              <div className="flex flex-col gap-1.5 pl-2 border-l-2 border-gray-200">
+                <Checkbox
+                  direction="right"
+                  onChange={() => handleUpdateBlock('mapLocked', !mapLocked)}
+                  checked={Boolean(mapLocked)}
+                >
+                  <span className="text-[13px]">
+                    지도 고정 (지도가 움직이지 않아요.)
+                  </span>
+                </Checkbox>
                 <Checkbox
                   direction="right"
                   onChange={() => handleUpdateBlock('openNavi', !openNavi)}
@@ -247,17 +248,15 @@ export function Place({ blockInfo, id }: Props) {
                     내비 앱 바로가기 버튼(카카오, 티맵, 네이버)
                   </span>
                 </Checkbox>
-                <Checkbox
-                  direction="right"
-                  onChange={() => handleUpdateBlock('mapLocked', !mapLocked)}
-                  checked={Boolean(mapLocked)}
-                >
-                  <span className="text-[13px]">
-                    지도 고정하기 버튼(지도가 움직이지 않아요.)
-                  </span>
-                </Checkbox>
               </div>
-            </section>
+            )}
+          </div>
+        </section>
+        {openMap && (
+          <div className="flex w-full flex-col gap-1">
+            {isScriptLoaded && Number.isFinite(lng) && Number.isFinite(lat) && (
+              <PlaceMap lng={lng} lat={lat} locked={Boolean(mapLocked)} />
+            )}
           </div>
         )}
       </LeftEditorWrapper>

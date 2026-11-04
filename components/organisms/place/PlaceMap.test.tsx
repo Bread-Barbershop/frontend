@@ -166,28 +166,47 @@ describe('Place Editor mapLocked option', () => {
     },
   });
 
-  it('renders "지도 고정하기 버튼(지도가 움직이지 않아요.)" checkbox unchecked when mapLocked is false', () => {
-    render(<Place blockInfo={createBlock({ mapLocked: false })} id="place-block-1" />);
+  it('does not render "지도 고정 (지도가 움직이지 않아요.)" when openMap is false', () => {
+    render(<Place blockInfo={createBlock({ openMap: false })} id="place-block-1" />);
 
-    const checkbox = screen.getByLabelText('지도 고정하기 버튼(지도가 움직이지 않아요.)');
+    expect(
+      screen.queryByLabelText('지도 고정 (지도가 움직이지 않아요.)')
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders "지도 고정 (지도가 움직이지 않아요.)" checkbox unchecked when mapLocked is false and openMap is true', () => {
+    render(<Place blockInfo={createBlock({ mapLocked: false, openMap: true })} id="place-block-1" />);
+
+    const checkbox = screen.getByLabelText('지도 고정 (지도가 움직이지 않아요.)');
     expect(checkbox).not.toBeChecked();
   });
 
-  it('renders "지도 고정하기 버튼(지도가 움직이지 않아요.)" checkbox checked when mapLocked is true', () => {
-    render(<Place blockInfo={createBlock({ mapLocked: true })} id="place-block-1" />);
+  it('renders "지도 고정 (지도가 움직이지 않아요.)" checkbox checked when mapLocked is true and openMap is true', () => {
+    render(<Place blockInfo={createBlock({ mapLocked: true, openMap: true })} id="place-block-1" />);
 
-    const checkbox = screen.getByLabelText('지도 고정하기 버튼(지도가 움직이지 않아요.)');
+    const checkbox = screen.getByLabelText('지도 고정 (지도가 움직이지 않아요.)');
     expect(checkbox).toBeChecked();
   });
 
   it('calls updateBlock with mapLocked when checkbox is clicked', () => {
-    render(<Place blockInfo={createBlock({ mapLocked: false })} id="place-block-1" />);
+    render(<Place blockInfo={createBlock({ mapLocked: false, openMap: true })} id="place-block-1" />);
 
-    const checkbox = screen.getByLabelText('지도 고정하기 버튼(지도가 움직이지 않아요.)');
+    const checkbox = screen.getByLabelText('지도 고정 (지도가 움직이지 않아요.)');
     fireEvent.click(checkbox);
 
     expect(mockUpdateBlock).toHaveBeenCalledWith('place-block-1', {
       mapLocked: true,
+    });
+  });
+
+  it('toggles mapLocked to false when clicked while already checked', () => {
+    render(<Place blockInfo={createBlock({ mapLocked: true, openMap: true })} id="place-block-1" />);
+
+    const checkbox = screen.getByLabelText('지도 고정 (지도가 움직이지 않아요.)');
+    fireEvent.click(checkbox);
+
+    expect(mockUpdateBlock).toHaveBeenCalledWith('place-block-1', {
+      mapLocked: false,
     });
   });
 });
