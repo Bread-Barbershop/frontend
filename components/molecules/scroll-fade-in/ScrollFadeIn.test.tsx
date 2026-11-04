@@ -8,7 +8,7 @@ describe('ScrollFadeIn 컴포넌트', () => {
   let observeMock: jest.Mock;
   let unobserveMock: jest.Mock;
   let disconnectMock: jest.Mock;
-  let observerCallback: (_entries: Partial<IntersectionObserverEntry>[]) => void;
+  let triggerIntersect: () => void = () => {};
 
   beforeEach(() => {
     originalIntersectionObserver = window.IntersectionObserver;
@@ -17,7 +17,15 @@ describe('ScrollFadeIn 컴포넌트', () => {
     disconnectMock = jest.fn();
 
     window.IntersectionObserver = jest.fn().mockImplementation(callback => {
-      observerCallback = callback;
+      triggerIntersect = () => {
+        const target = observeMock.mock.calls[0]?.[0] as HTMLElement | undefined;
+        callback([
+          {
+            target,
+            isIntersecting: true,
+          },
+        ]);
+      };
       return {
         observe: observeMock,
         unobserve: unobserveMock,
@@ -64,12 +72,7 @@ describe('ScrollFadeIn 컴포넌트', () => {
     expect(wrapper).toHaveClass('opacity-0');
 
     act(() => {
-      observerCallback([
-        {
-          target: wrapper,
-          isIntersecting: true,
-        },
-      ]);
+      triggerIntersect();
     });
 
     expect(wrapper).toHaveClass('opacity-100');
