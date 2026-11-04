@@ -12,11 +12,18 @@ describe('createInfiniteSlides 유틸 함수', () => {
     expect(result).toEqual([]);
   });
 
-  it('기본 minSlides(6)가 적용되어 필요한 만큼만 적절히 복제한다', () => {
+  it('기본 minSlides(12)가 적용되어 필요한 만큼만 적절히 복제한다', () => {
     const preview = ['1.jpg', '2.jpg'];
     const result = createInfiniteSlides(preview, true);
-    expect(result.length).toBe(6);
-    expect(result).toEqual([...preview, ...preview, ...preview]);
+    expect(result.length).toBe(12);
+    expect(result).toEqual([
+      ...preview,
+      ...preview,
+      ...preview,
+      ...preview,
+      ...preview,
+      ...preview,
+    ]);
   });
 
   it('원본 배열 길이가 minSlides보다 작으면 최소 개수 이상으로 반복 구성한다', () => {
@@ -29,8 +36,8 @@ describe('createInfiniteSlides 유틸 함수', () => {
   });
 
   it('원본 배열 길이가 이미 minSlides 이상이면 원본을 그대로 반환한다', () => {
-    const preview = Array.from({ length: 10 }, (_, i) => `${i}.jpg`);
-    const result = createInfiniteSlides(preview, true, 8);
+    const preview = Array.from({ length: 15 }, (_, i) => `${i}.jpg`);
+    const result = createInfiniteSlides(preview, true, 12);
     expect(result).toEqual(preview);
   });
 });

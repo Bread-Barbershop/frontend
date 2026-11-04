@@ -21,8 +21,8 @@ function GalleryType5({
   const isLoopActive = preview.length > 1;
 
   const slides = useMemo(
-    () => createInfiniteSlides(preview, isLoopActive, isAutoPlay ? 8 : 5),
-    [preview, isLoopActive, isAutoPlay]
+    () => createInfiniteSlides(preview, isLoopActive, 14),
+    [preview, isLoopActive]
   );
 
   const prefersReducedMotion = usePrefersReducedMotion();

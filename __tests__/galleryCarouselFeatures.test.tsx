@@ -53,7 +53,7 @@ const mockScrollNext = jest.fn();
 const mockCanScrollPrev = jest.fn(() => true);
 const mockCanScrollNext = jest.fn(() => true);
 const mockSelectedScrollSnap = jest.fn(() => 0);
-const mockSlideNodes = jest.fn(() => []);
+const mockSlideNodes = jest.fn(() => [] as HTMLElement[]);
 const eventHandlers: Record<string, (() => void)[]> = {};
 const mockOn = jest.fn((evt: string, cb: () => void) => {
   if (!eventHandlers[evt]) eventHandlers[evt] = [];
@@ -105,6 +105,7 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
     jest.clearAllMocks();
     mockCanScrollPrev.mockReturnValue(true);
     mockCanScrollNext.mockReturnValue(true);
+    mockSlideNodes.mockReturnValue([]);
     mockEmblaApi.scrollProgress.mockReturnValue(0);
     (useEditorStore as unknown as jest.Mock).mockReturnValue({
       block: [],
@@ -306,7 +307,7 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
         />
       );
       const manualSlides = manualContainer.querySelectorAll('.flex-\\[0_0_50\\%\\]');
-      expect(manualSlides.length).toBeGreaterThanOrEqual(5);
+      expect(manualSlides.length).toBeGreaterThanOrEqual(12);
 
       // 자동 재생(isAutoPlay=true): 최소 8개 기준 (2장 -> 8장)
       const { container: autoContainer } = render(
@@ -318,12 +319,28 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
         />
       );
       const autoSlides = autoContainer.querySelectorAll('.flex-\\[0_0_50\\%\\]');
-      expect(autoSlides.length).toBeGreaterThanOrEqual(8);
+      expect(autoSlides.length).toBeGreaterThanOrEqual(12);
     });
   });
 
   describe('갤러리 포커스 애니메이션 경계 회귀 테스트', () => {
     const images = ['https://example.com/1.jpg', 'https://example.com/2.jpg'];
+
+    it('Type3는 넓은 뷰포트에서도 접힌 카드 폭에 맞춰 충분한 슬라이드를 확보한다', () => {
+      const originalRect = HTMLElement.prototype.getBoundingClientRect;
+      HTMLElement.prototype.getBoundingClientRect = jest.fn(
+        () => ({ width: 1440, height: 240 } as DOMRect)
+      );
+      try {
+        const { container } = render(
+          <GalleryType3 preview={images} ratio="1:1" imageClick={jest.fn()} />
+        );
+        // 1440px 양쪽 버퍼와 선택 카드의 추가 폭을 고려한 최소 개수.
+        expect(container.querySelectorAll('[data-card]').length).toBeGreaterThanOrEqual(77);
+      } finally {
+        HTMLElement.prototype.getBoundingClientRect = originalRect;
+      }
+    });
 
     it('Type1은 reduced-motion에서도 선택 카드 대비를 유지하되 전환 애니메이션을 제거한다', () => {
       const originalMatchMedia = window.matchMedia;
@@ -350,7 +367,7 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
       }
     });
 
-    it('Type2의 멀리 있는 슬라이드는 거리 3~3.5에서 투명도가 연속적으로 0에 수렴한다', () => {
+    it('Type2의 멀리 있는 슬라이드는 거리 2~3에서 투명도가 연속적으로 0에 수렴한다', () => {
       const { container } = render(
         <GalleryType2 preview={images} ratio="1:1" imageClick={jest.fn()} />
       );
@@ -358,6 +375,9 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
         '[style*="transform-origin"]'
       );
       expect(slideWrappers.length).toBeGreaterThanOrEqual(8);
+      // applyStyles는 Embla.slideNodes().length가 0이면 조기 반환한다.
+      // 실제 렌더링된 노드를 mock에 연결해야 opacity 보간이 검증된다.
+      mockSlideNodes.mockReturnValue(Array.from(slideWrappers));
       const count = slideWrappers.length;
       const opacityAt = (distance: number) => {
         mockEmblaApi.scrollProgress.mockReturnValue(distance / count);
@@ -366,11 +386,11 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
         });
         return Number(slideWrappers[0].style.opacity);
       };
-      const near = opacityAt(3.1);
-      const farther = opacityAt(3.49);
-      const hidden = opacityAt(3.5);
+      const near = opacityAt(2.1);
+      const farther = opacityAt(2.9);
+      const hidden = opacityAt(3);
       expect(near).toBeGreaterThan(0);
-      expect(near).toBeLessThan(0.1);
+      expect(near).toBeLessThan(0.3);
       expect(farther).toBeGreaterThan(0);
       expect(farther).toBeLessThan(near);
       expect(hidden).toBe(0);

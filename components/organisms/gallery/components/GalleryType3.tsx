@@ -1,7 +1,7 @@
 import { EmblaCarouselType } from 'embla-carousel';
 import AutoScroll from 'embla-carousel-auto-scroll';
 import useEmblaCarousel from 'embla-carousel-react';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Image } from '@/components/atoms/image';
 
@@ -29,10 +29,35 @@ function GalleryType3({
   isAutoPlay = false,
 }: GalleryTemplateProps) {
   const isLoopActive = preview.length > 1;
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const [minSlides, setMinSlides] = useState(18);
+
+  // 접힌 카드(32px)가 대부분이므로 넓은 화면에서는 고정 18장만으로 loop가 불가능하다.
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    const update = () => {
+      const width = viewport.getBoundingClientRect().width;
+      if (width <= 0) return;
+      const needed = Math.max(
+        18,
+        Math.ceil((width * 2 + MAX_WIDTH) / (MIN_WIDTH + 8))
+      );
+      setMinSlides(current => (current === needed ? current : needed));
+    };
+    update();
+    if (typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver(update);
+      observer.observe(viewport);
+      return () => observer.disconnect();
+    }
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
 
   const slides = useMemo(
-    () => createInfiniteSlides(preview, isLoopActive, isAutoPlay ? 10 : 7),
-    [preview, isLoopActive, isAutoPlay]
+    () => createInfiniteSlides(preview, isLoopActive, minSlides),
+    [preview, isLoopActive, minSlides]
   );
 
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -61,6 +86,13 @@ function GalleryType3({
     },
     plugins
   );
+  const setViewportRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      viewportRef.current = node;
+      emblaRef(node);
+    },
+    [emblaRef]
+  );
 
   const rowHeight = MAX_WIDTH * (RATIO_MAP[ratio] ?? 1);
 
@@ -76,28 +108,27 @@ function GalleryType3({
         return;
       }
       const isSelected = index === selectedIndex;
-      // 포커스 진입 시 경쾌하게 펼쳐지고, 포커스 빠질 때는 부드럽게 축소
+      // 포커스 진입 시 오버슛(진동) 없이 부드러운 감속으로 펼쳐지고, 빠질 때는 점진적 축소
       card.style.width =
         isSelected ? `${MAX_WIDTH}px` : `${MIN_WIDTH}px`;
       card.style.opacity = isSelected ? '1' : '0.75';
       card.style.transition = isSelected
-        ? 'width 0.45s cubic-bezier(0.34, 1.25, 0.64, 1), opacity 0.35s ease-out'
-        : 'width 0.65s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.65s cubic-bezier(0.25, 1, 0.5, 1)';
+        ? 'width 0.45s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.35s ease-out'
+        : 'width 0.55s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.55s cubic-bezier(0.25, 1, 0.5, 1)';
     });
   }, [prefersReducedMotion]);
 
   useEffect(() => {
     if (!emblaApi) return;
     const handler = () => onSelect(emblaApi);
+    // scroll 이벤트마다 실행 시 트랜지션이 리셋되어 진동/지직거림이 발생하므로 select, reInit에서만 1회 실행
     emblaApi
       .on('select', handler)
-      .on('scroll', handler)
       .on('reInit', handler);
     handler();
     return () => {
       emblaApi
         .off('select', handler)
-        .off('scroll', handler)
         .off('reInit', handler);
     };
   }, [emblaApi, onSelect]);
@@ -112,7 +143,7 @@ function GalleryType3({
   return (
     <div className="relative w-full group/gallery">
       <div
-        ref={emblaRef}
+        ref={setViewportRef}
         className="overflow-hidden py-10 touch-pan-y touch-pinch-zoom select-none cursor-grab active:cursor-grabbing"
       >
         <div
@@ -135,14 +166,14 @@ function GalleryType3({
                   }
                 }}
                 onClick={() => handleCardClick(i % preview.length)}
-                className="h-full overflow-hidden rounded-lg bg-white shadow-md relative transition-[width,opacity] duration-500 ease-out select-none"
+                className="h-full overflow-hidden rounded-lg bg-white shadow-md relative select-none transform-gpu will-change-[width]"
                 style={{ width: `${MIN_WIDTH}px` }}
               >
                 <Image
                   src={src}
                   alt={`slide-${i % preview.length}`}
                   fill
-                  className="object-cover pointer-events-none select-none"
+                  className="object-cover pointer-events-none select-none transform-gpu"
                   draggable={false}
                 />
               </div>
