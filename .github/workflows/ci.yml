@@ -1,0 +1,103 @@
+name: Frontend CI Gate
+
+on:
+  pull_request:
+    branches: [dev, main]
+  merge_group:
+  push:
+    branches: [dev, main]
+  workflow_dispatch:
+
+concurrency:
+  group: frontend-ci-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    name: Frontend Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 1. main 직행 방지: 오직 dev 브랜치에서 온 PR만 main으로 머지 허용
+      - name: Enforce Source Branch for Main
+        if: github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref != 'dev'
+        run: |
+          echo "❌ [오류] main 브랜치로는 직접 PR을 보낼 수 없습니다!"
+          echo "팀 원칙상 모든 기능은 'dev'를 거쳐야 하며, 오직 'dev' 브랜치에서만 main으로 머지될 수 있습니다."
+          echo "현재 시도한 출발 브랜치: ${{ github.head_ref }}"
+          exit 1
+
+      # 2. Node.js 환경 세팅 및 npm 캐시
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      # 3. 의존성 클린 설치
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. ESLint 검사
+      - name: Run ESLint
+        run: npm run lint
+
+      # 5. Type 검사 (tsc noEmit)
+      - name: Run Type Check
+        run: npx tsc --noEmit
+
+      # 6. Jest 테스트 실행 (CI 최적화)
+      - name: Run Jest Tests
+        run: npm test -- --ci --maxWorkers=2
+
+      # 7. Next.js 빌드 캐시 복원
+      - name: Restore Next.js cache
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-
+
+      # 8. Next.js 프로덕션 빌드 검증
+      - name: Build Next.js
+        run: npm run build
+
+      # 9. CI 실패 시 디스코드 알림 전송 (PR 대상)
+      - name: Discord Notification on Failure
+        if: failure() && github.event_name == 'pull_request'
+        env:
+          DISCORD_WEBHOOK_MAIN: ${{ secrets.DISCORD_WEBHOOK_MAIN }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK_MAIN" ]; then
+            echo "DISCORD_WEBHOOK_MAIN secret not found, skipping notification."
+            exit 0
+          fi
+
+          TARGET_BRANCH="${{ github.base_ref }}"
+          PR_TITLE=$(echo "${{ github.event.pull_request.title }}" | sed 's/"/\\"/g')
+          PR_URL="${{ github.event.pull_request.html_url }}"
+          AUTHOR="${{ github.actor }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          curl -sSf -X POST \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"username\": \"🚨 Frontend CI 알림봇\",
+              \"content\": \"<@${AUTHOR}> 님의 PR CI 검증이 실패했습니다! (대상 브랜치: \\\`${TARGET_BRANCH}\\\`)\",
+              \"embeds\": [{
+                \"title\": \"❌ CI 검증 실패: PR #${{ github.event.pull_request.number }}\",
+                \"url\": \"${PR_URL}\",
+                \"color\": 15158332,
+                \"fields\": [
+                  { \"name\": \"PR 제목\", \"value\": \"${PR_TITLE}\", \"inline\": false },
+                  { \"name\": \"작업자\", \"value\": \"${AUTHOR}\", \"inline\": true },
+                  { \"name\": \"대상 브랜치\", \"value\": \"\\\`${TARGET_BRANCH}\\\`\", \"inline\": true },
+                  { \"name\": \"실행 로그\", \"value\": \"[GitHub Actions 로그 바로가기](${RUN_URL})\", \"inline\": false }
+                ]
+              }]
+            }" \
+            "$DISCORD_WEBHOOK_MAIN"
