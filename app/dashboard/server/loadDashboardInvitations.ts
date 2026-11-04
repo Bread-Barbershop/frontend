@@ -3,7 +3,8 @@ import 'server-only';
 import { loadInvitationMeta } from '@/app/api/drive/_lib/ensureInvitationMetaFile';
 import {
   THUMBNAIL_KIND,
-  THUMBNAIL_NAME,
+  THUMBNAIL_NAME_PNG,
+  THUMBNAIL_NAME_WEBP,
 } from '@/app/api/drive/_lib/ensureThumbnailFile';
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import { escapeDriveQueryValue } from '@/app/api/drive/_lib/escapeQueryValue';
@@ -43,7 +44,7 @@ async function loadThumbnailUrl(
         APP_IDENTIFIER
       )}' }`,
       `appProperties has { key='kind' and value='${THUMBNAIL_KIND}' }`,
-      `name='${escapeDriveQueryValue(THUMBNAIL_NAME)}'`,
+      `(name='${escapeDriveQueryValue(THUMBNAIL_NAME_WEBP)}' or name='${escapeDriveQueryValue(THUMBNAIL_NAME_PNG)}')`,
     ].join(' and ');
 
     const searchParams = new URLSearchParams({

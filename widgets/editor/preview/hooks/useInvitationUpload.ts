@@ -352,8 +352,8 @@ export const useInvitationUpload = () => {
         objects: [],
       };
       const invitationThumbnail = exportCanvasPreview() ?? {
-        name: 'invitation-thumbnail.png',
-        mimeType: 'image/png',
+        name: 'invitation-thumbnail.webp',
+        mimeType: 'image/webp',
         dataUrl: '',
         width: 0,
         height: 0,

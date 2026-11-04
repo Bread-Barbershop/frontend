@@ -7,7 +7,8 @@ import {
   APP_IDENTIFIER,
   ensureThumbnailFile,
   THUMBNAIL_KIND,
-  THUMBNAIL_NAME,
+  THUMBNAIL_NAME_PNG,
+  THUMBNAIL_NAME_WEBP,
   ThumbnailPayload,
 } from '@/app/api/drive/_lib/ensureThumbnailFile';
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
@@ -158,14 +159,21 @@ async function createThumbnailFile(
   invitationFolderId: string,
   thumbnailData: ThumbnailPayload
 ): Promise<string> {
+  const isWebp =
+    thumbnailData.mimeType === 'image/webp' ||
+    thumbnailData.name?.endsWith('.webp') ||
+    thumbnailData.dataUrl?.startsWith('data:image/webp');
+  const defaultName = isWebp ? THUMBNAIL_NAME_WEBP : THUMBNAIL_NAME_PNG;
+  const defaultMime = isWebp ? 'image/webp' : 'image/png';
+
   const metaRes = await googleFetch(
     'https://www.googleapis.com/drive/v3/files',
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: THUMBNAIL_NAME,
-        mimeType: 'image/png',
+        name: thumbnailData.name || defaultName,
+        mimeType: thumbnailData.mimeType || defaultMime,
         parents: [invitationFolderId],
         appProperties: {
           app_id: APP_IDENTIFIER,
@@ -217,13 +225,19 @@ async function updateThumbnailFile(
   );
   const buffer = Buffer.from(base64Data, 'base64');
 
+  const mimeType =
+    thumbnailData.mimeType ||
+    (thumbnailData.dataUrl.startsWith('data:image/webp')
+      ? 'image/webp'
+      : 'image/png');
+
   const uploadRes = await googleFetch(
     `https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(
       fileId
     )}?uploadType=media&supportsAllDrives=true`,
     {
       method: 'PATCH',
-      headers: { 'Content-Type': 'image/png' },
+      headers: { 'Content-Type': mimeType },
       body: buffer,
     }
   );
