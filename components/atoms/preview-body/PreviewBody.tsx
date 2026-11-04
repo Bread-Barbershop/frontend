@@ -27,10 +27,7 @@ export const PreviewBody = ({ html }: { html: string }) => {
         textDecoration,
         fontSize,
         color,
-        textAlign:
-          textAlign === 'center-left'
-            ? undefined
-            : (textAlign as React.CSSProperties['textAlign']),
+        textAlign,
       }}
     />
   );
