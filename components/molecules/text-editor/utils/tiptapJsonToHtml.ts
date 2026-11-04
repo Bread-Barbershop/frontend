@@ -33,6 +33,7 @@ export function tiptapJsonToHtmlUniversal(
   // Node/Jest 환경에서 window/document가 없을 경우 JSDOM을 임시 주입하여 안전하게 변환
   if (typeof window === 'undefined') {
     try {
+      /* eslint-disable @typescript-eslint/no-require-imports, import/no-extraneous-dependencies, @typescript-eslint/no-explicit-any */
       const { JSDOM } = require('jsdom');
       const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
       const previousWindow = (globalThis as any).window;
@@ -49,6 +50,7 @@ export function tiptapJsonToHtmlUniversal(
         (globalThis as any).window = previousWindow;
         (globalThis as any).document = previousDocument;
       }
+      /* eslint-enable @typescript-eslint/no-require-imports, import/no-extraneous-dependencies, @typescript-eslint/no-explicit-any */
     } catch {
       return '';
     }
