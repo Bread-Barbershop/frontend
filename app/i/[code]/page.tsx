@@ -6,6 +6,7 @@ import { resolveShortCode } from '@/app/api/short-url/_lib/shortUrlStore';
 import { GuestAccessNotice } from '@/app/guest/[id]/components/GuestAccessNotice';
 import GuestInvitationView from '@/app/guest/[id]/components/GuestInvitationView';
 import { loadGuestPayload } from '@/app/guest/[id]/server/loadGuestPayload';
+import { resolveDriveImageSource } from '@/shared/utils/media/driveImageUtils';
 import {
   resolveShareDescription,
   resolveShareImageUrl,
@@ -118,5 +119,24 @@ export default async function ShortGuestPage({
     notFound();
   }
 
-  return <GuestInvitationView payload={result.payload} mode="guest" />;
+  const { payload } = result;
+  const thumbnailFileId = payload.mainPoster?.thumbnailFileId;
+  const posterSrc = thumbnailFileId
+    ? resolveDriveImageSource(thumbnailFileId, { mode: 'public' })
+    : null;
+
+
+  return (
+    <>
+      {posterSrc && (
+        <link
+          rel="preload"
+          as="image"
+          href={posterSrc}
+          fetchPriority="high"
+        />
+      )}
+      <GuestInvitationView payload={payload} mode="guest" />
+    </>
+  );
 }

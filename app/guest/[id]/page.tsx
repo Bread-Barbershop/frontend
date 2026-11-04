@@ -2,6 +2,7 @@ import 'server-only';
 
 import { notFound } from 'next/navigation';
 
+import { resolveDriveImageSource } from '@/shared/utils/media/driveImageUtils';
 import {
   resolveShareDescription,
   resolveShareImageUrl,
@@ -101,6 +102,23 @@ export default async function GuestPage({
   }
 
   const { payload } = result;
+  const thumbnailFileId = payload.mainPoster?.thumbnailFileId;
+  const posterSrc = thumbnailFileId
+    ? resolveDriveImageSource(thumbnailFileId, { mode: 'public' })
+    : null;
 
-  return <GuestInvitationView payload={payload} mode="guest" />;
+
+  return (
+    <>
+      {posterSrc && (
+        <link
+          rel="preload"
+          as="image"
+          href={posterSrc}
+          fetchPriority="high"
+        />
+      )}
+      <GuestInvitationView payload={payload} mode="guest" />
+    </>
+  );
 }
