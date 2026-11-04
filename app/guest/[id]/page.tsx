@@ -1,7 +1,9 @@
 import 'server-only';
 
 import { notFound } from 'next/navigation';
+import ReactDOM from 'react-dom';
 
+import { resolveDriveImageSource } from '@/shared/utils/media/driveImageUtils';
 import {
   resolveShareDescription,
   resolveShareImageUrl,
@@ -101,6 +103,26 @@ export default async function GuestPage({
   }
 
   const { payload } = result;
+  const thumbnailFileId = payload.mainPoster?.thumbnailFileId;
+  const posterSrc = thumbnailFileId
+    ? resolveDriveImageSource(thumbnailFileId, { mode: 'public' })
+    : null;
 
-  return <GuestInvitationView payload={payload} mode="guest" />;
+  if (posterSrc) {
+    ReactDOM.preload(posterSrc, { as: 'image', fetchPriority: 'high' });
+  }
+
+  return (
+    <>
+      {posterSrc && (
+        <link
+          rel="preload"
+          as="image"
+          href={posterSrc}
+          fetchPriority="high"
+        />
+      )}
+      <GuestInvitationView payload={payload} mode="guest" />
+    </>
+  );
 }

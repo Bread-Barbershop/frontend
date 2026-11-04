@@ -79,6 +79,30 @@ describe('ShortGuestPage', () => {
     expect(notFoundMock).not.toHaveBeenCalled();
   });
 
+  it('renders a preload link for the main poster image when thumbnailFileId is present', async () => {
+    loadGuestPayloadMock.mockResolvedValue({
+      status: 'ok',
+      payload: {
+        ...payload,
+        mainPoster: {
+          thumbnailFileId: 'poster-file-12345',
+        },
+      },
+      warnings: [],
+    });
+
+    const pageElement = await ShortGuestPage({
+      params: Promise.resolve({ code: 'aB7kQ2x' }),
+    });
+    const html = renderToStaticMarkup(pageElement);
+
+    expect(html).toContain('rel="preload"');
+    expect(html).toContain('as="image"');
+    expect(html).toContain(
+      'https://lh3.googleusercontent.com/d/poster-file-12345'
+    );
+  });
+
   it('returns notFound when short code cannot be resolved', async () => {
     resolveShortCodeMock.mockResolvedValue(null);
 
