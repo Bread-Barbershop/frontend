@@ -9,6 +9,7 @@ import { GalleryItemVariants } from '../GalleryCarouselType';
 import { useGallerySwipeClick } from '../hooks/useGallerySwipeClick';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 import { GalleryTemplateProps } from '../types/galleryType';
+import { createInfiniteSlides } from '../utils/createInfiniteSlides';
 
 
 // 중앙으로부터의 거리(0~3+)에 따라 transform 계산
@@ -54,20 +55,17 @@ function GalleryType2({
   imageClick,
   isAutoPlay = false,
 }: GalleryTemplateProps) {
-  const isLoopActive = Boolean(isAutoPlay && preview.length > 1);
+  const isLoopActive = preview.length > 1;
 
-  const slides = useMemo(() => {
-    if (!isLoopActive) return preview;
-    if (preview.length < 6) {
-      return [...preview, ...preview, ...preview];
-    }
-    return preview;
-  }, [preview, isLoopActive]);
+  const slides = useMemo(
+    () => createInfiniteSlides(preview, isLoopActive, 18),
+    [preview, isLoopActive]
+  );
 
   const prefersReducedMotion = usePrefersReducedMotion();
 
   const plugins = useMemo(() => {
-    if (!isLoopActive || prefersReducedMotion) return [];
+    if (!isAutoPlay || !isLoopActive || prefersReducedMotion) return [];
     return [
       AutoScroll({
         playOnInit: true,
@@ -79,7 +77,7 @@ function GalleryType2({
         stopOnFocusIn: true,
       }),
     ];
-  }, [isLoopActive, prefersReducedMotion]);
+  }, [isAutoPlay, isLoopActive, prefersReducedMotion]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {

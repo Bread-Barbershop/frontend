@@ -5,6 +5,7 @@ import { PicturePopViewer } from './PicturePopViewer';
 
 const eventHandlers: Record<string, (() => void)[]> = {};
 let mockCurrentIndex = 0;
+let mockLoop = true;
 const emitSelect = () => eventHandlers['select']?.forEach(callback => callback());
 const mockScrollPrev = jest.fn(() => {
   mockCurrentIndex = Math.max(0, mockCurrentIndex - 1);
@@ -18,8 +19,8 @@ const mockScrollTo = jest.fn((index: number) => {
   mockCurrentIndex = Math.max(0, index);
   emitSelect();
 });
-const mockCanScrollPrev = jest.fn(() => mockCurrentIndex > 0);
-const mockCanScrollNext = jest.fn(() => mockCurrentIndex < 2);
+const mockCanScrollPrev = jest.fn(() => (mockLoop ? true : mockCurrentIndex > 0));
+const mockCanScrollNext = jest.fn(() => (mockLoop ? true : mockCurrentIndex < 2));
 const mockSelectedScrollSnap = jest.fn(() => mockCurrentIndex);
 
 const mockEmblaApi = {
@@ -45,7 +46,10 @@ const mockEmblaApi = {
 
 jest.mock('embla-carousel-react', () => ({
   __esModule: true,
-  default: () => [jest.fn(), mockEmblaApi],
+  default: (options?: { loop?: boolean }) => {
+    mockLoop = Boolean(options?.loop);
+    return [jest.fn(), mockEmblaApi];
+  },
 }));
 
 jest.mock('@/shared/assets/icons/slideArrow.svg', () => ({
@@ -72,8 +76,8 @@ describe('PicturePopViewer (오버레이 이미지 뷰어 캐러셀 및 스와�
   beforeEach(() => {
     jest.clearAllMocks();
     mockCurrentIndex = 0;
-    mockCanScrollPrev.mockImplementation(() => mockCurrentIndex > 0);
-    mockCanScrollNext.mockImplementation(() => mockCurrentIndex < 2);
+    mockCanScrollPrev.mockImplementation(() => (mockLoop ? true : mockCurrentIndex > 0));
+    mockCanScrollNext.mockImplementation(() => (mockLoop ? true : mockCurrentIndex < 2));
     Object.keys(eventHandlers).forEach(eventName => {
       delete eventHandlers[eventName];
     });
@@ -224,7 +228,7 @@ describe('PicturePopViewer (오버레이 이미지 뷰어 캐러셀 및 스와�
     expect(mockScrollTo).toHaveBeenCalledWith(2, true);
     expect(screen.getByText('3 / 3')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '이전 사진' })).toBeEnabled();
-    expect(screen.getByRole('button', { name: '다음 사진' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '다음 사진' })).toBeEnabled();
   });
 
   it('다음 사진으로 이동하고 닫았다가 다른 사진으로 다시 열면 표시가 초기화된다', () => {
@@ -259,7 +263,22 @@ describe('PicturePopViewer (오버레이 이미지 뷰어 캐러셀 및 스와�
       />
     );
     expect(screen.getByText('3 / 3')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '다음 사진' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '다음 사진' })).toBeEnabled();
+  });
+
+  it('이미지가 2장 이상일 때 무한 루프(loop: true)로 초기화되어 끊김 없이 무한 탐색 가능하다', () => {
+    render(
+      <PicturePopViewer
+        isOpen={true}
+        images={mockImages}
+        startIndex={0}
+        ratio="1:1"
+        onClose={mockOnClose}
+      />
+    );
+
+    expect(screen.getByRole('button', { name: '이전 사진' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: '다음 사진' })).toBeEnabled();
   });
 
   it('이미지 수가 줄어들면 시작 위치가 유효한 마지막 이미지로 제한된다', () => {

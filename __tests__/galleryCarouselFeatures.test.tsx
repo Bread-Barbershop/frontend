@@ -287,6 +287,19 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
       );
       expect(slideButtons.length).toBeGreaterThan(0);
     });
+
+    it('사진이 소량(예: 2~5장)이어도 끊김 없는 무한 롤링을 위해 슬라이드가 충분한 개수로 반복 렌더링된다', () => {
+      const { container } = render(
+        <GalleryType1
+          preview={images}
+          ratio="1:1"
+          imageClick={mockImageClick}
+          isAutoPlay={false}
+        />
+      );
+      const slideContainers = container.querySelectorAll('.flex-\\[0_0_50\\%\\]');
+      expect(slideContainers.length).toBeGreaterThanOrEqual(15);
+    });
   });
 
   describe('GalleryPreview 팝업 오버레이 및 네비게이션 버튼', () => {

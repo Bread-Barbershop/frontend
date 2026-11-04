@@ -5,6 +5,7 @@ import { useShallow } from 'zustand/shallow';
 import { EditorCallout } from '@/components/molecules/editor-callout';
 import { EditorBgmOverlay } from '@/components/organisms/bgm/components/EditorBgmOverlay';
 import CalloutIcon from '@/shared/assets/icons/callout.svg';
+import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
 import { blockRegistry } from '@/shared/data/registry/registry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useEditorCalloutStore } from '@/shared/store/useEditorCalloutStore';
@@ -103,8 +104,9 @@ function Preview() {
                     blockRefs.current[comp.id] = el;
                   }}
                 >
-                  <View
-                    blockInfo={comp}
+                  <ScrollFadeIn>
+                    <View
+                      blockInfo={comp}
                     className={`${selectedId === comp.id ? 'ring-1 ring-inset ring-primary' : ''}`}
                     titleClassName={previewTitleVariants({
                       variant: comp.type,
@@ -114,6 +116,7 @@ function Preview() {
                       setIsEdit(false);
                     }}
                   />
+                  </ScrollFadeIn>
                 </div>
               );
             })}
