@@ -53,7 +53,7 @@ const mockScrollNext = jest.fn();
 const mockCanScrollPrev = jest.fn(() => true);
 const mockCanScrollNext = jest.fn(() => true);
 const mockSelectedScrollSnap = jest.fn(() => 0);
-const mockSlideNodes = jest.fn(() => []);
+const mockSlideNodes = jest.fn(() => [] as HTMLElement[]);
 const eventHandlers: Record<string, (() => void)[]> = {};
 const mockOn = jest.fn((evt: string, cb: () => void) => {
   if (!eventHandlers[evt]) eventHandlers[evt] = [];
@@ -105,6 +105,7 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
     jest.clearAllMocks();
     mockCanScrollPrev.mockReturnValue(true);
     mockCanScrollNext.mockReturnValue(true);
+    mockSlideNodes.mockReturnValue([]);
     mockEmblaApi.scrollProgress.mockReturnValue(0);
     (useEditorStore as unknown as jest.Mock).mockReturnValue({
       block: [],
@@ -374,6 +375,9 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
         '[style*="transform-origin"]'
       );
       expect(slideWrappers.length).toBeGreaterThanOrEqual(8);
+      // applyStyles는 Embla.slideNodes().length가 0이면 조기 반환한다.
+      // 실제 렌더링된 노드를 mock에 연결해야 opacity 보간이 검증된다.
+      mockSlideNodes.mockReturnValue(Array.from(slideWrappers));
       const count = slideWrappers.length;
       const opacityAt = (distance: number) => {
         mockEmblaApi.scrollProgress.mockReturnValue(distance / count);
