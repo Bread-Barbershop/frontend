@@ -5,6 +5,7 @@ import { Account } from '@/components/organisms/account/Account';
 import CoupleIntroduction from '@/components/organisms/couple-introduction/CoupleIntroduction';
 import Gallery from '@/components/organisms/gallery/Gallery';
 import Greeting from '@/components/organisms/greeting/Greeting';
+import { OrganizerInformation } from '@/components/organisms/organizerInfo/OrganizerInformation';
 import { Place } from '@/components/organisms/place/Place';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
@@ -12,6 +13,9 @@ import type { EditorBlock } from '@/shared/types/block';
 jest.mock('@/shared/store/editorStore/useEditorStore');
 jest.mock('@/shared/hooks/useToast', () => ({
   useToast: () => ({ warning: jest.fn(), success: jest.fn(), error: jest.fn() }),
+}));
+jest.mock('@/components/molecules/text-editor/TextEditor', () => ({
+  TextEditor: () => <div data-testid="mock-text-editor" />,
 }));
 jest.mock('@/components/molecules/text-editor', () => ({
   TextEditor: () => <div data-testid="mock-text-editor" />,
@@ -248,6 +252,45 @@ describe('Title/Subtitle hint reset prevention tests', () => {
       fireEvent.change(subTitleInput, { target: { value: 'INVITATION!' } });
       expect(mockUpdateBlock).toHaveBeenCalledWith('greeting-1', {
         subTitle: 'INVITATION!',
+      });
+    });
+  });
+
+  describe('OrganizerInformation component', () => {
+    it('주최정보 컴포넌트에서 제목과 영문제목이 힌트와 일치해도 유지되고 수정 가능하다', () => {
+      const blockInfo: EditorBlock<'organizerInformation'> = {
+        id: 'organizer-1',
+        type: 'seminar',
+        component: 'organizerInformation',
+        props: {
+          title: '주최사',
+          checkedSubTitle: true,
+          subTitle: 'HOST',
+          organizer: '주최자',
+          hasUrl: false,
+          url: '',
+          messageJson: null,
+          messageHtml: null,
+          image: [],
+        },
+      };
+
+      render(<OrganizerInformation blockInfo={blockInfo} id="organizer-1" />);
+
+      const titleInput = screen.getByPlaceholderText('주최사') as HTMLInputElement;
+      const subTitleInput = screen.getByPlaceholderText('ORGANIZER INFORMATION') as HTMLInputElement;
+
+      expect(titleInput.value).toBe('주최사');
+      expect(subTitleInput.value).toBe('HOST');
+
+      fireEvent.change(titleInput, { target: { value: '새 주최사' } });
+      expect(mockUpdateBlock).toHaveBeenCalledWith('organizer-1', {
+        title: '새 주최사',
+      });
+
+      fireEvent.change(subTitleInput, { target: { value: 'NEW HOST' } });
+      expect(mockUpdateBlock).toHaveBeenCalledWith('organizer-1', {
+        subTitle: 'NEW HOST',
       });
     });
   });
