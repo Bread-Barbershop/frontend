@@ -10,7 +10,6 @@ import { useGallerySwipeClick } from '../hooks/useGallerySwipeClick';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 import { GalleryTemplateProps } from '../types/galleryType';
 
-import GalleryNavButtons from './GalleryNavButtons';
 
 // 중앙으로부터의 거리(0~3+)에 따라 transform 계산
 function getSlideStyle(distance: number) {
@@ -192,7 +191,6 @@ function GalleryType2({
           ))}
         </div>
       </div>
-      {preview.length > 1 && <GalleryNavButtons emblaApi={emblaApi} />}
     </div>
   );
 }
