@@ -1,7 +1,7 @@
 import { EmblaCarouselType } from 'embla-carousel';
 import AutoScroll from 'embla-carousel-auto-scroll';
 import useEmblaCarousel from 'embla-carousel-react';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Image } from '@/components/atoms/image';
 
@@ -29,10 +29,35 @@ function GalleryType3({
   isAutoPlay = false,
 }: GalleryTemplateProps) {
   const isLoopActive = preview.length > 1;
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const [minSlides, setMinSlides] = useState(18);
+
+  // 접힌 카드(32px)가 대부분이므로 넓은 화면에서는 고정 18장만으로 loop가 불가능하다.
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    const update = () => {
+      const width = viewport.getBoundingClientRect().width;
+      if (width <= 0) return;
+      const needed = Math.max(
+        18,
+        Math.ceil((width * 2 + MAX_WIDTH) / (MIN_WIDTH + 8))
+      );
+      setMinSlides(current => (current === needed ? current : needed));
+    };
+    update();
+    if (typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver(update);
+      observer.observe(viewport);
+      return () => observer.disconnect();
+    }
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
 
   const slides = useMemo(
-    () => createInfiniteSlides(preview, isLoopActive, 18),
-    [preview, isLoopActive]
+    () => createInfiniteSlides(preview, isLoopActive, minSlides),
+    [preview, isLoopActive, minSlides]
   );
 
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -60,6 +85,13 @@ function GalleryType3({
       watchDrag: true,
     },
     plugins
+  );
+  const setViewportRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      viewportRef.current = node;
+      emblaRef(node);
+    },
+    [emblaRef]
   );
 
   const rowHeight = MAX_WIDTH * (RATIO_MAP[ratio] ?? 1);
@@ -111,7 +143,7 @@ function GalleryType3({
   return (
     <div className="relative w-full group/gallery">
       <div
-        ref={emblaRef}
+        ref={setViewportRef}
         className="overflow-hidden py-10 touch-pan-y touch-pinch-zoom select-none cursor-grab active:cursor-grabbing"
       >
         <div

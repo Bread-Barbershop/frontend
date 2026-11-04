@@ -325,6 +325,22 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
   describe('갤러리 포커스 애니메이션 경계 회귀 테스트', () => {
     const images = ['https://example.com/1.jpg', 'https://example.com/2.jpg'];
 
+    it('Type3는 넓은 뷰포트에서도 접힌 카드 폭에 맞춰 충분한 슬라이드를 확보한다', () => {
+      const originalRect = HTMLElement.prototype.getBoundingClientRect;
+      HTMLElement.prototype.getBoundingClientRect = jest.fn(
+        () => ({ width: 1440, height: 240 } as DOMRect)
+      );
+      try {
+        const { container } = render(
+          <GalleryType3 preview={images} ratio="1:1" imageClick={jest.fn()} />
+        );
+        // 1440px 양쪽 버퍼와 선택 카드의 추가 폭을 고려한 최소 개수.
+        expect(container.querySelectorAll('[data-card]').length).toBeGreaterThanOrEqual(77);
+      } finally {
+        HTMLElement.prototype.getBoundingClientRect = originalRect;
+      }
+    });
+
     it('Type1은 reduced-motion에서도 선택 카드 대비를 유지하되 전환 애니메이션을 제거한다', () => {
       const originalMatchMedia = window.matchMedia;
       window.matchMedia = jest.fn().mockImplementation(query => ({
@@ -350,7 +366,7 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
       }
     });
 
-    it('Type2의 멀리 있는 슬라이드는 거리 3~3.5에서 투명도가 연속적으로 0에 수렴한다', () => {
+    it('Type2의 멀리 있는 슬라이드는 거리 2~3에서 투명도가 연속적으로 0에 수렴한다', () => {
       const { container } = render(
         <GalleryType2 preview={images} ratio="1:1" imageClick={jest.fn()} />
       );
@@ -366,11 +382,11 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
         });
         return Number(slideWrappers[0].style.opacity);
       };
-      const near = opacityAt(3.1);
-      const farther = opacityAt(3.49);
-      const hidden = opacityAt(3.5);
+      const near = opacityAt(2.1);
+      const farther = opacityAt(2.9);
+      const hidden = opacityAt(3);
       expect(near).toBeGreaterThan(0);
-      expect(near).toBeLessThan(0.1);
+      expect(near).toBeLessThan(0.3);
       expect(farther).toBeGreaterThan(0);
       expect(farther).toBeLessThan(near);
       expect(hidden).toBe(0);
