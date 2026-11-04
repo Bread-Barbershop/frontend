@@ -1,6 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
+import { ExternalLink } from 'lucide-react';
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -115,6 +116,37 @@ function PrivacyNoticeModal({
                       Google Drive 계정에 직접 업로드
                     </span>
                     되며, 직접 보관하고 관리할 수 있어요.
+                    <div className="mt-2.5 rounded-lg border border-black/5 bg-[#F8F9FA] p-3 text-[12px] sm:text-[13px] leading-[18px] sm:leading-[19px] text-[#4B5563]">
+                      <div className="flex items-start gap-2">
+                        <span
+                          className="shrink-0 text-[14px] pt-0.5"
+                          aria-hidden="true"
+                        >
+                          💡
+                        </span>
+                        <div className="flex-1 space-y-1.5">
+                          <p>
+                            현재 로그인된 Google Drive의{' '}
+                            <strong className="font-semibold text-text-primary">
+                              ‘나의 모바일 청첩장’
+                            </strong>{' '}
+                            폴더에 우리 청첩장이 안전하게 저장돼요.
+                          </p>
+                          <a
+                            href="https://drive.google.com/drive/my-drive"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 font-semibold text-[#1F72EF] underline underline-offset-2 transition-colors hover:text-[#185bc0] cursor-pointer"
+                          >
+                            <span>Google Drive(내 드라이브) 바로가기</span>
+                            <ExternalLink
+                              className="h-3.5 w-3.5 shrink-0"
+                              aria-hidden="true"
+                            />
+                          </a>
+                        </div>
+                      </div>
+                    </div>
                   </li>
                 </ol>
                 <p>
