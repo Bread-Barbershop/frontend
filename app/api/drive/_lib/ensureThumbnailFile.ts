@@ -50,7 +50,8 @@ export async function ensureThumbnailFile(
     q,
     spaces: 'drive',
     fields: 'files(id,name,createdTime,appProperties)',
-    orderBy: 'createdTime',
+    // 정리 실패로 PNG/WebP 파일이 함께 남아도 최신 썸네일을 선택한다.
+    orderBy: 'createdTime desc',
     pageSize: '10',
   });
 
