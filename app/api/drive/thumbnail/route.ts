@@ -7,7 +7,8 @@ import {
   APP_IDENTIFIER,
   ensureThumbnailFile,
   THUMBNAIL_KIND,
-  THUMBNAIL_NAME,
+  THUMBNAIL_NAME_PNG,
+  THUMBNAIL_NAME_WEBP,
   ThumbnailPayload,
 } from '@/app/api/drive/_lib/ensureThumbnailFile';
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
@@ -49,7 +50,12 @@ export async function POST(req: Request) {
       thumbnailData
     );
     if (thumbnailFileId && finalFileId !== thumbnailFileId) {
-      await deleteThumbnailFile(thumbnailFileId);
+      try {
+        await deleteThumbnailFile(thumbnailFileId);
+      } catch (error) {
+        // 신규 파일 저장은 성공했으므로 이전 파일 정리 실패로 저장 결과를 무효화하지 않는다.
+        captureDriveError({ error, operation: 'drive_thumbnail_old_file_cleanup' });
+      }
     }
 
     // // 3) 공개 권한 설정
@@ -154,18 +160,57 @@ async function loadThumbnailFileData(fileId: string) {
   return res.json();
 }
 
+/**
+ * dataUrl 서명(바이트 원본)을 최우선으로 검증하여 정규화된 MIME 타입과 파일명을 결정합니다.
+ * 파일 확장자, 메타데이터 mimeType, 실제 업로드 Content-Type 불일치를 방지합니다.
+ */
+function resolveNormalizedThumbnailFormat(thumbnailData: ThumbnailPayload): {
+  mimeType: 'image/webp' | 'image/png';
+  fileName: string;
+  imageBytes: Buffer;
+} {
+  const match = /^data:image\/(webp|png);base64,([A-Za-z0-9+/]+={0,2})$/.exec(
+    thumbnailData.dataUrl
+  );
+  if (!match) {
+    throw new DriveHttpError('지원하지 않는 썸네일 데이터 형식입니다.', 400, {});
+  }
+
+  const imageBytes = Buffer.from(match[2], 'base64');
+  const isWebp =
+    imageBytes.length >= 12 &&
+    imageBytes.toString('ascii', 0, 4) === 'RIFF' &&
+    imageBytes.toString('ascii', 8, 12) === 'WEBP';
+  const isPng =
+    imageBytes.length >= 8 &&
+    imageBytes.subarray(0, 8).toString('hex') === '89504e470d0a1a0a';
+
+  // 파일 이름이나 외부 MIME 값이 아닌 실제 이미지 서명과 data URL을 대조한다.
+  if ((match[1] === 'webp' && !isWebp) || (match[1] === 'png' && !isPng)) {
+    throw new DriveHttpError('썸네일 이미지 데이터가 손상되었거나 형식이 다릅니다.', 400, {});
+  }
+
+  return {
+    mimeType: isWebp ? 'image/webp' : 'image/png',
+    fileName: isWebp ? THUMBNAIL_NAME_WEBP : THUMBNAIL_NAME_PNG,
+    imageBytes,
+  };
+}
+
 async function createThumbnailFile(
   invitationFolderId: string,
   thumbnailData: ThumbnailPayload
 ): Promise<string> {
+  const { mimeType, fileName, imageBytes } = resolveNormalizedThumbnailFormat(thumbnailData);
+
   const metaRes = await googleFetch(
     'https://www.googleapis.com/drive/v3/files',
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: THUMBNAIL_NAME,
-        mimeType: 'image/png',
+        name: fileName,
+        mimeType,
         parents: [invitationFolderId],
         appProperties: {
           app_id: APP_IDENTIFIER,
@@ -185,7 +230,7 @@ async function createThumbnailFile(
   }
 
   try {
-    await updateThumbnailFile(created.id, thumbnailData);
+    await updateThumbnailFile(created.id, imageBytes, mimeType);
     return created.id;
   } catch (error) {
     await deleteThumbnailFile(created.id);
@@ -209,22 +254,18 @@ async function deleteThumbnailFile(fileId: string): Promise<void> {
 
 async function updateThumbnailFile(
   fileId: string,
-  thumbnailData: ThumbnailPayload
+  imageBytes: Buffer,
+  normalizedMimeType: 'image/webp' | 'image/png'
 ): Promise<string> {
-  const base64Data = thumbnailData.dataUrl.replace(
-    /^data:image\/\w+;base64,/,
-    ''
-  );
-  const buffer = Buffer.from(base64Data, 'base64');
-
   const uploadRes = await googleFetch(
     `https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(
       fileId
     )}?uploadType=media&supportsAllDrives=true`,
     {
       method: 'PATCH',
-      headers: { 'Content-Type': 'image/png' },
-      body: buffer,
+      headers: { 'Content-Type': normalizedMimeType },
+      // Node Buffer<ArrayBufferLike>는 Next.js fetch BodyInit 타입과 호환되지 않는다.
+      body: new Uint8Array(imageBytes),
     }
   );
 
