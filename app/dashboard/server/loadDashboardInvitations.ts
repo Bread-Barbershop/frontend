@@ -51,6 +51,7 @@ async function loadThumbnailUrl(
       q,
       spaces: 'drive',
       fields: 'files(id)',
+      orderBy: 'createdTime desc',
       pageSize: '1',
     });
 
