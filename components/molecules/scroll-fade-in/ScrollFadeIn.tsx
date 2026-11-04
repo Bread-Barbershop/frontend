@@ -46,13 +46,6 @@ export function ScrollFadeIn({
     const element = ref.current;
     if (!element) return;
 
-    // 초기 마운트 시점에 이미 뷰포트에 들어와 있는 요소 즉각 가시화 (긴 블록 및 상단 폴백)
-    const rect = element.getBoundingClientRect();
-    if (rect.bottom > 0 && rect.top < window.innerHeight) {
-      setIsIntersected(true);
-      return;
-    }
-
     const observer = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
