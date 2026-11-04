@@ -25,12 +25,12 @@ export const GuestMainPoster = ({
   if (resolvedSrc) {
     return (
       <div className="w-full relative aspect-[375/812] overflow-hidden">
-        {/* 메인 포스터는 첫 화면 핵심 이미지라 Google 직접 URL을 유지하면서 우선순위만 높인다. */}
+        {/* 공개 페이지의 preload와 중복되지 않도록 이미지 자체는 eager/high로 요청한다. */}
         <Image
           src={resolvedSrc}
           alt="초대장 메인 포스터"
           fill
-          priority
+          loading="eager"
           fetchPriority="high"
           sizes="(max-width: 430px) 100vw, 430px"
           unoptimized
