@@ -1,5 +1,5 @@
 import { EmblaCarouselType } from 'embla-carousel';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useSyncExternalStore } from 'react';
 
 import SlideArrow from '@/shared/assets/icons/slideArrow.svg';
 import { cn } from '@/shared/utils/cn';
@@ -17,26 +17,29 @@ export function GalleryNavButtons({
   buttonClassName,
   show = true,
 }: Props) {
-  const [canPrev, setCanPrev] = useState(
-    () => emblaApi?.canScrollPrev() ?? false
+  // Embla 인스턴스가 뒤늦게 준비되어도 첫 렌더부터 버튼 활성 상태를 반영한다.
+  const subscribe = useCallback(
+    (notify: () => void) => {
+      if (!emblaApi) return () => {};
+      emblaApi.on('select', notify);
+      emblaApi.on('reInit', notify);
+      return () => {
+        emblaApi.off('select', notify);
+        emblaApi.off('reInit', notify);
+      };
+    },
+    [emblaApi]
   );
-  const [canNext, setCanNext] = useState(
-    () => emblaApi?.canScrollNext() ?? false
+  const getCanPrev = useCallback(
+    () => emblaApi?.canScrollPrev() ?? false,
+    [emblaApi]
   );
-
-  const updateButtons = useCallback(() => {
-    if (!emblaApi) return;
-    setCanPrev(emblaApi.canScrollPrev());
-    setCanNext(emblaApi.canScrollNext());
-  }, [emblaApi]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    emblaApi.on('select', updateButtons).on('reInit', updateButtons);
-    return () => {
-      emblaApi.off('select', updateButtons).off('reInit', updateButtons);
-    };
-  }, [emblaApi, updateButtons]);
+  const getCanNext = useCallback(
+    () => emblaApi?.canScrollNext() ?? false,
+    [emblaApi]
+  );
+  const canPrev = useSyncExternalStore(subscribe, getCanPrev, () => false);
+  const canNext = useSyncExternalStore(subscribe, getCanNext, () => false);
 
   if (!show || !emblaApi) return null;
 

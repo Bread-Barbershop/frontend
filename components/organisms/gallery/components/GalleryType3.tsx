@@ -9,7 +9,6 @@ import { useGallerySwipeClick } from '../hooks/useGallerySwipeClick';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 import { GalleryTemplateProps } from '../types/galleryType';
 
-import GalleryNavButtons from './GalleryNavButtons';
 
 const MAX_WIDTH = 200; // 중앙일 때 카드 폭
 const MIN_WIDTH = 32; // 가장 멀어졌을 때 카드 폭
@@ -141,7 +140,6 @@ function GalleryType3({
           ))}
         </div>
       </div>
-      {preview.length > 1 && <GalleryNavButtons emblaApi={emblaApi} />}
     </div>
   );
 }

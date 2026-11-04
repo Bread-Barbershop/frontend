@@ -10,8 +10,6 @@ import { useGallerySwipeClick } from '../hooks/useGallerySwipeClick';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 import { GalleryTemplateProps } from '../types/galleryType';
 
-import GalleryNavButtons from './GalleryNavButtons';
-
 function GalleryType4({
   imageClick,
   preview,
@@ -103,7 +101,6 @@ function GalleryType4({
           ))}
         </div>
       </div>
-      {preview.length > 1 && <GalleryNavButtons emblaApi={emblaApi} />}
     </div>
   );
 }

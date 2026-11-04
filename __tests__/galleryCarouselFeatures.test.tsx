@@ -31,7 +31,8 @@ jest.mock('@/shared/assets/icons/add.svg', () => ({
 jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: Record<string, unknown>) => {
-    const { fill, unoptimized, ...rest } = props;
+    const { fill, unoptimized, priority, ...rest } = props;
+    void priority;
     void fill;
     void unoptimized;
     // eslint-disable-next-line @next/next/no-img-element
@@ -69,6 +70,7 @@ const mockReInit = jest.fn();
 const mockEmblaApi = {
   scrollPrev: mockScrollPrev,
   scrollNext: mockScrollNext,
+  scrollTo: jest.fn(),
   canScrollPrev: mockCanScrollPrev,
   canScrollNext: mockCanScrollNext,
   selectedScrollSnap: mockSelectedScrollSnap,
@@ -95,6 +97,8 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockCanScrollPrev.mockReturnValue(true);
+    mockCanScrollNext.mockReturnValue(true);
     (useEditorStore as unknown as jest.Mock).mockReturnValue({
       block: [],
       images: [],
@@ -129,7 +133,7 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
     });
 
     it('canScrollPrev가 false이면 이전 버튼이 disabled되어야 함', () => {
-      mockCanScrollPrev.mockReturnValueOnce(false);
+      mockCanScrollPrev.mockReturnValue(false);
       render(<GalleryNavButtons emblaApi={mockEmblaApi as any} show={true} />);
 
       const prevBtn = screen.getByRole('button', { name: '이전 사진' });
@@ -224,7 +228,7 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
     const images = ['https://example.com/1.jpg', 'https://example.com/2.jpg'];
     const mockImageClick = jest.fn();
 
-    it('GalleryType2 렌더링 및 네비게이션 버튼 표시', () => {
+    it('GalleryType2가 정상 렌더링되고 슬라이드 카드가 표시된다', () => {
       render(
         <GalleryType2
           preview={images}
@@ -233,12 +237,13 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
           isAutoPlay={true}
         />
       );
-      expect(
-        screen.getByRole('button', { name: '이전 사진' })
-      ).toBeInTheDocument();
+      const slideButtons = screen.getAllByRole('button').filter(el =>
+        el.getAttribute('role') === 'button'
+      );
+      expect(slideButtons.length).toBeGreaterThan(0);
     });
 
-    it('GalleryType3 렌더링 및 네비게이션 버튼 표시', () => {
+    it('GalleryType3가 정상 렌더링되고 슬라이드 카드가 표시된다', () => {
       render(
         <GalleryType3
           preview={images}
@@ -247,12 +252,13 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
           isAutoPlay={true}
         />
       );
-      expect(
-        screen.getByRole('button', { name: '이전 사진' })
-      ).toBeInTheDocument();
+      const slideButtons = screen.getAllByRole('button').filter(el =>
+        el.getAttribute('role') === 'button'
+      );
+      expect(slideButtons.length).toBeGreaterThan(0);
     });
 
-    it('GalleryType4 렌더링 및 네비게이션 버튼 표시', () => {
+    it('GalleryType4가 정상 렌더링되고 슬라이드 카드가 표시된다', () => {
       render(
         <GalleryType4
           preview={images}
@@ -261,12 +267,13 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
           isAutoPlay={true}
         />
       );
-      expect(
-        screen.getByRole('button', { name: '이전 사진' })
-      ).toBeInTheDocument();
+      const slideButtons = screen.getAllByRole('button').filter(el =>
+        el.getAttribute('role') === 'button'
+      );
+      expect(slideButtons.length).toBeGreaterThan(0);
     });
 
-    it('GalleryType5 렌더링 및 네비게이션 버튼 표시', () => {
+    it('GalleryType5가 정상 렌더링되고 슬라이드 카드가 표시된다', () => {
       render(
         <GalleryType5
           preview={images}
@@ -275,14 +282,19 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
           isAutoPlay={true}
         />
       );
-      expect(
-        screen.getByRole('button', { name: '이전 사진' })
-      ).toBeInTheDocument();
+      const slideButtons = screen.getAllByRole('button').filter(el =>
+        el.getAttribute('role') === 'button'
+      );
+      expect(slideButtons.length).toBeGreaterThan(0);
     });
   });
 
-  describe('GalleryPreview 캐러셀 렌더링', () => {
-    it('이미지가 2장 이상일 때 네비게이션 버튼이 노출되어야 함', () => {
+  describe('GalleryPreview 팝업 오버레이 및 네비게이션 버튼', () => {
+    beforeEach(() => {
+      document.body.innerHTML = '<div id="preview-container"></div>';
+    });
+
+    it('isPopupViewer가 true일 때 이미지 클릭 시 오버레이가 열리고 < > 이전/다음 버튼이 노출된다', () => {
       const mockBlock: EditorBlock<'gallery'> = {
         id: 'gallery-test-2',
         type: 'wedding',
@@ -293,9 +305,9 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
           images: ['https://example.com/1.jpg', 'https://example.com/2.jpg'],
           template: 'galleryType1',
           ratio: '1:1',
-          isPopupViewer: false,
+          isPopupViewer: true,
           isSubTitle: true,
-          isAutoPlay: true,
+          isAutoPlay: false,
         },
       };
 
@@ -307,6 +319,19 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
         />
       );
 
+      // 본문 템플릿에는 이전/다음 화살표 버튼이 없어야 함
+      expect(
+        screen.queryByRole('button', { name: '이전 사진' })
+      ).not.toBeInTheDocument();
+
+      // 슬라이드 카드 클릭하여 오버레이 팝업 열기
+      const slideButtons = screen.getAllByRole('button').filter(el =>
+        el.getAttribute('tabIndex') === '0'
+      );
+      fireEvent.click(slideButtons[0]);
+
+      // 오버레이 다이얼로그와 이전/다음 버튼 노출 확인
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
       expect(
         screen.getByRole('button', { name: '이전 사진' })
       ).toBeInTheDocument();
