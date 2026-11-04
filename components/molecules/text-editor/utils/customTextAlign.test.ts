@@ -1,5 +1,5 @@
-import { tiptapJsonToHtmlUniversal } from './tiptapJsonToHtml';
 import { getInitialEditorStyles, type TextAlignValue } from './textEditorOptions';
+import { tiptapJsonToHtmlUniversal } from './tiptapJsonToHtml';
 
 describe('CustomTextAlign 및 정렬 옵션 테스트', () => {
   it('defaultAlign이 center-left인 경우 시작 일렬 가운데 정렬 옵션이 기본값으로 선택된다', () => {
