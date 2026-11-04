@@ -1,2 +1,2 @@
 export const previewTextClassName =
-  'w-full min-w-0 max-w-full whitespace-normal break-words [overflow-wrap:anywhere] [&_*]:max-w-full [&_*]:break-words [&_*]:[overflow-wrap:anywhere] has-[[data-text-align="center-left"]]:grid has-[[data-text-align="center-left"]]:justify-center has-[[data-text-align="center-left"]]:justify-items-start [&_[data-text-align="center-left"]]:w-full [&_[data-text-align="center-left"]]:text-left';
+  'w-full min-w-0 max-w-full whitespace-normal break-words [overflow-wrap:anywhere] [&_*]:max-w-full [&_*]:break-words [&_*]:[overflow-wrap:anywhere]';

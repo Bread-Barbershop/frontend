@@ -44,6 +44,7 @@ import { cn } from '@/shared/utils/cn';
 import { Selector } from '../selector';
 
 import TextEditorColorPickerPopover from './components/TextEditorColorPickerPopover';
+import centerLeftStyles from './utils/centerLeftText.module.css';
 import { isTextMarkFullyActive } from './utils/markState';
 import {
   normalizePastedHtmlToPlainText,
@@ -462,8 +463,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       content: value ?? null,
       editorProps: {
         attributes: {
-          class:
-            'flex flex-col justify-center min-h-[120px] outline-none text-[14px] leading-7 selection:bg-primary/20 selection:text-inherit has-[[data-text-align="center-left"]]:grid has-[[data-text-align="center-left"]]:justify-center has-[[data-text-align="center-left"]]:justify-items-start [&_[data-text-align="center-left"]]:w-full [&_[data-text-align="center-left"]]:text-left',
+          class: `flex flex-col justify-center min-h-[120px] outline-none text-[14px] leading-7 selection:bg-primary/20 selection:text-inherit ${centerLeftStyles.centerLeftText} ${centerLeftStyles.editorCenterLeftText}`,
         },
         transformPastedHTML(html) {
           return normalizePastedHtmlToPlainText(html);

@@ -87,4 +87,39 @@ describe('CustomTextAlign 및 정렬 옵션 테스트', () => {
     expect(html).toContain('text-align: right');
     expect(html).not.toContain('data-text-align="center-left"');
   });
+
+  it('혼합 문단에서도 center-left는 각 문단에 보존되고 기존 center/right 정렬은 유지된다', () => {
+    const content = {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          attrs: { textAlign: 'center-left' },
+          content: [{ type: 'text', text: '첫 번째 중앙 시작 문장' }],
+        },
+        {
+          type: 'paragraph',
+          attrs: { textAlign: 'center' },
+          content: [{ type: 'text', text: '기존 가운데 정렬 문장' }],
+        },
+        {
+          type: 'paragraph',
+          attrs: { textAlign: 'center-left' },
+          content: [{ type: 'text', text: '두 번째 중앙 시작 문장' }],
+        },
+        {
+          type: 'paragraph',
+          attrs: { textAlign: 'right' },
+          content: [{ type: 'text', text: '기존 오른쪽 정렬 문장' }],
+        },
+      ],
+    };
+
+    const html = tiptapJsonToHtmlUniversal(content);
+    expect(html.match(/data-text-align="center-left"/g)).toHaveLength(2);
+    expect(html).toContain('text-align: center');
+    expect(html).toContain('text-align: right');
+    expect(html).toContain('첫 번째 중앙 시작 문장');
+    expect(html).toContain('두 번째 중앙 시작 문장');
+  });
 });
