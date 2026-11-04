@@ -473,11 +473,12 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
   });
 
   describe('PicturePopViewer 무한 루프 wrap 동작 검증', () => {
+    const testImages = ['https://example.com/1.jpg', 'https://example.com/2.jpg'];
     it('이미지가 2장 이상일 때 loop: true로 초기화되고 네비게이션을 통해 경계 wrap이 동작한다', () => {
       render(
         <PicturePopViewer
           isOpen={true}
-          images={images}
+          images={testImages}
           ratio="1:1"
           startIndex={0}
           onClose={jest.fn()}
