@@ -3,13 +3,24 @@ import React from 'react';
 
 import { PicturePopViewer } from './PicturePopViewer';
 
-const mockScrollPrev = jest.fn();
-const mockScrollNext = jest.fn();
-const mockScrollTo = jest.fn();
-const mockCanScrollPrev = jest.fn(() => false);
-const mockCanScrollNext = jest.fn(() => true);
-const mockSelectedScrollSnap = jest.fn(() => 0);
 const eventHandlers: Record<string, (() => void)[]> = {};
+let mockCurrentIndex = 0;
+const emitSelect = () => eventHandlers['select']?.forEach(callback => callback());
+const mockScrollPrev = jest.fn(() => {
+  mockCurrentIndex = Math.max(0, mockCurrentIndex - 1);
+  emitSelect();
+});
+const mockScrollNext = jest.fn(() => {
+  mockCurrentIndex += 1;
+  emitSelect();
+});
+const mockScrollTo = jest.fn((index: number) => {
+  mockCurrentIndex = Math.max(0, index);
+  emitSelect();
+});
+const mockCanScrollPrev = jest.fn(() => mockCurrentIndex > 0);
+const mockCanScrollNext = jest.fn(() => mockCurrentIndex < 2);
+const mockSelectedScrollSnap = jest.fn(() => mockCurrentIndex);
 
 const mockEmblaApi = {
   scrollPrev: mockScrollPrev,
@@ -60,6 +71,12 @@ describe('PicturePopViewer (오버레이 이미지 뷰어 캐러셀 및 스와�
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockCurrentIndex = 0;
+    mockCanScrollPrev.mockImplementation(() => mockCurrentIndex > 0);
+    mockCanScrollNext.mockImplementation(() => mockCurrentIndex < 2);
+    Object.keys(eventHandlers).forEach(eventName => {
+      delete eventHandlers[eventName];
+    });
     // Portal target div 설정
     document.body.innerHTML = '<div id="preview-container"></div>';
   });
@@ -182,6 +199,118 @@ describe('PicturePopViewer (오버레이 이미지 뷰어 캐러셀 및 스와�
 
     fireEvent.keyDown(window, { key: 'ArrowRight' });
     expect(mockScrollNext).toHaveBeenCalledTimes(1);
+  });
+
+  it('닫힌 상태에서 세 번째 이미지를 열어도 표시와 화살표 활성 상태가 일치한다', () => {
+    const { rerender } = render(
+      <PicturePopViewer
+        isOpen={false}
+        images={mockImages}
+        startIndex={0}
+        ratio="1:1"
+        onClose={mockOnClose}
+      />
+    );
+    rerender(
+      <PicturePopViewer
+        isOpen={true}
+        images={mockImages}
+        startIndex={2}
+        ratio="1:1"
+        onClose={mockOnClose}
+      />
+    );
+
+    expect(mockScrollTo).toHaveBeenCalledWith(2, true);
+    expect(screen.getByText('3 / 3')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '이전 사진' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: '다음 사진' })).toBeDisabled();
+  });
+
+  it('다음 사진으로 이동하고 닫았다가 다른 사진으로 다시 열면 표시가 초기화된다', () => {
+    const { rerender } = render(
+      <PicturePopViewer
+        isOpen={true}
+        images={mockImages}
+        startIndex={0}
+        ratio="1:1"
+        onClose={mockOnClose}
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: '다음 사진' }));
+    expect(screen.getByText('2 / 3')).toBeInTheDocument();
+
+    rerender(
+      <PicturePopViewer
+        isOpen={false}
+        images={mockImages}
+        startIndex={0}
+        ratio="1:1"
+        onClose={mockOnClose}
+      />
+    );
+    rerender(
+      <PicturePopViewer
+        isOpen={true}
+        images={mockImages}
+        startIndex={2}
+        ratio="1:1"
+        onClose={mockOnClose}
+      />
+    );
+    expect(screen.getByText('3 / 3')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '다음 사진' })).toBeDisabled();
+  });
+
+  it('이미지 수가 줄어들면 시작 위치가 유효한 마지막 이미지로 제한된다', () => {
+    const { rerender } = render(
+      <PicturePopViewer
+        isOpen={false}
+        images={mockImages}
+        startIndex={0}
+        ratio="1:1"
+        onClose={mockOnClose}
+      />
+    );
+    rerender(
+      <PicturePopViewer
+        isOpen={true}
+        images={mockImages.slice(0, 2)}
+        startIndex={10}
+        ratio="1:1"
+        onClose={mockOnClose}
+      />
+    );
+    expect(mockScrollTo).toHaveBeenCalledWith(1, true);
+    expect(screen.getByText('2 / 2')).toBeInTheDocument();
+  });
+
+  it('팝업 포커스가 내부에 유지되고 닫히면 이전 요소로 복원된다', () => {
+    const opener = document.createElement('button');
+    document.body.appendChild(opener);
+    opener.focus();
+
+    const { unmount } = render(
+      <PicturePopViewer
+        isOpen={true}
+        images={mockImages}
+        startIndex={0}
+        ratio="1:1"
+        onClose={mockOnClose}
+      />
+    );
+    const closeButton = screen.getByRole('button', { name: '닫기' });
+    const nextButton = screen.getByRole('button', { name: '다음 사진' });
+    expect(closeButton).toHaveFocus();
+
+    fireEvent.keyDown(window, { key: 'Tab', shiftKey: true });
+    expect(nextButton).toHaveFocus();
+    fireEvent.keyDown(window, { key: 'Tab' });
+    expect(closeButton).toHaveFocus();
+
+    unmount();
+    expect(opener).toHaveFocus();
+    opener.remove();
   });
 
   it('이미지가 1장일 때는 이전/다음 버튼이 노출되지 않는다', () => {
