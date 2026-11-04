@@ -9,6 +9,7 @@ import { GalleryItemVariants } from '../GalleryCarouselType';
 import { useGallerySwipeClick } from '../hooks/useGallerySwipeClick';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 import { GalleryTemplateProps } from '../types/galleryType';
+import { createInfiniteSlides } from '../utils/createInfiniteSlides';
 
 function GalleryType4({
   imageClick,
@@ -16,20 +17,17 @@ function GalleryType4({
   ratio,
   isAutoPlay = false,
 }: GalleryTemplateProps) {
-  const isLoopActive = Boolean(isAutoPlay && preview.length > 1);
+  const isLoopActive = preview.length > 1;
 
-  const slides = useMemo(() => {
-    if (!isLoopActive) return preview;
-    if (preview.length < 5) {
-      return [...preview, ...preview, ...preview];
-    }
-    return preview;
-  }, [preview, isLoopActive]);
+  const slides = useMemo(
+    () => createInfiniteSlides(preview, isLoopActive, isAutoPlay ? 8 : 5),
+    [preview, isLoopActive, isAutoPlay]
+  );
 
   const prefersReducedMotion = usePrefersReducedMotion();
 
   const plugins = useMemo(() => {
-    if (!isLoopActive || prefersReducedMotion) return [];
+    if (!isAutoPlay || !isLoopActive || prefersReducedMotion) return [];
     return [
       AutoScroll({
         playOnInit: true,
@@ -41,7 +39,7 @@ function GalleryType4({
         stopOnFocusIn: true,
       }),
     ];
-  }, [isLoopActive, prefersReducedMotion]);
+  }, [isAutoPlay, isLoopActive, prefersReducedMotion]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {

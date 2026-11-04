@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
+import { PicturePopViewer } from '@/components/molecules/picture/PicturePopViewer';
 import Gallery from '@/components/organisms/gallery/Gallery';
 import { gallerySchema } from '@/components/organisms/gallery/Gallery.schema';
 import GalleryNavButtons from '@/components/organisms/gallery/components/GalleryNavButtons';
@@ -81,9 +82,14 @@ const mockEmblaApi = {
   scrollProgress: jest.fn(() => 0),
 };
 
+const mockUseEmblaCarousel = jest.fn((...args: any[]) => {
+  void args;
+  return [jest.fn(), mockEmblaApi];
+});
+
 jest.mock('embla-carousel-react', () => ({
   __esModule: true,
-  default: () => [jest.fn(), mockEmblaApi],
+  default: (...args: any[]) => mockUseEmblaCarousel(...args),
 }));
 
 jest.mock('embla-carousel-auto-scroll', () => ({
@@ -287,6 +293,32 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
       );
       expect(slideButtons.length).toBeGreaterThan(0);
     });
+
+    it('사진이 소량(예: 2~5장)이어도 끊김 없는 무한 롤링을 위해 슬라이드가 충분한 개수로 반복 렌더링된다', () => {
+      // 수동 스와이프(isAutoPlay=false): 최소 5개 기준 (2장 -> 6장)
+      const { container: manualContainer } = render(
+        <GalleryType1
+          preview={images}
+          ratio="1:1"
+          imageClick={mockImageClick}
+          isAutoPlay={false}
+        />
+      );
+      const manualSlides = manualContainer.querySelectorAll('.flex-\\[0_0_50\\%\\]');
+      expect(manualSlides.length).toBeGreaterThanOrEqual(5);
+
+      // 자동 재생(isAutoPlay=true): 최소 8개 기준 (2장 -> 8장)
+      const { container: autoContainer } = render(
+        <GalleryType1
+          preview={images}
+          ratio="1:1"
+          imageClick={mockImageClick}
+          isAutoPlay={true}
+        />
+      );
+      const autoSlides = autoContainer.querySelectorAll('.flex-\\[0_0_50\\%\\]');
+      expect(autoSlides.length).toBeGreaterThanOrEqual(8);
+    });
   });
 
   describe('GalleryPreview 팝업 오버레이 및 네비게이션 버튼', () => {
@@ -428,6 +460,58 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
       fireEvent.keyDown(slideButtons[0], { key: 'ArrowDown' });
       fireEvent.keyDown(slideButtons[0], { key: 'Tab' });
       expect(mockImageClick).not.toHaveBeenCalled();
+    });
+
+    it('복제된 가상 슬라이드 클릭 시에도 올바른 원본 인덱스(i % preview.length)로 imageClick이 호출된다', () => {
+      render(
+        <GalleryType1
+          preview={images}
+          ratio="1:1"
+          imageClick={mockImageClick}
+          isAutoPlay={true}
+        />
+      );
+
+      const hiddenButtons = screen.getAllByRole('button', { hidden: true }).filter(el =>
+        el.getAttribute('tabIndex') === '-1'
+      );
+      expect(hiddenButtons.length).toBeGreaterThan(0);
+
+      fireEvent.click(hiddenButtons[0]);
+      expect(mockImageClick).toHaveBeenCalledWith(expect.any(Number));
+      const clickedIndex = mockImageClick.mock.calls[0][0];
+      expect(clickedIndex).toBeLessThan(images.length);
+      expect(clickedIndex).toBeGreaterThanOrEqual(0);
+    });
+  });
+
+  describe('PicturePopViewer 무한 루프 wrap 동작 검증', () => {
+    const testImages = ['https://example.com/1.jpg', 'https://example.com/2.jpg'];
+    it('이미지가 2장 이상일 때 loop: true로 초기화되고 네비게이션을 통해 경계 wrap이 동작한다', () => {
+      render(
+        <PicturePopViewer
+          isOpen={true}
+          images={testImages}
+          ratio="1:1"
+          startIndex={0}
+          onClose={jest.fn()}
+        />
+      );
+
+      const emblaCall = mockUseEmblaCarousel.mock.calls.find(
+        call => call[0]?.loop === true
+      );
+      expect(emblaCall).toBeDefined();
+      expect(emblaCall[0].loop).toBe(true);
+
+      const prevBtn = screen.getByLabelText('이전 사진');
+      const nextBtn = screen.getByLabelText('다음 사진');
+
+      fireEvent.click(prevBtn);
+      expect(mockScrollPrev).toHaveBeenCalled();
+
+      fireEvent.click(nextBtn);
+      expect(mockScrollNext).toHaveBeenCalled();
     });
   });
 });

@@ -36,11 +36,13 @@ export const PicturePopViewer = ({
     return Math.max(0, Math.min(startIndex, images.length - 1));
   }, [startIndex, images.length]);
 
+  const isLoop = images.length > 1;
+
   const [emblaRef, emblaApi] = useEmblaCarousel({
     startIndex: initialIndex,
-    loop: false,
+    loop: isLoop,
     align: 'center',
-    containScroll: 'trimSnaps',
+    containScroll: isLoop ? false : 'trimSnaps',
     watchDrag: true,
   });
 
