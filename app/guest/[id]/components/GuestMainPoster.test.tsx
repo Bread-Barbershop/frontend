@@ -3,7 +3,7 @@ import React from 'react';
 
 import { GuestMainPoster } from './GuestMainPoster';
 
-const mockImage = jest.fn(() => null);
+const mockImage = jest.fn((_props: Record<string, unknown>) => null);
 
 jest.mock('@/widgets/mainPoster/libs/customImage-filter', () => ({}));
 jest.mock('@/shared/hooks/useResolvedImageSource', () => ({
