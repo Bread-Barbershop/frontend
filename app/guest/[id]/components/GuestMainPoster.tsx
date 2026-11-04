@@ -24,17 +24,19 @@ export const GuestMainPoster = ({
 
   if (resolvedSrc) {
     return (
-      <div className="w-full relative aspect-[375/812] overflow-hidden">
+      <div className="w-full relative overflow-hidden flex justify-center">
         {/* 공개 페이지의 preload와 중복되지 않도록 이미지 자체는 eager/high로 요청한다. */}
         <Image
           src={resolvedSrc}
           alt="초대장 메인 포스터"
-          fill
+          width={375}
+          height={812}
           loading="eager"
           fetchPriority="high"
           sizes="(max-width: 430px) 100vw, 430px"
           unoptimized
-          className="object-cover"
+          wrapperClassName="w-full flex justify-center"
+          className="w-full h-auto"
           onLoad={() => {
             // 기존 BGM 노출 타이밍은 전역 이벤트로 유지하고, 미리보기 모달에는 콜백으로 알려준다.
             window.dispatchEvent(new Event('guest-main-poster-ready'));

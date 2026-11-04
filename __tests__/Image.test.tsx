@@ -48,4 +48,12 @@ describe('Image 컴포넌트 테스트', () => {
       expect(container.querySelector('.animate-spin')).not.toBeInTheDocument();
     });
   });
+  it('wrapperClassName prop이 래퍼 엘리먼트에 올바르게 적용된다', () => {
+    const { container } = render(
+      <Image {...ImageStories.Default.args} wrapperClassName="w-full flex justify-center custom-wrapper-class" />
+    );
+
+    const wrapper = container.firstElementChild;
+    expect(wrapper).toHaveClass('w-full', 'flex', 'justify-center', 'custom-wrapper-class');
+  });
 });

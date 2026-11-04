@@ -10,6 +10,7 @@ import { imageVariants, imageWrapperVariants } from './Image.style';
 interface ImageProps extends Omit<NextImageProps, 'onLoad' | 'alt'> {
   alt?: string;
   loadingClassName?: string;
+  wrapperClassName?: string;
   draggable?: boolean;
   onLoad?: () => void;
 }
@@ -19,6 +20,7 @@ export const Image = ({
   alt = '이미지 미리보기',
   className,
   loadingClassName,
+  wrapperClassName,
   draggable = false,
   onLoad,
   ...rest
@@ -95,7 +97,7 @@ export const Image = ({
     isDragging.current = false;
   }, []);
   return (
-    <div className={cn(imageWrapperVariants({ fill: rest.fill }))}>
+    <div className={cn(imageWrapperVariants({ fill: rest.fill }), wrapperClassName)}>
       {showLoadingSpinner && (
         <div
           className={cn(
