@@ -16,7 +16,7 @@ export type FontSizeOption = {
   value: string;
 };
 
-export type TextAlignValue = 'left' | 'center' | 'right';
+export type TextAlignValue = 'left' | 'center' | 'right' | 'center-left';
 
 export type TextAlignOption = {
   label: ReactNode;
@@ -116,6 +116,8 @@ export function getInitialEditorStyles(
             textAlign = { label: '가운데', value: 'center' };
           } else if (paragraphAlign === 'right') {
             textAlign = { label: '오른쪽', value: 'right' };
+          } else if (paragraphAlign === 'center-left') {
+            textAlign = { label: '시작 일렬 가운데', value: 'center-left' };
           }
         }
       }
@@ -192,6 +194,8 @@ export function getInitialEditorStyles(
       textAlign = { label: '왼쪽', value: 'left' };
     } else if (align === 'right') {
       textAlign = { label: '오른쪽', value: 'right' };
+    } else if (align === 'center-left') {
+      textAlign = { label: '시작 일렬 가운데', value: 'center-left' };
     } else {
       textAlign = DEFAULT_TEXT_ALIGN_OPTION;
     }
