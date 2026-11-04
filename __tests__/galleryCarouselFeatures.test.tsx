@@ -306,7 +306,7 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
         />
       );
       const manualSlides = manualContainer.querySelectorAll('.flex-\\[0_0_50\\%\\]');
-      expect(manualSlides.length).toBeGreaterThanOrEqual(5);
+      expect(manualSlides.length).toBeGreaterThanOrEqual(12);
 
       // 자동 재생(isAutoPlay=true): 최소 8개 기준 (2장 -> 8장)
       const { container: autoContainer } = render(
@@ -318,7 +318,7 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
         />
       );
       const autoSlides = autoContainer.querySelectorAll('.flex-\\[0_0_50\\%\\]');
-      expect(autoSlides.length).toBeGreaterThanOrEqual(8);
+      expect(autoSlides.length).toBeGreaterThanOrEqual(12);
     });
   });
 
