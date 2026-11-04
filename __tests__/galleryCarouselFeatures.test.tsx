@@ -360,6 +360,34 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
       expect(mockImageClick).toHaveBeenCalledWith(0);
     });
 
+
+    it('필름 모드에서 복제된 슬라이드는 tabIndex=-1 및 aria-hidden=true가 적용되어 중복 포커스를 방지한다', () => {
+      render(
+        <GalleryType1
+          preview={images}
+          ratio="1:1"
+          imageClick={mockImageClick}
+          isAutoPlay={true}
+        />
+      );
+
+      // 전체 slide card elements
+      const allButtons = screen.getAllByRole('button', { hidden: true }).filter(el =>
+        el.getAttribute('role') === 'button' && el.hasAttribute('tabIndex')
+      );
+
+      // 원본 개수(2개)만 tabIndex="0" 이어야 함
+      const focusableButtons = allButtons.filter(el => el.getAttribute('tabIndex') === '0');
+      expect(focusableButtons).toHaveLength(images.length);
+
+      // 복제된 슬라이드들은 tabIndex="-1" 및 aria-hidden="true"
+      const hiddenButtons = allButtons.filter(el => el.getAttribute('tabIndex') === '-1');
+      expect(hiddenButtons.length).toBeGreaterThan(0);
+      hiddenButtons.forEach(el => {
+        expect(el.getAttribute('aria-hidden')).toBe('true');
+      });
+    });
+
     it('다른 키(예: ArrowDown, Tab)를 누를 때는 imageClick이 호출되지 않는다', () => {
       render(
         <GalleryType1

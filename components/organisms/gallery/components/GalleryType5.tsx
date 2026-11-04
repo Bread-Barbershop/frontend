@@ -28,8 +28,13 @@ function GalleryType5({
     return preview;
   }, [preview, isLoopActive]);
 
+  const prefersReducedMotion =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   const plugins = useMemo(() => {
-    if (!isLoopActive) return [];
+    if (!isLoopActive || prefersReducedMotion) return [];
     return [
       AutoScroll({
         playOnInit: true,
@@ -40,7 +45,7 @@ function GalleryType5({
         stopOnMouseEnter: true,
       }),
     ];
-  }, [isLoopActive]);
+  }, [isLoopActive, prefersReducedMotion]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
@@ -92,7 +97,8 @@ function GalleryType5({
               <div
                 data-rotate-target
                 role="button"
-                tabIndex={0}
+                tabIndex={i < preview.length ? 0 : -1}
+                aria-hidden={i >= preview.length ? true : undefined}
                 style={{ margin: '0 -4px' }}
                 className={cn(
                   'relative overflow-hidden p-2 pb-6 bg-bg-base rounded-sm min-h-[120px] shadow-[0_1px_2px_0_rgba(0,0,0,0.04),0_1px_4px_0_rgba(0,0,0,0.08),0_8px_24px_0_rgba(0,0,0,0.1)] select-none',

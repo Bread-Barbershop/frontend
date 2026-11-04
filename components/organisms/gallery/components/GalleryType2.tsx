@@ -64,8 +64,13 @@ function GalleryType2({
     return preview;
   }, [preview, isLoopActive]);
 
+  const prefersReducedMotion =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   const plugins = useMemo(() => {
-    if (!isLoopActive) return [];
+    if (!isLoopActive || prefersReducedMotion) return [];
     return [
       AutoScroll({
         playOnInit: true,
@@ -76,7 +81,7 @@ function GalleryType2({
         stopOnMouseEnter: true,
       }),
     ];
-  }, [isLoopActive]);
+  }, [isLoopActive, prefersReducedMotion]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
@@ -160,7 +165,8 @@ function GalleryType2({
             >
               <div
                 role="button"
-                tabIndex={0}
+                tabIndex={i < preview.length ? 0 : -1}
+                aria-hidden={i >= preview.length ? true : undefined}
                 className={cn(
                   'relative overflow-hidden rounded-lg min-h-[120px] shadow-gallery-image select-none',
                   GalleryItemVariants({ ratio })
