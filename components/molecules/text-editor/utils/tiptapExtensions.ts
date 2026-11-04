@@ -7,7 +7,7 @@ import Italic from '@tiptap/extension-italic';
 import Paragraph from '@tiptap/extension-paragraph';
 import Placeholder from '@tiptap/extension-placeholder';
 import Text from '@tiptap/extension-text';
-import TextAlign from '@tiptap/extension-text-align';
+import { CustomTextAlign } from './customTextAlign';
 import { FontFamily, FontSize, TextStyle } from '@tiptap/extension-text-style';
 import Underline from '@tiptap/extension-underline';
 import { UndoRedo } from '@tiptap/extensions/undo-redo';
@@ -45,7 +45,7 @@ export function createTextEditorBarExtensions(
     UndoRedo.configure({
       depth: 100,
     }),
-    TextAlign.configure({
+    CustomTextAlign.configure({
       types: ['paragraph'],
     }),
   ];
