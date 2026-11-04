@@ -21,12 +21,12 @@ function getSlideStyle(distance: number) {
     return { opacity: 1, scale: 1, rotate: 0, y: 0, z: 20 };
   }
 
-  // 거리에 따라 보간 (1, 2, 3 단계를 연속적으로)
+  // 거리에 따라 보간 (교차 타이밍에 자연스러운 fade-in / fade-out 적용)
   const configs = [
-    { scale: 1, rotate: 0, z: 20 }, // 0: center
-    { scale: 0.8, rotate: 5, z: 10 }, // 1
-    { scale: 0.56, rotate: 10, z: 5 }, // 2
-    { scale: 0.3, rotate: 15, z: 2 }, // 3
+    { scale: 1, rotate: 0, opacity: 1, z: 20 }, // 0: center (가장 위, 완전 불투명)
+    { scale: 0.8, rotate: 5, opacity: 0.55, z: 10 }, // 1: 교차 이후 부드러운 fade-out
+    { scale: 0.56, rotate: 10, opacity: 0.3, z: 5 }, // 2
+    { scale: 0.3, rotate: 15, opacity: 0.1, z: 2 }, // 3
   ];
 
   // abs가 3.5 이상이면 숨김
@@ -44,7 +44,11 @@ function getSlideStyle(distance: number) {
   const scale = from.scale + (to.scale - from.scale) * t;
   const rotate = (from.rotate + (to.rotate - from.rotate) * t) * sign;
   const z = Math.round(from.z + (to.z - from.z) * t);
-  const opacity = abs > 3 ? 1 - (abs - 3) * 2 : 1;
+  // 포커스 진입 사진(1->0)은 fade-in, 포커스 이탈 사진(0->1)은 fade-out
+  const opacity =
+    abs > 3
+      ? configs[3].opacity * ((3.5 - abs) / 0.5)
+      : from.opacity + (to.opacity - from.opacity) * t;
 
   return { opacity: Math.max(0, opacity), scale, rotate, y: 0, z };
 }
@@ -119,7 +123,7 @@ function GalleryType2({
       el.style.opacity = `${style.opacity}`;
       el.style.transform = `scale(${style.scale}) rotate(${style.rotate}deg)`;
       el.style.zIndex = `${style.z}`;
-      el.style.pointerEvents = style.opacity > 0.5 ? 'auto' : 'none';
+      el.style.pointerEvents = style.opacity > 0.4 ? 'auto' : 'none';
     });
   }, [emblaApi, isLoopActive]);
 
