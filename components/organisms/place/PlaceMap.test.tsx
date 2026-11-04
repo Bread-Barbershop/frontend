@@ -102,6 +102,25 @@ describe('PlaceMap', () => {
     expect(button).toHaveAttribute('aria-label', '지도 움직이기');
   });
 
+  it('uses the latest lock state when coordinates and locked change together', () => {
+    const { rerender } = render(
+      <PlaceMap lng={127.04} lat={37.54} locked={true} />
+    );
+
+    rerender(<PlaceMap lng={127.05} lat={37.55} locked={false} />);
+
+    expect(mockMapConstructor).toHaveBeenLastCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        center: { lat: 37.55, lng: 127.05 },
+        draggable: true,
+        scrollWheel: true,
+        pinchZoom: true,
+        disableDoubleClickZoom: false,
+      })
+    );
+  });
+
   it('reacts to prop changes for locked', () => {
     const { rerender } = render(
       <PlaceMap lng={127.04} lat={37.54} locked={true} />
