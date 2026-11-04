@@ -25,6 +25,7 @@ function Gallery({ blockInfo, id }: Props) {
   const {
     isSubTitle = true,
     isPopupViewer = false,
+    isAutoPlay = false,
     ratio,
   } = blockInfo.props;
   const { block, images, updateBlock, updateImage } = useEditorStore(
@@ -86,6 +87,9 @@ function Gallery({ blockInfo, id }: Props) {
 
   const handlePopViewChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { isPopupViewer: e.target.checked });
+  };
+  const handleAutoPlayChange = (e: ChangeEvent<HTMLInputElement>) => {
+    updateBlock(id, { isAutoPlay: e.target.checked });
   };
   const handleSubTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { isSubTitle: e.target.checked });
@@ -161,6 +165,11 @@ function Gallery({ blockInfo, id }: Props) {
             <Checkbox onChange={handlePopViewChange} checked={isPopupViewer}>
               <span className="text-[13px]">
                 팝업뷰어(사진을 터치하여 크게 볼 수 있어요.)
+              </span>
+            </Checkbox>
+            <Checkbox onChange={handleAutoPlayChange} checked={Boolean(isAutoPlay)}>
+              <span className="text-[13px]">
+                필름 효과 (천천히 무한 반복 재생)
               </span>
             </Checkbox>
           </div>

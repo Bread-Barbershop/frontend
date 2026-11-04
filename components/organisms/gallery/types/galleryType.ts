@@ -18,4 +18,5 @@ export interface GalleryTemplateProps {
   preview: string[];
   ratio: RatioType;
   imageClick: (index: number) => void;
+  isAutoPlay?: boolean;
 }

@@ -60,6 +60,7 @@ function GalleryPreview({
           preview={preview}
           ratio={ratio}
           imageClick={handleImageClick}
+          isAutoPlay={Boolean(blockInfo.props.isAutoPlay)}
         />
       )}
 
