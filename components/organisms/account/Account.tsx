@@ -114,11 +114,10 @@ export const Account = ({ blockInfo, id }: Props) => {
       <NavigationBar>계좌번호 편집 페이지</NavigationBar>
 
       <TextField
-        key={`title-${id}`}
         label="제목"
         inputProps={{
           placeholder: '마음 보내실 곳',
-          defaultValue: title === '마음 보내실 곳' ? '' : title,
+          value: title === '마음 보내실 곳' ? '' : title,
           onChange: e =>
             handleUpdateBlock('title', e.target.value || '마음 보내실 곳'),
         }}
@@ -126,11 +125,10 @@ export const Account = ({ blockInfo, id }: Props) => {
       />
       {checkedSubTitle && (
         <TextField
-          key={`english-title-${id}`}
           label="영문제목"
           inputProps={{
             placeholder: 'ACCOUNT',
-            defaultValue: subTitle === 'ACCOUNT' ? '' : subTitle,
+            value: subTitle === 'ACCOUNT' ? '' : subTitle,
             onChange: e =>
               handleUpdateBlock(
                 'subTitle',
