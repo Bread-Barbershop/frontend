@@ -14,14 +14,12 @@ describe('usePrefersReducedMotion', () => {
   });
 
   it('OS 설정 변경을 감지하고 리스너를 해제한다', () => {
-    let onChange: ((event: MediaQueryListEvent) => void) | undefined;
+    let onChange: EventListener | undefined;
     const mediaQuery = {
       matches: false,
-      addEventListener: jest.fn(
-        (_type: string, callback: (event: MediaQueryListEvent) => void) => {
-          onChange = callback;
-        }
-      ),
+      addEventListener: jest.fn((type: string, callback: EventListener) => {
+        if (type === 'change') onChange = callback;
+      }),
       removeEventListener: jest.fn(),
     };
 
@@ -39,12 +37,14 @@ describe('usePrefersReducedMotion', () => {
     );
 
     act(() => {
-      onChange?.({ matches: true } as MediaQueryListEvent);
+      mediaQuery.matches = true;
+      onChange?.(new Event('change'));
     });
     expect(result.current).toBe(true);
 
     act(() => {
-      onChange?.({ matches: false } as MediaQueryListEvent);
+      mediaQuery.matches = false;
+      onChange?.(new Event('change'));
     });
     expect(result.current).toBe(false);
 
