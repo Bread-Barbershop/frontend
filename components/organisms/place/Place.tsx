@@ -253,7 +253,7 @@ export function Place({ blockInfo, id }: Props) {
                   checked={Boolean(mapLocked)}
                 >
                   <span className="text-[13px]">
-                    위치 고정(지도가 움직이지 않아요.)
+                    지도 고정하기 버튼(지도가 움직이지 않아요.)
                   </span>
                 </Checkbox>
               </div>
