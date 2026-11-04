@@ -167,6 +167,12 @@ function GalleryType2({
                 )}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleCardClick(i % preview.length);
+                  }
+                }}
                 onClick={() => handleCardClick(i % preview.length)}
               >
                 <Image

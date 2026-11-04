@@ -315,4 +315,66 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
       ).toBeInTheDocument();
     });
   });
+
+  describe('키보드 접근성 (a11y) - role="button" Enter/Space 조작', () => {
+    const images = ['https://example.com/1.jpg', 'https://example.com/2.jpg'];
+    const mockImageClick = jest.fn();
+
+    beforeEach(() => {
+      mockImageClick.mockClear();
+    });
+
+    it('GalleryType1에서 Enter 키를 누르면 imageClick이 호출된다', () => {
+      render(
+        <GalleryType1
+          preview={images}
+          ratio="1:1"
+          imageClick={mockImageClick}
+        />
+      );
+      // Find slide buttons
+      const slideButtons = screen.getAllByRole('button').filter(el =>
+        el.getAttribute('tabIndex') === '0'
+      );
+      expect(slideButtons.length).toBeGreaterThan(0);
+
+      fireEvent.keyDown(slideButtons[0], { key: 'Enter' });
+      expect(mockImageClick).toHaveBeenCalledTimes(1);
+      expect(mockImageClick).toHaveBeenCalledWith(0);
+    });
+
+    it('GalleryType1에서 Space 키를 누르면 imageClick이 호출되고 preventDefault된다', () => {
+      render(
+        <GalleryType1
+          preview={images}
+          ratio="1:1"
+          imageClick={mockImageClick}
+        />
+      );
+      const slideButtons = screen.getAllByRole('button').filter(el =>
+        el.getAttribute('tabIndex') === '0'
+      );
+
+      fireEvent.keyDown(slideButtons[0], { key: ' ' });
+      expect(mockImageClick).toHaveBeenCalledTimes(1);
+      expect(mockImageClick).toHaveBeenCalledWith(0);
+    });
+
+    it('다른 키(예: ArrowDown, Tab)를 누를 때는 imageClick이 호출되지 않는다', () => {
+      render(
+        <GalleryType1
+          preview={images}
+          ratio="1:1"
+          imageClick={mockImageClick}
+        />
+      );
+      const slideButtons = screen.getAllByRole('button').filter(el =>
+        el.getAttribute('tabIndex') === '0'
+      );
+
+      fireEvent.keyDown(slideButtons[0], { key: 'ArrowDown' });
+      fireEvent.keyDown(slideButtons[0], { key: 'Tab' });
+      expect(mockImageClick).not.toHaveBeenCalled();
+    });
+  });
 });

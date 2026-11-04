@@ -114,6 +114,12 @@ function GalleryType3({
                 tabIndex={0}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleCardClick(i % preview.length);
+                  }
+                }}
                 onClick={() => handleCardClick(i % preview.length)}
                 className="h-full overflow-hidden rounded-lg bg-white shadow-md relative transition-[width] duration-300 select-none"
                 style={{ width: `${MIN_WIDTH}px` }}
