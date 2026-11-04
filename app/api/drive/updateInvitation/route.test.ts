@@ -213,6 +213,12 @@ describe('updateInvitation Route Handler 테스트', () => {
       success: false,
       error: '초대장 목록이 없거나 불러오지 못했습니다.',
       config: {
+        bulkData: {
+          backgroundColor: '#FFFFFF',
+          titleData: expect.any(Object),
+          bodyData: expect.any(Object),
+          isZoom: false,
+        },
         blocks: [],
         mainPoster: '',
         bgm: {
@@ -223,9 +229,12 @@ describe('updateInvitation Route Handler 테스트', () => {
           userBgmDuration: null,
           userBgmFileId: null,
         },
+        invitationImage: [],
       },
       images: {},
       audios: {},
+      imageFolderId: '',
+      audioFolderId: '',
     });
 
     /**
@@ -262,6 +271,12 @@ describe('updateInvitation Route Handler 테스트', () => {
       success: false,
       error: 'drive load failed',
       config: {
+        bulkData: {
+          backgroundColor: '#FFFFFF',
+          titleData: expect.any(Object),
+          bodyData: expect.any(Object),
+          isZoom: false,
+        },
         blocks: [],
         mainPoster: '',
         bgm: {
@@ -272,9 +287,12 @@ describe('updateInvitation Route Handler 테스트', () => {
           userBgmDuration: null,
           userBgmFileId: null,
         },
+        invitationImage: [],
       },
       images: {},
       audios: {},
+      imageFolderId: '',
+      audioFolderId: '',
     });
 
     expect(getFilesInFolder).not.toHaveBeenCalled();

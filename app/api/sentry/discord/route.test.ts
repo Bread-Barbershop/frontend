@@ -87,7 +87,7 @@ describe('sentry discord webhook route', () => {
         }),
         expect.objectContaining({
           name: '환경',
-          value: '운영(production)',
+          value: '운영 (production)',
         }),
       ])
     );
