@@ -5,7 +5,7 @@
 export function createInfiniteSlides(
   preview: string[],
   isLoopActive: boolean,
-  minSlides = 15
+  minSlides = 6
 ): string[] {
   if (!isLoopActive || preview.length === 0) return preview;
   if (preview.length >= minSlides) return preview;

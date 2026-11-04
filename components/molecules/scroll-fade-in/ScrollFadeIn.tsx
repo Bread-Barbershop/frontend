@@ -29,6 +29,14 @@ export function ScrollFadeIn({
 }: ScrollFadeInProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [isIntersected, setIsIntersected] = useState(false);
+  const [isTransitionDone, setIsTransitionDone] = useState(false);
+
+  // SSR 점진적 향상(Progressive Enhancement): 서버 스냅샷에서는 가시화하여 JS 미실행 시에도 콘텐츠를 보장
+  const isHydrated = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
   const isObserverSupported = useSyncExternalStore(
     emptySubscribe,
@@ -67,13 +75,20 @@ export function ScrollFadeIn({
     };
   }, [shouldBypassAnimation, threshold, rootMargin]);
 
-  const isVisible = shouldBypassAnimation || isIntersected;
+  // SSR이거나 애니메이션 바이패스 대상이거나 뷰포트에 도달한 경우 노출
+  const isVisible = !isHydrated || shouldBypassAnimation || isIntersected;
 
   return (
     <div
       ref={ref}
+      onTransitionEnd={() => {
+        if (isVisible) {
+          setIsTransitionDone(true);
+        }
+      }}
       className={cn(
-        'w-full transition-all duration-700 ease-out will-change-[opacity,transform]',
+        'w-full transition-all duration-700 ease-out',
+        !isTransitionDone && !shouldBypassAnimation && 'will-change-[opacity,transform]',
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6',
         className
       )}
@@ -87,5 +102,3 @@ export function ScrollFadeIn({
     </div>
   );
 }
-
-export default ScrollFadeIn;

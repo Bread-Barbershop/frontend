@@ -117,4 +117,27 @@ describe('ScrollFadeIn 컴포넌트', () => {
     expect(wrapper).toHaveClass('opacity-100');
     expect(wrapper).toHaveClass('translate-y-0');
   });
+
+  it('애니메이션 완료(transitionEnd) 시 will-change 속성을 해제한다', () => {
+    const { container } = render(
+      <ScrollFadeIn>
+        <div>테스트 컴포넌트</div>
+      </ScrollFadeIn>
+    );
+
+    const wrapper = container.firstChild as HTMLElement;
+    expect(wrapper.className).toContain('will-change-[opacity,transform]');
+
+    act(() => {
+      triggerIntersect();
+    });
+
+    expect(wrapper).toHaveClass('opacity-100');
+
+    act(() => {
+      wrapper.dispatchEvent(new Event('transitionend'));
+    });
+
+    expect(wrapper.className).not.toContain('will-change-[opacity,transform]');
+  });
 });
