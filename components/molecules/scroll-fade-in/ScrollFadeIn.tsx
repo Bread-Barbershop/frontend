@@ -21,7 +21,7 @@ function getObserverSupported(): boolean {
 export function ScrollFadeIn({
   children,
   className,
-  threshold = 0.1,
+  threshold = 0,
   rootMargin = '0px 0px -40px 0px',
   delayMs = 0,
   style,
@@ -30,13 +30,6 @@ export function ScrollFadeIn({
   const ref = useRef<HTMLDivElement>(null);
   const [isIntersected, setIsIntersected] = useState(false);
   const [isTransitionDone, setIsTransitionDone] = useState(false);
-
-  // SSR 점진적 향상(Progressive Enhancement): 서버 스냅샷에서는 가시화하여 JS 미실행 시에도 콘텐츠를 보장
-  const isHydrated = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false
-  );
 
   const isObserverSupported = useSyncExternalStore(
     emptySubscribe,
@@ -52,6 +45,13 @@ export function ScrollFadeIn({
 
     const element = ref.current;
     if (!element) return;
+
+    // 초기 마운트 시점에 이미 뷰포트에 들어와 있는 요소 즉각 가시화 (긴 블록 및 상단 폴백)
+    const rect = element.getBoundingClientRect();
+    if (rect.bottom > 0 && rect.top < window.innerHeight) {
+      setIsIntersected(true);
+      return;
+    }
 
     const observer = new IntersectionObserver(
       entries => {
@@ -75,19 +75,27 @@ export function ScrollFadeIn({
     };
   }, [shouldBypassAnimation, threshold, rootMargin]);
 
-  // SSR이거나 애니메이션 바이패스 대상이거나 뷰포트에 도달한 경우 노출
-  const isVisible = !isHydrated || shouldBypassAnimation || isIntersected;
+  // 애니메이션 바이패스 대상이거나 뷰포트에 도달한 경우 노출
+  const isVisible = shouldBypassAnimation || isIntersected;
 
   return (
     <div
       ref={ref}
-      onTransitionEnd={() => {
-        if (isVisible) {
-          setIsTransitionDone(true);
+      onTransitionEnd={event => {
+        // 자식 요소의 transition 버블링 방지 및 opacity/transform 전환 완료 시 will-change 해제
+        if (event.target !== event.currentTarget) return;
+        if (
+          !event.propertyName ||
+          event.propertyName === 'opacity' ||
+          event.propertyName === 'transform'
+        ) {
+          if (isVisible) {
+            setIsTransitionDone(true);
+          }
         }
       }}
       className={cn(
-        'w-full transition-all duration-700 ease-out',
+        'scroll-fade-in-item w-full transition-all duration-700 ease-out',
         !isTransitionDone && !shouldBypassAnimation && 'will-change-[opacity,transform]',
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6',
         className
@@ -98,7 +106,17 @@ export function ScrollFadeIn({
       }}
       {...rest}
     >
+      <noscript>
+        <style>{`
+          .scroll-fade-in-item {
+            opacity: 1 !important;
+            transform: none !important;
+          }
+        `}</style>
+      </noscript>
       {children}
     </div>
   );
 }
+
+export default ScrollFadeIn;

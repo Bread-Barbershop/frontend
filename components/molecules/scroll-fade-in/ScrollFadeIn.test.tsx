@@ -118,14 +118,15 @@ describe('ScrollFadeIn 컴포넌트', () => {
     expect(wrapper).toHaveClass('translate-y-0');
   });
 
-  it('애니메이션 완료(transitionEnd) 시 will-change 속성을 해제한다', () => {
+  it('애니메이션 완료(transitionEnd) 시 will-change 속성을 해제하며, 자식 이벤트 버블링은 무시한다', () => {
     const { container } = render(
       <ScrollFadeIn>
-        <div>테스트 컴포넌트</div>
+        <button type="button">자식 버튼</button>
       </ScrollFadeIn>
     );
 
     const wrapper = container.firstChild as HTMLElement;
+    const childButton = screen.getByRole('button');
     expect(wrapper.className).toContain('will-change-[opacity,transform]');
 
     act(() => {
@@ -134,8 +135,19 @@ describe('ScrollFadeIn 컴포넌트', () => {
 
     expect(wrapper).toHaveClass('opacity-100');
 
+    // 자식 컴포넌트에서 발생한 transitionend 버블링은 will-change를 해제하지 않음
     act(() => {
-      wrapper.dispatchEvent(new Event('transitionend'));
+      const bubbleEvent = new Event('transitionend', { bubbles: true });
+      childButton.dispatchEvent(bubbleEvent);
+    });
+
+    expect(wrapper.className).toContain('will-change-[opacity,transform]');
+
+    // wrapper 본인의 transitionend (opacity 또는 transform) 발생 시 해제
+    act(() => {
+      const selfEvent = new Event('transitionend');
+      Object.defineProperty(selfEvent, 'propertyName', { value: 'opacity' });
+      wrapper.dispatchEvent(selfEvent);
     });
 
     expect(wrapper.className).not.toContain('will-change-[opacity,transform]');

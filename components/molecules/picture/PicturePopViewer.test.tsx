@@ -8,11 +8,19 @@ let mockCurrentIndex = 0;
 let mockLoop = true;
 const emitSelect = () => eventHandlers['select']?.forEach(callback => callback());
 const mockScrollPrev = jest.fn(() => {
-  mockCurrentIndex = Math.max(0, mockCurrentIndex - 1);
+  if (mockLoop) {
+    mockCurrentIndex = (mockCurrentIndex - 1 + 3) % 3;
+  } else {
+    mockCurrentIndex = Math.max(0, mockCurrentIndex - 1);
+  }
   emitSelect();
 });
 const mockScrollNext = jest.fn(() => {
-  mockCurrentIndex += 1;
+  if (mockLoop) {
+    mockCurrentIndex = (mockCurrentIndex + 1) % 3;
+  } else {
+    mockCurrentIndex += 1;
+  }
   emitSelect();
 });
 const mockScrollTo = jest.fn((index: number) => {
@@ -279,6 +287,40 @@ describe('PicturePopViewer (오버레이 이미지 뷰어 캐러셀 및 스와�
 
     expect(screen.getByRole('button', { name: '이전 사진' })).toBeEnabled();
     expect(screen.getByRole('button', { name: '다음 사진' })).toBeEnabled();
+  });
+
+  it('무한 루프 상태에서 마지막 사진(3/3)에서 다음 버튼 클릭 시 첫 번째 사진(1/3)으로 순환(wrap)된다', () => {
+    render(
+      <PicturePopViewer
+        isOpen={true}
+        images={mockImages}
+        startIndex={2}
+        ratio="1:1"
+        onClose={mockOnClose}
+      />
+    );
+
+    expect(screen.getByText('3 / 3')).toBeInTheDocument();
+    const nextButton = screen.getByRole('button', { name: '다음 사진' });
+    fireEvent.click(nextButton);
+    expect(screen.getByText('1 / 3')).toBeInTheDocument();
+  });
+
+  it('무한 루프 상태에서 첫 번째 사진(1/3)에서 이전 버튼 클릭 시 마지막 사진(3/3)으로 순환(wrap)된다', () => {
+    render(
+      <PicturePopViewer
+        isOpen={true}
+        images={mockImages}
+        startIndex={0}
+        ratio="1:1"
+        onClose={mockOnClose}
+      />
+    );
+
+    expect(screen.getByText('1 / 3')).toBeInTheDocument();
+    const prevButton = screen.getByRole('button', { name: '이전 사진' });
+    fireEvent.click(prevButton);
+    expect(screen.getByText('3 / 3')).toBeInTheDocument();
   });
 
   it('이미지 수가 줄어들면 시작 위치가 유효한 마지막 이미지로 제한된다', () => {

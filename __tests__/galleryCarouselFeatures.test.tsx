@@ -295,7 +295,8 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
     });
 
     it('사진이 소량(예: 2~5장)이어도 끊김 없는 무한 롤링을 위해 슬라이드가 충분한 개수로 반복 렌더링된다', () => {
-      const { container } = render(
+      // 수동 스와이프(isAutoPlay=false): 최소 5개 기준 (2장 -> 6장)
+      const { container: manualContainer } = render(
         <GalleryType1
           preview={images}
           ratio="1:1"
@@ -303,8 +304,20 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
           isAutoPlay={false}
         />
       );
-      const slideContainers = container.querySelectorAll('.flex-\\[0_0_50\\%\\]');
-      expect(slideContainers.length).toBeGreaterThanOrEqual(15);
+      const manualSlides = manualContainer.querySelectorAll('.flex-\\[0_0_50\\%\\]');
+      expect(manualSlides.length).toBeGreaterThanOrEqual(5);
+
+      // 자동 재생(isAutoPlay=true): 최소 8개 기준 (2장 -> 8장)
+      const { container: autoContainer } = render(
+        <GalleryType1
+          preview={images}
+          ratio="1:1"
+          imageClick={mockImageClick}
+          isAutoPlay={true}
+        />
+      );
+      const autoSlides = autoContainer.querySelectorAll('.flex-\\[0_0_50\\%\\]');
+      expect(autoSlides.length).toBeGreaterThanOrEqual(8);
     });
   });
 
