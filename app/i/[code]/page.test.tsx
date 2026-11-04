@@ -103,6 +103,27 @@ describe('ShortGuestPage', () => {
     );
   });
 
+
+  it('does not render preload link when thumbnailFileId is null or missing', async () => {
+    loadGuestPayloadMock.mockResolvedValue({
+      status: 'ok',
+      payload: {
+        ...payload,
+        mainPoster: {
+          thumbnailFileId: null,
+        },
+      },
+      warnings: [],
+    });
+
+    const pageElement = await ShortGuestPage({
+      params: Promise.resolve({ code: 'aB7kQ2x' }),
+    });
+    const html = renderToStaticMarkup(pageElement);
+
+    expect(html).not.toContain('rel="preload"');
+  });
+
   it('returns notFound when short code cannot be resolved', async () => {
     resolveShortCodeMock.mockResolvedValue(null);
 

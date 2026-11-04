@@ -1,7 +1,6 @@
 import 'server-only';
 
 import { notFound } from 'next/navigation';
-import ReactDOM from 'react-dom';
 
 import { resolveShortCode } from '@/app/api/short-url/_lib/shortUrlStore';
 import { GuestAccessNotice } from '@/app/guest/[id]/components/GuestAccessNotice';
@@ -126,9 +125,6 @@ export default async function ShortGuestPage({
     ? resolveDriveImageSource(thumbnailFileId, { mode: 'public' })
     : null;
 
-  if (posterSrc) {
-    ReactDOM.preload(posterSrc, { as: 'image', fetchPriority: 'high' });
-  }
 
   return (
     <>

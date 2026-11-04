@@ -1,7 +1,6 @@
 import 'server-only';
 
 import { notFound } from 'next/navigation';
-import ReactDOM from 'react-dom';
 
 import { resolveDriveImageSource } from '@/shared/utils/media/driveImageUtils';
 import {
@@ -108,9 +107,6 @@ export default async function GuestPage({
     ? resolveDriveImageSource(thumbnailFileId, { mode: 'public' })
     : null;
 
-  if (posterSrc) {
-    ReactDOM.preload(posterSrc, { as: 'image', fetchPriority: 'high' });
-  }
 
   return (
     <>
