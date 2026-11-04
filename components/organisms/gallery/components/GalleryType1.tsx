@@ -58,10 +58,21 @@ function GalleryType1({
     const selectedIndex = emblaApi.selectedScrollSnap();
     slideRefs.current.forEach((el, i) => {
       if (!el) return;
-      el.style.transform = i === selectedIndex ? 'scale(1)' : 'scale(0.6)';
-      el.style.transition = 'transform 0.3s ease';
+      if (prefersReducedMotion) {
+        el.style.transform = 'none';
+        el.style.opacity = '1';
+        el.style.transition = 'none';
+        return;
+      }
+      const isSelected = i === selectedIndex;
+      // 포커스 진입 시에는 '뿅' 하고 경쾌하게 확대, 포커스 빠질 때는 여유롭고 부드럽게 축소
+      el.style.transform = isSelected ? 'scale(1)' : 'scale(0.68)';
+      el.style.opacity = isSelected ? '1' : '0.75';
+      el.style.transition = isSelected
+        ? 'transform 0.4s cubic-bezier(0.34, 1.3, 0.64, 1), opacity 0.35s ease-out'
+        : 'transform 0.65s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.65s cubic-bezier(0.25, 1, 0.5, 1)';
     });
-  }, [emblaApi]);
+  }, [emblaApi, prefersReducedMotion]);
 
   useEffect(() => {
     if (!emblaApi) return;

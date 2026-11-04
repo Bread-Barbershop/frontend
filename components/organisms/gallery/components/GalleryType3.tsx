@@ -69,10 +69,22 @@ function GalleryType3({
     emblaApi.slideNodes().forEach((slide, index) => {
       const card = slide.querySelector<HTMLElement>('[data-card]');
       if (!card) return;
+      if (prefersReducedMotion) {
+        card.style.width = index === selectedIndex ? `${MAX_WIDTH}px` : `${MIN_WIDTH}px`;
+        card.style.opacity = '1';
+        card.style.transition = 'none';
+        return;
+      }
+      const isSelected = index === selectedIndex;
+      // 포커스 진입 시 경쾌하게 펼쳐지고, 포커스 빠질 때는 부드럽게 축소
       card.style.width =
-        index === selectedIndex ? `${MAX_WIDTH}px` : `${MIN_WIDTH}px`;
+        isSelected ? `${MAX_WIDTH}px` : `${MIN_WIDTH}px`;
+      card.style.opacity = isSelected ? '1' : '0.75';
+      card.style.transition = isSelected
+        ? 'width 0.45s cubic-bezier(0.34, 1.25, 0.64, 1), opacity 0.35s ease-out'
+        : 'width 0.65s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.65s cubic-bezier(0.25, 1, 0.5, 1)';
     });
-  }, []);
+  }, [prefersReducedMotion]);
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -123,7 +135,7 @@ function GalleryType3({
                   }
                 }}
                 onClick={() => handleCardClick(i % preview.length)}
-                className="h-full overflow-hidden rounded-lg bg-white shadow-md relative transition-[width] duration-300 select-none"
+                className="h-full overflow-hidden rounded-lg bg-white shadow-md relative transition-[width,opacity] duration-500 ease-out select-none"
                 style={{ width: `${MIN_WIDTH}px` }}
               >
                 <Image

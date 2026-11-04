@@ -64,9 +64,9 @@ function GalleryType4({
         ref={emblaRef}
         className="overflow-hidden py-10 touch-pan-y touch-pinch-zoom select-none cursor-grab active:cursor-grabbing"
       >
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-4">
           {slides.map((src, i) => (
-            <div key={i} className="flex-[0_0_70%] shrink-0">
+            <div key={i} className="flex-[0_0_50%] shrink-0">
               <div
                 role="button"
                 tabIndex={i < preview.length ? 0 : -1}
