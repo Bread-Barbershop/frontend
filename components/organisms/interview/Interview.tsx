@@ -211,8 +211,8 @@ export const Interview = ({ blockInfo, id }: Props) => {
         label="제목"
         inputProps={{
           placeholder: '인터뷰',
-          value: title === '인터뷰' ? '' : title,
-          onChange: e => handleUpdateBlock('title', e.target.value || '인터뷰'),
+          value: title ?? '',
+          onChange: e => handleUpdateBlock('title', e.target.value),
         }}
         className="w-full py-1.5 text-center"
       />
@@ -221,12 +221,9 @@ export const Interview = ({ blockInfo, id }: Props) => {
           label="영문제목"
           inputProps={{
             placeholder: 'INTERVIEW',
-            value: subTitle === 'INTERVIEW' ? '' : subTitle,
+            value: subTitle ?? '',
             onChange: e =>
-              handleUpdateBlock(
-                'subTitle',
-                sanitizeEnglishTitleInput(e.target) || 'INTERVIEW'
-              ),
+              handleUpdateBlock('subTitle', sanitizeEnglishTitleInput(e.target)),
           }}
           className="w-full py-1.5 text-center"
         />

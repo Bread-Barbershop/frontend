@@ -38,11 +38,11 @@ function Gallery({ blockInfo, id }: Props) {
   const { warning } = useToast();
   const [loadingCount, setLoadingCount] = useState(0);
   const handleOnChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { title: e.target.value || '갤러리' });
+    updateBlock(id, { title: e.target.value });
   };
   const handleOnChangeSubTitle = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, {
-      subTitle: sanitizeEnglishTitleInput(e.target) || 'GALLERY',
+      subTitle: sanitizeEnglishTitleInput(e.target),
     });
   };
 
@@ -106,7 +106,7 @@ function Gallery({ blockInfo, id }: Props) {
             placeholder: '갤러리',
             onChange: e => handleOnChangeTitle(e),
             value:
-              blockInfo.props.title === '갤러리' ? '' : blockInfo.props.title,
+              blockInfo.props.title ?? '',
           }}
         />
         {blockInfo.props.isSubTitle && (
@@ -117,9 +117,7 @@ function Gallery({ blockInfo, id }: Props) {
               placeholder: 'GALLERY',
               onChange: e => handleOnChangeSubTitle(e),
               value:
-                blockInfo.props.subTitle === 'GALLERY'
-                  ? ''
-                  : blockInfo.props.subTitle,
+                blockInfo.props.subTitle ?? '',
             }}
           />
         )}

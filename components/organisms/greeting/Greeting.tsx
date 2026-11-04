@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect } from 'react';
+import { ChangeEvent } from 'react';
 
 import { Label } from '@/components/atoms/label/Label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
@@ -29,27 +29,15 @@ function Greeting({ blockInfo, id }: Props) {
     subTitle = DEFAULT_GREETING_SUB_TITLE,
     messageJson,
   } = blockInfo.props;
-  useEffect(() => {
-    if (title === '') {
-      updateBlock(id, { title: DEFAULT_GREETING_TITLE });
-    }
-  }, [id, title, updateBlock]);
-
-  useEffect(() => {
-    if (subTitle === '') {
-      updateBlock(id, { subTitle: DEFAULT_GREETING_SUB_TITLE });
-    }
-  }, [subTitle, id, updateBlock]);
-
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const nextTitle = e.target.value;
-    updateBlock(id, { title: nextTitle || DEFAULT_GREETING_TITLE });
+    updateBlock(id, { title: nextTitle });
   };
 
   const handleSubTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const nextSubTitle = sanitizeEnglishTitleInput(e.target);
     updateBlock(id, {
-      subTitle: nextSubTitle || DEFAULT_GREETING_SUB_TITLE,
+      subTitle: nextSubTitle,
     });
   };
 
@@ -74,7 +62,7 @@ function Greeting({ blockInfo, id }: Props) {
         label="제목"
         inputProps={{
           placeholder: DEFAULT_GREETING_TITLE,
-          defaultValue: title === DEFAULT_GREETING_TITLE ? '' : title,
+          value: title ?? '',
           onChange: handleTitleChange,
         }}
         className="text-center w-full"
@@ -85,10 +73,7 @@ function Greeting({ blockInfo, id }: Props) {
           label="영문제목"
           inputProps={{
             placeholder: DEFAULT_GREETING_SUB_TITLE,
-            defaultValue:
-              subTitle === DEFAULT_GREETING_SUB_TITLE
-                ? ''
-                : subTitle,
+            value: subTitle ?? '',
             onChange: handleSubTitleChange,
           }}
           className="text-center w-full"
