@@ -264,7 +264,8 @@ async function updateThumbnailFile(
     {
       method: 'PATCH',
       headers: { 'Content-Type': normalizedMimeType },
-      body: imageBytes,
+      // Node Buffer<ArrayBufferLike>는 Next.js fetch BodyInit 타입과 호환되지 않는다.
+      body: new Uint8Array(imageBytes),
     }
   );
 
