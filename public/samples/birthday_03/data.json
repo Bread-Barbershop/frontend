@@ -420,7 +420,8 @@
         "openNavi": false,
         "mapLocked": false,
         "lng": 127.367956,
-        "lat": 36.3373691
+        "lat": 36.3373691,
+        "checkedPlaceTel": true
       }
     },
     {

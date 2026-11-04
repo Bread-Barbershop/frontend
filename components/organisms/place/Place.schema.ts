@@ -33,6 +33,10 @@ export const placeSchema = {
       default: true,
       required: true,
     },
+    checkedPlaceTel: {
+      default: false,
+      required: true,
+    },
     openMap: {
       default: false,
       required: true,
