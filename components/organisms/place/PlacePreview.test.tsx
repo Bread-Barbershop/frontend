@@ -78,20 +78,4 @@ describe('PlacePreview', () => {
     expect(screen.queryByText(/TEL\./i)).not.toBeInTheDocument();
   });
 
-  it('renders TEL for legacy data without checkedPlaceTel when placeTel is provided (backward compat)', () => {
-    // 기존 저장 데이터: checkedPlaceTel 필드 없이 placeTel만 존재
-    const legacyBlock = createBlock({ placeTel: '01012345678' });
-    // checkedPlaceTel 필드 자체를 제거하여 레거시 데이터 시뮬레이션
-    delete (legacyBlock.props as Record<string, unknown>)['checkedPlaceTel'];
-    render(<PlacePreview blockInfo={legacyBlock} className="test-place" />);
-    expect(screen.getByText('TEL. 010-1234-5678')).toBeInTheDocument();
-  });
-
-  it('does not render TEL for legacy data without checkedPlaceTel when placeTel is empty (backward compat)', () => {
-    // 기존 저장 데이터: checkedPlaceTel 없고 placeTel도 비어있음
-    const legacyBlock = createBlock({ placeTel: '' });
-    delete (legacyBlock.props as Record<string, unknown>)['checkedPlaceTel'];
-    render(<PlacePreview blockInfo={legacyBlock} className="test-place" />);
-    expect(screen.queryByText(/TEL\./i)).not.toBeInTheDocument();
-  });
 });

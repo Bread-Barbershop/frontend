@@ -36,11 +36,9 @@ export const PlacePreview = ({
     placeAddress,
     placeTel,
     checkedSubTitle,
-    checkedPlaceTel,
+    checkedPlaceTel = false,
     mapLocked,
   } = blockInfo.props;
-  // 기존 데이터에 checkedPlaceTel 필드가 없는 경우 placeTel 존재 여부로 폴백 (하위 호환)
-  const showPlaceTel = checkedPlaceTel !== undefined ? checkedPlaceTel : Boolean(placeTel?.trim());
   const defaultTitle = getDefaultPlaceTitle(blockInfo.type);
   const { fontFamily } = useBodyFontInfo();
 
@@ -66,7 +64,7 @@ export const PlacePreview = ({
           {placeName} {placeDetail}
         </p>
       </section>
-      {showPlaceTel && Boolean(placeTel?.trim()) && (
+      {checkedPlaceTel && Boolean(placeTel?.trim()) && (
         <p className="font-normal text-text-tertiary" style={{ fontFamily }}>
           TEL. {formatPhoneNumber(placeTel)}
         </p>
