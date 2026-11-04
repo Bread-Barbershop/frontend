@@ -43,6 +43,9 @@ describe('ensureThumbnailFile', () => {
     const calledUrl = (googleFetch as jest.Mock).mock.calls[0][0] as string;
     expect(calledUrl).toContain(THUMBNAIL_NAME_WEBP);
     expect(calledUrl).toContain(THUMBNAIL_NAME_PNG);
+    expect(new URL(calledUrl).searchParams.get('orderBy')).toBe(
+      'createdTime desc'
+    );
   });
 
   it('기존 썸네일이 없으면 null을 반환한다', async () => {
