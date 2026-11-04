@@ -17,38 +17,36 @@ function getSlideStyle(distance: number) {
   const abs = Math.abs(distance);
   const sign = Math.sign(distance);
 
-  if (abs < 0.01) {
-    return { opacity: 1, scale: 1, rotate: 0, y: 0, z: 20 };
+  // abs가 3.2 이상이면 완전 숨김 (3에서 opacity: 0으로 부드럽게 수렴 후 숨김)
+  if (abs >= 3.2) {
+    return { opacity: 0, scale: 0.35, rotate: 12 * sign, y: 0, z: 1 };
   }
 
-  // 거리에 따라 보간 (교차 타이밍에 자연스러운 fade-in / fade-out 적용)
+  // 거리에 따라 보간 (교차 타이밍 및 최종 수렴 시 자연스러운 fade-in / fade-out)
   const configs = [
-    { scale: 1, rotate: 0, opacity: 1, z: 20 }, // 0: center (가장 위, 완전 불투명)
-    { scale: 0.8, rotate: 5, opacity: 0.55, z: 10 }, // 1: 교차 이후 부드러운 fade-out
-    { scale: 0.56, rotate: 10, opacity: 0.3, z: 5 }, // 2
-    { scale: 0.3, rotate: 15, opacity: 0.1, z: 2 }, // 3
+    { scale: 1, rotate: 0, opacity: 1 }, // 0: center (가장 위, 완전 불투명 1.0)
+    { scale: 0.82, rotate: 4.5, opacity: 0.65 }, // 1: 교차 시점 부드러운 fade
+    { scale: 0.58, rotate: 8.5, opacity: 0.3 }, // 2: 배경 진입
+    { scale: 0.35, rotate: 12, opacity: 0 }, // 3: 부드럽게 0으로 수렴
   ];
-
-  // abs가 3.5 이상이면 숨김
-  if (abs >= 3.5) {
-    return { opacity: 0, scale: 0.3, rotate: 15 * sign, y: 20, z: 1 };
-  }
 
   const lower = Math.floor(abs);
   const upper = Math.min(lower + 1, configs.length - 1);
-  const t = abs - lower; // 0~1 사이 보간 비율
+  const t = Math.min(1, Math.max(0, abs - lower)); // 0~1 사이 보간 비율
+
+  // 부드러운 S-곡선(Smoothstep) 보간으로 끝단 및 경계에서의 급격한 변화(각진 꺾임) 제거
+  const smoothT = t * t * (3 - 2 * t);
 
   const from = configs[lower];
   const to = configs[upper];
 
-  const scale = from.scale + (to.scale - from.scale) * t;
-  const rotate = (from.rotate + (to.rotate - from.rotate) * t) * sign;
-  const z = Math.round(from.z + (to.z - from.z) * t);
-  // 포커스 진입 사진(1->0)은 fade-in, 포커스 이탈 사진(0->1)은 fade-out
-  const opacity =
-    abs > 3
-      ? configs[3].opacity * ((3.5 - abs) / 0.5)
-      : from.opacity + (to.opacity - from.opacity) * t;
+  const scale = from.scale + (to.scale - from.scale) * smoothT;
+  const rotate = (from.rotate + (to.rotate - from.rotate) * smoothT) * sign;
+  const opacity = from.opacity + (to.opacity - from.opacity) * smoothT;
+
+  // 중심(abs = 0)에 가까울수록 엄격하게 더 높은 z-index를 부여하여 교차 시 z-index 역전 깜빡임 방지
+  const z = Math.max(1, Math.round((10 - abs) * 100));
+
 
   return { opacity: Math.max(0, opacity), scale, rotate, y: 0, z };
 }
@@ -132,10 +130,14 @@ function GalleryType2({
 
     applyStyles();
     emblaApi.on('scroll', applyStyles);
+    emblaApi.on('settle', applyStyles);
+    emblaApi.on('select', applyStyles);
     emblaApi.on('reInit', applyStyles);
 
     return () => {
       emblaApi.off('scroll', applyStyles);
+      emblaApi.off('settle', applyStyles);
+      emblaApi.off('select', applyStyles);
       emblaApi.off('reInit', applyStyles);
     };
   }, [emblaApi, applyStyles]);
@@ -160,7 +162,7 @@ function GalleryType2({
               ref={el => {
                 slideRefs.current[i] = el;
               }}
-              className="flex-[0_0_70%] -mx-10 shrink-0"
+              className="flex-[0_0_70%] -mx-10 shrink-0 transform-gpu will-change-[transform,opacity]"
               style={{ transformOrigin: 'bottom center', transition: 'none' }}
             >
               <div
