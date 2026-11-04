@@ -97,6 +97,8 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockCanScrollPrev.mockReturnValue(true);
+    mockCanScrollNext.mockReturnValue(true);
     (useEditorStore as unknown as jest.Mock).mockReturnValue({
       block: [],
       images: [],
@@ -131,7 +133,7 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
     });
 
     it('canScrollPrev가 false이면 이전 버튼이 disabled되어야 함', () => {
-      mockCanScrollPrev.mockReturnValueOnce(false);
+      mockCanScrollPrev.mockReturnValue(false);
       render(<GalleryNavButtons emblaApi={mockEmblaApi as any} show={true} />);
 
       const prevBtn = screen.getByRole('button', { name: '이전 사진' });
