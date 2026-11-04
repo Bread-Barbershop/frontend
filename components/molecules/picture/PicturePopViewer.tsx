@@ -1,6 +1,6 @@
 import useEmblaCarousel from 'embla-carousel-react';
 import { usePathname } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 
 import { Image } from '@/components/atoms/image';
@@ -44,22 +44,42 @@ export const PicturePopViewer = ({
     watchDrag: true,
   });
 
-  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
+  // Embla 상태를 직접 구독해 시작 위치와 페이지 번호를 항상 일치시킨다.
+  const subscribeToSelection = useCallback(
+    (notify: () => void) => {
+      if (!emblaApi) return () => {};
+      emblaApi.on('select', notify);
+      emblaApi.on('reInit', notify);
+      return () => {
+        emblaApi.off('select', notify);
+        emblaApi.off('reInit', notify);
+      };
+    },
+    [emblaApi]
+  );
+  const getSelectedIndex = useCallback(
+    () => (isOpen && emblaApi ? emblaApi.selectedScrollSnap() : initialIndex),
+    [isOpen, emblaApi, initialIndex]
+  );
+  const selectedIndex = useSyncExternalStore(
+    subscribeToSelection,
+    getSelectedIndex,
+    () => initialIndex
+  );
 
+  // 다이얼로그가 열릴 때 포커스를 이동하고, 닫힐 때 원래 요소로 돌려놓는다.
   useEffect(() => {
-    if (!emblaApi) return;
-    emblaApi.on('select', onSelect);
-    emblaApi.on('reInit', onSelect);
+    if (!isOpen || !isClient) return;
+    const previousFocus = document.activeElement;
+    closeButtonRef.current?.focus();
     return () => {
-      emblaApi.off('select', onSelect);
-      emblaApi.off('reInit', onSelect);
+      if (previousFocus instanceof HTMLElement && previousFocus.isConnected) {
+        previousFocus.focus();
+      }
     };
-  }, [emblaApi, onSelect]);
+  }, [isOpen, isClient]);
 
   // isOpen 또는 startIndex 변경 시 해당 슬라이드로 이동 (embla select 이벤트가 selectedIndex를 갱신)
   useEffect(() => {
@@ -95,6 +115,24 @@ export const PicturePopViewer = ({
         emblaApi?.scrollPrev();
       } else if (e.key === 'ArrowRight') {
         emblaApi?.scrollNext();
+      } else if (e.key === 'Tab') {
+        const dialog = closeButtonRef.current?.closest('[role="dialog"]');
+        const buttons = dialog?.querySelectorAll<HTMLButtonElement>(
+          'button:not([disabled])'
+        );
+        if (!buttons?.length) return;
+        const first = buttons[0];
+        const last = buttons[buttons.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        } else if (!dialog?.contains(document.activeElement)) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -121,6 +159,7 @@ export const PicturePopViewer = ({
     >
       {/* 닫기 (X) 버튼 */}
       <button
+        ref={closeButtonRef}
         type="button"
         aria-label="닫기"
         onClick={e => {
