@@ -8,7 +8,7 @@ describe('ScrollFadeIn 컴포넌트', () => {
   let observeMock: jest.Mock;
   let unobserveMock: jest.Mock;
   let disconnectMock: jest.Mock;
-  let observerCallback: (entries: Partial<IntersectionObserverEntry>[]) => void;
+  let observerCallback: (_entries: Partial<IntersectionObserverEntry>[]) => void;
 
   beforeEach(() => {
     originalIntersectionObserver = window.IntersectionObserver;

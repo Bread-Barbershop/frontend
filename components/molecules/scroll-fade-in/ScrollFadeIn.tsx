@@ -1,7 +1,8 @@
 'use client';
 
-import React, { HTMLAttributes, useEffect, useRef, useState } from 'react';
+import React, { HTMLAttributes, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 
+import { usePrefersReducedMotion } from '@/components/organisms/gallery/hooks/usePrefersReducedMotion';
 import { cn } from '@/shared/utils/cn';
 
 export interface ScrollFadeInProps extends HTMLAttributes<HTMLDivElement> {
@@ -9,6 +10,12 @@ export interface ScrollFadeInProps extends HTMLAttributes<HTMLDivElement> {
   threshold?: number;
   rootMargin?: string;
   delayMs?: number;
+}
+
+const emptySubscribe = () => () => {};
+
+function getObserverSupported(): boolean {
+  return typeof window !== 'undefined' && 'IntersectionObserver' in window;
 }
 
 export function ScrollFadeIn({
@@ -21,18 +28,19 @@ export function ScrollFadeIn({
   ...rest
 }: ScrollFadeInProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const [isIntersected, setIsIntersected] = useState(false);
+
+  const isObserverSupported = useSyncExternalStore(
+    emptySubscribe,
+    getObserverSupported,
+    () => true
+  );
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  const shouldBypassAnimation = !isObserverSupported || prefersReducedMotion;
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
-      setIsVisible(true);
-      return;
-    }
-
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) {
-      setIsVisible(true);
-      return;
-    }
+    if (shouldBypassAnimation) return;
 
     const element = ref.current;
     if (!element) return;
@@ -41,7 +49,7 @@ export function ScrollFadeIn({
       entries => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
-            setIsVisible(true);
+            setIsIntersected(true);
             observer.unobserve(entry.target);
           }
         });
@@ -57,7 +65,9 @@ export function ScrollFadeIn({
     return () => {
       observer.disconnect();
     };
-  }, [threshold, rootMargin]);
+  }, [shouldBypassAnimation, threshold, rootMargin]);
+
+  const isVisible = shouldBypassAnimation || isIntersected;
 
   return (
     <div
