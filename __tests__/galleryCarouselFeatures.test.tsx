@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
 import { PicturePopViewer } from '@/components/molecules/picture/PicturePopViewer';
@@ -105,6 +105,7 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
     jest.clearAllMocks();
     mockCanScrollPrev.mockReturnValue(true);
     mockCanScrollNext.mockReturnValue(true);
+    mockEmblaApi.scrollProgress.mockReturnValue(0);
     (useEditorStore as unknown as jest.Mock).mockReturnValue({
       block: [],
       images: [],
@@ -318,6 +319,61 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
       );
       const autoSlides = autoContainer.querySelectorAll('.flex-\\[0_0_50\\%\\]');
       expect(autoSlides.length).toBeGreaterThanOrEqual(8);
+    });
+  });
+
+  describe('갤러리 포커스 애니메이션 경계 회귀 테스트', () => {
+    const images = ['https://example.com/1.jpg', 'https://example.com/2.jpg'];
+
+    it('Type1은 reduced-motion에서도 선택 카드 대비를 유지하되 전환 애니메이션을 제거한다', () => {
+      const originalMatchMedia = window.matchMedia;
+      window.matchMedia = jest.fn().mockImplementation(query => ({
+        matches: query === '(prefers-reduced-motion: reduce)',
+        media: query,
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+      }));
+      try {
+        const { container } = render(
+          <GalleryType1 preview={images} ratio="1:1" imageClick={jest.fn()} />
+        );
+        const slideWrappers = container.querySelectorAll<HTMLElement>(
+          '[class*="flex-[0_0_50%]"]'
+        );
+        expect(slideWrappers.length).toBeGreaterThan(1);
+        expect(slideWrappers[0].style.transform).toBe('scale(1)');
+        expect(slideWrappers[1].style.transform).toBe('scale(0.68)');
+        expect(slideWrappers[1].style.opacity).toBe('0.75');
+        expect(slideWrappers[1].style.transition).toBe('none');
+      } finally {
+        window.matchMedia = originalMatchMedia;
+      }
+    });
+
+    it('Type2의 멀리 있는 슬라이드는 거리 3~3.5에서 투명도가 연속적으로 0에 수렴한다', () => {
+      const { container } = render(
+        <GalleryType2 preview={images} ratio="1:1" imageClick={jest.fn()} />
+      );
+      const slideWrappers = container.querySelectorAll<HTMLElement>(
+        '[style*="transform-origin"]'
+      );
+      expect(slideWrappers.length).toBeGreaterThanOrEqual(8);
+      const count = slideWrappers.length;
+      const opacityAt = (distance: number) => {
+        mockEmblaApi.scrollProgress.mockReturnValue(distance / count);
+        act(() => {
+          eventHandlers.scroll?.forEach(handler => handler());
+        });
+        return Number(slideWrappers[0].style.opacity);
+      };
+      const near = opacityAt(3.1);
+      const farther = opacityAt(3.49);
+      const hidden = opacityAt(3.5);
+      expect(near).toBeGreaterThan(0);
+      expect(near).toBeLessThan(0.1);
+      expect(farther).toBeGreaterThan(0);
+      expect(farther).toBeLessThan(near);
+      expect(hidden).toBe(0);
     });
   });
 

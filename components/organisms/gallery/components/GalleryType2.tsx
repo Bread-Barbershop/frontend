@@ -45,7 +45,10 @@ function getSlideStyle(distance: number) {
   const rotate = (from.rotate + (to.rotate - from.rotate) * t) * sign;
   const z = Math.round(from.z + (to.z - from.z) * t);
   // 포커스 진입 사진(1->0)은 fade-in, 포커스 이탈 사진(0->1)은 fade-out
-  const opacity = from.opacity + (to.opacity - from.opacity) * t;
+  const opacity =
+    abs > 3
+      ? configs[3].opacity * ((3.5 - abs) / 0.5)
+      : from.opacity + (to.opacity - from.opacity) * t;
 
   return { opacity: Math.max(0, opacity), scale, rotate, y: 0, z };
 }

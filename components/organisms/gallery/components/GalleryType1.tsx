@@ -58,13 +58,14 @@ function GalleryType1({
     const selectedIndex = emblaApi.selectedScrollSnap();
     slideRefs.current.forEach((el, i) => {
       if (!el) return;
+      const isSelected = i === selectedIndex;
       if (prefersReducedMotion) {
-        el.style.transform = 'none';
-        el.style.opacity = '1';
+        // 움직임만 제거하고 선택/비선택 카드의 시각적 구분은 유지한다.
+        el.style.transform = isSelected ? 'scale(1)' : 'scale(0.68)';
+        el.style.opacity = isSelected ? '1' : '0.75';
         el.style.transition = 'none';
         return;
       }
-      const isSelected = i === selectedIndex;
       // 포커스 진입 시에는 '뿅' 하고 경쾌하게 확대, 포커스 빠질 때는 여유롭고 부드럽게 축소
       el.style.transform = isSelected ? 'scale(1)' : 'scale(0.68)';
       el.style.opacity = isSelected ? '1' : '0.75';
