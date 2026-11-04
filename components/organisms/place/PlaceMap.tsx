@@ -74,16 +74,17 @@ export function PlaceMap({
     return true;
   };
 
+  // 좌표 변경으로 지도를 새로 만들기 전에 최신 잠금 값을 ref에 반영한다.
+  useEffect(() => {
+    isLockedRef.current = isLocked;
+    applyLockOptions(isLocked);
+  }, [isLocked, applyLockOptions]);
+
   useEffect(() => {
     if (window.naver && window.naver.maps && validatePosition(lng, lat)) {
       initMap();
     }
   }, [initMap, lng, lat]);
-
-  useEffect(() => {
-    isLockedRef.current = isLocked;
-    applyLockOptions(isLocked);
-  }, [isLocked, applyLockOptions]);
 
   const toggleLock = useCallback(() => {
     setIsLocked(prev => !prev);
