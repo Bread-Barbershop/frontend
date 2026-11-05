@@ -81,6 +81,7 @@ function GalleryType3({
     {
       loop: isLoopActive,
       align: 'center',
+      dragFree: isAutoPlay,
       containScroll: isLoopActive ? false : 'trimSnaps',
       watchDrag: true,
     },
