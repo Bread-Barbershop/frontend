@@ -1,0 +1,126 @@
+name: Vercel Deployment Failure Discord Alert
+
+on:
+  deployment_status:
+
+permissions:
+  deployments: read
+  statuses: read
+  contents: read
+  pull-requests: read
+
+jobs:
+  notify-discord:
+    name: Notify Discord on Vercel Failure
+    if: github.event.deployment_status.state == 'failure' || github.event.deployment_status.state == 'error'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Discord Notification
+        uses: actions/github-script@v7
+        env:
+          DISCORD_WEBHOOK_MAIN: ${{ secrets.DISCORD_WEBHOOK_MAIN }}
+        with:
+          script: |
+            const webhookUrl = process.env.DISCORD_WEBHOOK_MAIN;
+            if (!webhookUrl) {
+              console.log('DISCORD_WEBHOOK_MAIN secret not found, skipping alert.');
+              return;
+            }
+
+            const status = context.payload.deployment_status;
+            const deployment = context.payload.deployment;
+
+            const environment = deployment.environment || 'Preview';
+            const logUrl = status.target_url || '';
+            const description = status.description || 'Vercel 빌드 및 배포 중 오류가 발생했습니다.';
+            const creator = deployment.creator ? deployment.creator.login : context.actor;
+            const commitSha = deployment.sha ? deployment.sha.substring(0, 7) : '';
+
+            // 커밋과 연관된 PR 정보 조회
+            let prInfo = null;
+            try {
+              if (deployment.sha) {
+                const prs = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  commit_sha: deployment.sha,
+                });
+                if (prs.data && prs.data.length > 0) {
+                  const pr = prs.data[0];
+                  prInfo = {
+                    number: pr.number,
+                    title: pr.title,
+                    url: pr.html_url,
+                  };
+                }
+              }
+            } catch (err) {
+              console.log('Error fetching associated PR:', err.message);
+            }
+
+            const fields = [
+              {
+                name: "환경",
+                value: `\`${environment}\``,
+                inline: true,
+              },
+              {
+                name: "작업자",
+                value: `**${creator}**`,
+                inline: true,
+              },
+              {
+                name: "커밋",
+                value: commitSha ? `\`${commitSha}\`` : "—",
+                inline: true,
+              },
+            ];
+
+            if (prInfo) {
+              fields.push({
+                name: "관련 PR",
+                value: `[#${prInfo.number} · ${prInfo.title}](${prInfo.url})`,
+                inline: false,
+              });
+            }
+
+            fields.push(
+              {
+                name: "실패 사유",
+                value: description,
+                inline: false,
+              },
+              {
+                name: "Vercel 빌드/에러 로그",
+                value: logUrl ? `[Vercel 로그 바로가기](${logUrl})` : "로그 URL 없음",
+                inline: false,
+              }
+            );
+
+            const payload = {
+              username: "🚨 Vercel 배포 알림봇",
+              content: `⚠️ **Vercel [${environment}] 배포가 실패했습니다!** (작업자: \`${creator}\`)`,
+              embeds: [
+                {
+                  title: `❌ Vercel 배포 실패 · ${environment}`,
+                  url: logUrl || (prInfo ? prInfo.url : undefined),
+                  color: 15158332, // Red
+                  fields: fields,
+                  timestamp: new Date().toISOString(),
+                },
+              ],
+            };
+
+            const response = await fetch(webhookUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+              const body = await response.text();
+              console.error(`Discord webhook responded with status ${response.status}: ${body}`);
+            } else {
+              console.log('Successfully sent Vercel failure notification to Discord.');
+            }
