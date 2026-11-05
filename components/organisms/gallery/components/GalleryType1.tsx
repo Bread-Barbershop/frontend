@@ -35,8 +35,8 @@ function GalleryType1({
         startDelay: 0,
         direction: 'forward',
         stopOnInteraction: false,
-        stopOnMouseEnter: true,
-        stopOnFocusIn: true,
+        stopOnMouseEnter: false,
+        stopOnFocusIn: false,
       }),
     ];
   }, [isAutoPlay, isLoopActive, prefersReducedMotion]);
@@ -90,12 +90,8 @@ function GalleryType1({
     };
   }, [emblaApi, updateSlides]);
 
-  useEffect(() => {
-    if (emblaApi) emblaApi.reInit();
-  }, [emblaApi, isAutoPlay, slides.length]);
-
-  const { handlePointerDown, handlePointerMove, handleCardClick } =
-    useGallerySwipeClick(imageClick, emblaApi);
+  const { handlePointerDown, handleCardClick } =
+    useGallerySwipeClick(imageClick);
 
   return (
     <div className="relative w-full min-h-[120px] group/gallery">
@@ -108,38 +104,41 @@ function GalleryType1({
             <div
               key={i}
               className="flex-[0_0_50%] shrink-0"
-              ref={el => {
-                slideRefs.current[i] = el;
-              }}
-              style={{ transition: 'none' }}
             >
               <div
-                role="button"
-                tabIndex={i < preview.length ? 0 : -1}
-                aria-hidden={i >= preview.length ? true : undefined}
-                className={cn(
-                  'relative overflow-hidden rounded-lg min-h-[120px] shadow-gallery-image select-none',
-                  GalleryItemVariants({
-                    ratio: ratio,
-                  })
-                )}
-                onPointerDown={handlePointerDown}
-                onPointerMove={handlePointerMove}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleCardClick(i % preview.length);
-                  }
+                ref={el => {
+                  slideRefs.current[i] = el;
                 }}
-                onClick={() => handleCardClick(i % preview.length)}
+                className="w-full"
+                style={{ transition: 'none' }}
               >
-                <Image
-                  src={src}
-                  alt={`slide-${i % preview.length}`}
-                  fill
-                  className="object-cover pointer-events-none select-none"
-                  draggable={false}
-                />
+                <div
+                  role="button"
+                  tabIndex={i < preview.length ? 0 : -1}
+                  aria-hidden={i >= preview.length ? true : undefined}
+                  className={cn(
+                    'relative overflow-hidden rounded-lg min-h-[120px] shadow-gallery-image select-none',
+                    GalleryItemVariants({
+                      ratio: ratio,
+                    })
+                  )}
+                  onPointerDown={handlePointerDown}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleCardClick(i % preview.length);
+                    }
+                  }}
+                  onClick={e => handleCardClick(i % preview.length, e)}
+                >
+                  <Image
+                    src={src}
+                    alt={`slide-${i % preview.length}`}
+                    fill
+                    className="object-cover pointer-events-none select-none"
+                    draggable={false}
+                  />
+                </div>
               </div>
             </div>
           ))}

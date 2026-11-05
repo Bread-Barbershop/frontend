@@ -36,8 +36,8 @@ function GalleryType5({
         startDelay: 0,
         direction: 'forward',
         stopOnInteraction: false,
-        stopOnMouseEnter: true,
-        stopOnFocusIn: true,
+        stopOnMouseEnter: false,
+        stopOnFocusIn: false,
       }),
     ];
   }, [isAutoPlay, isLoopActive, prefersReducedMotion]);
@@ -73,12 +73,8 @@ function GalleryType5({
     };
   }, [emblaApi, onScroll]);
 
-  useEffect(() => {
-    if (emblaApi) emblaApi.reInit();
-  }, [emblaApi, isAutoPlay, slides.length]);
-
-  const { handlePointerDown, handlePointerMove, handleCardClick } =
-    useGallerySwipeClick(imageClick, emblaApi);
+  const { handlePointerDown, handleCardClick } =
+    useGallerySwipeClick(imageClick);
 
   return (
     <div className="relative w-full min-h-[120px] group/gallery">
@@ -100,14 +96,13 @@ function GalleryType5({
                   GalleryItemVariants({ ratio })
                 )}
                 onPointerDown={handlePointerDown}
-                onPointerMove={handlePointerMove}
                 onKeyDown={e => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     handleCardClick(i % preview.length);
                   }
                 }}
-                onClick={() => handleCardClick(i % preview.length)}
+                onClick={e => handleCardClick(i % preview.length, e)}
               >
                 <Image
                   src={src}
