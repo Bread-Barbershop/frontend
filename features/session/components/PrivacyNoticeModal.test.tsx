@@ -42,10 +42,10 @@ describe('PrivacyNoticeModal', () => {
     expect(driveLink).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
-  it('calls onClose when "알겠어요." button is clicked', () => {
+  it('알겠어요 버튼을 누르면 닫기 콜백을 호출한다', () => {
     render(<PrivacyNoticeModal open={true} onClose={mockOnClose} />);
 
-    const confirmButton = screen.getByRole('button', { name: '알겠어요.' });
+    const confirmButton = screen.getByRole('button', { name: '알겠어요' });
     fireEvent.click(confirmButton);
 
     expect(mockOnClose).toHaveBeenCalledTimes(1);

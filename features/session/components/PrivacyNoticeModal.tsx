@@ -156,13 +156,10 @@ function PrivacyNoticeModal({
               </div>
               <button
                 type="button"
-                className="cursor-pointer rounded-lg bg-white px-8 py-[13.5px] font-pretendard text-[14px] font-semibold leading-5 text-text-plain transition-colors hover:bg-[#FAFAFB] active:bg-[#F5F8FF]"
-                style={{
-                  boxShadow: 'inset 0 0 0 1px rgb(255 255 255 / 12%)',
-                }}
+                className="cursor-pointer rounded-full bg-[#121212] px-8 py-[13.5px] font-pretendard text-[14px] font-semibold leading-5 text-white transition-colors hover:bg-[#202020] active:bg-[#0D0D0D]"
                 onClick={handleClose}
               >
-                알겠어요.
+                알겠어요
               </button>
             </div>
           </motion.div>
