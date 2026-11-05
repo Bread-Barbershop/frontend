@@ -6,13 +6,13 @@ import {
   type MotionValue,
   type Transition,
   useMotionValue,
-  useTransform,
 } from 'framer-motion';
 import Image, { StaticImageData } from 'next/image';
 import {
   type CSSProperties,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -42,8 +42,8 @@ type StackCardProps = {
   card: CardData;
   stackPosition: number;
   stackSize: number;
+  swipeCycle: number;
   isTop: boolean;
-  isEntering: boolean;
   isLocked: boolean;
   offset: StackOffset;
   nextOffset: StackOffset | null;
@@ -62,7 +62,6 @@ const SWIPE_THRESHOLD = 90;
 const MIN_FLY_OUT_X = 520;
 const DRAG_ROTATION_FACTOR = 0.06;
 const FLY_OUT_MS = 320;
-const DECK_SETTLE_MS = 360;
 const FLY_OUT_TRANSITION: Transition = {
   duration: FLY_OUT_MS / 1000,
   ease: [0.22, 1, 0.36, 1],
@@ -72,12 +71,6 @@ const CARD_STACK_STYLE = {
     'clamp(220px, calc(var(--mobile-home-viewport-height, 100vh) - 293px), 397px)',
 } as CSSProperties;
 const CARD_IMAGE_SIZES = '196px';
-const STACK_SETTLE_TRANSITION: Transition = {
-  type: 'spring',
-  stiffness: 330,
-  damping: 34,
-  mass: 0.9,
-};
 const SPRING_BACK_TRANSITION: Transition = {
   type: 'spring',
   stiffness: 360,
@@ -94,8 +87,8 @@ function StackCard({
   card,
   stackPosition,
   stackSize,
+  swipeCycle,
   isTop,
-  isEntering,
   isLocked,
   offset,
   nextOffset,
@@ -104,47 +97,37 @@ function StackCard({
   onSwipeComplete,
 }: StackCardProps) {
   const x = useMotionValue(offset.x);
-  const y = useMotionValue(isEntering ? offset.y + 18 : offset.y);
+  const y = useMotionValue(offset.y);
   const baseRotate = useMotionValue(offset.rotate);
-  const scale = useMotionValue(isEntering ? 0.985 : 1);
+  const preparedRotate = useMotionValue(offset.rotate);
+  const scale = useMotionValue(1);
   const opacity = useMotionValue(1);
   const activeAnimationsRef = useRef<Array<{ stop: () => void }>>([]);
   const flyOutTimeoutRef = useRef<number | null>(null);
   const isFlyingOutRef = useRef(false);
   const hasCompletedFlyOut = useRef(false);
+  const previousStackPositionRef = useRef(stackPosition);
+  const previousSwipeCycleRef = useRef(swipeCycle);
 
-  // For non-top cards: interpolate rotate from current offset toward next offset
-  // based on how far the top card has been dragged, so the back card "prepares"
-  // by rotating from its diagonal tilt toward its target (next position) rotation.
-  const dragProgress = useTransform(topDragX, [0, SWIPE_THRESHOLD], [0, 1], {
-    clamp: true,
-  });
+  const rotate = isTop ? baseRotate : preparedRotate;
 
-  const interpolatedRotate = useTransform(() => {
-    if (isTop || !nextOffset) {
-      return baseRotate.get();
-    }
+  const updatePreparedRotate = useCallback(
+    (dragX: number) => {
+      if (isTop || !nextOffset) return;
 
-    const progress = Math.abs(dragProgress.get());
-    const current = baseRotate.get();
-    const target = nextOffset.rotate;
+      const progress = Math.min(Math.abs(dragX) / SWIPE_THRESHOLD, 1);
+      const current = baseRotate.get();
 
-    return current + (target - current) * progress;
-  });
+      preparedRotate.set(
+        current + (nextOffset.rotate - current) * progress
+      );
+    },
+    [baseRotate, isTop, nextOffset, preparedRotate]
+  );
 
-  // For non-top cards: also interpolate scale to subtly grow into position
-  const interpolatedScale = useTransform(() => {
-    if (isTop || !nextOffset) {
-      return scale.get();
-    }
-
-    const progress = Math.abs(dragProgress.get());
-
-    return scale.get() + (1 - scale.get()) * progress * 0.3;
-  });
-
-  const rotate = isTop ? baseRotate : interpolatedRotate;
-  const finalScale = isTop ? scale : interpolatedScale;
+  useEffect(() => {
+    return topDragX.on('change', updatePreparedRotate);
+  }, [topDragX, updatePreparedRotate]);
 
   const stopActiveAnimations = useCallback(() => {
     activeAnimationsRef.current.forEach(animation => animation.stop());
@@ -165,56 +148,42 @@ function StackCard({
     [opacity, baseRotate, scale, stopActiveAnimations, x, y]
   );
 
-  useEffect(() => {
-    if (isFlyingOutRef.current) return;
+  useLayoutEffect(() => {
+    const positionChanged =
+      previousStackPositionRef.current !== stackPosition;
+    const cycleChanged = previousSwipeCycleRef.current !== swipeCycle;
 
-    if (isEntering) {
-      stopActiveAnimations();
-      x.set(offset.x);
-      y.set(offset.y + 18);
-      baseRotate.set(offset.rotate);
-      scale.set(0.985);
-      opacity.set(1);
+    previousStackPositionRef.current = stackPosition;
+    previousSwipeCycleRef.current = swipeCycle;
 
-      const frame = window.requestAnimationFrame(() => {
-        animateTo(
-          {
-            x: offset.x,
-            y: offset.y,
-            rotate: offset.rotate,
-            scale: 1,
-            opacity: 1,
-          },
-          STACK_SETTLE_TRANSITION
-        );
-      });
+    if (!positionChanged && !cycleChanged) return;
 
-      return () => {
-        window.cancelAnimationFrame(frame);
-      };
+    stopActiveAnimations();
+
+    if (flyOutTimeoutRef.current !== null) {
+      window.clearTimeout(flyOutTimeoutRef.current);
+      flyOutTimeoutRef.current = null;
     }
 
-    animateTo(
-      {
-        x: offset.x,
-        y: offset.y,
-        rotate: offset.rotate,
-        scale: 1,
-        opacity: 1,
-      },
-      { duration: 0 }
-    );
+    isFlyingOutRef.current = false;
+    hasCompletedFlyOut.current = false;
+    x.set(offset.x);
+    y.set(offset.y);
+    baseRotate.set(offset.rotate);
+    preparedRotate.set(offset.rotate);
+    scale.set(1);
+    opacity.set(1);
   }, [
-    animateTo,
-    card.id,
-    isEntering,
+    baseRotate,
     offset.rotate,
     offset.x,
     offset.y,
     opacity,
-    baseRotate,
+    preparedRotate,
     scale,
+    stackPosition,
     stopActiveAnimations,
+    swipeCycle,
     x,
     y,
   ]);
@@ -223,8 +192,9 @@ function StackCard({
     return () => {
       stopActiveAnimations();
 
-      if (flyOutTimeoutRef.current) {
+      if (flyOutTimeoutRef.current !== null) {
         window.clearTimeout(flyOutTimeoutRef.current);
+        flyOutTimeoutRef.current = null;
       }
     };
   }, [stopActiveAnimations]);
@@ -289,8 +259,6 @@ function StackCard({
     }
 
     // Spring back: reset drag tracking so back cards revert smoothly
-    topDragX.set(0);
-
     animateTo(
       {
         x: offset.x,
@@ -300,6 +268,9 @@ function StackCard({
         opacity: 1,
       },
       SPRING_BACK_TRANSITION
+    );
+    activeAnimationsRef.current.push(
+      animate(topDragX, 0, SPRING_BACK_TRANSITION)
     );
   };
 
@@ -314,7 +285,7 @@ function StackCard({
         x,
         y,
         rotate,
-        scale: finalScale,
+        scale,
         opacity,
         zIndex: stackSize - stackPosition,
         touchAction: isTop ? 'none' : 'auto',
@@ -347,8 +318,7 @@ function createInitialOrder(length: number) {
 export function MobileShowcaseCardStack({ cards }: { cards: CardData[] }) {
   const [order, setOrder] = useState(() => createInitialOrder(cards.length));
   const [isAnimating, setIsAnimating] = useState(false);
-  const [enteringCardId, setEnteringCardId] = useState<string | null>(null);
-  const [enterKey, setEnterKey] = useState(0);
+  const [swipeCycle, setSwipeCycle] = useState(0);
   const topDragX = useMotionValue(0);
 
   const visibleOrder = useMemo(
@@ -356,29 +326,21 @@ export function MobileShowcaseCardStack({ cards }: { cards: CardData[] }) {
     [order]
   );
 
+  useLayoutEffect(() => {
+    topDragX.set(0);
+  }, [swipeCycle, topDragX]);
+
   if (cards.length === 0) return null;
 
   const handleSwipeComplete = () => {
-    // Reset drag tracking so the next cycle starts fresh
-    topDragX.set(0);
-
     setOrder(currentOrder => {
       if (currentOrder.length === 0) return currentOrder;
 
       const [movedIndex, ...rest] = currentOrder;
-      const nextOrder = [...rest, movedIndex];
-      const nextTopIndex = nextOrder[0];
-
-      setEnteringCardId(cards[nextTopIndex]?.id ?? null);
-      setEnterKey(key => key + 1);
-
-      window.setTimeout(() => {
-        setIsAnimating(false);
-        setEnteringCardId(null);
-      }, DECK_SETTLE_MS);
-
-      return nextOrder;
+      return [...rest, movedIndex];
     });
+    setSwipeCycle(cycle => cycle + 1);
+    setIsAnimating(false);
   };
 
   return (
@@ -394,7 +356,6 @@ export function MobileShowcaseCardStack({ cards }: { cards: CardData[] }) {
           if (!card) return null;
 
           const isTop = stackPosition === 0;
-          const isEntering = isTop && card.id === enteringCardId;
 
           // The offset this card will move to when the top card is swiped away
           const nextOffset =
@@ -404,12 +365,12 @@ export function MobileShowcaseCardStack({ cards }: { cards: CardData[] }) {
 
           return (
             <StackCard
-              key={`${card.id}-${isEntering ? enterKey : stackPosition}`}
+              key={card.id}
               card={card}
               stackPosition={stackPosition}
               stackSize={visibleOrder.length}
+              swipeCycle={swipeCycle}
               isTop={isTop}
-              isEntering={isEntering}
               isLocked={isAnimating}
               offset={STACK_OFFSETS[stackPosition] ?? STACK_OFFSETS.at(-1)!}
               nextOffset={nextOffset}
