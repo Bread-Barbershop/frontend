@@ -38,18 +38,32 @@ type CardMotionTarget = {
   opacity: number;
 };
 
+type DeckEntry = {
+  cardIndex: number;
+  instanceId: number;
+};
+
+type OutgoingEntry = DeckEntry;
+
+type DeckState = {
+  activeOrder: DeckEntry[];
+  outgoing: OutgoingEntry[];
+  swipeCycle: number;
+};
+
 type StackCardProps = {
   card: CardData;
+  instanceId: number;
   stackPosition: number;
-  stackSize: number;
+  zIndex: number;
   swipeCycle: number;
   isTop: boolean;
-  isLocked: boolean;
+  isOutgoing: boolean;
   offset: StackOffset;
   nextOffset: StackOffset | null;
   topDragX: MotionValue<number>;
-  onSwipeStart: () => void;
-  onSwipeComplete: () => void;
+  onSwipeStart: (instanceId: number) => void;
+  onSwipeComplete: (instanceId: number) => void;
 };
 
 const STACK_OFFSETS: StackOffset[] = [
@@ -85,11 +99,12 @@ function getFlyOutX() {
 
 function StackCard({
   card,
+  instanceId,
   stackPosition,
-  stackSize,
+  zIndex,
   swipeCycle,
   isTop,
-  isLocked,
+  isOutgoing,
   offset,
   nextOffset,
   topDragX,
@@ -108,12 +123,13 @@ function StackCard({
   const hasCompletedFlyOut = useRef(false);
   const previousStackPositionRef = useRef(stackPosition);
   const previousSwipeCycleRef = useRef(swipeCycle);
+  const previousIsOutgoingRef = useRef(isOutgoing);
 
-  const rotate = isTop ? baseRotate : preparedRotate;
+  const rotate = isTop || isOutgoing ? baseRotate : preparedRotate;
 
   const updatePreparedRotate = useCallback(
     (dragX: number) => {
-      if (isTop || !nextOffset) return;
+      if (isTop || isOutgoing || !nextOffset) return;
 
       const progress = Math.min(Math.abs(dragX) / SWIPE_THRESHOLD, 1);
       const current = baseRotate.get();
@@ -122,7 +138,7 @@ function StackCard({
         current + (nextOffset.rotate - current) * progress
       );
     },
-    [baseRotate, isTop, nextOffset, preparedRotate]
+    [baseRotate, isOutgoing, isTop, nextOffset, preparedRotate]
   );
 
   useEffect(() => {
@@ -152,11 +168,14 @@ function StackCard({
     const positionChanged =
       previousStackPositionRef.current !== stackPosition;
     const cycleChanged = previousSwipeCycleRef.current !== swipeCycle;
+    const wasOutgoing = previousIsOutgoingRef.current;
 
     previousStackPositionRef.current = stackPosition;
     previousSwipeCycleRef.current = swipeCycle;
+    previousIsOutgoingRef.current = isOutgoing;
 
-    if (!positionChanged && !cycleChanged) return;
+    if (isOutgoing) return;
+    if (!wasOutgoing && !positionChanged && !cycleChanged) return;
 
     stopActiveAnimations();
 
@@ -184,6 +203,7 @@ function StackCard({
     stackPosition,
     stopActiveAnimations,
     swipeCycle,
+    isOutgoing,
     x,
     y,
   ]);
@@ -200,13 +220,12 @@ function StackCard({
   }, [stopActiveAnimations]);
 
   const triggerFlyOut = (direction: 1 | -1) => {
-    if (!isTop || isLocked || isFlyingOutRef.current) {
+    if (!isTop || isOutgoing || isFlyingOutRef.current) {
       return;
     }
 
     isFlyingOutRef.current = true;
     hasCompletedFlyOut.current = false;
-    onSwipeStart();
 
     // Push topDragX to threshold so back cards fully transition to their next pose
     topDragX.set(direction * SWIPE_THRESHOLD);
@@ -222,16 +241,19 @@ function StackCard({
       FLY_OUT_TRANSITION
     );
 
+    onSwipeStart(instanceId);
+
     flyOutTimeoutRef.current = window.setTimeout(() => {
+      flyOutTimeoutRef.current = null;
       if (hasCompletedFlyOut.current) return;
 
       hasCompletedFlyOut.current = true;
-      onSwipeComplete();
+      onSwipeComplete(instanceId);
     }, FLY_OUT_MS);
   };
 
   const handleDragStart = () => {
-    if (!isTop || isLocked || isFlyingOutRef.current) return;
+    if (!isTop || isOutgoing || isFlyingOutRef.current) return;
 
     stopActiveAnimations();
     topDragX.set(0);
@@ -241,7 +263,7 @@ function StackCard({
     _: MouseEvent | TouchEvent | PointerEvent,
     info: { offset: { x: number } }
   ) => {
-    if (!isTop || isLocked || isFlyingOutRef.current) return;
+    if (!isTop || isOutgoing || isFlyingOutRef.current) return;
 
     baseRotate.set(offset.rotate + info.offset.x * DRAG_ROTATION_FACTOR);
     topDragX.set(info.offset.x);
@@ -251,7 +273,7 @@ function StackCard({
     _: MouseEvent | TouchEvent | PointerEvent,
     info: { offset: { x: number } }
   ) => {
-    if (!isTop || isLocked || isFlyingOutRef.current) return;
+    if (!isTop || isOutgoing || isFlyingOutRef.current) return;
 
     if (Math.abs(info.offset.x) >= SWIPE_THRESHOLD) {
       triggerFlyOut(info.offset.x > 0 ? 1 : -1);
@@ -277,9 +299,11 @@ function StackCard({
   return (
     <motion.div
       data-card-id={card.id}
-      data-stack-position={stackPosition}
+      data-card-instance-id={instanceId}
+      data-stack-position={isOutgoing ? undefined : stackPosition}
+      data-card-state={isOutgoing ? 'outgoing' : 'active'}
       className={`absolute left-0 top-0 h-full w-full select-none overflow-hidden rounded-[16px] bg-white shadow-[inset_0_1px_2px_0_rgb(0_0_0_/_4%),0_1px_4px_0_rgb(0_0_0_/_8%),0_8px_24px_0_rgb(0_0_0_/_10%)] ${
-        isTop && !isLocked ? 'cursor-grab active:cursor-grabbing' : ''
+        isTop && !isOutgoing ? 'cursor-grab active:cursor-grabbing' : ''
       }`}
       style={{
         x,
@@ -287,11 +311,12 @@ function StackCard({
         rotate,
         scale,
         opacity,
-        zIndex: stackSize - stackPosition,
+        zIndex,
+        pointerEvents: isOutgoing ? 'none' : 'auto',
         touchAction: isTop ? 'none' : 'auto',
         willChange: 'transform, opacity',
       }}
-      drag={isTop && !isLocked ? 'x' : false}
+      drag={isTop && !isOutgoing ? 'x' : false}
       dragMomentum={false}
       onDragStart={handleDragStart}
       onDrag={handleDrag}
@@ -311,36 +336,84 @@ function StackCard({
   );
 }
 
-function createInitialOrder(length: number) {
-  return Array.from({ length }, (_, index) => index);
+function createInitialDeck(length: number): DeckEntry[] {
+  return Array.from({ length }, (_, index) => ({
+    cardIndex: index,
+    instanceId: index,
+  }));
 }
 
 export function MobileShowcaseCardStack({ cards }: { cards: CardData[] }) {
-  const [order, setOrder] = useState(() => createInitialOrder(cards.length));
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [swipeCycle, setSwipeCycle] = useState(0);
+  const [deckState, setDeckState] = useState<DeckState>(() => ({
+    activeOrder: createInitialDeck(cards.length),
+    outgoing: [],
+    swipeCycle: 0,
+  }));
+  const nextInstanceIdRef = useRef(cards.length);
   const topDragX = useMotionValue(0);
 
   const visibleOrder = useMemo(
-    () => order.slice(0, Math.min(order.length, STACK_OFFSETS.length)),
-    [order]
+    () =>
+      deckState.activeOrder.slice(
+        0,
+        Math.min(deckState.activeOrder.length, STACK_OFFSETS.length)
+      ),
+    [deckState.activeOrder]
+  );
+  const renderEntries = useMemo(
+    () => [
+      ...deckState.outgoing.map((entry, outgoingIndex) => ({
+        entry,
+        isOutgoing: true,
+        stackPosition: -1,
+        zIndex: visibleOrder.length + outgoingIndex + 1,
+      })),
+      ...visibleOrder.map((entry, stackPosition) => ({
+        entry,
+        isOutgoing: false,
+        stackPosition,
+        zIndex: visibleOrder.length - stackPosition,
+      })),
+    ],
+    [deckState.outgoing, visibleOrder]
   );
 
   useLayoutEffect(() => {
     topDragX.set(0);
-  }, [swipeCycle, topDragX]);
+  }, [deckState.swipeCycle, topDragX]);
 
   if (cards.length === 0) return null;
 
-  const handleSwipeComplete = () => {
-    setOrder(currentOrder => {
-      if (currentOrder.length === 0) return currentOrder;
+  const handleSwipeStart = (instanceId: number) => {
+    const recycledInstanceId = nextInstanceIdRef.current++;
 
-      const [movedIndex, ...rest] = currentOrder;
-      return [...rest, movedIndex];
+    setDeckState(current => {
+      const [topEntry, ...remainingEntries] = current.activeOrder;
+      if (!topEntry || topEntry.instanceId !== instanceId) return current;
+
+      const recycledEntry: DeckEntry = {
+        cardIndex: topEntry.cardIndex,
+        instanceId: recycledInstanceId,
+      };
+
+      return {
+        activeOrder: [...remainingEntries, recycledEntry],
+        outgoing: [...current.outgoing, { ...topEntry }],
+        swipeCycle: current.swipeCycle + 1,
+      };
     });
-    setSwipeCycle(cycle => cycle + 1);
-    setIsAnimating(false);
+  };
+
+  const handleSwipeComplete = (instanceId: number) => {
+    setDeckState(current => {
+      const outgoing = current.outgoing.filter(
+        entry => entry.instanceId !== instanceId
+      );
+
+      return outgoing.length === current.outgoing.length
+        ? current
+        : { ...current, outgoing };
+    });
   };
 
   return (
@@ -351,31 +424,36 @@ export function MobileShowcaseCardStack({ cards }: { cards: CardData[] }) {
     >
       <div className="absolute left-1/2 top-0 h-full max-w-[196px] -translate-x-1/2 aspect-[196/397]">
         {/* TODO: add non-drag previous/next controls if an accessible fallback is required. */}
-        {visibleOrder.map((cardIndex, stackPosition) => {
-          const card = cards[cardIndex];
+        {renderEntries.map(({ entry, isOutgoing, stackPosition, zIndex }) => {
+          const card = cards[entry.cardIndex];
           if (!card) return null;
 
-          const isTop = stackPosition === 0;
+          const isTop = !isOutgoing && stackPosition === 0;
 
           // The offset this card will move to when the top card is swiped away
           const nextOffset =
-            stackPosition > 0
+            !isOutgoing && stackPosition > 0
               ? STACK_OFFSETS[stackPosition - 1] ?? null
               : null;
 
           return (
             <StackCard
-              key={card.id}
+              key={entry.instanceId}
               card={card}
+              instanceId={entry.instanceId}
               stackPosition={stackPosition}
-              stackSize={visibleOrder.length}
-              swipeCycle={swipeCycle}
+              zIndex={zIndex}
+              swipeCycle={deckState.swipeCycle}
               isTop={isTop}
-              isLocked={isAnimating}
-              offset={STACK_OFFSETS[stackPosition] ?? STACK_OFFSETS.at(-1)!}
+              isOutgoing={isOutgoing}
+              offset={
+                isOutgoing
+                  ? STACK_OFFSETS[0]
+                  : STACK_OFFSETS[stackPosition] ?? STACK_OFFSETS.at(-1)!
+              }
               nextOffset={nextOffset}
               topDragX={topDragX}
-              onSwipeStart={() => setIsAnimating(true)}
+              onSwipeStart={handleSwipeStart}
               onSwipeComplete={handleSwipeComplete}
             />
           );
