@@ -177,6 +177,57 @@ describe('saveInvitationFlow', () => {
     );
   });
 
+  it('파일 저장은 성공했지만 공개 준비 중인 상태를 결과에 보존한다', async () => {
+    const defaultFetch = mockFetch.getMockImplementation();
+    mockFetch.mockImplementation((input: unknown, ...args: unknown[]) => {
+      if (String(input) === '/api/drive/invitationVisibility') {
+        return Promise.resolve(
+          jsonResponse(
+            {
+              ok: true,
+              published: true,
+              ready: false,
+              status: 202,
+            },
+            { status: 202 }
+          )
+        );
+      }
+
+      return defaultFetch?.(input, ...args);
+    });
+
+    const result = await saveInvitationFlow({
+      bulkData,
+      images: [],
+      audio: null,
+      data: [],
+      shareUrl,
+      bgmData,
+      mainPoster: {
+        version: '7.1.0',
+        objects: [],
+      },
+      invitationThumbnail: {
+        name: 'invitation-thumbnail.png',
+        mimeType: 'image/png',
+        dataUrl: '',
+        width: 0,
+        height: 0,
+        createdAt: '',
+      },
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.visibility).toMatchObject({
+      attempted: true,
+      ok: true,
+      published: true,
+      ready: false,
+      status: 202,
+    });
+  });
+
   it('저장 결과로 처리된 실패는 단계 정보와 함께 한 번만 Sentry에 기록한다', async () => {
     const scope = {
       setTag: jest.fn(),

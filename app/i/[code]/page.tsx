@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { resolveShortCode } from '@/app/api/short-url/_lib/shortUrlStore';
 import { GuestAccessNotice } from '@/app/guest/[id]/components/GuestAccessNotice';
 import GuestInvitationView from '@/app/guest/[id]/components/GuestInvitationView';
+import { GuestUnavailableNotice } from '@/app/guest/[id]/components/GuestUnavailableNotice';
 import { loadGuestPayload } from '@/app/guest/[id]/server/loadGuestPayload';
 import { resolveDriveImageSource } from '@/shared/utils/media/driveImageUtils';
 import {
@@ -113,6 +114,10 @@ export default async function ShortGuestPage({
   const result = await loadGuestPayload(dataJsonFileId);
   if (result.status === 'private') {
     return renderPrivateInvitationNotice();
+  }
+
+  if (result.status === 'unavailable') {
+    return <GuestUnavailableNotice retryHref={`/i/${encodeURIComponent(code)}`} />;
   }
 
   if (result.status === 'not-found') {

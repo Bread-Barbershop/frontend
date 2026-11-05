@@ -3,6 +3,7 @@
  */
 
 import {
+  GUEST_PAYLOAD_FETCH_TIMEOUT_MS,
   isPrivateDriveBody,
   loadGuestPayload,
 } from '@/app/guest/[id]/server/loadGuestPayload';
@@ -52,6 +53,10 @@ describe('loadGuestPayload', () => {
     global.fetch = mockFetch as unknown as typeof fetch;
   });
 
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
   it('공개 Drive JSON이 유효하면 payload를 반환한다', async () => {
     mockFetch.mockResolvedValue({
       ok: true,
@@ -67,9 +72,11 @@ describe('loadGuestPayload', () => {
     });
     expect(mockFetch).toHaveBeenCalledWith(
       'https://drive.google.com/uc?export=download&id=valid-loader-file-id',
-      {
+      expect.objectContaining({
+        cache: 'no-store',
         next: { tags: ['invitation:valid-loader-file-id'] },
-      }
+        signal: expect.any(AbortSignal),
+      })
     );
   });
 
@@ -119,6 +126,75 @@ describe('loadGuestPayload', () => {
     ).resolves.toMatchObject({
       status: 'not-found',
       reason: 'invalid_payload',
+    });
+  });
+
+  it('fetch 응답이 오지 않으면 10초 deadline에 abort하고 unavailable을 반환한다', async () => {
+    jest.useFakeTimers();
+    let requestSignal: AbortSignal | undefined;
+    mockFetch.mockImplementationOnce(
+      (_url: string, options: { signal: AbortSignal }) => {
+        requestSignal = options.signal;
+        return new Promise(() => undefined);
+      }
+    );
+
+    const request = loadGuestPayload('slow-loader-file-id');
+    await jest.advanceTimersByTimeAsync(GUEST_PAYLOAD_FETCH_TIMEOUT_MS);
+
+    await expect(request).resolves.toEqual({
+      status: 'unavailable',
+      reason: 'fetch_timeout',
+    });
+    expect(requestSignal?.aborted).toBe(true);
+  });
+
+  it('본문 읽기가 10초 이상 멈추면 unavailable을 반환한다', async () => {
+    jest.useFakeTimers();
+    let requestSignal: AbortSignal | undefined;
+    mockFetch.mockImplementationOnce(
+      (_url: string, options: { signal: AbortSignal }) => {
+        requestSignal = options.signal;
+        return Promise.resolve({
+          ok: true,
+          text: () => new Promise(() => undefined),
+        });
+      }
+    );
+
+    const request = loadGuestPayload('slow-body-loader-file-id');
+    await jest.advanceTimersByTimeAsync(GUEST_PAYLOAD_FETCH_TIMEOUT_MS);
+
+    await expect(request).resolves.toEqual({
+      status: 'unavailable',
+      reason: 'fetch_timeout',
+    });
+    expect(requestSignal?.aborted).toBe(true);
+  });
+
+  it('응답 본문을 읽는 중 네트워크 오류가 나면 unavailable을 반환한다', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: jest.fn().mockRejectedValue(new Error('body network error')),
+    });
+
+    await expect(loadGuestPayload('broken-body-loader-file-id')).resolves.toEqual({
+      status: 'unavailable',
+      reason: 'fetch_failed',
+    });
+  });
+
+  it('Drive 5xx 응답은 일시적 unavailable 상태로 반환한다', async () => {
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 503,
+      text: jest.fn(),
+    });
+
+    await expect(loadGuestPayload('temporarily-unavailable-file-id')).resolves.toEqual({
+      status: 'unavailable',
+      reason: 'http_unavailable',
     });
   });
 });
