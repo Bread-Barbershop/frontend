@@ -71,8 +71,8 @@ function GalleryType3({
         startDelay: 0,
         direction: 'forward',
         stopOnInteraction: false,
-        stopOnMouseEnter: true,
-        stopOnFocusIn: true,
+        stopOnMouseEnter: false,
+        stopOnFocusIn: false,
       }),
     ];
   }, [isAutoPlay, isLoopActive, prefersReducedMotion]);
@@ -98,25 +98,42 @@ function GalleryType3({
 
   const onSelect = useCallback((emblaApi: EmblaCarouselType) => {
     const selectedIndex = emblaApi.selectedScrollSnap();
-    emblaApi.slideNodes().forEach((slide, index) => {
+    const slides = emblaApi.slideNodes();
+    slides.forEach((slide, index) => {
       const card = slide.querySelector<HTMLElement>('[data-card]');
-      if (!card) return;
+      const visual = slide.querySelector<HTMLElement>('[data-slide-visual]');
+      if (!card || !visual) return;
+
+      let distance = index - selectedIndex;
+      if (isLoopActive) {
+        if (distance > slides.length / 2) distance -= slides.length;
+        if (distance < -slides.length / 2) distance += slides.length;
+      }
+      visual.style.transform =
+        distance > 0
+          ? `translateX(${MAX_WIDTH - MIN_WIDTH}px)`
+          : 'translateX(0px)';
+
       if (prefersReducedMotion) {
-        card.style.width = index === selectedIndex ? `${MAX_WIDTH}px` : `${MIN_WIDTH}px`;
+        card.style.width =
+          index === selectedIndex ? `${MAX_WIDTH}px` : `${MIN_WIDTH}px`;
         card.style.opacity = '1';
         card.style.transition = 'none';
+        visual.style.transition = 'none';
         return;
       }
       const isSelected = index === selectedIndex;
-      // 포커스 진입 시 오버슛(진동) 없이 부드러운 감속으로 펼쳐지고, 빠질 때는 점진적 축소
+      // 선택 시에는 확장과 위치 이동을 같은 시간으로 맞춰 기존의 아코디언 흐름을 유지한다.
       card.style.width =
         isSelected ? `${MAX_WIDTH}px` : `${MIN_WIDTH}px`;
       card.style.opacity = isSelected ? '1' : '0.75';
       card.style.transition = isSelected
         ? 'width 0.45s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.35s ease-out'
         : 'width 0.55s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.55s cubic-bezier(0.25, 1, 0.5, 1)';
+      visual.style.transition =
+        'transform 0.45s cubic-bezier(0.25, 1, 0.5, 1)';
     });
-  }, [prefersReducedMotion]);
+  }, [isLoopActive, prefersReducedMotion]);
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -133,12 +150,8 @@ function GalleryType3({
     };
   }, [emblaApi, onSelect]);
 
-  useEffect(() => {
-    if (emblaApi) emblaApi.reInit();
-  }, [emblaApi, isAutoPlay, slides.length]);
-
-  const { handlePointerDown, handlePointerMove, handleCardClick } =
-    useGallerySwipeClick(imageClick, emblaApi);
+  const { handlePointerDown, handleCardClick } =
+    useGallerySwipeClick(imageClick);
 
   return (
     <div className="relative w-full group/gallery">
@@ -151,31 +164,50 @@ function GalleryType3({
           style={{ height: rowHeight }}
         >
           {slides.map((src, i) => (
-            <div key={i} className="flex-[0_0_auto] flex shrink-0">
+            <div
+              key={i}
+              className="flex-[0_0_auto] flex shrink-0 pointer-events-none"
+              style={{
+                width: `${MAX_WIDTH}px`,
+                marginRight: `${MIN_WIDTH - MAX_WIDTH}px`,
+              }}
+            >
               <div
-                data-card
-                role="button"
-                tabIndex={i < preview.length ? 0 : -1}
-                aria-hidden={i >= preview.length ? true : undefined}
-                onPointerDown={handlePointerDown}
-                onPointerMove={handlePointerMove}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleCardClick(i % preview.length);
-                  }
+                data-slide-visual
+                className="h-full shrink-0 pointer-events-none"
+                style={{
+                  width: `${MAX_WIDTH}px`,
+                  transform:
+                    i > 0
+                      ? `translateX(${MAX_WIDTH - MIN_WIDTH}px)`
+                      : 'translateX(0px)',
+                  transition: 'transform 0.45s cubic-bezier(0.25, 1, 0.5, 1)',
                 }}
-                onClick={() => handleCardClick(i % preview.length)}
-                className="h-full overflow-hidden rounded-lg bg-white shadow-md relative select-none transform-gpu will-change-[width]"
-                style={{ width: `${MIN_WIDTH}px` }}
               >
-                <Image
-                  src={src}
-                  alt={`slide-${i % preview.length}`}
-                  fill
-                  className="object-cover pointer-events-none select-none transform-gpu"
-                  draggable={false}
-                />
+                <div
+                  data-card
+                  role="button"
+                  tabIndex={i < preview.length ? 0 : -1}
+                  aria-hidden={i >= preview.length ? true : undefined}
+                  onPointerDown={handlePointerDown}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleCardClick(i % preview.length);
+                    }
+                  }}
+                  onClick={e => handleCardClick(i % preview.length, e)}
+                  className="h-full overflow-hidden rounded-lg bg-white shadow-md relative select-none pointer-events-auto transform-gpu will-change-[width]"
+                  style={{ width: `${MIN_WIDTH}px` }}
+                >
+                  <Image
+                    src={src}
+                    alt={`slide-${i % preview.length}`}
+                    fill
+                    className="object-cover pointer-events-none select-none transform-gpu"
+                    draggable={false}
+                  />
+                </div>
               </div>
             </div>
           ))}

@@ -75,8 +75,8 @@ function GalleryType2({
         startDelay: 0,
         direction: 'forward',
         stopOnInteraction: false,
-        stopOnMouseEnter: true,
-        stopOnFocusIn: true,
+        stopOnMouseEnter: false,
+        stopOnFocusIn: false,
       }),
     ];
   }, [isAutoPlay, isLoopActive, prefersReducedMotion]);
@@ -109,6 +109,7 @@ function GalleryType2({
       currentCenter = rawProgress * maxIndex;
     }
 
+    const slides = emblaApi.slideNodes();
     slideRefs.current.forEach((el, i) => {
       if (!el) return;
       let distance = i - currentCenter;
@@ -122,6 +123,7 @@ function GalleryType2({
       el.style.transform = `scale(${style.scale}) rotate(${style.rotate}deg)`;
       el.style.zIndex = `${style.z}`;
       el.style.pointerEvents = style.opacity > 0.4 ? 'auto' : 'none';
+      if (slides[i]) slides[i].style.zIndex = `${style.z}`;
     });
   }, [emblaApi, isLoopActive]);
 
@@ -142,12 +144,8 @@ function GalleryType2({
     };
   }, [emblaApi, applyStyles]);
 
-  useEffect(() => {
-    if (emblaApi) emblaApi.reInit();
-  }, [emblaApi, isAutoPlay, slides.length]);
-
-  const { handlePointerDown, handlePointerMove, handleCardClick } =
-    useGallerySwipeClick(imageClick, emblaApi);
+  const { handlePointerDown, handleCardClick } =
+    useGallerySwipeClick(imageClick);
 
   return (
     <div className="relative w-full min-h-[120px] group/gallery">
@@ -159,37 +157,41 @@ function GalleryType2({
           {slides.map((src, i) => (
             <div
               key={i}
-              ref={el => {
-                slideRefs.current[i] = el;
-              }}
-              className="flex-[0_0_70%] -mx-10 shrink-0 transform-gpu will-change-[transform,opacity]"
-              style={{ transformOrigin: 'bottom center', transition: 'none' }}
+              className="flex-[0_0_70%] -mx-10 shrink-0 pointer-events-none"
             >
               <div
-                role="button"
-                tabIndex={i < preview.length ? 0 : -1}
-                aria-hidden={i >= preview.length ? true : undefined}
-                className={cn(
-                  'relative overflow-hidden rounded-lg min-h-[120px] shadow-gallery-image select-none',
-                  GalleryItemVariants({ ratio })
-                )}
-                onPointerDown={handlePointerDown}
-                onPointerMove={handlePointerMove}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleCardClick(i % preview.length);
-                  }
+                ref={el => {
+                  slideRefs.current[i] = el;
                 }}
-                onClick={() => handleCardClick(i % preview.length)}
+                data-slide-visual
+                className="w-full transform-gpu will-change-[transform,opacity]"
+                style={{ transformOrigin: 'bottom center', transition: 'none' }}
               >
-                <Image
-                  src={src}
-                  alt={`slide-${i % preview.length}`}
-                  fill
-                  className="object-cover pointer-events-none select-none"
-                  draggable={false}
-                />
+                <div
+                  role="button"
+                  tabIndex={i < preview.length ? 0 : -1}
+                  aria-hidden={i >= preview.length ? true : undefined}
+                  className={cn(
+                    'relative overflow-hidden rounded-lg min-h-[120px] shadow-gallery-image select-none',
+                    GalleryItemVariants({ ratio })
+                  )}
+                  onPointerDown={handlePointerDown}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleCardClick(i % preview.length);
+                    }
+                  }}
+                  onClick={e => handleCardClick(i % preview.length, e)}
+                >
+                  <Image
+                    src={src}
+                    alt={`slide-${i % preview.length}`}
+                    fill
+                    className="object-cover pointer-events-none select-none"
+                    draggable={false}
+                  />
+                </div>
               </div>
             </div>
           ))}

@@ -1,67 +1,87 @@
-import { EmblaCarouselType } from 'embla-carousel';
-import { PointerEvent as ReactPointerEvent, useCallback, useEffect, useRef } from 'react';
+import {
+  MouseEvent as ReactMouseEvent,
+  PointerEvent as ReactPointerEvent,
+  useCallback,
+  useEffect,
+  useRef,
+} from 'react';
 
-export function useGallerySwipeClick(
-  imageClick: (index: number) => void,
-  emblaApi?: EmblaCarouselType
-) {
-  const isDraggingRef = useRef(false);
-  const startPosRef = useRef({ x: 0, y: 0 });
+const DRAG_THRESHOLD = 8;
+
+interface PointerGesture {
+  pointerId: number;
+  startX: number;
+  startY: number;
+  didDrag: boolean;
+}
+
+export function useGallerySwipeClick(imageClick: (index: number) => void) {
+  const pointerGestureRef = useRef<PointerGesture | null>(null);
+  const suppressClickRef = useRef(false);
 
   useEffect(() => {
-    if (!emblaApi) return;
+    const handlePointerMove = (event: PointerEvent) => {
+      const gesture = pointerGestureRef.current;
+      if (!gesture || event.pointerId !== gesture.pointerId) return;
 
-    let isPointerDown = false;
-
-    const handleEmblaPointerDown = () => {
-      isPointerDown = true;
-      isDraggingRef.current = false;
+      const distance = Math.hypot(
+        event.clientX - gesture.startX,
+        event.clientY - gesture.startY
+      );
+      if (distance > DRAG_THRESHOLD) gesture.didDrag = true;
     };
 
-    const handleEmblaScroll = () => {
-      if (isPointerDown) {
-        isDraggingRef.current = true;
-      }
+    const handlePointerUp = (event: PointerEvent) => {
+      const gesture = pointerGestureRef.current;
+      if (!gesture || event.pointerId !== gesture.pointerId) return;
+
+      pointerGestureRef.current = null;
+      suppressClickRef.current = gesture.didDrag;
     };
 
-    const handleEmblaPointerUp = () => {
-      isPointerDown = false;
-      setTimeout(() => {
-        isDraggingRef.current = false;
-      }, 50);
+    const handlePointerCancel = (event: PointerEvent) => {
+      const gesture = pointerGestureRef.current;
+      if (!gesture || event.pointerId !== gesture.pointerId) return;
+
+      pointerGestureRef.current = null;
+      suppressClickRef.current = false;
     };
 
-    emblaApi.on('pointerDown', handleEmblaPointerDown);
-    emblaApi.on('scroll', handleEmblaScroll);
-    emblaApi.on('pointerUp', handleEmblaPointerUp);
+    window.addEventListener('pointermove', handlePointerMove, {
+      passive: true,
+    });
+    window.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener('pointercancel', handlePointerCancel);
 
     return () => {
-      emblaApi.off('pointerDown', handleEmblaPointerDown);
-      emblaApi.off('scroll', handleEmblaScroll);
-      emblaApi.off('pointerUp', handleEmblaPointerUp);
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointercancel', handlePointerCancel);
+      pointerGestureRef.current = null;
+      suppressClickRef.current = false;
     };
-  }, [emblaApi]);
-
-  const handlePointerDown = useCallback((e: ReactPointerEvent) => {
-    const clientX = e.clientX ?? (e.nativeEvent as PointerEvent)?.clientX ?? 0;
-    const clientY = e.clientY ?? (e.nativeEvent as PointerEvent)?.clientY ?? 0;
-    startPosRef.current = { x: clientX, y: clientY };
-    isDraggingRef.current = false;
   }, []);
 
-  const handlePointerMove = useCallback((e: ReactPointerEvent) => {
-    const clientX = e.clientX ?? (e.nativeEvent as PointerEvent)?.clientX ?? 0;
-    const clientY = e.clientY ?? (e.nativeEvent as PointerEvent)?.clientY ?? 0;
-    const dx = Math.abs(clientX - startPosRef.current.x);
-    const dy = Math.abs(clientY - startPosRef.current.y);
-    if (dx > 8 || dy > 8) {
-      isDraggingRef.current = true;
-    }
+  const handlePointerDown = useCallback((event: ReactPointerEvent) => {
+    if (event.isPrimary === false || event.button !== 0) return;
+
+    pointerGestureRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      didDrag: false,
+    };
+    // 이전 드래그가 브라우저 click으로 끝나지 않았어도 새 동작은 정상 처리한다.
+    suppressClickRef.current = false;
   }, []);
 
   const handleCardClick = useCallback(
-    (index: number) => {
-      if (isDraggingRef.current) return;
+    (index: number, event?: ReactMouseEvent) => {
+      const shouldSuppress =
+        Boolean(event && event.detail !== 0) && suppressClickRef.current;
+      suppressClickRef.current = false;
+      if (shouldSuppress) return;
+
       imageClick(index);
     },
     [imageClick]
@@ -69,7 +89,6 @@ export function useGallerySwipeClick(
 
   return {
     handlePointerDown,
-    handlePointerMove,
     handleCardClick,
   };
 }

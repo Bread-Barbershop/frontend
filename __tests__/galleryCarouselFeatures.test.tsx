@@ -87,6 +87,22 @@ const mockUseEmblaCarousel = jest.fn((...args: any[]) => {
   return [jest.fn(), mockEmblaApi];
 });
 
+function dispatchPointerEvent(
+  target: Element | Window,
+  type: 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel',
+  { pointerId = 1, button = 0, isPrimary = true, clientX = 0, clientY = 0 } = {}
+) {
+  const event = new Event(type, { bubbles: true, cancelable: true });
+  Object.defineProperties(event, {
+    pointerId: { value: pointerId },
+    button: { value: button },
+    isPrimary: { value: isPrimary },
+    clientX: { value: clientX },
+    clientY: { value: clientY },
+  });
+  fireEvent(target, event);
+}
+
 jest.mock('embla-carousel-react', () => ({
   __esModule: true,
   default: (...args: any[]) => mockUseEmblaCarousel(...args),
@@ -190,8 +206,8 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
     });
   });
 
-  describe('드래그(스와이프) 시 클릭 방지 기능', () => {
-    it('드래그/스와이프 중(Embla scroll 발생)일 때 imageClick이 호출되지 않아야 함', () => {
+  describe('실제 포인터 드래그와 클릭 구분', () => {
+    it('Embla scroll이나 포인터 hover 이동만으로는 클릭을 막지 않는다', () => {
       const mockImageClick = jest.fn();
 
       render(
@@ -203,14 +219,40 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
         />
       );
 
-      // Embla drag interaction simulation
+      // 자동 재생 scroll 이벤트만으로는 사용자 drag로 간주하지 않는다.
       eventHandlers['pointerDown']?.forEach(cb => cb());
       eventHandlers['scroll']?.forEach(cb => cb());
+      dispatchPointerEvent(window, 'pointermove', { clientX: 20 });
 
       const slideButton = screen.getByRole('button', { name: 'slide-0' });
-      fireEvent.click(slideButton);
+      fireEvent.click(slideButton, { detail: 1 });
 
+      expect(mockImageClick).toHaveBeenCalledWith(0);
+    });
+
+    it('실제 드래그 직후 click은 막고 다음 일반 tap은 허용한다', () => {
+      const mockImageClick = jest.fn();
+
+      render(
+        <GalleryType1
+          preview={['https://example.com/1.jpg', 'https://example.com/2.jpg']}
+          ratio="1:1"
+          imageClick={mockImageClick}
+          isAutoPlay={false}
+        />
+      );
+
+      const slideButton = screen.getByRole('button', { name: 'slide-0' });
+      dispatchPointerEvent(slideButton, 'pointerdown', { clientX: 0 });
+      dispatchPointerEvent(window, 'pointermove', { clientX: 12 });
+      dispatchPointerEvent(window, 'pointerup', { clientX: 12 });
+      fireEvent.click(slideButton, { detail: 1 });
       expect(mockImageClick).not.toHaveBeenCalled();
+
+      dispatchPointerEvent(slideButton, 'pointerdown', { clientX: 12 });
+      dispatchPointerEvent(window, 'pointerup', { clientX: 12 });
+      fireEvent.click(slideButton, { detail: 1 });
+      expect(mockImageClick).toHaveBeenCalledWith(0);
     });
 
     it('단순 탭/클릭 시에는 imageClick이 정상 호출되어야 함', () => {
@@ -226,7 +268,7 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
       );
 
       const slideButton = screen.getByRole('button', { name: 'slide-0' });
-      fireEvent.click(slideButton);
+      fireEvent.click(slideButton, { detail: 1 });
 
       expect(mockImageClick).toHaveBeenCalledWith(0);
     });
@@ -354,14 +396,14 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
         const { container } = render(
           <GalleryType1 preview={images} ratio="1:1" imageClick={jest.fn()} />
         );
-        const slideWrappers = container.querySelectorAll<HTMLElement>(
-          '[class*="flex-[0_0_50%]"]'
+        const slideVisuals = container.querySelectorAll<HTMLElement>(
+          '[class*="flex-[0_0_50%]"] > div'
         );
-        expect(slideWrappers.length).toBeGreaterThan(1);
-        expect(slideWrappers[0].style.transform).toBe('scale(1)');
-        expect(slideWrappers[1].style.transform).toBe('scale(0.68)');
-        expect(slideWrappers[1].style.opacity).toBe('0.75');
-        expect(slideWrappers[1].style.transition).toBe('none');
+        expect(slideVisuals.length).toBeGreaterThan(1);
+        expect(slideVisuals[0].style.transform).toBe('scale(1)');
+        expect(slideVisuals[1].style.transform).toBe('scale(0.68)');
+        expect(slideVisuals[1].style.opacity).toBe('0.75');
+        expect(slideVisuals[1].style.transition).toBe('none');
       } finally {
         window.matchMedia = originalMatchMedia;
       }
@@ -371,20 +413,21 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
       const { container } = render(
         <GalleryType2 preview={images} ratio="1:1" imageClick={jest.fn()} />
       );
-      const slideWrappers = container.querySelectorAll<HTMLElement>(
+      const slideVisuals = container.querySelectorAll<HTMLElement>(
         '[style*="transform-origin"]'
       );
-      expect(slideWrappers.length).toBeGreaterThanOrEqual(8);
+      expect(slideVisuals.length).toBeGreaterThanOrEqual(8);
       // applyStyles는 Embla.slideNodes().length가 0이면 조기 반환한다.
       // 실제 렌더링된 노드를 mock에 연결해야 opacity 보간이 검증된다.
-      mockSlideNodes.mockReturnValue(Array.from(slideWrappers));
-      const count = slideWrappers.length;
+      const slideNodes = Array.from(slideVisuals, visual => visual.parentElement!);
+      mockSlideNodes.mockReturnValue(slideNodes);
+      const count = slideVisuals.length;
       const opacityAt = (distance: number) => {
         mockEmblaApi.scrollProgress.mockReturnValue(distance / count);
         act(() => {
           eventHandlers.scroll?.forEach(handler => handler());
         });
-        return Number(slideWrappers[0].style.opacity);
+        return Number(slideVisuals[0].style.opacity);
       };
       const near = opacityAt(2.1);
       const farther = opacityAt(2.9);
@@ -394,6 +437,11 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
       expect(farther).toBeGreaterThan(0);
       expect(farther).toBeLessThan(near);
       expect(hidden).toBe(0);
+      opacityAt(0);
+      expect(slideNodes[0].classList.contains('pointer-events-none')).toBe(true);
+      expect(Number(slideNodes[0].style.zIndex)).toBeGreaterThan(
+        Number(slideNodes[1].style.zIndex)
+      );
     });
   });
 

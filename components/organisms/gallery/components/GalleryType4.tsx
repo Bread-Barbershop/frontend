@@ -1,6 +1,6 @@
 import AutoScroll from 'embla-carousel-auto-scroll';
 import useEmblaCarousel from 'embla-carousel-react';
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import { Image } from '@/components/atoms/image';
 import { cn } from '@/shared/utils/cn';
@@ -35,13 +35,13 @@ function GalleryType4({
         startDelay: 0,
         direction: 'forward',
         stopOnInteraction: false,
-        stopOnMouseEnter: true,
-        stopOnFocusIn: true,
+        stopOnMouseEnter: false,
+        stopOnFocusIn: false,
       }),
     ];
   }, [isAutoPlay, isLoopActive, prefersReducedMotion]);
 
-  const [emblaRef, emblaApi] = useEmblaCarousel(
+  const [emblaRef] = useEmblaCarousel(
     {
       loop: isLoopActive,
       align: 'center',
@@ -51,12 +51,8 @@ function GalleryType4({
     plugins
   );
 
-  useEffect(() => {
-    if (emblaApi) emblaApi.reInit();
-  }, [emblaApi, isAutoPlay, slides.length]);
-
-  const { handlePointerDown, handlePointerMove, handleCardClick } =
-    useGallerySwipeClick(imageClick, emblaApi);
+  const { handlePointerDown, handleCardClick } =
+    useGallerySwipeClick(imageClick);
 
   return (
     <div className="relative w-full group/gallery">
@@ -78,14 +74,13 @@ function GalleryType4({
                   })
                 )}
                 onPointerDown={handlePointerDown}
-                onPointerMove={handlePointerMove}
                 onKeyDown={e => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     handleCardClick(i % preview.length);
                   }
                 }}
-                onClick={() => handleCardClick(i % preview.length)}
+                onClick={e => handleCardClick(i % preview.length, e)}
               >
                 <Image
                   src={src}
