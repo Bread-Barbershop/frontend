@@ -25,7 +25,7 @@ const VERIFY_MAX_ATTEMPTS = 3;
 const VERIFY_DELAY_MS = 350;
 
 function revalidateGuestCaches(dataJsonFileId: string) {
-  revalidateTag(`invitation:${dataJsonFileId}`, 'max');
+  revalidateTag(`invitation:${dataJsonFileId}`, { expire: 0 });
   revalidatePath(guestPath(dataJsonFileId));
 }
 

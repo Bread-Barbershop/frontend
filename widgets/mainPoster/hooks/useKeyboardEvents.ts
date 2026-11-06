@@ -3,6 +3,7 @@ import { useEffect, RefObject } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { shouldIgnoreEditorShortcut } from '@/shared/utils/editorShortcutGuard';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 export const useKeyboardEvents = (
@@ -36,7 +37,10 @@ export const useKeyboardEvents = (
     const handleKeyboard = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       const isEditableTarget =
-        target?.matches('input, textarea, [contenteditable="true"]') ?? false;
+        target instanceof Element &&
+        target.closest(
+          'input, textarea, select, [role="textbox"], [contenteditable]:not([contenteditable="false"])'
+        ) !== null;
 
       if (isEditableTarget) return;
 
@@ -126,7 +130,17 @@ export const useKeyboardEvents = (
       }
 
       if (e.key === 'Delete') {
-        handleDeleteShape(canvas, e);
+        if (shouldIgnoreEditorShortcut(e)) return;
+
+        const { block, selectedId } = useEditorStore.getState();
+        const isSelectedBlock =
+          selectedId !== null &&
+          selectedId !== 'mainPoster' &&
+          block.some(item => item.id === selectedId);
+
+        if (!isSelectedBlock) {
+          handleDeleteShape(canvas, e);
+        }
       }
 
       if (mod && !e.shiftKey && e.code === 'KeyZ') {

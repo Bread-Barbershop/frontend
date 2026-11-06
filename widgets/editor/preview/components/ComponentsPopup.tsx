@@ -1,6 +1,12 @@
 'use client';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import { createPortal } from 'react-dom';
 
 import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
@@ -137,7 +143,12 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
             className="absolute inset-0 pointer-events-auto"
             onClick={handleClose}
           />
-          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-164 h-99.5 shadow-edit bg-white rounded-md flex flex-col gap-3 pointer-events-auto">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="블록 추가"
+            className="absolute bottom-12 left-1/2 -translate-x-1/2 w-164 h-99.5 shadow-edit bg-white rounded-md flex flex-col gap-3 pointer-events-auto"
+          >
             <div>
               <TabArea
                 active={active}

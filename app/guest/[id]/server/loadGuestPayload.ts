@@ -26,7 +26,21 @@ export type LoadGuestPayloadResult =
       reason: 'http_not_ok' | 'json_parse_failed' | 'invalid_payload';
       httpStatus?: number;
       details?: GuestPayloadParseResult;
+    }
+  | {
+      status: 'unavailable';
+      reason:
+        | 'fetch_timeout'
+        | 'fetch_failed'
+        | 'http_unavailable';
     };
+
+export const GUEST_PAYLOAD_FETCH_TIMEOUT_MS = 10_000;
+
+type GuestResponse = {
+  res: Response;
+  raw: string | null;
+};
 
 export function isPrivateDriveStatus(status: number) {
   return status === 401 || status === 403 || status === 404;
@@ -40,13 +54,51 @@ export function isPrivateDriveBody(raw: string) {
 export const loadGuestPayload = cache(
   async (id: string): Promise<LoadGuestPayloadResult> => {
     // generateMetadata와 page 렌더가 같은 공개 data.json 로딩 경로를 공유한다.
-    const res = await fetch(publicDataJsonUrl(id), {
-      next: { tags: [`invitation:${id}`] },
+    const controller = new AbortController();
+    let didTimeOut = false;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    const responsePromise = (async (): Promise<GuestResponse> => {
+      const res = await fetch(publicDataJsonUrl(id), {
+        cache: 'no-store',
+        next: { tags: [`invitation:${id}`] },
+        signal: controller.signal,
+      });
+
+      if (!res.ok) return { res, raw: null };
+
+      return { res, raw: await res.text() };
+    })();
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => {
+        didTimeOut = true;
+        controller.abort();
+        reject(new Error('guest_payload_fetch_timeout'));
+      }, GUEST_PAYLOAD_FETCH_TIMEOUT_MS);
     });
+
+    let response: GuestResponse;
+    try {
+      response = await Promise.race([responsePromise, timeoutPromise]);
+    } catch {
+      return {
+        status: 'unavailable',
+        reason: didTimeOut ? 'fetch_timeout' : 'fetch_failed',
+      };
+    } finally {
+      if (timeoutId !== undefined) clearTimeout(timeoutId);
+    }
+
+    const { res } = response;
 
     if (!res.ok) {
       if (isPrivateDriveStatus(res.status)) {
         return { status: 'private' };
+      }
+
+      if (res.status === 429 || res.status >= 500) {
+        return { status: 'unavailable', reason: 'http_unavailable' };
       }
 
       return {
@@ -56,7 +108,7 @@ export const loadGuestPayload = cache(
       };
     }
 
-    const raw = await res.text();
+    const raw = response.raw ?? '';
     // Drive 비공개 파일은 JSON 대신 로그인/권한 HTML을 돌려줄 수 있다.
     if (isPrivateDriveBody(raw)) {
       return { status: 'private' };
