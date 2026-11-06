@@ -30,8 +30,8 @@ jest.mock('@/shared/fonts/fontLoader', () => ({
 }));
 
 jest.mock('@/shared/store/editorStore/useEditorStore', () => ({
-  useEditorStore: (selector: (state: Record<string, unknown>) => unknown) =>
-    selector({
+  useEditorStore: (selector: unknown) =>
+    (selector as CallableFunction)({
       titleData: {
         font: 'font-lineseed',
         fontSize: '20px',
@@ -100,7 +100,9 @@ describe('GuestRenderer 일정 공개 미리보기', () => {
     async pathname => {
       await renderTimelineAt(pathname);
 
-      expect(screen.queryByText('식순을 추가해주세요.')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('식순을 추가해주세요.')
+      ).not.toBeInTheDocument();
     }
   );
 
