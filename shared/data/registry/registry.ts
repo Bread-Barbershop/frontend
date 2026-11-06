@@ -14,8 +14,8 @@ import { organizerInformationDefinition } from '@/components/organisms/organizer
 import { phoneDefinition } from '@/components/organisms/phone/Phone.definition';
 import { pictureDefinition } from '@/components/organisms/picture/Picture.definition';
 import { placeDefinition } from '@/components/organisms/place/Place.definition';
-import { speakerInformationDefinition } from '@/components/organisms/speakerInformation/SpeakerInformation.definition';
 import { rsvpDefinition } from '@/components/organisms/rsvp/Rsvp.definition';
+import { speakerInformationDefinition } from '@/components/organisms/speakerInformation/SpeakerInformation.definition';
 import { sponsorshipInfomationDefinition } from '@/components/organisms/sponsorshipInfomation/SposorshipInfomation.definition';
 import { videoDefinition } from '@/components/organisms/video/Video.definition';
 
