@@ -25,6 +25,7 @@ const GUEST_PAGE_PROP_COMPONENTS = new Set<GuestRendererBlock['component']>([
   'organizerInformation',
   'picture',
   'speakerInformation',
+  'spacer',
   'sponsorshipInfomation',
   'video',
 ]);
@@ -46,7 +47,8 @@ function GuestRenderer({
     }))
   );
   const pathname = usePathname();
-  const isGuestPage = pathname.startsWith('/guest');
+  const isGuestPage =
+    pathname.startsWith('/guest/') || pathname.startsWith('/i/');
   // renderHints가 있으면 그 값을 쓰고, 없으면 기존 block 스캔 방식으로 fallback한다.
   const fontFamiliesToPreload = useMemo(
     () =>

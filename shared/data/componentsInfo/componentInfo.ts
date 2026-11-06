@@ -40,6 +40,7 @@ export const weddingComponents: ListType[] = withSearchAliases([
   { contents: '공지사항', component: 'notice', isType: false },
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
+  { contents: '여백', component: 'spacer', isType: false },
   { contents: '마무리문구', component: 'closingComment', isType: false },
   // { contents: '세례명', component: null, isType: false },
 ]);
@@ -96,6 +97,7 @@ export const etcComponents: ListType[] = withSearchAliases([
   { contents: '연락처', component: 'phone', isType: false },
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
+  { contents: '여백', component: 'spacer', isType: false },
   { contents: '마무리문구', component: 'closingComment', isType: false },
 ]);
 

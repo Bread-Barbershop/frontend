@@ -14,6 +14,7 @@ import { organizerInformationDefinition } from '@/components/organisms/organizer
 import { phoneDefinition } from '@/components/organisms/phone/Phone.definition';
 import { pictureDefinition } from '@/components/organisms/picture/Picture.definition';
 import { placeDefinition } from '@/components/organisms/place/Place.definition';
+import { spacerDefinition } from '@/components/organisms/spacer/Spacer.definition';
 import { speakerInformationDefinition } from '@/components/organisms/speakerInformation/SpeakerInformation.definition';
 import { sponsorshipInfomationDefinition } from '@/components/organisms/sponsorshipInfomation/SposorshipInfomation.definition';
 import { videoDefinition } from '@/components/organisms/video/Video.definition';
@@ -54,6 +55,7 @@ export const blockRegistry = {
     ...sponsorshipInfomationDefinition,
   },
   picture: { ...blockSchema.picture, ...pictureDefinition },
+  spacer: { ...blockSchema.spacer, ...spacerDefinition },
   closingComment: {
     ...blockSchema.closingComment,
     ...closingCommentDefinition,
