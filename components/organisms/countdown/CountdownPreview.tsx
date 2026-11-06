@@ -3,10 +3,9 @@
 import { useEffect, useState } from 'react';
 
 import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
+import type { EditorBlock } from '@/shared/types/block';
 
 import { getCountdownTime } from './countdownTime';
-
-import type { EditorBlock } from '@/shared/types/block';
 import type { HTMLAttributes } from 'react';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {

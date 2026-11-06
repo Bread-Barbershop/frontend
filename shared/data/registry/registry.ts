@@ -2,8 +2,8 @@ import { accountDefinition } from '@/components/organisms/account/Account.defini
 import { bgmDefinition } from '@/components/organisms/bgm/Bgm.definition';
 import { calendarDefinition } from '@/components/organisms/calendar/Calendar.definition';
 import { closingCommentDefinition } from '@/components/organisms/closingComment/ClosingComment.definition';
-import { coupleIntroductionDefinition } from '@/components/organisms/couple-introduction/CoupleIntroduction.definition';
 import { countdownDefinition } from '@/components/organisms/countdown/Countdown.definition';
+import { coupleIntroductionDefinition } from '@/components/organisms/couple-introduction/CoupleIntroduction.definition';
 import { galleryDefinition } from '@/components/organisms/gallery/Gallery.definition';
 import { greetingDefinition } from '@/components/organisms/greeting/Greeting.definition';
 import { interviewDefinition } from '@/components/organisms/interview/Interview.definition';
