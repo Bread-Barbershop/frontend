@@ -70,20 +70,18 @@ export function RsvpBlock({
         ))}
         {formUrl && !validFormUrl && (
           <p role="alert" className="text-xs text-red-600">
-            Google Forms 전용 HTTPS 링크를 입력해주세요.
+            응답자용 Google Forms HTTPS 링크를 입력해 주세요.
           </p>
         )}
         <div className="rounded-md bg-[#FAFAFB] p-3 text-xs leading-relaxed text-text-secondary">
-          <p>
-            Google Forms에서 응답자용 링크를 복사해 입력하세요. /edit,
-            /responses, /create가 포함된 관리 링크는 사용할 수 없습니다.
-          </p>
+          <p>Google Forms에서 응답자용 링크를 복사해 입력하세요.</p>
           <p className="mt-2">
-            익명 응답을 받으려면 시크릿 창에서 로그인 없이 열고 제출할 수 있는지
-            확인하세요. 응답을 스프레드시트에 저장하려면 Google Forms의 [응답]
-            탭에서 시트를 연결한 뒤, 테스트 제출로 Forms 응답과 시트에 새 행이
-            추가되는지 확인하세요. 앱은 실제 응답 권한이나 시트 저장 상태를
-            검증하지 않습니다.
+            응답은 주최자가 관리하는 Google 계정의 설문에 제출됩니다. 응답
+            권한과 스프레드시트 저장은 주최자 설정에 따라 달라집니다. 익명
+            응답을 받으려면 시크릿 창에서 로그인 없이 설문을 열고 직접 제출해
+            보세요. 시트에 응답을 누적하려면 Google Forms의 [응답] 탭에서
+            스프레드시트를 연결하고, 테스트 제출 후 Forms 응답과 시트에 새 행이
+            추가되었는지 확인하세요.
           </p>
         </div>
       </div>
