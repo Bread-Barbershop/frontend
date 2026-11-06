@@ -5,13 +5,12 @@ import { useState } from 'react';
 import SmallColorPicker from '@/components/molecules/color-picker/SmallColorPicker';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import type { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
 import { normalizeDividerSettings } from './dividerSettings';
-
-import type { EditorBlock } from '@/shared/types/block';
 
 export function DividerBlock({ blockInfo, id }: { blockInfo: EditorBlock<'divider'>; id: string }) {
   const updateBlock = useEditorStore(state => state.updateBlock);
