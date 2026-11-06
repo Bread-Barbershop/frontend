@@ -33,7 +33,6 @@ export const blockSchema = {
   phone: phoneSchema,
   place: placeSchema,
   rsvp: rsvpSchema,
-  spacer: spacerSchema,
   transportation: transportationSchema,
   account: accountSchema,
   coupleIntroduction: coupleIntroductionSchema,
@@ -51,5 +50,6 @@ export const blockSchema = {
   myFamilyWedding: myFamilyWeddingSchema,
   sponsorshipInfomation: sponsorshipInfomationSchema,
   picture: pictureSchema,
+  spacer: spacerSchema,
   closingComment: closingCommentSchema,
 } as const;

@@ -35,7 +35,6 @@ export const blockRegistry = {
   phone: { ...blockSchema.phone, ...phoneDefinition },
   place: { ...blockSchema.place, ...placeDefinition },
   rsvp: { ...blockSchema.rsvp, ...rsvpDefinition },
-  spacer: { ...blockSchema.spacer, ...spacerDefinition },
   transportation: {
     ...blockSchema.transportation,
     ...transportationDefinition,
@@ -71,6 +70,7 @@ export const blockRegistry = {
     ...sponsorshipInfomationDefinition,
   },
   picture: { ...blockSchema.picture, ...pictureDefinition },
+  spacer: { ...blockSchema.spacer, ...spacerDefinition },
   closingComment: {
     ...blockSchema.closingComment,
     ...closingCommentDefinition,
