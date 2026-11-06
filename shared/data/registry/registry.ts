@@ -1,6 +1,7 @@
 import { accountDefinition } from '@/components/organisms/account/Account.definition';
 import { bgmDefinition } from '@/components/organisms/bgm/Bgm.definition';
 import { calendarDefinition } from '@/components/organisms/calendar/Calendar.definition';
+import { dressCodeDefinition } from '@/components/organisms/dressCode/DressCode.definition';
 import { closingCommentDefinition } from '@/components/organisms/closingComment/ClosingComment.definition';
 import { coupleIntroductionDefinition } from '@/components/organisms/couple-introduction/CoupleIntroduction.definition';
 import { galleryDefinition } from '@/components/organisms/gallery/Gallery.definition';
@@ -34,6 +35,7 @@ export const blockRegistry = {
   video: { ...blockSchema.video, ...videoDefinition },
   notice: { ...blockSchema.notice, ...noticeDefinition },
   calendar: { ...blockSchema.calendar, ...calendarDefinition },
+  dressCode: { ...blockSchema.dressCode, ...dressCodeDefinition },
   interview: { ...blockSchema.interview, ...interviewDefinition },
   organizerInformation: {
     ...blockSchema.organizerInformation,
