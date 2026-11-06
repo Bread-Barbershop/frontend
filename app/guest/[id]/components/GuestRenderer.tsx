@@ -28,6 +28,7 @@ const GUEST_PAGE_PROP_COMPONENTS = new Set<GuestRendererBlock['component']>([
   'organizerInformation',
   'picture',
   'speakerInformation',
+  'timeline',
   'spacer',
   'sponsorshipInfomation',
   'video',

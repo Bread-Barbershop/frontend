@@ -20,6 +20,7 @@ import { placeSchema } from '@/components/organisms/place/Place.schema';
 import { spacerSchema } from '@/components/organisms/spacer/Spacer.schema';
 import { speakerInformationSchema } from '@/components/organisms/speakerInformation/SpeakerInformation.schema';
 import { sponsorshipInfomationSchema } from '@/components/organisms/sponsorshipInfomation/SposorshipInfomation.schema';
+import { timelineSchema } from '@/components/organisms/timeline/Timeline.schema';
 import { videoSchema } from '@/components/organisms/video/Video.schema';
 
 export const blockSchema = {
@@ -34,6 +35,7 @@ export const blockSchema = {
   video: videoSchema,
   notice: noticeSchema,
   calendar: calendarSchema,
+  timeline: timelineSchema,
   countdown: countdownSchema,
   dressCode: dressCodeSchema,
   interview: interviewSchema,

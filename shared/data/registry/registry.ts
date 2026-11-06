@@ -20,6 +20,7 @@ import { placeDefinition } from '@/components/organisms/place/Place.definition';
 import { spacerDefinition } from '@/components/organisms/spacer/Spacer.definition';
 import { speakerInformationDefinition } from '@/components/organisms/speakerInformation/SpeakerInformation.definition';
 import { sponsorshipInfomationDefinition } from '@/components/organisms/sponsorshipInfomation/SposorshipInfomation.definition';
+import { timelineDefinition } from '@/components/organisms/timeline/Timeline.definition';
 import { videoDefinition } from '@/components/organisms/video/Video.definition';
 
 import { blockSchema } from './block.schema';
@@ -39,6 +40,7 @@ export const blockRegistry = {
   video: { ...blockSchema.video, ...videoDefinition },
   notice: { ...blockSchema.notice, ...noticeDefinition },
   calendar: { ...blockSchema.calendar, ...calendarDefinition },
+  timeline: { ...blockSchema.timeline, ...timelineDefinition },
   countdown: { ...blockSchema.countdown, ...countdownDefinition },
   dressCode: { ...blockSchema.dressCode, ...dressCodeDefinition },
   interview: { ...blockSchema.interview, ...interviewDefinition },
