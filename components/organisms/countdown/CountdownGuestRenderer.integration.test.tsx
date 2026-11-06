@@ -30,8 +30,8 @@ jest.mock('@/shared/fonts/fontLoader', () => ({
 }));
 
 jest.mock('@/shared/store/editorStore/useEditorStore', () => ({
-  useEditorStore: (selector: (state: Record<string, unknown>) => unknown) =>
-    selector({
+  useEditorStore: (selector: unknown) =>
+    (selector as CallableFunction)({
       titleData: {
         font: 'font-lineseed',
         fontSize: '20px',
