@@ -15,6 +15,7 @@ import { phoneSchema } from '@/components/organisms/phone/Phone.schema';
 import { pictureSchema } from '@/components/organisms/picture/Picture.schema';
 import { placeSchema } from '@/components/organisms/place/Place.schema';
 import { speakerInformationSchema } from '@/components/organisms/speakerInformation/SpeakerInformation.schema';
+import { rsvpSchema } from '@/components/organisms/rsvp/Rsvp.schema';
 import { sponsorshipInfomationSchema } from '@/components/organisms/sponsorshipInfomation/SposorshipInfomation.schema';
 import { videoSchema } from '@/components/organisms/video/Video.schema';
 
@@ -24,6 +25,7 @@ export const blockSchema = {
   greeting: greetingSchema,
   phone: phoneSchema,
   place: placeSchema,
+  rsvp: rsvpSchema,
   account: accountSchema,
   coupleIntroduction: coupleIntroductionSchema,
   video: videoSchema,
