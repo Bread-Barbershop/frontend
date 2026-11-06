@@ -30,7 +30,10 @@ const EMPTY_ITEM = { time: '', title: '', description: '' };
 export function createTimelineItem(
   value: Partial<Omit<TimelineItem, 'id'>> = {}
 ): TimelineItem {
-  return { id: crypto.randomUUID(), ...EMPTY_ITEM, ...value };
+  const id = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+  return { id, ...EMPTY_ITEM, ...value };
 }
 
 export function getTimelinePreset(type: InvitationType): TimelineItem[] {
