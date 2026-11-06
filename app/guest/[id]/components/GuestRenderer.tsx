@@ -27,6 +27,7 @@ const GUEST_PAGE_PROP_COMPONENTS = new Set<GuestRendererBlock['component']>([
   'myFamily',
   'organizerInformation',
   'picture',
+  'rsvp',
   'spacer',
   'speakerInformation',
   'sponsorshipInfomation',
