@@ -3,6 +3,7 @@ import { bgmDefinition } from '@/components/organisms/bgm/Bgm.definition';
 import { calendarDefinition } from '@/components/organisms/calendar/Calendar.definition';
 import { closingCommentDefinition } from '@/components/organisms/closingComment/ClosingComment.definition';
 import { coupleIntroductionDefinition } from '@/components/organisms/couple-introduction/CoupleIntroduction.definition';
+import { dividerDefinition } from '@/components/organisms/divider/Divider.definition';
 import { galleryDefinition } from '@/components/organisms/gallery/Gallery.definition';
 import { greetingDefinition } from '@/components/organisms/greeting/Greeting.definition';
 import { interviewDefinition } from '@/components/organisms/interview/Interview.definition';
@@ -22,6 +23,7 @@ import { blockSchema } from './block.schema';
 
 export const blockRegistry = {
   gallery: { ...blockSchema.gallery, ...galleryDefinition },
+  divider: { ...blockSchema.divider, ...dividerDefinition },
   bgm: { ...blockSchema.bgm, ...bgmDefinition },
   greeting: { ...blockSchema.greeting, ...greetingDefinition },
   phone: { ...blockSchema.phone, ...phoneDefinition },
