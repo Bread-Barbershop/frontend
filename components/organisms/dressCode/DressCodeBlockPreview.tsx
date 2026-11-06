@@ -1,9 +1,8 @@
 import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
-import { cn } from '@/shared/utils/cn';
+import type { EditorBlock } from '@/shared/types/block';
 
 import { normalizeDressCodeColors, normalizeDressCodeGuidelines } from './dressCodeUtils';
 
-import type { EditorBlock } from '@/shared/types/block';
 import type { HTMLAttributes } from 'react';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -39,7 +38,7 @@ export function DressCodeBlockPreview({
                 key={index}
                 title={color}
                 aria-label={`추천 색상 ${index + 1}: ${color}`}
-                className={cn('size-9 rounded-full border border-black/5 shadow-sm')}
+                className="size-9 rounded-full border border-black/5 shadow-sm"
                 style={{ backgroundColor: color }}
               />
             ))}

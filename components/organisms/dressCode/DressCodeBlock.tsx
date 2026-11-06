@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { X } from 'lucide-react';
+import { useState } from 'react';
 
 import SmallColorPicker from '@/components/molecules/color-picker/SmallColorPicker';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
