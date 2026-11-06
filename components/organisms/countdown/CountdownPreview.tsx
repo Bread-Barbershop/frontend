@@ -6,6 +6,7 @@ import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePrevi
 import type { EditorBlock } from '@/shared/types/block';
 
 import { getCountdownTime } from './countdownTime';
+
 import type { HTMLAttributes } from 'react';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
