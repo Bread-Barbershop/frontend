@@ -2,6 +2,7 @@ import { accountDefinition } from '@/components/organisms/account/Account.defini
 import { bgmDefinition } from '@/components/organisms/bgm/Bgm.definition';
 import { calendarDefinition } from '@/components/organisms/calendar/Calendar.definition';
 import { closingCommentDefinition } from '@/components/organisms/closingComment/ClosingComment.definition';
+import { countdownDefinition } from '@/components/organisms/countdown/Countdown.definition';
 import { coupleIntroductionDefinition } from '@/components/organisms/couple-introduction/CoupleIntroduction.definition';
 import { galleryDefinition } from '@/components/organisms/gallery/Gallery.definition';
 import { greetingDefinition } from '@/components/organisms/greeting/Greeting.definition';
@@ -35,6 +36,7 @@ export const blockRegistry = {
   video: { ...blockSchema.video, ...videoDefinition },
   notice: { ...blockSchema.notice, ...noticeDefinition },
   calendar: { ...blockSchema.calendar, ...calendarDefinition },
+  countdown: { ...blockSchema.countdown, ...countdownDefinition },
   interview: { ...blockSchema.interview, ...interviewDefinition },
   organizerInformation: {
     ...blockSchema.organizerInformation,
