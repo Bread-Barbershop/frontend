@@ -41,7 +41,7 @@ function TabArea({
             type="text"
             value={searchQuery}
             onChange={e => onSearchChange?.(e.target.value)}
-            placeholder="컴포넌트 검색"
+            placeholder="블록 검색"
             className="h-8 w-40 rounded-md border border-neutral-200 bg-neutral-50 pl-8 pr-7 text-xs text-text-primary placeholder:text-text-tertiary focus:border-primary focus:bg-white focus:outline-none transition-colors"
           />
           {searchQuery && (
