@@ -1,4 +1,5 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import type { ReactNode } from 'react';
 
 import GuestRenderer from '@/app/guest/[id]/components/GuestRenderer';
 
@@ -21,7 +22,7 @@ jest.mock('@/shared/data/registry/registry', () => ({
 }));
 
 jest.mock('@/components/molecules/scroll-fade-in/ScrollFadeIn', () => ({
-  ScrollFadeIn: ({ children }: { children: React.ReactNode }) => children,
+  ScrollFadeIn: ({ children }: { children: ReactNode }) => children,
 }));
 
 jest.mock('@/shared/fonts/fontLoader', () => ({
@@ -66,31 +67,35 @@ const spacerBlock = {
 async function renderSpacerAt(pathname: string) {
   mockPathname = pathname;
 
-  const result = render(
-    <GuestRenderer blocks={[spacerBlock]} bulkData={bulkData} />
-  );
-
-  await waitFor(() =>
-    expect(result.container.firstElementChild).toHaveStyle({ opacity: '1' })
-  );
+  let result!: ReturnType<typeof render>;
+  await act(async () => {
+    result = render(
+      <GuestRenderer blocks={[spacerBlock]} bulkData={bulkData} />
+    );
+  });
 
   return result;
 }
 
-describe('GuestRenderer spacer preview', () => {
+describe('GuestRenderer 여백 공개 미리보기', () => {
   it.each(['/guest/yaKg', '/i/yaKg'])(
-    'hides the spacer guide on the public route %s', async pathname => {
-      await renderSpacerAt(pathname);
+    '공개 경로 %s에서는 여백 안내를 숨기고 높이를 유지한다', async pathname => {
+      const { container } = await renderSpacerAt(pathname);
 
       expect(screen.queryByText('여백 · 48px')).not.toBeInTheDocument();
+      expect(container.querySelector('[aria-hidden="true"]')).toHaveStyle({
+        height: '48px',
+      });
     }
   );
 
-  it.each(['/dashboard', '/editor'])(
-    'keeps the spacer guide visible on the editing route %s', async pathname => {
+  it.each(['/dashboard', '/editor', '/invoice/yaKg'])(
+    '비공개 경로 %s에서는 편집용 여백 안내를 보여준다', async pathname => {
       await renderSpacerAt(pathname);
 
-      expect(screen.getByText('여백 · 48px')).toBeInTheDocument();
+      const guide = screen.getByText('여백 · 48px');
+      expect(guide).toHaveClass('border-dashed');
+      expect(guide.parentElement).toHaveStyle({ height: '48px' });
     }
   );
 });
