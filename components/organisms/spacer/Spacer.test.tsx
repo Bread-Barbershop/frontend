@@ -1,15 +1,15 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 
+import type { EditorBlock } from '@/shared/types/block';
+
 import { Spacer } from './Spacer';
 import { SpacerPreview } from './SpacerPreview';
 import { clampSpacerHeight } from './spacerHeight';
 
-import type { EditorBlock } from '@/shared/types/block';
-
 const mockUpdateBlock = jest.fn();
 
 jest.mock('@/shared/store/editorStore/useEditorStore', () => ({
-  useEditorStore: (selector: (state: { updateBlock: jest.Mock }) => unknown) =>
+  useEditorStore: (selector: (state: { updateBlock: (...args: unknown[]) => void }) => unknown) =>
     selector({ updateBlock: (...args: unknown[]) => mockUpdateBlock(...args) }),
 }));
 
