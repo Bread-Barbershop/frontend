@@ -190,11 +190,13 @@ ModalFrame.displayName = 'ModalFrame';
 
 const SaveStepView = ({
   isFail,
+  publicationPending,
   onRetry,
   onClose,
   onExit,
 }: {
   isFail: boolean;
+  publicationPending: boolean;
   onRetry: () => void;
   onClose: () => void;
   onExit: () => void;
@@ -202,7 +204,11 @@ const SaveStepView = ({
   <>
     <div>
       <p className="text-sm font-semibold">
-        {isFail ? '파일 저장에 실패했습니다.' : '성공적으로 저장되었습니다!'}
+        {isFail
+          ? '파일 저장에 실패했습니다.'
+          : publicationPending
+            ? '저장 완료 · 공개 준비 중이에요.'
+            : '성공적으로 저장되었습니다!'}
       </p>
     </div>
     <div>
@@ -274,6 +280,10 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
       >
         <SaveStepView
           isFail={isFail}
+          publicationPending={
+            pendingInvitation?.published === true &&
+            pendingInvitation.ready === false
+          }
           onRetry={retry}
           onClose={onClose}
           onExit={handleExit}

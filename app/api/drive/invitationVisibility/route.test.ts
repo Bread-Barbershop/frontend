@@ -25,6 +25,7 @@ jest.mock('@/app/api/drive/_lib/revokePublicPermissionWithRetry', () => ({
 }));
 
 import { POST } from '@/app/api/drive/invitationVisibility/route';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { ensureDataJsonFile } from '@/app/api/drive/_lib/ensureDataJsonFile';
 import {
   loadInvitationMeta,
@@ -130,6 +131,11 @@ describe('invitationVisibility route', () => {
       guestUrl: '/guest/data-json-file-id',
       dataJsonFileId: 'data-json-file-id',
     });
+    expect(revalidateTag).toHaveBeenCalledWith(
+      'invitation:data-json-file-id',
+      { expire: 0 }
+    );
+    expect(revalidatePath).toHaveBeenCalledWith('/guest/data-json-file-id');
   });
 
   it('privatizes an invitation and stores meta.json', async () => {
