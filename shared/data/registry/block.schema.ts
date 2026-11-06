@@ -21,6 +21,7 @@ import { spacerSchema } from '@/components/organisms/spacer/Spacer.schema';
 import { speakerInformationSchema } from '@/components/organisms/speakerInformation/SpeakerInformation.schema';
 import { sponsorshipInfomationSchema } from '@/components/organisms/sponsorshipInfomation/SposorshipInfomation.schema';
 import { timelineSchema } from '@/components/organisms/timeline/Timeline.schema';
+import { transportationSchema } from '@/components/organisms/transportation/Transportation.schema';
 import { videoSchema } from '@/components/organisms/video/Video.schema';
 
 export const blockSchema = {
@@ -30,6 +31,7 @@ export const blockSchema = {
   greeting: greetingSchema,
   phone: phoneSchema,
   place: placeSchema,
+  transportation: transportationSchema,
   account: accountSchema,
   coupleIntroduction: coupleIntroductionSchema,
   video: videoSchema,

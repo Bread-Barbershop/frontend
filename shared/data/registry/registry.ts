@@ -21,6 +21,7 @@ import { spacerDefinition } from '@/components/organisms/spacer/Spacer.definitio
 import { speakerInformationDefinition } from '@/components/organisms/speakerInformation/SpeakerInformation.definition';
 import { sponsorshipInfomationDefinition } from '@/components/organisms/sponsorshipInfomation/SposorshipInfomation.definition';
 import { timelineDefinition } from '@/components/organisms/timeline/Timeline.definition';
+import { transportationDefinition } from '@/components/organisms/transportation/Transportation.definition';
 import { videoDefinition } from '@/components/organisms/video/Video.definition';
 
 import { blockSchema } from './block.schema';
@@ -32,6 +33,10 @@ export const blockRegistry = {
   greeting: { ...blockSchema.greeting, ...greetingDefinition },
   phone: { ...blockSchema.phone, ...phoneDefinition },
   place: { ...blockSchema.place, ...placeDefinition },
+  transportation: {
+    ...blockSchema.transportation,
+    ...transportationDefinition,
+  },
   account: { ...blockSchema.account, ...accountDefinition },
   coupleIntroduction: {
     ...blockSchema.coupleIntroduction,
