@@ -61,7 +61,7 @@ function PictureBlockPreview({
           <div className="relative w-full aspect-square rounded-3xl overflow-hidden">
             <Image
               src={preview}
-              alt="사진 컴포넌트 이미지"
+              alt="초대장 사진"
               fill
               className="object-cover"
               draggable={false}

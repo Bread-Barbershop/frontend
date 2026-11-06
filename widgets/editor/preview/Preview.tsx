@@ -36,7 +36,10 @@ function Preview() {
     state => state.callouts['preview-panel']
   );
   const isAnyCalloutOpen = useEditorCalloutStore(
-    state => state.callouts['preview-panel'] || state.callouts['order-panel']
+    state =>
+      state.callouts['preview-panel'] ||
+      state.callouts['order-panel'] ||
+      state.callouts['add-page-button']
   );
   const showAllCalloutsFor = useEditorCalloutStore(
     state => state.showAllCalloutsFor

@@ -11,12 +11,12 @@ import {
 
 import { GuestAccessNotice } from './components/GuestAccessNotice';
 import GuestInvitationView from './components/GuestInvitationView';
+import { GuestUnavailableNotice } from './components/GuestUnavailableNotice';
 import { loadGuestPayload } from './server/loadGuestPayload';
 
 import type { Metadata } from 'next';
 
-export const dynamic = 'force-static';
-export const revalidate = false;
+export const dynamic = 'force-dynamic';
 
 const noindexRobots = {
   index: false,
@@ -95,6 +95,10 @@ export default async function GuestPage({
   const result = await loadGuestPayload(id);
   if (result.status === 'private') {
     return renderPrivateInvitationNotice();
+  }
+
+  if (result.status === 'unavailable') {
+    return <GuestUnavailableNotice retryHref={`/guest/${encodeURIComponent(id)}`} />;
   }
 
   if (result.status === 'not-found') {

@@ -2,6 +2,7 @@ import { accountSchema } from '@/components/organisms/account/Account.schema';
 import { bgmSchema } from '@/components/organisms/bgm/Bgm.schema';
 import { calendarSchema } from '@/components/organisms/calendar/Calendar.schema';
 import { closingCommentSchema } from '@/components/organisms/closingComment/ClosingComment.schema';
+import { countdownSchema } from '@/components/organisms/countdown/Countdown.schema';
 import { coupleIntroductionSchema } from '@/components/organisms/couple-introduction/CoupleIntroduction.schema';
 import { gallerySchema } from '@/components/organisms/gallery/Gallery.schema';
 import { greetingSchema } from '@/components/organisms/greeting/Greeting.schema';
@@ -15,6 +16,7 @@ import { phoneSchema } from '@/components/organisms/phone/Phone.schema';
 import { pictureSchema } from '@/components/organisms/picture/Picture.schema';
 import { placeSchema } from '@/components/organisms/place/Place.schema';
 import { rsvpSchema } from '@/components/organisms/rsvp/Rsvp.schema';
+import { spacerSchema } from '@/components/organisms/spacer/Spacer.schema';
 import { speakerInformationSchema } from '@/components/organisms/speakerInformation/SpeakerInformation.schema';
 import { sponsorshipInfomationSchema } from '@/components/organisms/sponsorshipInfomation/SposorshipInfomation.schema';
 import { videoSchema } from '@/components/organisms/video/Video.schema';
@@ -26,11 +28,13 @@ export const blockSchema = {
   phone: phoneSchema,
   place: placeSchema,
   rsvp: rsvpSchema,
+  spacer: spacerSchema,
   account: accountSchema,
   coupleIntroduction: coupleIntroductionSchema,
   video: videoSchema,
   notice: noticeSchema,
   calendar: calendarSchema,
+  countdown: countdownSchema,
   interview: interviewSchema,
   organizerInformation: organizerInformationSchema,
   speakerInformation: speakerInformationSchema,

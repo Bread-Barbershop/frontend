@@ -68,6 +68,7 @@ export function ContextMenu() {
   return (
     <div
       ref={menuRef}
+      data-editor-popup="true"
       className="fixed z-9999 font-pretendard w-55 max-h-[360px] overflow-y-auto flex flex-col gap-3 p-3 bg-white border border-gray-200 rounded-md shadow-lg"
       style={
         shouldOpenUpward
