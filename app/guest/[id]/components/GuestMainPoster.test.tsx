@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import React from 'react';
 
 import { GuestMainPoster } from './GuestMainPoster';
@@ -19,6 +19,10 @@ jest.mock('@/components/atoms/image', () => ({
 describe('GuestMainPoster image loading and layout', () => {
   beforeEach(() => {
     mockImage.mockClear();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it('uses eager/high fetch without a duplicate Next Image priority preload', () => {
@@ -49,5 +53,55 @@ describe('GuestMainPoster image loading and layout', () => {
 
     const renderedWrapper = getByTestId('mock-image');
     expect(renderedWrapper).toHaveClass('w-full');
+  });
+
+  it('대표 이미지 로딩 실패 시 재시도 안내를 표시하고 미리보기 로딩을 해제한다', () => {
+    const onReady = jest.fn();
+    const { getByText } = render(
+      <GuestMainPoster thumbnailFileId="poster-file-id" onReady={onReady} />
+    );
+    const imageProps = mockImage.mock.calls[0]?.[0] as Record<string, unknown>;
+
+    act(() => {
+      (imageProps.onError as () => void)();
+    });
+
+    expect(getByText('초대장 이미지를 불러오지 못했어요.')).toBeInTheDocument();
+    expect(getByText('다시 시도하기')).toBeInTheDocument();
+    expect(onReady).toHaveBeenCalledTimes(1);
+  });
+
+  it('대표 이미지 요청이 오래 멈추면 이미지를 유지한 채 재시도를 안내한다', () => {
+    jest.useFakeTimers();
+    const onReady = jest.fn();
+    const { getByTestId, getByText } = render(
+      <GuestMainPoster thumbnailFileId="poster-file-id" onReady={onReady} />
+    );
+
+    act(() => {
+      jest.advanceTimersByTime(10_000);
+    });
+
+    expect(getByText(/대표 이미지를 불러오는 중이에요/)).toBeInTheDocument();
+    expect(getByText('다시 시도하기')).toBeInTheDocument();
+    expect(getByTestId('mock-image')).toBeInTheDocument();
+    expect(onReady).toHaveBeenCalledTimes(1);
+  });
+
+  it('대표 이미지가 정상 로딩되면 지연 안내를 표시하지 않는다', () => {
+    jest.useFakeTimers();
+    const onReady = jest.fn();
+    const { queryByText } = render(
+      <GuestMainPoster thumbnailFileId="poster-file-id" onReady={onReady} />
+    );
+    const imageProps = mockImage.mock.calls[0]?.[0] as Record<string, unknown>;
+
+    act(() => {
+      (imageProps.onLoad as () => void)();
+      jest.advanceTimersByTime(10_000);
+    });
+
+    expect(queryByText(/대표 이미지를 불러오는 중이에요/)).not.toBeInTheDocument();
+    expect(onReady).toHaveBeenCalledTimes(1);
   });
 });

@@ -4,6 +4,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { UtilityButton } from '@/components/atoms/button';
 import { componentCls } from '@/shared/data/componentsInfo/componentInfo';
+import { filterComponentCategories } from '@/shared/data/componentsInfo/componentSearch';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { InvitationType } from '@/shared/types/block';
 import { BlockType } from '@/shared/types/editor';
@@ -37,33 +38,11 @@ function ContentsArea({
     }))
   );
 
-  const query = searchQuery.trim().toLowerCase().replace(/\s+/g, '');
-
-  const filteredCategories = useMemo(() => {
-    if (!query) return componentCls;
-
-    return componentCls
-      .map(category => {
-        const categoryMatches = category.korea
-          .toLowerCase()
-          .replace(/\s+/g, '')
-          .includes(query);
-
-        const matchingList = category.list.filter(item => {
-          if (categoryMatches) return true;
-          const contentName = item.contents
-            .toLowerCase()
-            .replace(/\s+/g, '');
-          return contentName.includes(query);
-        });
-
-        return {
-          ...category,
-          list: matchingList,
-        };
-      })
-      .filter(category => category.list.length > 0);
-  }, [query]);
+  const query = searchQuery.trim();
+  const filteredCategories = useMemo(
+    () => filterComponentCategories(componentCls, query),
+    [query]
+  );
 
   const handleAddComponent = (
     type: InvitationType,
