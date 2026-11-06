@@ -23,7 +23,6 @@ const withSearchAliases = (items: ListType[]): ListType[] =>
       : {}),
   }));
 
-
 export const weddingComponents: ListType[] = withSearchAliases([
   { contents: '인사말', component: 'greeting', isType: false },
   { contents: '신랑신부소개', component: 'coupleIntroduction', isType: false },
@@ -42,6 +41,8 @@ export const weddingComponents: ListType[] = withSearchAliases([
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
   { contents: '식순 / 타임라인', component: 'timeline', isType: false },
+  { contents: '세로 구분선', component: 'divider', isType: false },
+  { contents: '드레스코드 & 매너', component: 'dressCode', isType: false },
   { contents: '여백', component: 'spacer', isType: false },
   { contents: '마무리문구', component: 'closingComment', isType: false },
   // { contents: '세례명', component: null, isType: false },
@@ -64,6 +65,7 @@ export const firstBirthdayComponents: ListType[] = withSearchAliases([
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
   { contents: '식순 / 타임라인', component: 'timeline', isType: false },
+  { contents: '드레스코드 & 매너', component: 'dressCode', isType: false },
   { contents: '마무리문구', component: 'closingComment', isType: false },
 ]);
 export const birthdayComponents: ListType[] = withSearchAliases([
@@ -105,6 +107,7 @@ export const etcComponents: ListType[] = withSearchAliases([
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
   { contents: '식순 / 타임라인', component: 'timeline', isType: false },
+  { contents: '세로 구분선', component: 'divider', isType: false },
   { contents: '여백', component: 'spacer', isType: false },
   { contents: '마무리문구', component: 'closingComment', isType: false },
 ]);

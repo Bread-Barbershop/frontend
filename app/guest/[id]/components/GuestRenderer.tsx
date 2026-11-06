@@ -20,6 +20,8 @@ type GuestRendererRenderHints = NormalizedGuestPayload['renderHints'];
 const GUEST_PAGE_PROP_COMPONENTS = new Set<GuestRendererBlock['component']>([
   'coupleIntroduction',
   'countdown',
+  'divider',
+  'dressCode',
   'gallery',
   'myChild',
   'myFamily',

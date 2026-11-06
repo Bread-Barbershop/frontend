@@ -4,6 +4,8 @@ import { calendarSchema } from '@/components/organisms/calendar/Calendar.schema'
 import { closingCommentSchema } from '@/components/organisms/closingComment/ClosingComment.schema';
 import { countdownSchema } from '@/components/organisms/countdown/Countdown.schema';
 import { coupleIntroductionSchema } from '@/components/organisms/couple-introduction/CoupleIntroduction.schema';
+import { dividerSchema } from '@/components/organisms/divider/Divider.schema';
+import { dressCodeSchema } from '@/components/organisms/dressCode/DressCode.schema';
 import { gallerySchema } from '@/components/organisms/gallery/Gallery.schema';
 import { greetingSchema } from '@/components/organisms/greeting/Greeting.schema';
 import { interviewSchema } from '@/components/organisms/interview/Interview.schema';
@@ -23,6 +25,7 @@ import { videoSchema } from '@/components/organisms/video/Video.schema';
 
 export const blockSchema = {
   gallery: gallerySchema,
+  divider: dividerSchema,
   bgm: bgmSchema,
   greeting: greetingSchema,
   phone: phoneSchema,
@@ -34,6 +37,7 @@ export const blockSchema = {
   calendar: calendarSchema,
   timeline: timelineSchema,
   countdown: countdownSchema,
+  dressCode: dressCodeSchema,
   interview: interviewSchema,
   organizerInformation: organizerInformationSchema,
   speakerInformation: speakerInformationSchema,
