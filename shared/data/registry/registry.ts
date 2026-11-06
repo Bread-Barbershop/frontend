@@ -2,6 +2,7 @@ import { accountDefinition } from '@/components/organisms/account/Account.defini
 import { bgmDefinition } from '@/components/organisms/bgm/Bgm.definition';
 import { calendarDefinition } from '@/components/organisms/calendar/Calendar.definition';
 import { closingCommentDefinition } from '@/components/organisms/closingComment/ClosingComment.definition';
+import { countdownDefinition } from '@/components/organisms/countdown/Countdown.definition';
 import { coupleIntroductionDefinition } from '@/components/organisms/couple-introduction/CoupleIntroduction.definition';
 import { galleryDefinition } from '@/components/organisms/gallery/Gallery.definition';
 import { greetingDefinition } from '@/components/organisms/greeting/Greeting.definition';
@@ -14,6 +15,7 @@ import { organizerInformationDefinition } from '@/components/organisms/organizer
 import { phoneDefinition } from '@/components/organisms/phone/Phone.definition';
 import { pictureDefinition } from '@/components/organisms/picture/Picture.definition';
 import { placeDefinition } from '@/components/organisms/place/Place.definition';
+import { spacerDefinition } from '@/components/organisms/spacer/Spacer.definition';
 import { speakerInformationDefinition } from '@/components/organisms/speakerInformation/SpeakerInformation.definition';
 import { sponsorshipInfomationDefinition } from '@/components/organisms/sponsorshipInfomation/SposorshipInfomation.definition';
 import { transportationDefinition } from '@/components/organisms/transportation/Transportation.definition';
@@ -36,6 +38,7 @@ export const blockRegistry = {
   video: { ...blockSchema.video, ...videoDefinition },
   notice: { ...blockSchema.notice, ...noticeDefinition },
   calendar: { ...blockSchema.calendar, ...calendarDefinition },
+  countdown: { ...blockSchema.countdown, ...countdownDefinition },
   interview: { ...blockSchema.interview, ...interviewDefinition },
   organizerInformation: {
     ...blockSchema.organizerInformation,
@@ -56,6 +59,7 @@ export const blockRegistry = {
     ...sponsorshipInfomationDefinition,
   },
   picture: { ...blockSchema.picture, ...pictureDefinition },
+  spacer: { ...blockSchema.spacer, ...spacerDefinition },
   closingComment: {
     ...blockSchema.closingComment,
     ...closingCommentDefinition,

@@ -89,6 +89,11 @@ jest.mock('@/app/guest/[id]/components/GuestBgm', () => ({
   default: (props: { bgm: unknown }) => guestBgmMock(props),
 }));
 
+jest.mock('@/shared/assets/logo/invia-logo.svg', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
 // ------------------------------
 // fetch mock
 // GuestPage는 서버 컴포넌트 내부에서 fetch를 사용하므로
@@ -189,9 +194,11 @@ describe('GuestPage 서버 컴포넌트 테스트', () => {
     expect(mockFetch).toHaveBeenCalledTimes(1);
     expect(mockFetch).toHaveBeenCalledWith(
       'https://drive.google.com/uc?export=download&id=guest-file-id-123',
-      {
+      expect.objectContaining({
+        cache: 'no-store',
         next: { tags: ['invitation:guest-file-id-123'] },
-      }
+        signal: expect.any(AbortSignal),
+      })
     );
 
     expect(notFoundMock).not.toHaveBeenCalled();
@@ -412,26 +419,17 @@ describe('GuestPage 서버 컴포넌트 테스트', () => {
     expect(guestBgmMock).not.toHaveBeenCalled();
   });
 
-  it('fetch 자체가 reject 되면 현재 구현상 에러가 그대로 전파된다', async () => {
-    /**
-     * 목적:
-     * 네트워크 에러처럼 fetch 자체가 reject 되는 경우,
-     * 현재 GuestPage 구현은 이를 catch 하지 않으므로
-     * notFound()가 아니라 원래 에러가 그대로 전파되는지를 확인한다.
-     *
-     * 이 테스트는 "현재 구현의 명세 고정" 용도다.
-     * 만약 추후 정책이 "네트워크 에러도 notFound 처리"로 바뀐다면
-     * 이 테스트 그때 수정해야 한다.
-     */
+  it('일시적인 네트워크 오류면 재시도 안내를 렌더링한다', async () => {
     mockFetch.mockRejectedValue(new Error('network error'));
 
-    await expect(
-      GuestPage({
-        params: Promise.resolve({ id: 'network-error-file-id' }),
-      })
-    ).rejects.toThrow('network error');
+    const pageElement = await GuestPage({
+      params: Promise.resolve({ id: 'network-error-file-id' }),
+    });
+    const html = renderToStaticMarkup(pageElement);
 
     expect(notFoundMock).not.toHaveBeenCalled();
+    expect(html).toContain('초대장을 불러오지 못했어요');
+    expect(html).toContain('다시 시도하기');
 
     expect(guestMainPosterMock).not.toHaveBeenCalled();
     expect(guestRendererMock).not.toHaveBeenCalled();

@@ -56,7 +56,7 @@ function PrivacyNoticeModal({
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[50000] flex items-center justify-center px-5 bg-black/50"
+          className="fixed inset-0 z-[50000] flex items-center justify-center overflow-y-auto bg-black/50 px-5 py-5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -66,7 +66,7 @@ function PrivacyNoticeModal({
           <motion.div
             role="dialog"
             aria-modal="true"
-            className="max-w-[calc(100vw-40px)] rounded-xl text-left shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%)]"
+            className="max-h-[calc(100dvh-40px)] max-w-[calc(100vw-40px)] rounded-xl text-left shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%)]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -74,22 +74,22 @@ function PrivacyNoticeModal({
             onClick={event => event.stopPropagation()}
           >
             <div
-              className={`flex flex-col items-center gap-1.5 overflow-hidden rounded-xl border border-black/5 bg-white ${
+              className={`flex max-h-[calc(100dvh-40px)] flex-col items-center gap-1.5 overflow-hidden rounded-xl border border-black/5 bg-white ${
                 isMobileHome ? 'px-5 pb-2.5 pt-[24px]' : 'p-5'
               }`}
             >
               <div
-                className={`w-fit max-w-full font-pretendard font-medium text-text-plain ${
+                className={`min-h-0 w-fit max-w-full flex-1 overflow-y-auto overscroll-contain font-pretendard font-medium text-text-plain ${
                   isMobileHome
                     ? 'px-0 py-0 text-[13px] leading-[18px]'
-                    : 'px-10 py-5 text-[14px] leading-5'
+                    : 'px-0 py-5 text-[14px] leading-5 sm:px-10'
                 }`}
               >
                 <h2
                   className={
                     isMobileHome
                       ? 'mb-5 text-center text-[20px] font-bold leading-7'
-                      : 'mb-5 text-[32px] font-bold leading-10'
+                      : 'mb-5 break-keep text-[20px] font-bold leading-7 sm:text-[32px] sm:leading-10'
                   }
                 >
                   {isMobileHome ? '안심하고 이용하세요.' : '안심하고 이용하세요'}
@@ -156,7 +156,7 @@ function PrivacyNoticeModal({
               </div>
               <button
                 type="button"
-                className="cursor-pointer rounded-full bg-[#121212] px-8 py-[13.5px] font-pretendard text-[14px] font-semibold leading-5 text-white transition-colors hover:bg-[#202020] active:bg-[#0D0D0D]"
+                className="shrink-0 cursor-pointer rounded-full bg-bg-plain px-8 py-[13.5px] font-pretendard text-[14px] font-semibold leading-5 text-white transition-colors hover:bg-[#202020] active:bg-[#0D0D0D]"
                 onClick={handleClose}
               >
                 알겠어요

@@ -3,7 +3,10 @@ import { devtools } from 'zustand/middleware';
 
 import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 
-export type EditorCalloutId = 'order-panel' | 'preview-panel';
+export type EditorCalloutId =
+  | 'add-page-button'
+  | 'order-panel'
+  | 'preview-panel';
 
 export type EditorCalloutState = Record<EditorCalloutId, boolean>;
 
@@ -20,6 +23,7 @@ type EditorCalloutStore = {
 };
 
 export const DEFAULT_EDITOR_CALLOUTS: EditorCalloutState = {
+  'add-page-button': false,
   'order-panel': false,
   'preview-panel': false,
 };

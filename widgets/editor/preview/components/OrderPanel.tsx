@@ -18,6 +18,7 @@ import { useShallow } from 'zustand/shallow';
 import { EditorCallout } from '@/components/molecules/editor-callout';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useEditorCalloutStore } from '@/shared/store/useEditorCalloutStore';
+import { shouldIgnoreEditorShortcut } from '@/shared/utils/editorShortcutGuard';
 import ChipCarousel from '@/widgets/editor/preview/components/ChipCarousel';
 
 import DeleteModal from './DeleteModal';
@@ -66,6 +67,26 @@ function OrderPanel() {
     y: number;
     tabId: string;
   } | null>(null);
+
+  useEffect(() => {
+    const handleDeleteShortcut = (event: KeyboardEvent) => {
+      if (event.key !== 'Delete' || shouldIgnoreEditorShortcut(event)) return;
+
+      const state = useEditorStore.getState();
+      const targetId = state.selectedId;
+      const isSelectedBlock = state.block.some(block => block.id === targetId);
+
+      if (!targetId || targetId === 'mainPoster' || !isSelectedBlock) return;
+
+      event.preventDefault();
+      state.deleteBlock(targetId);
+      state.selectedBlock('mainPoster');
+      state.setIsEdit(false);
+    };
+
+    window.addEventListener('keydown', handleDeleteShortcut);
+    return () => window.removeEventListener('keydown', handleDeleteShortcut);
+  }, []);
 
   // 각 탭 아이템에 연결
   const handleContextMenu = (e: React.MouseEvent, tabId: string) => {
@@ -219,7 +240,8 @@ function OrderPanel() {
         arrowSide="bottom"
         targetAnchor={{ x: 0.5, y: 0 }}
         offset={0}
-        text="우클릭으로 삭제 혹은 꾹 누른 상태로 순서를 변경할 수 있어요!"
+        className="max-w-[300px] break-keep text-[14px] leading-5"
+        text="우클릭으로 삭제 혹은 꾹 누른 상태로 순서를 변경할 수 있어요! 선택한 블록은 Delete 키로 삭제할 수 있어요."
       />
       <AnimatePresence>
         {deleteTargetId && (
