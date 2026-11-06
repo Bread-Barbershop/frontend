@@ -16,6 +16,7 @@ import { pictureSchema } from '@/components/organisms/picture/Picture.schema';
 import { placeSchema } from '@/components/organisms/place/Place.schema';
 import { speakerInformationSchema } from '@/components/organisms/speakerInformation/SpeakerInformation.schema';
 import { sponsorshipInfomationSchema } from '@/components/organisms/sponsorshipInfomation/SposorshipInfomation.schema';
+import { transportationSchema } from '@/components/organisms/transportation/Transportation.schema';
 import { videoSchema } from '@/components/organisms/video/Video.schema';
 
 export const blockSchema = {
@@ -24,6 +25,7 @@ export const blockSchema = {
   greeting: greetingSchema,
   phone: phoneSchema,
   place: placeSchema,
+  transportation: transportationSchema,
   account: accountSchema,
   coupleIntroduction: coupleIntroductionSchema,
   video: videoSchema,

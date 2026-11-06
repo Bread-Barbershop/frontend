@@ -16,6 +16,7 @@ import { pictureDefinition } from '@/components/organisms/picture/Picture.defini
 import { placeDefinition } from '@/components/organisms/place/Place.definition';
 import { speakerInformationDefinition } from '@/components/organisms/speakerInformation/SpeakerInformation.definition';
 import { sponsorshipInfomationDefinition } from '@/components/organisms/sponsorshipInfomation/SposorshipInfomation.definition';
+import { transportationDefinition } from '@/components/organisms/transportation/Transportation.definition';
 import { videoDefinition } from '@/components/organisms/video/Video.definition';
 
 import { blockSchema } from './block.schema';
@@ -26,6 +27,7 @@ export const blockRegistry = {
   greeting: { ...blockSchema.greeting, ...greetingDefinition },
   phone: { ...blockSchema.phone, ...phoneDefinition },
   place: { ...blockSchema.place, ...placeDefinition },
+  transportation: { ...blockSchema.transportation, ...transportationDefinition },
   account: { ...blockSchema.account, ...accountDefinition },
   coupleIntroduction: {
     ...blockSchema.coupleIntroduction,
