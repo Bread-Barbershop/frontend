@@ -30,8 +30,11 @@ jest.mock('@/shared/fonts/fontLoader', () => ({
 }));
 
 jest.mock('@/shared/store/editorStore/useEditorStore', () => ({
-  useEditorStore: (selector: (state: Record<string, jest.Mock>) => unknown) =>
-    selector({ setTitleData: jest.fn(), setBodyData: jest.fn() }),
+  useEditorStore: (selector: unknown) =>
+    (selector as CallableFunction)({
+      setTitleData: jest.fn(),
+      setBodyData: jest.fn(),
+    }),
 }));
 
 jest.mock('@/app/guest/[id]/components/guestFontPreload', () => ({
@@ -91,7 +94,10 @@ describe('GuestRenderer 구분선 공개 미리보기', () => {
       const preview = container.querySelector('[aria-hidden="true"]');
 
       expect(container.querySelector('.border-dashed')).not.toBeInTheDocument();
-      expect(preview).toHaveStyle({ paddingTop: '12px', paddingBottom: '12px' });
+      expect(preview).toHaveStyle({
+        paddingTop: '12px',
+        paddingBottom: '12px',
+      });
       expect(preview?.firstElementChild).toHaveStyle({
         height: '64px',
         width: '1px',
