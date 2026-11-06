@@ -3,6 +3,7 @@ import { bgmSchema } from '@/components/organisms/bgm/Bgm.schema';
 import { calendarSchema } from '@/components/organisms/calendar/Calendar.schema';
 import { closingCommentSchema } from '@/components/organisms/closingComment/ClosingComment.schema';
 import { coupleIntroductionSchema } from '@/components/organisms/couple-introduction/CoupleIntroduction.schema';
+import { countdownSchema } from '@/components/organisms/countdown/Countdown.schema';
 import { gallerySchema } from '@/components/organisms/gallery/Gallery.schema';
 import { greetingSchema } from '@/components/organisms/greeting/Greeting.schema';
 import { interviewSchema } from '@/components/organisms/interview/Interview.schema';
@@ -29,6 +30,7 @@ export const blockSchema = {
   video: videoSchema,
   notice: noticeSchema,
   calendar: calendarSchema,
+  countdown: countdownSchema,
   interview: interviewSchema,
   organizerInformation: organizerInformationSchema,
   speakerInformation: speakerInformationSchema,
