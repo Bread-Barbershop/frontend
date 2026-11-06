@@ -11,9 +11,40 @@ export type ListType = {
   contents: string;
   component: BlockType | null;
   isType: boolean;
+  aliases?: string[];
+};
+const BLOCK_SEARCH_ALIASES: Partial<Record<BlockType, string[]>> = {
+  greeting: ['초대글', '초대말', '환영인사', '인사', 'welcome'],
+  coupleIntroduction: ['신랑신부', '커플소개', '부부소개', 'groom', 'bride'],
+  myFamilyWedding: ['혼주', '가족', '부모님', 'family'],
+  myFamily: ['가족', '부모님', 'family'],
+  myChild: ['아기', '아이', '아기소개', 'baby'],
+  calendar: ['달력', '캘린더', '날짜', '시간', '일정', '요일', '일시', 'date', 'calendar'],
+  place: ['지도', '오시는길', '위치', '약도', '웨딩홀', '식장', '장소', '네이버지도', '카카오맵', '티맵', 'map'],
+  gallery: ['사진첩', '앨범', '사진모음', '웨딩사진', '스냅', '슬라이드', '필름', 'album', 'gallery'],
+  picture: ['이미지', '그림', '포토', '스냅', '단일사진', '픽처', 'image', 'photo', 'pic'],
+  phone: ['전화', '전화번호', '연락', '번호', '통화', '문자', '혼주연락처', 'call', 'phone', 'tel'],
+  bgm: ['음악', '노래', '브금', '음원', '오디오', '사운드', 'music', 'bgm', 'song'],
+  account: ['축의금', '마음전하실곳', '후원금', '입금', '송금', '카카오페이', '토스', '돈', '은행', 'bank', 'pay'],
+  interview: ['문답', '질문', '답변', '인터뷰', 'qna', 'interview'],
+  notice: ['안내', '안내문', '공지', '알림', 'notice'],
+  video: ['비디오', '유튜브', '식전영상', '영상', '무비', '클립', 'youtube', 'video'],
+  closingComment: ['마무리', '맺음말', '감사인사', '끝인사', 'closing'],
+  organizerInformation: ['주최', '주최사', '행사주최', 'organizer'],
+  sponsorshipInfomation: ['후원', '협찬', '스폰서', 'sponsor'],
+  speakerInformation: ['연사', '발표자', '강연자', 'speaker'],
 };
 
-export const weddingComponents: ListType[] = [
+const withSearchAliases = (items: ListType[]): ListType[] =>
+  items.map(item => ({
+    ...item,
+    ...(item.component && BLOCK_SEARCH_ALIASES[item.component]
+      ? { aliases: BLOCK_SEARCH_ALIASES[item.component] }
+      : {}),
+  }));
+
+
+export const weddingComponents: ListType[] = withSearchAliases([
   { contents: '인사말', component: 'greeting', isType: false },
   { contents: '신랑신부소개', component: 'coupleIntroduction', isType: false },
   { contents: '가족소개', component: 'myFamilyWedding', isType: false },
@@ -31,8 +62,8 @@ export const weddingComponents: ListType[] = [
   { contents: '사진', component: 'picture', isType: false },
   { contents: '마무리문구', component: 'closingComment', isType: false },
   // { contents: '세례명', component: null, isType: false },
-];
-export const firstBirthdayComponents: ListType[] = [
+]);
+export const firstBirthdayComponents: ListType[] = withSearchAliases([
   { contents: '인사말', component: 'greeting', isType: false },
   { contents: '행사일시', component: 'calendar', isType: false },
   { contents: '아기소개', component: 'myChild', isType: false },
@@ -49,8 +80,8 @@ export const firstBirthdayComponents: ListType[] = [
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
   { contents: '마무리문구', component: 'closingComment', isType: false },
-];
-export const birthdayComponents: ListType[] = [
+]);
+export const birthdayComponents: ListType[] = withSearchAliases([
   { contents: '인사말', component: 'greeting', isType: false },
   { contents: '행사일시', component: 'calendar', isType: false },
   { contents: '행사장소', component: 'place', isType: false },
@@ -62,8 +93,8 @@ export const birthdayComponents: ListType[] = [
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
   { contents: '마무리문구', component: 'closingComment', isType: false },
-];
-export const seminarComponents: ListType[] = [
+]);
+export const seminarComponents: ListType[] = withSearchAliases([
   { contents: '인사말', component: 'greeting', isType: false },
   { contents: '주최정보', component: 'organizerInformation', isType: false },
   { contents: '후원정보', component: 'sponsorshipInfomation', isType: false },
@@ -76,8 +107,8 @@ export const seminarComponents: ListType[] = [
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
   { contents: '마무리문구', component: 'closingComment', isType: false },
-];
-export const etcComponents: ListType[] = [
+]);
+export const etcComponents: ListType[] = withSearchAliases([
   { contents: '인사말', component: 'greeting', isType: false },
   { contents: '행사일시', component: 'calendar', isType: false },
   { contents: '행사장소', component: 'place', isType: false },
@@ -86,7 +117,7 @@ export const etcComponents: ListType[] = [
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
   { contents: '마무리문구', component: 'closingComment', isType: false },
-];
+]);
 
 export const componentCls: SampleDataType[] = [
   {
