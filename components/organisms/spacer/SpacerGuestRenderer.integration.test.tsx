@@ -30,8 +30,11 @@ jest.mock('@/shared/fonts/fontLoader', () => ({
 }));
 
 jest.mock('@/shared/store/editorStore/useEditorStore', () => ({
-  useEditorStore: (selector: (state: Record<string, jest.Mock>) => unknown) =>
-    selector({ setTitleData: jest.fn(), setBodyData: jest.fn() }),
+  useEditorStore: (selector: unknown) =>
+    (selector as CallableFunction)({
+      setTitleData: jest.fn(),
+      setBodyData: jest.fn(),
+    }),
 }));
 
 jest.mock('@/app/guest/[id]/components/guestFontPreload', () => ({
@@ -79,7 +82,8 @@ async function renderSpacerAt(pathname: string) {
 
 describe('GuestRenderer 여백 공개 미리보기', () => {
   it.each(['/guest/yaKg', '/i/yaKg'])(
-    '공개 경로 %s에서는 여백 안내를 숨기고 높이를 유지한다', async pathname => {
+    '공개 경로 %s에서는 여백 안내를 숨기고 높이를 유지한다',
+    async pathname => {
       const { container } = await renderSpacerAt(pathname);
 
       expect(screen.queryByText('여백 · 48px')).not.toBeInTheDocument();
@@ -90,7 +94,8 @@ describe('GuestRenderer 여백 공개 미리보기', () => {
   );
 
   it.each(['/dashboard', '/editor', '/invoice/yaKg'])(
-    '비공개 경로 %s에서는 편집용 여백 안내를 보여준다', async pathname => {
+    '비공개 경로 %s에서는 편집용 여백 안내를 보여준다',
+    async pathname => {
       await renderSpacerAt(pathname);
 
       const guide = screen.getByText('여백 · 48px');
