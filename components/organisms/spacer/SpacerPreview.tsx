@@ -1,9 +1,9 @@
-import type { HTMLAttributes } from 'react';
-
-import type { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 
 import { clampSpacerHeight } from './spacerHeight';
+
+import type { EditorBlock } from '@/shared/types/block';
+import type { HTMLAttributes } from 'react';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'spacer'>;

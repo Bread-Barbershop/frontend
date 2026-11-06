@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
 
 import { Spacer } from './Spacer';
@@ -8,10 +9,7 @@ import { clampSpacerHeight } from './spacerHeight';
 
 const mockUpdateBlock = jest.fn();
 
-jest.mock('@/shared/store/editorStore/useEditorStore', () => ({
-  useEditorStore: (selector: (state: { updateBlock: (...args: unknown[]) => void }) => unknown) =>
-    selector({ updateBlock: (...args: unknown[]) => mockUpdateBlock(...args) }),
-}));
+jest.mock('@/shared/store/editorStore/useEditorStore');
 
 const blockInfo: EditorBlock<'spacer'> = {
   id: 'spacer-1',
@@ -21,7 +19,12 @@ const blockInfo: EditorBlock<'spacer'> = {
 };
 
 describe('여백 블록', () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (useEditorStore as unknown as jest.Mock).mockImplementation(selector =>
+      selector({ updateBlock: mockUpdateBlock })
+    );
+  });
 
   it('높이를 16~120px로 제한하고 잘못된 값을 기본값으로 바꾼다', () => {
     expect(clampSpacerHeight(-100)).toBe(16);
