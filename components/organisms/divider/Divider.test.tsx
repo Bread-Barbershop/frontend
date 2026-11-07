@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 
 import { DividerBlockPreview } from './DividerBlockPreview';
 import { normalizeDividerSettings } from './dividerSettings';
@@ -20,10 +20,20 @@ const sample: EditorBlock<'divider'> = {
 
 describe('세로 구분선 블록', () => {
   it('높이·굵기·여백의 범위 및 잘못된 색상 입력을 보정한다', () => {
-    expect(normalizeDividerSettings({
-      height: -5, thickness: 9, color: 'red', topSpacing: -10, bottomSpacing: 300,
-    })).toEqual({
-      height: 32, thickness: 2, color: '#E2E8F0', topSpacing: 0, bottomSpacing: 64,
+    expect(
+      normalizeDividerSettings({
+        height: -5,
+        thickness: 9,
+        color: 'red',
+        topSpacing: -10,
+        bottomSpacing: 300,
+      })
+    ).toEqual({
+      height: 32,
+      thickness: 2,
+      color: '#E2E8F0',
+      topSpacing: 0,
+      bottomSpacing: 64,
     });
   });
 
@@ -33,10 +43,36 @@ describe('세로 구분선 블록', () => {
   });
 
   it('게스트 화면은 가이드 없이 선과 여백만 렌더링한다', () => {
-    const { container } = render(<DividerBlockPreview blockInfo={sample} isGuestPage />);
+    const { container } = render(
+      <DividerBlockPreview blockInfo={sample} isGuestPage />
+    );
     expect(container.querySelector('.border-dashed')).not.toBeInTheDocument();
-    expect(container.firstElementChild).toHaveStyle({ paddingTop: '12px', paddingBottom: '12px' });
+    expect(container.firstElementChild).toHaveStyle({
+      paddingTop: '12px',
+      paddingBottom: '12px',
+    });
     const line = container.firstElementChild?.firstElementChild;
     expect(line).toHaveStyle({ height: '64px', width: '1px' });
+  });
+
+  it('titleClassName은 DOM에 노출하지 않고 일반 HTML 속성은 전달한다', () => {
+    const onClick = jest.fn();
+    const { container } = render(
+      <DividerBlockPreview
+        blockInfo={sample}
+        titleClassName="preview-title"
+        onClick={onClick}
+        style={{ color: 'red' }}
+      />
+    );
+    const preview = container.firstElementChild as HTMLDivElement;
+
+    expect(preview.getAttributeNames()).not.toContain('titleclassname');
+    expect(preview).toHaveStyle({
+      color: 'rgb(255, 0, 0)',
+      paddingTop: '12px',
+    });
+    fireEvent.click(preview);
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 });

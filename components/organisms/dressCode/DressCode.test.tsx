@@ -9,7 +9,7 @@ const sample: EditorBlock<'dressCode'> = {
   id: 'dress-1',
   component: 'dressCode',
   type: 'wedding',
-  props: { title: '드레스코드 & 매너', colors: ['#F1DED9', '#E5E7EB'], guidelines: ['화환은 정중히 사양합니다.'] },
+  props: { title: '드레스 코드', colors: ['#F1DED9', '#E5E7EB'], guidelines: ['화환은 정중히 사양합니다.'] },
 };
 
 describe('드레스코드 및 매너 블록', () => {

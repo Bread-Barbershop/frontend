@@ -2,7 +2,10 @@
 
 import { createPortal } from 'react-dom';
 
-import { useToastStore, type ToastPlacement } from '@/shared/store/useToastStore';
+import {
+  useToastStore,
+  type ToastPlacement,
+} from '@/shared/store/useToastStore';
 
 import { ToastBar } from './ToastBar';
 
@@ -40,7 +43,7 @@ export const ToastContainer = () => {
 
   return createPortal(
     <div
-      className={`fixed z-[1000] w-fit max-w-[calc(100vw-32px)] transition-all duration-300 pointer-events-none ${positionClasses} ${getToastVisibilityClass(isVisible, options.animation)}`}
+      className={`fixed z-[50000] w-fit max-w-[calc(100vw-32px)] transition-all duration-300 pointer-events-none ${positionClasses} ${getToastVisibilityClass(isVisible, options.animation)}`}
     >
       <ToastBar message={message} variant={variant} />
     </div>,

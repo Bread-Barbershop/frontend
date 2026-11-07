@@ -59,6 +59,7 @@ function TabArea({
         <UtilityButton
           variant={'danger'}
           className="font-semibold text-sm"
+          aria-label="블록 추가 닫기"
           onClick={closeClick}
         >
           닫기

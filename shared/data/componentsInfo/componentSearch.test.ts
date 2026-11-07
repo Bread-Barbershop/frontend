@@ -46,6 +46,7 @@ describe('블록 검색 별칭과 복합 검색', () => {
     rsvp: [
       '참석',
       '참석여부',
+      '참석 여부 RSVP',
       'rsvp',
       '식사여부',
       '하객참석',
@@ -53,6 +54,7 @@ describe('블록 검색 별칭과 복합 검색', () => {
       'attendance',
     ],
     transportation: [
+      '상세 교통 / 주차',
       '주차',
       '주차장',
       '셔틀',
@@ -65,6 +67,8 @@ describe('블록 검색 별칭과 복합 검색', () => {
       'transit',
     ],
     countdown: [
+      'D-Day 카운트다운',
+      'D-Day 카운트 다운',
       '디데이',
       'dday',
       'd-day',
@@ -86,6 +90,7 @@ describe('블록 검색 별칭과 복합 검색', () => {
       'program',
     ],
     dressCode: [
+      '드레스코드 & 매너',
       '드레스코드',
       '복장',
       '옷',
@@ -170,6 +175,13 @@ describe('블록 검색 별칭과 복합 검색', () => {
     expect(findComponents('지도').some(item => item.type === 'place')).toBe(true);
     expect(findComponents('축의금').some(item => item.type === 'account')).toBe(true);
     expect(findComponents('BGM').some(item => item.type === 'bgm')).toBe(true);
+  });
+
+  it('이전 블록 이름으로도 변경된 블록을 검색한다', () => {
+    expect(findComponents('상세 교통 / 주차').some(item => item.type === 'transportation')).toBe(true);
+    expect(findComponents('참석 여부 RSVP').some(item => item.type === 'rsvp')).toBe(true);
+    expect(findComponents('드레스코드 & 매너').some(item => item.type === 'dressCode')).toBe(true);
+    expect(findComponents('D-Day 카운트다운').some(item => item.type === 'countdown')).toBe(true);
   });
 
   it('여러 검색어는 카테고리와 별칭을 함께 사용해 모두 만족해야 한다', () => {

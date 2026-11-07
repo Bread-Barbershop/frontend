@@ -14,6 +14,13 @@ jest.mock('./ContentsArea', () => ({
   default: () => null,
 }));
 
+jest.mock('@/widgets/editor/preview/hooks/useInvitationTemplate', () => ({
+  useInvitationTemplate: () => ({
+    applyTemplate: jest.fn(),
+    isApplying: false,
+  }),
+}));
+
 describe('페이지 추가 단축키', () => {
   const originalInnerWidth = window.innerWidth;
 
