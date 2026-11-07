@@ -103,7 +103,10 @@ function ContentsArea({
                   <UtilityButton
                     className="text-primary w-fit"
                     aria-label={`${items.korea} 템플릿 선택 열기`}
-                    onClick={() => onOpenTemplatePicker(items.english)}
+                    onClick={() => {
+                      const type = items.english;
+                      if (type !== 'etc') onOpenTemplatePicker(type);
+                    }}
                   >
                     템플릿 사용하기
                   </UtilityButton>
