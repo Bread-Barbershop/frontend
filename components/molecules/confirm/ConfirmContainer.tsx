@@ -1,10 +1,13 @@
 'use client';
 
+import { useRef } from 'react';
+
 import { useConfirmStore } from '@/shared/store/useConfirmStore';
 
 import Confirm from './Confirm';
 
 export const ConfirmContainer = () => {
+  const dialogRef = useRef<HTMLDivElement>(null);
   const {
     isOpen,
     message,
@@ -22,6 +25,7 @@ export const ConfirmContainer = () => {
 
   return (
     <Confirm
+      ref={dialogRef}
       message={message}
       confirmText={confirmText}
       cancelText={cancelText}

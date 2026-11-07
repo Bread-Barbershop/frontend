@@ -20,14 +20,14 @@ export function DressCodeBlockPreview({
 }: Props) {
   const colors = normalizeDressCodeColors(blockInfo.props.colors);
   const guidelines = normalizeDressCodeGuidelines(blockInfo.props.guidelines).filter(Boolean);
-  const title = blockInfo.props.title || '드레스코드 & 매너';
+  const title = blockInfo.props.title || '드레스 코드';
 
   return (
     <MiddlePreviewWrapper
       className={className}
       titleClassName={titleClassName}
       mainTitle={title}
-      mainTitleDefault="드레스코드 & 매너"
+      mainTitleDefault="드레스 코드"
       {...rest}
     >
       <div className="flex w-full flex-col items-center gap-5">

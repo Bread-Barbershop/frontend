@@ -39,9 +39,32 @@ describe('여백 블록', () => {
   });
 
   it('게스트 뷰어에서는 텍스트 없는 투명 여백만 남긴다', () => {
-    const { container } = render(<SpacerPreview blockInfo={blockInfo} isGuestPage />);
+    const { container } = render(
+      <SpacerPreview blockInfo={blockInfo} isGuestPage />
+    );
     expect(screen.queryByText(/여백 ·/)).not.toBeInTheDocument();
     expect(container.firstElementChild).toHaveStyle({ height: '48px' });
+  });
+
+  it('titleClassName은 DOM에 노출하지 않고 일반 HTML 속성은 전달한다', () => {
+    const onClick = jest.fn();
+    const { container } = render(
+      <SpacerPreview
+        blockInfo={blockInfo}
+        titleClassName="preview-title"
+        onClick={onClick}
+        style={{ color: 'red' }}
+      />
+    );
+    const preview = container.firstElementChild as HTMLDivElement;
+
+    expect(preview.getAttributeNames()).not.toContain('titleclassname');
+    expect(preview).toHaveStyle({
+      height: '48px',
+      color: 'rgb(255, 0, 0)',
+    });
+    fireEvent.click(preview);
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 
   it('S/M/L 프리셋이 블록 높이를 변경한다', () => {

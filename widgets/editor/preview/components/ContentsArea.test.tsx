@@ -12,6 +12,7 @@ describe('ContentsArea 컴포넌트', () => {
   const mockSelectedBlock = jest.fn();
   const mockAddAllBlock = jest.fn();
   const mockSetIsEdit = jest.fn();
+  const mockOpenTemplatePicker = jest.fn();
 
   const scrollContainerRef = { current: document.createElement('div') };
   const sectionRefs = { current: {} };
@@ -32,6 +33,7 @@ describe('ContentsArea 컴포넌트', () => {
         scrollContainerRef={scrollContainerRef}
         sectionRefs={sectionRefs}
         searchQuery=""
+        onOpenTemplatePicker={mockOpenTemplatePicker}
       />
     );
 
@@ -45,6 +47,7 @@ describe('ContentsArea 컴포넌트', () => {
         scrollContainerRef={scrollContainerRef}
         sectionRefs={sectionRefs}
         searchQuery="신랑신부"
+        onOpenTemplatePicker={mockOpenTemplatePicker}
       />
     );
 
@@ -59,6 +62,7 @@ describe('ContentsArea 컴포넌트', () => {
         scrollContainerRef={scrollContainerRef}
         sectionRefs={sectionRefs}
         searchQuery="일치하지않는컴포넌트명xyz"
+        onOpenTemplatePicker={mockOpenTemplatePicker}
       />
     );
 
@@ -71,6 +75,7 @@ describe('ContentsArea 컴포넌트', () => {
         scrollContainerRef={scrollContainerRef}
         sectionRefs={sectionRefs}
         searchQuery="신랑신부"
+        onOpenTemplatePicker={mockOpenTemplatePicker}
       />
     );
 
@@ -84,5 +89,26 @@ describe('ContentsArea 컴포넌트', () => {
     );
     expect(mockSelectedBlock).toHaveBeenCalledWith(expect.any(String));
     expect(mockSetIsEdit).toHaveBeenCalledWith(false);
+  });
+
+  it('4개 행사 분류에 템플릿 선택을 제공하고 기타 분류는 제외한다', () => {
+    render(
+      <ContentsArea
+        scrollContainerRef={scrollContainerRef}
+        sectionRefs={sectionRefs}
+        searchQuery=""
+        onOpenTemplatePicker={mockOpenTemplatePicker}
+      />
+    );
+
+    const templateButtons = screen.getAllByRole('button', {
+      name: /템플릿 선택 열기/,
+    });
+    expect(templateButtons).toHaveLength(4);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: '돌잔치 템플릿 선택 열기' })
+    );
+    expect(mockOpenTemplatePicker).toHaveBeenCalledWith('firstBirthday');
   });
 });

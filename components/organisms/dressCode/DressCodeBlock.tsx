@@ -43,8 +43,8 @@ export function DressCodeBlock({
   };
 
   return (
-    <LeftEditorWrapper ariaLabel="드레스코드 및 매너" className="gap-3">
-      <NavigationBar>드레스코드 & 매너 편집</NavigationBar>
+    <LeftEditorWrapper ariaLabel="드레스 코드" className="gap-3">
+      <NavigationBar>드레스 코드 편집</NavigationBar>
       <div className="flex w-full flex-col gap-4 py-2">
         <div className="flex flex-col gap-1">
           <label htmlFor={`dress-title-${id}`} className="text-sm text-text-primary">제목</label>

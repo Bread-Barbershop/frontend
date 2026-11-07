@@ -24,7 +24,7 @@ export function RsvpBlock({
   ) => updateBlock(id, { [key]: value });
 
   return (
-    <LeftEditorWrapper ariaLabel="참석 여부 RSVP" className="gap-3">
+    <LeftEditorWrapper ariaLabel="참석 여부" className="gap-3">
       <NavigationBar>참석 여부 편집</NavigationBar>
       <div className="flex w-full flex-col gap-4 py-2">
         {(

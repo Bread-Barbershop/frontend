@@ -22,7 +22,7 @@ describe('TabArea 컴포넌트', () => {
     expect(screen.getByText('결혼식')).toBeInTheDocument();
     expect(screen.getByText('돌잔치')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('블록 검색')).toHaveFocus();
-    expect(screen.getByRole('button', { name: '닫기' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '블록 추가 닫기' })).toBeInTheDocument();
   });
 
   it('검색 인풋에 텍스트 입력 시 onSearchChange가 호출된다', () => {
@@ -47,7 +47,7 @@ describe('TabArea 컴포넌트', () => {
   it('닫기 버튼 클릭 시 closeClick이 호출된다', () => {
     render(<TabArea {...defaultProps} />);
 
-    const closeBtn = screen.getByRole('button', { name: '닫기' });
+    const closeBtn = screen.getByRole('button', { name: '블록 추가 닫기' });
     fireEvent.click(closeBtn);
 
     expect(defaultProps.closeClick).toHaveBeenCalledTimes(1);
