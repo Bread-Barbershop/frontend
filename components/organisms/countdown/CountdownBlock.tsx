@@ -1,8 +1,20 @@
 'use client';
 
+import {
+  useCallback,
+  useRef,
+  type ChangeEvent,
+  type FocusEvent,
+} from 'react';
+
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
+import { useToast } from '@/shared/hooks/useToast';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
+import {
+  isValidDateTimeLocal,
+  parseStrictDateTimeLocal,
+} from '@/shared/utils/dateValidation';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
@@ -14,7 +26,41 @@ export function CountdownBlock({
   id: string;
 }) {
   const updateBlock = useEditorStore(state => state.updateBlock);
+  const { warning } = useToast();
+  const invalidDateTimeWarningShown = useRef(false);
   const { title, eventDateTime, onDayMessage, afterMessage } = blockInfo.props;
+  const warnInvalidDateTime = useCallback(() => {
+    if (invalidDateTimeWarningShown.current) return;
+    warning('올바른 날짜와 시간을 입력해 주세요.');
+    invalidDateTimeWarningShown.current = true;
+  }, [warning]);
+  const handleDateTimeChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const { value, validity } = event.currentTarget;
+      if (validity.badInput) {
+        warnInvalidDateTime();
+        return;
+      }
+
+      if (!value || parseStrictDateTimeLocal(value)) {
+        invalidDateTimeWarningShown.current = false;
+        updateBlock(id, { eventDateTime: value });
+        return;
+      }
+
+      warnInvalidDateTime();
+    },
+    [id, updateBlock, warnInvalidDateTime]
+  );
+  const handleDateTimeBlur = useCallback(
+    (event: FocusEvent<HTMLInputElement>) => {
+      const { value, validity } = event.currentTarget;
+      if (validity.badInput || (value && !isValidDateTimeLocal(value))) {
+        warnInvalidDateTime();
+      }
+    },
+    [warnInvalidDateTime]
+  );
   const fields = [
     { name: 'title', label: '제목', value: title, max: 40 },
     { name: 'onDayMessage', label: '행사 당일 문구', value: onDayMessage, max: 100 },
@@ -31,7 +77,8 @@ export function CountdownBlock({
             id={`countdown-event-${id}`}
             type="datetime-local"
             value={eventDateTime || ''}
-            onChange={event => updateBlock(id, { eventDateTime: event.currentTarget.value })}
+            onChange={handleDateTimeChange}
+            onBlur={handleDateTimeBlur}
             className="h-10 w-full rounded-md border border-border-divider px-3 text-sm text-text-primary outline-none focus:border-primary"
           />
         </div>

@@ -1,3 +1,5 @@
+import { parseSeoulDateTimeToTimestamp } from '@/shared/utils/dateValidation';
+
 const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -11,12 +13,7 @@ export type CountdownTime = {
 };
 
 export function parseSeoulDateTime(input: string): number | null {
-  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(input)) return null;
-  const timestamp = Date.parse(`${input}:00+09:00`);
-  if (!Number.isFinite(timestamp)) return null;
-  return new Date(timestamp + KST_OFFSET_MS).toISOString().slice(0, 16) === input
-    ? timestamp
-    : null;
+  return parseSeoulDateTimeToTimestamp(input);
 }
 
 export function getCountdownTime(input: string, now: number): CountdownTime {

@@ -16,13 +16,13 @@ import {
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
 import { TimeSelector } from '@/components/molecules/time-selector';
+import { useToast } from '@/shared/hooks/useToast';
+import { useValidatedDateDraft } from '@/shared/hooks/useValidatedDateDraft';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
-
-import { addHyphenToDate } from './utils/utils';
 
 interface Props {
   blockInfo: EditorBlock<'calendar'>;
@@ -31,7 +31,23 @@ interface Props {
 
 export function Calendar({ blockInfo, id }: Props) {
   const updateBlock = useEditorStore(state => state.updateBlock);
+  const { warning } = useToast();
   const textEditorRef = useRef<TextEditorRef>(null);
+  const commitDate = useCallback(
+    (date: string) => updateBlock(id, { date }),
+    [id, updateBlock]
+  );
+  const {
+    draft: dateDraft,
+    handleChange: handleDateChange,
+    handleBlur: handleDateBlur,
+  } = useValidatedDateDraft({
+    value: blockInfo.props.date ? String(blockInfo.props.date) : '',
+    separator: '-',
+    allowPast: false,
+    onCommit: commitDate,
+    warning,
+  });
 
   const handleInsertDday = useCallback(() => {
     textEditorRef.current?.insertText('(D-Day)');
@@ -51,33 +67,6 @@ export function Calendar({ blockInfo, id }: Props) {
   const handleShowDdayChange = useCallback(
     ({ target: { checked } }: React.ChangeEvent<HTMLInputElement>) => {
       updateBlock(id, { showDday: checked });
-    },
-    [id, updateBlock]
-  );
-
-  const handleDateChange = useCallback(
-    ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
-      if (/[^\d-]/.test(value)) return;
-
-      const formattedDate = addHyphenToDate(value.replace(/\D/g, ''));
-
-      // 10자리가 완성되었을 때 과거 날짜인지 체크
-      if (formattedDate.length === 10) {
-        const inputDate = new Date(formattedDate);
-        const today = new Date();
-        // 시간 부분을 0으로 초기화하여 날짜만 비교
-        today.setHours(0, 0, 0, 0);
-
-        if (inputDate < today) {
-          // 과거 날짜를 입력한 경우 얼럿을 띄우고 상태 업데이트를 막음
-          if (typeof window !== 'undefined') {
-            alert('이전 날짜는 입력할 수 없습니다.');
-          }
-          return;
-        }
-      }
-
-      updateBlock(id, { date: formattedDate });
     },
     [id, updateBlock]
   );
@@ -154,8 +143,11 @@ export function Calendar({ blockInfo, id }: Props) {
           labelClassName="w-14 text-center"
           inputProps={{
             placeholder: '2026-03-09',
-            value: blockInfo.props.date ? String(blockInfo.props.date) : '',
+            value: dateDraft,
             onChange: handleDateChange,
+            onBlur: handleDateBlur,
+            inputMode: 'numeric',
+            autoComplete: 'off',
             maxLength: 10,
           }}
         />
@@ -189,7 +181,7 @@ export function Calendar({ blockInfo, id }: Props) {
                 value={blockInfo.props.messageJson}
                 defaultText={
                   blockInfo.type === 'wedding'
-                    ? '신랑과 신부의 특별한 약속이 이루어지기까지 (D-Day)일이 남았습니다.'
+                    ? '신랑과 신부의 특별한 약속이 이루어지기까지\n(D-Day)일이 남았습니다.'
                     : '내용을 입력해주세요.'
                 }
                 defaultAlign="center"
