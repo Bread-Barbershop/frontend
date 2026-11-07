@@ -1,5 +1,5 @@
-import { INVITATION_TEMPLATES } from './catalog';
 import { createInvitationTemplate } from './builders';
+import { INVITATION_TEMPLATES } from './catalog';
 
 import type { InvitationTemplateType } from './types';
 
