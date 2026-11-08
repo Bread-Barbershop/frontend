@@ -369,37 +369,12 @@ function posterElementToFabric(element: PosterElement) {
 }
 
 function createPosterJson(template: InvitationTemplate) {
-  const backgroundLayer = {
-    ...commonFabricProps('background-layer'),
-    type: 'rect',
-    name: 'background-layer',
-    left: 0,
-    top: 0,
-    width: template.poster.width,
-    height: template.poster.height,
-    fill: template.poster.background,
-    stroke: null,
-    strokeWidth: 0,
-    selectable: false,
-    evented: false,
-    hasControls: false,
-    hasBorders: false,
-    lockMovementX: true,
-    lockMovementY: true,
-    lockScalingX: true,
-    lockScalingY: true,
-    lockRotation: true,
-  };
-
   return {
     version: FABRIC_VERSION,
     width: template.poster.width,
     height: template.poster.height,
     background: template.poster.background,
-    objects: [
-      backgroundLayer,
-      ...template.poster.objects.map(posterElementToFabric),
-    ],
+    objects: template.poster.objects.map(posterElementToFabric),
   };
 }
 

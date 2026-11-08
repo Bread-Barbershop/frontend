@@ -89,22 +89,12 @@ describe('초대장 템플릿 카탈로그', () => {
         unknown
       >[];
       expect(firstObjects).not.toBe(secondObjects);
-      expect(firstObjects[0]).toMatchObject({
-        id: 'background-layer',
-        type: 'rect',
-        left: 0,
-        top: 0,
-        width: 375,
-        height: 812,
-        fill: template.poster.background,
-      });
+      expect(first.posterJson.background).toBe(template.poster.background);
+      expect(firstObjects).toHaveLength(template.poster.objects.length);
+      expect(firstObjects.some(object => object.id === 'background-layer')).toBe(false);
 
-      const firstObjectIds = firstObjects
-        .slice(1)
-        .map(object => object.id as string);
-      const secondObjectIds = secondObjects
-        .slice(1)
-        .map(object => object.id as string);
+      const firstObjectIds = firstObjects.map(object => object.id as string);
+      const secondObjectIds = secondObjects.map(object => object.id as string);
       expect(firstObjectIds.every(id => UUID_PATTERN.test(id))).toBe(true);
       expect(firstObjectIds.some(id => secondObjectIds.includes(id))).toBe(
         false
