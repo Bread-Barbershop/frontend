@@ -46,12 +46,40 @@ describe('CountdownBlock 행사 일시 입력', () => {
     });
 
     fireEvent.change(input, { target: { value: '' } });
+    expect(input).toHaveValue(''); // 입력 중 세그먼트를 지워도 원래 값을 즉시 덮어쓰지 않는다.
     fireEvent.blur(input);
 
     expect(mockUpdateBlock).not.toHaveBeenCalled();
     expect(mockWarning).toHaveBeenCalledWith('올바른 날짜와 시간을 입력해 주세요.');
     expect(mockWarning).toHaveBeenCalledTimes(1);
     expect(input).toHaveValue('2027-01-01T10:00');
+  });
+
+  it('일부 세그먼트를 지운 후 다른 유효 일시로 이어서 편집할 수 있다', () => {
+    const blockWithDate: EditorBlock<'countdown'> = {
+      ...block,
+      props: { ...block.props, eventDateTime: '2027-01-01T10:00' },
+    };
+    render(<CountdownBlock blockInfo={blockWithDate} id={block.id} />);
+    const input = screen.getByLabelText('행사 일시 (한국 시간)');
+    Object.defineProperty(input, 'validity', {
+      configurable: true,
+      value: { badInput: true },
+    });
+
+    fireEvent.change(input, { target: { value: '' } });
+    expect(input).toHaveValue('');
+    expect(mockUpdateBlock).not.toHaveBeenCalled();
+
+    Object.defineProperty(input, 'validity', {
+      configurable: true,
+      value: { badInput: false },
+    });
+    fireEvent.change(input, { target: { value: '2027-02-02T15:30' } });
+    expect(mockUpdateBlock).toHaveBeenLastCalledWith(block.id, {
+      eventDateTime: '2027-02-02T15:30',
+    });
+    expect(input).toHaveValue('2027-02-02T15:30');
   });
 
   it('과거 날짜와 자정을 유효한 카운트다운 값으로 저장한다', () => {

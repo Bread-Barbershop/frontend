@@ -2,6 +2,7 @@
 
 import {
   useCallback,
+  useEffect,
   useRef,
   type ChangeEvent,
   type FocusEvent,
@@ -28,7 +29,18 @@ export function CountdownBlock({
   const updateBlock = useEditorStore(state => state.updateBlock);
   const { warning } = useToast();
   const invalidDateTimeWarningShown = useRef(false);
+  const dateTimeInputRef = useRef<HTMLInputElement>(null);
   const { title, eventDateTime, onDayMessage, afterMessage } = blockInfo.props;
+  const lastValidDateTimeRef = useRef(eventDateTime || '');
+
+  useEffect(() => {
+    const value = eventDateTime || '';
+    lastValidDateTimeRef.current = value;
+    const input = dateTimeInputRef.current;
+    if (input && document.activeElement !== input && input.value !== value) {
+      input.value = value;
+    }
+  }, [eventDateTime]);
   const warnInvalidDateTime = useCallback(() => {
     if (invalidDateTimeWarningShown.current) return;
     warning('올바른 날짜와 시간을 입력해 주세요.');
@@ -44,6 +56,7 @@ export function CountdownBlock({
 
       if (!value || parseStrictDateTimeLocal(value)) {
         invalidDateTimeWarningShown.current = false;
+        lastValidDateTimeRef.current = value;
         updateBlock(id, { eventDateTime: value });
         return;
       }
@@ -57,6 +70,7 @@ export function CountdownBlock({
       const { value, validity } = event.currentTarget;
       if (validity.badInput || (value && !isValidDateTimeLocal(value))) {
         warnInvalidDateTime();
+        event.currentTarget.value = lastValidDateTimeRef.current;
       }
     },
     [warnInvalidDateTime]
@@ -76,7 +90,8 @@ export function CountdownBlock({
           <input
             id={`countdown-event-${id}`}
             type="datetime-local"
-            value={eventDateTime || ''}
+            ref={dateTimeInputRef}
+            defaultValue={eventDateTime || ''}
             onChange={handleDateTimeChange}
             onBlur={handleDateTimeBlur}
             className="h-10 w-full rounded-md border border-border-divider px-3 text-sm text-text-primary outline-none focus:border-primary"
