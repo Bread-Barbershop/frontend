@@ -65,7 +65,8 @@ describe('parseGuestPayload', () => {
     expect(result.payload.blocks).toHaveLength(1);
     expect(result.payload.blocks[0].props).toMatchObject({
       title: '초대합니다',
-      englishTitle: 'INVITATION',
+      checkedSubTitle: true,
+      subTitle: 'INVITATION',
     });
   });
 

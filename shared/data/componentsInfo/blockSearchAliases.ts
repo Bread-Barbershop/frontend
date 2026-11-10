@@ -1,4 +1,8 @@
 export const BLOCK_SEARCH_ALIASES: Partial<Record<string, string[]>> = {
+  afterParty: ['피로연', '뒤풀이', '2차', '연회', '애프터파티', 'reception', 'afterparty'],
+  faq: ['질문', '답변', '문의', '자주묻는질문', 'faq', 'qna'],
+  guestbook: ['방명록', '축하글', '축하메시지', '덕담', 'guestbook', 'message'],
+  visualEffects: ['벚꽃', '눈', '컨페티', '파티클', '빛망울', '봉투', '오프닝', 'effect', 'intro'],
   greeting: ['초대글', '초대말', '환영인사', '인사', 'welcome'],
   coupleIntroduction: ['신랑신부', '커플소개', '부부소개', 'groom', 'bride'],
   myFamilyWedding: ['혼주', '가족', '부모님', 'family'],

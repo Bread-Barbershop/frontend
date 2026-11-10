@@ -65,7 +65,7 @@ describe('loadInvitation route', () => {
     (googleFetch as jest.Mock).mockImplementation((url: string) => {
       const decodedUrl = decodeURIComponent(url);
 
-      if (url.includes('orderBy=createdTime+desc')) {
+      if (url.includes('orderBy=createdTime+desc') && url.includes('pageSize=100')) {
         return Promise.resolve(
           mockJsonResponse({
             files: [

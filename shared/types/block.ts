@@ -1,4 +1,5 @@
 import { PickerHsva } from '@/components/molecules/color-picker/components/colorPicker.types';
+import type { ScrollAnimationSettings } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { blockRegistry } from '@/shared/data/registry/registry';
 
 import { blockSchema } from '../data/registry/block.schema';
@@ -45,6 +46,7 @@ export interface BlockSlice {
     id: string,
     props: Partial<PropsFromFields<(typeof blockRegistry)[T]['fields']>>
   ) => void;
+  updateBlockAnimation: (id: string, settings: Partial<ScrollAnimationSettings>) => void;
   deleteBlock: (id: string) => void;
   moveBlock: (from: number, to: number) => void;
   addAllBlock: (type: InvitationType) => void;
