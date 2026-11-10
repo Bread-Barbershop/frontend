@@ -192,10 +192,10 @@ describe('isGuestPayload 테스트', () => {
     expect(isGuestPayload(invalidPayload)).toBe(false);
   });
 
-  it('bulkData.titleData 내의 align이 올바르지 않으면 false를 반환한다', () => {
+  it('bulkData.titleData의 fontSize 타입이 잘못되면 false를 반환한다', () => {
     /**
      * 목적:
-     * align은 'left' | 'center' | 'right' 중 하나여야 한다.
+     * BulkData가 실제로 사용하는 fontSize는 문자열이어야 한다.
      */
 
     const invalidPayload = {
@@ -204,7 +204,7 @@ describe('isGuestPayload 테스트', () => {
         ...validPayload.bulkData,
         titleData: {
           ...validPayload.bulkData.titleData,
-          align: 'justify',
+          fontSize: 18,
         },
       },
     };
