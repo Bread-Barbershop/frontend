@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useCallback, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { Divider } from '@/components/atoms/divider/Divider';
@@ -11,6 +11,7 @@ import { TextEditor } from '@/components/molecules/text-editor';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
 import { useToast } from '@/shared/hooks/useToast';
+import { useValidatedDateDraft } from '@/shared/hooks/useValidatedDateDraft';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
 import { compressImages } from '@/shared/utils/imageCompression';
@@ -43,6 +44,21 @@ export const MyChild = ({ blockInfo, id }: Props) => {
     messageJson,
     image,
   } = blockInfo.props;
+  const commitBirthday = useCallback(
+    (value: string) => updateBlock(id, { birthday: value }),
+    [id, updateBlock]
+  );
+  const {
+    draft: birthdayDraft,
+    handleChange: handleBirthdayChange,
+    handleBlur: handleBirthdayBlur,
+  } = useValidatedDateDraft({
+    value: birthday,
+    separator: '.',
+    allowPast: true,
+    onCommit: commitBirthday,
+    warning,
+  });
   const handleStringChange = (
     type: 'title' | 'subTitle' | 'name' | 'nickname',
     e: ChangeEvent<HTMLInputElement>
@@ -51,22 +67,6 @@ export const MyChild = ({ blockInfo, id }: Props) => {
       [type]:
         type === 'subTitle' ? sanitizeEnglishTitleInput(e.target) : e.target.value,
     });
-  };
-
-  const handleBirthdayChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    const numericValue = value.replace(/\D/g, '').slice(0, 8);
-    let formattedValue = '';
-
-    if (numericValue.length <= 4) {
-      formattedValue = numericValue;
-    } else if (numericValue.length <= 6) {
-      formattedValue = `${numericValue.slice(0, 4)}.${numericValue.slice(4)}`;
-    } else {
-      formattedValue = `${numericValue.slice(0, 4)}.${numericValue.slice(4, 6)}.${numericValue.slice(6)}`;
-    }
-
-    updateBlock(id, { birthday: formattedValue });
   };
 
   const handleEditorChange = (json: JSONContent) => {
@@ -155,8 +155,11 @@ export const MyChild = ({ blockInfo, id }: Props) => {
           <Input
             id="birthday"
             placeholder="ex. 2024.12.12"
-            value={birthday}
+            value={birthdayDraft}
             onChange={handleBirthdayChange}
+            onBlur={handleBirthdayBlur}
+            inputMode="numeric"
+            autoComplete="bday"
           />
         </div>
       </section>
