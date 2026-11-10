@@ -52,13 +52,24 @@ export function ScrollFadeIn({
     const element = ref.current;
     if (!element) return;
 
-    let lastY = window.scrollY;
+    // Editor preview scrolls inside a panel, while guest pages may scroll the window.
+    // Track the closest scrollable ancestor so up-only works in both environments.
+    let scrollParent = element.parentElement;
+    while (scrollParent) {
+      const overflowY = window.getComputedStyle(scrollParent).overflowY;
+      if (/(auto|scroll)/.test(overflowY) && scrollParent.scrollHeight > scrollParent.clientHeight) break;
+      scrollParent = scrollParent.parentElement;
+    }
+    const scrollTarget: HTMLElement | Window = scrollParent ?? window;
+    const getScrollY = () => scrollParent?.scrollTop ?? window.scrollY;
+    let lastY = getScrollY();
     let movingUp = false;
     const onScroll = () => {
-      movingUp = window.scrollY < lastY;
-      lastY = window.scrollY;
+      const nextY = getScrollY();
+      movingUp = nextY < lastY;
+      lastY = nextY;
     };
-    window.addEventListener('scroll', onScroll, { passive: true });
+    scrollTarget.addEventListener('scroll', onScroll, { passive: true });
 
     const observer = new IntersectionObserver(
       entries => {
@@ -81,7 +92,7 @@ export function ScrollFadeIn({
 
     return () => {
       observer.disconnect();
-      window.removeEventListener('scroll', onScroll);
+      scrollTarget.removeEventListener('scroll', onScroll);
     };
   }, [shouldBypassAnimation, threshold, rootMargin, triggerMode]);
 
