@@ -8,7 +8,7 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 export function ScrollAnimationControls({ selectedId }: { selectedId: string }) {
   const [expanded, setExpanded] = useState(false);
   const selected = useEditorStore(state => state.block.find(block => block.id === selectedId));
-  const updateBlock = useEditorStore(state => state.updateBlock);
+  const updateBlockAnimation = useEditorStore(state => state.updateBlockAnimation);
   if (!selected) return null;
   const animation = resolveScrollAnimation(selected.props);
   return (
@@ -23,7 +23,7 @@ export function ScrollAnimationControls({ selectedId }: { selectedId: string }) 
           <label className="flex flex-col gap-1 text-xs">효과
             <select className="h-9 rounded-md border border-border-divider px-2 text-sm"
               value={animation.animationType}
-              onChange={e => updateBlock(selectedId, {
+              onChange={e => updateBlockAnimation(selectedId, {
                 animationType: e.target.value as typeof animation.animationType,
               })}>
               <option value="none">효과 없음</option>
@@ -36,7 +36,7 @@ export function ScrollAnimationControls({ selectedId }: { selectedId: string }) 
           <label className="flex flex-col gap-1 text-xs">동작 방향
             <select className="h-9 rounded-md border border-border-divider px-2 text-sm"
               value={animation.triggerMode}
-              onChange={e => updateBlock(selectedId, {
+              onChange={e => updateBlockAnimation(selectedId, {
                 triggerMode: e.target.value as typeof animation.triggerMode,
               })}>
               <option value="down-only">아래로 내릴 때 (1회)</option>

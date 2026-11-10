@@ -44,8 +44,9 @@ export interface BlockSlice {
   addBlock: (type: InvitationType, component: BlockType, id: string) => void;
   updateBlock: <T extends BlockType>(
     id: string,
-    props: Partial<PropsFromFields<(typeof blockRegistry)[T]['fields']> & ScrollAnimationSettings>
+    props: Partial<PropsFromFields<(typeof blockRegistry)[T]['fields']>>
   ) => void;
+  updateBlockAnimation: (id: string, settings: Partial<ScrollAnimationSettings>) => void;
   deleteBlock: (id: string) => void;
   moveBlock: (from: number, to: number) => void;
   addAllBlock: (type: InvitationType) => void;
