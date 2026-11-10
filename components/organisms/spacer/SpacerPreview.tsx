@@ -8,15 +8,18 @@ import type { HTMLAttributes } from 'react';
 interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'spacer'>;
   isGuestPage?: boolean;
+  titleClassName?: string;
 }
 
 export function SpacerPreview({
   blockInfo,
   className,
   isGuestPage = false,
+  titleClassName,
   style,
   ...rest
 }: Props) {
+  void titleClassName;
   const height = clampSpacerHeight(blockInfo.props.height);
   return (
     <div

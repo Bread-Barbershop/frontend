@@ -68,8 +68,8 @@ export function TransportationBlock({
     updateBlock(id, { [key]: value.slice(0, FIELD_MAX_LENGTHS[key]) });
 
   return (
-    <LeftEditorWrapper ariaLabel="상세 교통 및 주차" className="gap-3">
-      <NavigationBar>상세 교통 / 주차 편집</NavigationBar>
+    <LeftEditorWrapper ariaLabel="교통 / 주차" className="gap-3">
+      <NavigationBar>교통 / 주차 편집</NavigationBar>
       <div className="flex w-full flex-col gap-4 py-2">
         <label className="flex flex-col gap-1 text-sm text-text-primary">
           제목

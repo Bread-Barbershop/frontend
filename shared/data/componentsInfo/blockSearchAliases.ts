@@ -114,6 +114,7 @@ export const BLOCK_SEARCH_ALIASES: Partial<Record<string, string[]>> = {
   rsvp: [
     '참석',
     '참석여부',
+    '참석 여부 RSVP',
     'rsvp',
     '식사여부',
     '하객참석',
@@ -121,6 +122,7 @@ export const BLOCK_SEARCH_ALIASES: Partial<Record<string, string[]>> = {
     'attendance',
   ],
   transportation: [
+    '상세 교통 / 주차',
     '주차',
     '주차장',
     '셔틀',
@@ -133,6 +135,8 @@ export const BLOCK_SEARCH_ALIASES: Partial<Record<string, string[]>> = {
     'transit',
   ],
   countdown: [
+    'D-Day 카운트다운',
+    'D-Day 카운트 다운',
     '디데이',
     'dday',
     'd-day',
@@ -154,6 +158,7 @@ export const BLOCK_SEARCH_ALIASES: Partial<Record<string, string[]>> = {
     'program',
   ],
   dressCode: [
+    '드레스코드 & 매너',
     '드레스코드',
     '복장',
     '옷',

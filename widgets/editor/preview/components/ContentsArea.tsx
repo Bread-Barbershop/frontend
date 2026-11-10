@@ -5,6 +5,7 @@ import { useShallow } from 'zustand/shallow';
 import { UtilityButton } from '@/components/atoms/button';
 import { componentCls } from '@/shared/data/componentsInfo/componentInfo';
 import { filterComponentCategories } from '@/shared/data/componentsInfo/componentSearch';
+import type { InvitationTemplateType } from '@/shared/data/invitationTemplates';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { InvitationType } from '@/shared/types/block';
 import { BlockType } from '@/shared/types/editor';
@@ -22,12 +23,14 @@ interface Props {
   scrollContainerRef: RefObject<HTMLDivElement | null>;
   sectionRefs: RefObject<Record<string, HTMLDivElement | null>>;
   searchQuery?: string;
+  onOpenTemplatePicker: (type: InvitationTemplateType) => void;
 }
 
 function ContentsArea({
   scrollContainerRef,
   sectionRefs,
   searchQuery = '',
+  onOpenTemplatePicker,
 }: Props) {
   const { addBlock, selectedBlock, addAllBlock, setIsEdit } = useEditorStore(
     useShallow(state => ({
@@ -95,12 +98,26 @@ function ContentsArea({
           >
             <div className="font-semibold flex justify-between items-center h-11">
               <h2 className="text-sm font-semibold">{items.korea}</h2>
-              <UtilityButton
-                className="text-primary w-fit"
-                onClick={() => handleAddAll(items)}
-              >
-                모두 추가하기
-              </UtilityButton>
+              <div className="flex items-center gap-2">
+                {items.english !== 'etc' && (
+                  <UtilityButton
+                    className="text-primary w-fit"
+                    aria-label={`${items.korea} 템플릿 선택 열기`}
+                    onClick={() => {
+                      const type = items.english;
+                      if (type !== 'etc') onOpenTemplatePicker(type);
+                    }}
+                  >
+                    템플릿 사용하기
+                  </UtilityButton>
+                )}
+                <UtilityButton
+                  className="text-primary w-fit"
+                  onClick={() => handleAddAll(items)}
+                >
+                  모두 추가하기
+                </UtilityButton>
+              </div>
             </div>
             <div>
               <ul className="grid grid-cols-5 gap-x-7 gap-y-0.5 ">

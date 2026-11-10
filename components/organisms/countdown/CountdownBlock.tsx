@@ -82,8 +82,8 @@ export function CountdownBlock({
   ] as const;
 
   return (
-    <LeftEditorWrapper ariaLabel="D-Day 카운트다운" className="gap-3">
-      <NavigationBar>D-Day 카운트다운 편집</NavigationBar>
+    <LeftEditorWrapper ariaLabel="D-Day" className="gap-3">
+      <NavigationBar>D-Day 편집</NavigationBar>
       <div className="flex w-full flex-col gap-4 py-2">
         <div className="flex flex-col gap-1">
           <label htmlFor={`countdown-event-${id}`} className="text-sm text-text-primary">행사 일시 (한국 시간)</label>

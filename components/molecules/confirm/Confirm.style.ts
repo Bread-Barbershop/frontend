@@ -12,17 +12,20 @@ export const confirmVariants = cva(
     },
   }
 );
-export const confirmPositionVariants = cva('fixed inset-0 z-9999 flex bg-black/30', {
-  variants: {
-    xPosition: {
-      left: 'justify-start pl-5',
-      center: 'justify-center',
-      right: 'justify-end pr-5',
+export const confirmPositionVariants = cva(
+  'fixed inset-0 z-[40000] flex bg-black/30',
+  {
+    variants: {
+      xPosition: {
+        left: 'justify-start pl-5',
+        center: 'justify-center',
+        right: 'justify-end pr-5',
+      },
+      yPosition: {
+        top: 'items-start pt-5',
+        center: 'items-center',
+        bottom: 'items-end pb-5',
+      },
     },
-    yPosition: {
-      top: 'items-start pt-5',
-      center: 'items-center',
-      bottom: 'items-end pb-5',
-    },
-  },
-});
+  }
+);

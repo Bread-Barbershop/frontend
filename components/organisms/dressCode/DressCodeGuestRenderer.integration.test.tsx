@@ -78,7 +78,7 @@ const dressCodeBlock = {
   id: 'dress-code-block',
   type: 'wedding',
   component: 'dressCode',
-  props: { title: '드레스코드 & 매너', colors: [], guidelines: [] },
+  props: { title: '드레스 코드', colors: [], guidelines: [] },
 } as NormalizedGuestPayload['blocks'][number];
 
 async function renderDressCodeAt(pathname: string) {

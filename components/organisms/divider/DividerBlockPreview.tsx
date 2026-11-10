@@ -8,15 +8,18 @@ import type { HTMLAttributes } from 'react';
 interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'divider'>;
   isGuestPage?: boolean;
+  titleClassName?: string;
 }
 
 export function DividerBlockPreview({
   blockInfo,
   className,
   isGuestPage = false,
+  titleClassName,
   style,
   ...rest
 }: Props) {
+  void titleClassName;
   const { height, thickness, color, topSpacing, bottomSpacing } =
     normalizeDividerSettings(blockInfo.props);
 
