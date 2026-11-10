@@ -5,6 +5,7 @@ import { useShallow } from 'zustand/shallow';
 import SectionArrow from '@/shared/assets/icons/sectionArrow.svg';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
+import { ScrollAnimationControls } from './components/ScrollAnimationControls';
 import BulkEdit from './components/BulkEdit';
 import Edit from './components/Edit';
 
@@ -50,6 +51,8 @@ function LeftPanel() {
           </div>
         </div>
       )}
+
+      {isComponentSelected && !isEdit && <ScrollAnimationControls selectedId={selectedId!} />}
 
       <div
         className={`flex flex-col bg-white rounded-lg shadow-edit border border-black/5 transition-default ${

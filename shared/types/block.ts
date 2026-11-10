@@ -4,6 +4,7 @@ import { blockRegistry } from '@/shared/data/registry/registry';
 import { blockSchema } from '../data/registry/block.schema';
 
 import { BlockType, PropsFromFields } from './editor';
+import type { ScrollAnimationSettings } from '@/components/molecules/scroll-fade-in/animationConfig';
 export type InvitationType =
   | 'wedding'
   | 'firstBirthday'
@@ -15,7 +16,7 @@ export type EditorBlock<T extends BlockType = BlockType> = {
   id: string;
   type: InvitationType;
   component: T;
-  props: PropsFromFields<(typeof blockSchema)[T]['fields']>;
+  props: PropsFromFields<(typeof blockSchema)[T]['fields']> & Partial<ScrollAnimationSettings>;
 };
 
 export type PersistedBlockType = Exclude<BlockType, 'shareUrl'>;
@@ -43,7 +44,7 @@ export interface BlockSlice {
   addBlock: (type: InvitationType, component: BlockType, id: string) => void;
   updateBlock: <T extends BlockType>(
     id: string,
-    props: Partial<PropsFromFields<(typeof blockRegistry)[T]['fields']>>
+    props: Partial<PropsFromFields<(typeof blockRegistry)[T]['fields']> & ScrollAnimationSettings>
   ) => void;
   deleteBlock: (id: string) => void;
   moveBlock: (from: number, to: number) => void;

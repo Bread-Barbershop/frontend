@@ -4,6 +4,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { EditorCallout } from '@/components/molecules/editor-callout';
 import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
+import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { EditorBgmOverlay } from '@/components/organisms/bgm/components/EditorBgmOverlay';
 import CalloutIcon from '@/shared/assets/icons/callout.svg';
 import { blockRegistry } from '@/shared/data/registry/registry';
@@ -107,7 +108,7 @@ function Preview() {
                     blockRefs.current[comp.id] = el;
                   }}
                 >
-                  <ScrollFadeIn>
+                  <ScrollFadeIn {...resolveScrollAnimation(comp.props)}>
                     <View
                       blockInfo={comp}
                     className={`${selectedId === comp.id ? 'ring-1 ring-inset ring-primary' : ''}`}
