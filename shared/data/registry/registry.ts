@@ -27,6 +27,7 @@ import { sponsorshipInfomationDefinition } from '@/components/organisms/sponsors
 import { timelineDefinition } from '@/components/organisms/timeline/Timeline.definition';
 import { transportationDefinition } from '@/components/organisms/transportation/Transportation.definition';
 import { wreathDefinition } from '@/components/organisms/wreath/Wreath.definition';
+import { visualEffectsDefinition } from '@/components/organisms/visualEffects/VisualEffects.definition';
 import { videoDefinition } from '@/components/organisms/video/Video.definition';
 
 import { blockSchema } from './block.schema';
@@ -52,6 +53,7 @@ export const blockRegistry = {
     ...coupleIntroductionDefinition,
   },
   wreath: { ...blockSchema.wreath, ...wreathDefinition },
+  visualEffects: { ...blockSchema.visualEffects, ...visualEffectsDefinition },
   video: { ...blockSchema.video, ...videoDefinition },
   notice: { ...blockSchema.notice, ...noticeDefinition },
   calendar: { ...blockSchema.calendar, ...calendarDefinition },

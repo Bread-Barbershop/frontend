@@ -27,6 +27,7 @@ import { sponsorshipInfomationSchema } from '@/components/organisms/sponsorshipI
 import { timelineSchema } from '@/components/organisms/timeline/Timeline.schema';
 import { transportationSchema } from '@/components/organisms/transportation/Transportation.schema';
 import { wreathSchema } from '@/components/organisms/wreath/Wreath.schema';
+import { visualEffectsSchema } from '@/components/organisms/visualEffects/VisualEffects.schema';
 import { videoSchema } from '@/components/organisms/video/Video.schema';
 
 export const blockSchema = {
@@ -44,6 +45,7 @@ export const blockSchema = {
   account: accountSchema,
   coupleIntroduction: coupleIntroductionSchema,
   wreath: wreathSchema,
+  visualEffects: visualEffectsSchema,
   video: videoSchema,
   notice: noticeSchema,
   calendar: calendarSchema,

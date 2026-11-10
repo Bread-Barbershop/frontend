@@ -35,6 +35,7 @@ const GUEST_PAGE_PROP_COMPONENTS = new Set<GuestRendererBlock['component']>([
   'timeline',
   'transportation',
   'video',
+  'visualEffects',
 ]);
 
 function GuestRenderer({
