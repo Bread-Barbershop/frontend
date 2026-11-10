@@ -16,7 +16,7 @@ export type EditorBlock<T extends BlockType = BlockType> = {
   id: string;
   type: InvitationType;
   component: T;
-  props: PropsFromFields<(typeof blockSchema)[T]['fields']> & Partial<ScrollAnimationSettings>;
+  props: PropsFromFields<(typeof blockSchema)[T]['fields']>;
 };
 
 export type PersistedBlockType = Exclude<BlockType, 'shareUrl'>;
