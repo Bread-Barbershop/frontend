@@ -5,6 +5,7 @@ import { ScrollFadeIn } from './ScrollFadeIn';
 
 describe('ScrollFadeIn 컴포넌트', () => {
   let originalIntersectionObserver: typeof window.IntersectionObserver;
+  let originalMatchMedia: typeof window.matchMedia;
   let observeMock: jest.Mock;
   let unobserveMock: jest.Mock;
   let disconnectMock: jest.Mock;
@@ -12,6 +13,7 @@ describe('ScrollFadeIn 컴포넌트', () => {
 
   beforeEach(() => {
     originalIntersectionObserver = window.IntersectionObserver;
+    originalMatchMedia = window.matchMedia;
     observeMock = jest.fn();
     unobserveMock = jest.fn();
     disconnectMock = jest.fn();
@@ -36,6 +38,7 @@ describe('ScrollFadeIn 컴포넌트', () => {
 
   afterEach(() => {
     window.IntersectionObserver = originalIntersectionObserver;
+    window.matchMedia = originalMatchMedia;
     jest.restoreAllMocks();
   });
 
