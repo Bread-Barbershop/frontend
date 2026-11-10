@@ -11,7 +11,11 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 
 export function FaqPreview({ blockInfo, titleClassName, className = '', isGuestPage = false, ...rest }: Props) {
   const { title, items } = blockInfo.props;
-  const visible = items.filter(item => item.question.trim() && (!isGuestPage || item.answer.trim()));
+  const visible = (Array.isArray(items) ? items : []).filter(item =>
+    item && typeof item.question === 'string' &&
+    typeof item.answer === 'string' &&
+    item.question.trim() && (!isGuestPage || item.answer.trim())
+  );
   return (
     <MiddlePreviewWrapper className={className} titleClassName={titleClassName}
       mainTitle={title} mainTitleDefault="자주 묻는 질문" {...rest}>

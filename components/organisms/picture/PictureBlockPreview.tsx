@@ -70,6 +70,10 @@ function PictureBlockPreview({
               style={{ transform: transform.transform, objectPosition: transform.objectPosition, filter: transform.filter }}
               draggable={false}
             />
+            {blockInfo.props.imageFilter === 'vignette' && (
+              <div className="pointer-events-none absolute inset-0 rounded-3xl"
+                style={{ boxShadow: 'inset 0 0 80px 15px rgba(0,0,0,.38)' }} />
+            )}
           </div>
         )}
       </div>
