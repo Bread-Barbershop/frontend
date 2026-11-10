@@ -148,7 +148,7 @@ describe('ScrollFadeIn 컴포넌트', () => {
 
     // wrapper 본인의 transitionend (opacity 또는 transform) 발생 시 해제
     act(() => {
-      const selfEvent = new Event('transitionend');
+      const selfEvent = new Event('transitionend', { bubbles: true });
       Object.defineProperty(selfEvent, 'propertyName', { value: 'opacity' });
       wrapper.dispatchEvent(selfEvent);
     });
