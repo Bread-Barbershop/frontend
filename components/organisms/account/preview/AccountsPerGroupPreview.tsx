@@ -1,3 +1,5 @@
+import { safeTransferLink } from '../safeTransferLink';
+
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { openAccountApp } from '@/app/api/account/openAccountApp';
@@ -12,6 +14,8 @@ type Account = {
   bank: string;
   account: string;
   kakao: boolean;
+  kakaoPayUrl?: string;
+  tossUrl?: string;
 };
 
 const copyTextToClipboard = async (text: string) => {
@@ -77,6 +81,8 @@ export const AccountsPerGroupPreview = ({
         >
           <div className="flex flex-col gap-2 pb-[11px] pt-2 bg-white">
             {accountList.map((account: Account, j: number) => {
+              const kakaoPayUrl = safeTransferLink(account.kakaoPayUrl, 'kakao');
+              const tossUrl = safeTransferLink(account.tossUrl, 'toss');
               const displayName = account.name.trim() || '예금주';
               const displayBank = account.bank.trim() || '은행';
               const displayAccount = account.account.trim() || '000-000-000000';
@@ -111,7 +117,21 @@ export const AccountsPerGroupPreview = ({
                     >
                       <CopyIcon />
                     </Button>
-                    {account.kakao === true && (
+                    {kakaoPayUrl && (
+                      <a href={kakaoPayUrl} rel="noopener noreferrer" target="_blank"
+                        aria-label="카카오페이 송금 링크"
+                        className="rounded-md px-1.5 py-2 text-xs font-semibold text-primary">
+                        카카오페이
+                      </a>
+                    )}
+                    {tossUrl && (
+                      <a href={tossUrl} rel="noopener noreferrer" target="_blank"
+                        aria-label="토스 송금 링크"
+                        className="rounded-md px-1.5 py-2 text-xs font-semibold text-primary">
+                        토스
+                      </a>
+                    )}
+                    {account.kakao === true && !kakaoPayUrl && (
                       <Button
                         type="button"
                         variant="borderless"
