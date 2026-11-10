@@ -1,3 +1,4 @@
+import { afterPartyDefinition } from '@/components/organisms/afterParty/AfterParty.definition';
 import { accountDefinition } from '@/components/organisms/account/Account.definition';
 import { bgmDefinition } from '@/components/organisms/bgm/Bgm.definition';
 import { calendarDefinition } from '@/components/organisms/calendar/Calendar.definition';
@@ -41,6 +42,7 @@ export const blockRegistry = {
     ...blockSchema.transportation,
     ...transportationDefinition,
   },
+  afterParty: { ...blockSchema.afterParty, ...afterPartyDefinition },
   account: { ...blockSchema.account, ...accountDefinition },
   coupleIntroduction: {
     ...blockSchema.coupleIntroduction,

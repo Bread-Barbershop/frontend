@@ -1,3 +1,4 @@
+import { afterPartySchema } from '@/components/organisms/afterParty/AfterParty.schema';
 import { accountSchema } from '@/components/organisms/account/Account.schema';
 import { bgmSchema } from '@/components/organisms/bgm/Bgm.schema';
 import { calendarSchema } from '@/components/organisms/calendar/Calendar.schema';
@@ -36,6 +37,7 @@ export const blockSchema = {
   place: placeSchema,
   rsvp: rsvpSchema,
   transportation: transportationSchema,
+  afterParty: afterPartySchema,
   account: accountSchema,
   coupleIntroduction: coupleIntroductionSchema,
   video: videoSchema,
