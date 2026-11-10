@@ -4,9 +4,8 @@ import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationB
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
 
-import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
-
 import { safeNavigationUrl } from '../transportation/navigationUrl';
+import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
 type Key = keyof EditorBlock<'afterParty'>['props'];
 const FIELDS = [

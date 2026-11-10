@@ -1,5 +1,3 @@
-import { safeTransferLink } from '../safeTransferLink';
-
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { openAccountApp } from '@/app/api/account/openAccountApp';
@@ -8,6 +6,8 @@ import CopyIcon from '@/shared/assets/icons/copy.svg';
 import KakaoIcon from '@/shared/assets/icons/kakao.svg';
 import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { useToast } from '@/shared/hooks/useToast';
+
+import { safeTransferLink } from '../safeTransferLink';
 
 type Account = {
   name: string;

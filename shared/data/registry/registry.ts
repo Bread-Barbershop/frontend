@@ -1,5 +1,5 @@
-import { afterPartyDefinition } from '@/components/organisms/afterParty/AfterParty.definition';
 import { accountDefinition } from '@/components/organisms/account/Account.definition';
+import { afterPartyDefinition } from '@/components/organisms/afterParty/AfterParty.definition';
 import { bgmDefinition } from '@/components/organisms/bgm/Bgm.definition';
 import { calendarDefinition } from '@/components/organisms/calendar/Calendar.definition';
 import { closingCommentDefinition } from '@/components/organisms/closingComment/ClosingComment.definition';
@@ -9,8 +9,8 @@ import { dividerDefinition } from '@/components/organisms/divider/Divider.defini
 import { dressCodeDefinition } from '@/components/organisms/dressCode/DressCode.definition';
 import { faqDefinition } from '@/components/organisms/faq/Faq.definition';
 import { galleryDefinition } from '@/components/organisms/gallery/Gallery.definition';
-import { guestbookDefinition } from '@/components/organisms/guestbook/Guestbook.definition';
 import { greetingDefinition } from '@/components/organisms/greeting/Greeting.definition';
+import { guestbookDefinition } from '@/components/organisms/guestbook/Guestbook.definition';
 import { interviewDefinition } from '@/components/organisms/interview/Interview.definition';
 import { myChildDefinition } from '@/components/organisms/myChild/MyChild.definition';
 import { myFamilyDefinition } from '@/components/organisms/myFamily/MyFamily.definition';
@@ -26,9 +26,9 @@ import { speakerInformationDefinition } from '@/components/organisms/speakerInfo
 import { sponsorshipInfomationDefinition } from '@/components/organisms/sponsorshipInfomation/SposorshipInfomation.definition';
 import { timelineDefinition } from '@/components/organisms/timeline/Timeline.definition';
 import { transportationDefinition } from '@/components/organisms/transportation/Transportation.definition';
-import { wreathDefinition } from '@/components/organisms/wreath/Wreath.definition';
-import { visualEffectsDefinition } from '@/components/organisms/visualEffects/VisualEffects.definition';
 import { videoDefinition } from '@/components/organisms/video/Video.definition';
+import { visualEffectsDefinition } from '@/components/organisms/visualEffects/VisualEffects.definition';
+import { wreathDefinition } from '@/components/organisms/wreath/Wreath.definition';
 
 import { blockSchema } from './block.schema';
 

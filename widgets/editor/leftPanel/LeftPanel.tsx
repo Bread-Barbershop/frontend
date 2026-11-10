@@ -5,9 +5,9 @@ import { useShallow } from 'zustand/shallow';
 import SectionArrow from '@/shared/assets/icons/sectionArrow.svg';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
-import { ScrollAnimationControls } from './components/ScrollAnimationControls';
 import BulkEdit from './components/BulkEdit';
 import Edit from './components/Edit';
+import { ScrollAnimationControls } from './components/ScrollAnimationControls';
 
 function LeftPanel() {
   const { isEdit, setIsEdit, selectedId } = useEditorStore(

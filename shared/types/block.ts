@@ -1,10 +1,10 @@
 import { PickerHsva } from '@/components/molecules/color-picker/components/colorPicker.types';
+import type { ScrollAnimationSettings } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { blockRegistry } from '@/shared/data/registry/registry';
 
 import { blockSchema } from '../data/registry/block.schema';
 
 import { BlockType, PropsFromFields } from './editor';
-import type { ScrollAnimationSettings } from '@/components/molecules/scroll-fade-in/animationConfig';
 export type InvitationType =
   | 'wedding'
   | 'firstBirthday'

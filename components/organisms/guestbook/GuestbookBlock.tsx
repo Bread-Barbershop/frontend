@@ -4,8 +4,8 @@ import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationB
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
 
-import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 import { safeRsvpFormUrl } from '../rsvp/rsvpFormUrl';
+import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
 const FIELDS = [
   ['title', '제목', 60],

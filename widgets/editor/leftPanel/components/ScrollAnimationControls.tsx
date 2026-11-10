@@ -2,9 +2,8 @@
 
 import { useState } from 'react';
 
-import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
-
 import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/animationConfig';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 export function ScrollAnimationControls({ selectedId }: { selectedId: string }) {
   const [expanded, setExpanded] = useState(false);

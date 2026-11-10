@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 
 import type { EditorBlock } from '@/shared/types/block';
@@ -59,9 +59,10 @@ function EnvelopeIntro() {
   );
 }
 
+const subscribeToHydration = () => () => {};
+
 export function VisualEffectsPreview({ blockInfo, isGuestPage = false, className = '', titleClassName, ...rest }: Props) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  const mounted = useSyncExternalStore(subscribeToHydration, () => true, () => false);
   const { effect, showEnvelopeIntro } = blockInfo.props;
   void titleClassName;
   return (

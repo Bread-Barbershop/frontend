@@ -4,8 +4,8 @@ import { usePathname } from 'next/navigation';
 import React, { useEffect, useMemo } from 'react';
 import { useShallow } from 'zustand/shallow';
 
-import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
 import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/animationConfig';
+import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
 import { blockRegistry } from '@/shared/data/registry/registry';
 import { preloadFontFamilyWeights } from '@/shared/fonts/fontLoader';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';

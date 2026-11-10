@@ -3,8 +3,8 @@ import React, { useEffect, useRef } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { EditorCallout } from '@/components/molecules/editor-callout';
-import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
 import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/animationConfig';
+import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
 import { EditorBgmOverlay } from '@/components/organisms/bgm/components/EditorBgmOverlay';
 import CalloutIcon from '@/shared/assets/icons/callout.svg';
 import { blockRegistry } from '@/shared/data/registry/registry';
