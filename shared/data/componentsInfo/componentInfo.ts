@@ -4,7 +4,7 @@ import { BlockType } from '@/shared/types/editor';
 import { BLOCK_SEARCH_ALIASES } from './blockSearchAliases';
 
 export type SampleDataType = {
-  english: InvitationType;
+  english: InvitationType | 'layout';
   korea: string;
   list: ListType[];
 };
@@ -139,6 +139,12 @@ export const etcComponents: ListType[] = withSearchAliases([
   { contents: '마무리문구', component: 'closingComment', isType: false },
 ]);
 
+export const layoutComponents: ListType[] = withSearchAliases([
+  { contents: '세로 구분선', component: 'divider', isType: false },
+  { contents: '여백', component: 'spacer', isType: false },
+  { contents: '배경 · 오프닝 효과', component: 'visualEffects', isType: false },
+]);
+
 export const componentCls: SampleDataType[] = [
   {
     english: 'wedding',
@@ -164,5 +170,10 @@ export const componentCls: SampleDataType[] = [
     english: 'etc',
     korea: '기타',
     list: etcComponents,
+  },
+  {
+    english: 'layout',
+    korea: '디자인 / 레이아웃',
+    list: layoutComponents,
   },
 ];

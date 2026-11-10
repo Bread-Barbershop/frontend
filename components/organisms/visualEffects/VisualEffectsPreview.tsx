@@ -59,10 +59,11 @@ function EnvelopeIntro() {
   );
 }
 
-export function VisualEffectsPreview({ blockInfo, isGuestPage = false, className = '', ...rest }: Props) {
+export function VisualEffectsPreview({ blockInfo, isGuestPage = false, className = '', titleClassName, ...rest }: Props) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
   const { effect, showEnvelopeIntro } = blockInfo.props;
+  void titleClassName;
   return (
     <div className={className} {...rest}>
       {isGuestPage ? (
