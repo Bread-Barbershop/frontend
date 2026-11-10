@@ -9,6 +9,8 @@ import { cn } from '@/shared/utils/cn';
 
 import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
 
+import { resolvePictureTransform } from './pictureTransform';
+
 interface Props {
   blockInfo: EditorBlock<'picture'>;
   className: string;
@@ -23,6 +25,7 @@ function PictureBlockPreview({
   isGuestPage = false,
   ...rest
 }: Props) {
+  const transform = resolvePictureTransform(blockInfo.props);
   const preview = useResolvedImageSource(
     blockInfo.props.image && blockInfo.props.image.length > 0
       ? blockInfo.props.image[0]
@@ -58,12 +61,13 @@ function PictureBlockPreview({
           </div>
         )}
         {preview && (
-          <div className="relative w-full aspect-square rounded-3xl overflow-hidden">
+          <div className="relative w-full rounded-3xl overflow-hidden" style={{ aspectRatio: transform.aspectRatio }}>
             <Image
               src={preview}
               alt="초대장 사진"
               fill
               className="object-cover"
+              style={{ transform: transform.transform, objectPosition: transform.objectPosition, filter: transform.filter }}
               draggable={false}
             />
           </div>

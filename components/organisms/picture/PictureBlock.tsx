@@ -19,6 +19,18 @@ import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
 const DEFAULT_SUB_TITLE = 'PICTURE';
+const RATIO_OPTIONS = [
+  ['1/1', '1:1'],
+  ['4/3', '4:3'],
+  ['16/9', '16:9'],
+] as const;
+const FILTER_OPTIONS = [
+  ['none', '원본'],
+  ['grayscale', '흑백'],
+  ['sepia', '빈티지'],
+  ['contrast', '선명하게'],
+  ['vignette', '비네팅'],
+] as const;
 
 interface Props {
   blockInfo: EditorBlock<'picture'>;
@@ -105,6 +117,56 @@ function PictureBlock({ blockInfo, id }: Props) {
           className="text-center py-1"
           loadingCount={loadingCount}
         />
+        {(blockInfo.props.image?.length ?? 0) > 0 && (
+          <section className="mt-2 flex w-full flex-col gap-3 rounded-lg border border-border-divider p-3 text-sm">
+            <h3 className="font-semibold">사진 보정 · 자르기</h3>
+            <div className="flex flex-wrap gap-2">
+              {RATIO_OPTIONS.map(([ratio, label]) => (
+                <button type="button" key={ratio}
+                  aria-pressed={(blockInfo.props.imageRatio ?? '1/1') === ratio}
+                  className="rounded-md border border-border-divider px-3 py-2 aria-pressed:bg-[#EDF4FF]"
+                  onClick={() => updateBlock(id, { imageRatio: ratio })}>{label}</button>
+              ))}
+            </div>
+            <div className="flex items-center gap-2">
+              <button type="button" className="rounded-md border border-border-divider px-3 py-2"
+                onClick={() => updateBlock(id, { imageRotation: ((blockInfo.props.imageRotation ?? 0) - 90) % 360 })}>
+                왼쪽 90°
+              </button>
+              <button type="button" className="rounded-md border border-border-divider px-3 py-2"
+                onClick={() => updateBlock(id, { imageRotation: ((blockInfo.props.imageRotation ?? 0) + 90) % 360 })}>
+                오른쪽 90°
+              </button>
+            </div>
+            {([
+              ['imageRotation', '회전', -180, 180, 1],
+              ['imageScale', '확대 / 축소', 1, 3, 0.05],
+              ['imageOffsetX', '가로 위치', 0, 100, 1],
+              ['imageOffsetY', '세로 위치', 0, 100, 1],
+              ['imageBrightness', '밝기', 50, 150, 1],
+            ] as const).map(([key, label, min, max, step]) => (
+              <label key={key} className="flex flex-col gap-1">
+                {label} ({blockInfo.props[key] ?? (key === 'imageScale' ? 1 : key === 'imageBrightness' ? 100 : key.startsWith('imageOffset') ? 50 : 0)})
+                <input type="range" min={min} max={max} step={step}
+                  value={blockInfo.props[key] ?? (key === 'imageScale' ? 1 : key === 'imageBrightness' ? 100 : key.startsWith('imageOffset') ? 50 : 0)}
+                  onChange={e => updateBlock(id, { [key]: Number(e.target.value) })} />
+              </label>
+            ))}
+            <label className="flex flex-col gap-1">필터
+              <select className="h-10 rounded-md border border-border-divider px-3"
+                value={blockInfo.props.imageFilter ?? 'none'}
+                onChange={e => updateBlock(id, { imageFilter: e.target.value })}>
+                {FILTER_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+              </select>
+            </label>
+            <button type="button" className="self-end text-xs text-primary"
+              onClick={() => updateBlock(id, {
+                imageRotation: 0, imageScale: 1, imageRatio: '1/1',
+                imageOffsetX: 50, imageOffsetY: 50,
+                imageFilter: 'none', imageBrightness: 100,
+              })}>보정 초기화</button>
+          </section>
+        )}
         {blockInfo.props.isTitle && (
           <TextField
             label="제목"
