@@ -106,7 +106,10 @@ describe('GuestRenderer', () => {
       expect(mockPictureView).toHaveBeenCalled();
     });
 
-    expect(mockCalendarView.mock.calls[0][0]).not.toHaveProperty('isGuestPage');
+    expect(mockCalendarView.mock.calls[0][0]).toHaveProperty(
+      'isGuestPage',
+      true
+    );
     expect(mockPictureView.mock.calls[0][0]).toHaveProperty(
       'isGuestPage',
       true
