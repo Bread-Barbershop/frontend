@@ -6,6 +6,7 @@ import { countdownSchema } from '@/components/organisms/countdown/Countdown.sche
 import { coupleIntroductionSchema } from '@/components/organisms/couple-introduction/CoupleIntroduction.schema';
 import { dividerSchema } from '@/components/organisms/divider/Divider.schema';
 import { dressCodeSchema } from '@/components/organisms/dressCode/DressCode.schema';
+import { faqSchema } from '@/components/organisms/faq/Faq.schema';
 import { gallerySchema } from '@/components/organisms/gallery/Gallery.schema';
 import { greetingSchema } from '@/components/organisms/greeting/Greeting.schema';
 import { interviewSchema } from '@/components/organisms/interview/Interview.schema';
@@ -26,6 +27,7 @@ import { transportationSchema } from '@/components/organisms/transportation/Tran
 import { videoSchema } from '@/components/organisms/video/Video.schema';
 
 export const blockSchema = {
+  faq: faqSchema,
   gallery: gallerySchema,
   divider: dividerSchema,
   bgm: bgmSchema,

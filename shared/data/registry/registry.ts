@@ -6,6 +6,7 @@ import { countdownDefinition } from '@/components/organisms/countdown/Countdown.
 import { coupleIntroductionDefinition } from '@/components/organisms/couple-introduction/CoupleIntroduction.definition';
 import { dividerDefinition } from '@/components/organisms/divider/Divider.definition';
 import { dressCodeDefinition } from '@/components/organisms/dressCode/DressCode.definition';
+import { faqDefinition } from '@/components/organisms/faq/Faq.definition';
 import { galleryDefinition } from '@/components/organisms/gallery/Gallery.definition';
 import { greetingDefinition } from '@/components/organisms/greeting/Greeting.definition';
 import { interviewDefinition } from '@/components/organisms/interview/Interview.definition';
@@ -28,6 +29,7 @@ import { videoDefinition } from '@/components/organisms/video/Video.definition';
 import { blockSchema } from './block.schema';
 
 export const blockRegistry = {
+  faq: { ...blockSchema.faq, ...faqDefinition },
   gallery: { ...blockSchema.gallery, ...galleryDefinition },
   divider: { ...blockSchema.divider, ...dividerDefinition },
   bgm: { ...blockSchema.bgm, ...bgmDefinition },

@@ -39,6 +39,7 @@ export const weddingComponents: ListType[] = withSearchAliases([
   { contents: '인터뷰', component: 'interview', isType: false },
   // { contents: '모청스냅', component: null, isType: false },
   { contents: '공지사항', component: 'notice', isType: false },
+  { contents: '자주 묻는 질문', component: 'faq', isType: false },
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
   { contents: '참석 여부', component: 'rsvp', isType: false },
