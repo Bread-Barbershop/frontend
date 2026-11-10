@@ -9,6 +9,7 @@ import { dividerDefinition } from '@/components/organisms/divider/Divider.defini
 import { dressCodeDefinition } from '@/components/organisms/dressCode/DressCode.definition';
 import { faqDefinition } from '@/components/organisms/faq/Faq.definition';
 import { galleryDefinition } from '@/components/organisms/gallery/Gallery.definition';
+import { guestbookDefinition } from '@/components/organisms/guestbook/Guestbook.definition';
 import { greetingDefinition } from '@/components/organisms/greeting/Greeting.definition';
 import { interviewDefinition } from '@/components/organisms/interview/Interview.definition';
 import { myChildDefinition } from '@/components/organisms/myChild/MyChild.definition';
@@ -35,6 +36,7 @@ export const blockRegistry = {
   gallery: { ...blockSchema.gallery, ...galleryDefinition },
   divider: { ...blockSchema.divider, ...dividerDefinition },
   bgm: { ...blockSchema.bgm, ...bgmDefinition },
+  guestbook: { ...blockSchema.guestbook, ...guestbookDefinition },
   greeting: { ...blockSchema.greeting, ...greetingDefinition },
   phone: { ...blockSchema.phone, ...phoneDefinition },
   place: { ...blockSchema.place, ...placeDefinition },

@@ -9,6 +9,7 @@ import { dividerSchema } from '@/components/organisms/divider/Divider.schema';
 import { dressCodeSchema } from '@/components/organisms/dressCode/DressCode.schema';
 import { faqSchema } from '@/components/organisms/faq/Faq.schema';
 import { gallerySchema } from '@/components/organisms/gallery/Gallery.schema';
+import { guestbookSchema } from '@/components/organisms/guestbook/Guestbook.schema';
 import { greetingSchema } from '@/components/organisms/greeting/Greeting.schema';
 import { interviewSchema } from '@/components/organisms/interview/Interview.schema';
 import { myChildSchema } from '@/components/organisms/myChild/MyChild.schema';
@@ -33,6 +34,7 @@ export const blockSchema = {
   gallery: gallerySchema,
   divider: dividerSchema,
   bgm: bgmSchema,
+  guestbook: guestbookSchema,
   greeting: greetingSchema,
   phone: phoneSchema,
   place: placeSchema,
