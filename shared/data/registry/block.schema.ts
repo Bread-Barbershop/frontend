@@ -25,6 +25,7 @@ import { speakerInformationSchema } from '@/components/organisms/speakerInformat
 import { sponsorshipInfomationSchema } from '@/components/organisms/sponsorshipInfomation/SposorshipInfomation.schema';
 import { timelineSchema } from '@/components/organisms/timeline/Timeline.schema';
 import { transportationSchema } from '@/components/organisms/transportation/Transportation.schema';
+import { wreathSchema } from '@/components/organisms/wreath/Wreath.schema';
 import { videoSchema } from '@/components/organisms/video/Video.schema';
 
 export const blockSchema = {
@@ -40,6 +41,7 @@ export const blockSchema = {
   afterParty: afterPartySchema,
   account: accountSchema,
   coupleIntroduction: coupleIntroductionSchema,
+  wreath: wreathSchema,
   video: videoSchema,
   notice: noticeSchema,
   calendar: calendarSchema,

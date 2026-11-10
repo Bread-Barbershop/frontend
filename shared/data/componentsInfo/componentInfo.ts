@@ -36,6 +36,7 @@ export const weddingComponents: ListType[] = withSearchAliases([
   { contents: '연락처', component: 'phone', isType: false },
   { contents: '배경음악', component: 'bgm', isType: false },
   { contents: '계좌번호', component: 'account', isType: false },
+  { contents: '축하 화환', component: 'wreath', isType: false },
   // { contents: '방명록', component: null, isType: false },
   { contents: '인터뷰', component: 'interview', isType: false },
   // { contents: '모청스냅', component: null, isType: false },
