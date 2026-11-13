@@ -7,11 +7,14 @@ import { cn } from '@/shared/utils/cn';
 
 import { imageVariants, imageWrapperVariants } from './Image.style';
 
-interface ImageProps extends Omit<NextImageProps, 'onLoad' | 'alt'> {
+interface ImageProps
+  extends Omit<NextImageProps, 'onLoad' | 'alt' | 'onError'> {
   alt?: string;
   loadingClassName?: string;
+  wrapperClassName?: string;
   draggable?: boolean;
   onLoad?: () => void;
+  onError?: NextImageProps['onError'];
 }
 
 export const Image = ({
@@ -19,8 +22,10 @@ export const Image = ({
   alt = '이미지 미리보기',
   className,
   loadingClassName,
+  wrapperClassName,
   draggable = false,
   onLoad,
+  onError,
   ...rest
 }: ImageProps) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -95,7 +100,7 @@ export const Image = ({
     isDragging.current = false;
   }, []);
   return (
-    <div className={cn(imageWrapperVariants({ fill: rest.fill }))}>
+    <div className={cn(imageWrapperVariants({ fill: rest.fill }), wrapperClassName)}>
       {showLoadingSpinner && (
         <div
           className={cn(
@@ -126,7 +131,10 @@ export const Image = ({
               setIsLoading(false);
               onLoad?.();
             }}
-            onError={() => setIsLoading(false)}
+            onError={event => {
+              setIsLoading(false);
+              onError?.(event);
+            }}
             draggable={false}
             style={{
               objectFit: 'cover',
@@ -149,7 +157,10 @@ export const Image = ({
             setIsLoading(false);
             onLoad?.();
           }}
-          onError={() => setIsLoading(false)}
+          onError={event => {
+            setIsLoading(false);
+            onError?.(event);
+          }}
         />
       )}
     </div>

@@ -2,7 +2,10 @@ import { accountDefinition } from '@/components/organisms/account/Account.defini
 import { bgmDefinition } from '@/components/organisms/bgm/Bgm.definition';
 import { calendarDefinition } from '@/components/organisms/calendar/Calendar.definition';
 import { closingCommentDefinition } from '@/components/organisms/closingComment/ClosingComment.definition';
+import { countdownDefinition } from '@/components/organisms/countdown/Countdown.definition';
 import { coupleIntroductionDefinition } from '@/components/organisms/couple-introduction/CoupleIntroduction.definition';
+import { dividerDefinition } from '@/components/organisms/divider/Divider.definition';
+import { dressCodeDefinition } from '@/components/organisms/dressCode/DressCode.definition';
 import { galleryDefinition } from '@/components/organisms/gallery/Gallery.definition';
 import { greetingDefinition } from '@/components/organisms/greeting/Greeting.definition';
 import { interviewDefinition } from '@/components/organisms/interview/Interview.definition';
@@ -14,18 +17,28 @@ import { organizerInformationDefinition } from '@/components/organisms/organizer
 import { phoneDefinition } from '@/components/organisms/phone/Phone.definition';
 import { pictureDefinition } from '@/components/organisms/picture/Picture.definition';
 import { placeDefinition } from '@/components/organisms/place/Place.definition';
+import { rsvpDefinition } from '@/components/organisms/rsvp/Rsvp.definition';
+import { spacerDefinition } from '@/components/organisms/spacer/Spacer.definition';
 import { speakerInformationDefinition } from '@/components/organisms/speakerInformation/SpeakerInformation.definition';
 import { sponsorshipInfomationDefinition } from '@/components/organisms/sponsorshipInfomation/SposorshipInfomation.definition';
+import { timelineDefinition } from '@/components/organisms/timeline/Timeline.definition';
+import { transportationDefinition } from '@/components/organisms/transportation/Transportation.definition';
 import { videoDefinition } from '@/components/organisms/video/Video.definition';
 
 import { blockSchema } from './block.schema';
 
 export const blockRegistry = {
   gallery: { ...blockSchema.gallery, ...galleryDefinition },
+  divider: { ...blockSchema.divider, ...dividerDefinition },
   bgm: { ...blockSchema.bgm, ...bgmDefinition },
   greeting: { ...blockSchema.greeting, ...greetingDefinition },
   phone: { ...blockSchema.phone, ...phoneDefinition },
   place: { ...blockSchema.place, ...placeDefinition },
+  rsvp: { ...blockSchema.rsvp, ...rsvpDefinition },
+  transportation: {
+    ...blockSchema.transportation,
+    ...transportationDefinition,
+  },
   account: { ...blockSchema.account, ...accountDefinition },
   coupleIntroduction: {
     ...blockSchema.coupleIntroduction,
@@ -34,6 +47,9 @@ export const blockRegistry = {
   video: { ...blockSchema.video, ...videoDefinition },
   notice: { ...blockSchema.notice, ...noticeDefinition },
   calendar: { ...blockSchema.calendar, ...calendarDefinition },
+  timeline: { ...blockSchema.timeline, ...timelineDefinition },
+  countdown: { ...blockSchema.countdown, ...countdownDefinition },
+  dressCode: { ...blockSchema.dressCode, ...dressCodeDefinition },
   interview: { ...blockSchema.interview, ...interviewDefinition },
   organizerInformation: {
     ...blockSchema.organizerInformation,
@@ -54,6 +70,7 @@ export const blockRegistry = {
     ...sponsorshipInfomationDefinition,
   },
   picture: { ...blockSchema.picture, ...pictureDefinition },
+  spacer: { ...blockSchema.spacer, ...spacerDefinition },
   closingComment: {
     ...blockSchema.closingComment,
     ...closingCommentDefinition,

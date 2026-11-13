@@ -36,6 +36,7 @@ export const PlacePreview = ({
     placeAddress,
     placeTel,
     checkedSubTitle,
+    checkedPlaceTel = false,
     mapLocked,
   } = blockInfo.props;
   const defaultTitle = getDefaultPlaceTitle(blockInfo.type);
@@ -63,9 +64,11 @@ export const PlacePreview = ({
           {placeName} {placeDetail}
         </p>
       </section>
-      <p className="font-normal text-text-tertiary" style={{ fontFamily }}>
-        TEL. {formatPhoneNumber(placeTel)}
-      </p>
+      {checkedPlaceTel && Boolean(placeTel?.trim()) && (
+        <p className="font-normal text-text-tertiary" style={{ fontFamily }}>
+          TEL. {formatPhoneNumber(placeTel)}
+        </p>
+      )}
 
       {blockInfo.props.openMap && isScriptLoaded && (
         <PlaceMap

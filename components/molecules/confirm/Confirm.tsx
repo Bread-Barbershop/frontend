@@ -41,6 +41,10 @@ const Confirm = forwardRef<HTMLDivElement, ConfirmProps>(
     ref
   ) => {
     useEffect(() => {
+      const previouslyFocused =
+        document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null;
       const enableRestore = disableBodyScroll();
       getHiddenRoot();
 
@@ -53,6 +57,8 @@ const Confirm = forwardRef<HTMLDivElement, ConfirmProps>(
 
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Escape') {
+          e.preventDefault();
+          e.stopPropagation();
           onClose();
         }
         if (ref && 'current' in ref && ref.current) {
@@ -67,6 +73,7 @@ const Confirm = forwardRef<HTMLDivElement, ConfirmProps>(
         document.removeEventListener('keydown', handleKeyDown);
         enableRestore();
         removeHiddenRoot();
+        if (previouslyFocused?.isConnected) previouslyFocused.focus();
       };
     }, [onClose, ref]);
 

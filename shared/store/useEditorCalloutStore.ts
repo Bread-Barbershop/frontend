@@ -1,7 +1,12 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-export type EditorCalloutId = 'order-panel' | 'preview-panel';
+import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
+
+export type EditorCalloutId =
+  | 'add-page-button'
+  | 'order-panel'
+  | 'preview-panel';
 
 export type EditorCalloutState = Record<EditorCalloutId, boolean>;
 
@@ -18,6 +23,7 @@ type EditorCalloutStore = {
 };
 
 export const DEFAULT_EDITOR_CALLOUTS: EditorCalloutState = {
+  'add-page-button': false,
   'order-panel': false,
   'preview-panel': false,
 };
@@ -32,6 +38,10 @@ const clearAutoHideTimer = () => {
   autoHideTimer = null;
 };
 
+const isDesktopViewport = () =>
+  typeof window === 'undefined' ||
+  window.innerWidth >= DESKTOP_CONTENT_MIN_WIDTH;
+
 const createCallouts = (open: boolean): EditorCalloutState =>
   Object.fromEntries(
     (Object.keys(DEFAULT_EDITOR_CALLOUTS) as EditorCalloutId[]).map(id => [
@@ -44,7 +54,8 @@ export const useEditorCalloutStore = create<EditorCalloutStore>()(
   devtools(
     set => ({
       callouts: DEFAULT_EDITOR_CALLOUTS,
-      setCalloutOpen: (id, open) =>
+      setCalloutOpen: (id, open) => {
+        if (open && !isDesktopViewport()) return;
         set(
           state => ({
             callouts: {
@@ -54,8 +65,10 @@ export const useEditorCalloutStore = create<EditorCalloutStore>()(
           }),
           false,
           'editorCallout/setOpen'
-        ),
-      showCallout: id =>
+        );
+      },
+      showCallout: id => {
+        if (!isDesktopViewport()) return;
         set(
           state => ({
             callouts: {
@@ -65,9 +78,11 @@ export const useEditorCalloutStore = create<EditorCalloutStore>()(
           }),
           false,
           'editorCallout/show'
-        ),
+        );
+      },
       showAllCallouts: () => {
         clearAutoHideTimer();
+        if (!isDesktopViewport()) return;
         set(
           {
             callouts: createCallouts(true),
@@ -78,6 +93,7 @@ export const useEditorCalloutStore = create<EditorCalloutStore>()(
       },
       showAllCalloutsFor: (durationMs = DEFAULT_AUTO_HIDE_MS) => {
         clearAutoHideTimer();
+        if (!isDesktopViewport()) return;
         set(
           {
             callouts: createCallouts(true),
@@ -109,6 +125,7 @@ export const useEditorCalloutStore = create<EditorCalloutStore>()(
         ),
       showOnlyCallout: id => {
         clearAutoHideTimer();
+        if (!isDesktopViewport()) return;
         set(
           {
             callouts: {

@@ -25,6 +25,7 @@ function Gallery({ blockInfo, id }: Props) {
   const {
     isSubTitle = true,
     isPopupViewer = false,
+    isAutoPlay = false,
     ratio,
   } = blockInfo.props;
   const { block, images, updateBlock, updateImage } = useEditorStore(
@@ -38,11 +39,11 @@ function Gallery({ blockInfo, id }: Props) {
   const { warning } = useToast();
   const [loadingCount, setLoadingCount] = useState(0);
   const handleOnChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { title: e.target.value || '갤러리' });
+    updateBlock(id, { title: e.target.value });
   };
   const handleOnChangeSubTitle = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, {
-      subTitle: sanitizeEnglishTitleInput(e.target) || 'GALLERY',
+      subTitle: sanitizeEnglishTitleInput(e.target),
     });
   };
 
@@ -87,6 +88,9 @@ function Gallery({ blockInfo, id }: Props) {
   const handlePopViewChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { isPopupViewer: e.target.checked });
   };
+  const handleAutoPlayChange = (e: ChangeEvent<HTMLInputElement>) => {
+    updateBlock(id, { isAutoPlay: e.target.checked });
+  };
   const handleSubTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { isSubTitle: e.target.checked });
   };
@@ -106,7 +110,7 @@ function Gallery({ blockInfo, id }: Props) {
             placeholder: '갤러리',
             onChange: e => handleOnChangeTitle(e),
             value:
-              blockInfo.props.title === '갤러리' ? '' : blockInfo.props.title,
+              blockInfo.props.title ?? '',
           }}
         />
         {blockInfo.props.isSubTitle && (
@@ -117,9 +121,7 @@ function Gallery({ blockInfo, id }: Props) {
               placeholder: 'GALLERY',
               onChange: e => handleOnChangeSubTitle(e),
               value:
-                blockInfo.props.subTitle === 'GALLERY'
-                  ? ''
-                  : blockInfo.props.subTitle,
+                blockInfo.props.subTitle ?? '',
             }}
           />
         )}
@@ -163,6 +165,11 @@ function Gallery({ blockInfo, id }: Props) {
             <Checkbox onChange={handlePopViewChange} checked={isPopupViewer}>
               <span className="text-[13px]">
                 팝업뷰어(사진을 터치하여 크게 볼 수 있어요.)
+              </span>
+            </Checkbox>
+            <Checkbox onChange={handleAutoPlayChange} checked={Boolean(isAutoPlay)}>
+              <span className="text-[13px]">
+                필름 효과 (천천히 무한 반복 재생)
               </span>
             </Checkbox>
           </div>

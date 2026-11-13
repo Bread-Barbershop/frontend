@@ -6,7 +6,9 @@ import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
 import { escapeDriveQueryValue } from './escapeQueryValue';
 
 export const APP_IDENTIFIER = 'Bread-Barbershop';
-export const THUMBNAIL_NAME = 'invitation-thumbnail.png';
+export const THUMBNAIL_NAME_WEBP = 'invitation-thumbnail.webp';
+export const THUMBNAIL_NAME_PNG = 'invitation-thumbnail.png';
+export const THUMBNAIL_NAME = THUMBNAIL_NAME_WEBP;
 export const THUMBNAIL_KIND = 'invitation_thumbnail_png';
 
 export type ThumbnailPayload = {
@@ -24,7 +26,7 @@ export type EnsureThumbnailFileResult = {
 };
 
 /**
- * invitation 폴더 내에 단일 invitation-thumbnail.png 파일이 존재하는지 확인합니다.
+ * invitation 폴더 내에 단일 썸네일(WebP 또는 기존 PNG) 파일이 존재하는지 확인합니다.
  */
 export async function ensureThumbnailFile(
   invitationFolderId: string
@@ -35,20 +37,21 @@ export async function ensureThumbnailFile(
     });
   }
 
-  // 1) 기존 파일 검색
+  // 1) 기존 파일 검색 (신규 webp 및 레거시 png 모두 검색)
   const q = [
     `'${escapeDriveQueryValue(invitationFolderId)}' in parents`,
     `trashed=false`,
     `appProperties has { key='app_id' and value='${escapeDriveQueryValue(APP_IDENTIFIER)}' }`,
     `appProperties has { key='kind' and value='${THUMBNAIL_KIND}' }`,
-    `name='${escapeDriveQueryValue(THUMBNAIL_NAME)}'`,
+    `(name='${escapeDriveQueryValue(THUMBNAIL_NAME_WEBP)}' or name='${escapeDriveQueryValue(THUMBNAIL_NAME_PNG)}')`,
   ].join(' and ');
 
   const searchParams = new URLSearchParams({
     q,
     spaces: 'drive',
     fields: 'files(id,name,createdTime,appProperties)',
-    orderBy: 'createdTime',
+    // 정리 실패로 PNG/WebP 파일이 함께 남아도 최신 썸네일을 선택한다.
+    orderBy: 'createdTime desc',
     pageSize: '10',
   });
 
@@ -63,7 +66,7 @@ export async function ensureThumbnailFile(
 
   if (!searchRes.ok) {
     throw new DriveHttpError(
-      'invitation-thumbnail.png search failed',
+      'invitation-thumbnail search failed',
       searchRes.status,
       searchData
     );

@@ -1,9 +1,9 @@
-import { Textbox } from 'fabric';
 import { useEffect, useState } from 'react';
 
 import { Selector } from '@/components/molecules/selector';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 import { selectorOptions } from '@/widgets/mainPoster/types/editor';
+import { isTextboxObject } from '@/widgets/mainPoster/utils/fabricUtils';
 
 function FontSize() {
   const {
@@ -13,7 +13,8 @@ function FontSize() {
     applyRichStyle,
     debouncedApplyStyle,
   } = useFabricContext();
-  const activeObject = canvas?.getActiveObject() as Textbox;
+  const rawActiveObject = canvas?.getActiveObject();
+  const activeObject = isTextboxObject(rawActiveObject) ? rawActiveObject : null;
   const currentFontSize =
     (activeInfo?.styles?.fontSize as string | number) || '16';
   const [selectedFontSize, setSelectedFontSize] = useState<selectorOptions>({
@@ -25,13 +26,15 @@ function FontSize() {
     if (!activeObject) {
       return;
     }
-    const handleSync = () =>
+    const handleSync = () => {
+      if (!isTextboxObject(activeObject)) return;
       getRichStyles(activeObject, ['fontSize'], fontSize =>
         setSelectedFontSize({
           label: fontSize,
           value: String(fontSize),
         })
       );
+    };
 
     activeObject.on('changed', handleSync);
     activeObject.on('selection:changed', handleSync);

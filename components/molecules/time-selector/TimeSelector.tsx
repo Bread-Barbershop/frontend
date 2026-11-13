@@ -68,7 +68,7 @@ export const TimeSelector = ({ value, onChange }: TimeSelectorProps) => {
         <Selector
           type="normal"
           options={AMPM_OPTIONS}
-          selected={selectedAmPm}
+          selected={value ? selectedAmPm : null}
           onSelect={handleAmPmChange}
         />
       </div>
@@ -76,7 +76,7 @@ export const TimeSelector = ({ value, onChange }: TimeSelectorProps) => {
         <Selector
           type="normal"
           options={hourOptions}
-          selected={selectedHour}
+          selected={value ? selectedHour : null}
           onSelect={handleHourChange}
         />
       </div>
@@ -84,7 +84,7 @@ export const TimeSelector = ({ value, onChange }: TimeSelectorProps) => {
         <Selector
           type="normal"
           options={minuteOptions}
-          selected={selectedMinute}
+          selected={value ? selectedMinute : null}
           onSelect={handleMinuteChange}
         />
       </div>

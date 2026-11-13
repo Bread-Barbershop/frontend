@@ -1,25 +1,62 @@
 import { EmblaCarouselType } from 'embla-carousel';
+import AutoScroll from 'embla-carousel-auto-scroll';
 import useEmblaCarousel from 'embla-carousel-react';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 
 import { Image } from '@/components/atoms/image';
 import { cn } from '@/shared/utils/cn';
 
 import { GalleryItemVariants } from '../GalleryCarouselType';
+import { useGallerySwipeClick } from '../hooks/useGallerySwipeClick';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 import { GalleryTemplateProps } from '../types/galleryType';
+import { createInfiniteSlides } from '../utils/createInfiniteSlides';
 
-function GalleryType5({ imageClick, preview, ratio }: GalleryTemplateProps) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    loop: false,
-    align: 'center',
-    containScroll: false,
-  });
+function GalleryType5({
+  imageClick,
+  preview,
+  ratio,
+  isAutoPlay = false,
+}: GalleryTemplateProps) {
+  const isLoopActive = preview.length > 1;
+
+  const slides = useMemo(
+    () => createInfiniteSlides(preview, isLoopActive, 14),
+    [preview, isLoopActive]
+  );
+
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  const plugins = useMemo(() => {
+    if (!isAutoPlay || !isLoopActive || prefersReducedMotion) return [];
+    return [
+      AutoScroll({
+        playOnInit: true,
+        speed: 0.8,
+        startDelay: 0,
+        direction: 'forward',
+        stopOnInteraction: false,
+        stopOnMouseEnter: false,
+        stopOnFocusIn: false,
+      }),
+    ];
+  }, [isAutoPlay, isLoopActive, prefersReducedMotion]);
+
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    {
+      loop: isLoopActive,
+      align: 'center',
+      dragFree: isAutoPlay,
+      containScroll: isLoopActive ? false : 'trimSnaps',
+      watchDrag: true,
+    },
+    plugins
+  );
 
   const onScroll = useCallback((emblaApi: EmblaCarouselType) => {
     if (!emblaApi) return;
-    const slides = emblaApi.slideNodes();
-    slides.forEach((slide, index) => {
-      // 슬라이드 자체가 아니라 내부 자식(data-rotate-target)에 적용
+    const slideNodes = emblaApi.slideNodes();
+    slideNodes.forEach((slide, index) => {
       const target = slide.querySelector<HTMLElement>('[data-rotate-target]');
       if (!target) return;
       const rotate = 6 * (index % 2 === 0 ? 1 : -1);
@@ -30,37 +67,50 @@ function GalleryType5({ imageClick, preview, ratio }: GalleryTemplateProps) {
   useEffect(() => {
     if (!emblaApi) return;
     const handler = () => onScroll(emblaApi);
-    emblaApi.on('reInit', handler);
+    emblaApi.on('reInit', handler).on('select', handler);
     onScroll(emblaApi);
     return () => {
-      emblaApi.off('reInit', handler);
+      emblaApi.off('reInit', handler).off('select', handler);
     };
   }, [emblaApi, onScroll]);
 
+  const { handlePointerDown, handleCardClick } =
+    useGallerySwipeClick(imageClick);
+
   return (
-    <div className="w-full min-h-[120px]">
-      {/* overflow-hidden을 viewport로 이동 */}
-      <div ref={emblaRef} className="overflow-hidden py-10">
+    <div className="relative w-full min-h-[120px] group/gallery">
+      <div
+        ref={emblaRef}
+        className="overflow-hidden py-10 touch-pan-y touch-pinch-zoom select-none cursor-grab active:cursor-grabbing"
+      >
         <div className="flex items-center py-8">
-          {preview.map((src, i) => (
-            // -mx-1 제거, 대신 내부 padding으로 간격 확보
-            <div key={i} className="flex-[0_0_40%] min-w-0 -mx-1">
+          {slides.map((src, i) => (
+            <div key={i} className="flex-[0_0_40%] min-w-0 -mx-1 shrink-0">
               <div
                 data-rotate-target
                 role="button"
-                tabIndex={0}
+                tabIndex={i < preview.length ? 0 : -1}
+                aria-hidden={i >= preview.length ? true : undefined}
                 style={{ margin: '0 -4px' }}
                 className={cn(
-                  'relative overflow-hidden p-2 pb-6 bg-bg-base rounded-sm min-h-[120px] shadow-[0_1px_2px_0_rgba(0,0,0,0.04),0_1px_4px_0_rgba(0,0,0,0.08),0_8px_24px_0_rgba(0,0,0,0.1)]',
+                  'relative overflow-hidden p-2 pb-6 bg-bg-base rounded-sm min-h-[120px] shadow-[0_1px_2px_0_rgba(0,0,0,0.04),0_1px_4px_0_rgba(0,0,0,0.08),0_8px_24px_0_rgba(0,0,0,0.1)] select-none',
                   GalleryItemVariants({ ratio })
                 )}
-                onClick={() => imageClick(i)}
+                onPointerDown={handlePointerDown}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleCardClick(i % preview.length);
+                  }
+                }}
+                onClick={e => handleCardClick(i % preview.length, e)}
               >
                 <Image
                   src={src}
-                  alt={`slide-${i}`}
+                  alt={`slide-${i % preview.length}`}
                   fill
-                  className="object-cover"
+                  className="object-cover pointer-events-none select-none"
+                  draggable={false}
                 />
               </div>
             </div>
@@ -70,4 +120,5 @@ function GalleryType5({ imageClick, preview, ratio }: GalleryTemplateProps) {
     </div>
   );
 }
+
 export default GalleryType5;

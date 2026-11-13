@@ -1,0 +1,20 @@
+/* center-left 문단은 내용 폭을 기준으로 중앙에 놓고, 다른 정렬 문단은 기존 전체 폭을 유지한다. */
+.centerLeftText:has(> [data-text-align='center-left']) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) fit-content(100%) minmax(0, 1fr);
+}
+
+.centerLeftText:has(> [data-text-align='center-left']) > * {
+  grid-column: 1 / -1;
+}
+
+.centerLeftText:has(> [data-text-align='center-left']) > [data-text-align='center-left'] {
+  grid-column: 2 / 3;
+  width: 100%;
+  text-align: left;
+}
+
+/* 에디터의 기존 flex justify-center(세로 중앙 정렬)를 grid에서도 보존한다. */
+.editorCenterLeftText:has(> [data-text-align='center-left']) {
+  align-content: center;
+}

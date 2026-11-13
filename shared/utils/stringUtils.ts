@@ -5,7 +5,11 @@ export const parseValue = (data: string, target: string, replace: string) => {
 };
 
 export const sanitizeEnglishTitle = (value: string) =>
-  value.replace(/[^A-Za-z ]/g, '');
+  value
+    .replace(/[‘’]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/[–—]/g, '-')
+    .replace(/[ㄱ-ㅎㅏ-ㅣ가-힣]|\p{Script=Hangul}/gu, '');
 
 export const sanitizeEnglishTitleInput = (target: HTMLInputElement) => {
   const sanitizedValue = sanitizeEnglishTitle(target.value);
@@ -14,5 +18,5 @@ export const sanitizeEnglishTitleInput = (target: HTMLInputElement) => {
     target.value = sanitizedValue;
   }
 
-  return sanitizedValue.trim();
+  return sanitizedValue;
 };

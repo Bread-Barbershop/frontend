@@ -88,9 +88,9 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
         label="제목"
         inputProps={{
           placeholder: '주최사',
-          value: title === '주최사' ? '' : title,
+          value: title ?? '',
           onChange: e =>
-            handleValueChange('title', undefined, e.target.value || '주최사'),
+            handleValueChange('title', e),
         }}
         className="text-center w-full"
       />
@@ -99,13 +99,9 @@ export const OrganizerInformation = ({ blockInfo, id }: Props) => {
           label="영문제목"
           inputProps={{
             placeholder: 'ORGANIZER INFORMATION',
-            value: subTitle === 'ORGANIZER INFORMATION' ? '' : subTitle,
+            value: subTitle ?? '',
             onChange: e =>
-              handleValueChange(
-                'subTitle',
-                undefined,
-                sanitizeEnglishTitleInput(e.target) || 'ORGANIZER INFORMATION'
-              ),
+              handleValueChange('subTitle', undefined, sanitizeEnglishTitleInput(e.target)),
           }}
           className="text-center w-full"
         />

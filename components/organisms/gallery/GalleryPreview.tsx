@@ -60,10 +60,11 @@ function GalleryPreview({
           preview={preview}
           ratio={ratio}
           imageClick={handleImageClick}
+          isAutoPlay={Boolean(blockInfo.props.isAutoPlay)}
         />
       )}
 
-      {blockInfo.props.isPopupViewer && (
+      {blockInfo.props.isPopupViewer && isOpen && (
         <PicturePopViewer
           isOpen={isOpen}
           images={preview}

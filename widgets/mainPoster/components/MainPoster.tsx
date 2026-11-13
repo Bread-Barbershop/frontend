@@ -1,3 +1,6 @@
+'use client';
+
+import { AnimatePresence, motion } from 'framer-motion';
 // import { useSearchParams } from 'next/navigation';
 import { useShallow } from 'zustand/shallow';
 
@@ -139,7 +142,7 @@ export const MainPoster = () => {
               <button
                 key={item.id}
                 type="button"
-                className={`w-[54px] h-8 font-medium text-sm ${isActive ? 'border-b text-text-primary' : 'text-text-secondary'}`}
+                className={`w-[54px] h-8 font-medium text-sm ${isActive ? 'border-b text-text-primary' : 'text-text-secondary'} transition-colors`}
                 onClick={item.onClick}
               >
                 <p>{item.value}</p>
@@ -148,17 +151,25 @@ export const MainPoster = () => {
           })}
         </div>
       </div>
-      {activeTab === 'text' && <RichTextPanel />}
-
-      {(activeTab === 'image' || activeTab === 'template') && <ImagePanel />}
-
-      {activeTab === 'slot' && <SlotPanel />}
-
-      {activeTab === 'graphic' && <GraphicPanel />}
-
-      {activeTab === 'shape' && <ShapePanel />}
-
-      {(activeTab === 'background' || !activeTab) && <BackgroundColorPanel />}
+      <div className="w-full">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab ?? 'background'}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="w-full"
+          >
+            {activeTab === 'text' && <RichTextPanel />}
+            {(activeTab === 'image' || activeTab === 'template') && <ImagePanel />}
+            {activeTab === 'slot' && <SlotPanel />}
+            {activeTab === 'graphic' && <GraphicPanel />}
+            {activeTab === 'shape' && <ShapePanel />}
+            {(activeTab === 'background' || !activeTab) && <BackgroundColorPanel />}
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   );
 };

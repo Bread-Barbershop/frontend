@@ -1,4 +1,4 @@
-import { render, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import GuestRenderer from './GuestRenderer';
@@ -17,6 +17,8 @@ const mockPictureView = jest.fn((props: Record<string, unknown>) =>
 );
 const mockSetTitleData = jest.fn();
 const mockSetBodyData = jest.fn();
+const mockPreloadFontFamilyWeights = jest.fn().mockResolvedValue(undefined);
+const mockResolveGuestFontFamiliesToPreload = jest.fn(() => [] as string[]);
 
 jest.mock('next/navigation', () => ({
   usePathname: () => '/guest/data-json-file-id',
@@ -35,7 +37,8 @@ jest.mock('@/shared/data/registry/registry', () => ({
 }));
 
 jest.mock('@/shared/fonts/fontLoader', () => ({
-  preloadFontFamilyWeights: jest.fn().mockResolvedValue(undefined),
+  preloadFontFamilyWeights: (...args: unknown[]) =>
+    mockPreloadFontFamilyWeights(...args),
 }));
 
 jest.mock('@/shared/store/editorStore/useEditorStore', () => ({
@@ -47,7 +50,8 @@ jest.mock('@/shared/store/editorStore/useEditorStore', () => ({
 }));
 
 jest.mock('./guestFontPreload', () => ({
-  resolveGuestFontFamiliesToPreload: jest.fn(() => []),
+  resolveGuestFontFamiliesToPreload: () =>
+    mockResolveGuestFontFamiliesToPreload(),
 }));
 
 const bulkData: NormalizedGuestPayload['bulkData'] = {
@@ -72,6 +76,8 @@ const bulkData: NormalizedGuestPayload['bulkData'] = {
 describe('GuestRenderer', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockPreloadFontFamilyWeights.mockResolvedValue(undefined);
+    mockResolveGuestFontFamiliesToPreload.mockReturnValue([]);
   });
 
   it('passes isGuestPage only to guest-aware preview components', async () => {
@@ -100,10 +106,51 @@ describe('GuestRenderer', () => {
       expect(mockPictureView).toHaveBeenCalled();
     });
 
-    expect(mockCalendarView.mock.calls[0][0]).not.toHaveProperty('isGuestPage');
+    expect(mockCalendarView.mock.calls[0][0]).toHaveProperty(
+      'isGuestPage',
+      true
+    );
     expect(mockPictureView.mock.calls[0][0]).toHaveProperty(
       'isGuestPage',
       true
     );
+  });
+
+  it('폰트 로딩이 끝나지 않아도 초대장 본문을 표시한다', () => {
+    mockResolveGuestFontFamiliesToPreload.mockReturnValue(['font-pending']);
+    mockPreloadFontFamilyWeights.mockReturnValue(new Promise(() => undefined));
+
+    const pictureBlock = {
+      id: 'picture-block',
+      type: 'wedding',
+      component: 'picture',
+      props: {},
+    } as NormalizedGuestPayload['blocks'][number];
+    const { container } = render(
+      <GuestRenderer blocks={[pictureBlock]} bulkData={bulkData} />
+    );
+
+    expect(screen.getByTestId('picture-view')).toBeInTheDocument();
+    expect(container.firstElementChild).not.toHaveStyle({ opacity: '0' });
+  });
+
+  it('폰트 로딩이 실패해도 초대장 본문을 표시한다', async () => {
+    mockResolveGuestFontFamiliesToPreload.mockReturnValue(['font-failed']);
+    mockPreloadFontFamilyWeights.mockRejectedValueOnce(
+      new Error('font preload failed')
+    );
+
+    const pictureBlock = {
+      id: 'picture-block',
+      type: 'wedding',
+      component: 'picture',
+      props: {},
+    } as NormalizedGuestPayload['blocks'][number];
+    const { container } = render(
+      <GuestRenderer blocks={[pictureBlock]} bulkData={bulkData} />
+    );
+
+    expect(await screen.findByTestId('picture-view')).toBeInTheDocument();
+    expect(container.firstElementChild).not.toHaveStyle({ opacity: '0' });
   });
 });

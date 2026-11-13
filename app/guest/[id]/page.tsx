@@ -2,6 +2,7 @@ import 'server-only';
 
 import { notFound } from 'next/navigation';
 
+import { resolveDriveImageSource } from '@/shared/utils/media/driveImageUtils';
 import {
   resolveShareDescription,
   resolveShareImageUrl,
@@ -10,12 +11,12 @@ import {
 
 import { GuestAccessNotice } from './components/GuestAccessNotice';
 import GuestInvitationView from './components/GuestInvitationView';
+import { GuestUnavailableNotice } from './components/GuestUnavailableNotice';
 import { loadGuestPayload } from './server/loadGuestPayload';
 
 import type { Metadata } from 'next';
 
-export const dynamic = 'force-static';
-export const revalidate = false;
+export const dynamic = 'force-dynamic';
 
 const noindexRobots = {
   index: false,
@@ -96,11 +97,32 @@ export default async function GuestPage({
     return renderPrivateInvitationNotice();
   }
 
+  if (result.status === 'unavailable') {
+    return <GuestUnavailableNotice retryHref={`/guest/${encodeURIComponent(id)}`} />;
+  }
+
   if (result.status === 'not-found') {
     notFound();
   }
 
   const { payload } = result;
+  const thumbnailFileId = payload.mainPoster?.thumbnailFileId;
+  const posterSrc = thumbnailFileId
+    ? resolveDriveImageSource(thumbnailFileId, { mode: 'public' })
+    : null;
 
-  return <GuestInvitationView payload={payload} mode="guest" />;
+
+  return (
+    <>
+      {posterSrc && (
+        <link
+          rel="preload"
+          as="image"
+          href={posterSrc}
+          fetchPriority="high"
+        />
+      )}
+      <GuestInvitationView payload={payload} mode="guest" />
+    </>
+  );
 }

@@ -79,6 +79,51 @@ describe('ShortGuestPage', () => {
     expect(notFoundMock).not.toHaveBeenCalled();
   });
 
+  it('renders a preload link for the main poster image when thumbnailFileId is present', async () => {
+    loadGuestPayloadMock.mockResolvedValue({
+      status: 'ok',
+      payload: {
+        ...payload,
+        mainPoster: {
+          thumbnailFileId: 'poster-file-12345',
+        },
+      },
+      warnings: [],
+    });
+
+    const pageElement = await ShortGuestPage({
+      params: Promise.resolve({ code: 'aB7kQ2x' }),
+    });
+    const html = renderToStaticMarkup(pageElement);
+
+    expect(html).toContain('rel="preload"');
+    expect(html).toContain('as="image"');
+    expect(html).toContain(
+      'https://lh3.googleusercontent.com/d/poster-file-12345'
+    );
+  });
+
+
+  it('does not render preload link when thumbnailFileId is null or missing', async () => {
+    loadGuestPayloadMock.mockResolvedValue({
+      status: 'ok',
+      payload: {
+        ...payload,
+        mainPoster: {
+          thumbnailFileId: null,
+        },
+      },
+      warnings: [],
+    });
+
+    const pageElement = await ShortGuestPage({
+      params: Promise.resolve({ code: 'aB7kQ2x' }),
+    });
+    const html = renderToStaticMarkup(pageElement);
+
+    expect(html).not.toContain('rel="preload"');
+  });
+
   it('returns notFound when short code cannot be resolved', async () => {
     resolveShortCodeMock.mockResolvedValue(null);
 
@@ -89,6 +134,24 @@ describe('ShortGuestPage', () => {
     ).rejects.toThrow('NEXT_NOT_FOUND');
 
     expect(loadGuestPayloadMock).not.toHaveBeenCalled();
+  });
+
+  it('게스트 데이터가 일시적으로 준비되지 않으면 재시도 안내를 렌더링한다', async () => {
+    loadGuestPayloadMock.mockResolvedValue({
+      status: 'unavailable',
+      reason: 'fetch_timeout',
+    });
+
+    const pageElement = await ShortGuestPage({
+      params: Promise.resolve({ code: 'aB7kQ2x' }),
+    });
+    const html = renderToStaticMarkup(pageElement);
+
+    expect(html).toContain('초대장을 불러오지 못했어요');
+    expect(html).toContain('다시 시도하기');
+    expect(html).toContain('href="/i/aB7kQ2x"');
+    expect(notFoundMock).not.toHaveBeenCalled();
+    expect(guestInvitationViewMock).not.toHaveBeenCalled();
   });
 
   it('generates metadata from the resolved guest payload', async () => {

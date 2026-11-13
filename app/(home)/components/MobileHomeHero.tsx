@@ -159,7 +159,7 @@ function MobileHomeHero() {
       <AnimatePresence>
         {isPcGuideOpen && (
           <motion.div
-            className="fixed inset-0 z-[50000] flex items-center justify-center bg-[rgb(0_0_0_/_16%)] px-5"
+            className="fixed inset-0 z-[50000] flex items-center justify-center overflow-y-auto bg-[rgb(0_0_0_/_16%)] px-5 py-5"
             onClick={() => setIsPcGuideOpen(false)}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -171,31 +171,33 @@ function MobileHomeHero() {
               aria-modal="true"
               aria-labelledby="mobile-pc-guide-title"
               aria-describedby="mobile-pc-guide-description"
-              className="box-border flex h-fit w-[calc(100vw-40px)] min-w-[335px] max-w-[475px] flex-col items-center rounded-[12px] bg-white px-5 py-[10px] pt-6 text-center text-text-plain shadow-[0_18px_60px_rgba(0,0,0,0.12)]"
+              className="box-border flex h-fit max-h-[calc(100dvh-40px)] w-full max-w-[475px] flex-col items-center overflow-hidden rounded-[12px] bg-white px-5 py-[10px] pt-6 text-center text-text-plain shadow-[0_18px_60px_rgba(0,0,0,0.12)]"
               onClick={event => event.stopPropagation()}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
             >
-              <h2
-                id="mobile-pc-guide-title"
-                className="text-[20px] font-bold leading-none tracking-[-0.01em]"
-              >
-                {DESKTOP_CONTENT_MIN_WIDTH}px 이상의 브라우저에서 이용해 주세요!
-              </h2>
-              <p
-                id="mobile-pc-guide-description"
-                className="mt-6 text-[14px] font-medium leading-[22px]"
-              >
-                현재 화면에서는 해당 기능을 이용하기 어려워요.
-                <br />
-                브라우저 창을 넓히거나 더 큰 화면에서 이용해 주세요.
-              </p>
+              <div className="min-h-0 w-full flex-1 overflow-y-auto overscroll-contain">
+                <h2
+                  id="mobile-pc-guide-title"
+                  className="break-keep text-[20px] font-bold leading-7 tracking-[-0.01em]"
+                >
+                  {DESKTOP_CONTENT_MIN_WIDTH}px 이상의 브라우저에서 이용해 주세요!
+                </h2>
+                <p
+                  id="mobile-pc-guide-description"
+                  className="mt-6 text-[14px] font-medium leading-[22px]"
+                >
+                  현재 화면에서는 해당 기능을 이용하기 어려워요.
+                  <br />
+                  브라우저 창을 넓히거나 더 큰 화면에서 이용해 주세요.
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={() => setIsPcGuideOpen(false)}
-                className="mt-1.5 inline-flex cursor-pointer items-center justify-center rounded-[8px] bg-white px-8 py-[13.5px] text-[14px] font-semibold leading-none text-[#FF0000] transition-colors hover:bg-[#FAFAFB] active:bg-[#FFF3F3]"
+                className="mt-1.5 inline-flex min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-full bg-bg-plain px-8 py-[13.5px] text-[14px] font-semibold leading-none text-white transition-colors hover:bg-[#202020] active:bg-[#0D0D0D]"
               >
                 닫기
               </button>

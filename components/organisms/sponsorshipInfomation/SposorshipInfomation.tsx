@@ -60,7 +60,7 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
   };
 
   const handleOnChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    updateBlock(id, { title: e.target.value || '후원사' });
+    updateBlock(id, { title: e.target.value });
   };
   const handleOnChangeIsSubTitle = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, { isSubTitle: e.target.checked });
@@ -68,7 +68,7 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
 
   const handleOnchangeEnglishTitle = (e: ChangeEvent<HTMLInputElement>) => {
     updateBlock(id, {
-      subTitle: sanitizeEnglishTitleInput(e.target) || 'OUR SPONSORS',
+      subTitle: sanitizeEnglishTitleInput(e.target),
     });
   };
   return (
@@ -81,7 +81,7 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
           inputProps={{
             placeholder: '후원사',
             value:
-              blockInfo.props.title === '후원사' ? '' : blockInfo.props.title,
+              blockInfo.props.title ?? '',
             onChange: handleOnChangeTitle,
           }}
         />
@@ -94,9 +94,7 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
             inputProps={{
               placeholder: 'OUR SPONSORS',
               value:
-                blockInfo.props.subTitle === 'OUR SPONSORS'
-                  ? ''
-                  : blockInfo.props.subTitle,
+                blockInfo.props.subTitle ?? '',
               onChange: handleOnchangeEnglishTitle,
             }}
           />

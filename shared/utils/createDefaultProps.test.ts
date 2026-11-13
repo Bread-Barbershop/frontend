@@ -34,4 +34,9 @@ describe('createDefaultProps', () => {
       '예식장'
     );
   });
+
+  it('creates default props for place with checkedPlaceTel as false', () => {
+    const defaultProps = createDefaultProps('place', 'birthday');
+    expect(defaultProps.checkedPlaceTel).toBe(false);
+  });
 });

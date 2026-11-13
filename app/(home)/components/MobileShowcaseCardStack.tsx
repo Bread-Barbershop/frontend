@@ -3,6 +3,7 @@
 import {
   animate,
   motion,
+  type MotionValue,
   type Transition,
   useMotionValue,
 } from 'framer-motion';
@@ -11,6 +12,7 @@ import {
   type CSSProperties,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -36,16 +38,32 @@ type CardMotionTarget = {
   opacity: number;
 };
 
+type DeckEntry = {
+  cardIndex: number;
+  instanceId: number;
+};
+
+type OutgoingEntry = DeckEntry;
+
+type DeckState = {
+  activeOrder: DeckEntry[];
+  outgoing: OutgoingEntry[];
+  swipeCycle: number;
+};
+
 type StackCardProps = {
   card: CardData;
+  instanceId: number;
   stackPosition: number;
-  stackSize: number;
+  zIndex: number;
+  swipeCycle: number;
   isTop: boolean;
-  isEntering: boolean;
-  isLocked: boolean;
+  isOutgoing: boolean;
   offset: StackOffset;
-  onSwipeStart: () => void;
-  onSwipeComplete: () => void;
+  nextOffset: StackOffset | null;
+  topDragX: MotionValue<number>;
+  onSwipeStart: (instanceId: number) => void;
+  onSwipeComplete: (instanceId: number) => void;
 };
 
 const STACK_OFFSETS: StackOffset[] = [
@@ -58,7 +76,6 @@ const SWIPE_THRESHOLD = 90;
 const MIN_FLY_OUT_X = 520;
 const DRAG_ROTATION_FACTOR = 0.06;
 const FLY_OUT_MS = 320;
-const DECK_SETTLE_MS = 360;
 const FLY_OUT_TRANSITION: Transition = {
   duration: FLY_OUT_MS / 1000,
   ease: [0.22, 1, 0.36, 1],
@@ -68,12 +85,6 @@ const CARD_STACK_STYLE = {
     'clamp(220px, calc(var(--mobile-home-viewport-height, 100vh) - 293px), 397px)',
 } as CSSProperties;
 const CARD_IMAGE_SIZES = '196px';
-const STACK_SETTLE_TRANSITION: Transition = {
-  type: 'spring',
-  stiffness: 330,
-  damping: 34,
-  mass: 0.9,
-};
 const SPRING_BACK_TRANSITION: Transition = {
   type: 'spring',
   stiffness: 360,
@@ -88,24 +99,51 @@ function getFlyOutX() {
 
 function StackCard({
   card,
+  instanceId,
   stackPosition,
-  stackSize,
+  zIndex,
+  swipeCycle,
   isTop,
-  isEntering,
-  isLocked,
+  isOutgoing,
   offset,
+  nextOffset,
+  topDragX,
   onSwipeStart,
   onSwipeComplete,
 }: StackCardProps) {
   const x = useMotionValue(offset.x);
-  const y = useMotionValue(isEntering ? offset.y + 18 : offset.y);
-  const rotate = useMotionValue(offset.rotate);
-  const scale = useMotionValue(isEntering ? 0.985 : 1);
+  const y = useMotionValue(offset.y);
+  const baseRotate = useMotionValue(offset.rotate);
+  const preparedRotate = useMotionValue(offset.rotate);
+  const scale = useMotionValue(1);
   const opacity = useMotionValue(1);
   const activeAnimationsRef = useRef<Array<{ stop: () => void }>>([]);
   const flyOutTimeoutRef = useRef<number | null>(null);
   const isFlyingOutRef = useRef(false);
   const hasCompletedFlyOut = useRef(false);
+  const previousStackPositionRef = useRef(stackPosition);
+  const previousSwipeCycleRef = useRef(swipeCycle);
+  const previousIsOutgoingRef = useRef(isOutgoing);
+
+  const rotate = isTop || isOutgoing ? baseRotate : preparedRotate;
+
+  const updatePreparedRotate = useCallback(
+    (dragX: number) => {
+      if (isTop || isOutgoing || !nextOffset) return;
+
+      const progress = Math.min(Math.abs(dragX) / SWIPE_THRESHOLD, 1);
+      const current = baseRotate.get();
+
+      preparedRotate.set(
+        current + (nextOffset.rotate - current) * progress
+      );
+    },
+    [baseRotate, isOutgoing, isTop, nextOffset, preparedRotate]
+  );
+
+  useEffect(() => {
+    return topDragX.on('change', updatePreparedRotate);
+  }, [topDragX, updatePreparedRotate]);
 
   const stopActiveAnimations = useCallback(() => {
     activeAnimationsRef.current.forEach(animation => animation.stop());
@@ -118,64 +156,54 @@ function StackCard({
       activeAnimationsRef.current = [
         animate(x, target.x, transition),
         animate(y, target.y, transition),
-        animate(rotate, target.rotate, transition),
+        animate(baseRotate, target.rotate, transition),
         animate(scale, target.scale, transition),
         animate(opacity, target.opacity, transition),
       ];
     },
-    [opacity, rotate, scale, stopActiveAnimations, x, y]
+    [opacity, baseRotate, scale, stopActiveAnimations, x, y]
   );
 
-  useEffect(() => {
-    if (isFlyingOutRef.current) return;
+  useLayoutEffect(() => {
+    const positionChanged =
+      previousStackPositionRef.current !== stackPosition;
+    const cycleChanged = previousSwipeCycleRef.current !== swipeCycle;
+    const wasOutgoing = previousIsOutgoingRef.current;
 
-    if (isEntering) {
-      stopActiveAnimations();
-      x.set(offset.x);
-      y.set(offset.y + 18);
-      rotate.set(offset.rotate);
-      scale.set(0.985);
-      opacity.set(1);
+    previousStackPositionRef.current = stackPosition;
+    previousSwipeCycleRef.current = swipeCycle;
+    previousIsOutgoingRef.current = isOutgoing;
 
-      const frame = window.requestAnimationFrame(() => {
-        animateTo(
-          {
-            x: offset.x,
-            y: offset.y,
-            rotate: offset.rotate,
-            scale: 1,
-            opacity: 1,
-          },
-          STACK_SETTLE_TRANSITION
-        );
-      });
+    if (isOutgoing) return;
+    if (!wasOutgoing && !positionChanged && !cycleChanged) return;
 
-      return () => {
-        window.cancelAnimationFrame(frame);
-      };
+    stopActiveAnimations();
+
+    if (flyOutTimeoutRef.current !== null) {
+      window.clearTimeout(flyOutTimeoutRef.current);
+      flyOutTimeoutRef.current = null;
     }
 
-    animateTo(
-      {
-        x: offset.x,
-        y: offset.y,
-        rotate: offset.rotate,
-        scale: 1,
-        opacity: 1,
-      },
-      { duration: 0 }
-    );
+    isFlyingOutRef.current = false;
+    hasCompletedFlyOut.current = false;
+    x.set(offset.x);
+    y.set(offset.y);
+    baseRotate.set(offset.rotate);
+    preparedRotate.set(offset.rotate);
+    scale.set(1);
+    opacity.set(1);
   }, [
-    animateTo,
-    card.id,
-    isEntering,
+    baseRotate,
     offset.rotate,
     offset.x,
     offset.y,
     opacity,
-    rotate,
+    preparedRotate,
     scale,
+    stackPosition,
     stopActiveAnimations,
+    swipeCycle,
+    isOutgoing,
     x,
     y,
   ]);
@@ -184,20 +212,23 @@ function StackCard({
     return () => {
       stopActiveAnimations();
 
-      if (flyOutTimeoutRef.current) {
+      if (flyOutTimeoutRef.current !== null) {
         window.clearTimeout(flyOutTimeoutRef.current);
+        flyOutTimeoutRef.current = null;
       }
     };
   }, [stopActiveAnimations]);
 
   const triggerFlyOut = (direction: 1 | -1) => {
-    if (!isTop || isLocked || isFlyingOutRef.current) {
+    if (!isTop || isOutgoing || isFlyingOutRef.current) {
       return;
     }
 
     isFlyingOutRef.current = true;
     hasCompletedFlyOut.current = false;
-    onSwipeStart();
+
+    // Push topDragX to threshold so back cards fully transition to their next pose
+    topDragX.set(direction * SWIPE_THRESHOLD);
 
     animateTo(
       {
@@ -210,40 +241,46 @@ function StackCard({
       FLY_OUT_TRANSITION
     );
 
+    onSwipeStart(instanceId);
+
     flyOutTimeoutRef.current = window.setTimeout(() => {
+      flyOutTimeoutRef.current = null;
       if (hasCompletedFlyOut.current) return;
 
       hasCompletedFlyOut.current = true;
-      onSwipeComplete();
+      onSwipeComplete(instanceId);
     }, FLY_OUT_MS);
   };
 
   const handleDragStart = () => {
-    if (!isTop || isLocked || isFlyingOutRef.current) return;
+    if (!isTop || isOutgoing || isFlyingOutRef.current) return;
 
     stopActiveAnimations();
+    topDragX.set(0);
   };
 
   const handleDrag = (
     _: MouseEvent | TouchEvent | PointerEvent,
     info: { offset: { x: number } }
   ) => {
-    if (!isTop || isLocked || isFlyingOutRef.current) return;
+    if (!isTop || isOutgoing || isFlyingOutRef.current) return;
 
-    rotate.set(offset.rotate + info.offset.x * DRAG_ROTATION_FACTOR);
+    baseRotate.set(offset.rotate + info.offset.x * DRAG_ROTATION_FACTOR);
+    topDragX.set(info.offset.x);
   };
 
   const handleDragEnd = (
     _: MouseEvent | TouchEvent | PointerEvent,
     info: { offset: { x: number } }
   ) => {
-    if (!isTop || isLocked || isFlyingOutRef.current) return;
+    if (!isTop || isOutgoing || isFlyingOutRef.current) return;
 
     if (Math.abs(info.offset.x) >= SWIPE_THRESHOLD) {
       triggerFlyOut(info.offset.x > 0 ? 1 : -1);
       return;
     }
 
+    // Spring back: reset drag tracking so back cards revert smoothly
     animateTo(
       {
         x: offset.x,
@@ -254,14 +291,19 @@ function StackCard({
       },
       SPRING_BACK_TRANSITION
     );
+    activeAnimationsRef.current.push(
+      animate(topDragX, 0, SPRING_BACK_TRANSITION)
+    );
   };
 
   return (
     <motion.div
       data-card-id={card.id}
-      data-stack-position={stackPosition}
+      data-card-instance-id={instanceId}
+      data-stack-position={isOutgoing ? undefined : stackPosition}
+      data-card-state={isOutgoing ? 'outgoing' : 'active'}
       className={`absolute left-0 top-0 h-full w-full select-none overflow-hidden rounded-[16px] bg-white shadow-[inset_0_1px_2px_0_rgb(0_0_0_/_4%),0_1px_4px_0_rgb(0_0_0_/_8%),0_8px_24px_0_rgb(0_0_0_/_10%)] ${
-        isTop && !isLocked ? 'cursor-grab active:cursor-grabbing' : ''
+        isTop && !isOutgoing ? 'cursor-grab active:cursor-grabbing' : ''
       }`}
       style={{
         x,
@@ -269,11 +311,12 @@ function StackCard({
         rotate,
         scale,
         opacity,
-        zIndex: stackSize - stackPosition,
+        zIndex,
+        pointerEvents: isOutgoing ? 'none' : 'auto',
         touchAction: isTop ? 'none' : 'auto',
         willChange: 'transform, opacity',
       }}
-      drag={isTop && !isLocked ? 'x' : false}
+      drag={isTop && !isOutgoing ? 'x' : false}
       dragMomentum={false}
       onDragStart={handleDragStart}
       onDrag={handleDrag}
@@ -293,40 +336,83 @@ function StackCard({
   );
 }
 
-function createInitialOrder(length: number) {
-  return Array.from({ length }, (_, index) => index);
+function createInitialDeck(length: number): DeckEntry[] {
+  return Array.from({ length }, (_, index) => ({
+    cardIndex: index,
+    instanceId: index,
+  }));
 }
 
 export function MobileShowcaseCardStack({ cards }: { cards: CardData[] }) {
-  const [order, setOrder] = useState(() => createInitialOrder(cards.length));
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [enteringCardId, setEnteringCardId] = useState<string | null>(null);
-  const [enterKey, setEnterKey] = useState(0);
+  const [deckState, setDeckState] = useState<DeckState>(() => ({
+    activeOrder: createInitialDeck(cards.length),
+    outgoing: [],
+    swipeCycle: 0,
+  }));
+  const nextInstanceIdRef = useRef(cards.length);
+  const topDragX = useMotionValue(0);
 
   const visibleOrder = useMemo(
-    () => order.slice(0, Math.min(order.length, STACK_OFFSETS.length)),
-    [order]
+    () =>
+      deckState.activeOrder.slice(
+        0,
+        Math.min(deckState.activeOrder.length, STACK_OFFSETS.length)
+      ),
+    [deckState.activeOrder]
   );
+  const renderEntries = useMemo(
+    () => [
+      ...deckState.outgoing.map((entry, outgoingIndex) => ({
+        entry,
+        isOutgoing: true,
+        stackPosition: -1,
+        zIndex: visibleOrder.length + outgoingIndex + 1,
+      })),
+      ...visibleOrder.map((entry, stackPosition) => ({
+        entry,
+        isOutgoing: false,
+        stackPosition,
+        zIndex: visibleOrder.length - stackPosition,
+      })),
+    ],
+    [deckState.outgoing, visibleOrder]
+  );
+
+  useLayoutEffect(() => {
+    topDragX.set(0);
+  }, [deckState.swipeCycle, topDragX]);
 
   if (cards.length === 0) return null;
 
-  const handleSwipeComplete = () => {
-    setOrder(currentOrder => {
-      if (currentOrder.length === 0) return currentOrder;
+  const handleSwipeStart = (instanceId: number) => {
+    const recycledInstanceId = nextInstanceIdRef.current++;
 
-      const [movedIndex, ...rest] = currentOrder;
-      const nextOrder = [...rest, movedIndex];
-      const nextTopIndex = nextOrder[0];
+    setDeckState(current => {
+      const [topEntry, ...remainingEntries] = current.activeOrder;
+      if (!topEntry || topEntry.instanceId !== instanceId) return current;
 
-      setEnteringCardId(cards[nextTopIndex]?.id ?? null);
-      setEnterKey(key => key + 1);
+      const recycledEntry: DeckEntry = {
+        cardIndex: topEntry.cardIndex,
+        instanceId: recycledInstanceId,
+      };
 
-      window.setTimeout(() => {
-        setIsAnimating(false);
-        setEnteringCardId(null);
-      }, DECK_SETTLE_MS);
+      return {
+        activeOrder: [...remainingEntries, recycledEntry],
+        outgoing: [...current.outgoing, { ...topEntry }],
+        swipeCycle: current.swipeCycle + 1,
+      };
+    });
+  };
 
-      return nextOrder;
+  const handleSwipeComplete = (instanceId: number) => {
+    setDeckState(current => {
+      const outgoing = current.outgoing.filter(
+        entry => entry.instanceId !== instanceId
+      );
+
+      return outgoing.length === current.outgoing.length
+        ? current
+        : { ...current, outgoing };
     });
   };
 
@@ -338,24 +424,36 @@ export function MobileShowcaseCardStack({ cards }: { cards: CardData[] }) {
     >
       <div className="absolute left-1/2 top-0 h-full max-w-[196px] -translate-x-1/2 aspect-[196/397]">
         {/* TODO: add non-drag previous/next controls if an accessible fallback is required. */}
-        {visibleOrder.map((cardIndex, stackPosition) => {
-          const card = cards[cardIndex];
+        {renderEntries.map(({ entry, isOutgoing, stackPosition, zIndex }) => {
+          const card = cards[entry.cardIndex];
           if (!card) return null;
 
-          const isTop = stackPosition === 0;
-          const isEntering = isTop && card.id === enteringCardId;
+          const isTop = !isOutgoing && stackPosition === 0;
+
+          // The offset this card will move to when the top card is swiped away
+          const nextOffset =
+            !isOutgoing && stackPosition > 0
+              ? STACK_OFFSETS[stackPosition - 1] ?? null
+              : null;
 
           return (
             <StackCard
-              key={`${card.id}-${isEntering ? enterKey : stackPosition}`}
+              key={entry.instanceId}
               card={card}
+              instanceId={entry.instanceId}
               stackPosition={stackPosition}
-              stackSize={visibleOrder.length}
+              zIndex={zIndex}
+              swipeCycle={deckState.swipeCycle}
               isTop={isTop}
-              isEntering={isEntering}
-              isLocked={isAnimating}
-              offset={STACK_OFFSETS[stackPosition] ?? STACK_OFFSETS.at(-1)!}
-              onSwipeStart={() => setIsAnimating(true)}
+              isOutgoing={isOutgoing}
+              offset={
+                isOutgoing
+                  ? STACK_OFFSETS[0]
+                  : STACK_OFFSETS[stackPosition] ?? STACK_OFFSETS.at(-1)!
+              }
+              nextOffset={nextOffset}
+              topDragX={topDragX}
+              onSwipeStart={handleSwipeStart}
               onSwipeComplete={handleSwipeComplete}
             />
           );

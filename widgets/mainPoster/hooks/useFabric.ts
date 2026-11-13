@@ -730,15 +730,28 @@ export const useFabric = () => {
 
       canvas.requestRenderAll();
 
-      const previewDataUrl = canvas.toDataURL({
-        format: 'png',
-        quality: 1,
+      let previewDataUrl = canvas.toDataURL({
+        format: 'webp',
+        quality: 0.85,
         multiplier: 2,
       });
 
+      let name = 'invitation-thumbnail.webp';
+      let mimeType = 'image/webp';
+
+      if (!previewDataUrl || !previewDataUrl.startsWith('data:image/webp')) {
+        previewDataUrl = canvas.toDataURL({
+          format: 'png',
+          quality: 1,
+          multiplier: 2,
+        });
+        name = 'invitation-thumbnail.png';
+        mimeType = 'image/png';
+      }
+
       return {
-        name: 'invitation-thumbnail.png',
-        mimeType: 'image/png',
+        name,
+        mimeType,
         dataUrl: previewDataUrl,
         width: canvasWidth,
         height: canvasHeight,

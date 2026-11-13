@@ -1,9 +1,10 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
 import { blockRegistry } from '@/shared/data/registry/registry';
 import { preloadFontFamilyWeights } from '@/shared/fonts/fontLoader';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
@@ -18,13 +19,21 @@ type GuestRendererRenderHints = NormalizedGuestPayload['renderHints'];
 
 const GUEST_PAGE_PROP_COMPONENTS = new Set<GuestRendererBlock['component']>([
   'coupleIntroduction',
+  'countdown',
+  'calendar',
+  'divider',
+  'dressCode',
   'gallery',
   'myChild',
   'myFamily',
   'organizerInformation',
   'picture',
+  'rsvp',
+  'spacer',
   'speakerInformation',
   'sponsorshipInfomation',
+  'timeline',
+  'transportation',
   'video',
 ]);
 
@@ -44,9 +53,9 @@ function GuestRenderer({
       setBodyData: state.setBodyData,
     }))
   );
-  const [fontsReady, setFontsReady] = useState(false);
   const pathname = usePathname();
-  const isGuestPage = pathname.startsWith('/guest');
+  const isGuestPage =
+    pathname.startsWith('/guest/') || pathname.startsWith('/i/');
   // renderHints가 있으면 그 값을 쓰고, 없으면 기존 block 스캔 방식으로 fallback한다.
   const fontFamiliesToPreload = useMemo(
     () =>
@@ -64,25 +73,12 @@ function GuestRenderer({
   }, [setTitleData, setBodyData, titleData, bodyData]);
 
   useEffect(() => {
-    let mounted = true;
-
-    void (async () => {
-      setFontsReady(false);
-
-      await Promise.allSettled(
-        fontFamiliesToPreload.map(fontFamily =>
-          preloadFontFamilyWeights(fontFamily)
-        )
-      );
-
-      if (mounted) {
-        setFontsReady(true);
-      }
-    })();
-
-    return () => {
-      mounted = false;
-    };
+    // 폰트는 본문 표시를 막지 않고 백그라운드에서 준비한다.
+    void Promise.allSettled(
+      fontFamiliesToPreload.map(fontFamily =>
+        preloadFontFamilyWeights(fontFamily)
+      )
+    );
   }, [fontFamiliesToPreload]);
 
   useEffect(() => {
@@ -113,12 +109,7 @@ function GuestRenderer({
     }
   }, [bulkData.isZoom]);
   return (
-    <div
-      className="flex flex-col transition-opacity duration-150"
-      style={{
-        opacity: fontsReady ? 1 : 0,
-      }}
-    >
+    <div className="flex flex-col">
       {blocks.map(block => {
         const registryItem =
           blockRegistry[block.component as keyof typeof blockRegistry];
@@ -132,7 +123,7 @@ function GuestRenderer({
         }>;
 
         return (
-          <div key={block.id} className="w-full">
+          <ScrollFadeIn key={block.id} className="w-full">
             <View
               blockInfo={block}
               className=""
@@ -141,7 +132,7 @@ function GuestRenderer({
                 ? { isGuestPage: true }
                 : {})}
             />
-          </div>
+          </ScrollFadeIn>
         );
       })}
     </div>

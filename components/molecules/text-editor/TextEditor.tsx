@@ -22,6 +22,7 @@ import React, {
 
 import TextEditorButton from '@/components/atoms/text-editor-button/TextEditorButton';
 import AlignCenterIcon from '@/shared/assets/icons/alignCenter.svg';
+import AlignCenterLeftIcon from '@/shared/assets/icons/alignCenterLeft.svg';
 import AlignLeftIcon from '@/shared/assets/icons/alignLeft.svg';
 import AlignRightIcon from '@/shared/assets/icons/alignRight.svg';
 import FontColorIcon from '@/shared/assets/icons/color.svg';
@@ -43,6 +44,7 @@ import { cn } from '@/shared/utils/cn';
 import { Selector } from '../selector';
 
 import TextEditorColorPickerPopover from './components/TextEditorColorPickerPopover';
+import centerLeftStyles from './utils/centerLeftText.module.css';
 import { isTextMarkFullyActive } from './utils/markState';
 import {
   normalizePastedHtmlToPlainText,
@@ -97,15 +99,16 @@ type TextMark = {
 };
 
 const TEXT_ALIGN_OPTIONS: TextAlignOption[] = [
-  { label: <AlignRightIcon />, value: 'right' },
-  { label: <AlignCenterIcon />, value: 'center' },
   { label: <AlignLeftIcon />, value: 'left' },
+  { label: <AlignCenterLeftIcon />, value: 'center-left' },
+  { label: <AlignCenterIcon />, value: 'center' },
+  { label: <AlignRightIcon />, value: 'right' },
 ];
 
 const DEFAULT_FONT_SIZE_OPTION =
   FONT_SIZE_OPTIONS.find(option => option.value === '14px') ??
   FONT_SIZE_OPTIONS[0];
-const DEFAULT_TEXT_ALIGN_OPTION = TEXT_ALIGN_OPTIONS[1];
+const DEFAULT_TEXT_ALIGN_OPTION = TEXT_ALIGN_OPTIONS.find(option => option.value === 'center') ?? TEXT_ALIGN_OPTIONS[2];
 const DEFAULT_EDITOR_TEXT = '내용을 입력해주세요';
 const MIXED_STYLE_VALUE = '__mixed__';
 
@@ -444,7 +447,10 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
         fontSize:
           editorBaseStyles.fontSize.value || DEFAULT_FONT_SIZE_OPTION.value,
         color: editorBaseStyles.color,
-        textAlign: editorBaseStyles.textAlign.value,
+        textAlign:
+          editorBaseStyles.textAlign.value === 'center-left'
+            ? undefined
+            : (editorBaseStyles.textAlign.value as CSSProperties['textAlign']),
       }),
       [editorBaseStyles]
     );
@@ -457,8 +463,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       content: value ?? null,
       editorProps: {
         attributes: {
-          class:
-            'flex flex-col justify-center min-h-[120px] outline-none text-[14px] leading-7 selection:bg-primary/20 selection:text-inherit',
+          class: `flex flex-col justify-center min-h-[120px] outline-none text-[14px] leading-7 selection:bg-primary/20 selection:text-inherit ${centerLeftStyles.centerLeftText} ${centerLeftStyles.editorCenterLeftText}`,
         },
         transformPastedHTML(html) {
           return normalizePastedHtmlToPlainText(html);
@@ -810,7 +815,11 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
                   <TextEditorButton
                     key={option.value}
                     icon={option.label}
-                    label={`Align ${option.value}`}
+                    label={
+                      option.value === 'center-left'
+                        ? 'Align center-left (문장 시작 일렬 가운데 맞춤)'
+                        : `Align ${option.value}`
+                    }
                     active={active}
                     className={cn(
                       'h-[30px] w-[30px] rounded-[5px] hover:bg-[#FAFAFB] active:bg-[#F5F8FF] aria-pressed:bg-white aria-pressed:shadow-sm text-text-primary',

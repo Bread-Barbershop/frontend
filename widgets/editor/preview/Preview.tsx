@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { EditorCallout } from '@/components/molecules/editor-callout';
+import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
 import { EditorBgmOverlay } from '@/components/organisms/bgm/components/EditorBgmOverlay';
 import CalloutIcon from '@/shared/assets/icons/callout.svg';
 import { blockRegistry } from '@/shared/data/registry/registry';
@@ -35,7 +36,10 @@ function Preview() {
     state => state.callouts['preview-panel']
   );
   const isAnyCalloutOpen = useEditorCalloutStore(
-    state => state.callouts['preview-panel'] || state.callouts['order-panel']
+    state =>
+      state.callouts['preview-panel'] ||
+      state.callouts['order-panel'] ||
+      state.callouts['add-page-button']
   );
   const showAllCalloutsFor = useEditorCalloutStore(
     state => state.showAllCalloutsFor
@@ -103,8 +107,9 @@ function Preview() {
                     blockRefs.current[comp.id] = el;
                   }}
                 >
-                  <View
-                    blockInfo={comp}
+                  <ScrollFadeIn>
+                    <View
+                      blockInfo={comp}
                     className={`${selectedId === comp.id ? 'ring-1 ring-inset ring-primary' : ''}`}
                     titleClassName={previewTitleVariants({
                       variant: comp.type,
@@ -114,6 +119,7 @@ function Preview() {
                       setIsEdit(false);
                     }}
                   />
+                  </ScrollFadeIn>
                 </div>
               );
             })}
