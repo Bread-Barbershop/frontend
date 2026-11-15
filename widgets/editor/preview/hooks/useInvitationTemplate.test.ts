@@ -171,6 +171,28 @@ describe('useInvitationTemplate', () => {
     expect(useEditorStore.getState().isDirty).toBe(false);
   });
 
+  it('표지 목록에서 적용할 때는 기존 본문과 사진, 글꼴과 배경을 유지한다', async () => {
+    const before = useEditorStore.getState();
+    const { result } = renderHook(() => useInvitationTemplate());
+    await act(async () => {
+      expect(
+        await result.current.applyTemplate('test-template', {
+          posterOnly: true,
+        })
+      ).toBe(true);
+    });
+    const after = useEditorStore.getState();
+    expect(mockCanvas.loadFromJSON).toHaveBeenCalledTimes(1);
+    expect(after.block).toBe(before.block);
+    expect(after.images).toBe(before.images);
+    expect(after.backgroundColor).toBe(before.backgroundColor);
+    expect(after.titleData).toBe(before.titleData);
+    expect(after.bodyData).toBe(before.bodyData);
+    expect(after.selectedId).toBe('mainPoster');
+    expect(after.isDirty).toBe(true);
+    expect(mockConfirm.mock.calls[0][0].message).toContain('현재 표지만 교체');
+  });
+
   it('확인 창이 열린 동안 중복 적용 요청을 막는다', async () => {
     mockConfirm.mockImplementation(
       () =>

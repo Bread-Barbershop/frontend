@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
 
-import { showcaseItems } from '@/app/(home)/components/showcaseItems';
 import { buildShowcaseInvitation } from '@/shared/data/buildShowcaseInvitation';
 import {
   getShowcaseInvitation,
@@ -27,19 +26,13 @@ export default async function ShowcasePage({
 }) {
   const { id } = await params;
   const design = getShowcaseInvitation(id);
-  const card = showcaseItems.find(item => item.id === id);
-  if (!design || !card) notFound();
+  if (!design) notFound();
   const invitation = buildShowcaseInvitation(design);
 
   return (
     <main style={{ backgroundColor: design.palette[0] }} className="min-h-dvh">
       <div className="mx-auto w-full max-w-[430px]">
-        <ShowcaseDocument
-          {...invitation}
-          design={design}
-          cover={card.image}
-          coverAlt={card.alt}
-        />
+        <ShowcaseDocument {...invitation} design={design} />
       </div>
     </main>
   );

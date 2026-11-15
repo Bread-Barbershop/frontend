@@ -41,12 +41,18 @@ describe('첫 화면 카드 미리보기', () => {
       'src',
       '/showcase/showcase-22'
     );
+    expect(
+      screen.getByRole('link', { name: '이 템플릿으로 시작하기' })
+    ).toHaveAttribute('href', '/editor?template=showcase-22');
     await user.click(screen.getByRole('button', { name: '다음 초대장' }));
     expect(screen.getByRole('dialog', { name: '클래식 모먼트' })).toBeVisible();
     expect(screen.getByTitle('클래식 모먼트 초대장 내용')).toHaveAttribute(
       'src',
       '/showcase/showcase-0'
     );
+    expect(
+      screen.getByRole('link', { name: '이 템플릿으로 시작하기' })
+    ).toHaveAttribute('href', '/editor?template=showcase-0');
   });
 
   it('닫으면 카드에 포커스를 돌려주고 원래 스크롤 상태를 복구한다', async () => {

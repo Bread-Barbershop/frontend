@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowDown, ArrowLeft, ArrowRight, X } from 'lucide-react';
+import Link from 'next/link';
 import {
   createContext,
   useCallback,
@@ -173,16 +174,28 @@ function ShowcasePreviewModal({
                 ))}
               </div>
             </div>
-            <div className="mt-8 hidden min-[800px]:block">
-              <div className="mb-8 flex items-center gap-2 text-[12px] text-black/45">
+            <div className="mt-4 min-[800px]:mt-8">
+              <div className="mb-5 hidden items-center gap-2 text-[12px] text-black/45 min-[800px]:flex">
                 <ArrowDown size={14} />
-                봉투를 열고, 이야기를 천천히 읽어보세요
+                아래로 내려 초대장 전체를 살펴보세요
               </div>
-              <p className="border-t border-black/10 pt-5 text-[12px] leading-6 text-black/45">
-                마음에 드는 분위기를 발견하셨나요?
-                <br />첫 화면의 ‘무료로 제작하기’에서
-                <br />
-                우리만의 이야기를 시작해 보세요.
+              <Link
+                href={`/editor?template=${encodeURIComponent(design.id)}`}
+                className="flex min-h-11 w-full items-center justify-center gap-3 rounded-full bg-bg-plain px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#202020] focus-visible:outline-2 focus-visible:outline-offset-4"
+              >
+                이 템플릿으로 시작하기{' '}
+                <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+              <p className="mt-3 text-[11px] leading-5 text-black/45">
+                로그인 후 이 디자인으로 바로 시작해요.
+                <span className="hidden min-[800px]:inline">
+                  <br />
+                  사진과 문구는 자유롭게 바꿀 수 있어요.
+                </span>
+                <span className="min-[800px]:hidden">
+                  {' '}
+                  제작은 PC에서 할 수 있어요.
+                </span>
               </p>
             </div>
           </aside>

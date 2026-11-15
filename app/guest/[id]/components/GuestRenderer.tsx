@@ -5,6 +5,7 @@ import React, { useEffect, useMemo } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
+import InvitationChapter from '@/components/organisms/invitation-chapter/InvitationChapter';
 import { blockRegistry } from '@/shared/data/registry/registry';
 import { preloadFontFamilyWeights } from '@/shared/fonts/fontLoader';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
@@ -141,7 +142,16 @@ function GuestRenderer({
         );
         return (
           <ScrollFadeIn key={block.id} className="w-full">
-            {renderBlock ? renderBlock(block, view) : view}
+            {renderBlock ? (
+              renderBlock(block, view)
+            ) : (
+              <InvitationChapter
+                component={block.component}
+                collectionStyle={block.props.collectionStyle}
+              >
+                {view}
+              </InvitationChapter>
+            )}
           </ScrollFadeIn>
         );
       })}

@@ -195,7 +195,7 @@ export function useInvitationTemplate({
   }, []);
 
   const applyTemplate = useCallback(
-    async (templateId: string) => {
+    async (templateId: string, options: { posterOnly?: boolean } = {}) => {
       if (isApplyingRef.current) return false;
       isApplyingRef.current = true;
       const requestId = ++latestRequestIdRef.current;
@@ -219,7 +219,9 @@ export function useInvitationTemplate({
         if (!template)
           throw new Error(`Unknown invitation template: ${templateId}`);
 
-        const confirmMessage = `“${template.name}” 템플릿을 사용하시겠습니까?\n현재 포스터와 페이지, 입력한 내용이 템플릿 기본값으로 교체됩니다.`;
+        const confirmMessage = options.posterOnly
+          ? `“${template.name}” 표지를 적용할까요?\n현재 표지만 교체되며 본문과 입력한 내용은 유지됩니다.`
+          : `“${template.name}” 템플릿을 사용하시겠습니까?\n현재 포스터와 페이지, 입력한 내용이 템플릿 기본값으로 교체됩니다.`;
         activeConfirmMessageRef.current = confirmMessage;
         const isConfirmed = await confirm({
           message: confirmMessage,
@@ -283,6 +285,20 @@ export function useInvitationTemplate({
             );
           }
           return false;
+        }
+
+        if (options.posterOnly) {
+          useEditorStore.setState({
+            selectedId: 'mainPoster',
+            activeTab: null,
+            isEdit: false,
+            isDirty: true,
+          });
+          success(`${template.name} 표지를 적용했습니다.`, {
+            placement: 'top-right',
+          });
+          onApplied?.();
+          return true;
         }
 
         const removedImageIds = new Set<string>();

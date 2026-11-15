@@ -1,4 +1,8 @@
-import type { BulkData, EditorBlock, InvitationType } from '@/shared/types/block';
+import type {
+  BulkData,
+  EditorBlock,
+  InvitationType,
+} from '@/shared/types/block';
 import type { BlockType } from '@/shared/types/editor';
 
 export type InvitationTemplateType = Exclude<InvitationType, 'etc'>;
@@ -54,11 +58,23 @@ export type PosterLineElement = {
   strokeWidth?: number;
 };
 
+export type PosterImageElement = {
+  kind: 'image';
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  src: string;
+  sourceWidth: number;
+  sourceHeight: number;
+};
+
 export type PosterElement =
   | PosterTextElement
   | PosterRectElement
   | PosterCircleElement
-  | PosterLineElement;
+  | PosterLineElement
+  | PosterImageElement;
 
 export type PosterDesign = {
   width: 375;

@@ -4,6 +4,8 @@ import { KeyboardEvent, MouseEvent, useEffect, useState } from 'react';
 import EditIcon from '@/shared/assets/icons/edit.svg';
 import KakaoIcon from '@/shared/assets/icons/kakao2.svg';
 import LinkIcon from '@/shared/assets/icons/link.svg';
+import { INVITATION_TEMPLATES } from '@/shared/data/invitationTemplates/catalog';
+import InvitationTemplatePoster from '@/widgets/editor/preview/components/InvitationTemplatePoster';
 
 import { dashboardCarouselLayout } from '../carouselLayout';
 import { CarouselCardItem } from '../carouselTypes';
@@ -68,6 +70,9 @@ function CarouselItem({
   visibilityError,
 }: CarouselItemProps) {
   const currentImageKey = getImageKey(item.image);
+  const collectionTemplate = showPreviewLabel
+    ? INVITATION_TEMPLATES.find(template => template.id === item.id)
+    : undefined;
   const [hasImageError, setHasImageError] = useState(false);
   const invite = item.invite;
   const guestUrl = invite?.guestUrl ?? guestUrlProp;
@@ -223,21 +228,25 @@ function CarouselItem({
               height: dashboardCarouselLayout.cardHeight,
             }}
           >
-            <Image
-              src={displayImage}
-              alt={item.alt}
-              fill
-              sizes="260px"
-              preload={preloadImage}
-              unoptimized={typeof displayImage === 'string'}
-              draggable={false}
-              className="object-cover"
-              onError={() => {
-                if (!hasImageError && item.fallbackImage) {
-                  setHasImageError(true);
-                }
-              }}
-            />
+            {collectionTemplate ? (
+              <InvitationTemplatePoster template={collectionTemplate} />
+            ) : (
+              <Image
+                src={displayImage}
+                alt={item.alt}
+                fill
+                sizes="260px"
+                preload={preloadImage}
+                unoptimized={typeof displayImage === 'string'}
+                draggable={false}
+                className="object-cover"
+                onError={() => {
+                  if (!hasImageError && item.fallbackImage) {
+                    setHasImageError(true);
+                  }
+                }}
+              />
+            )}
             <div
               className={`absolute inset-0 bg-black/8 transition-opacity duration-300 ${
                 isSelected && showSelectedOverlay ? 'opacity-100' : 'opacity-0'

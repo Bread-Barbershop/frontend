@@ -14,6 +14,7 @@ import { createDefaultShareUrlState } from '@/shared/utils/shareUrlDefaults';
 import { FabricProvider } from '@/widgets/mainPoster/context/FabricContext';
 
 import MainContentsArea from './MainContentsArea';
+import TemplateEditorEntry from './TemplateEditorEntry';
 
 import type { SavedData } from '../[id]/types/savedata';
 
@@ -40,8 +41,7 @@ const BUNDLED_SAMPLE_ASSET_PREFIX = '/samples/';
 
 function isBundledSampleAsset(value: unknown): value is string {
   return (
-    typeof value === 'string' &&
-    value.startsWith(BUNDLED_SAMPLE_ASSET_PREFIX)
+    typeof value === 'string' && value.startsWith(BUNDLED_SAMPLE_ASSET_PREFIX)
   );
 }
 
@@ -127,7 +127,24 @@ async function loadPosterTemplateJson(templateId: string) {
   return templateResponse.json();
 }
 
-function EditorCreate() {
+function EditorCreate({
+  initialIsLoggedIn = false,
+}: {
+  initialIsLoggedIn?: boolean;
+}) {
+  const templateId = useSearchParams().get('template');
+  return templateId ? (
+    <TemplateEditorEntry
+      key={templateId}
+      templateId={templateId}
+      initialIsLoggedIn={initialIsLoggedIn}
+    />
+  ) : (
+    <SampleEditorCreate />
+  );
+}
+
+function SampleEditorCreate() {
   const sampleId = useSearchParams().get('sample');
   const [savedData, setSavedData] = useState<SavedData | null>(null);
   const [isLoading, setIsLoading] = useState(Boolean(sampleId));

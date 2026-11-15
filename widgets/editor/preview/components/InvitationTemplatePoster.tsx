@@ -9,6 +9,19 @@ interface Props {
 }
 
 const renderElement = (element: PosterElement, index: number) => {
+  if (element.kind === 'image') {
+    return (
+      <image
+        key={`image-${index}`}
+        href={element.src}
+        x={element.x}
+        y={element.y}
+        width={element.width}
+        height={element.height}
+        preserveAspectRatio="xMidYMid slice"
+      />
+    );
+  }
   if (element.kind === 'rect') {
     return (
       <g key={`rect-${index}`}>
