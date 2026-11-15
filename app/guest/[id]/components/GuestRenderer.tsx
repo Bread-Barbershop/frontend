@@ -41,10 +41,17 @@ function GuestRenderer({
   blocks,
   bulkData,
   renderHints,
+  isGuestPage: isGuestPageOverride,
+  renderBlock,
 }: {
   blocks: NormalizedGuestPayload['blocks'];
   bulkData: GuestRendererBulkData;
   renderHints?: GuestRendererRenderHints;
+  isGuestPage?: boolean;
+  renderBlock?: (
+    block: GuestRendererBlock,
+    view: React.ReactNode
+  ) => React.ReactNode;
 }) {
   const { titleData, bodyData } = bulkData;
   const { setTitleData, setBodyData } = useEditorStore(
@@ -55,7 +62,8 @@ function GuestRenderer({
   );
   const pathname = usePathname();
   const isGuestPage =
-    pathname.startsWith('/guest/') || pathname.startsWith('/i/');
+    isGuestPageOverride ??
+    (pathname.startsWith('/guest/') || pathname.startsWith('/i/'));
   // renderHints가 있으면 그 값을 쓰고, 없으면 기존 block 스캔 방식으로 fallback한다.
   const fontFamiliesToPreload = useMemo(
     () =>
@@ -122,16 +130,18 @@ function GuestRenderer({
           isGuestPage?: boolean;
         }>;
 
+        const view = (
+          <View
+            blockInfo={block}
+            className=""
+            {...(isGuestPage && GUEST_PAGE_PROP_COMPONENTS.has(block.component)
+              ? { isGuestPage: true }
+              : {})}
+          />
+        );
         return (
           <ScrollFadeIn key={block.id} className="w-full">
-            <View
-              blockInfo={block}
-              className=""
-              {...(isGuestPage &&
-              GUEST_PAGE_PROP_COMPONENTS.has(block.component)
-                ? { isGuestPage: true }
-                : {})}
-            />
+            {renderBlock ? renderBlock(block, view) : view}
           </ScrollFadeIn>
         );
       })}
