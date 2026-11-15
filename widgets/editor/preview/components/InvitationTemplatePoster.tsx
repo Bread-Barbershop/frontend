@@ -4,6 +4,15 @@ import type {
   PosterTextElement,
 } from '@/shared/data/invitationTemplates';
 
+import './invitationPosterFonts.css';
+
+const PREVIEW_FONTS: Record<string, string> = {
+  Hahmlet: 'InviaCollectionSerif',
+  SUIT: 'InviaCollectionSans',
+  LINESeedKR: 'InviaCollectionRound',
+  '고운 바탕': 'InviaCollectionBook',
+};
+
 interface Props {
   template: InvitationTemplate;
 }
@@ -125,7 +134,9 @@ const renderElement = (element: PosterElement, index: number) => {
       stroke={textElement.stroke ?? 'none'}
       strokeWidth={textElement.strokeWidth ?? 0}
       paintOrder="stroke"
-      fontFamily={textElement.fontFamily}
+      fontFamily={
+        PREVIEW_FONTS[textElement.fontFamily] ?? textElement.fontFamily
+      }
       fontSize={textElement.fontSize}
       fontWeight={textElement.fontWeight ?? '400'}
       letterSpacing={textElement.letterSpacing}
