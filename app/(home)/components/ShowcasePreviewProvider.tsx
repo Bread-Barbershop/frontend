@@ -176,7 +176,7 @@ function ShowcasePreviewModal({
             <div className="mt-8 hidden min-[800px]:block">
               <div className="mb-8 flex items-center gap-2 text-[12px] text-black/45">
                 <ArrowDown size={14} />
-                스크롤하며 초대장 전체를 살펴보세요
+                봉투를 열고, 이야기를 천천히 읽어보세요
               </div>
               <p className="border-t border-black/10 pt-5 text-[12px] leading-6 text-black/45">
                 마음에 드는 분위기를 발견하셨나요?

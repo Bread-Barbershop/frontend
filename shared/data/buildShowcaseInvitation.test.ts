@@ -5,6 +5,7 @@ import { showcaseItems } from '@/app/(home)/components/showcaseItems';
 import { normalizeGuestBlock } from '@/app/guest/[id]/validation/normalizeGuestBlock';
 
 import { buildShowcaseInvitation } from './buildShowcaseInvitation';
+import { getShowcasePresentation } from './showcasePresentation';
 import {
   getShowcaseInvitation,
   SHOWCASE_INVITATIONS,
@@ -63,6 +64,34 @@ describe('첫 화면 초대장 샘플', () => {
           true
         );
       }
+    }
+  });
+
+  it('7가지 편집 구성과 행사에 맞는 이야기 블록, 실제 갤러리 사진을 제공한다', () => {
+    expect(
+      new Set(
+        SHOWCASE_INVITATIONS.map(
+          design => getShowcasePresentation(design).family
+        )
+      ).size
+    ).toBe(7);
+    for (const design of SHOWCASE_INVITATIONS) {
+      const { blocks } = buildShowcaseInvitation(design);
+      const expected =
+        design.type === 'wedding'
+          ? ['coupleIntroduction', 'gallery', 'interview']
+          : design.type === 'firstBirthday'
+            ? ['myChild', 'gallery', 'interview']
+            : design.type === 'seminar'
+              ? ['speakerInformation', 'picture', 'transportation']
+              : ['gallery', 'interview'];
+      expect(blocks.map(block => block.component)).toEqual(
+        expect.arrayContaining(expected)
+      );
+      for (const image of getShowcasePresentation(design).photos)
+        expect(existsSync(path.join(process.cwd(), 'public', image))).toBe(
+          true
+        );
     }
   });
 });

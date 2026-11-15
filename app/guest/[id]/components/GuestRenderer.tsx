@@ -42,11 +42,16 @@ function GuestRenderer({
   bulkData,
   renderHints,
   isGuestPage: isGuestPageOverride,
+  renderBlock,
 }: {
   blocks: NormalizedGuestPayload['blocks'];
   bulkData: GuestRendererBulkData;
   renderHints?: GuestRendererRenderHints;
   isGuestPage?: boolean;
+  renderBlock?: (
+    block: GuestRendererBlock,
+    view: React.ReactNode
+  ) => React.ReactNode;
 }) {
   const { titleData, bodyData } = bulkData;
   const { setTitleData, setBodyData } = useEditorStore(
@@ -125,16 +130,18 @@ function GuestRenderer({
           isGuestPage?: boolean;
         }>;
 
+        const view = (
+          <View
+            blockInfo={block}
+            className=""
+            {...(isGuestPage && GUEST_PAGE_PROP_COMPONENTS.has(block.component)
+              ? { isGuestPage: true }
+              : {})}
+          />
+        );
         return (
           <ScrollFadeIn key={block.id} className="w-full">
-            <View
-              blockInfo={block}
-              className=""
-              {...(isGuestPage &&
-              GUEST_PAGE_PROP_COMPONENTS.has(block.component)
-                ? { isGuestPage: true }
-                : {})}
-            />
+            {renderBlock ? renderBlock(block, view) : view}
           </ScrollFadeIn>
         );
       })}

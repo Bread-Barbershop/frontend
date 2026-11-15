@@ -1,5 +1,6 @@
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { blockSchema } from '@/shared/data/registry/block.schema';
+import { getShowcasePresentation } from '@/shared/data/showcasePresentation';
 import type { EditorBlock } from '@/shared/types/block';
 import type { BlockType } from '@/shared/types/editor';
 
@@ -29,6 +30,7 @@ export function buildShowcaseInvitation(design: ShowcaseInvitation) {
   const isSeminar = design.type === 'seminar';
   const isBaby = design.type === 'firstBirthday';
   const index = Number(design.id.replace('showcase-', ''));
+  const presentation = getShowcasePresentation(design);
 
   function block<T extends BlockType>(
     component: T,
@@ -117,18 +119,24 @@ export function buildShowcaseInvitation(design: ShowcaseInvitation) {
   });
   const picture = block('picture', {
     image: [
-      isWedding
-        ? '/images/showcase/garden-table.webp'
-        : '/images/showcase/birthday-table.webp',
+      isSeminar
+        ? '/images/showcase/conference-hall.webp'
+        : presentation.photos[0],
     ],
     isTitle: true,
-    title: isWedding
-      ? '당신을 기다리는 풍경'
-      : isBaby
-        ? '첫 생일을 위한 작은 준비'
-        : '좋아하는 것들로 채운 하루',
+    title: isSeminar
+      ? '우리가 마주 앉을 공간'
+      : isWedding
+        ? '당신을 기다리는 풍경'
+        : isBaby
+          ? '첫 생일을 위한 작은 준비'
+          : '좋아하는 것들로 채운 하루',
     isSubTitle: true,
-    subTitle: isWedding ? 'A MOMENT TO CHERISH' : 'MADE WITH LOVE',
+    subTitle: isSeminar
+      ? 'THE CONFERENCE VENUE'
+      : isWedding
+        ? 'A MOMENT TO CHERISH'
+        : 'MADE WITH LOVE',
   });
   const speakerMessage = richText([
     'Business Strategy & Creative Leadership',
@@ -141,64 +149,233 @@ export function buildShowcaseInvitation(design: ShowcaseInvitation) {
       {
         id: `${design.id}-speaker`,
         name: 'Andrew Jackson',
-        image: [],
+        image: ['/images/showcase/conference-speaker.webp'],
         messageJson: speakerMessage.json,
         messageHtml: speakerMessage.html,
       },
     ],
   });
 
-  const blocks: EditorBlock[] = [
-    block('spacer', { height: isSeminar ? 32 : 48 }),
-    block('greeting', {
-      title: design.heading,
-      subTitle: design.eyebrow,
-      messageJson: greeting.json,
-      messageHtml: greeting.html,
-    }),
-    block('divider', {
-      color: accent,
-      height: 48,
-      thickness: 1,
-      topSpacing: 16,
-      bottomSpacing: 16,
-    }),
-    ...(isSeminar
-      ? [calendar, speaker, timeline]
-      : index % 2 === 0
-        ? [picture, calendar, timeline]
-        : [calendar, timeline, picture]),
-    block('place', {
-      title: isWedding ? '마음이 모이는 곳' : '여기에서 만나요',
-      subTitle: 'OUR MEETING PLACE',
-      placeName: design.venue,
-      placeAddress: '서울 강남구 테헤란로1길 19',
-      placeDetail: '',
-      placeTel: '',
-      checkedPlaceTel: false,
-      openMap: false,
-      openNavi: false,
-    }),
-    block('dressCode', {
-      title: isSeminar ? '만남을 위한 작은 준비' : '더 편안한 하루를 위해',
-      colors: [
-        backgroundColor,
-        accent,
-        isBaby ? '#E2CBB4' : isWedding ? '#B8C2A6' : '#EDC9B1',
-      ],
-      guidelines: [
-        design.note,
-        isSeminar
-          ? '전체 세션은 한국어로 진행되며, 메모와 사진 촬영이 가능합니다.'
+  const coupleStory = richText([
+    presentation.note,
+    '박민성 · 김아현, 서로의 오늘과 내일이 되겠습니다.',
+  ]);
+  const couple = block('coupleIntroduction', {
+    title: '서로의 가장 가까운 사람',
+    subTitle: 'MINSUNG & AHHYUN',
+    groom: '박민성',
+    bride: '김아현',
+    groomImage: { id: `${design.id}-groom`, image: [] },
+    brideImage: { id: `${design.id}-bride`, image: [] },
+    showTitle: true,
+    showContent: true,
+    messageJson: coupleStory.json,
+    messageHtml: coupleStory.html,
+  });
+  const childStory = richText([
+    '작은 손을 꼭 잡았던 첫날부터, 혼자서 한 걸음을 떼기까지.',
+    '함께 웃고 기다려 주신 덕분에, 민준이의 세상은 매일 조금씩 넓어지고 있어요.',
+  ]);
+  const child = block('myChild', {
+    title: '우리 집에 찾아온 작은 우주',
+    subTitle: '365 DAYS OF LITTLE MIRACLES',
+    name: '민준',
+    nickname: '우리의 작은 기쁨',
+    birthday: '2025. 08. 11',
+    image: [],
+    messageJson: childStory.json,
+    messageHtml: childStory.html,
+  });
+  const gallery = block('gallery', {
+    title: isBaby
+      ? '첫 생일을 위해 모은 마음'
+      : isWedding
+        ? '오래 간직할 장면들'
+        : '이런 오후를 준비했어요',
+    subTitle: isBaby ? 'THE LITTLE THINGS' : 'COLLECTING OUR MOMENTS',
+    images: presentation.photos,
+    template:
+      presentation.family === 'editorial'
+        ? 'galleryType6'
+        : presentation.family === 'scrapbook'
+          ? 'galleryType3'
+          : 'galleryType1',
+    ratio: '3:4',
+    isPopupViewer: true,
+    isAutoPlay: false,
+  });
+  const answer = richText(
+    isWedding
+      ? [
+          presentation.note,
+          '기쁜 날에도, 조금 서툰 날에도 서로의 이야기를 끝까지 들어 주는 사람이 되려 합니다. 저희의 약속에 함께해 주세요.',
+        ]
+      : isBaby
+        ? [
+            '작은 공을 굴려 주면 세상에서 가장 크게 웃어요. 좋아하는 노래가 나오면 온몸으로 춤을 추고요.',
+            '아직 말로는 다 표현하지 못하지만, 민준이는 여러분이 보내 주신 사랑을 매일 배우고 있어요.',
+          ]
+        : [
+            '좋아하는 노래가 나오면 같이 흥얼거리고, 맛있는 음식 앞에서는 오래 이야기를 나눌 거예요.',
+            '선물보다 반가운 얼굴을, 격식보다 편안한 마음을 기다릴게요. 우리답게 즐겨요.',
+          ]
+  );
+  const interview = block('interview', {
+    title: isWedding
+      ? '우리의 마음을 조금 더'
+      : isBaby
+        ? '민준이는 요즘요'
+        : '이번 생일에 하고 싶은 일',
+    subTitle: isWedding ? 'A SMALL CONVERSATION' : 'A LITTLE STORY',
+    questions: [
+      {
+        id: `${design.id}-story`,
+        question: isWedding
+          ? '우리가 함께 지키고 싶은 한 가지는?'
           : isBaby
-            ? '함께해 주시는 마음만으로 충분합니다. 편하게 오셔서 축하해 주세요.'
-            : '함께하는 순간을 편안하게 즐겨 주세요.',
-      ],
-    }),
-    block('closingComment', {
-      messageJson: closing.json,
-      messageHtml: closing.html,
-    }),
+            ? '어떤 순간에 가장 환하게 웃나요?'
+            : '어떤 하루로 기억되면 좋을까요?',
+        answer: { messageJson: answer.json, messageHtml: answer.html },
+        image: [presentation.photos[1] ?? presentation.photos[0]],
+      },
+    ],
+  });
+  const transportation = block('transportation', {
+    title: '오는 길까지 편안하시도록',
+    subwayLine: '2호선 · 신분당선',
+    subwayStation: '강남역',
+    subwayExit: '11번 출구',
+    subwayWalk:
+      '출구에서 도보 약 5분, 건물 1층 안내 데스크에서 행사장으로 안내해 드립니다.',
+    parkingHours: '행사 참석자 무료 주차 2시간',
+    alternativeParking:
+      '로비에서 차량 번호를 등록해 주세요. 만차 시 현장 안내를 도와드립니다.',
+    busRoutes: '',
+    shuttleStop: '',
+    shuttleInterval: '',
+    navigationUrl: '',
+  });
+  const introduction = block('greeting', {
+    title: design.heading,
+    subTitle: design.eyebrow,
+    messageJson: greeting.json,
+    messageHtml: greeting.html,
+  });
+  const place = block('place', {
+    title: isWedding ? '마음이 모이는 곳' : '여기에서 만나요',
+    subTitle: 'OUR MEETING PLACE',
+    placeName: design.venue,
+    placeAddress: '서울 강남구 테헤란로1길 19',
+    placeDetail: '',
+    placeTel: '',
+    checkedPlaceTel: false,
+    openMap: false,
+    openNavi: false,
+  });
+  const dressCode = block('dressCode', {
+    title: isSeminar ? '만남을 위한 작은 준비' : '더 편안한 하루를 위해',
+    colors: [
+      backgroundColor,
+      accent,
+      isBaby ? '#E2CBB4' : isWedding ? '#B8C2A6' : '#EDC9B1',
+    ],
+    guidelines: [
+      design.note,
+      isSeminar
+        ? '전체 세션은 한국어로 진행되며, 메모와 사진 촬영이 가능합니다.'
+        : isBaby
+          ? '함께해 주시는 마음만으로 충분합니다. 편하게 오셔서 축하해 주세요.'
+          : '함께하는 순간을 편안하게 즐겨 주세요.',
+    ],
+  });
+  const closingComment = block('closingComment', {
+    messageJson: closing.json,
+    messageHtml: closing.html,
+  });
+  const divider = block('divider', {
+    color: accent,
+    height: 40,
+    thickness: 1,
+    topSpacing: 12,
+    bottomSpacing: 12,
+  });
+  const chapters: EditorBlock[] = isSeminar
+    ? [
+        introduction,
+        timeline,
+        speaker,
+        picture,
+        calendar,
+        place,
+        transportation,
+        dressCode,
+      ]
+    : isBaby
+      ? [
+          introduction,
+          child,
+          gallery,
+          calendar,
+          interview,
+          timeline,
+          picture,
+          place,
+          transportation,
+          dressCode,
+        ]
+      : !isWedding
+        ? [
+            introduction,
+            picture,
+            calendar,
+            interview,
+            timeline,
+            gallery,
+            place,
+            dressCode,
+          ]
+        : presentation.family === 'editorial'
+          ? [
+              introduction,
+              gallery,
+              couple,
+              interview,
+              calendar,
+              timeline,
+              place,
+              transportation,
+              dressCode,
+            ]
+          : presentation.family === 'botanical' || presentation.family === 'sky'
+            ? [
+                introduction,
+                couple,
+                picture,
+                interview,
+                calendar,
+                gallery,
+                timeline,
+                place,
+                dressCode,
+                transportation,
+              ]
+            : [
+                introduction,
+                couple,
+                picture,
+                calendar,
+                gallery,
+                interview,
+                timeline,
+                place,
+                transportation,
+                dressCode,
+              ];
+  const blocks: EditorBlock[] = [
+    block('spacer', { height: 12 }),
+    ...chapters,
+    divider,
+    closingComment,
   ];
 
   return {

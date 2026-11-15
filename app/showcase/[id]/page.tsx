@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { notFound } from 'next/navigation';
 
 import { showcaseItems } from '@/app/(home)/components/showcaseItems';
@@ -34,30 +33,14 @@ export default async function ShowcasePage({
 
   return (
     <main style={{ backgroundColor: design.palette[0] }} className="min-h-dvh">
-      <article
-        className="mx-auto w-full max-w-[430px]"
-        aria-label={`${design.name} 초대장`}
-      >
-        <Image
-          src={card.image}
-          alt={card.alt}
-          priority
-          sizes="(max-width: 430px) 100vw, 430px"
-          className="block h-auto w-full"
+      <div className="mx-auto w-full max-w-[430px]">
+        <ShowcaseDocument
+          {...invitation}
+          design={design}
+          cover={card.image}
+          coverAlt={card.alt}
         />
-        <ShowcaseDocument {...invitation} />
-        <footer
-          className="px-6 pb-10 pt-8 text-center"
-          style={{ color: design.palette[2] }}
-        >
-          <p className="text-[11px] tracking-[0.16em]">
-            SPECIAL MOMENTS WITH <strong>INVIA</strong>
-          </p>
-          <p className="mt-3 text-[10px] leading-5 opacity-60">
-            디자인 샘플 · 인물, 장소와 일정은 예시입니다.
-          </p>
-        </footer>
-      </article>
+      </div>
     </main>
   );
 }
