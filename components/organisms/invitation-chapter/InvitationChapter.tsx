@@ -2,6 +2,12 @@ import styles from './invitationChapter.module.css';
 
 import type { ReactNode } from 'react';
 
+export function getCollectionStyle(props: unknown): unknown {
+  return props && typeof props === 'object' && 'collectionStyle' in props
+    ? props.collectionStyle
+    : undefined;
+}
+
 export default function InvitationChapter({
   children,
   collectionStyle,

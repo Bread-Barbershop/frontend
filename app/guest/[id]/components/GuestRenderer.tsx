@@ -5,7 +5,9 @@ import React, { useEffect, useMemo } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
-import InvitationChapter from '@/components/organisms/invitation-chapter/InvitationChapter';
+import InvitationChapter, {
+  getCollectionStyle,
+} from '@/components/organisms/invitation-chapter/InvitationChapter';
 import { blockRegistry } from '@/shared/data/registry/registry';
 import { preloadFontFamilyWeights } from '@/shared/fonts/fontLoader';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
@@ -147,7 +149,7 @@ function GuestRenderer({
             ) : (
               <InvitationChapter
                 component={block.component}
-                collectionStyle={block.props.collectionStyle}
+                collectionStyle={getCollectionStyle(block.props)}
               >
                 {view}
               </InvitationChapter>

@@ -51,7 +51,9 @@ describe('홈과 편집기가 공유하는 초대장 컬렉션', () => {
         const normalized = normalizeGuestBlock(block, index);
         expect(normalized.ok).toBe(true);
         if (normalized.ok)
-          expect(normalized.block.props.collectionStyle).toBe(design.id);
+          expect(normalized.block.props).toMatchObject({
+            collectionStyle: design.id,
+          });
       });
       expect(saved.posterJson).toEqual(editor.posterJson);
       const guest = parseGuestPayload({

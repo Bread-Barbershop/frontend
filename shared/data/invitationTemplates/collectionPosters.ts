@@ -357,7 +357,7 @@ export function createCollectionPoster(
       rect(0, 0, 375, 812, '#202526');
       text('OPEN\nMINDS.', 25, 45, 325, 71, {
         fontFamily: sans,
-        fill: '#E9F3B8',
+        fill: '#F8AC66',
         fontWeight: '700',
         textAlign: 'left',
         lineHeight: 1,
@@ -368,7 +368,7 @@ export function createCollectionPoster(
       });
       photo('conference-speaker', 143, 316, 204, 240);
       text('01\nTALK\n02\nCONNECT', 28, 322, 105, 13, {
-        fill: '#E9F3B8',
+        fill: '#F8AC66',
         fontFamily: sans,
         textAlign: 'left',
         lineHeight: 2,
