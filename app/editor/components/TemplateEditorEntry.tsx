@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import DrivePermissionRequiredModal from '@/features/session/components/DrivePermissionRequiredModal';
 import LoginModal from '@/features/session/components/LoginModal';
@@ -45,6 +46,7 @@ export default function TemplateEditorEntry({
   initialIsLoggedIn: boolean;
 }) {
   const template = INVITATION_TEMPLATES.find(item => item.id === templateId);
+  const router = useRouter();
   const auth = useAuthGate({ initialIsLoggedIn, stayOnSessionExpiry: true });
   const [ready, setReady] = useState(false);
   const startedRef = useRef(false);
@@ -52,12 +54,17 @@ export default function TemplateEditorEntry({
     () => (template ? prepareTemplateEditorData(templateId) : null),
     [template, templateId]
   );
+  const beginEditing = useCallback(() => {
+    setReady(true);
+    // Refresh server session props (including the header) while retaining this draft.
+    router.refresh();
+  }, [router]);
 
   useEffect(() => {
     if (!template || startedRef.current) return;
     startedRef.current = true;
-    auth.runAfterAuth(() => setReady(true));
-  }, [auth, template]);
+    auth.runAfterAuth(beginEditing);
+  }, [auth, beginEditing, template]);
 
   if (!template || !savedData)
     return (
@@ -100,7 +107,7 @@ export default function TemplateEditorEntry({
           <button
             type="button"
             disabled={auth.isBusy || auth.isLoginPending}
-            onClick={() => auth.runAfterAuth(() => setReady(true))}
+            onClick={() => auth.runAfterAuth(beginEditing)}
             className="mt-7 flex h-12 w-full items-center justify-center rounded-full bg-bg-plain px-6 font-semibold text-white hover:bg-[#202020] disabled:opacity-50"
           >
             {auth.isBusy ? '초대장 준비 중…' : '로그인하고 시작하기'}

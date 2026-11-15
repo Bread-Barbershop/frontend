@@ -129,6 +129,23 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
     expect(mockReplace).not.toHaveBeenCalled();
   });
 
+  it('로그인 후 서버 인증 상태를 갱신해도 제작 중인 포스터와 블록 ID를 유지한다', async () => {
+    const view = render(
+      <TemplateEditorEntry templateId="showcase-18" initialIsLoggedIn={false} />
+    );
+    beginGoogle();
+    completeOAuth();
+    await screen.findByTestId('editor');
+    expect(mockRefresh).toHaveBeenCalled();
+    const poster = screen.getByTestId('poster').getAttribute('data-json');
+    const blocks = screen.getByTestId('editor').getAttribute('data-blocks');
+    view.rerender(
+      <TemplateEditorEntry templateId="showcase-18" initialIsLoggedIn />
+    );
+    expect(screen.getByTestId('poster')).toHaveAttribute('data-json', poster);
+    expect(screen.getByTestId('editor')).toHaveAttribute('data-blocks', blocks);
+  });
+
   it('로그인한 사용자는 추가 확인 없이 선택한 청첩장으로 바로 시작하고, 새로고침에도 같은 디자인을 읽는다', async () => {
     const first = render(
       <TemplateEditorEntry templateId="showcase-0" initialIsLoggedIn />
