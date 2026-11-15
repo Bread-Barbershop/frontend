@@ -165,8 +165,6 @@ export function buildShowcaseInvitation(design: ShowcaseInvitation) {
     subTitle: 'MINSUNG & AHHYUN',
     groom: '박민성',
     bride: '김아현',
-    groomImage: { id: `${design.id}-groom`, image: [] },
-    brideImage: { id: `${design.id}-bride`, image: [] },
     showTitle: true,
     showContent: true,
     messageJson: coupleStory.json,
