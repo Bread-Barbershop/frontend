@@ -42,9 +42,11 @@ const SortableItems = React.memo(
     } = useSortable({ id });
 
     const array = componentCls.find(items => items.english === blockInfo.type);
-    const componentName = array?.list.find(
-      item => item.component === blockInfo.component
-    );
+    const componentName =
+      array?.list.find(item => item.component === blockInfo.component) ??
+      componentCls
+        .flatMap(category => category.list)
+        .find(item => item.component === blockInfo.component);
 
     const style = {
       transform: CSS.Translate.toString(transform),

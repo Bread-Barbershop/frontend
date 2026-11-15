@@ -56,6 +56,16 @@ describe('SortableItems 컴포넌트', () => {
     expect(screen.getByText('인사말 1')).toBeInTheDocument();
   });
 
+  it('다른 카테고리의 공용 블록도 순서 목록에서 이름을 표시한다', () => {
+    render(
+      <SortableItems
+        {...defaultProps}
+        blockInfo={{ ...defaultProps.blockInfo, type: 'birthday' } as never}
+      />
+    );
+    expect(screen.getByText('인사말 1')).toBeInTheDocument();
+  });
+
   it('호버 시 노출되는 삭제(X) 버튼이 렌더링된다', () => {
     render(<SortableItems {...defaultProps} />);
 

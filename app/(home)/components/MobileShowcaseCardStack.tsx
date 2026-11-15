@@ -19,6 +19,9 @@ import {
   useState,
 } from 'react';
 
+import { INVITATION_TEMPLATES } from '@/shared/data/invitationTemplates/catalog';
+import InvitationTemplatePoster from '@/widgets/editor/preview/components/InvitationTemplatePoster';
+
 type CardData = {
   id: string;
   image: StaticImageData;
@@ -114,6 +117,9 @@ function StackCard({
   onSwipeComplete,
   onPreview,
 }: StackCardProps) {
+  const collectionTemplate = INVITATION_TEMPLATES.find(
+    template => template.id === card.id
+  );
   const x = useMotionValue(offset.x);
   const y = useMotionValue(offset.y);
   const baseRotate = useMotionValue(offset.rotate);
@@ -345,15 +351,19 @@ function StackCard({
       onDragEnd={handleDragEnd}
       aria-hidden={!isTop}
     >
-      <Image
-        src={card.image}
-        alt={card.alt}
-        fill
-        sizes={CARD_IMAGE_SIZES}
-        className="pointer-events-none object-cover"
-        draggable={false}
-        priority={stackPosition === 0}
-      />
+      {collectionTemplate ? (
+        <InvitationTemplatePoster template={collectionTemplate} />
+      ) : (
+        <Image
+          src={card.image}
+          alt={card.alt}
+          fill
+          sizes={CARD_IMAGE_SIZES}
+          className="pointer-events-none object-cover"
+          draggable={false}
+          priority={stackPosition === 0}
+        />
+      )}
       {isTop && !isOutgoing && (
         <span className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center">
           <span className="rounded-full border border-black/5 bg-white/95 px-4 py-2 text-[11px] font-semibold text-[#252522] shadow-lg backdrop-blur-sm">

@@ -288,9 +288,12 @@ export const useInvitationUpload = () => {
       setIsFail(false);
       setPendingInvitation(null);
 
-      // 전체 task (invitationImage 보존용)
+      // Bundled sample URLs and existing URL references stay in block props.
+      // Only actual files belong in the upload queue, including mixed galleries.
       const allTasks = editorData.images.flatMap(item =>
-        item.file.map(file => ({ id: item.id, file }))
+        item.file
+          .filter((file): file is File => file instanceof File)
+          .map(file => ({ id: item.id, file }))
       );
       queueProgressStep('organizingContent');
 
@@ -310,10 +313,6 @@ export const useInvitationUpload = () => {
       // 드라이브에 이미 존재하는 파일은 업로드 제외
       const newTasks: typeof allTasks = [];
       for (const task of allTasks) {
-        if (!(task.file instanceof File)) {
-          newTasks.push(task);
-          continue;
-        }
         // imageId(task.id)와 파일을 함께 사용하여 같은 파일도 이미지별로 구분
         const fileKey = await getFileKey(task.file, task.id);
         const existingFileId = hashFileMap.get(fileKey);
@@ -363,8 +362,8 @@ export const useInvitationUpload = () => {
       if (editorData.invitationUuid === '') {
         const saveResult = await saveInvitationFlow({
           bulkData,
-          images: allTasks as { id: string; file: File }[],
-          uploadImages: newTasks as { id: string; file: File }[],
+          images: allTasks,
+          uploadImages: newTasks,
           audio: userFile,
           data: editorData.block,
           shareUrl: editorData.shareUrl,
@@ -378,8 +377,8 @@ export const useInvitationUpload = () => {
       } else {
         const saveResult = await saveInvitationFlow({
           bulkData,
-          images: allTasks as { id: string; file: File }[],
-          uploadImages: newTasks as { id: string; file: File }[],
+          images: allTasks,
+          uploadImages: newTasks,
           audio: userFile,
           data: editorData.block,
           shareUrl: editorData.shareUrl,

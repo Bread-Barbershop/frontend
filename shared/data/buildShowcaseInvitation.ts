@@ -46,7 +46,7 @@ export function buildShowcaseInvitation(design: ShowcaseInvitation) {
       id: `${design.id}-${component}`,
       type: design.type,
       component,
-      props: { ...defaults, ...overrides },
+      props: { ...defaults, ...overrides, collectionStyle: design.id },
     };
   }
 

@@ -15,7 +15,10 @@ export type EditorBlock<T extends BlockType = BlockType> = {
   id: string;
   type: InvitationType;
   component: T;
-  props: PropsFromFields<(typeof blockSchema)[T]['fields']>;
+  props: PropsFromFields<(typeof blockSchema)[T]['fields']> & {
+    /** Bundled collection styling, persisted with native editable block props. */
+    collectionStyle?: string;
+  };
 };
 
 export type PersistedBlockType = Exclude<BlockType, 'shareUrl'>;

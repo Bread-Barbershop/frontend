@@ -1,11 +1,14 @@
 import { Suspense } from 'react';
 
+import { getAuthSession } from '@/app/api/auth/_lib/getAuthSession';
+
 import EditorCreate from './components/EditorCreate';
 
-const EditorPage = () => {
+const EditorPage = async () => {
+  const session = await getAuthSession();
   return (
     <Suspense fallback={null}>
-      <EditorCreate />
+      <EditorCreate initialIsLoggedIn={session.isLoggedIn} />
     </Suspense>
   );
 };

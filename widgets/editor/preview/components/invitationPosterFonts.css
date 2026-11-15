@@ -1,0 +1,37 @@
+/* Private aliases keep SVG previews and editable canvas metrics in sync,
+   without changing fonts used by the rest of the product. */
+@font-face {
+  font-family: 'InviaCollectionSerif';
+  src: url('/font/Hahmlet-Variable.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'InviaCollectionSans';
+  src: url('/font/SUIT.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'InviaCollectionRound';
+  src: url('/font/LINESeedKR/LINESeedKR-Rg.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'InviaCollectionRound';
+  src: url('/font/LINESeedKR/LINESeedKR-Bd.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'InviaCollectionBook';
+  src: url('/font/GowunBatang/GowunBatang-Regular.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
