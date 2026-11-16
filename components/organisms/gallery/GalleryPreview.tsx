@@ -56,12 +56,14 @@ function GalleryPreview({
     >
       {preview.length === 0 && !isGuestPage && <ImageDefault />}
       {preview.length !== 0 && (
-        <TemplateComponent
-          preview={preview}
-          ratio={ratio}
-          imageClick={handleImageClick}
-          isAutoPlay={Boolean(blockInfo.props.isAutoPlay)}
-        />
+        <div className="w-full" data-no-block-drag>
+          <TemplateComponent
+            preview={preview}
+            ratio={ratio}
+            imageClick={handleImageClick}
+            isAutoPlay={Boolean(blockInfo.props.isAutoPlay)}
+          />
+        </div>
       )}
 
       {blockInfo.props.isPopupViewer && isOpen && (

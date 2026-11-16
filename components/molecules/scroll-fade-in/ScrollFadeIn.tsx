@@ -1,9 +1,21 @@
 'use client';
 
-import React, { HTMLAttributes, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import React, {
+  HTMLAttributes,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 
 import { usePrefersReducedMotion } from '@/components/organisms/gallery/hooks/usePrefersReducedMotion';
 import { cn } from '@/shared/utils/cn';
+import {
+  boundedMotionNumber,
+  MOTION_EASINGS,
+  resolveMotionEasing,
+  type MotionEasing,
+} from '@/shared/utils/motionSettings';
 
 import type { ScrollAnimationType, ScrollTriggerMode } from './animationConfig';
 
@@ -14,6 +26,8 @@ export interface ScrollFadeInProps extends HTMLAttributes<HTMLDivElement> {
   delayMs?: number;
   animationType?: ScrollAnimationType;
   triggerMode?: ScrollTriggerMode;
+  animationDurationMs?: number;
+  animationEasing?: MotionEasing;
 }
 
 const emptySubscribe = () => () => {};
@@ -30,6 +44,8 @@ export function ScrollFadeIn({
   delayMs = 0,
   animationType = 'fade-up',
   triggerMode = 'down-only',
+  animationDurationMs = 700,
+  animationEasing = 'natural',
   style,
   ...rest
 }: ScrollFadeInProps) {
@@ -44,7 +60,8 @@ export function ScrollFadeIn({
   );
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  const shouldBypassAnimation = !isObserverSupported || prefersReducedMotion || animationType === 'none';
+  const shouldBypassAnimation =
+    !isObserverSupported || prefersReducedMotion || animationType === 'none';
 
   useEffect(() => {
     if (shouldBypassAnimation) return;
@@ -57,7 +74,11 @@ export function ScrollFadeIn({
     let scrollParent = element.parentElement;
     while (scrollParent) {
       const overflowY = window.getComputedStyle(scrollParent).overflowY;
-      if (/(auto|scroll)/.test(overflowY) && scrollParent.scrollHeight > scrollParent.clientHeight) break;
+      if (
+        /(auto|scroll)/.test(overflowY) &&
+        scrollParent.scrollHeight > scrollParent.clientHeight
+      )
+        break;
       scrollParent = scrollParent.parentElement;
     }
     const scrollTarget: HTMLElement | Window = scrollParent ?? window;
@@ -117,7 +138,9 @@ export function ScrollFadeIn({
       }}
       className={cn(
         'scroll-fade-in-item w-full transition-all duration-700 ease-out',
-        !isTransitionDone && !shouldBypassAnimation && 'will-change-[opacity,transform]',
+        !isTransitionDone &&
+          !shouldBypassAnimation &&
+          'will-change-[opacity,transform]',
         isVisible
           ? 'opacity-100 translate-y-0 scale-100'
           : animationType === 'fade-down'
@@ -130,8 +153,15 @@ export function ScrollFadeIn({
         className
       )}
       style={{
+        transitionDuration: shouldBypassAnimation
+          ? '0ms'
+          : `${boundedMotionNumber(animationDurationMs, 200, 2000, 700)}ms`,
+        transitionTimingFunction:
+          MOTION_EASINGS[resolveMotionEasing(animationEasing)],
         ...style,
-        ...(delayMs > 0 && isVisible ? { transitionDelay: `${delayMs}ms` } : {}),
+        ...(delayMs > 0 && isVisible
+          ? { transitionDelay: `${delayMs}ms` }
+          : {}),
       }}
       {...rest}
     >

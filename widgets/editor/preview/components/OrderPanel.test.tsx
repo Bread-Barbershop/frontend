@@ -1,4 +1,4 @@
-import { act, fireEvent, render } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
@@ -50,6 +50,24 @@ describe('블록 Delete 단축키', () => {
     expect(state.block).toHaveLength(0);
     expect(state.selectedId).toBe('mainPoster');
     expect(state.isEdit).toBe(false);
+  });
+
+  it('저장된 방명록은 순서에서 숨기고 Delete 키로 삭제하지 않는다', () => {
+    act(() => {
+      const state = useEditorStore.getState();
+      state.addBlock('wedding', 'guestbook', 'saved-guestbook');
+      state.selectedBlock('saved-guestbook');
+    });
+    render(<OrderPanel />);
+    expect(screen.queryByText('saved-guestbook')).not.toBeInTheDocument();
+    expect(screen.getByText('test-greeting')).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: 'Delete' });
+    expect(useEditorStore.getState().block).toHaveLength(2);
+    expect(
+      useEditorStore
+        .getState()
+        .block.some(block => block.id === 'saved-guestbook')
+    ).toBe(true);
   });
 
   it('포스터를 선택했을 때 Delete 키로 항목을 삭제하지 않는다', () => {

@@ -1,6 +1,8 @@
 import { InvitationType } from '@/shared/types/block';
 import { BlockType } from '@/shared/types/editor';
 
+import { isBlockEnabled } from '../registry/blockAvailability';
+
 import { BLOCK_SEARCH_ALIASES } from './blockSearchAliases';
 
 export type SampleDataType = {
@@ -16,12 +18,14 @@ export type ListType = {
   aliases?: string[];
 };
 const withSearchAliases = (items: ListType[]): ListType[] =>
-  items.map(item => ({
-    ...item,
-    ...(item.component && BLOCK_SEARCH_ALIASES[item.component]
-      ? { aliases: BLOCK_SEARCH_ALIASES[item.component] }
-      : {}),
-  }));
+  items
+    .filter(item => !item.component || isBlockEnabled(item.component))
+    .map(item => ({
+      ...item,
+      ...(item.component && BLOCK_SEARCH_ALIASES[item.component]
+        ? { aliases: BLOCK_SEARCH_ALIASES[item.component] }
+        : {}),
+    }));
 
 export const weddingComponents: ListType[] = withSearchAliases([
   { contents: '인사말', component: 'greeting', isType: false },
