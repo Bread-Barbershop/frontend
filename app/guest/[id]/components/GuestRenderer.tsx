@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import React, { useEffect, useMemo } from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
 import InvitationChapter, {
   getCollectionStyle,
@@ -25,6 +26,9 @@ const GUEST_PAGE_PROP_COMPONENTS = new Set<GuestRendererBlock['component']>([
   'countdown',
   'calendar',
   'divider',
+  'faq',
+  'guestbook',
+  'afterParty',
   'dressCode',
   'gallery',
   'myChild',
@@ -38,6 +42,7 @@ const GUEST_PAGE_PROP_COMPONENTS = new Set<GuestRendererBlock['component']>([
   'timeline',
   'transportation',
   'video',
+  'visualEffects',
 ]);
 
 function GuestRenderer({
@@ -143,7 +148,11 @@ function GuestRenderer({
           />
         );
         return (
-          <ScrollFadeIn key={block.id} className="w-full">
+          <ScrollFadeIn
+            key={block.id}
+            className="w-full"
+            {...resolveScrollAnimation(block.props)}
+          >
             {renderBlock ? (
               renderBlock(block, view)
             ) : (

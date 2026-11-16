@@ -1,4 +1,5 @@
 import { accountSchema } from '@/components/organisms/account/Account.schema';
+import { afterPartySchema } from '@/components/organisms/afterParty/AfterParty.schema';
 import { bgmSchema } from '@/components/organisms/bgm/Bgm.schema';
 import { calendarSchema } from '@/components/organisms/calendar/Calendar.schema';
 import { closingCommentSchema } from '@/components/organisms/closingComment/ClosingComment.schema';
@@ -6,8 +7,10 @@ import { countdownSchema } from '@/components/organisms/countdown/Countdown.sche
 import { coupleIntroductionSchema } from '@/components/organisms/couple-introduction/CoupleIntroduction.schema';
 import { dividerSchema } from '@/components/organisms/divider/Divider.schema';
 import { dressCodeSchema } from '@/components/organisms/dressCode/DressCode.schema';
+import { faqSchema } from '@/components/organisms/faq/Faq.schema';
 import { gallerySchema } from '@/components/organisms/gallery/Gallery.schema';
 import { greetingSchema } from '@/components/organisms/greeting/Greeting.schema';
+import { guestbookSchema } from '@/components/organisms/guestbook/Guestbook.schema';
 import { interviewSchema } from '@/components/organisms/interview/Interview.schema';
 import { myChildSchema } from '@/components/organisms/myChild/MyChild.schema';
 import { myFamilySchema } from '@/components/organisms/myFamily/MyFamily.schema';
@@ -24,18 +27,25 @@ import { sponsorshipInfomationSchema } from '@/components/organisms/sponsorshipI
 import { timelineSchema } from '@/components/organisms/timeline/Timeline.schema';
 import { transportationSchema } from '@/components/organisms/transportation/Transportation.schema';
 import { videoSchema } from '@/components/organisms/video/Video.schema';
+import { visualEffectsSchema } from '@/components/organisms/visualEffects/VisualEffects.schema';
+import { wreathSchema } from '@/components/organisms/wreath/Wreath.schema';
 
 export const blockSchema = {
+  faq: faqSchema,
   gallery: gallerySchema,
   divider: dividerSchema,
   bgm: bgmSchema,
+  guestbook: guestbookSchema,
   greeting: greetingSchema,
   phone: phoneSchema,
   place: placeSchema,
   rsvp: rsvpSchema,
   transportation: transportationSchema,
+  afterParty: afterPartySchema,
   account: accountSchema,
   coupleIntroduction: coupleIntroductionSchema,
+  wreath: wreathSchema,
+  visualEffects: visualEffectsSchema,
   video: videoSchema,
   notice: noticeSchema,
   calendar: calendarSchema,

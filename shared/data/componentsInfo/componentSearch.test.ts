@@ -5,6 +5,10 @@ import { filterComponentCategories } from './componentSearch';
 
 describe('블록 검색 별칭과 복합 검색', () => {
   const expectedBlockTypes = [
+    'faq',
+    'afterParty',
+    'guestbook',
+    'visualEffects',
     'greeting',
     'coupleIntroduction',
     'myFamilyWedding',

@@ -16,6 +16,7 @@ const COLORS = {
   birthday: 'bg-[#7F7BFF]',
   seminar: 'bg-[#3B82F6]',
   etc: 'bg-[#2CB9A8]',
+  layout: 'bg-[#64748B]',
   // event : '',
 };
 
@@ -47,13 +48,18 @@ function ContentsArea({
     [query]
   );
 
+  const resolveInvitationType = (category: InvitationType | 'layout'): InvitationType =>
+    category === 'layout'
+      ? (useEditorStore.getState().block[0]?.type ?? 'etc')
+      : category;
+
   const handleAddComponent = (
-    type: InvitationType,
+    type: InvitationType | 'layout',
     component: BlockType | null
   ) => {
     if (!component) return;
     const id = crypto.randomUUID();
-    addBlock(type, component, id);
+    addBlock(resolveInvitationType(type), component, id);
 
     selectedBlock(id);
     setIsEdit(false);
@@ -65,12 +71,19 @@ function ContentsArea({
         if (item.component) {
           const id = crypto.randomUUID();
           if (index === 0) selectedBlock(id);
-          addBlock(category.english, item.component, id);
+          addBlock(resolveInvitationType(category.english), item.component, id);
         }
       });
       setIsEdit(false);
     } else {
-      addAllBlock(category.english);
+      if (category.english === 'layout') {
+        category.list.forEach(item => {
+          if (item.component) addBlock(resolveInvitationType(category.english), item.component, crypto.randomUUID());
+        });
+        setIsEdit(false);
+      } else {
+        addAllBlock(category.english);
+      }
     }
   };
 
@@ -99,13 +112,13 @@ function ContentsArea({
             <div className="font-semibold flex justify-between items-center h-11">
               <h2 className="text-sm font-semibold">{items.korea}</h2>
               <div className="flex items-center gap-2">
-                {items.english !== 'etc' && (
+                {items.english !== 'etc' && items.english !== 'layout' && (
                   <UtilityButton
                     className="text-primary w-fit"
                     aria-label={`${items.korea} 템플릿 선택 열기`}
                     onClick={() => {
                       const type = items.english;
-                      if (type !== 'etc') onOpenTemplatePicker(type);
+                      if (type !== 'etc' && type !== 'layout') onOpenTemplatePicker(type);
                     }}
                   >
                     템플릿 사용하기

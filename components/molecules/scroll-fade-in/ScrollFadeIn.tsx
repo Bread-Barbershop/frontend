@@ -5,11 +5,15 @@ import React, { HTMLAttributes, useEffect, useRef, useState, useSyncExternalStor
 import { usePrefersReducedMotion } from '@/components/organisms/gallery/hooks/usePrefersReducedMotion';
 import { cn } from '@/shared/utils/cn';
 
+import type { ScrollAnimationType, ScrollTriggerMode } from './animationConfig';
+
 export interface ScrollFadeInProps extends HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   threshold?: number;
   rootMargin?: string;
   delayMs?: number;
+  animationType?: ScrollAnimationType;
+  triggerMode?: ScrollTriggerMode;
 }
 
 const emptySubscribe = () => () => {};
@@ -24,6 +28,8 @@ export function ScrollFadeIn({
   threshold = 0,
   rootMargin = '0px 0px -40px 0px',
   delayMs = 0,
+  animationType = 'fade-up',
+  triggerMode = 'down-only',
   style,
   ...rest
 }: ScrollFadeInProps) {
@@ -38,7 +44,7 @@ export function ScrollFadeIn({
   );
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  const shouldBypassAnimation = !isObserverSupported || prefersReducedMotion;
+  const shouldBypassAnimation = !isObserverSupported || prefersReducedMotion || animationType === 'none';
 
   useEffect(() => {
     if (shouldBypassAnimation) return;
@@ -46,12 +52,33 @@ export function ScrollFadeIn({
     const element = ref.current;
     if (!element) return;
 
+    // Editor preview scrolls inside a panel, while guest pages may scroll the window.
+    // Track the closest scrollable ancestor so up-only works in both environments.
+    let scrollParent = element.parentElement;
+    while (scrollParent) {
+      const overflowY = window.getComputedStyle(scrollParent).overflowY;
+      if (/(auto|scroll)/.test(overflowY) && scrollParent.scrollHeight > scrollParent.clientHeight) break;
+      scrollParent = scrollParent.parentElement;
+    }
+    const scrollTarget: HTMLElement | Window = scrollParent ?? window;
+    const getScrollY = () => scrollParent?.scrollTop ?? window.scrollY;
+    let lastY = getScrollY();
+    let movingUp = false;
+    const onScroll = () => {
+      const nextY = getScrollY();
+      movingUp = nextY < lastY;
+      lastY = nextY;
+    };
+    scrollTarget.addEventListener('scroll', onScroll, { passive: true });
+
     const observer = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
-            setIsIntersected(true);
-            observer.unobserve(entry.target);
+            if (triggerMode !== 'up-only' || movingUp) setIsIntersected(true);
+            if (triggerMode === 'down-only') observer.unobserve(entry.target);
+          } else if (triggerMode !== 'down-only') {
+            setIsIntersected(false);
           }
         });
       },
@@ -65,8 +92,9 @@ export function ScrollFadeIn({
 
     return () => {
       observer.disconnect();
+      scrollTarget.removeEventListener('scroll', onScroll);
     };
-  }, [shouldBypassAnimation, threshold, rootMargin]);
+  }, [shouldBypassAnimation, threshold, rootMargin, triggerMode]);
 
   // 애니메이션 바이패스 대상이거나 뷰포트에 도달한 경우 노출
   const isVisible = shouldBypassAnimation || isIntersected;
@@ -90,7 +118,15 @@ export function ScrollFadeIn({
       className={cn(
         'scroll-fade-in-item w-full transition-all duration-700 ease-out',
         !isTransitionDone && !shouldBypassAnimation && 'will-change-[opacity,transform]',
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6',
+        isVisible
+          ? 'opacity-100 translate-y-0 scale-100'
+          : animationType === 'fade-down'
+            ? 'opacity-0 -translate-y-6'
+            : animationType === 'fade'
+              ? 'opacity-0'
+              : animationType === 'zoom-in'
+                ? 'opacity-0 scale-95'
+                : 'opacity-0 translate-y-6',
         className
       )}
       style={{

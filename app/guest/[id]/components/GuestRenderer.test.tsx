@@ -134,6 +134,28 @@ describe('GuestRenderer', () => {
     expect(container.firstElementChild).not.toHaveStyle({ opacity: '0' });
   });
 
+  it('저장된 템플릿 스타일과 선택한 블록 애니메이션을 함께 복원한다', () => {
+    const block = {
+      id: 'styled-picture',
+      type: 'wedding',
+      component: 'picture',
+      props: {
+        collectionStyle: 'showcase-11',
+        animationType: 'none',
+        triggerMode: 'both',
+      },
+    } as NormalizedGuestPayload['blocks'][number];
+    const { container } = render(
+      <GuestRenderer blocks={[block]} bulkData={bulkData} />
+    );
+    const chapter = screen.getByTestId('picture-view').closest('section');
+    expect(chapter).toHaveAttribute('data-design', 'showcase-11');
+    expect(chapter?.closest('.scroll-fade-in-item')).toHaveClass('opacity-100');
+    expect(
+      container.querySelectorAll('[data-testid="picture-view"]')
+    ).toHaveLength(1);
+  });
+
   it('폰트 로딩이 실패해도 초대장 본문을 표시한다', async () => {
     mockResolveGuestFontFamiliesToPreload.mockReturnValue(['font-failed']);
     mockPreloadFontFamilyWeights.mockRejectedValueOnce(

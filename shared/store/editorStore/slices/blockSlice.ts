@@ -35,6 +35,12 @@ export const createBlockSlice: StateCreator<EditorState, [], [], BlockSlice> = (
           : block
       ),
     })),
+  updateBlockAnimation: (id, settings) =>
+    set(state => ({
+      block: state.block.map(block =>
+        block.id === id ? { ...block, props: { ...block.props, ...settings } } : block
+      ),
+    })),
   deleteBlock: (id: string) =>
     set(state => ({
       block: state.block.filter(items => items.id !== id),
@@ -58,7 +64,7 @@ export const createBlockSlice: StateCreator<EditorState, [], [], BlockSlice> = (
       // UISlice의 기능을 get()을 통해 참조 가능
       if (index === 0) get().selectedBlock(id);
       if (item.component) {
-        get().addBlock(selectedType.english, item.component, id);
+        get().addBlock(english, item.component, id);
       }
     });
   },

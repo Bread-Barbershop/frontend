@@ -13,6 +13,7 @@ describe('useCalendarData 훅 단위 테스트', () => {
         time: '오후 02:30',
         language: 'ko',
         template: 'calendarType1',
+        type: 'wedding',
       })
     );
 
@@ -38,6 +39,7 @@ describe('useCalendarData 훅 단위 테스트', () => {
         time: '오후 02:30',
         language: 'en',
         template: 'calendarType1',
+        type: 'wedding',
       })
     );
 

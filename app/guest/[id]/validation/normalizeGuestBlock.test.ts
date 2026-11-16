@@ -27,7 +27,7 @@ describe('normalizeGuestBlock', () => {
       template: 'galleryType1',
       ratio: '1:1',
       isPopupViewer: false,
-      isEnglishTitle: true,
+      isSubTitle: true,
     });
   });
 

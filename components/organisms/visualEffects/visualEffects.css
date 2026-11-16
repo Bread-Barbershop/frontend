@@ -1,0 +1,19 @@
+.invia-effect-layer { position: fixed; inset: 0; z-index: 40; pointer-events: none; overflow: hidden; }
+.invia-effect-particle { position: absolute; top: -12%; left: var(--x); animation: invia-fall var(--duration) linear infinite; animation-delay: var(--delay); font-size: var(--size); opacity: .65; }
+.invia-effect-petals { color: #ef91ac; }
+.invia-effect-snow { color: #9cbcd2; }
+.invia-effect-confetti { color: var(--particle-color); }
+.invia-effect-bokeh { top: var(--y); border-radius: 9999px; width: var(--size); height: var(--size); background: var(--particle-color); filter: blur(3px); animation: invia-bokeh 5s ease-in-out infinite alternate; animation-delay: var(--delay); }
+@keyframes invia-fall { 0% { transform: translate3d(0, -10vh, 0) rotate(0deg); } 100% { transform: translate3d(55px, 120vh, 0) rotate(360deg); } }
+@keyframes invia-bokeh { 0% { opacity: .12; transform: scale(.6); } 100% { opacity: .7; transform: scale(1.6); } }
+.invia-intro { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; background: #fbf7f2; padding: 24px; }
+.invia-intro-card { width: min(320px, 88vw); height: 210px; background: #f4e4d9; border: 1px solid #dfc9bd; position: relative; box-shadow: 0 16px 50px #47332d19; display: flex; align-items: center; justify-content: center; }
+.invia-intro-card::before { content: ''; position: absolute; inset: 0 0 50%; clip-path: polygon(0 0, 100% 0, 50% 100%); background: #eed4c4; transform-origin: top center; }
+.invia-intro-opening .invia-intro-card::before { animation: invia-envelope-flap .85s ease-in forwards; }
+.invia-intro-opening { animation: invia-intro-fade .85s ease-in forwards; }
+@keyframes invia-envelope-flap { to { transform: rotateX(180deg); } }
+@keyframes invia-intro-fade { 70% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) {
+  .invia-effect-particle { animation: none !important; opacity: .15; }
+  .invia-intro-opening, .invia-intro-opening .invia-intro-card::before { animation-duration: .01ms !important; }
+}

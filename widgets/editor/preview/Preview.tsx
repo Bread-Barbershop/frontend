@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { EditorCallout } from '@/components/molecules/editor-callout';
+import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
 import { EditorBgmOverlay } from '@/components/organisms/bgm/components/EditorBgmOverlay';
 import InvitationChapter from '@/components/organisms/invitation-chapter/InvitationChapter';
@@ -102,7 +103,7 @@ function Preview() {
                     blockRefs.current[comp.id] = el;
                   }}
                 >
-                  <ScrollFadeIn>
+                  <ScrollFadeIn {...resolveScrollAnimation(comp.props)}>
                     <InvitationChapter
                       component={comp.component}
                       collectionStyle={comp.props.collectionStyle}

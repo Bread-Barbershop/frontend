@@ -1,4 +1,5 @@
 import { accountDefinition } from '@/components/organisms/account/Account.definition';
+import { afterPartyDefinition } from '@/components/organisms/afterParty/AfterParty.definition';
 import { bgmDefinition } from '@/components/organisms/bgm/Bgm.definition';
 import { calendarDefinition } from '@/components/organisms/calendar/Calendar.definition';
 import { closingCommentDefinition } from '@/components/organisms/closingComment/ClosingComment.definition';
@@ -6,8 +7,10 @@ import { countdownDefinition } from '@/components/organisms/countdown/Countdown.
 import { coupleIntroductionDefinition } from '@/components/organisms/couple-introduction/CoupleIntroduction.definition';
 import { dividerDefinition } from '@/components/organisms/divider/Divider.definition';
 import { dressCodeDefinition } from '@/components/organisms/dressCode/DressCode.definition';
+import { faqDefinition } from '@/components/organisms/faq/Faq.definition';
 import { galleryDefinition } from '@/components/organisms/gallery/Gallery.definition';
 import { greetingDefinition } from '@/components/organisms/greeting/Greeting.definition';
+import { guestbookDefinition } from '@/components/organisms/guestbook/Guestbook.definition';
 import { interviewDefinition } from '@/components/organisms/interview/Interview.definition';
 import { myChildDefinition } from '@/components/organisms/myChild/MyChild.definition';
 import { myFamilyDefinition } from '@/components/organisms/myFamily/MyFamily.definition';
@@ -24,13 +27,17 @@ import { sponsorshipInfomationDefinition } from '@/components/organisms/sponsors
 import { timelineDefinition } from '@/components/organisms/timeline/Timeline.definition';
 import { transportationDefinition } from '@/components/organisms/transportation/Transportation.definition';
 import { videoDefinition } from '@/components/organisms/video/Video.definition';
+import { visualEffectsDefinition } from '@/components/organisms/visualEffects/VisualEffects.definition';
+import { wreathDefinition } from '@/components/organisms/wreath/Wreath.definition';
 
 import { blockSchema } from './block.schema';
 
 export const blockRegistry = {
+  faq: { ...blockSchema.faq, ...faqDefinition },
   gallery: { ...blockSchema.gallery, ...galleryDefinition },
   divider: { ...blockSchema.divider, ...dividerDefinition },
   bgm: { ...blockSchema.bgm, ...bgmDefinition },
+  guestbook: { ...blockSchema.guestbook, ...guestbookDefinition },
   greeting: { ...blockSchema.greeting, ...greetingDefinition },
   phone: { ...blockSchema.phone, ...phoneDefinition },
   place: { ...blockSchema.place, ...placeDefinition },
@@ -39,11 +46,14 @@ export const blockRegistry = {
     ...blockSchema.transportation,
     ...transportationDefinition,
   },
+  afterParty: { ...blockSchema.afterParty, ...afterPartyDefinition },
   account: { ...blockSchema.account, ...accountDefinition },
   coupleIntroduction: {
     ...blockSchema.coupleIntroduction,
     ...coupleIntroductionDefinition,
   },
+  wreath: { ...blockSchema.wreath, ...wreathDefinition },
+  visualEffects: { ...blockSchema.visualEffects, ...visualEffectsDefinition },
   video: { ...blockSchema.video, ...videoDefinition },
   notice: { ...blockSchema.notice, ...noticeDefinition },
   calendar: { ...blockSchema.calendar, ...calendarDefinition },
