@@ -75,7 +75,14 @@ const SortableItems = React.memo(
             isSelected ? 'bg-[#DBE8FC]' : ''
           )}
         >
-          <ItemContent contents={componentName?.contents} />
+          {blockInfo.component === 'afterParty' ? (
+            <span className="text-center leading-relaxed">
+              <span className="block whitespace-nowrap">피로연 ·</span>
+              <span className="block whitespace-nowrap">애프터파티</span>
+            </span>
+          ) : (
+            <ItemContent contents={componentName?.contents} />
+          )}
           {!isDragging && onDeleteRequest && (
             <button
               type="button"

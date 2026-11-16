@@ -241,7 +241,7 @@ function OrderPanel() {
         targetAnchor={{ x: 0.5, y: 0 }}
         offset={0}
         className="max-w-[300px] break-keep text-[14px] leading-5"
-        text="우클릭으로 삭제 혹은 꾹 누른 상태로 순서를 변경할 수 있어요! 선택한 블록은 Delete 키로 삭제할 수 있어요."
+        text="블록을 꾹 누른 채로 끌어 순서를 변경할 수 있어요. 선택한 블록은 Delete 키로 삭제할 수 있어요."
       />
       <AnimatePresence>
         {deleteTargetId && (
