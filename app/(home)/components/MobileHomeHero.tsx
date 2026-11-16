@@ -8,6 +8,7 @@ import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 
 import { MobileShowcaseCardStack } from './MobileShowcaseCardStack';
 import { showcaseItems } from './showcaseItems';
+import { useShowcasePreview } from './ShowcasePreviewProvider';
 
 const MOBILE_HOME_QUERY = '(max-width: 1339px)';
 
@@ -102,6 +103,7 @@ function useMobileHomeViewport() {
 
 function MobileHomeHero() {
   const [isPcGuideOpen, setIsPcGuideOpen] = useState(false);
+  const openPreview = useShowcasePreview();
   useMobileHomeViewport();
 
   return (
@@ -139,7 +141,10 @@ function MobileHomeHero() {
             </div>
           </section>
 
-          <MobileShowcaseCardStack cards={showcaseItems} />
+          <MobileShowcaseCardStack
+            cards={showcaseItems}
+            onPreview={openPreview}
+          />
 
           <button
             type="button"
@@ -183,7 +188,8 @@ function MobileHomeHero() {
                   id="mobile-pc-guide-title"
                   className="break-keep text-[20px] font-bold leading-7 tracking-[-0.01em]"
                 >
-                  {DESKTOP_CONTENT_MIN_WIDTH}px 이상의 브라우저에서 이용해 주세요!
+                  {DESKTOP_CONTENT_MIN_WIDTH}px 이상의 브라우저에서 이용해
+                  주세요!
                 </h2>
                 <p
                   id="mobile-pc-guide-description"

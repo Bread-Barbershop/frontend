@@ -6,7 +6,9 @@ import type { EditorBlock } from '@/shared/types/block';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
-type FieldName = Exclude<keyof EditorBlock<'transportation'>['props'], never>;
+import { transportationSchema } from './Transportation.schema';
+
+type FieldName = keyof typeof transportationSchema.fields;
 
 const FIELD_MAX_LENGTHS: Record<FieldName, number> = {
   title: 40,

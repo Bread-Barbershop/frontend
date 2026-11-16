@@ -21,6 +21,10 @@ import showcase6 from '@/shared/assets/images/showcase/showcase-6.webp';
 import showcase7 from '@/shared/assets/images/showcase/showcase-7.webp';
 import showcase8 from '@/shared/assets/images/showcase/showcase-8.webp';
 import showcase9 from '@/shared/assets/images/showcase/showcase-9.webp';
+import {
+  getShowcaseInvitation,
+  SHOWCASE_CATEGORY_LABELS,
+} from '@/shared/data/showcaseInvitations';
 
 export const showcaseItems = [
   { id: 'showcase-0', image: showcase0, alt: 'Showcase image 0' },
@@ -46,7 +50,13 @@ export const showcaseItems = [
   { id: 'showcase-20', image: showcase20, alt: 'Showcase image 20' },
   { id: 'showcase-21', image: showcase21, alt: 'Showcase image 21' },
   { id: 'showcase-22', image: showcase22, alt: 'Showcase image 22' },
-];
+].map(item => {
+  const invitation = getShowcaseInvitation(item.id)!;
+  return {
+    ...item,
+    alt: `${invitation.name} ${SHOWCASE_CATEGORY_LABELS[invitation.type]} 초대장`,
+  };
+});
 
 export function getShuffledShowcaseItems() {
   const shuffledItems = [...showcaseItems];
@@ -61,4 +71,3 @@ export function getShuffledShowcaseItems() {
 
   return shuffledItems;
 }
-

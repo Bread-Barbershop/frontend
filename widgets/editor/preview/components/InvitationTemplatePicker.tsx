@@ -35,7 +35,11 @@ const getPageNames = (template: InvitationTemplate) => {
   const category = componentCls.find(item => item.english === template.type);
   return template.blockTypes.map(
     type =>
-      category?.list.find(item => item.component === type)?.contents ?? type
+      category?.list.find(item => item.component === type)?.contents ??
+      componentCls
+        .flatMap(item => item.list)
+        .find(item => item.component === type)?.contents ??
+      '안내'
   );
 };
 
@@ -128,7 +132,7 @@ function InvitationTemplatePicker({
             {getCategoryName(type)} 초대장 스타일
           </h2>
           <p className="mt-1 text-sm text-neutral-500">
-            포스터를 비교하고 새 초대장 구성을 골라 보세요.
+            마음에 드는 디자인을 고르고, 사진과 문구를 바꿔 보세요.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -199,7 +203,7 @@ function InvitationTemplatePicker({
                 <Check size={16} strokeWidth={3} />
               </span>
               <span
-                className="mb-3 flex h-[260px] w-full items-center justify-center overflow-hidden rounded-xl bg-neutral-50 p-2"
+                className="mb-3 flex h-[340px] w-full items-center justify-center overflow-hidden rounded-xl bg-neutral-50"
                 style={{ backgroundColor: template.colors.background }}
               >
                 <span className="h-full aspect-[375/812] shadow-lg">
@@ -240,7 +244,7 @@ function InvitationTemplatePicker({
           onClick={onApply}
           className="h-11 min-w-40 rounded-full bg-black px-7 text-sm font-semibold text-white hover:bg-neutral-800 disabled:bg-neutral-300"
         >
-          {isApplying ? '적용 중…' : '이 템플릿 사용하기'}
+          {isApplying ? '적용 중…' : '이 템플릿으로 시작하기'}
         </UtilityButton>
       </footer>
     </div>

@@ -6,6 +6,7 @@ import { EditorCallout } from '@/components/molecules/editor-callout';
 import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
 import { EditorBgmOverlay } from '@/components/organisms/bgm/components/EditorBgmOverlay';
+import InvitationChapter from '@/components/organisms/invitation-chapter/InvitationChapter';
 import CalloutIcon from '@/shared/assets/icons/callout.svg';
 import { blockRegistry } from '@/shared/data/registry/registry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
@@ -17,13 +18,7 @@ import { previewTitleVariants } from './previewTitle.style';
 function Preview() {
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const blockRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const {
-    block,
-    selectedId,
-    selectedBlock,
-    setIsEdit,
-    backgroundColor,
-  } =
+  const { block, selectedId, selectedBlock, setIsEdit, backgroundColor } =
     useEditorStore(
       useShallow(state => ({
         block: state.block,
@@ -109,17 +104,22 @@ function Preview() {
                   }}
                 >
                   <ScrollFadeIn {...resolveScrollAnimation(comp.props)}>
-                    <View
-                      blockInfo={comp}
-                    className={`${selectedId === comp.id ? 'ring-1 ring-inset ring-primary' : ''}`}
-                    titleClassName={previewTitleVariants({
-                      variant: comp.type,
-                    })}
-                    onClick={() => {
-                      selectedBlock(comp.id);
-                      setIsEdit(false);
-                    }}
-                  />
+                    <InvitationChapter
+                      component={comp.component}
+                      collectionStyle={comp.props.collectionStyle}
+                    >
+                      <View
+                        blockInfo={comp}
+                        className={`${selectedId === comp.id ? 'ring-1 ring-inset ring-primary' : ''}`}
+                        titleClassName={previewTitleVariants({
+                          variant: comp.type,
+                        })}
+                        onClick={() => {
+                          selectedBlock(comp.id);
+                          setIsEdit(false);
+                        }}
+                      />
+                    </InvitationChapter>
                   </ScrollFadeIn>
                 </div>
               );

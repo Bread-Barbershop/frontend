@@ -19,6 +19,7 @@ type CarouselBaseProps = {
   stageHeight?: string;
   selectedLift?: string;
   preloadItemCount?: number;
+  onCardActivate?: (id: string) => void;
   onDelete?: (folderId: string) => void | Promise<void>;
   onPreview?: (folderId: string) => void;
   onUpdate?: (folderId: string, uuid?: string) => void;
@@ -44,6 +45,7 @@ function CarouselBase({
   stageHeight = dashboardCarouselLayout.stageHeight,
   selectedLift,
   preloadItemCount = 0,
+  onCardActivate,
   onDelete,
   onPreview,
   onUpdate,
@@ -108,8 +110,9 @@ function CarouselBase({
   const handleSelect = useCallback(
     (index: number) => {
       emblaApi?.scrollTo(index);
+      if (items[index]) onCardActivate?.(items[index].id);
     },
-    [emblaApi]
+    [emblaApi, items, onCardActivate]
   );
 
   const handleMove = useCallback(
@@ -143,6 +146,7 @@ function CarouselBase({
         showCenterActions={showCenterActions}
         selectedLift={selectedLift}
         preloadItemCount={preloadItemCount}
+        showPreviewLabel={Boolean(onCardActivate)}
         onSelect={handleSelect}
         onDelete={onDelete}
         onPreview={onPreview}

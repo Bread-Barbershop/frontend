@@ -6,6 +6,9 @@ import { useShallow } from 'zustand/shallow';
 
 import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
+import InvitationChapter, {
+  getCollectionStyle,
+} from '@/components/organisms/invitation-chapter/InvitationChapter';
 import { blockRegistry } from '@/shared/data/registry/registry';
 import { preloadFontFamilyWeights } from '@/shared/fonts/fontLoader';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
@@ -46,10 +49,17 @@ function GuestRenderer({
   blocks,
   bulkData,
   renderHints,
+  isGuestPage: isGuestPageOverride,
+  renderBlock,
 }: {
   blocks: NormalizedGuestPayload['blocks'];
   bulkData: GuestRendererBulkData;
   renderHints?: GuestRendererRenderHints;
+  isGuestPage?: boolean;
+  renderBlock?: (
+    block: GuestRendererBlock,
+    view: React.ReactNode
+  ) => React.ReactNode;
 }) {
   const { titleData, bodyData } = bulkData;
   const { setTitleData, setBodyData } = useEditorStore(
@@ -60,7 +70,8 @@ function GuestRenderer({
   );
   const pathname = usePathname();
   const isGuestPage =
-    pathname.startsWith('/guest/') || pathname.startsWith('/i/');
+    isGuestPageOverride ??
+    (pathname.startsWith('/guest/') || pathname.startsWith('/i/'));
   // renderHints가 있으면 그 값을 쓰고, 없으면 기존 block 스캔 방식으로 fallback한다.
   const fontFamiliesToPreload = useMemo(
     () =>
@@ -127,16 +138,31 @@ function GuestRenderer({
           isGuestPage?: boolean;
         }>;
 
+        const view = (
+          <View
+            blockInfo={block}
+            className=""
+            {...(isGuestPage && GUEST_PAGE_PROP_COMPONENTS.has(block.component)
+              ? { isGuestPage: true }
+              : {})}
+          />
+        );
         return (
-          <ScrollFadeIn key={block.id} className="w-full" {...resolveScrollAnimation(block.props)}>
-            <View
-              blockInfo={block}
-              className=""
-              {...(isGuestPage &&
-              GUEST_PAGE_PROP_COMPONENTS.has(block.component)
-                ? { isGuestPage: true }
-                : {})}
-            />
+          <ScrollFadeIn
+            key={block.id}
+            className="w-full"
+            {...resolveScrollAnimation(block.props)}
+          >
+            {renderBlock ? (
+              renderBlock(block, view)
+            ) : (
+              <InvitationChapter
+                component={block.component}
+                collectionStyle={getCollectionStyle(block.props)}
+              >
+                {view}
+              </InvitationChapter>
+            )}
           </ScrollFadeIn>
         );
       })}
