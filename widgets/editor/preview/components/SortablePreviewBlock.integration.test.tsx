@@ -15,7 +15,14 @@ import {
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useState } from 'react';
 
+import Carousel from '@/features/EmblaCarousel/Carousel/Carousel';
+
 import { SortablePreviewBlock } from './SortablePreviewBlock';
+
+jest.mock('embla-carousel-react', () => ({
+  __esModule: true,
+  default: () => [jest.fn(), undefined],
+}));
 
 function PreviewBlocks() {
   const [items, setItems] = useState(['첫 번째', '두 번째']);
@@ -52,6 +59,11 @@ function PreviewBlocks() {
             registerNode={() => {}}
           >
             <p>{id} 본문</p>
+            <Carousel>
+              <div>
+                <p>{id} 카드 본문</p>
+              </div>
+            </Carousel>
             <button type="button" onClick={() => setClicked(true)}>
               {id} 내용 보기
             </button>
@@ -155,6 +167,23 @@ describe('미리보기 블록 드래그', () => {
     await waitFor(() =>
       expect(handle).not.toHaveAttribute('aria-pressed', 'true')
     );
+    expect(blockOrder()).toEqual(['첫 번째', '두 번째']);
+  });
+
+  it('캐러셀 카드 본문을 대각선으로 스와이프해도 블록 정렬을 시작하지 않는다', () => {
+    render(<PreviewBlocks />);
+    fireEvent.mouseDown(screen.getByText('첫 번째 카드 본문'), {
+      button: 0,
+      clientX: 150,
+      clientY: 40,
+    });
+    fireEvent.mouseMove(document, { clientX: 70, clientY: 90 });
+    fireEvent.mouseMove(document, { clientX: 20, clientY: 170 });
+    expect(screen.getByLabelText('첫 번째 순서 변경')).not.toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+    fireEvent.mouseUp(document);
     expect(blockOrder()).toEqual(['첫 번째', '두 번째']);
   });
 });

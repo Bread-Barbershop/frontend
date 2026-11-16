@@ -10,7 +10,7 @@ import { cn } from '@/shared/utils/cn';
 import type { ReactNode } from 'react';
 
 const INTERACTIVE_TARGETS =
-  'a, button, input, textarea, select, [contenteditable="true"], [role="button"], [role="slider"], [data-no-block-drag]';
+  'a, button, input, textarea, select, summary, video, audio, iframe, canvas, [contenteditable="true"], [role="button"], [role="slider"], [role="dialog"], [data-no-block-drag]';
 
 function canDragPreviewBlock(target: EventTarget | null) {
   return target instanceof Element && !target.closest(INTERACTIVE_TARGETS);

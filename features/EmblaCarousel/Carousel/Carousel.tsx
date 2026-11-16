@@ -67,7 +67,11 @@ function Carousel({
   const goToNext = () => emblaApi?.scrollNext();
   return (
     <div className={cn('w-full h-full', className)}>
-      <div className="overflow-hidden h-full relative" ref={emblaRef}>
+      <div
+        className="overflow-hidden h-full relative"
+        ref={emblaRef}
+        data-no-block-drag
+      >
         <div
           className={cn(
             `flex touch-pan-y touch-pinch-zoom w-full h-full`,
