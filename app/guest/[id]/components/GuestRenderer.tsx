@@ -9,6 +9,7 @@ import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn
 import InvitationChapter, {
   getCollectionStyle,
 } from '@/components/organisms/invitation-chapter/InvitationChapter';
+import { isBlockEnabled } from '@/shared/data/registry/blockAvailability';
 import { blockRegistry } from '@/shared/data/registry/registry';
 import { preloadFontFamilyWeights } from '@/shared/fonts/fontLoader';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
@@ -127,6 +128,7 @@ function GuestRenderer({
   return (
     <div className="flex flex-col">
       {blocks.map(block => {
+        if (!isBlockEnabled(block.component)) return null;
         const registryItem =
           blockRegistry[block.component as keyof typeof blockRegistry];
 

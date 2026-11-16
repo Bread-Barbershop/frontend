@@ -15,6 +15,9 @@ const mockCalendarView = jest.fn((props: Record<string, unknown>) =>
 const mockPictureView = jest.fn((props: Record<string, unknown>) =>
   React.createElement('div', { 'data-testid': 'picture-view' }, props.className)
 );
+const mockGuestbookView = jest.fn(() =>
+  React.createElement('div', null, '축하 메시지 작성하기')
+);
 const mockSetTitleData = jest.fn();
 const mockSetBodyData = jest.fn();
 const mockPreloadFontFamilyWeights = jest.fn().mockResolvedValue(undefined);
@@ -33,6 +36,7 @@ jest.mock('@/shared/data/registry/registry', () => ({
     picture: {
       viewComponent: (props: Record<string, unknown>) => mockPictureView(props),
     },
+    guestbook: { viewComponent: () => mockGuestbookView() },
   },
 }));
 
@@ -78,6 +82,24 @@ describe('GuestRenderer', () => {
     jest.clearAllMocks();
     mockPreloadFontFamilyWeights.mockResolvedValue(undefined);
     mockResolveGuestFontFamiliesToPreload.mockReturnValue([]);
+  });
+
+  it('저장된 방명록 데이터는 삭제하지 않고 공개 화면에서 비활성화한다', () => {
+    const blocks = [
+      {
+        id: 'saved-guestbook',
+        type: 'wedding',
+        component: 'guestbook',
+        props: { formUrl: 'https://forms.gle/saved-form' },
+      },
+      { id: 'picture', type: 'wedding', component: 'picture', props: {} },
+    ] as NormalizedGuestPayload['blocks'];
+    const before = JSON.stringify(blocks);
+    render(<GuestRenderer blocks={blocks} bulkData={bulkData} />);
+    expect(mockGuestbookView).not.toHaveBeenCalled();
+    expect(screen.queryByText('축하 메시지 작성하기')).not.toBeInTheDocument();
+    expect(screen.getByTestId('picture-view')).toBeInTheDocument();
+    expect(JSON.stringify(blocks)).toBe(before);
   });
 
   it('passes isGuestPage only to guest-aware preview components', async () => {

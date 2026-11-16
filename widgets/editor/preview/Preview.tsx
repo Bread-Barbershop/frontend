@@ -24,6 +24,7 @@ import { EditorBgmOverlay } from '@/components/organisms/bgm/components/EditorBg
 import InvitationChapter from '@/components/organisms/invitation-chapter/InvitationChapter';
 import CalloutIcon from '@/shared/assets/icons/callout.svg';
 import { componentCls } from '@/shared/data/componentsInfo/componentInfo';
+import { isBlockEnabled } from '@/shared/data/registry/blockAvailability';
 import { blockRegistry } from '@/shared/data/registry/registry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useEditorCalloutStore } from '@/shared/store/useEditorCalloutStore';
@@ -72,6 +73,7 @@ function Preview() {
   const isPreviewCalloutOpen = useEditorCalloutStore(
     state => state.callouts['preview-panel']
   );
+  const visibleBlocks = block.filter(item => isBlockEnabled(item.component));
   const isAnyCalloutOpen = useEditorCalloutStore(
     state =>
       state.callouts['preview-panel'] ||
@@ -163,10 +165,10 @@ function Preview() {
               }}
             >
               <SortableContext
-                items={block.map(item => item.id)}
+                items={visibleBlocks.map(item => item.id)}
                 strategy={verticalListSortingStrategy}
               >
-                {block.map(comp => {
+                {visibleBlocks.map(comp => {
                   const registryItem = blockRegistry[comp.component];
 
                   if (!registryItem.viewComponent) return null;
