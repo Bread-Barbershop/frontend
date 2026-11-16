@@ -131,4 +131,40 @@ describe('신규 블록의 추가·저장 데이터·공개 화면 연결', () =
     fireEvent.animationEnd(dialog);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
+
+  it('저장한 배경 속도와 부드러움을 공개 효과와 오프닝에 함께 적용한다', () => {
+    const block = persisted('visualEffects', {
+      effect: 'petals',
+      effectSpeed: 0.5,
+      motionEasing: 'soft',
+      showEnvelopeIntro: true,
+    });
+    const view = render(<VisualEffectsPreview blockInfo={block} isGuestPage />);
+    const layer = document.querySelector('.invia-effect-layer') as HTMLElement;
+    const particle = document.querySelector(
+      '.invia-effect-particle'
+    ) as HTMLElement;
+    const slowDuration = parseFloat(
+      particle.style.getPropertyValue('--duration')
+    );
+    expect(layer.style.getPropertyValue('--motion-easing')).toBe(
+      'cubic-bezier(0.22, 1, 0.36, 1)'
+    );
+    expect(particle.textContent).toBe('');
+    expect(screen.getByRole('dialog', { name: '초대장 열기' })).toHaveStyle({
+      '--intro-duration': '2.4s',
+    });
+    view.rerender(
+      <VisualEffectsPreview
+        blockInfo={{ ...block, props: { ...block.props, effectSpeed: 2 } }}
+        isGuestPage
+      />
+    );
+    expect(
+      parseFloat(particle.style.getPropertyValue('--duration'))
+    ).toBeCloseTo(slowDuration / 4);
+    expect(screen.getByRole('dialog', { name: '초대장 열기' })).toHaveStyle({
+      '--intro-duration': '0.6s',
+    });
+  });
 });

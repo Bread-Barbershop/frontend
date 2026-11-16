@@ -170,6 +170,7 @@ function Preview() {
               >
                 {visibleBlocks.map(comp => {
                   const registryItem = blockRegistry[comp.component];
+                  const animation = resolveScrollAnimation(comp.props);
 
                   if (!registryItem.viewComponent) return null;
 
@@ -192,7 +193,8 @@ function Preview() {
                       }}
                     >
                       <ScrollFadeIn
-                        {...resolveScrollAnimation(comp.props)}
+                        key={`${animation.animationDurationMs}-${animation.animationEasing}-${animation.animationType}-${animation.triggerMode}`}
+                        {...animation}
                         {...(activeDragId
                           ? {
                               animationType: 'none',

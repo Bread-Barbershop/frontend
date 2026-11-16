@@ -1,19 +1,152 @@
-.invia-effect-layer { position: fixed; inset: 0; z-index: 40; pointer-events: none; overflow: hidden; }
-.invia-effect-particle { position: absolute; top: -12%; left: var(--x); animation: invia-fall var(--duration) linear infinite; animation-delay: var(--delay); font-size: var(--size); opacity: .65; }
-.invia-effect-petals { color: #ef91ac; }
-.invia-effect-snow { color: #9cbcd2; }
-.invia-effect-confetti { color: var(--particle-color); }
-.invia-effect-bokeh { top: var(--y); border-radius: 9999px; width: var(--size); height: var(--size); background: var(--particle-color); filter: blur(3px); animation: invia-bokeh 5s ease-in-out infinite alternate; animation-delay: var(--delay); }
-@keyframes invia-fall { 0% { transform: translate3d(0, -10vh, 0) rotate(0deg); } 100% { transform: translate3d(55px, 120vh, 0) rotate(360deg); } }
-@keyframes invia-bokeh { 0% { opacity: .12; transform: scale(.6); } 100% { opacity: .7; transform: scale(1.6); } }
-.invia-intro { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; background: #fbf7f2; padding: 24px; }
-.invia-intro-card { width: min(320px, 88vw); height: 210px; background: #f4e4d9; border: 1px solid #dfc9bd; position: relative; box-shadow: 0 16px 50px #47332d19; display: flex; align-items: center; justify-content: center; }
-.invia-intro-card::before { content: ''; position: absolute; inset: 0 0 50%; clip-path: polygon(0 0, 100% 0, 50% 100%); background: #eed4c4; transform-origin: top center; }
-.invia-intro-opening .invia-intro-card::before { animation: invia-envelope-flap .85s ease-in forwards; }
-.invia-intro-opening { animation: invia-intro-fade .85s ease-in forwards; }
-@keyframes invia-envelope-flap { to { transform: rotateX(180deg); } }
-@keyframes invia-intro-fade { 70% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+.invia-effect-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  overflow: hidden;
+}
+.invia-effect-preview {
+  position: absolute;
+  z-index: 0;
+}
+.invia-effect-particle {
+  position: absolute;
+  top: -12%;
+  left: var(--x);
+  width: var(--size);
+  height: var(--size);
+  animation: invia-fall var(--duration) linear infinite;
+  animation-delay: var(--delay);
+}
+.invia-effect-particle > i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: var(--alpha);
+  filter: blur(var(--blur));
+  animation: invia-sway var(--sway-duration) var(--motion-easing) infinite
+    alternate;
+  animation-delay: var(--delay);
+}
+.invia-effect-petals > i {
+  border-radius: 75% 25% 65% 35%;
+  background: radial-gradient(ellipse at 30% 30%, #fff7f6, #e5b7bd 75%);
+  box-shadow: inset -1px -1px 2px #c4889920;
+}
+.invia-effect-snow > i {
+  border-radius: 50%;
+  background: #d6e1e7;
+  box-shadow: 0 0 3px #fff9;
+}
+.invia-effect-confetti > i {
+  height: 180%;
+  border-radius: 1px;
+  background: var(--particle-color);
+}
+.invia-effect-bokeh {
+  top: var(--y);
+  animation: invia-bokeh var(--duration) var(--motion-easing) infinite alternate;
+  animation-delay: var(--delay);
+}
+.invia-effect-bokeh > i {
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--particle-color), transparent 72%);
+  filter: blur(5px);
+  animation: none;
+}
+@keyframes invia-fall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
+  }
+  8%,
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, var(--travel), 0);
+  }
+}
+@keyframes invia-sway {
+  from {
+    transform: translate3d(calc(var(--sway) * -1), 0, 0) rotate(-25deg)
+      rotateY(0deg);
+  }
+  to {
+    transform: translate3d(var(--sway), 0, 0) rotate(45deg) rotateY(110deg);
+  }
+}
+@keyframes invia-bokeh {
+  from {
+    opacity: 0.15;
+    transform: translate3d(-10px, 6px, 0) scale(0.85);
+  }
+  to {
+    opacity: 0.55;
+    transform: translate3d(12px, -12px, 0) scale(1.2);
+  }
+}
+.invia-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: #fbf7f2;
+  padding: 24px;
+}
+.invia-intro-card {
+  width: min(320px, 88vw);
+  height: 210px;
+  background: linear-gradient(155deg, #f8f0e6, #ece0d1);
+  border: 1px solid #e1d3c2;
+  position: relative;
+  perspective: 900px;
+  box-shadow: 0 16px 50px #47332d12;
+}
+.invia-intro-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 50%;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  background: linear-gradient(#f7ecdd, #e8d9c6);
+  transform-origin: top center;
+  backface-visibility: hidden;
+}
+.invia-intro-opening .invia-intro-card::before {
+  animation: invia-envelope-flap calc(var(--intro-duration) * 0.72)
+    var(--motion-easing) forwards;
+}
+.invia-intro-opening {
+  animation: invia-intro-fade var(--intro-duration) var(--motion-easing)
+    forwards;
+}
+@keyframes invia-envelope-flap {
+  to {
+    transform: rotateX(180deg);
+  }
+}
+@keyframes invia-intro-fade {
+  0%,
+  65% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  .invia-effect-particle { animation: none !important; opacity: .15; }
-  .invia-intro-opening, .invia-intro-opening .invia-intro-card::before { animation-duration: .01ms !important; }
+  .invia-effect-particle,
+  .invia-effect-particle > i {
+    animation: none !important;
+    opacity: 0.12;
+  }
+  .invia-intro-opening,
+  .invia-intro-opening .invia-intro-card::before {
+    animation-duration: 0.01ms !important;
+  }
 }
