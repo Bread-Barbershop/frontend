@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 
 export default function ClarityInit() {
   useEffect(() => {
+    if (window.location.pathname === '/preview/invitation') return;
     Clarity.init('x4vx8bf0a8');
   }, []);
 

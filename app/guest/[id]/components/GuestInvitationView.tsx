@@ -16,6 +16,7 @@ type GuestInvitationViewProps = {
   payload: NormalizedGuestPayload;
   mode?: GuestInvitationViewMode;
   previewFolderId?: string;
+  localAudioSrc?: string | null;
 };
 
 function GuestInvitationView({
@@ -23,10 +24,13 @@ function GuestInvitationView({
   payload,
   mode = 'guest',
   previewFolderId,
+  localAudioSrc,
 }: GuestInvitationViewProps) {
   const Root = mode === 'guest' ? 'main' : 'div';
   const rootClassName =
-    mode === 'guest' ? 'min-h-screen bg-neutral-50' : 'min-h-full bg-neutral-50';
+    mode === 'guest'
+      ? 'min-h-screen bg-neutral-50'
+      : 'min-h-full bg-neutral-50';
   const imageResolveMode =
     mode === 'dashboard-preview' ? 'dashboard-preview' : 'public';
   const containerClassName =
@@ -52,6 +56,7 @@ function GuestInvitationView({
               bgm={payload.bgm}
               mode={mode}
               previewFolderId={previewFolderId}
+              localAudioSrc={localAudioSrc}
             />
           </div>
           <GuestMainPoster
@@ -63,6 +68,7 @@ function GuestInvitationView({
               blocks={payload.blocks}
               bulkData={payload.bulkData}
               renderHints={payload.renderHints}
+              isGuestPage
             />
           </div>
           <GuestInvitationFooter />
