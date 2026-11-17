@@ -9,7 +9,7 @@ export const createBlockSlice: StateCreator<EditorState, [], [], BlockSlice> = (
   get
 ) => ({
   block: [],
-  addBlock: (type, component, id) =>
+  addBlock: (type, component, id, initialProps) =>
     set(state => ({
       block: [
         ...state.block,
@@ -17,7 +17,7 @@ export const createBlockSlice: StateCreator<EditorState, [], [], BlockSlice> = (
           id,
           type,
           component,
-          props: createDefaultProps(component, type),
+          props: { ...createDefaultProps(component, type), ...initialProps },
         },
       ],
     })),

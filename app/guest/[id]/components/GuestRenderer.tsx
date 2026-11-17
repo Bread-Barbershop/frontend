@@ -32,6 +32,7 @@ const GUEST_PAGE_PROP_COMPONENTS = new Set<GuestRendererBlock['component']>([
   'afterParty',
   'dressCode',
   'gallery',
+  'mealMenu',
   'myChild',
   'myFamily',
   'organizerInformation',

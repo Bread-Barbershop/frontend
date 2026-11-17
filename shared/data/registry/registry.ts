@@ -12,6 +12,7 @@ import { galleryDefinition } from '@/components/organisms/gallery/Gallery.defini
 import { greetingDefinition } from '@/components/organisms/greeting/Greeting.definition';
 import { guestbookDefinition } from '@/components/organisms/guestbook/Guestbook.definition';
 import { interviewDefinition } from '@/components/organisms/interview/Interview.definition';
+import { mealMenuDefinition } from '@/components/organisms/mealMenu/MealMenu.definition';
 import { myChildDefinition } from '@/components/organisms/myChild/MyChild.definition';
 import { myFamilyDefinition } from '@/components/organisms/myFamily/MyFamily.definition';
 import { myFamilyWeddingDefinition } from '@/components/organisms/myFamilyWedding/MyFamilyWedding.definition';
@@ -58,6 +59,7 @@ export const blockRegistry = {
   notice: { ...blockSchema.notice, ...noticeDefinition },
   calendar: { ...blockSchema.calendar, ...calendarDefinition },
   timeline: { ...blockSchema.timeline, ...timelineDefinition },
+  mealMenu: { ...blockSchema.mealMenu, ...mealMenuDefinition },
   countdown: { ...blockSchema.countdown, ...countdownDefinition },
   dressCode: { ...blockSchema.dressCode, ...dressCodeDefinition },
   interview: { ...blockSchema.interview, ...interviewDefinition },

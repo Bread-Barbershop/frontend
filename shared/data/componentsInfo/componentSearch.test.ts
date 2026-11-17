@@ -22,6 +22,7 @@ describe('블록 검색 별칭과 복합 검색', () => {
     'bgm',
     'account',
     'interview',
+    'mealMenu',
     'notice',
     'video',
     'closingComment',
