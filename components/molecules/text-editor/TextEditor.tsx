@@ -31,7 +31,7 @@ import UnderlineIcon from '@/shared/assets/icons/underline.svg';
 import {
   hasCustomFontFace,
   loadCustomFont,
-  preloadFontFamilyWeights,
+  loadFontPreview,
 } from '@/shared/fonts/fontLoader';
 import {
   FontFamilyOption,
@@ -274,12 +274,12 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
     const loadEditorFont = useCallback(
       async (family: string, weight: string, style: 'normal' | 'italic') => {
         try {
-          if (!hasCustomFontFace(family, weight, style)) {
-            return;
+          const availableStyle = hasCustomFontFace(family, weight, style)
+            ? style
+            : 'normal';
+          if (hasCustomFontFace(family, weight, availableStyle)) {
+            await loadCustomFont(family, weight, availableStyle);
           }
-
-          await preloadFontFamilyWeights(family, style);
-          await loadCustomFont(family, weight, style);
         } catch (error) {
           if (process.env.NODE_ENV !== 'production') {
             console.error('Failed to load editor font.', {
@@ -727,6 +727,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
               onSelect={handleFontFamilySelect}
               placeholder="Font"
               variant="fontFamily"
+              onOptionVisible={loadFontPreview}
               showCheckbox={false}
             />
 

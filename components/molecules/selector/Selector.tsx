@@ -1,6 +1,7 @@
 import { ChevronDown } from 'lucide-react';
 // import { useSearchParams } from 'next/navigation';
 import {
+  Fragment,
   useState,
   useRef,
   useEffect,
@@ -25,6 +26,7 @@ import {
 interface Option {
   label: string | ReactNode;
   value: string;
+  group?: string;
   style?: CSSProperties;
 }
 
@@ -32,6 +34,7 @@ interface SelectorProps<T extends Option> {
   type?: 'normal' | 'editor';
   variant?: SelectorVariantType;
   options: T[];
+  onOptionVisible?: (value: string) => void;
   placeholder?: string;
   className?: string;
   triggerClassName?: string;
@@ -60,6 +63,7 @@ export const Selector = <T extends Option>({
   type = 'editor',
   variant,
   options,
+  onOptionVisible,
   placeholder = '선택',
   className,
   triggerClassName,
@@ -209,6 +213,29 @@ export const Selector = <T extends Option>({
       })
     : options;
 
+  useEffect(() => {
+    const popover = popoverRef.current;
+    if (!isOpen || !popover || !onOptionVisible) return;
+    if (typeof IntersectionObserver === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const row = entry.target as HTMLLIElement;
+          if (row.dataset.optionValue) onOptionVisible(row.dataset.optionValue);
+          observer.unobserve(row);
+        });
+      },
+      { root: popover }
+    );
+
+    popover.querySelectorAll('[data-option-value]').forEach(row => {
+      observer.observe(row);
+    });
+    return () => observer.disconnect();
+  }, [isOpen, onOptionVisible, options, searchTerm]);
+
   const variantStyles = variant ? selectorStyles[variant] : null;
 
   return (
@@ -319,38 +346,65 @@ export const Selector = <T extends Option>({
             />
           </div>
         )}
-        {filteredOptions.map(option => (
-          <li
-            key={option.value}
-            onClick={() => handleSelect(option)}
-            className={cn(
-              'flex w-full items-center min-h-8 gap-1 text-sm text-text-primary cursor-pointer hover:bg-bg-sub transition-colors select-none',
-              showCheckbox ? 'pr-1' : 'px-3'
-            )}
-            role="option"
-            aria-selected={selected?.value === option.value}
-          >
-            {showCheckbox && (
-              <div
-                className={cn(
-                  'flex-center w-6 pl-2 shrink-0 text-primary',
-                  selected?.value !== option.value && 'invisible'
-                )}
-              >
-                <CheckIcon width={12} height={12} />
-              </div>
-            )}
-            <span
-              className={cn(
-                'h-7 leading-7 truncate min-w-0 flex-center',
-                variantStyles?.optionLabel,
-                optionLabelClassName
+        {filteredOptions.map((option, index) => (
+          <Fragment key={option.value}>
+            {option.group &&
+              option.group !== filteredOptions[index - 1]?.group && (
+                <li
+                  role="presentation"
+                  className="border-y border-border-neutral bg-bg-sub px-3 py-1.5 text-left text-xs font-semibold text-text-secondary"
+                >
+                  {option.group}
+                </li>
               )}
-              style={option.style}
+            <li
+              data-option-value={onOptionVisible ? option.value : undefined}
+              tabIndex={option.group ? 0 : undefined}
+              onClick={() => handleSelect(option)}
+              onFocus={
+                onOptionVisible
+                  ? () => onOptionVisible(option.value)
+                  : undefined
+              }
+              onKeyDown={
+                option.group
+                  ? event => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        handleSelect(option);
+                      }
+                    }
+                  : undefined
+              }
+              className={cn(
+                'flex w-full items-center min-h-8 gap-1 text-sm text-text-primary cursor-pointer hover:bg-bg-sub transition-colors select-none',
+                showCheckbox ? 'pr-1' : 'px-3'
+              )}
+              role="option"
+              aria-selected={selected?.value === option.value}
             >
-              {option.label}
-            </span>
-          </li>
+              {showCheckbox && (
+                <div
+                  className={cn(
+                    'flex-center w-6 pl-2 shrink-0 text-primary',
+                    selected?.value !== option.value && 'invisible'
+                  )}
+                >
+                  <CheckIcon width={12} height={12} />
+                </div>
+              )}
+              <span
+                className={cn(
+                  'h-7 leading-7 truncate min-w-0 flex-center',
+                  variantStyles?.optionLabel,
+                  optionLabelClassName
+                )}
+                style={option.style}
+              >
+                {option.label}
+              </span>
+            </li>
+          </Fragment>
         ))}
 
         {onInputChange && (

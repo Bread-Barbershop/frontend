@@ -13,7 +13,6 @@ import MenuPanel from '@/widgets/editor/menuPanel/OrderPanel';
 import Preview from '@/widgets/editor/preview/Preview';
 import RightPanel from '@/widgets/editor/rightPanel/RightPanel';
 import { FabricProvider } from '@/widgets/mainPoster/context/FabricContext';
-import { preloadPreviewFonts } from '@/widgets/mainPoster/utils/fontLoader';
 
 import { useEditorDirtyTracker } from '../../hooks/useEditorDirtyTracker';
 import { useInitData } from '../hooks/useInitData';
@@ -33,7 +32,6 @@ function EditorUpdate({ folderId, uuid }: Props) {
   });
 
   const [isStoreReady, setIsStoreReady] = useState(false);
-  const [isFontPreviewReady, setIsFontPreviewReady] = useState(false);
 
   const reset = useEditorStore(state => state.reset);
   const resetBgm = useBgmStore(state => state.reset);
@@ -56,27 +54,10 @@ function EditorUpdate({ folderId, uuid }: Props) {
     }
   }, [savedData, initEditStore, initBgmStore, initBulkData]);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    (async () => {
-      await preloadPreviewFonts();
-      if (!cancelled) {
-        setIsFontPreviewReady(true);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const isEditorReady = isStoreReady && isFontPreviewReady;
-
-  useEditorDirtyTracker(isEditorReady);
+  useEditorDirtyTracker(isStoreReady);
   usePreventBack();
   if (error) notFound();
-  if (loading || !savedData || !isEditorReady) {
+  if (loading || !savedData || !isStoreReady) {
     return (
       <div className="w-full h-full flex justify-center items-center bg-[#E7E9EB]">
         <div className="flex flex-col items-center gap-4 text-text-primary">
