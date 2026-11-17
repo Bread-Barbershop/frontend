@@ -272,7 +272,7 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
       if (isBusy) return;
 
       setIsBusy(true);
-      void (async () => {
+      return (async () => {
         const isSessionValid = await validateSession();
         if (!isSessionValid) {
           if (options.stayOnSessionExpiry) {
@@ -288,7 +288,6 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
         .finally(() => {
           setIsBusy(false);
         });
-      return;
     }
 
     pendingActionRef.current = action;
