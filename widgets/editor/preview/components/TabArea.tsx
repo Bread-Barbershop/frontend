@@ -1,12 +1,10 @@
 import { Search, X } from 'lucide-react';
 
-import { UtilityButton } from '@/components/atoms/button';
 import { componentCls } from '@/shared/data/componentsInfo/componentInfo';
 
 interface Props {
   active: string;
   tabClick: (english: string) => void;
-  closeClick: () => void;
   searchQuery?: string;
   onSearchChange?: (query: string) => void;
 }
@@ -14,25 +12,24 @@ interface Props {
 function TabArea({
   active,
   tabClick,
-  closeClick,
   searchQuery = '',
   onSearchChange,
 }: Props) {
   return (
-    <div className="flex justify-between items-center px-5">
-      <ul className="flex">
+    <div className="flex min-w-0 items-center gap-2 px-3">
+      <ul className="flex min-w-0 flex-1 overflow-x-auto scrollbar-hide">
         {componentCls.map((items, index) => (
           <li
             key={index}
-            className={`w-19 h-11 cursor-pointer select-none flex-center font-semibold text-sm ${active === items.english ? 'text-text-primary border-b' : 'text-text-secondary border-0'}`}
+            className={`w-18 shrink-0 h-11 cursor-pointer select-none flex-center font-semibold text-sm ${active === items.english ? 'text-text-primary border-b' : 'text-text-secondary border-0'}`}
             onClick={() => tabClick(items.english)}
           >
             {items.korea}
           </li>
         ))}
       </ul>
-      <div className="flex items-center gap-2.5">
-        <div className="relative flex items-center">
+      <div className="flex shrink-0 items-center">
+        <div className="relative flex w-36 items-center">
           <Search
             size={14}
             className="pointer-events-none absolute left-2.5 text-neutral-400"
@@ -43,7 +40,7 @@ function TabArea({
             onChange={e => onSearchChange?.(e.target.value)}
             placeholder="블록 검색"
             autoFocus
-            className="h-8 w-40 rounded-md border border-neutral-200 bg-neutral-50 pl-8 pr-7 text-xs text-text-primary placeholder:text-text-tertiary focus:border-primary focus:bg-white focus:outline-none transition-colors"
+            className="h-8 w-full rounded-md border border-neutral-200 bg-neutral-50 pl-8 pr-7 text-xs text-text-primary placeholder:text-text-tertiary focus:border-primary focus:bg-white focus:outline-none transition-colors"
           />
           {searchQuery && (
             <button
@@ -56,14 +53,6 @@ function TabArea({
             </button>
           )}
         </div>
-        <UtilityButton
-          variant={'danger'}
-          className="font-semibold text-sm"
-          aria-label="블록 추가 닫기"
-          onClick={closeClick}
-        >
-          닫기
-        </UtilityButton>
       </div>
     </div>
   );

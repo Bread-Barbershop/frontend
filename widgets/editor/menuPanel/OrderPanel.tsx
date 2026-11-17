@@ -1,3 +1,4 @@
+import AdditionalFeaturesButton from '../preview/components/AdditionalFeaturesButton';
 import AddPageButton from '../preview/components/AddPageButton';
 import InvitationPreviewButton from '../preview/components/InvitationPreviewButton';
 import OrderPanel from '../preview/components/OrderPanel';
@@ -10,6 +11,7 @@ function MenuPanel() {
       <OrderPanel />
       <AddPageButton />
       <ShareUrlButton />
+      <AdditionalFeaturesButton />
       <InvitationPreviewButton />
       <UploadButton />
     </div>
