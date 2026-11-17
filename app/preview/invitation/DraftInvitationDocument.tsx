@@ -26,9 +26,12 @@ export default function DraftInvitationDocument() {
       if (next) setSnapshot(next);
     };
     const keyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape' || document.querySelector('dialog[open]'))
-        return;
+      if (event.key !== 'Escape') return;
+      if (document.querySelector('dialog[open]')) return;
       event.preventDefault();
+      if (document.querySelector('[role="dialog"][aria-modal="true"]')) {
+        return;
+      }
       window.parent.postMessage(
         { type: PREVIEW_MESSAGE.close },
         window.location.origin
