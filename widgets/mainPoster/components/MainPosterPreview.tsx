@@ -27,7 +27,6 @@ import { preloadFonts, stabilizeCanvasAfterLoad } from '../hooks/useTemplate';
 import { initAligningGuidelines } from '../libs/aligning-guidelines';
 import { findPrimarySlotTargetBySlotId, getSlotId } from '../slot/queries';
 import { FabricObjectWithLock } from '../types/fabric';
-import { preloadPreviewFonts } from '../utils/fontLoader';
 import {
   getImagePanelMode,
   isFilledSlotImage,
@@ -79,10 +78,6 @@ export const MainPosterPreview = () => {
 
   useSetFabricControls();
   useKeyboardEvents(canvas, isMouseInCanvasRef);
-
-  useEffect(() => {
-    void preloadPreviewFonts();
-  }, []);
 
   const openSlotFilePicker = (target: SlotTargetObject) => {
     const slotId = getSlotId(target);

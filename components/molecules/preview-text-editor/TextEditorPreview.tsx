@@ -10,7 +10,11 @@ import {
 } from 'react';
 
 import FontColorIcon from '@/shared/assets/icons/color.svg';
-import { hasCustomFontFace, loadCustomFont } from '@/shared/fonts/fontLoader';
+import {
+  hasCustomFontFace,
+  loadCustomFont,
+  loadFontPreview,
+} from '@/shared/fonts/fontLoader';
 import {
   FontFamilyOption,
   FontWeightOption,
@@ -151,6 +155,7 @@ export function TextEditorPreview({
             onSelect={handleFontFamilySelect}
             placeholder="Font"
             variant="fontFamily"
+            onOptionVisible={loadFontPreview}
             showCheckbox={false}
             className="w-full"
           />

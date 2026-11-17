@@ -1,3 +1,5 @@
+import { PROVIDER_FONT_FACES } from './providerFonts';
+
 export const CUSTOM_FONTS = [
   {
     family: 'SUIT',
@@ -1883,4 +1885,5 @@ export const CUSTOM_FONTS = [
     weight: '700',
     style: 'normal',
   },
+  ...PROVIDER_FONT_FACES,
 ];

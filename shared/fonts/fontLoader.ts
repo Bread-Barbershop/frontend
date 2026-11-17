@@ -1,9 +1,7 @@
 export {
   getFontKey,
-  getPreviewFonts,
   hasCustomFontFace,
   loadCustomFont,
+  loadFontPreview,
   preloadFontFamilyWeights,
-  preloadPreviewFonts,
 } from '@/widgets/mainPoster/utils/fontLoader';
-

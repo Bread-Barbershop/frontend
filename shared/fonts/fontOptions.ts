@@ -4,11 +4,13 @@ import {
   getFontWeights,
   resolveFontFamily,
 } from './fontRegistry';
+import { FONT_GROUP_LABELS, getFontGroup } from './providerFonts';
 
 import type { CSSProperties } from 'react';
 
 export type FontFamilyOption = {
   label: string;
+  group?: string;
   value: string;
   weights: string[];
   defaultWeight: string;
@@ -63,15 +65,28 @@ export const getFontWeightLabel = (weight: string) => {
 };
 
 export const createFontFamilyOptions = (): FontFamilyOption[] => {
-  return getFontFamilies().map(font => ({
-    label: font.label,
-    value: font.family,
-    weights: getFontWeights(font.family),
-    defaultWeight: font.defaultWeight,
-    style: {
-      fontFamily: getFontFallbackStack(font.family),
-    },
-  }));
+  const groups: Record<keyof typeof FONT_GROUP_LABELS, FontFamilyOption[]> = {
+    naver: [],
+    baemin: [],
+    other: [],
+  };
+
+  for (const font of getFontFamilies()) {
+    const group = getFontGroup(font.family);
+    groups[group].push({
+      label: font.label,
+      group: FONT_GROUP_LABELS[group],
+      value: font.family,
+      weights: getFontWeights(font.family),
+      defaultWeight: font.defaultWeight,
+      style: {
+        fontFamily: getFontFallbackStack(font.family),
+        fontWeight: font.defaultWeight,
+      },
+    });
+  }
+
+  return [...groups.naver, ...groups.baemin, ...groups.other];
 };
 
 export const createFontWeightOptions = (
