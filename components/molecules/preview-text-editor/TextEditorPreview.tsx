@@ -192,8 +192,6 @@ export function TextEditorPreview({
               downDisabled:
                 selectedFamilyIndex < 0 ||
                 selectedFamilyIndex >= FONT_FAMILY_OPTIONS.length - 1,
-              upLabel: '이전 글꼴',
-              downLabel: '다음 글꼴',
             }}
           />
         </div>
@@ -213,8 +211,6 @@ export function TextEditorPreview({
                 selectedWeightIndex < 0 ||
                 selectedWeightIndex >= fontWeightOptions.length - 1,
               downDisabled: selectedWeightIndex <= 0,
-              upLabel: '글꼴 굵게',
-              downLabel: '글꼴 얇게',
             }}
           />
           <Selector<FontSizeOption>
@@ -231,8 +227,6 @@ export function TextEditorPreview({
               onUp: () => stepFontSize(1),
               onDown: () => stepFontSize(-1),
               downDisabled: Number.isFinite(currentSize) && currentSize <= 1,
-              upLabel: '글자 크기 증가',
-              downLabel: '글자 크기 감소',
             }}
           />
           <div className="relative">

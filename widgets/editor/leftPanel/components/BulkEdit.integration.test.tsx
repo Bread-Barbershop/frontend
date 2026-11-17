@@ -31,7 +31,7 @@ jest.mock('@/components/molecules/text-editor/utils/tiptapJsonToHtml', () => {
 describe('일괄 편집 즉시 반영', () => {
   beforeEach(() => useEditorStore.getState().reset());
 
-  it('본문 크기 화살표 변경을 본문 설정과 리치 텍스트 블록에 즉시 반영한다', () => {
+  it('본문 크기 선택기의 ArrowUp 변경을 본문 설정과 리치 텍스트 블록에 즉시 반영한다', () => {
     const block = {
       id: 'bulk-body-block',
       type: 'wedding',
@@ -58,7 +58,9 @@ describe('일괄 편집 즉시 반영', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: '글자 크기 증가' }));
+    fireEvent.keyDown(screen.getByRole('button', { name: '14' }), {
+      key: 'ArrowUp',
+    });
 
     const state = useEditorStore.getState();
     expect(state.bodyData.fontSize).toBe('15px');

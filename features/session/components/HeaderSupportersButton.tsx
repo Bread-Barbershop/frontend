@@ -1,17 +1,27 @@
 'use client';
 
 import { ArrowUpRight, X } from 'lucide-react';
+import Image from 'next/image';
 import { useId, useRef } from 'react';
+
+import naverLogo from '@/shared/assets/images/supporters/naver.png';
+import woowaBrothersLogo from '@/shared/assets/images/supporters/woowa-brothers.jpg';
+
+import styles from './HeaderSupportersButton.module.css';
 
 const fontProviders = [
   {
     name: '네이버',
     copyright: 'NAVER Corporation',
+    logo: naverLogo,
+    logoClassName: 'w-[112%]',
     licenseUrl: '/font/licenses/naver.txt',
   },
   {
-    name: '배민',
+    name: '우아한형제들',
     copyright: 'Woowa Brothers Corporation',
+    logo: woowaBrothersLogo,
+    logoClassName: 'w-[125%]',
     licenseUrl: '/font/licenses/baemin.txt',
   },
 ];
@@ -58,24 +68,37 @@ export default function HeaderSupportersButton({
           </form>
         </div>
 
-        <ul className="space-y-2">
+        <ul className="grid grid-cols-2 gap-3 py-2 sm:gap-6">
           {fontProviders.map(provider => (
-            <li key={provider.name}>
+            <li key={provider.name} className="min-w-0">
               <a
                 href={provider.licenseUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="group block rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 hover:border-neutral-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+                aria-label={`${provider.name} 글꼴 라이선스 전문 (새 탭)`}
+                aria-describedby={`${dialogId}-${provider.name}-license`}
+                className={`${styles.logoLink} group flex flex-col items-center gap-3 rounded-xl p-2 text-center focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black`}
               >
-                <span className="flex flex-wrap items-center justify-between gap-x-3">
-                  <span className="text-lg font-bold">{provider.name}</span>
-                  <span className="flex items-center gap-1 text-sm font-medium text-neutral-700">
-                    라이선스 전문
-                    <ArrowUpRight size={14} aria-hidden="true" />
-                  </span>
+                <span
+                  className={`${styles.logoFrame} flex aspect-square w-full max-w-28 items-center justify-center rounded-2xl border border-neutral-200 bg-white`}
+                >
+                  <Image
+                    src={provider.logo}
+                    alt=""
+                    unoptimized
+                    className={`h-auto max-w-none shrink-0 ${provider.logoClassName}`}
+                  />
                 </span>
-                <span className="mt-1 block text-xs leading-5 text-neutral-600 opacity-0 transition-opacity group-hover:opacity-100 group-focus:opacity-100 motion-reduce:transition-none [@media(hover:none)]:opacity-100">
-                  © {provider.copyright} · SIL Open Font License 1.1
+                <span className="flex items-center justify-center gap-1 text-sm font-semibold">
+                  {provider.name}
+                  <ArrowUpRight size={13} aria-hidden="true" />
+                </span>
+                <span
+                  id={`${dialogId}-${provider.name}-license`}
+                  className="min-h-8 text-[11px] leading-4 text-neutral-600 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none [@media(hover:none)]:opacity-100"
+                >
+                  <span className="block">© {provider.copyright}</span>
+                  SIL Open Font License 1.1
                 </span>
               </a>
             </li>
