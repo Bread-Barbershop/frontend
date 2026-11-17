@@ -194,7 +194,6 @@ function Preview() {
                       blockInfo: typeof comp;
                       className: string;
                       titleClassName: string;
-                      onClick: () => void;
                     }>;
                   return (
                     <SortablePreviewBlock
@@ -205,6 +204,10 @@ function Preview() {
                       backgroundColor={backgroundColor}
                       registerNode={el => {
                         blockRefs.current[comp.id] = el;
+                      }}
+                      onSelect={() => {
+                        selectedBlock(comp.id);
+                        setIsEdit(false);
                       }}
                     >
                       <ScrollFadeIn
@@ -227,10 +230,6 @@ function Preview() {
                             titleClassName={previewTitleVariants({
                               variant: comp.type,
                             })}
-                            onClick={() => {
-                              selectedBlock(comp.id);
-                              setIsEdit(false);
-                            }}
                           />
                         </InvitationChapter>
                       </ScrollFadeIn>
