@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 // import { useSearchParams } from 'next/navigation';
 import {
   Fragment,
@@ -58,8 +58,6 @@ interface SelectorProps<T extends Option> {
     onDown: () => void;
     upDisabled?: boolean;
     downDisabled?: boolean;
-    upLabel?: string;
-    downLabel?: string;
   };
 }
 
@@ -266,9 +264,7 @@ export const Selector = <T extends Option>({
     <div
       ref={containerRef}
       className={cn(
-        stepControls
-          ? 'relative flex items-center gap-0.5 text-center'
-          : 'relative text-center',
+        'relative text-center',
         variantStyles?.container,
         className
       )}
@@ -276,7 +272,6 @@ export const Selector = <T extends Option>({
       <div
         className={cn(
           selectorVariants({ type, isOpen, hasValue }),
-          stepControls && 'min-w-0 flex-1',
           variantStyles?.trigger,
           triggerClassName,
           disabled && 'pointer-events-none opacity-60',
@@ -345,34 +340,6 @@ export const Selector = <T extends Option>({
           </button>
         )}
       </div>
-
-      {stepControls && (
-        <div
-          className="flex h-8 w-6 shrink-0 flex-col items-center justify-center"
-          aria-label="값 조절"
-        >
-          <button
-            type="button"
-            aria-label={stepControls.upLabel ?? `${placeholder} 증가`}
-            disabled={disabled || stepControls.upDisabled}
-            onClick={stepControls.onUp}
-            onKeyDown={handleStepKeyDown}
-            className="flex h-4 w-6 items-center justify-center rounded-sm text-text-secondary hover:bg-bg-sub hover:text-text-primary focus-visible:outline focus-visible:outline-1 focus-visible:outline-primary disabled:opacity-40"
-          >
-            <ChevronUp size={12} />
-          </button>
-          <button
-            type="button"
-            aria-label={stepControls.downLabel ?? `${placeholder} 감소`}
-            disabled={disabled || stepControls.downDisabled}
-            onClick={stepControls.onDown}
-            onKeyDown={handleStepKeyDown}
-            className="flex h-4 w-6 items-center justify-center rounded-sm text-text-secondary hover:bg-bg-sub hover:text-text-primary focus-visible:outline focus-visible:outline-1 focus-visible:outline-primary disabled:opacity-40"
-          >
-            <ChevronDown size={12} />
-          </button>
-        </div>
-      )}
 
       <ul
         id={popoverId}
