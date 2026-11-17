@@ -13,6 +13,7 @@ interface GuestBgmProps {
   bgm: GuestBgmData;
   mode?: 'guest' | 'dashboard-preview';
   previewFolderId?: string;
+  localAudioSrc?: string | null;
 }
 
 const USER_BGM_ID = 'user-bgm';
@@ -48,6 +49,7 @@ function GuestBgm({
   bgm,
   mode = 'guest',
   previewFolderId,
+  localAudioSrc,
 }: GuestBgmProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isOn, setIsOn] = useState(false);
@@ -71,17 +73,21 @@ function GuestBgm({
     if (!bgm.selectedBgmId) return null;
 
     if (isUserBgm) {
+      if (mode === 'dashboard-preview' && localAudioSrc?.startsWith('blob:'))
+        return `${USER_BGM_ID}:${localAudioSrc}`;
       if (!bgm.userBgmFileId) return null;
       return `${USER_BGM_ID}:${bgm.userBgmFileId}`;
     }
 
     return bgm.selectedBgmId;
-  }, [bgm.selectedBgmId, bgm.userBgmFileId, isUserBgm]);
+  }, [bgm.selectedBgmId, bgm.userBgmFileId, isUserBgm, mode, localAudioSrc]);
 
   const selectedAudioSrc = useMemo(() => {
     if (!bgm.selectedBgmId) return null;
 
     if (isUserBgm) {
+      if (mode === 'dashboard-preview' && localAudioSrc?.startsWith('blob:'))
+        return localAudioSrc;
       if (!bgm.userBgmFileId) return null;
       if (mode === 'dashboard-preview') {
         // 공개 Drive URL 실패를 기다리지 않고 처음부터 인증 프록시로 요청한다.
@@ -101,6 +107,7 @@ function GuestBgm({
     mode,
     previewFolderId,
     shouldUseProxyForUserBgm,
+    localAudioSrc,
   ]);
 
   const src =

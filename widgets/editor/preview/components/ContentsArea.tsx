@@ -10,6 +10,8 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { InvitationType } from '@/shared/types/block';
 import { BlockType } from '@/shared/types/editor';
 
+import { BlockLabel } from './BlockLabel';
+
 const COLORS = {
   wedding: 'bg-[#E96B8A]',
   firstBirthday: 'bg-[#F2A65A]',
@@ -48,7 +50,9 @@ function ContentsArea({
     [query]
   );
 
-  const resolveInvitationType = (category: InvitationType | 'layout'): InvitationType =>
+  const resolveInvitationType = (
+    category: InvitationType | 'layout'
+  ): InvitationType =>
     category === 'layout'
       ? (useEditorStore.getState().block[0]?.type ?? 'etc')
       : category;
@@ -78,7 +82,12 @@ function ContentsArea({
     } else {
       if (category.english === 'layout') {
         category.list.forEach(item => {
-          if (item.component) addBlock(resolveInvitationType(category.english), item.component, crypto.randomUUID());
+          if (item.component)
+            addBlock(
+              resolveInvitationType(category.english),
+              item.component,
+              crypto.randomUUID()
+            );
         });
         setIsEdit(false);
       } else {
@@ -118,7 +127,8 @@ function ContentsArea({
                     aria-label={`${items.korea} 템플릿 선택 열기`}
                     onClick={() => {
                       const type = items.english;
-                      if (type !== 'etc' && type !== 'layout') onOpenTemplatePicker(type);
+                      if (type !== 'etc' && type !== 'layout')
+                        onOpenTemplatePicker(type);
                     }}
                   >
                     템플릿 사용하기
@@ -148,7 +158,9 @@ function ContentsArea({
                       {index + 1}
                     </span>
                     <p className="font-normal text-[13px] flex-1 flex flex-wrap justify-center text-center break-keep">
-                      {item.contents}
+                      <BlockLabel component={item.component}>
+                        {item.contents}
+                      </BlockLabel>
                     </p>
                   </li>
                 ))}
