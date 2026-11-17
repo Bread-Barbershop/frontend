@@ -6,6 +6,7 @@ import {
   KeyboardSensor,
   MouseSensor,
   TouchSensor,
+  type Modifier,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
@@ -39,8 +40,14 @@ const blockLabels = new Map(
   )
 );
 
+const restrictPreviewDragToVerticalAxis: Modifier = ({ transform }) => ({
+  ...transform,
+  x: 0,
+});
+
 function Preview() {
   const previewContainerRef = useRef<HTMLDivElement>(null);
+  const previewScrollContainerRef = useRef<HTMLDivElement>(null);
   const blockRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const draggingRef = useRef(false);
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
@@ -122,7 +129,10 @@ function Preview() {
         className="h-full bg-white overflow-hidden"
         style={{ backgroundColor }}
       >
-        <div className="overflow-y-auto h-full w-full box-border scrollbar-hide">
+        <div
+          ref={previewScrollContainerRef}
+          className="overflow-y-auto h-full w-full box-border scrollbar-hide"
+        >
           {block.length === 0 && !selectedId && (
             <div className="absolute inset-0 z-50 bg-white flex-center flex-col font-pretendard text-base font-semibold pointer-events-none">
               <div>
@@ -145,6 +155,11 @@ function Preview() {
             </div>
             <DndContext
               sensors={sensors}
+              modifiers={[restrictPreviewDragToVerticalAxis]}
+              autoScroll={{
+                canScroll: element =>
+                  element === previewScrollContainerRef.current,
+              }}
               collisionDetection={closestCenter}
               onDragStart={({ active }) => {
                 draggingRef.current = true;
