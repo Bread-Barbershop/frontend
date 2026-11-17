@@ -176,5 +176,11 @@ export async function deleteServerSession() {
       throw new AuthStorageError();
     }
   }
-  (await cookies()).set(SESSION_COOKIE, '', { path: '/', maxAge: 0 });
+  (await cookies()).set(SESSION_COOKIE, '', {
+    path: '/',
+    maxAge: 0,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+  });
 }
