@@ -18,6 +18,7 @@ export function useEditorDirtyTracker(enabled: boolean) {
         state.bodyData,
         state.backgroundColor,
         state.isZoom,
+        state.scrollAnimation,
       ],
       () => {
         useEditorStore.getState().setIsDirty(true);

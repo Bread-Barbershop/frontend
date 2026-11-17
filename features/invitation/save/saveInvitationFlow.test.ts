@@ -39,6 +39,7 @@ const bulkData = {
     isDefault: false,
   },
   isZoom: false,
+  scrollAnimation: { animationType: 'fade-up', triggerMode: 'down-only', animationDurationMs: 700, animationEasing: 'natural' },
 };
 
 const shareUrl = {

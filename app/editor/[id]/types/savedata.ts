@@ -1,4 +1,5 @@
 import { DriveListResponse } from '@/app/api/drive/_lib/getSaveDataFetch';
+import type { ScrollAnimationSettings } from '@/components/molecules/scroll-fade-in/animationConfig';
 import {
   BulkData,
   PersistedEditorBlock,
@@ -20,6 +21,7 @@ export interface SavedData {
     titleData: BulkData;
     bodyData: BulkData;
     isZoom: boolean;
+    scrollAnimation: ScrollAnimationSettings;
   };
   blocks: PersistedEditorBlock[];
   mainPoster: string;
@@ -36,6 +38,7 @@ export interface JsonData {
     titleData: BulkData;
     bodyData: BulkData;
     isZoom: boolean;
+    scrollAnimation: ScrollAnimationSettings;
   };
   blocks: PersistedEditorBlock[]; // singular to match store
   shareUrl?: ShareUrlState;

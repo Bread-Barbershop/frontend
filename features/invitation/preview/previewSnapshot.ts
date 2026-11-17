@@ -67,6 +67,7 @@ export function createPreviewSnapshot(posterDataUrl: string) {
         titleData: { ...editor.titleData },
         bodyData: { ...editor.bodyData },
         isZoom: editor.isZoom,
+        scrollAnimation: editor.scrollAnimation,
       },
       mainPoster: { version: '1', objects: [], thumbnailFileId: posterDataUrl },
       bgm: {

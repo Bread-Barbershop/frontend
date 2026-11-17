@@ -1,6 +1,10 @@
 import { StateCreator } from 'zustand';
 
 import {
+  DEFAULT_SCROLL_ANIMATION,
+  resolveScrollAnimation,
+} from '@/components/molecules/scroll-fade-in/animationConfig';
+import {
   BODY_BULK_DATA,
   DEFAULT_BACKGROUND_COLOR,
   TITLE_BULK_DATA,
@@ -15,8 +19,18 @@ export const createBulkSlice: StateCreator<EditorState, [], [], BulkSlice> = (
   titleData: TITLE_BULK_DATA,
   bodyData: BODY_BULK_DATA,
   isZoom: false,
+  scrollAnimation: DEFAULT_SCROLL_ANIMATION,
   setBackgroundColor: (color: string) => set({ backgroundColor: color }),
   setTitleData: (data: BulkData) => set({ titleData: data }),
   setBodyData: (data: BulkData) => set({ bodyData: data }),
   setIsZoom: (isZoom: boolean) => set({ isZoom }),
+  setScrollAnimation: settings =>
+    set({ scrollAnimation: resolveScrollAnimation(settings) }),
+  updateScrollAnimation: settings =>
+    set(state => ({
+      scrollAnimation: resolveScrollAnimation({
+        ...state.scrollAnimation,
+        ...settings,
+      }),
+    })),
 });

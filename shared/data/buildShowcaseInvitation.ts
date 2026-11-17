@@ -1,3 +1,4 @@
+import { DEFAULT_SCROLL_ANIMATION } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { blockSchema } from '@/shared/data/registry/block.schema';
 import { getShowcasePresentation } from '@/shared/data/showcasePresentation';
@@ -395,6 +396,7 @@ export function buildShowcaseInvitation(design: ShowcaseInvitation) {
         isDefault: false,
       },
       isZoom: false,
+      scrollAnimation: DEFAULT_SCROLL_ANIMATION,
     },
   };
 }

@@ -7,7 +7,6 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import BulkEdit from './components/BulkEdit';
 import Edit from './components/Edit';
-import { ScrollAnimationControls } from './components/ScrollAnimationControls';
 
 function LeftPanel() {
   const { isEdit, setIsEdit, selectedId } = useEditorStore(
@@ -51,8 +50,6 @@ function LeftPanel() {
           </div>
         </div>
       )}
-
-      {isComponentSelected && !isEdit && <ScrollAnimationControls selectedId={selectedId!} />}
 
       <div
         className={`flex flex-col bg-white rounded-lg shadow-edit border border-black/5 transition-default ${

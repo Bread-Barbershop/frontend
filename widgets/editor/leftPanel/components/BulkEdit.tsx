@@ -8,6 +8,7 @@ import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrap
 
 import BackGroundColorEdit from './BackGroundColorEdit';
 import BodyEdit from './BodyEdit';
+import { ScrollAnimationControls } from './ScrollAnimationControls';
 import TitleEdit from './TitleEdit';
 
 function BulkEdit() {
@@ -26,6 +27,7 @@ function BulkEdit() {
           onActiveColorPickerChange={setActiveColorPickerId}
         />
         <BackGroundColorEdit />
+        <ScrollAnimationControls />
         {/* <BackGroundEdit
           activeColorPickerId={activeColorPickerId}
           onActiveColorPickerChange={setActiveColorPickerId}
@@ -34,7 +36,7 @@ function BulkEdit() {
           notices={[
             {
               id: 'bulk-edit',
-              text: '초대장의 모든 폰트를 일괄 변경하거나 배경 색상을 변경하실 수 있습니다.',
+              text: '초대장의 폰트와 배경, 스크롤 애니메이션을 함께 설정할 수 있습니다.',
               colorClass: 'text-[#1F72EF]',
             },
           ]}

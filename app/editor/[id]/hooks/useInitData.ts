@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import { collectFontFamilies } from '@/features/invitation/save/createGuestRenderHints';
 import { preloadFontFamilyWeights } from '@/shared/fonts/fontLoader';
@@ -51,6 +52,7 @@ export const useInitData = ({
     setTitleData,
     setBackgroundColor,
     setIsZoom,
+    setScrollAnimation,
     setShareUrl,
     setHashFiles,
     clearHashFiles,
@@ -68,6 +70,7 @@ export const useInitData = ({
       setTitleData: state.setTitleData,
       setBackgroundColor: state.setBackgroundColor,
       setIsZoom: state.setIsZoom,
+      setScrollAnimation: state.setScrollAnimation,
       setShareUrl: state.setShareUrl,
       setHashFiles: state.setHashFiles,
       clearHashFiles: state.clearHashFiles,
@@ -177,8 +180,16 @@ export const useInitData = ({
       setTitleData(bulkData.titleData);
       setBackgroundColor(bulkData.backgroundColor);
       setIsZoom(bulkData.isZoom);
+      setScrollAnimation(resolveScrollAnimation(bulkData.scrollAnimation));
     }
-  }, [bulkData, setBodyData, setTitleData, setBackgroundColor, setIsZoom]);
+  }, [
+    bulkData,
+    setBodyData,
+    setTitleData,
+    setBackgroundColor,
+    setIsZoom,
+    setScrollAnimation,
+  ]);
   return {
     initEditStore,
     initBgmStore,
