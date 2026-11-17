@@ -182,7 +182,7 @@ export const componentCls: SampleDataType[] = [
   },
   {
     english: 'layout',
-    korea: '디자인 / 레이아웃',
+    korea: '레이아웃',
     list: layoutComponents,
   },
 ];

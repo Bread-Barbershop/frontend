@@ -7,7 +7,6 @@ describe('TabArea 컴포넌트', () => {
   const defaultProps = {
     active: 'wedding',
     tabClick: jest.fn(),
-    closeClick: jest.fn(),
     searchQuery: '',
     onSearchChange: jest.fn(),
   };
@@ -16,13 +15,16 @@ describe('TabArea 컴포넌트', () => {
     jest.clearAllMocks();
   });
 
-  it('탭 목록, 검색 인풋, 닫기 버튼이 정상적으로 렌더링된다', () => {
+  it('탭 목록과 검색 인풋이 정상적으로 렌더링되고 닫기 버튼은 표시하지 않는다', () => {
     render(<TabArea {...defaultProps} />);
 
     expect(screen.getByText('결혼식')).toBeInTheDocument();
     expect(screen.getByText('돌잔치')).toBeInTheDocument();
+    expect(screen.getByText('레이아웃')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('블록 검색')).toHaveFocus();
-    expect(screen.getByRole('button', { name: '블록 추가 닫기' })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: '블록 추가 닫기' })
+    ).not.toBeInTheDocument();
   });
 
   it('검색 인풋에 텍스트 입력 시 onSearchChange가 호출된다', () => {
@@ -42,14 +44,5 @@ describe('TabArea 컴포넌트', () => {
 
     fireEvent.click(clearBtn);
     expect(defaultProps.onSearchChange).toHaveBeenCalledWith('');
-  });
-
-  it('닫기 버튼 클릭 시 closeClick이 호출된다', () => {
-    render(<TabArea {...defaultProps} />);
-
-    const closeBtn = screen.getByRole('button', { name: '블록 추가 닫기' });
-    fireEvent.click(closeBtn);
-
-    expect(defaultProps.closeClick).toHaveBeenCalledTimes(1);
   });
 });
