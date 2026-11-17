@@ -26,6 +26,7 @@ import {
 import { markCanvasInitialized } from '@/widgets/mainPoster/utils/canvasReadiness';
 
 import { packDraft } from './draftSerialization';
+import { flushActiveDraft } from './draftLifecycle';
 import {
   bgmTestStore,
   canvasFixture,
@@ -33,7 +34,11 @@ import {
   recoveredEditor,
 } from './fixtures/recovery';
 import LocalDraftRecovery from './LocalDraftRecovery';
-import { deleteLocalDraft, readLocalDraft } from './localDraftStore';
+import {
+  deleteLocalDraft,
+  readLocalDraft,
+  writeLocalDraft,
+} from './localDraftStore';
 
 describe('편집기 초안 복구', () => {
   const originalFetch = global.fetch;
@@ -57,18 +62,16 @@ describe('편집기 초안 복구', () => {
       },
       poster: { objects: [] },
     });
-    jest
-      .mocked(readLocalDraft)
-      .mockResolvedValue({
-        epoch: 0,
-        draft: {
-          id: 'account-a:/editor',
-          owner: 'account-a',
-          path: '/editor',
-          modifiedAt: Date.now(),
-          payload,
-        },
-      });
+    jest.mocked(readLocalDraft).mockResolvedValue({
+      epoch: 0,
+      draft: {
+        id: 'account-a:/editor',
+        owner: 'account-a',
+        path: '/editor',
+        modifiedAt: Date.now(),
+        payload,
+      },
+    });
   });
   afterEach(() => {
     global.fetch = originalFetch;
@@ -98,5 +101,46 @@ describe('편집기 초안 복구', () => {
     );
     expect(editorTestStore.getState().invitationUuid).toBe('current-uuid');
     expect(canvasFixture.loadFromJSON).not.toHaveBeenCalled();
+  });
+
+  it('다른 계정으로 바뀌었으면 Drive 저장 전 로컬 준비 단계에서 차단한다', async () => {
+    render(<LocalDraftRecovery />);
+    act(() => markCanvasInitialized(canvasFixture));
+    fireEvent.click(
+      await screen.findByRole('button', { name: '새로 시작하기' })
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    );
+    global.fetch = jest.fn(async () => ({
+      ok: true,
+      json: async () => ({ isLoggedIn: true, userId: 'account-b' }),
+    })) as jest.Mock;
+    await act(async () => {
+      await expect(flushActiveDraft()).rejects.toThrow('계정 연결이 변경');
+    });
+    expect(
+      await screen.findByText('계정 연결이 변경됐어요')
+    ).toBeInTheDocument();
+  });
+
+  it('로컬 저장 용량이 부족해도 수동 Drive 저장의 준비 단계를 계속한다', async () => {
+    render(<LocalDraftRecovery />);
+    act(() => markCanvasInitialized(canvasFixture));
+    fireEvent.click(
+      await screen.findByRole('button', { name: '새로 시작하기' })
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    );
+    jest
+      .mocked(writeLocalDraft)
+      .mockRejectedValueOnce(new Error('QuotaExceededError'));
+    await act(async () => {
+      await expect(flushActiveDraft()).resolves.toBeUndefined();
+    });
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      '초안을 저장하지 못했습니다'
+    );
   });
 });

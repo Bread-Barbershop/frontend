@@ -234,8 +234,21 @@ export default function LocalDraftRecovery({
           }),
           useBgmStore.subscribe(changed),
           registerDraftFlusher(async () => {
+            const response = await fetch('/api/auth/session', {
+              cache: 'no-store',
+            });
+            if (!response.ok)
+              throw new Error('저장 전에 계정 연결을 확인하지 못했습니다.');
+            const session = await response.json();
+            if (session.userId !== owner || revoked) {
+              suspend();
+              throw new Error(
+                '계정 연결이 변경됐습니다. 새로고침 후 다시 저장해 주세요.'
+              );
+            }
             changed();
-            await flush();
+            // A full browser disk must not prevent the user from saving to Drive.
+            await flush().catch(failed);
           })
         );
         for (const event of [
