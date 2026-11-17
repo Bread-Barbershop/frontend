@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 
 import { sessionHash } from '@/app/api/auth/_lib/sessionCrypto';
 import {
+  assertDataJsonAccess,
+  MAX_INVITATION_JSON_BYTES,
+} from '@/app/api/drive/_lib/commitInvitationData';
+import {
   assertAssetFolderAccess,
   assertDriveId,
   assertManagedFileAccess,
@@ -27,6 +31,7 @@ export type UploadJournal = {
   uploadUrl?: string;
   complete?: boolean;
   createdAt: number;
+  dataJsonFileId?: string;
 };
 
 export const runtime = 'nodejs';
@@ -35,7 +40,7 @@ export async function POST(request: Request) {
   try {
     assertSameOriginRequest(request);
     const body = await request.json();
-    assertDriveId(body.folderId);
+    const isJson = body.dataJsonFileId !== undefined;
     if (
       typeof body.name !== 'string' ||
       !body.name ||
@@ -46,9 +51,12 @@ export async function POST(request: Request) {
       typeof body.digest !== 'string' ||
       !/^[a-f0-9]{64}$/.test(body.digest) ||
       typeof body.mimeType !== 'string' ||
-      !/^(image\/(jpeg|png|webp|gif|avif|heic|heif)|audio\/[a-z0-9.+-]+)$/.test(
-        body.mimeType
-      )
+      (isJson
+        ? body.mimeType !== 'application/json' ||
+          body.size > MAX_INVITATION_JSON_BYTES
+        : !/^(image\/(jpeg|png|webp|gif|avif|heic|heif)|audio\/[a-z0-9.+-]+)$/.test(
+            body.mimeType
+          ))
     ) {
       throw new DriveHttpError(
         '지원하지 않는 파일 형식 또는 크기입니다.',
@@ -56,20 +64,31 @@ export async function POST(request: Request) {
         {}
       );
     }
-    const { file: folder } = await assertAssetFolderAccess(body.folderId);
-    const expectedKind = body.mimeType.startsWith('image/')
-      ? 'assets_images'
-      : 'assets_audios';
-    if (folder.appProperties?.kind !== expectedKind)
-      throw new DriveHttpError('올바른 업로드 폴더가 아닙니다.', 403, {});
+    let folderId: string;
+    if (isJson) {
+      assertDriveId(body.dataJsonFileId);
+      folderId = (await assertDataJsonAccess(body.dataJsonFileId))
+        .invitationFolderId;
+    } else {
+      assertDriveId(body.folderId);
+      const { file: folder } = await assertAssetFolderAccess(body.folderId);
+      const expectedKind = body.mimeType.startsWith('image/')
+        ? 'assets_images'
+        : 'assets_audios';
+      if (folder.appProperties?.kind !== expectedKind)
+        throw new DriveHttpError('올바른 업로드 폴더가 아닙니다.', 403, {});
+      folderId = body.folderId;
+    }
     const uploadId = sessionHash(
-      `${body.folderId}:${body.digest}:${body.size}:${body.mimeType}`
+      `${folderId}:${body.digest}:${body.size}:${body.mimeType}:${body.dataJsonFileId ?? ''}`
     );
     const key = await journalKey('upload', uploadId);
     return await withSaveLock(key, async () => {
       let entry = await readJournal<UploadJournal>(key);
       if (entry?.complete) {
-        await assertManagedFileAccess(entry.fileId);
+        if (entry.dataJsonFileId)
+          await assertDataJsonAccess(entry.dataJsonFileId, entry.folderId);
+        else await assertManagedFileAccess(entry.fileId);
         return NextResponse.json(
           { uploadId, fileId: entry.fileId, name: entry.name, complete: true },
           { headers: { 'Cache-Control': 'no-store' } }
@@ -98,11 +117,12 @@ export async function POST(request: Request) {
           );
         entry = {
           fileId: ids.ids[0],
-          folderId: body.folderId,
+          folderId,
           name: body.name,
           size: body.size,
           mimeType: body.mimeType,
           createdAt: Date.now(),
+          ...(isJson ? { dataJsonFileId: body.dataJsonFileId as string } : {}),
         };
         // Persist the allocated ID before contacting Drive: a lost response cannot create a second file.
         await writeJournal(key, entry, JOURNAL_SECONDS);
@@ -124,7 +144,9 @@ export async function POST(request: Request) {
             parents: [entry.folderId],
             appProperties: {
               app_id: 'Bread-Barbershop',
-              kind: 'invitation_asset',
+              kind: entry.dataJsonFileId
+                ? 'invitation_staging_json'
+                : 'invitation_asset',
               upload_key: uploadId,
             },
           }),
@@ -135,7 +157,7 @@ export async function POST(request: Request) {
         if (file.appProperties?.upload_key === uploadId) {
           await writeJournal(
             key,
-            { ...entry, complete: true, uploadUrl: undefined },
+            { ...entry, complete: !entry.dataJsonFileId, uploadUrl: undefined },
             JOURNAL_SECONDS
           );
           return NextResponse.json({

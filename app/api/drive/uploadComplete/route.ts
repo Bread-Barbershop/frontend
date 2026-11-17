@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 
 import {
+  assertDataJsonAccess,
+  commitInvitationData,
+  readUploadedJson,
+} from '@/app/api/drive/_lib/commitInvitationData';
+import {
   assertManagedFileAccess,
   assertSameOriginRequest,
 } from '@/app/api/drive/_lib/driveAccess';
@@ -26,7 +31,21 @@ export async function POST(request: Request) {
     const entry = await readJournal<UploadJournal>(key);
     if (!entry)
       throw new DriveHttpError('업로드 준비 정보가 만료됐습니다.', 410, {});
-    const { file } = await assertManagedFileAccess(entry.fileId);
+    if (entry.complete && entry.dataJsonFileId) {
+      const { file } = await assertDataJsonAccess(
+        entry.dataJsonFileId,
+        entry.folderId
+      );
+      await cleanupStagingFile(entry);
+      return NextResponse.json(
+        { fileId: file.id, name: file.name },
+        { headers: { 'Cache-Control': 'no-store' } }
+      );
+    }
+    const { file } = await assertManagedFileAccess(
+      entry.fileId,
+      entry.dataJsonFileId ? entry.folderId : undefined
+    );
     const response = await googleFetch(
       `https://www.googleapis.com/drive/v3/files/${entry.fileId}?fields=size,mimeType,parents,appProperties`
     );
@@ -44,16 +63,49 @@ export async function POST(request: Request) {
         {}
       );
     }
+    let result = { fileId: entry.fileId, name: entry.name };
+    if (entry.dataJsonFileId) {
+      if (file.appProperties?.kind !== 'invitation_staging_json')
+        throw new DriveHttpError('잘못된 임시 초대장 파일입니다.', 403, {});
+      const uploaded = await googleFetch(
+        'https://www.googleapis.com/drive/v3/files/' +
+          entry.fileId +
+          '?alt=media',
+        { cache: 'no-store' }
+      );
+      const payload = await readUploadedJson(uploaded);
+      result = await commitInvitationData(
+        entry.dataJsonFileId,
+        payload,
+        entry.folderId
+      );
+    }
     await writeJournal(
       key,
       { ...entry, uploadUrl: undefined, complete: true },
       JOURNAL_SECONDS
     );
-    return NextResponse.json(
-      { fileId: entry.fileId, name: entry.name },
-      { headers: { 'Cache-Control': 'no-store' } }
-    );
+    if (entry.dataJsonFileId) await cleanupStagingFile(entry);
+    return NextResponse.json(result, {
+      headers: { 'Cache-Control': 'no-store' },
+    });
   } catch (error) {
     return driveErrorResponse(error);
+  }
+}
+
+async function cleanupStagingFile(entry: UploadJournal) {
+  try {
+    const { file } = await assertManagedFileAccess(
+      entry.fileId,
+      entry.folderId
+    );
+    if (file.appProperties?.kind !== 'invitation_staging_json') return;
+    await googleFetch(
+      'https://www.googleapis.com/drive/v3/files/' + entry.fileId,
+      { method: 'DELETE' }
+    );
+  } catch {
+    /* A failed cleanup cannot invalidate an already committed invitation. */
   }
 }

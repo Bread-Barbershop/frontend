@@ -19,7 +19,11 @@ export function uploadedOffset(range: string | null) {
 }
 
 /** The session URI is a scoped capability; never log it or add a Google Bearer token. */
-export async function resumableUpload(file: File, folderId: string) {
+export async function resumableUpload(
+  file: File,
+  folderId: string,
+  dataJsonFileId?: string
+) {
   const digest = Array.from(
     new Uint8Array(
       await crypto.subtle.digest('SHA-256', await file.arrayBuffer())
@@ -32,6 +36,7 @@ export async function resumableUpload(file: File, folderId: string) {
     size: file.size,
     mimeType: file.type,
     digest,
+    ...(dataJsonFileId ? { dataJsonFileId } : {}),
   };
   for (let restart = 0; restart < 2; restart++) {
     const session = await api('/api/drive/uploadSession', {

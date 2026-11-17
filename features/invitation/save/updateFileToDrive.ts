@@ -1,4 +1,7 @@
+import { resumableUpload } from './resumableUpload';
+
 export async function updateFileToDrive(file: File, fileId: string) {
+  if (file.size > 2 * 1024 * 1024) return resumableUpload(file, '', fileId);
   const response = await fetch('/api/drive/saveData', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
