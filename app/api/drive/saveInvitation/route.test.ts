@@ -49,23 +49,19 @@ describe('저장 준비', () => {
     jest
       .mocked(ensureWorkspace)
       .mockResolvedValue({ folderId: 'workspace', reused: true });
-    jest
-      .mocked(ensureInvitationFolder)
-      .mockResolvedValue({
-        invitationFolderId: 'invitation',
-        invitationUuid: 'uuid',
-        reused: true,
-      });
+    jest.mocked(ensureInvitationFolder).mockResolvedValue({
+      invitationFolderId: 'invitation',
+      invitationUuid: 'uuid',
+      reused: true,
+    });
     jest
       .mocked(ensureDataJsonFile)
       .mockResolvedValue({ dataJsonFileId: 'data', reused: true });
-    jest
-      .mocked(ensureAssetsFolder)
-      .mockResolvedValue({
-        imageFolderId: 'images',
-        audioFolderId: 'audios',
-        meta: { imageReused: true, audioReused: true },
-      });
+    jest.mocked(ensureAssetsFolder).mockResolvedValue({
+      imageFolderId: 'images',
+      audioFolderId: 'audios',
+      meta: { imageReused: true, audioReused: true },
+    });
   });
   it('리소스를 준비하되 Google 토큰을 응답에 포함하지 않는다', async () => {
     const response = await POST(request());

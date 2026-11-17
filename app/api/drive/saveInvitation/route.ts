@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 
-
 import {
   assertInvitationAccess,
   assertSameOriginRequest,
@@ -37,18 +36,51 @@ export async function POST(request: Request) {
     return await withSaveLock(lockKey, async () => {
       const saveKey = await journalKey('save', invitationUuid);
       const cached = await readJournal<PreparedInvitationSave>(saveKey);
-      if (cached?.invitationFolderId && cached.dataJsonFileId && cached.imageFolderId && cached.audioFolderId) {
+      if (
+        cached?.invitationFolderId &&
+        cached.dataJsonFileId &&
+        cached.imageFolderId &&
+        cached.audioFolderId
+      ) {
         try {
           await assertInvitationAccess(cached.invitationFolderId);
-          const expected = [[cached.dataJsonFileId, 'invitation_data_json'], [cached.imageFolderId, 'assets_images'], [cached.audioFolderId, 'assets_audios']];
+          const expected = [
+            [cached.dataJsonFileId, 'invitation_data_json'],
+            [cached.imageFolderId, 'assets_images'],
+            [cached.audioFolderId, 'assets_audios'],
+          ];
           for (const [id, kind] of expected) {
             const file = await readManagedDriveMetadata(id);
-            if (!file.parents?.includes(cached.invitationFolderId) || file.appProperties?.kind !== kind) throw new DriveHttpError('저장 대상이 변경됐습니다.', 403, {});
+            if (
+              !file.parents?.includes(cached.invitationFolderId) ||
+              file.appProperties?.kind !== kind
+            )
+              throw new DriveHttpError('저장 대상이 변경됐습니다.', 403, {});
           }
-          const { workspaceFolderId, invitationFolderId, dataJsonFileId, imageFolderId, audioFolderId } = cached;
-          return NextResponse.json({ workspaceFolderId, invitationFolderId, dataJsonFileId, imageFolderId, audioFolderId, invitationUuid }, { headers: { 'Cache-Control': 'no-store' } });
+          const {
+            workspaceFolderId,
+            invitationFolderId,
+            dataJsonFileId,
+            imageFolderId,
+            audioFolderId,
+          } = cached;
+          return NextResponse.json(
+            {
+              workspaceFolderId,
+              invitationFolderId,
+              dataJsonFileId,
+              imageFolderId,
+              audioFolderId,
+              invitationUuid,
+            },
+            { headers: { 'Cache-Control': 'no-store' } }
+          );
         } catch (error) {
-          if (!(error instanceof DriveHttpError) || ![403, 404].includes(error.status)) throw error;
+          if (
+            !(error instanceof DriveHttpError) ||
+            ![403, 404].includes(error.status)
+          )
+            throw error;
         }
       }
       const workspace = await ensureWorkspace();

@@ -140,8 +140,13 @@ export async function clearAccountDrafts(owner: string) {
     channel.close();
   }
   try {
-    localStorage.setItem('invia-draft-logout', JSON.stringify({ owner, at: Date.now(), nonce: crypto.randomUUID() }));
-  } catch { /* The IndexedDB epoch still fences writes without storage events. */ }
+    localStorage.setItem(
+      'invia-draft-logout',
+      JSON.stringify({ owner, at: Date.now(), nonce: crypto.randomUUID() })
+    );
+  } catch {
+    /* The IndexedDB epoch still fences writes without storage events. */
+  }
   window.dispatchEvent(
     new CustomEvent('invia-draft-logout', { detail: owner })
   );

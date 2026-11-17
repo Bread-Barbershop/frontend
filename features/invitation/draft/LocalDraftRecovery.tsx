@@ -188,10 +188,15 @@ export default function LocalDraftRecovery({
       revokedOwners.add(value);
       if (value === owner) suspend();
     };
-    const onLogout = (event: Event) => revokeOwner((event as CustomEvent<string>).detail);
+    const onLogout = (event: Event) =>
+      revokeOwner((event as CustomEvent<string>).detail);
     const onStorage = (event: StorageEvent) => {
       if (event.key !== 'invia-draft-logout' || !event.newValue) return;
-      try { revokeOwner(JSON.parse(event.newValue).owner); } catch { /* Ignore unrelated storage data. */ }
+      try {
+        revokeOwner(JSON.parse(event.newValue).owner);
+      } catch {
+        /* Ignore unrelated storage data. */
+      }
     };
     window.addEventListener('invia-draft-logout', onLogout);
     window.addEventListener('storage', onStorage);
@@ -210,7 +215,10 @@ export default function LocalDraftRecovery({
       const session = await response.json();
       if (disposed || !session.isLoggedIn || !session.userId) return;
       owner = session.userId;
-      if (revokedOwners.has(owner)) { suspend(); return; }
+      if (revokedOwners.has(owner)) {
+        suspend();
+        return;
+      }
       const result = await readLocalDraft(owner, path);
       if (disposed || revoked) return;
       epoch = result.epoch;

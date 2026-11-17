@@ -16,7 +16,10 @@ import { hasRequiredDriveScope, hasExcessiveDriveScope } from './googleScopes';
 import { decryptRecord, encryptRecord, sessionHash } from './sessionCrypto';
 import { tokenRefresh } from './tokenRefresh';
 
-export const SESSION_COOKIE = 'invia_session';
+export const SESSION_COOKIE =
+  process.env.NODE_ENV === 'production'
+    ? '__Host-invia_session'
+    : 'invia_session';
 const SESSION_SECONDS = 60 * 60 * 24 * 30;
 type TokenRecord = {
   userId: string;
@@ -142,7 +145,7 @@ export async function serverAccessToken(forceRefresh = false) {
       throw new SessionRequiredError();
     }
     // Compare-and-set prevents an in-flight refresh from resurrecting a logged-out session.
-    const updated = await redis.eval<number>(
+    const updated = await redis.eval<[string, string], number>(
       "if redis.call('get',KEYS[1]) == ARGV[1] then redis.call('set',KEYS[1],ARGV[2],'KEEPTTL'); return 1 end return 0",
       [key],
       [encrypted, encryptRecord(next, key)]
