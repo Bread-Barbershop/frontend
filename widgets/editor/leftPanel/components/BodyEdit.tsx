@@ -25,18 +25,6 @@ function BodyEdit({
 
   const handleBodyChange = (next: BulkData) => {
     useEditorStore.setState(state => {
-      const current = state.bodyData.isDefault
-        ? BODY_BULK_DATA
-        : state.bodyData;
-      if (
-        current.font === next.font &&
-        current.fontSize === next.fontSize &&
-        current.fontWeight === next.fontWeight &&
-        current.color.toUpperCase() === next.color.toUpperCase()
-      ) {
-        return state;
-      }
-
       const bodyData = { ...next, isDefault: false };
       return {
         bodyData,

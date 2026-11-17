@@ -30,7 +30,6 @@ jest.mock('@/components/molecules/text-editor/utils/tiptapJsonToHtml', () => {
 
 describe('일괄 편집 즉시 반영', () => {
   beforeEach(() => useEditorStore.getState().reset());
-  afterEach(() => useEditorStore.getState().reset());
 
   it('본문 크기 화살표 변경을 본문 설정과 리치 텍스트 블록에 즉시 반영한다', () => {
     const block = {
@@ -73,6 +72,71 @@ describe('일괄 편집 즉시 반영', () => {
       props.messageJson.content[0].content[0].marks[0].attrs.fontSize
     ).toBe('15px');
     expect(props.messageHtml).toContain('15px');
+  });
+
+  it('현재 본문 크기를 다시 선택하면 블록의 기존 서식을 본문 설정으로 덮어쓴다', () => {
+    const block = {
+      id: 'bulk-body-reselect-block',
+      type: 'wedding',
+      component: 'afterParty',
+      props: {
+        messageJson: {
+          type: 'doc',
+          content: [
+            {
+              type: 'paragraph',
+              content: [
+                {
+                  type: 'text',
+                  text: 'Sample message',
+                  marks: [
+                    {
+                      type: 'textStyle',
+                      attrs: {
+                        fontSize: '24px',
+                        fontFamily: 'LINESeedKR',
+                        fontWeight: '400',
+                        color: '#000000',
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        messageHtml:
+          '<p><span style="font-size: 24px; font-family: LINESeedKR; font-weight: 400; color: #000000">Sample message</span></p>',
+      },
+    } as unknown as EditorBlock;
+
+    act(() => useEditorStore.setState({ block: [block] }));
+    render(
+      <BodyEdit
+        activeColorPickerId={null}
+        onActiveColorPickerChange={() => {}}
+      />
+    );
+
+    const sizeOption = screen.getByRole('option', { name: '14' });
+    const popover = sizeOption.closest('ul');
+    if (!popover) throw new Error('Size selector popover was not found');
+    Object.defineProperty(popover, 'hidePopover', {
+      configurable: true,
+      value: jest.fn(),
+    });
+    fireEvent.click(sizeOption);
+
+    const updatedProps = useEditorStore.getState().block[0].props as {
+      messageJson: {
+        content: { content: { marks: { attrs: { fontSize: string } }[] }[] }[];
+      };
+      messageHtml: string;
+    };
+    expect(
+      updatedProps.messageJson.content[0].content[0].marks[0].attrs.fontSize
+    ).toBe('14px');
+    expect(updatedProps.messageHtml).toContain('font-size: 14px');
   });
 
   it('제목 크기 선택기가 포커스된 상태에서 ArrowUp을 즉시 저장한다', () => {
