@@ -237,7 +237,7 @@ export function useInvitationTemplate({
         if (!isConfirmed) return false;
         if (!canvas) throw new Error('The poster canvas is not ready.');
 
-        const prepared = createInvitationTemplate(templateId);
+        const prepared = await createInvitationTemplate(templateId);
         await waitForFontPreparation(prepared);
         if (!isCurrentRequest()) return false;
         if (!isCanvasUsable()) {

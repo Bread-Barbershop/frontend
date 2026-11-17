@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
+import { createInvitationTemplate } from '@/shared/data/invitationTemplates';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import {
@@ -299,6 +300,33 @@ describe('useInvitationTemplate', () => {
     );
     expect(useEditorStore.getState().block).toBe(initialBlock);
     expect(mockError).toHaveBeenCalledTimes(1);
+  });
+
+  it('원본 표지 로드가 실패하면 기존 캔버스와 에디터 데이터를 유지한다', async () => {
+    const initialBlock = useEditorStore.getState().block;
+    const initialImages = useEditorStore.getState().images;
+    const consoleError = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+    jest
+      .mocked(createInvitationTemplate)
+      .mockRejectedValueOnce(new Error('original poster unavailable'));
+    const { result } = renderHook(() => useInvitationTemplate());
+
+    try {
+      await act(async () => {
+        await result.current.applyTemplate('test-template');
+      });
+
+      expect(mockCanvas.toObject).not.toHaveBeenCalled();
+      expect(mockCanvas.loadFromJSON).not.toHaveBeenCalled();
+      expect(useEditorStore.getState().block).toBe(initialBlock);
+      expect(useEditorStore.getState().images).toBe(initialImages);
+      expect(useEditorStore.getState().isDirty).toBe(false);
+      expect(mockError).toHaveBeenCalledTimes(1);
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 
   it('오래된 블록에서 이미지 ID만 재귀 수집하고 공유 URL과 문구는 제외한다', () => {

@@ -19,7 +19,7 @@ export default function InvitationChapter({
 }) {
   const supported =
     typeof collectionStyle === 'string' &&
-    /^showcase-(?:[0-9]|1[0-9]|2[0-2])$/.test(collectionStyle);
+    /^showcase-(?:[0-9]|1[0-9]|2[0-4])$/.test(collectionStyle);
   if (!supported || component === 'spacer' || component === 'divider')
     return <>{children}</>;
   return (

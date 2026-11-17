@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ScreenTransitionLoader } from '@/components/molecules/screen-transition-loader';
 import DrivePermissionRequiredModal from '@/features/session/components/DrivePermissionRequiredModal';
@@ -20,8 +20,10 @@ import MainContentsArea from './MainContentsArea';
 
 import type { SavedData } from '../[id]/types/savedata';
 
-export function prepareTemplateEditorData(templateId: string): SavedData {
-  const prepared = createInvitationTemplate(templateId);
+export async function prepareTemplateEditorData(
+  templateId: string
+): Promise<SavedData> {
+  const prepared = await createInvitationTemplate(templateId);
   return {
     blocks: prepared.blocks as PersistedEditorBlock[],
     bulkData: {
@@ -49,30 +51,58 @@ export default function TemplateEditorEntry({
   const template = INVITATION_TEMPLATES.find(item => item.id === templateId);
   const router = useRouter();
   const auth = useAuthGate({ initialIsLoggedIn, stayOnSessionExpiry: true });
-  const [ready, setReady] = useState(false);
+  const [readyTemplateId, setReadyTemplateId] = useState<string | null>(null);
   const [isInitialAuthPending, setIsInitialAuthPending] =
     useState(initialIsLoggedIn);
-  const startedRef = useRef(false);
-  const savedData = useMemo(
-    () => (template ? prepareTemplateEditorData(templateId) : null),
-    [template, templateId]
-  );
+  const [preparedData, setPreparedData] = useState<{
+    templateId: string;
+    data: SavedData;
+  } | null>(null);
+  const [templateLoadError, setTemplateLoadError] = useState<{
+    templateId: string;
+    attempt: number;
+  } | null>(null);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const startedTemplateIdRef = useRef<string | null>(null);
+  const savedData =
+    preparedData?.templateId === templateId ? preparedData.data : null;
   const beginEditing = useCallback(() => {
-    setReady(true);
+    setReadyTemplateId(templateId);
     // Refresh server session props (including the header) while retaining this draft.
     router.refresh();
-  }, [router]);
+  }, [router, templateId]);
 
   useEffect(() => {
-    if (!template || startedRef.current) return;
-    startedRef.current = true;
+    let isCurrent = true;
+
+    if (!template) return;
+
+    void prepareTemplateEditorData(templateId).then(
+      data => {
+        if (isCurrent) setPreparedData({ templateId, data });
+      },
+      () => {
+        if (isCurrent)
+          setTemplateLoadError({ templateId, attempt: loadAttempt });
+      }
+    );
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [loadAttempt, template, templateId]);
+
+  useEffect(() => {
+    if (!template || !savedData || startedTemplateIdRef.current === templateId)
+      return;
+    startedTemplateIdRef.current = templateId;
     const authRun = auth.runAfterAuth(beginEditing);
     if (authRun) {
       void authRun.finally(() => setIsInitialAuthPending(false));
     }
-  }, [auth, beginEditing, template]);
+  }, [auth, beginEditing, savedData, template, templateId]);
 
-  if (!template || !savedData)
+  if (!template)
     return (
       <div className="m-auto rounded-3xl bg-white p-10 text-center">
         <h1 className="text-xl font-semibold">이 템플릿을 찾을 수 없어요.</h1>
@@ -82,7 +112,27 @@ export default function TemplateEditorEntry({
       </div>
     );
 
-  if (ready)
+  if (
+    templateLoadError?.templateId === templateId &&
+    templateLoadError.attempt === loadAttempt
+  )
+    return (
+      <section className="m-auto rounded-3xl bg-white p-10 text-center">
+        <h1 className="text-xl font-semibold">템플릿을 불러오지 못했어요.</h1>
+        <p className="mt-3 text-sm text-text-secondary">
+          잠시 후 다시 시도해 주세요.
+        </p>
+        <button
+          type="button"
+          onClick={() => setLoadAttempt(attempt => attempt + 1)}
+          className="mt-6 rounded-full bg-bg-plain px-6 py-3 text-sm font-semibold text-white"
+        >
+          다시 불러오기
+        </button>
+      </section>
+    );
+
+  if (readyTemplateId === templateId && savedData)
     return (
       <FabricProvider initialData={savedData.mainPoster}>
         <div className="flex h-full w-full flex-col justify-center overflow-x-auto overflow-y-hidden bg-[#E7E9EB]">
@@ -91,7 +141,8 @@ export default function TemplateEditorEntry({
       </FabricProvider>
     );
 
-  const showTransitionLoader = auth.isBusy || isInitialAuthPending;
+  const showTransitionLoader =
+    !savedData || auth.isBusy || isInitialAuthPending;
 
   return (
     <>
@@ -103,7 +154,7 @@ export default function TemplateEditorEntry({
           aria-label="선택한 템플릿으로 제작하기"
         >
           <div className="h-[360px] w-[166px] overflow-hidden rounded-lg shadow-lg">
-            <InvitationTemplatePoster template={template} />
+            <InvitationTemplatePoster template={template} sizes="166px" />
           </div>
           <div className="max-w-80">
             <p className="text-xs text-text-secondary">선택한 템플릿</p>
@@ -113,7 +164,7 @@ export default function TemplateEditorEntry({
             <p className="mt-4 text-sm leading-6 text-text-secondary">
               로그인하면 이 디자인으로 바로 시작해요.
               <br />
-              사진, 이름, 일정은 편집기에서 바꿀 수 있어요.
+              사진과 문구를 바꾸면 같은 디자인으로 완성할 수 있어요.
             </p>
             <button
               type="button"
