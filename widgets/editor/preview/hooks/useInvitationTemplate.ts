@@ -294,9 +294,7 @@ export function useInvitationTemplate({
             isEdit: false,
             isDirty: true,
           });
-          success(`${template.name} 표지를 적용했습니다.`, {
-            placement: 'top-right',
-          });
+          success(`${template.name} 표지를 적용했습니다.`);
           onApplied?.();
           return true;
         }
@@ -320,17 +318,13 @@ export function useInvitationTemplate({
           isDirty: true,
         }));
 
-        success(`${template.name} 템플릿을 적용했습니다.`, {
-          placement: 'top-right',
-        });
+        success(`${template.name} 템플릿을 적용했습니다.`);
         onApplied?.();
         return true;
       } catch (applyError) {
         if (!isCurrentRequest()) return false;
         console.error('초대장 템플릿 적용 중 오류가 발생했습니다.', applyError);
-        showError('템플릿을 적용하지 못했습니다. 다시 시도해 주세요.', {
-          placement: 'top-right',
-        });
+        showError('템플릿을 적용하지 못했습니다. 다시 시도해 주세요.');
         return false;
       } finally {
         isApplyingRef.current = false;

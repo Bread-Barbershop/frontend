@@ -240,7 +240,7 @@ export const useInvitationUpload = () => {
     }
 
     setIsCleaningUp(true);
-    info('파일 정리 중...', { placement: 'top-right' });
+    info('파일 정리 중...');
 
     try {
       const deleteFolder = (id: string) =>
@@ -266,9 +266,9 @@ export const useInvitationUpload = () => {
 
       if (failedIds.length > 0) {
         console.error('[cleanup] 재시도 후에도 삭제 실패:', failedIds);
-        showError('파일 정리에 실패했습니다.', { placement: 'top-right' });
+        showError('파일 정리에 실패했습니다.');
       } else {
-        success('파일 정리가 완료되었습니다.', { placement: 'top-right' });
+        success('파일 정리가 완료되었습니다.');
       }
     } catch (error) {
       console.error('[cleanup] DELETE 중 오류:', error);

@@ -265,8 +265,7 @@ describe('useInvitationTemplate', () => {
       { save: true }
     );
     expect(mockSuccess).toHaveBeenCalledWith(
-      '테스트 템플릿 템플릿을 적용했습니다.',
-      expect.any(Object)
+      '테스트 템플릿 템플릿을 적용했습니다.'
     );
 
     setStateSpy.mockRestore();
