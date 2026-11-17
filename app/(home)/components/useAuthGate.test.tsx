@@ -5,6 +5,11 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 
 import { useAuthGate } from '@/features/session/hooks/useAuthGate';
+import { clearAccountDrafts } from '@/features/invitation/draft/localDraftStore';
+
+jest.mock('@/features/invitation/draft/localDraftStore', () => ({
+  clearAccountDrafts: jest.fn(),
+}));
 
 const pushMock = jest.fn();
 const replaceMock = jest.fn();
@@ -358,6 +363,7 @@ describe('useAuthGate', () => {
     mockFetch.mockResolvedValue({
       ok: true,
       status: 200,
+      json: async () => ({ isLoggedIn: true, userId: 'account-a' }),
     });
 
     const { result } = renderHook(() =>
@@ -373,6 +379,7 @@ describe('useAuthGate', () => {
     expect(mockFetch).toHaveBeenCalledWith('/api/auth/logout', {
       method: 'POST',
     });
+    expect(clearAccountDrafts).toHaveBeenCalledWith('account-a');
     expect(result.current.isLoggedIn).toBe(false);
     expect(replaceMock).toHaveBeenCalledWith('/');
     expect(refreshMock).toHaveBeenCalled();
