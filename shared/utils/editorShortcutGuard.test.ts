@@ -104,4 +104,16 @@ describe('편집기 단축키 입력 보호', () => {
       popup.remove();
     });
   });
+
+  it('열린 네이티브 대화상자가 있을 때만 단축키를 무시한다', () => {
+    const dialog = document.createElement('dialog');
+    dialog.dataset.shortcutGuardTest = 'true';
+    dialog.open = true;
+    document.body.append(dialog);
+
+    expect(shouldIgnoreEditorShortcut(createKeyEvent())).toBe(true);
+
+    dialog.open = false;
+    expect(shouldIgnoreEditorShortcut(createKeyEvent())).toBe(false);
+  });
 });
