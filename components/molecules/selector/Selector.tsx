@@ -1,4 +1,4 @@
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 // import { useSearchParams } from 'next/navigation';
 import {
   Fragment,
@@ -9,6 +9,7 @@ import {
   ChangeEvent,
   useId,
   CSSProperties,
+  KeyboardEvent,
   ReactNode,
 } from 'react';
 
@@ -52,6 +53,14 @@ interface SelectorProps<T extends Option> {
   addPopWidth?: number;
   searchable?: boolean;
   disabled?: boolean;
+  stepControls?: {
+    onUp: () => void;
+    onDown: () => void;
+    upDisabled?: boolean;
+    downDisabled?: boolean;
+    upLabel?: string;
+    downLabel?: string;
+  };
 }
 
 const VIEWPORT_GAP = 12;
@@ -81,6 +90,7 @@ export const Selector = <T extends Option>({
   addPopWidth = 0,
   searchable = false,
   disabled = false,
+  stepControls,
 }: SelectorProps<T>) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCustomInput, setIsCustomInput] = useState(false);
@@ -238,11 +248,27 @@ export const Selector = <T extends Option>({
 
   const variantStyles = variant ? selectorStyles[variant] : null;
 
+  const handleStepKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    if (!stepControls || (event.key !== 'ArrowUp' && event.key !== 'ArrowDown'))
+      return;
+    const isUp = event.key === 'ArrowUp';
+    event.preventDefault();
+    event.stopPropagation();
+    if (
+      disabled ||
+      (isUp ? stepControls.upDisabled : stepControls.downDisabled)
+    )
+      return;
+    (isUp ? stepControls.onUp : stepControls.onDown)();
+  };
+
   return (
     <div
       ref={containerRef}
       className={cn(
-        'relative text-center',
+        stepControls
+          ? 'relative flex items-center gap-0.5 text-center'
+          : 'relative text-center',
         variantStyles?.container,
         className
       )}
@@ -250,6 +276,7 @@ export const Selector = <T extends Option>({
       <div
         className={cn(
           selectorVariants({ type, isOpen, hasValue }),
+          stepControls && 'min-w-0 flex-1',
           variantStyles?.trigger,
           triggerClassName,
           disabled && 'pointer-events-none opacity-60',
@@ -275,6 +302,7 @@ export const Selector = <T extends Option>({
               onInputBlur?.();
             }}
             onKeyDown={e => {
+              handleStepKeyDown(e);
               if (e.key === 'Enter' || e.key === 'Escape') {
                 setIsCustomInput(false);
                 onInputBlur?.();
@@ -293,6 +321,7 @@ export const Selector = <T extends Option>({
             aria-haspopup="listbox"
             aria-expanded={isOpen}
             disabled={disabled}
+            onKeyDown={handleStepKeyDown}
           >
             <span
               className={cn(
@@ -316,6 +345,34 @@ export const Selector = <T extends Option>({
           </button>
         )}
       </div>
+
+      {stepControls && (
+        <div
+          className="flex h-8 w-6 shrink-0 flex-col items-center justify-center"
+          aria-label="값 조절"
+        >
+          <button
+            type="button"
+            aria-label={stepControls.upLabel ?? `${placeholder} 증가`}
+            disabled={disabled || stepControls.upDisabled}
+            onClick={stepControls.onUp}
+            onKeyDown={handleStepKeyDown}
+            className="flex h-4 w-6 items-center justify-center rounded-sm text-text-secondary hover:bg-bg-sub hover:text-text-primary focus-visible:outline focus-visible:outline-1 focus-visible:outline-primary disabled:opacity-40"
+          >
+            <ChevronUp size={12} />
+          </button>
+          <button
+            type="button"
+            aria-label={stepControls.downLabel ?? `${placeholder} 감소`}
+            disabled={disabled || stepControls.downDisabled}
+            onClick={stepControls.onDown}
+            onKeyDown={handleStepKeyDown}
+            className="flex h-4 w-6 items-center justify-center rounded-sm text-text-secondary hover:bg-bg-sub hover:text-text-primary focus-visible:outline focus-visible:outline-1 focus-visible:outline-primary disabled:opacity-40"
+          >
+            <ChevronDown size={12} />
+          </button>
+        </div>
+      )}
 
       <ul
         id={popoverId}

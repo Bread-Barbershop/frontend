@@ -117,18 +117,45 @@ export function TextEditorPreview({
   };
 
   const handleFontSizeInputChange = (input: string) => {
-    const numericValue = input.replace(/[^0-9]/g, '');
-    setCustomFontSizeInput(numericValue);
-    if (numericValue) {
+    const digits = input.replace(/[^0-9]/g, '');
+    const numericValue = Number(digits);
+    setCustomFontSizeInput(digits);
+    if (digits && Number.isSafeInteger(numericValue) && numericValue > 0) {
       onChange({ ...value, fontSize: `${numericValue}px` });
     }
   };
 
   const handleFontSizeInputBlur = () => {
-    if (customFontSizeInput === '') {
-      setCustomFontSizeInput(null);
-      onChange({ ...value, fontSize: DEFAULT_FONT_SIZE_OPTION.value });
-    }
+    setCustomFontSizeInput(null);
+  };
+
+  const currentSize = Number.parseInt(value.fontSize, 10);
+  const selectedFamilyIndex = FONT_FAMILY_OPTIONS.findIndex(
+    option => option.value === fontFamilySelected.value
+  );
+  const selectedWeightIndex = fontWeightOptions.findIndex(
+    option => option.value === fontWeightSelected.value
+  );
+
+  const stepFontSize = (direction: 1 | -1) => {
+    const size = Number.isFinite(currentSize)
+      ? currentSize
+      : Number.parseInt(DEFAULT_FONT_SIZE_OPTION.value, 10);
+    const nextSize = Math.max(1, size + direction);
+    setCustomFontSizeInput(null);
+    handleFontSizeSelect({ label: String(nextSize), value: `${nextSize}px` });
+  };
+
+  const stepFontFamily = (direction: 1 | -1) => {
+    const nextIndex = selectedFamilyIndex + direction;
+    if (nextIndex < 0 || nextIndex >= FONT_FAMILY_OPTIONS.length) return;
+    handleFontFamilySelect(FONT_FAMILY_OPTIONS[nextIndex]);
+  };
+
+  const stepFontWeight = (direction: 1 | -1) => {
+    const nextIndex = selectedWeightIndex + direction;
+    if (nextIndex < 0 || nextIndex >= fontWeightOptions.length) return;
+    handleFontWeightSelect(fontWeightOptions[nextIndex]);
   };
 
   useEffect(() => {
@@ -158,6 +185,16 @@ export function TextEditorPreview({
             onOptionVisible={loadFontPreview}
             showCheckbox={false}
             className="w-full"
+            stepControls={{
+              onUp: () => stepFontFamily(-1),
+              onDown: () => stepFontFamily(1),
+              upDisabled: selectedFamilyIndex <= 0,
+              downDisabled:
+                selectedFamilyIndex < 0 ||
+                selectedFamilyIndex >= FONT_FAMILY_OPTIONS.length - 1,
+              upLabel: '이전 글꼴',
+              downLabel: '다음 글꼴',
+            }}
           />
         </div>
         <div className="flex h-8 gap-3 items-center justify-between">
@@ -169,6 +206,16 @@ export function TextEditorPreview({
             variant="fontWeight"
             showCheckbox={false}
             className="w-full"
+            stepControls={{
+              onUp: () => stepFontWeight(1),
+              onDown: () => stepFontWeight(-1),
+              upDisabled:
+                selectedWeightIndex < 0 ||
+                selectedWeightIndex >= fontWeightOptions.length - 1,
+              downDisabled: selectedWeightIndex <= 0,
+              upLabel: '글꼴 굵게',
+              downLabel: '글꼴 얇게',
+            }}
           />
           <Selector<FontSizeOption>
             options={FONT_SIZE_OPTIONS}
@@ -180,6 +227,13 @@ export function TextEditorPreview({
             variant="fontSize"
             showCheckbox={false}
             className="w-full"
+            stepControls={{
+              onUp: () => stepFontSize(1),
+              onDown: () => stepFontSize(-1),
+              downDisabled: Number.isFinite(currentSize) && currentSize <= 1,
+              upLabel: '글자 크기 증가',
+              downLabel: '글자 크기 감소',
+            }}
           />
           <div className="relative">
             <button
