@@ -26,6 +26,7 @@ export function prepareTemplateEditorData(templateId: string): SavedData {
     blocks: prepared.blocks as PersistedEditorBlock[],
     bulkData: {
       backgroundColor: prepared.backgroundColor,
+      sectionStyle: prepared.sectionStyle,
       titleData: prepared.titleData,
       bodyData: prepared.bodyData,
       isZoom: false,

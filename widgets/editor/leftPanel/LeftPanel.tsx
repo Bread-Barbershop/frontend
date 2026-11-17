@@ -8,6 +8,7 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import BulkEdit from './components/BulkEdit';
 import Edit from './components/Edit';
 import { ScrollAnimationControls } from './components/ScrollAnimationControls';
+import { SectionStyleControls } from './components/SectionStyleControls';
 
 function LeftPanel() {
   const { isEdit, setIsEdit, selectedId } = useEditorStore(
@@ -52,7 +53,12 @@ function LeftPanel() {
         </div>
       )}
 
-      {isComponentSelected && !isEdit && <ScrollAnimationControls selectedId={selectedId!} />}
+      {isComponentSelected && !isEdit && (
+        <ScrollAnimationControls selectedId={selectedId!} />
+      )}
+      {isComponentSelected && !isEdit && (
+        <SectionStyleControls key={selectedId} selectedId={selectedId!} />
+      )}
 
       <div
         className={`flex flex-col bg-white rounded-lg shadow-edit border border-black/5 transition-default ${

@@ -1,3 +1,4 @@
+import type { SectionStyle } from '@/shared/data/sectionStyles';
 import { BulkData } from '@/shared/types/block';
 import type { GuestRenderHints } from '@/shared/types/renderHints';
 
@@ -6,7 +7,6 @@ import type {
   SerializedObjectProps,
   SerializedTextboxProps,
 } from 'fabric';
-
 
 // 임시로 타입을 따로 선언해서 사용. 추후 타입 재사용 가능한지 체크할 것.
 
@@ -49,6 +49,7 @@ export type GuestPayload = {
 };
 
 export type BulkJson = {
+  sectionStyle?: SectionStyle;
   backgroundColor: string;
   titleData: BulkData;
   bodyData: BulkData;
