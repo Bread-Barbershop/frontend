@@ -11,6 +11,11 @@ import TemplateEditorEntry from './TemplateEditorEntry';
 import type { SavedData } from '../[id]/types/savedata';
 import type { ReactNode } from 'react';
 
+jest.mock('@/shared/assets/logo/invia-logo.svg', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
 const mockReplace = jest.fn();
 const mockRefresh = jest.fn();
 const mockRouter = { replace: mockReplace, refresh: mockRefresh };
@@ -120,6 +125,12 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
     );
     expect(screen.queryByTestId('editor')).not.toBeInTheDocument();
     expect(
+      screen.queryByRole('progressbar', { name: '초대장을 준비하는 중' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: '로그인하고 시작하기' })
+    ).toBeEnabled();
+    expect(
       screen.getByRole('heading', { name: '마이 데이 포토' })
     ).toBeVisible();
     beginGoogle();
@@ -147,12 +158,40 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
   });
 
   it('로그인한 사용자는 추가 확인 없이 선택한 청첩장으로 바로 시작하고, 새로고침에도 같은 디자인을 읽는다', async () => {
+    let resolveSession: () => void = () => {};
+    global.fetch = jest.fn(
+      () =>
+        new Promise<Response>(resolve => {
+          resolveSession = () =>
+            resolve({
+              ok: true,
+              status: 200,
+              json: async () => ({ isLoggedIn: true }),
+            } as Response);
+        })
+    );
+
     const first = render(
       <TemplateEditorEntry templateId="showcase-0" initialIsLoggedIn />
     );
+    expect(
+      screen.getByRole('progressbar', { name: '초대장을 준비하는 중' })
+    ).toBeVisible();
+    expect(
+      screen.queryByRole('heading', { name: '클래식 모먼트' })
+    ).not.toBeInTheDocument();
+
+    await act(async () => {
+      resolveSession();
+    });
     await screen.findByTestId('editor');
     expectChosenData('showcase-0');
     first.unmount();
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ isLoggedIn: true }),
+    });
     render(<TemplateEditorEntry templateId="showcase-0" initialIsLoggedIn />);
     await screen.findByTestId('editor');
     expectChosenData('showcase-0');

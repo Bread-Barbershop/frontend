@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { ScreenTransitionLoader } from '@/components/molecules/screen-transition-loader';
 import DrivePermissionRequiredModal from '@/features/session/components/DrivePermissionRequiredModal';
 import LoginModal from '@/features/session/components/LoginModal';
 import PrivacyNoticeModal from '@/features/session/components/PrivacyNoticeModal';
@@ -49,6 +50,8 @@ export default function TemplateEditorEntry({
   const router = useRouter();
   const auth = useAuthGate({ initialIsLoggedIn, stayOnSessionExpiry: true });
   const [ready, setReady] = useState(false);
+  const [isInitialAuthPending, setIsInitialAuthPending] =
+    useState(initialIsLoggedIn);
   const startedRef = useRef(false);
   const savedData = useMemo(
     () => (template ? prepareTemplateEditorData(templateId) : null),
@@ -63,7 +66,10 @@ export default function TemplateEditorEntry({
   useEffect(() => {
     if (!template || startedRef.current) return;
     startedRef.current = true;
-    auth.runAfterAuth(beginEditing);
+    const authRun = auth.runAfterAuth(beginEditing);
+    if (authRun) {
+      void authRun.finally(() => setIsInitialAuthPending(false));
+    }
   }, [auth, beginEditing, template]);
 
   if (!template || !savedData)
@@ -85,41 +91,47 @@ export default function TemplateEditorEntry({
       </FabricProvider>
     );
 
+  const showTransitionLoader = auth.isBusy || isInitialAuthPending;
+
   return (
     <>
-      <section
-        className="m-auto flex items-center gap-10 rounded-3xl bg-white p-8 shadow-edit"
-        aria-label="선택한 템플릿으로 제작하기"
-      >
-        <div className="h-[360px] w-[166px] overflow-hidden rounded-lg shadow-lg">
-          <InvitationTemplatePoster template={template} />
-        </div>
-        <div className="max-w-80">
-          <p className="text-xs text-text-secondary">선택한 템플릿</p>
-          <h1 className="mt-3 text-3xl font-semibold text-text-plain">
-            {template.name}
-          </h1>
-          <p className="mt-4 text-sm leading-6 text-text-secondary">
-            로그인하면 이 디자인으로 바로 시작해요.
-            <br />
-            사진, 이름, 일정은 편집기에서 바꿀 수 있어요.
-          </p>
-          <button
-            type="button"
-            disabled={auth.isBusy || auth.isLoginPending}
-            onClick={() => auth.runAfterAuth(beginEditing)}
-            className="mt-7 flex h-12 w-full items-center justify-center rounded-full bg-bg-plain px-6 font-semibold text-white hover:bg-[#202020] disabled:opacity-50"
-          >
-            {auth.isBusy ? '초대장 준비 중…' : '로그인하고 시작하기'}
-          </button>
-          <Link
-            href="/"
-            className="mt-4 inline-block text-xs text-text-secondary underline underline-offset-4"
-          >
-            다른 디자인 살펴보기
-          </Link>
-        </div>
-      </section>
+      {showTransitionLoader ? (
+        <ScreenTransitionLoader label="초대장을 준비하는 중" />
+      ) : (
+        <section
+          className="m-auto flex items-center gap-10 rounded-3xl bg-white p-8 shadow-edit"
+          aria-label="선택한 템플릿으로 제작하기"
+        >
+          <div className="h-[360px] w-[166px] overflow-hidden rounded-lg shadow-lg">
+            <InvitationTemplatePoster template={template} />
+          </div>
+          <div className="max-w-80">
+            <p className="text-xs text-text-secondary">선택한 템플릿</p>
+            <h1 className="mt-3 text-3xl font-semibold text-text-plain">
+              {template.name}
+            </h1>
+            <p className="mt-4 text-sm leading-6 text-text-secondary">
+              로그인하면 이 디자인으로 바로 시작해요.
+              <br />
+              사진, 이름, 일정은 편집기에서 바꿀 수 있어요.
+            </p>
+            <button
+              type="button"
+              disabled={auth.isBusy || auth.isLoginPending}
+              onClick={() => auth.runAfterAuth(beginEditing)}
+              className="mt-7 flex h-12 w-full items-center justify-center rounded-full bg-bg-plain px-6 font-semibold text-white hover:bg-[#202020] disabled:opacity-50"
+            >
+              로그인하고 시작하기
+            </button>
+            <Link
+              href="/"
+              className="mt-4 inline-block text-xs text-text-secondary underline underline-offset-4"
+            >
+              다른 디자인 살펴보기
+            </Link>
+          </div>
+        </section>
+      )}
       <LoginModal
         open={auth.isLoginOpen}
         isLoading={auth.isLoginPending}

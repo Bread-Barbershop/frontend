@@ -8,7 +8,7 @@ import {
   parseGuestPayload,
   type NormalizedGuestPayload,
 } from '@/app/guest/[id]/validation/parseGuestPayload';
-import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
+import { ScreenTransitionLoader } from '@/components/molecules/screen-transition-loader';
 import type { BgmData } from '@/shared/types/invitationSave';
 import { createDefaultShareUrlState } from '@/shared/utils/shareUrlDefaults';
 import { FabricProvider } from '@/widgets/mainPoster/context/FabricContext';
@@ -214,7 +214,7 @@ function SampleEditorCreate({ sampleId }: { sampleId: string | null }) {
   }, [sampleId]);
 
   if (isLoading) {
-    return <EditorCreateLoading />;
+    return <ScreenTransitionLoader label="에디터를 준비하는 중" />;
   }
 
   if (sampleId && loadError) {
@@ -246,17 +246,6 @@ function EditorCreateError() {
         >
           갤러리로 돌아가기
         </Link>
-      </div>
-    </div>
-  );
-}
-
-function EditorCreateLoading() {
-  return (
-    <div className="w-full h-full flex justify-center items-center bg-[#E7E9EB]">
-      <div className="flex flex-col items-center gap-4 text-text-primary">
-        <LoadingSpinner className="w-20 h-20 animate-spin" />
-        <p className="text-sm">에디터를 준비하는 중...</p>
       </div>
     </div>
   );
