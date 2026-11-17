@@ -73,6 +73,9 @@ function CarouselItem({
   const collectionTemplate = showPreviewLabel
     ? INVITATION_TEMPLATES.find(template => template.id === item.id)
     : undefined;
+  const cardWidth = collectionTemplate
+    ? `${(Number.parseFloat(dashboardCarouselLayout.cardHeight) * collectionTemplate.poster.width) / collectionTemplate.poster.height}px`
+    : dashboardCarouselLayout.cardWidth;
   const [hasImageError, setHasImageError] = useState(false);
   const invite = item.invite;
   const guestUrl = invite?.guestUrl ?? guestUrlProp;
@@ -132,7 +135,7 @@ function CarouselItem({
       }`}
       draggable={false}
       style={{
-        width: dashboardCarouselLayout.cardWidth,
+        width: cardWidth,
         height: dashboardCarouselLayout.cardHeight,
       }}
     >
@@ -198,7 +201,7 @@ function CarouselItem({
               : ''
           }`}
           style={{
-            width: dashboardCarouselLayout.cardWidth,
+            width: cardWidth,
             height:
               isSelected && showHeader
                 ? dashboardCarouselLayout.selectedVisualHeight
@@ -226,7 +229,7 @@ function CarouselItem({
               isSelected && showHeader ? 'rounded-b-xl' : 'rounded-xl'
             }`}
             style={{
-              width: dashboardCarouselLayout.cardWidth,
+              width: cardWidth,
               height: dashboardCarouselLayout.cardHeight,
             }}
           >
