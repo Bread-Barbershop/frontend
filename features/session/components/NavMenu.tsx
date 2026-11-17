@@ -19,6 +19,22 @@ function NavMenu() {
   const isDirty = useEditorStore(state => state.isDirty);
 
   const handleNavMenuClick = async (e: React.MouseEvent, href: string) => {
+    if (
+      href === '/editor' &&
+      (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0)
+    ) {
+      return;
+    }
+
+    if (
+      href === '/editor' &&
+      pathname === '/editor' &&
+      window.location.search === ''
+    ) {
+      e.preventDefault();
+      return;
+    }
+
     if (pathname.startsWith('/editor') && isDirty) {
       e.preventDefault();
       const isConfirm = await confirm({

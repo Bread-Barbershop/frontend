@@ -132,7 +132,9 @@ function EditorCreate({
 }: {
   initialIsLoggedIn?: boolean;
 }) {
-  const templateId = useSearchParams().get('template');
+  const searchParams = useSearchParams();
+  const templateId = searchParams.get('template');
+  const sampleId = searchParams.get('sample');
   return templateId ? (
     <TemplateEditorEntry
       key={templateId}
@@ -140,12 +142,11 @@ function EditorCreate({
       initialIsLoggedIn={initialIsLoggedIn}
     />
   ) : (
-    <SampleEditorCreate />
+    <SampleEditorCreate key={sampleId ?? 'blank'} sampleId={sampleId} />
   );
 }
 
-function SampleEditorCreate() {
-  const sampleId = useSearchParams().get('sample');
+function SampleEditorCreate({ sampleId }: { sampleId: string | null }) {
   const [savedData, setSavedData] = useState<SavedData | null>(null);
   const [isLoading, setIsLoading] = useState(Boolean(sampleId));
   const [loadError, setLoadError] = useState(false);
