@@ -21,6 +21,7 @@ async function findWorkspaceFolderIdByName(
     `name='${escapeDriveQueryValue(name)}'`,
     `mimeType='application/vnd.google-apps.folder'`,
     `trashed=false`,
+    `'me' in owners`,
     `appProperties has { key='app_id' and value='${escapeDriveQueryValue(
       APP_IDENTIFIER
     )}' }`,

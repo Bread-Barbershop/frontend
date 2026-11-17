@@ -24,6 +24,7 @@ function createWorkspaceQuery(name: string) {
     `name='${escapeDriveQueryValue(name)}'`,
     `mimeType='application/vnd.google-apps.folder'`,
     `trashed=false`,
+    `'me' in owners`,
     `appProperties has { key='app_id' and value='${escapeDriveQueryValue(
       APP_IDENTIFIER
     )}' }`,
@@ -61,9 +62,7 @@ async function findWorkspaceByName(name: string): Promise<DriveFile | null> {
 
 async function renameWorkspaceFolder(folderId: string): Promise<void> {
   const updateRes = await googleFetch(
-    `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(
-      folderId
-    )}`,
+    `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(folderId)}`,
     {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },

@@ -4,6 +4,7 @@ import React from 'react';
 import centerLeftStyles from '@/components/molecules/text-editor/utils/centerLeftText.module.css';
 import { previewTextClassName } from '@/components/molecules/text-editor/utils/previewTextClassName';
 import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
+import { sanitizeRichHtml } from '@/shared/utils/sanitizeRichHtml';
 
 export const PreviewBody = ({ html }: { html: string }) => {
   const {
@@ -19,7 +20,7 @@ export const PreviewBody = ({ html }: { html: string }) => {
   return (
     <div
       className={`text-sm select-none px-0.5 ${previewTextClassName} ${centerLeftStyles.centerLeftText}`}
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(html) }}
       style={{
         fontFamily,
         fontWeight,

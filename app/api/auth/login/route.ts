@@ -49,7 +49,7 @@ export async function GET(request: Request) {
   authUrl.searchParams.set('response_type', 'code');
   authUrl.searchParams.set('access_type', 'offline');
   authUrl.searchParams.set('prompt', 'consent');
-  authUrl.searchParams.set('include_granted_scopes', 'true');
+  authUrl.searchParams.set('include_granted_scopes', 'false');
   authUrl.searchParams.set('scope', GOOGLE_AUTH_SCOPE);
   authUrl.searchParams.set('state', state);
   authUrl.searchParams.set('code_challenge', codeChallenge);

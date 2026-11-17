@@ -1,111 +1,82 @@
-import 'server-only';
-
 import { NextResponse } from 'next/server';
 
-import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
+
 import {
-  createAssetsFolders,
-  ensureAssetsFolder,
-} from '@/app/api/drive/_lib/ensureAssetsFolder';
-import {
-  createDataJsonFile,
-  ensureDataJsonFile,
-} from '@/app/api/drive/_lib/ensureDataJsonFile';
-import {
-  createInvitationFolder,
-  ensureInvitationFolder,
-} from '@/app/api/drive/_lib/ensureInvitationFolder';
+  assertInvitationAccess,
+  assertSameOriginRequest,
+  readManagedDriveMetadata,
+} from '@/app/api/drive/_lib/driveAccess';
+import { driveErrorResponse } from '@/app/api/drive/_lib/driveErrorResponse';
+import { ensureAssetsFolder } from '@/app/api/drive/_lib/ensureAssetsFolder';
+import { ensureDataJsonFile } from '@/app/api/drive/_lib/ensureDataJsonFile';
+import { ensureInvitationFolder } from '@/app/api/drive/_lib/ensureInvitationFolder';
 import {
   ensureWorkspace,
   DriveHttpError,
 } from '@/app/api/drive/_lib/ensureWorkspace';
-import { getFreshAccessToken } from '@/app/api/drive/_lib/getFreshAccessToken';
+import {
+  journalKey,
+  JOURNAL_SECONDS,
+  readJournal,
+  withSaveLock,
+  writeJournal,
+} from '@/app/api/drive/_lib/saveJournal';
+import type { PreparedInvitationSave } from '@/features/invitation/save/prepareCache';
 
-type PostBody = {
-  invitationUuid?: string; // 수정 진입이면 들어옴, 신규면 없음
-};
-
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    const body = (await req.json().catch(() => ({}))) as PostBody;
-    const invitationUuid = body.invitationUuid;
-
-    const { accessToken, expiresAt } = await getFreshAccessToken();
-
-    // 1) 워크스페이스 폴더 보장
-    const { folderId: workspaceFolderId, reused: workspaceReused } =
-      await ensureWorkspace();
-
-    const invitation = invitationUuid
-      ? await ensureInvitationFolder({
-          workspaceFolderId,
-          invitationUuid,
-        })
-      : await createInvitationFolder({ workspaceFolderId });
-
-    const {
-      invitationFolderId,
-      invitationUuid: finalInvitationUuid,
-      reused: invitationReused,
-    } = invitation;
-
-    const dataJson = invitationReused
-      ? await ensureDataJsonFile(invitationFolderId)
-      : await createDataJsonFile(invitationFolderId);
-
-    const assets = invitationReused
-      ? await ensureAssetsFolder(invitationFolderId)
-      : await createAssetsFolders(invitationFolderId);
-
-    return NextResponse.json({
-      workspaceFolderId,
-      invitationFolderId,
-      invitationUuid: finalInvitationUuid,
-      imageFolderId: assets.imageFolderId,
-      audioFolderId: assets.audioFolderId,
-
-      dataJsonFileId: dataJson.dataJsonFileId,
-
-      accessToken,
-      expiresAt,
-
-      meta: {
-        workspaceReused, // 재사용 여부
-        invitationReused, // 재사용 여부
-
-        dataJsonReused: dataJson.reused, // 재사용 여부
-
-        assets: assets.meta, // imageReused/audioReused
-      },
-    });
-  } catch (err) {
-    if (err instanceof Error && err.message === 'auth_required') {
-      return NextResponse.json(
-        { message: '재로그인이 필요합니다.' },
-        { status: 401 }
-      );
-    }
-
-    if (err instanceof DriveHttpError) {
-      captureDriveError({
-        error: err,
-        operation: 'drive_save_prepare',
-        status: err.status,
+    assertSameOriginRequest(request);
+    const { invitationUuid } = await request.json();
+    if (
+      typeof invitationUuid !== 'string' ||
+      !/^[a-zA-Z0-9_-]{1,100}$/.test(invitationUuid)
+    )
+      throw new DriveHttpError('안정적인 초대장 ID가 필요합니다.', 400, {});
+    // Serialize all prepares for an account, including first-time workspace creation.
+    const lockKey = await journalKey('prepare', 'workspace');
+    return await withSaveLock(lockKey, async () => {
+      const saveKey = await journalKey('save', invitationUuid);
+      const cached = await readJournal<PreparedInvitationSave>(saveKey);
+      if (cached?.invitationFolderId && cached.dataJsonFileId && cached.imageFolderId && cached.audioFolderId) {
+        try {
+          await assertInvitationAccess(cached.invitationFolderId);
+          const expected = [[cached.dataJsonFileId, 'invitation_data_json'], [cached.imageFolderId, 'assets_images'], [cached.audioFolderId, 'assets_audios']];
+          for (const [id, kind] of expected) {
+            const file = await readManagedDriveMetadata(id);
+            if (!file.parents?.includes(cached.invitationFolderId) || file.appProperties?.kind !== kind) throw new DriveHttpError('저장 대상이 변경됐습니다.', 403, {});
+          }
+          const { workspaceFolderId, invitationFolderId, dataJsonFileId, imageFolderId, audioFolderId } = cached;
+          return NextResponse.json({ workspaceFolderId, invitationFolderId, dataJsonFileId, imageFolderId, audioFolderId, invitationUuid }, { headers: { 'Cache-Control': 'no-store' } });
+        } catch (error) {
+          if (!(error instanceof DriveHttpError) || ![403, 404].includes(error.status)) throw error;
+        }
+      }
+      const workspace = await ensureWorkspace();
+      const invitation = await ensureInvitationFolder({
+        workspaceFolderId: workspace.folderId,
+        invitationUuid,
       });
-      return NextResponse.json(
-        { message: err.message, details: err.details },
-        { status: err.status }
+      await assertInvitationAccess(invitation.invitationFolderId);
+      const data = await ensureDataJsonFile(invitation.invitationFolderId);
+      const assets = await ensureAssetsFolder(invitation.invitationFolderId);
+      const result = {
+        workspaceFolderId: workspace.folderId,
+        invitationFolderId: invitation.invitationFolderId,
+        invitationUuid,
+        dataJsonFileId: data.dataJsonFileId,
+        imageFolderId: assets.imageFolderId,
+        audioFolderId: assets.audioFolderId,
+      };
+      await writeJournal(
+        await journalKey('save', invitationUuid),
+        { ...result, stage: 'prepared', updatedAt: Date.now() },
+        JOURNAL_SECONDS
       );
-    }
-
-    captureDriveError({ error: err, operation: 'drive_save_prepare' });
-
-    return NextResponse.json(
-      {
-        message: '알 수 없는 오류',
-        details: err instanceof Error ? err.message : err,
-      },
-      { status: 500 }
-    );
+      return NextResponse.json(result, {
+        headers: { 'Cache-Control': 'no-store' },
+      });
+    });
+  } catch (error) {
+    return driveErrorResponse(error);
   }
 }

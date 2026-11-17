@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server';
 
 import { deleteShortCodeMapping } from '@/app/api/short-url/_lib/shortUrlStore';
 
+import {
+  assertDeletableFileAccess,
+  assertSameOriginRequest,
+} from '../_lib/driveAccess';
+import { DriveHttpError } from '../_lib/ensureWorkspace';
 import { googleFetch } from '../_lib/googleFetch';
 
 /**
@@ -10,6 +15,7 @@ import { googleFetch } from '../_lib/googleFetch';
 
 export async function DELETE(req: Request) {
   try {
+    assertSameOriginRequest(req);
     const body = await req.json().catch(() => null);
     if (!body || !body.folderId) {
       return NextResponse.json(
@@ -19,6 +25,7 @@ export async function DELETE(req: Request) {
     }
 
     const { folderId } = body;
+    await assertDeletableFileAccess(folderId);
     const url = `https://www.googleapis.com/drive/v3/files/${folderId}`;
 
     const res = await googleFetch(url, {
@@ -47,6 +54,12 @@ export async function DELETE(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    if (error instanceof DriveHttpError) {
+      return NextResponse.json(
+        { success: false, message: error.message },
+        { status: error.status }
+      );
+    }
     console.error('Delete invitation error:', error);
     return NextResponse.json(
       { success: false, message: '서버 오류가 발생했습니다.' },

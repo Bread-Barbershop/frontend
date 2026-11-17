@@ -1,7 +1,9 @@
 import 'server-only';
 import { cookies } from 'next/headers';
 
+import { serverSessionsEnabled } from '@/app/api/auth/_lib/authStorage';
 import { hasRequiredDriveScope } from '@/app/api/auth/_lib/googleScopes';
+import { serverAccessToken } from '@/app/api/auth/_lib/serverSession';
 import { tokenRefresh } from '@/app/api/auth/_lib/tokenRefresh';
 
 /**
@@ -13,6 +15,10 @@ export async function getFreshAccessToken(): Promise<{
   accessToken: string;
   expiresAt: number;
 }> {
+  if (serverSessionsEnabled()) {
+    const { accessToken, expiresAt } = await serverAccessToken();
+    return { accessToken, expiresAt };
+  }
   const cookieStore = await cookies();
   const refreshToken = cookieStore.get('refresh_token')?.value;
   const grantedScopes = cookieStore.get('granted_scopes')?.value;

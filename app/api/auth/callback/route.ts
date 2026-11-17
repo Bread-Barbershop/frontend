@@ -1,7 +1,15 @@
 ﻿import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-import { hasRequiredDriveScope } from '@/app/api/auth/_lib/googleScopes';
+import { AuthStorageError, serverSessionsEnabled } from '@/app/api/auth/_lib/authStorage';
+import {
+  hasRequiredDriveScope,
+  hasExcessiveDriveScope,
+} from '@/app/api/auth/_lib/googleScopes';
+import {
+  createServerSession,
+  deleteServerSession,
+} from '@/app/api/auth/_lib/serverSession';
 
 function oauthPopupResponse({
   messageType,
@@ -122,7 +130,11 @@ export async function GET(request: Request) {
       return NextResponse.json(tokenData, { status: tokenResponse.status });
     }
 
-    if (!hasRequiredDriveScope(tokenData.scope) || !tokenData.refresh_token) {
+    if (
+      !hasRequiredDriveScope(tokenData.scope) ||
+      !tokenData.refresh_token ||
+      hasExcessiveDriveScope(tokenData.scope)
+    ) {
       clearAuthCookies(cookieStore);
 
       return oauthPopupResponse({
@@ -134,7 +146,19 @@ export async function GET(request: Request) {
       });
     }
 
-    // 브라우저에 쿠키 심기.
+    if (serverSessionsEnabled()) {
+      await deleteServerSession();
+      await createServerSession(tokenData);
+      clearAuthCookies(cookieStore);
+      return oauthPopupResponse({
+        messageType: 'GOOGLE_OAUTH_SUCCESS',
+        origin,
+        title: '로그인 완료',
+        body: '로그인 성공! 창을 닫는 중...',
+      });
+    }
+
+    // 기존 환경은 dev 전환 전까지 기존 인증을 유지한다.
     const isProd = process.env.NODE_ENV === 'production';
 
     // Access Token 저장
@@ -169,11 +193,11 @@ export async function GET(request: Request) {
       title: '로그인 완료',
       body: '로그인 성공! 창을 닫는 중...',
     });
-  } catch (_err) {
+  } catch (error) {
     console.error('Token Exchange Error occurred');
     return NextResponse.json(
       { error: 'Internal Server Error' },
-      { status: 500 }
+      { status: error instanceof AuthStorageError ? 503 : 500 }
     );
   }
 }

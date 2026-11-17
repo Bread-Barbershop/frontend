@@ -14,6 +14,7 @@ import { Radio } from '@/components/atoms/radio';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { cn } from '@/shared/utils/cn';
+import { sanitizeRichHtml } from '@/shared/utils/sanitizeRichHtml';
 
 import type { JSONContent } from '@tiptap/react';
 
@@ -78,7 +79,7 @@ const OptionItem = ({
               !isExpanded && 'line-clamp-2 overflow-hidden'
             )}
             dangerouslySetInnerHTML={{
-              __html: isExpanded ? fullHtml : summaryHtml,
+              __html: sanitizeRichHtml(isExpanded ? fullHtml : summaryHtml),
             }}
           />
         </div>

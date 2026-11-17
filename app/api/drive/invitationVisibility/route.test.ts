@@ -2,6 +2,13 @@
  * @jest-environment node
  */
 
+jest.mock('@/app/api/drive/_lib/driveAccess', () => ({
+  assertInvitationAccess: jest.fn(),
+  assertManagedFileAccess: jest.fn(),
+  assertDeletableFileAccess: jest.fn(),
+  assertSameOriginRequest: jest.fn(),
+}));
+
 jest.mock('next/cache', () => ({
   revalidatePath: jest.fn(),
   revalidateTag: jest.fn(),
@@ -131,10 +138,9 @@ describe('invitationVisibility route', () => {
       guestUrl: '/guest/data-json-file-id',
       dataJsonFileId: 'data-json-file-id',
     });
-    expect(revalidateTag).toHaveBeenCalledWith(
-      'invitation:data-json-file-id',
-      { expire: 0 }
-    );
+    expect(revalidateTag).toHaveBeenCalledWith('invitation:data-json-file-id', {
+      expire: 0,
+    });
     expect(revalidatePath).toHaveBeenCalledWith('/guest/data-json-file-id');
   });
 

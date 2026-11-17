@@ -4,17 +4,24 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 
 import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
+import {
+  assertInvitationAccess,
+  assertSameOriginRequest,
+} from '@/app/api/drive/_lib/driveAccess';
+import { driveErrorResponse } from '@/app/api/drive/_lib/driveErrorResponse';
 import { ensureDataJsonFile } from '@/app/api/drive/_lib/ensureDataJsonFile';
 import {
   loadInvitationMeta,
   upsertInvitationMeta,
 } from '@/app/api/drive/_lib/ensureInvitationMetaFile';
+import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import {
   guestPath,
   waitUntilGuestReady,
 } from '@/app/api/drive/_lib/guestReadiness';
 import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissionWithRetry';
 import { revokePublicPermissionWithRetry } from '@/app/api/drive/_lib/revokePublicPermissionWithRetry';
+import { markSaveStage } from '@/app/api/drive/_lib/saveJournal';
 
 type Body = {
   invitationFolderId?: string;
@@ -45,6 +52,14 @@ async function resolveVisibilityGuestUrl(
 }
 
 export async function POST(req: Request) {
+  try {
+    return await updateVisibility(req);
+  } catch (error) {
+    return driveErrorResponse(error);
+  }
+}
+
+async function updateVisibility(req: Request) {
   const { invitationFolderId, visible } = (await req.json()) as Body;
 
   if (!invitationFolderId) {
@@ -61,6 +76,20 @@ export async function POST(req: Request) {
     );
   }
 
+  let invitationUuid = '';
+  try {
+    assertSameOriginRequest(req);
+    invitationUuid =
+      (await assertInvitationAccess(invitationFolderId))?.appProperties
+        ?.inv_id ?? '';
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, error: 'invitation_access_denied' },
+      {
+        status: error instanceof DriveHttpError ? error.status : 503,
+      }
+    );
+  }
   const { dataJsonFileId } = await ensureDataJsonFile(invitationFolderId);
   const guestUrl = await resolveVisibilityGuestUrl(
     invitationFolderId,
@@ -130,7 +159,7 @@ export async function POST(req: Request) {
     const responseStatus =
       permissionResult.status && permissionResult.status >= 400
         ? permissionResult.status
-          : 502;
+        : 502;
 
     captureDriveError({
       error: new Error(
@@ -167,6 +196,7 @@ export async function POST(req: Request) {
     guestUrl,
     dataJsonFileId,
   });
+  await markSaveStage(invitationUuid, 'published');
   revalidateGuestCaches(dataJsonFileId);
 
   const verification = await waitUntilGuestReady(dataJsonFileId, {

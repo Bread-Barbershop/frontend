@@ -1,7 +1,12 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+import {
+  serverSessionsEnabled,
+  AuthStorageError,
+} from '@/app/api/auth/_lib/authStorage';
 import type { AuthSession } from '@/app/api/auth/_lib/getAuthSession';
+import { getAuthSession } from '@/app/api/auth/_lib/getAuthSession';
 import { hasRequiredDriveScope } from '@/app/api/auth/_lib/googleScopes';
 import { tokenRefresh } from '@/app/api/auth/_lib/tokenRefresh';
 
@@ -36,6 +41,23 @@ function clearAuthCookies(cookieStore: Awaited<ReturnType<typeof cookies>>) {
 }
 
 export async function GET() {
+  if (serverSessionsEnabled()) {
+    try {
+      return NextResponse.json(await getAuthSession(), {
+        headers: NO_STORE_HEADERS,
+      });
+    } catch (error) {
+      return NextResponse.json(
+        {
+          error:
+            error instanceof AuthStorageError
+              ? 'session_storage_unavailable'
+              : 'session_check_failed',
+        },
+        { status: 503, headers: NO_STORE_HEADERS }
+      );
+    }
+  }
   const cookieStore = await cookies();
   const accessToken = cookieStore.get('access_token')?.value;
   const refreshToken = cookieStore.get('refresh_token')?.value;

@@ -128,6 +128,7 @@ export async function ensureInvitationFolder(params: {
     `'${escapeDriveQueryValue(workspaceFolderId)}' in parents`,
     `mimeType='application/vnd.google-apps.folder'`,
     `trashed=false`,
+    `'me' in owners`,
     `appProperties has { key='app_id' and value='${escapeDriveQueryValue(
       APP_IDENTIFIER
     )}' }`,
@@ -142,7 +143,7 @@ export async function ensureInvitationFolder(params: {
     spaces: 'drive',
     fields: 'files(id,name,createdTime,appProperties)',
     orderBy: 'createdTime', // 가장 오래된 것을 정본으로 정함.
-    pageSize: '10',         // 중복 방어
+    pageSize: '10', // 중복 방어
   });
 
   const searchRes = await googleFetch(

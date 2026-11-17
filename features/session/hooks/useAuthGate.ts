@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { clearAccountDrafts } from '@/features/invitation/draft/localDraftStore';
+import { clearPreparedInvitations } from '@/features/invitation/save/prepareCache';
 import { useToast } from '@/shared/hooks/useToast';
 
 type UseAuthGateOptions = {
@@ -249,6 +251,13 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
 
     setIsBusy(true);
     try {
+      const sessionResponse = await fetch('/api/auth/session', {
+        cache: 'no-store',
+      });
+      if (!sessionResponse.ok) throw new Error('session_unavailable');
+      const session = await sessionResponse.json();
+      if (session.userId) await clearAccountDrafts(session.userId);
+      clearPreparedInvitations();
       const res = await fetch('/api/auth/logout', { method: 'POST' });
       if (!res.ok) {
         throw new Error(`logout failed: ${res.status}`);

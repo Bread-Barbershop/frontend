@@ -7,6 +7,8 @@ import {
 import { BODY_BULK_DATA, TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
 import { PersistedEditorBlock } from '@/shared/types/block';
 
+import { assertInvitationAccess } from '../_lib/driveAccess';
+import { DriveHttpError } from '../_lib/ensureWorkspace';
 import {
   downloadFiles,
   getFilesInFolder,
@@ -25,9 +27,7 @@ const normalizePersistedBlocks = (blocks: unknown): PersistedEditorBlock[] => {
   );
 };
 
-export async function GET(
-  request: Request
-): Promise<NextResponse<UpdateInvitationResponse>> {
+export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const fileId = searchParams.get('id');
 
@@ -59,6 +59,7 @@ export async function GET(
   };
 
   try {
+    await assertInvitationAccess(fileId ?? '');
     const result = await loadInvitations(fileId);
 
     if (!result || !result.files || result.files.length === 0) {
@@ -69,9 +70,9 @@ export async function GET(
       // 1. 폴더인 경우: 내부 파일 리스트(ID, Name)만 수집
       if (file.mimeType?.includes('folder')) {
         if (!file.id) continue;
-        if (file.name?.toLowerCase().includes('image')) {
+        if (file.appProperties?.kind === 'assets_images') {
           responseData.imageFolderId = file.id!;
-        } else if (file.name?.toLowerCase().includes('audio')) {
+        } else if (file.appProperties?.kind === 'assets_audios') {
           responseData.audioFolderId = file.id!;
         }
         const folderContent = await getFilesInFolder(file.id!);
@@ -87,7 +88,10 @@ export async function GET(
       }
 
       // // 2. JSON 파일인 경우: 설정값(Config)으로 파싱해서 저장
-      else if (file.mimeType?.includes('json') && file.name?.toLowerCase() === 'data.json') {
+      else if (
+        file.mimeType === 'application/json' &&
+        file.appProperties?.kind === 'invitation_data_json'
+      ) {
         const fileContent = await downloadFiles(file.id!);
         // 데이터 호환성 처리 (block vs blocks)
         if (fileContent) {
@@ -107,6 +111,12 @@ export async function GET(
 
     return NextResponse.json({ success: true, ...responseData });
   } catch (error) {
+    if (error instanceof DriveHttpError) {
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: error.status }
+      );
+    }
     console.error('updateInvitation error:', error);
     return NextResponse.json(
       {

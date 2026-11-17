@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 import { stabilizeCanvasAfterLoad } from '@/widgets/mainPoster/hooks/useTemplate';
+import { markCanvasInitialized } from '@/widgets/mainPoster/utils/canvasReadiness';
 
 export const useInitFabricData = () => {
   const { canvas, initialData, runHistoryTransaction } = useFabricContext();
@@ -19,6 +20,7 @@ export const useInitFabricData = () => {
         );
         await document.fonts.ready;
         await stabilizeCanvasAfterLoad(canvas);
+        markCanvasInitialized(canvas);
       } catch (error) {
         console.error('Failed to load canvas data:', error);
       }

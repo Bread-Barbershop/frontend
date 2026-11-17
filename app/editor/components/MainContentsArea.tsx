@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { EditorBgmPlayerProvider } from '@/components/organisms/bgm/context/EditorBgmPlayerContext';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
+import LocalDraftRecovery from '@/features/invitation/draft/LocalDraftRecovery';
 import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 import { usePreventBack } from '@/shared/hooks/usePreventBack';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
@@ -20,9 +21,8 @@ import type { SavedData } from '../[id]/types/savedata';
 
 function MainContentsArea({ savedData }: { savedData?: SavedData | null }) {
   usePreventBack();
-  const [isDirtyTrackerEnabled, setIsDirtyTrackerEnabled] = useState(
-    !savedData
-  );
+  const [isDirtyTrackerEnabled, setIsDirtyTrackerEnabled] =
+    useState(!savedData);
   const reset = useEditorStore(state => state.reset);
   const resetBgm = useBgmStore(state => state.reset);
   const showAllCalloutsFor = useEditorCalloutStore(
@@ -73,6 +73,7 @@ function MainContentsArea({ savedData }: { savedData?: SavedData | null }) {
 
   return (
     <EditorBgmPlayerProvider>
+      <LocalDraftRecovery ready={isDirtyTrackerEnabled} />
       <div className="min-w-[1340px] h-full flex justify-between items-center">
         <LeftPanel />
         <div className="flex gap-[clamp(20px,calc(20px+(32-20)*((100vw-1340px)/(1920-1340))),32px)] items-center">

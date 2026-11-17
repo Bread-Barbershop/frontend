@@ -1,9 +1,23 @@
 import 'server-only';
 import { cookies } from 'next/headers';
 
+import { serverSessionsEnabled } from '@/app/api/auth/_lib/authStorage';
+import { serverAccessToken } from '@/app/api/auth/_lib/serverSession';
 import { tokenRefresh } from '@/app/api/auth/_lib/tokenRefresh';
 
 export async function googleFetch(url: string, init: RequestInit = {}) {
+  if (serverSessionsEnabled()) {
+    const run = (token: string) => {
+      const headers = new Headers(init.headers);
+      headers.set('Authorization', `Bearer ${token}`);
+      return fetch(url, { ...init, headers, cache: 'no-store' });
+    };
+    const session = await serverAccessToken();
+    const response = await run(session.accessToken);
+    return response.status === 401
+      ? run((await serverAccessToken(true)).accessToken)
+      : response;
+  }
   const cookieStore = await cookies();
   const accessToken = cookieStore.get('access_token')?.value;
   const refreshToken = cookieStore.get('refresh_token')?.value;

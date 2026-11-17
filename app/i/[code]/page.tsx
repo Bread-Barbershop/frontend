@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { notFound } from 'next/navigation';
+import { cache } from 'react';
 
 import { resolveShortCode } from '@/app/api/short-url/_lib/shortUrlStore';
 import { GuestAccessNotice } from '@/app/guest/[id]/components/GuestAccessNotice';
@@ -38,14 +39,14 @@ function renderPrivateInvitationNotice() {
   );
 }
 
-async function resolveDataJsonFileId(code: string) {
+const resolveDataJsonFileId = cache(async (code: string) => {
   try {
-    // 짧은 코드가 없거나 Redis가 불안정하면 게스트 페이지는 404로 안전하게 빠진다.
+    // Metadata와 본문에서 한 요청당 한 번만 조회한다.
     return await resolveShortCode(code);
   } catch {
-    return null;
+    return 'unavailable' as const;
   }
-}
+});
 
 export async function generateMetadata({
   params,
@@ -55,7 +56,7 @@ export async function generateMetadata({
   const { code } = await params;
   const dataJsonFileId = await resolveDataJsonFileId(code);
 
-  if (!dataJsonFileId) {
+  if (!dataJsonFileId || dataJsonFileId === 'unavailable') {
     return { robots: noindexRobots };
   }
 
@@ -117,7 +118,9 @@ export default async function ShortGuestPage({
   }
 
   if (result.status === 'unavailable') {
-    return <GuestUnavailableNotice retryHref={`/i/${encodeURIComponent(code)}`} />;
+    return (
+      <GuestUnavailableNotice retryHref={`/i/${encodeURIComponent(code)}`} />
+    );
   }
 
   if (result.status === 'not-found') {
@@ -130,16 +133,10 @@ export default async function ShortGuestPage({
     ? resolveDriveImageSource(thumbnailFileId, { mode: 'public' })
     : null;
 
-
   return (
     <>
       {posterSrc && (
-        <link
-          rel="preload"
-          as="image"
-          href={posterSrc}
-          fetchPriority="high"
-        />
+        <link rel="preload" as="image" href={posterSrc} fetchPriority="high" />
       )}
       <GuestInvitationView payload={payload} mode="guest" />
     </>

@@ -4,6 +4,11 @@ import { NextResponse } from 'next/server';
 
 import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
 import {
+  assertInvitationAccess,
+  assertManagedFileAccess,
+  assertSameOriginRequest,
+} from '@/app/api/drive/_lib/driveAccess';
+import {
   loadInvitationMeta,
   ShareUrlPayload,
   upsertInvitationMeta,
@@ -155,6 +160,7 @@ function createReadableShareData(
 
 export async function POST(req: Request) {
   try {
+    assertSameOriginRequest(req);
     const publicOrigin = getSharePublicOrigin(req);
     const { invitationFolderId, shareData, dataJsonFileId } =
       (await req.json()) as {
@@ -170,6 +176,11 @@ export async function POST(req: Request) {
       );
     }
 
+    await assertInvitationAccess(invitationFolderId);
+    if (dataJsonFileId)
+      await assertManagedFileAccess(dataJsonFileId, invitationFolderId);
+    if (shareData?.imageFileId)
+      await assertManagedFileAccess(shareData.imageFileId, invitationFolderId);
     const shortUrlResult = await createShareDataWithShortUrl({
       invitationFolderId,
       dataJsonFileId,
@@ -239,6 +250,7 @@ export async function GET(req: Request) {
       );
     }
 
+    await assertInvitationAccess(invitationFolderId);
     const meta = await loadInvitationMeta(invitationFolderId);
     if (meta?.payload.kakaoShare) {
       const shareData = createReadableShareData(

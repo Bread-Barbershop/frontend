@@ -1,7 +1,9 @@
 import 'server-only';
 
 import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
+import { assertDriveId } from '@/app/api/drive/_lib/driveAccess';
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
+import { escapeDriveQueryValue } from '@/app/api/drive/_lib/escapeQueryValue';
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
 import { JsonData } from '@/app/editor/[id]/types/savedata';
 
@@ -17,6 +19,7 @@ export type DriveListResponse = {
     id?: string;
     name?: string;
     mimeType?: string;
+    appProperties?: Record<string, string>;
   }>;
 
   error?: unknown;
@@ -32,9 +35,10 @@ export async function loadInvitations(
   id: string | null
 ): Promise<DriveListResponse | null> {
   if (!id) return null;
+  assertDriveId(id);
   try {
-  const listRes = await googleFetch(
-      `https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents&fields=files(id, name, mimeType)`,
+    const listRes = await googleFetch(
+      `https://www.googleapis.com/drive/v3/files?${new URLSearchParams({ q: `'${escapeDriveQueryValue(id)}' in parents and trashed=false`, fields: 'files(id,name,mimeType,appProperties)' })}`,
       { cache: 'no-store' }
     );
     const listData = (await listRes
@@ -58,8 +62,9 @@ export async function loadInvitations(
 }
 
 export async function downloadFiles(id: string): Promise<JsonData | null> {
+  assertDriveId(id);
   try {
-  const listRes = await googleFetch(
+    const listRes = await googleFetch(
       `https://www.googleapis.com/drive/v3/files/${id}?alt=media`,
       { cache: 'no-store' }
     );
@@ -84,6 +89,7 @@ export async function downloadFiles(id: string): Promise<JsonData | null> {
 export async function getFilesInFolder(
   folderId: string
 ): Promise<DriveListResponse | null> {
+  assertDriveId(folderId);
   try {
     // q 파라미터는 띄어쓰기가 포함되므로 인코딩이 필요합니다.
     const query = encodeURIComponent(

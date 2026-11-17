@@ -2,6 +2,13 @@
  * @jest-environment node
  */
 
+jest.mock('@/app/api/drive/_lib/driveAccess', () => ({
+  assertInvitationAccess: jest.fn(),
+  assertManagedFileAccess: jest.fn(),
+  assertDeletableFileAccess: jest.fn(),
+  assertSameOriginRequest: jest.fn(),
+}));
+
 jest.mock('@/app/api/drive/_lib/googleFetch', () => ({
   googleFetch: jest.fn(),
 }));
@@ -116,7 +123,9 @@ describe('deleteInvitation Route Handler 테스트', () => {
   });
 
   it('예외가 발생하면 500을 반환한다', async () => {
-    (googleFetch as jest.Mock).mockRejectedValue(new Error('unexpected failure'));
+    (googleFetch as jest.Mock).mockRejectedValue(
+      new Error('unexpected failure')
+    );
 
     const req = new Request('http://localhost/api/drive/deleteInvitation', {
       method: 'DELETE',
