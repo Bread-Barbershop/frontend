@@ -27,6 +27,7 @@ interface Props {
   sectionRefs: RefObject<Record<string, HTMLDivElement | null>>;
   searchQuery?: string;
   onOpenTemplatePicker: (type: InvitationTemplateType) => void;
+  onOpenMealMenuPicker: (type: InvitationType) => void;
 }
 
 function ContentsArea({
@@ -34,6 +35,7 @@ function ContentsArea({
   sectionRefs,
   searchQuery = '',
   onOpenTemplatePicker,
+  onOpenMealMenuPicker,
 }: Props) {
   const { addBlock, selectedBlock, addAllBlock, setIsEdit } = useEditorStore(
     useShallow(state => ({
@@ -147,21 +149,31 @@ function ContentsArea({
                 {items.list.map((item, index) => (
                   <li
                     key={index}
-                    className="w-25.25 h-11 flex items-center gap-0.5 cursor-pointer hover:opacity-80 transition-opacity"
-                    onClick={() =>
-                      handleAddComponent(items.english, item.component)
-                    }
+                    className="h-11 w-25.25"
                   >
-                    <span
-                      className={`shrink-0 text-white rounded-sm w-4.5 h-4.5 flex-center font-normal text-xs ${COLORS[items.english]}`}
+                    <button
+                      type="button"
+                      className="flex size-full items-center gap-0.5 rounded-sm transition-opacity hover:opacity-80"
+                      onClick={() => {
+                        if (item.component === 'mealMenu') {
+                          onOpenMealMenuPicker(resolveInvitationType(items.english));
+                        } else {
+                          handleAddComponent(items.english, item.component);
+                        }
+                      }}
                     >
-                      {index + 1}
-                    </span>
-                    <p className="font-normal text-[13px] flex-1 flex flex-wrap justify-center text-center break-keep">
-                      <BlockLabel component={item.component}>
-                        {item.contents}
-                      </BlockLabel>
-                    </p>
+                      <span
+                        aria-hidden="true"
+                        className={`shrink-0 text-white rounded-sm w-4.5 h-4.5 flex-center font-normal text-xs ${COLORS[items.english]}`}
+                      >
+                        {index + 1}
+                      </span>
+                      <span className="font-normal text-[13px] flex-1 flex flex-wrap justify-center text-center break-keep">
+                        <BlockLabel component={item.component}>
+                          {item.contents}
+                        </BlockLabel>
+                      </span>
+                    </button>
                   </li>
                 ))}
               </ul>
