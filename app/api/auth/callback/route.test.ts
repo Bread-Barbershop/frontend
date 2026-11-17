@@ -21,6 +21,14 @@
  * 인증 흐름의 핵심 완료 단계를 담당한다.
  */
 
+jest.mock('@/app/api/auth/_lib/serverSession', () => ({
+  createServerSession: jest.fn(),
+  deleteServerSession: jest.fn(),
+}));
+
+import { createServerSession } from '@/app/api/auth/_lib/serverSession';
+import { AuthStorageError } from '@/app/api/auth/_lib/authStorage';
+import { googleTokenFixture } from '@/app/api/auth/_lib/fixtures/session';
 import { GET } from '@/app/api/auth/callback/route';
 
 // ------------------------------
@@ -73,6 +81,7 @@ describe('auth callback Route Handler 테스트', () => {
 
     process.env = {
       ...originalEnv,
+      AUTH_SERVER_SESSIONS: 'true',
       GOOGLE_CLIENT_ID: 'google-client-id-123',
       GOOGLE_CLIENT_SECRET: 'google-client-secret-456',
     };
@@ -86,6 +95,50 @@ describe('auth callback Route Handler 테스트', () => {
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
+  });
+
+  it('서버 세션이 비활성화돼 있으면 토큰 교환을 시작하지 않는다', async () => {
+    process.env.AUTH_SERVER_SESSIONS = 'false';
+    const response = await GET(
+      new Request(
+        'http://localhost:3000/api/auth/callback?code=auth-code&state=matched-state'
+      )
+    );
+    expect(response.status).toBe(503);
+    expect(mockFetch).not.toHaveBeenCalled();
+    expect(createServerSession).not.toHaveBeenCalled();
+  });
+
+  it('저장소 장애 시 Google 토큰을 쿠키로 대신 보관하지 않는다', async () => {
+    const cookieStore = createCookieStore({
+      oauth_state: 'matched-state',
+      pkce_code_verifier: 'verifier-abc',
+    });
+    jest.mocked(cookies).mockResolvedValue(cookieStore as never);
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => googleTokenFixture,
+    });
+    jest
+      .mocked(createServerSession)
+      .mockRejectedValueOnce(new AuthStorageError());
+    const response = await GET(
+      new Request(
+        'http://localhost:3000/api/auth/callback?code=auth-code&state=matched-state'
+      )
+    );
+    expect(response.status).toBe(503);
+    expect(cookieStore.set).not.toHaveBeenCalledWith(
+      'access_token',
+      googleTokenFixture.access_token,
+      expect.anything()
+    );
+    expect(cookieStore.set).not.toHaveBeenCalledWith(
+      'refresh_token',
+      googleTokenFixture.refresh_token,
+      expect.anything()
+    );
   });
 
   it('error query가 있으면 400을 반환한다', async () => {
@@ -217,12 +270,12 @@ describe('auth callback Route Handler 테스트', () => {
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
-  it('token 교환 성공 시 쿠키를 저장하고 HTML 응답을 반환한다', async () => {
+  it('token 교환 성공 시 서버 세션을 만들고 Google 토큰 쿠키를 제거한다', async () => {
     /**
      * 목적:
      * code/state/verifier가 정상이고
      * Google token 교환도 성공하면
-     * access_token / refresh_token 쿠키를 저장하고
+     * 서버 전용 세션에 토큰을 보관하고
      * 팝업 성공 HTML을 반환하는지 확인한다.
      */
 
@@ -279,43 +332,27 @@ describe('auth callback Route Handler 테스트', () => {
       maxAge: 0,
     });
 
-    /**
-     * 새 access token 저장
-     */
-    expect(cookieStore.set).toHaveBeenCalledWith(
+    expect(createServerSession).toHaveBeenCalledWith({
+      access_token: 'new-access-token',
+      refresh_token: 'new-refresh-token',
+      expires_in: 3600,
+      scope: 'openid https://www.googleapis.com/auth/drive.file',
+    });
+    for (const name of ['access_token', 'refresh_token', 'granted_scopes']) {
+      expect(cookieStore.set).toHaveBeenCalledWith(name, '', {
+        path: '/',
+        maxAge: 0,
+      });
+    }
+    expect(cookieStore.set).not.toHaveBeenCalledWith(
       'access_token',
       'new-access-token',
-      expect.objectContaining({
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 3600,
-      })
+      expect.anything()
     );
-
-    /**
-     * refresh token도 응답에 있으면 저장
-     */
-    expect(cookieStore.set).toHaveBeenCalledWith(
+    expect(cookieStore.set).not.toHaveBeenCalledWith(
       'refresh_token',
       'new-refresh-token',
-      expect.objectContaining({
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 60 * 60 * 24 * 180,
-      })
-    );
-
-    expect(cookieStore.set).toHaveBeenCalledWith(
-      'granted_scopes',
-      'openid https://www.googleapis.com/auth/drive.file',
-      expect.objectContaining({
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 60 * 60 * 24 * 180,
-      })
+      expect.anything()
     );
 
     /**

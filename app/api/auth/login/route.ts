@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+import { serverSessionsEnabled } from '@/app/api/auth/_lib/authStorage';
 import { generateOAuthState } from '@/app/api/auth/_lib/generateOAuthState';
 import { GOOGLE_AUTH_SCOPE } from '@/app/api/auth/_lib/googleScopes';
 import {
@@ -16,6 +17,16 @@ export async function GET(request: Request) {
     return NextResponse.json(
       { error: 'GOOGLE_CLIENT_ID is missing' },
       { status: 500 }
+    );
+  }
+
+  if (!serverSessionsEnabled()) {
+    return NextResponse.json(
+      { error: 'secure_login_unavailable' },
+      {
+        status: 503,
+        headers: { 'Cache-Control': 'no-store' },
+      }
     );
   }
 

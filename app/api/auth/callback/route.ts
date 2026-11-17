@@ -1,7 +1,10 @@
 ﻿import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-import { AuthStorageError, serverSessionsEnabled } from '@/app/api/auth/_lib/authStorage';
+import {
+  AuthStorageError,
+  serverSessionsEnabled,
+} from '@/app/api/auth/_lib/authStorage';
 import {
   hasRequiredDriveScope,
   hasExcessiveDriveScope,
@@ -66,6 +69,15 @@ function clearAuthCookies(cookieStore: Awaited<ReturnType<typeof cookies>>) {
 }
 
 export async function GET(request: Request) {
+  if (!serverSessionsEnabled()) {
+    return NextResponse.json(
+      { error: 'secure_login_unavailable' },
+      {
+        status: 503,
+        headers: { 'Cache-Control': 'no-store' },
+      }
+    );
+  }
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
   const error = searchParams.get('error');
@@ -146,47 +158,9 @@ export async function GET(request: Request) {
       });
     }
 
-    if (serverSessionsEnabled()) {
-      await deleteServerSession();
-      await createServerSession(tokenData);
-      clearAuthCookies(cookieStore);
-      return oauthPopupResponse({
-        messageType: 'GOOGLE_OAUTH_SUCCESS',
-        origin,
-        title: '로그인 완료',
-        body: '로그인 성공! 창을 닫는 중...',
-      });
-    }
-
-    // 기존 환경은 dev 전환 전까지 기존 인증을 유지한다.
-    const isProd = process.env.NODE_ENV === 'production';
-
-    // Access Token 저장
-    cookieStore.set('access_token', tokenData.access_token, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: 'lax',
-      path: '/',
-      maxAge: tokenData.expires_in,
-    });
-
-    cookieStore.set('granted_scopes', tokenData.scope, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 60 * 24 * 180,
-    });
-
-    // Refresh Token 저장
-    cookieStore.set('refresh_token', tokenData.refresh_token, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 60 * 24 * 180, // 180일
-    });
-
+    await deleteServerSession();
+    await createServerSession(tokenData);
+    clearAuthCookies(cookieStore);
     return oauthPopupResponse({
       messageType: 'GOOGLE_OAUTH_SUCCESS',
       origin,
