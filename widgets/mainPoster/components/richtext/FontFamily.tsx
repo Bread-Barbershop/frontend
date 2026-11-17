@@ -34,6 +34,19 @@ type FontOption = {
 
 const familyOptions = createFontFamilyOptions();
 
+async function loadPosterFont(
+  family: string,
+  weight: string,
+  preferredStyle: 'normal' | 'italic'
+) {
+  const style = hasCustomFontFace(family, weight, preferredStyle)
+    ? preferredStyle
+    : 'normal';
+  if (hasCustomFontFace(family, weight, style)) {
+    await loadCustomFont(family, weight, style);
+  }
+}
+
 function FontFamily() {
   const { canvas, activeInfo, getRichStyles, applyRichStyle } =
     useFabricContext();
@@ -136,16 +149,7 @@ function FontFamily() {
           const nextWeight =
             getFallbackWeight(newFamily, currentWeight) ??
             getDefaultFontWeight(newFamily);
-          const style = hasCustomFontFace(
-            newFamily,
-            nextWeight,
-            currentFontStyle
-          )
-            ? currentFontStyle
-            : 'normal';
-          if (hasCustomFontFace(newFamily, nextWeight, style)) {
-            await loadCustomFont(newFamily, nextWeight, style);
-          }
+          await loadPosterFont(newFamily, nextWeight, currentFontStyle);
 
           const nextSelectedWeight = {
             label: weightToLabel(nextWeight),
@@ -195,15 +199,11 @@ function FontFamily() {
             },
           });
 
-          if (
-            hasCustomFontFace(selectedFont.value, nextWeight, currentFontStyle)
-          ) {
-            await loadCustomFont(
-              selectedFont.value,
-              nextWeight,
-              currentFontStyle
-            );
-          }
+          await loadPosterFont(
+            selectedFont.value,
+            nextWeight,
+            currentFontStyle
+          );
           applyRichStyle({ fontWeight: nextWeight }, canvas);
         }}
         selected={selectedWeight}
