@@ -192,15 +192,17 @@ function CarouselItem({
         )}
 
         <div
-          className="absolute bottom-0 left-0 z-10 rounded-xl"
+          className={`absolute bottom-0 left-0 z-10 rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.06),0_2px_10px_rgba(0,0,0,0.08)] ${
+            showPreviewLabel
+              ? 'transition-shadow duration-300 ease-in-out motion-reduce:transition-none group-hover:shadow-[0_12px_32px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.13)] group-focus-visible:shadow-[0_12px_32px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.13)]'
+              : ''
+          }`}
           style={{
             width: dashboardCarouselLayout.cardWidth,
             height:
               isSelected && showHeader
                 ? dashboardCarouselLayout.selectedVisualHeight
                 : dashboardCarouselLayout.cardHeight,
-            boxShadow:
-              '0 8px 24px rgba(0, 0, 0, 0.06), 0 2px 10px rgba(0, 0, 0, 0.08)',
           }}
         >
           {isSelected && showHeader && (
@@ -253,7 +255,7 @@ function CarouselItem({
               }`}
             />
             {showPreviewLabel && (
-              <div className="pointer-events-none absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/40 via-transparent to-transparent p-6 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
+              <div className="pointer-events-none absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/40 via-transparent to-transparent p-6 opacity-0 transition-opacity duration-300 ease-in-out motion-reduce:transition-none group-hover:opacity-100 group-focus-visible:opacity-100">
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/95 px-5 py-3 text-[13px] font-semibold text-[#252522] shadow-lg backdrop-blur-sm">
                   미리보기 <span aria-hidden="true">↗</span>
                 </span>
