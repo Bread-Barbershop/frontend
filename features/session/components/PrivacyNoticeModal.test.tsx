@@ -22,8 +22,13 @@ describe('PrivacyNoticeModal', () => {
     ).toBeInTheDocument();
 
     // Check callout box content
+    expect(screen.getByText(/‘모바일 초대장 invia’/i)).toBeInTheDocument();
+
     expect(
-      screen.getByText(/‘나의 모바일 청첩장’/i)
+      screen.getByText(/서버에 보관하는 인증 정보는 암호화해요/)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/로그아웃하면 해당 계정의 초안을 삭제해요/)
     ).toBeInTheDocument();
     expect(
       screen.getByText(/우리 청첩장이 안전하게 저장돼요/i)

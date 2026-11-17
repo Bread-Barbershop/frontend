@@ -92,7 +92,9 @@ function PrivacyNoticeModal({
                       : 'mb-5 break-keep text-[20px] font-bold leading-7 sm:text-[32px] sm:leading-10'
                   }
                 >
-                  {isMobileHome ? '안심하고 이용하세요.' : '안심하고 이용하세요'}
+                  {isMobileHome
+                    ? '안심하고 이용하세요.'
+                    : '안심하고 이용하세요'}
                 </h2>
                 <p className="mb-5">
                   이 모바일 청첩장 프로젝트는 누구나 쉽게 사용할 수 있도록{' '}
@@ -105,10 +107,9 @@ function PrivacyNoticeModal({
                     필요가 없어요.
                   </li>
                   <li>
-                    이용자님의 이름, 연락처, 이메일 등의{' '}
-                    <span className="text-[#1F72EF]">
-                      개인정보를 별도로 수집하거나 저장하지 않아요.
-                    </span>
+                    이름, 연락처, 이메일을 별도 입력받지 않으며, 초대장 제작을
+                    위한 Google 계정 연결에 필요한 식별 정보와 인증 정보를
+                    처리해요. 서버에 보관하는 인증 정보는 암호화해요.
                   </li>
                   <li>
                     청첩장에 사용되는 사진과 자료는 이용자님의{' '}
@@ -128,7 +129,7 @@ function PrivacyNoticeModal({
                           <p>
                             현재 로그인된 Google Drive의{' '}
                             <strong className="font-semibold text-text-primary">
-                              ‘나의 모바일 청첩장’
+                              ‘모바일 초대장 invia’
                             </strong>{' '}
                             폴더에 우리 청첩장이 안전하게 저장돼요.
                           </p>
@@ -148,10 +149,15 @@ function PrivacyNoticeModal({
                       </div>
                     </div>
                   </li>
+                  <li>
+                    작성 중인 초안은 사진·음악과 함께 이 기기의 브라우저에도
+                    보관될 수 있어요. 마지막 수정 후 7일이 지난 초안은 다음
+                    방문에 정리하며, 로그아웃하면 해당 계정의 초안을 삭제해요.
+                  </li>
                 </ol>
                 <p>
-                  앞으로도 소중한 순간을 더욱 간편하고 안전하게 공유할 수
-                  있도록 노력할게요.
+                  앞으로도 소중한 순간을 더욱 간편하고 안전하게 공유할 수 있도록
+                  노력할게요.
                 </p>
               </div>
               <button
