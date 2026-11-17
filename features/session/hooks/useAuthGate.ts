@@ -62,13 +62,11 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
   const [isBusy, setIsBusy] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isLoginPending, setIsLoginPending] = useState(false);
-  const [isPrivacyNoticeOpen, setIsPrivacyNoticeOpen] = useState(false);
   const [isDrivePermissionRequiredOpen, setIsDrivePermissionRequiredOpen] =
     useState(false);
 
   const popupRef = useRef<Window | null>(null);
   const pendingActionRef = useRef<(() => void | Promise<void>) | null>(null);
-  const openLoginAfterNoticeRef = useRef(false);
 
   const releaseLoginPending = useCallback(() => {
     popupRef.current = null;
@@ -82,7 +80,6 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
     setIsLoginOpen(false);
     setIsDrivePermissionRequiredOpen(false);
     pendingActionRef.current = null;
-    openLoginAfterNoticeRef.current = false;
 
     if (closePopup && popup) {
       try {
@@ -112,18 +109,6 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
 
     router.refresh();
   }, [router, success]);
-
-  const closePrivacyNotice = useCallback(() => {
-    setIsPrivacyNoticeOpen(false);
-
-    if (openLoginAfterNoticeRef.current) {
-      openLoginAfterNoticeRef.current = false;
-      setIsLoginOpen(true);
-      return;
-    }
-
-    router.refresh();
-  }, [router]);
 
   useEffect(() => {
     setIsLoggedIn(initialIsLoggedIn);
@@ -188,8 +173,7 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
   }, [completeLoginSuccess, isLoginPending, releaseLoginPending]);
 
   const login = () => {
-    openLoginAfterNoticeRef.current = true;
-    setIsPrivacyNoticeOpen(true);
+    setIsLoginOpen(true);
   };
 
   const closeLogin = () => {
@@ -226,10 +210,8 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
 
       if (!isSessionValid) {
         pendingActionRef.current = null;
-        openLoginAfterNoticeRef.current = false;
         setIsLoggedIn(false);
         setIsLoginOpen(false);
-        setIsPrivacyNoticeOpen(false);
         setIsDrivePermissionRequiredOpen(false);
         if (!options.stayOnSessionExpiry) {
           router.replace('/');
@@ -264,9 +246,7 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
       }
 
       setIsLoggedIn(false);
-      setIsPrivacyNoticeOpen(false);
       setIsDrivePermissionRequiredOpen(false);
-      openLoginAfterNoticeRef.current = false;
       router.replace('/');
       router.refresh();
     } catch (err) {
@@ -309,11 +289,9 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
     isBusy,
     isLoginOpen,
     isLoginPending,
-    isPrivacyNoticeOpen,
     isDrivePermissionRequiredOpen,
     login,
     closeLogin,
-    closePrivacyNotice,
     closeDrivePermissionRequired,
     loginWithGoogle,
     retryDrivePermission,

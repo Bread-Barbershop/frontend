@@ -5,6 +5,8 @@ import { randomBytes } from 'node:crypto';
 import { cookies } from 'next/headers';
 import { cache } from 'react';
 
+import { AUTH_SESSION_MAX_AGE_SECONDS } from '@/shared/config/authSession';
+
 import {
   authKey,
   authRedis,
@@ -20,7 +22,7 @@ export const SESSION_COOKIE =
   process.env.NODE_ENV === 'production'
     ? '__Host-invia_session'
     : 'invia_session';
-const SESSION_SECONDS = 60 * 60 * 24 * 30;
+const SESSION_SECONDS = AUTH_SESSION_MAX_AGE_SECONDS;
 type TokenRecord = {
   userId: string;
   accessToken: string;

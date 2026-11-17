@@ -10,14 +10,14 @@
 
 Vercel의 dev 브랜치 Preview 환경에만 등록한다. 개발용 별도 Redis DB를 권장한다. 기존 숏링크 Redis 환경변수로 자동 대체하지 않는다.
 
-| 이름 | 값/설명 |
-| --- | --- |
-| `AUTH_SERVER_SESSIONS` | `true` |
-| `AUTH_REDIS_REST_URL` | 개발용 Upstash REST URL |
-| `AUTH_REDIS_REST_TOKEN` | 개발용 Upstash REST 토큰 |
-| `AUTH_REDIS_NAMESPACE` | `invia:dev:auth:v1` |
-| `AUTH_ENCRYPTION_KEY` | 무작위 32바이트의 Base64 문자열. **Vercel 서버 환경변수에만 저장** |
-| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | 개발 환경용 OAuth 설정 |
+| 이름                                       | 값/설명                                                            |
+| ------------------------------------------ | ------------------------------------------------------------------ |
+| `AUTH_SERVER_SESSIONS`                     | `true`                                                             |
+| `AUTH_REDIS_REST_URL`                      | 개발용 Upstash REST URL                                            |
+| `AUTH_REDIS_REST_TOKEN`                    | 개발용 Upstash REST 토큰                                           |
+| `AUTH_REDIS_NAMESPACE`                     | `invia:dev:auth:v1`                                                |
+| `AUTH_ENCRYPTION_KEY`                      | 무작위 32바이트의 Base64 문자열. **Vercel 서버 환경변수에만 저장** |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | 개발 환경용 OAuth 설정                                             |
 
 키는 `NEXT_PUBLIC_` 이름으로 만들지 않는다. 코드·Git·Upstash에 원본 키를 저장하지 않는다. 운영과 개발에 다른 키를 사용한다. Preview에서 `prod`/`production`이 포함된 namespace를 사용하면 실패하도록 방어한다. 같은 Redis URL에 개발 namespace를 쓸 수는 있으므로 DB 자체의 분리는 설정 담당자가 확인해야 한다.
 
@@ -70,6 +70,15 @@ Google OAuth에 개발 도메인의 `/api/auth/callback`을 redirect URI로 등�
 - Upstash 사용량/Google 오류를 확인한다. 세션·journal·잠금도 Redis 명령을 사용하므로 무료 사용량 내라고 사전에 단정하지 않는다.
 
 설정 전 PR 빌드에서 보안 기능이 실서비스에 연결됐다고 간주하지 않는다. 롤백은 코드와 환경설정을 함께 이전 배포로 되돌린다. 운영 Redis나 운영 암호화 키를 개발 테스트에 사용하지 않는다.
+
+## 고지와 로그인·로그아웃의 구분
+
+- 일반 개인정보 안내의 ‘알겠어요’·Esc·바깥 클릭은 안내만 닫는다. 닫기를 로그인 시작이나 동의로 취급하지 않는다.
+- 로그인 화면은 인증 정보의 이용 목적·암호화 보관·최대 30일 보관·로그아웃 시 해당 세션 정보 삭제를 먼저 설명한다. ‘동의하고 Google로 계속하기’를 누를 때 Google OAuth를 시작한다. 취소·Esc·바깥 클릭은 OAuth를 시작하지 않는다.
+- 화면에서는 쉬운 표현을 사용하고, 실제 저장 업체인 Upstash와 Vercel의 역할, 세션·진행 정보·로컬 초안의 보관 기준은 `/policy`에 설명한다.
+- 로그아웃은 현재 세션과 해당 기기의 계정별 로컬 초안을 삭제한다. Google 접근 권한은 자동 철회하지 않는다. 현재 연결 해제 방법은 Google 계정 권한 관리 페이지로 안내하며, 앱 자체의 연결 해제 API는 이번 작업에 포함하지 않는다.
+- Google 토큰 철회는 해당 사용자가 같은 Google Cloud 프로젝트에서 승인한 다른 OAuth 클라이언트·세션에도 영향을 줄 수 있다. 향후 앱 자체 연결 해제를 구현할 때는 로그아웃과 별도 동작으로 제공하고, 영향을 받는 계정 연결과 저장본을 함께 정리한다.
+- 운영에 새 고지문을 적용하기 전 서버 세션 환경변수가 활성화돼 있고 실제 보관 방식·기간과 방침이 일치하는지 확인한다. 기존 방침의 변경 공지 기준도 운영 승격 시 확인한다. Preview 빌드 성공만으로 이 검증을 대신하지 않는다.
 
 ## 향후 하객 사진·방명록 기능
 

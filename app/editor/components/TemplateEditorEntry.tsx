@@ -6,7 +6,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import DrivePermissionRequiredModal from '@/features/session/components/DrivePermissionRequiredModal';
 import LoginModal from '@/features/session/components/LoginModal';
-import PrivacyNoticeModal from '@/features/session/components/PrivacyNoticeModal';
 import { useAuthGate } from '@/features/session/hooks/useAuthGate';
 import { createInvitationTemplate } from '@/shared/data/invitationTemplates';
 import { INVITATION_TEMPLATES } from '@/shared/data/invitationTemplates/catalog';
@@ -125,10 +124,6 @@ export default function TemplateEditorEntry({
         isLoading={auth.isLoginPending}
         onClose={auth.closeLogin}
         onGoogleLogin={auth.loginWithGoogle}
-      />
-      <PrivacyNoticeModal
-        open={auth.isPrivacyNoticeOpen}
-        onClose={auth.closePrivacyNotice}
       />
       <DrivePermissionRequiredModal
         open={auth.isDrivePermissionRequiredOpen}

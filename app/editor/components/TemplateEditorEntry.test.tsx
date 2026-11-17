@@ -39,11 +39,6 @@ jest.mock('./MainContentsArea', () => ({
     </div>
   ),
 }));
-jest.mock('@/features/session/components/PrivacyNoticeModal', () => ({
-  __esModule: true,
-  default: ({ open, onClose }: { open: boolean; onClose: () => void }) =>
-    open ? <button onClick={onClose}>개인정보 안내 확인</button> : null,
-}));
 jest.mock('@/features/session/components/LoginModal', () => ({
   __esModule: true,
   default: ({
@@ -57,7 +52,7 @@ jest.mock('@/features/session/components/LoginModal', () => ({
   }) =>
     open ? (
       <div>
-        <button onClick={onGoogleLogin}>Google로 계속하기</button>
+        <button onClick={onGoogleLogin}>동의하고 Google로 계속하기</button>
         <button onClick={onClose}>로그인 취소</button>
       </div>
     ) : null,
@@ -91,8 +86,9 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
       );
     });
   const beginGoogle = () => {
-    fireEvent.click(screen.getByRole('button', { name: '개인정보 안내 확인' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Google로 계속하기' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: '동의하고 Google로 계속하기' })
+    );
   };
   const expectChosenData = (id: string) => {
     const blocks = JSON.parse(
@@ -164,7 +160,7 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
       .mocked(fetch)
       .mockResolvedValueOnce({ ok: false, status: 401 } as Response);
     render(<TemplateEditorEntry templateId="showcase-12" initialIsLoggedIn />);
-    await screen.findByRole('button', { name: '개인정보 안내 확인' });
+    await screen.findByRole('button', { name: '동의하고 Google로 계속하기' });
     expect(mockReplace).not.toHaveBeenCalled();
     beginGoogle();
     completeOAuth();
@@ -193,7 +189,6 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
     render(
       <TemplateEditorEntry templateId="showcase-18" initialIsLoggedIn={false} />
     );
-    fireEvent.click(screen.getByRole('button', { name: '개인정보 안내 확인' }));
     fireEvent.click(screen.getByRole('button', { name: '로그인 취소' }));
     expect(screen.queryByTestId('editor')).not.toBeInTheDocument();
     fireEvent.click(
@@ -201,7 +196,7 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
     );
     await waitFor(() =>
       expect(
-        screen.getByRole('button', { name: '개인정보 안내 확인' })
+        screen.getByRole('button', { name: '동의하고 Google로 계속하기' })
       ).toBeVisible()
     );
   });
@@ -215,7 +210,7 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
     ).toBeVisible();
     expect(screen.queryByTestId('editor')).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: '개인정보 안내 확인' })
+      screen.queryByRole('button', { name: '동의하고 Google로 계속하기' })
     ).not.toBeInTheDocument();
   });
 });

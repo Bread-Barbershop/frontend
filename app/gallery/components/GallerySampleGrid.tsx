@@ -11,7 +11,6 @@ import {
 } from '@/app/guest/[id]/validation/parseGuestPayload';
 import DrivePermissionRequiredModal from '@/features/session/components/DrivePermissionRequiredModal';
 import LoginModal from '@/features/session/components/LoginModal';
-import PrivacyNoticeModal from '@/features/session/components/PrivacyNoticeModal';
 import { useAuthGate } from '@/features/session/hooks/useAuthGate';
 
 const CARD_WIDTH = 240;
@@ -80,10 +79,10 @@ function GallerySampleGrid({
     isBusy,
     isLoginOpen,
     isLoginPending,
-    isPrivacyNoticeOpen,
+
     isDrivePermissionRequiredOpen,
     closeLogin,
-    closePrivacyNotice,
+
     closeDrivePermissionRequired,
     loginWithGoogle,
     retryDrivePermission,
@@ -99,7 +98,8 @@ function GallerySampleGrid({
         setHasSamplesError(false);
 
         const response = await fetch(SAMPLES_MANIFEST_URL);
-        if (!response.ok) throw new Error(`manifest_load_failed:${response.status}`);
+        if (!response.ok)
+          throw new Error(`manifest_load_failed:${response.status}`);
 
         const manifest = (await response.json()) as SamplesManifest;
         if (!cancelled) {
@@ -201,67 +201,69 @@ function GallerySampleGrid({
           const isSelected = selectedSampleId === sample.id;
 
           return (
-          <article
-            key={sample.id}
-            data-gallery-sample-card
-            role="button"
-            tabIndex={0}
-            aria-pressed={isSelected}
-            className="group relative cursor-pointer overflow-hidden rounded-2xl bg-white/72 shadow-edit backdrop-blur-sm outline-none transition-transform duration-200 hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-black/50"
-            style={{
-              width: CARD_WIDTH,
-              height: CARD_HEIGHT,
-            }}
-            onClick={event => selectCard(sample.id, event.currentTarget)}
-            onKeyDown={event => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                selectCard(sample.id, event.currentTarget);
-              }
-            }}
-          >
-            <div className="relative h-full bg-white">
-              <Image
-                src={sample.thumbnailUrl}
-                alt={sample.title}
-                fill
-                sizes="240px"
-                className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-              />
-            </div>
-            {!isSelected && (
-              <div className="pointer-events-none absolute inset-0 bg-black/0 transition-colors duration-200 group-hover:bg-black/[0.06]" />
-            )}
-
-            {isSelected && (
-              <div
-                className="absolute inset-0 flex flex-col justify-end bg-black/16"
-                style={{
-                  padding: `${CARD_PADDING_Y}px ${CARD_PADDING_X}px`,
-                }}
-              >
-                <div className="flex flex-col gap-2">
-                  <GalleryCardActionButton
-                    variant="dark"
-                    onClick={() => openPreview(sample)}
-                  >
-                    디자인 미리보기
-                  </GalleryCardActionButton>
-                  <GalleryCardActionButton
-                    disabled={isBusy}
-                    variant="light"
-                    onClick={() => openEditorWithSample(sample)}
-                  >
-                    이 디자인으로 만들기
-                  </GalleryCardActionButton>
-                </div>
+            <article
+              key={sample.id}
+              data-gallery-sample-card
+              role="button"
+              tabIndex={0}
+              aria-pressed={isSelected}
+              className="group relative cursor-pointer overflow-hidden rounded-2xl bg-white/72 shadow-edit backdrop-blur-sm outline-none transition-transform duration-200 hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-black/50"
+              style={{
+                width: CARD_WIDTH,
+                height: CARD_HEIGHT,
+              }}
+              onClick={event => selectCard(sample.id, event.currentTarget)}
+              onKeyDown={event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  selectCard(sample.id, event.currentTarget);
+                }
+              }}
+            >
+              <div className="relative h-full bg-white">
+                <Image
+                  src={sample.thumbnailUrl}
+                  alt={sample.title}
+                  fill
+                  sizes="240px"
+                  className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                />
               </div>
-            )}
-          </article>
+              {!isSelected && (
+                <div className="pointer-events-none absolute inset-0 bg-black/0 transition-colors duration-200 group-hover:bg-black/[0.06]" />
+              )}
+
+              {isSelected && (
+                <div
+                  className="absolute inset-0 flex flex-col justify-end bg-black/16"
+                  style={{
+                    padding: `${CARD_PADDING_Y}px ${CARD_PADDING_X}px`,
+                  }}
+                >
+                  <div className="flex flex-col gap-2">
+                    <GalleryCardActionButton
+                      variant="dark"
+                      onClick={() => openPreview(sample)}
+                    >
+                      디자인 미리보기
+                    </GalleryCardActionButton>
+                    <GalleryCardActionButton
+                      disabled={isBusy}
+                      variant="light"
+                      onClick={() => openEditorWithSample(sample)}
+                    >
+                      이 디자인으로 만들기
+                    </GalleryCardActionButton>
+                  </div>
+                </div>
+              )}
+            </article>
           );
         })}
 
-        {(isLoadingSamples || hasSamplesError || filteredSamples.length === 0) && (
+        {(isLoadingSamples ||
+          hasSamplesError ||
+          filteredSamples.length === 0) && (
           <div className="col-span-full rounded-2xl bg-white/72 p-8 text-lg font-semibold text-text-secondary shadow-edit backdrop-blur-sm">
             {isLoadingSamples
               ? '샘플을 불러오고 있습니다.'
@@ -285,10 +287,6 @@ function GallerySampleGrid({
         isLoading={isLoginPending}
         onClose={closeLogin}
         onGoogleLogin={loginWithGoogle}
-      />
-      <PrivacyNoticeModal
-        open={isPrivacyNoticeOpen}
-        onClose={closePrivacyNotice}
       />
       <DrivePermissionRequiredModal
         open={isDrivePermissionRequiredOpen}

@@ -2,9 +2,11 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { ExternalLink } from 'lucide-react';
+import Link from 'next/link';
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 
+import { AUTH_SESSION_MAX_AGE_DAYS } from '@/shared/config/authSession';
 import { disableBodyScroll } from '@/shared/utils/focusTrap';
 
 type PrivacyNoticeModalProps = {
@@ -109,7 +111,9 @@ function PrivacyNoticeModal({
                   <li>
                     이름, 연락처, 이메일을 별도 입력받지 않으며, 초대장 제작을
                     위한 Google 계정 연결에 필요한 식별 정보와 인증 정보를
-                    처리해요. 서버에 보관하는 인증 정보는 암호화해요.
+                    처리해요. 서버에 보관하는 인증 정보는 암호화해요. 해당
+                    로그인 정보는 최대 {AUTH_SESSION_MAX_AGE_DAYS}일간 보관하며,
+                    로그아웃하면 삭제해요.
                   </li>
                   <li>
                     청첩장에 사용되는 사진과 자료는 이용자님의{' '}
@@ -155,6 +159,18 @@ function PrivacyNoticeModal({
                     방문에 정리하며, 로그아웃하면 해당 계정의 초안을 삭제해요.
                   </li>
                 </ol>
+                <p className="mb-5 text-sm leading-6">
+                  로그아웃은 현재 로그인 연결을 종료하는 기능이에요. Google
+                  권한을 해제하거나 Drive 파일을 삭제하는 것과는 별개예요.{' '}
+                  <Link
+                    href="/policy#google-user-data"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-4"
+                  >
+                    개인정보처리방침과 연결 해제 방법
+                  </Link>
+                </p>
                 <p>
                   앞으로도 소중한 순간을 더욱 간편하고 안전하게 공유할 수 있도록
                   노력할게요.
