@@ -1,0 +1,33 @@
+/* The editor and guest renderer mark the invitation's new dark surfaces. */
+:global([data-invitation-dark]) .preview {
+  --calendar-text: #ffffff;
+  --calendar-muted-text: color-mix(
+    in srgb,
+    var(--calendar-automatic-body-color, #fdfdfd),
+    #ffffff 25%
+  );
+  --calendar-outside-month-opacity: 1;
+  --calendar-divider: rgb(255 255 255 / 28%);
+}
+
+/* Legacy showcase cards with their own pale surfaces retain their light palette. */
+:global(
+    [data-component='calendar']:is(
+      [data-design='showcase-2'],
+      [data-design='showcase-4'],
+      [data-design='showcase-7'],
+      [data-design='showcase-13'],
+      [data-design='showcase-17'],
+      [data-design='showcase-18'],
+      [data-design='showcase-21'],
+      [data-design='showcase-22'],
+      [data-design='showcase-23'],
+      [data-design='showcase-24']
+    )
+  )
+  .preview {
+  --calendar-text: initial;
+  --calendar-muted-text: initial;
+  --calendar-outside-month-opacity: initial;
+  --calendar-divider: initial;
+}

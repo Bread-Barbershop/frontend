@@ -19,7 +19,7 @@ export function CalendarType2({
         {headerDays.map((day, idx) => (
           <div
             key={`${day}-${idx}`}
-            className="text-center font-medium text-sm text-text-tertiary"
+            className="text-center font-medium text-sm text-[color:var(--calendar-muted-text,var(--color-text-tertiary))]"
           >
             {day}
           </div>
@@ -33,8 +33,10 @@ export function CalendarType2({
             >
               <div
                 className={cn(
-                  'flex items-center justify-center relative z-1 transition-colors w-full h-full text-sm text-text-tertiary',
-                  dayObj.isCurrentMonth && 'text-text-primary'
+                  'flex items-center justify-center relative z-1 transition-colors w-full h-full text-sm',
+                  dayObj.isCurrentMonth
+                    ? 'text-[color:var(--calendar-text,var(--color-text-primary))]'
+                    : 'text-[color:var(--calendar-muted-text,var(--color-text-tertiary))]'
                 )}
               >
                 <span

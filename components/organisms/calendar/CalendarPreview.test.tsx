@@ -34,9 +34,10 @@ const block: EditorBlock<'calendar'> = {
 
 const renderPreview = (
   blockInfo: EditorBlock<'calendar'>,
-  isGuestPage = false
-) =>
-  render(
+  isGuestPage = false,
+  dark = false
+) => {
+  const preview = (
     <CalendarPreview
       blockInfo={blockInfo}
       className=""
@@ -45,6 +46,8 @@ const renderPreview = (
       onClick={() => {}}
     />
   );
+  return render(dark ? <div data-invitation-dark>{preview}</div> : preview);
+};
 
 describe('CalendarPreview', () => {
   beforeEach(() => useEditorStore.getState().reset());
@@ -77,6 +80,73 @@ describe('CalendarPreview', () => {
     expect(screen.getByText('월요일 오후 2시 30분')).toBeInTheDocument();
     expect(screen.getByText('일', { exact: true })).toBeInTheDocument();
     expect(screen.getByTestId('dday-countdown-preview')).toBeInTheDocument();
+  });
+});
+
+describe('어두운 배경의 달력 본문', () => {
+  beforeEach(() => useEditorStore.getState().reset());
+
+  it.each([
+    'calendarType1',
+    'calendarType2',
+    'calendarType3',
+    'calendarType4',
+    'calendarType5',
+  ])('%s에서 일반 날짜와 날짜 안내에 달력 글자색을 사용한다', template => {
+    act(() => useEditorStore.getState().selectBackgroundColor('#536780'));
+    const { container } = renderPreview(
+      { ...block, props: { ...block.props, date: '2026-03-19', template } },
+      false,
+      true
+    );
+
+    const dateSummary = screen.getByText('2026년 3월 19일').parentElement;
+    expect(dateSummary?.className).toContain('--calendar-text');
+    const regularDate = screen.getByText('18');
+    const regularDateStyle =
+      template === 'calendarType3' || template === 'calendarType4'
+        ? regularDate.parentElement
+        : regularDate.parentElement?.parentElement;
+    expect(regularDateStyle?.className).toContain('--calendar-text');
+    const calendar = container.querySelector<HTMLElement>(
+      '[style*="--calendar-automatic-body-color"]'
+    );
+    expect(
+      calendar?.style.getPropertyValue('--calendar-automatic-body-color')
+    ).toBe('#E2E6ED');
+  });
+
+  it('대비 경계에 가까운 회색에서 흰색 보조 글자색을 사용하고 사용자 지정 본문색은 보존한다', () => {
+    act(() => useEditorStore.getState().selectBackgroundColor('#757575'));
+    const { container } = renderPreview(
+      { ...block, props: { ...block.props, date: '2026-03-19' } },
+      false,
+      true
+    );
+    const calendar = container.querySelector<HTMLElement>(
+      '[style*="--calendar-automatic-body-color"]'
+    );
+    expect(
+      calendar?.style.getPropertyValue('--calendar-automatic-body-color')
+    ).toBe('#FFFFFF');
+    expect(screen.getByText('월').className).toContain('--calendar-muted-text');
+    const adjacentDate = screen.getAllByText('1')[1];
+    expect(adjacentDate.parentElement?.parentElement?.className).toContain(
+      '--calendar-outside-month-opacity'
+    );
+
+    act(() => {
+      const editor = useEditorStore.getState();
+      editor.setBodyData({
+        ...editor.bodyData,
+        color: '#d49398',
+        colorMode: 'custom',
+      });
+    });
+    expect(
+      calendar?.style.getPropertyValue('--calendar-automatic-body-color')
+    ).toBe('');
+    expect(useEditorStore.getState().bodyData.color).toBe('#d49398');
   });
 });
 
