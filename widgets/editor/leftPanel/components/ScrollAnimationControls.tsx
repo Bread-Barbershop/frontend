@@ -10,7 +10,7 @@ import {
   resolveMotionEasing,
 } from '@/shared/utils/motionSettings';
 
-export function ScrollAnimationControls() {
+export function ScrollAnimationControls({ embedded = false } = {}) {
   const [expanded, setExpanded] = useState(false);
   const { scrollAnimation, updateScrollAnimation } = useEditorStore(
     useShallow(state => ({
@@ -19,24 +19,34 @@ export function ScrollAnimationControls() {
     }))
   );
   const animation = resolveScrollAnimation(scrollAnimation);
+  const toggle = (
+    <button
+      type="button"
+      className="flex w-full items-center justify-between text-sm font-semibold"
+      aria-expanded={expanded}
+      onClick={() => setExpanded(previous => !previous)}
+    >
+      {embedded ? '스크롤 세부 설정' : '스크롤 애니메이션'}
+      <span aria-hidden="true">{expanded ? '−' : '+'}</span>
+    </button>
+  );
   return (
-    <div className="w-full rounded-lg border border-black/5 bg-white p-3 shadow-edit">
-      <button
-        type="button"
-        className="flex w-full items-center justify-between text-sm font-semibold"
-        aria-expanded={expanded}
-        onClick={() => setExpanded(previous => !previous)}
-      >
-        스크롤 애니메이션
-        <span aria-hidden="true">{expanded ? '−' : '+'}</span>
-      </button>
-      {expanded && (
-        <div className="mt-3 flex flex-col gap-3">
-          <p className="text-xs text-text-tertiary">
-            모든 블록에 동일하게 적용돼요.
-          </p>
-          <label className="flex flex-col gap-1 text-xs">
-            효과
+    <div
+      className={
+        embedded
+          ? 'w-full'
+          : 'w-full rounded-lg border border-black/5 bg-white p-3 shadow-edit'
+      }
+    >
+      {!embedded && toggle}
+      {(expanded || embedded) && (
+        <div
+          className={
+            embedded ? 'flex flex-col gap-2' : 'mt-3 flex flex-col gap-3'
+          }
+        >
+          <label className="flex flex-col gap-1.5 text-xs font-medium text-text-secondary">
+            {embedded ? '스크롤 애니메이션' : '효과'}
             <select
               className="h-9 rounded-md border border-border-divider px-2 text-sm"
               value={animation.animationType}
@@ -54,7 +64,8 @@ export function ScrollAnimationControls() {
               <option value="zoom-in">확대</option>
             </select>
           </label>
-          {animation.animationType !== 'none' && (
+          {embedded && toggle}
+          {expanded && animation.animationType !== 'none' && (
             <>
               <label className="flex flex-col gap-2 text-xs">
                 <span className="flex justify-between">
@@ -104,22 +115,24 @@ export function ScrollAnimationControls() {
               </p>
             </>
           )}
-          <label className="flex flex-col gap-1 text-xs">
-            동작 방향
-            <select
-              className="h-9 rounded-md border border-border-divider px-2 text-sm"
-              value={animation.triggerMode}
-              onChange={e =>
-                updateScrollAnimation({
-                  triggerMode: e.target.value as typeof animation.triggerMode,
-                })
-              }
-            >
-              <option value="down-only">아래로 내릴 때 (1회)</option>
-              <option value="both">상하 반복</option>
-              <option value="up-only">위로 올릴 때</option>
-            </select>
-          </label>
+          {expanded && (
+            <label className="flex flex-col gap-1 text-xs">
+              동작 방향
+              <select
+                className="h-9 rounded-md border border-border-divider px-2 text-sm"
+                value={animation.triggerMode}
+                onChange={e =>
+                  updateScrollAnimation({
+                    triggerMode: e.target.value as typeof animation.triggerMode,
+                  })
+                }
+              >
+                <option value="down-only">아래로 내릴 때 (1회)</option>
+                <option value="both">상하 반복</option>
+                <option value="up-only">위로 올릴 때</option>
+              </select>
+            </label>
+          )}
         </div>
       )}
     </div>

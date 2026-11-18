@@ -134,6 +134,7 @@ describe('useInvitationTemplate', () => {
         { id: 'shareUrl', file: [oldPhoto] },
       ],
       backgroundColor: '#FFFFFF',
+      backgroundTexture: { material: 'wood', strength: 74 },
       scrollAnimation: {
         animationType: 'fade',
         triggerMode: 'both',
@@ -194,6 +195,7 @@ describe('useInvitationTemplate', () => {
     expect(after.block).toBe(before.block);
     expect(after.images).toBe(before.images);
     expect(after.backgroundColor).toBe(before.backgroundColor);
+    expect(after.backgroundTexture).toBe(before.backgroundTexture);
     expect(after.titleData).toBe(before.titleData);
     expect(after.bodyData).toBe(before.bodyData);
     expect(after.selectedId).toBe('mainPoster');
@@ -235,6 +237,7 @@ describe('useInvitationTemplate', () => {
     expect(setStateSpy).toHaveBeenCalledTimes(1);
     expect(state.block[0].id).toBe('new-page');
     expect(state.backgroundColor).toBe('#FAF8F2');
+    expect(state.backgroundTexture.material).toBe('none');
     expect(state.titleData.font).toBe('Hahmlet');
     expect(state.bodyData.font).toBe('SUIT');
     expect(state.scrollAnimation).toEqual(DEFAULT_SCROLL_ANIMATION);

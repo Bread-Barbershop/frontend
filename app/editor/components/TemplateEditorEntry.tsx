@@ -10,6 +10,7 @@ import DrivePermissionRequiredModal from '@/features/session/components/DrivePer
 import LoginModal from '@/features/session/components/LoginModal';
 import PrivacyNoticeModal from '@/features/session/components/PrivacyNoticeModal';
 import { useAuthGate } from '@/features/session/hooks/useAuthGate';
+import { DEFAULT_BACKGROUND_TEXTURE } from '@/shared/data/backgroundTextures';
 import { createInvitationTemplate } from '@/shared/data/invitationTemplates';
 import { INVITATION_TEMPLATES } from '@/shared/data/invitationTemplates/catalog';
 import type { PersistedEditorBlock } from '@/shared/types/block';
@@ -29,6 +30,7 @@ export async function prepareTemplateEditorData(
     blocks: prepared.blocks as PersistedEditorBlock[],
     bulkData: {
       backgroundColor: prepared.backgroundColor,
+      backgroundTexture: DEFAULT_BACKGROUND_TEXTURE,
       sectionStyle: prepared.sectionStyle,
       titleData: prepared.titleData,
       bodyData: prepared.bodyData,

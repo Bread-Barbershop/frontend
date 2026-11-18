@@ -2,15 +2,15 @@
 
 import { useState } from 'react';
 
-import { EditorNoticeList } from '@/components/molecules/editor-notice';
 import type { BulkColorPickerId } from '@/components/molecules/preview-text-editor/types';
 import { SectionStyleSelect } from '@/components/molecules/section-style-select/SectionStyleSelect';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import BackGroundColorEdit from './BackGroundColorEdit';
+import BackgroundTextureEdit from './BackgroundTextureEdit';
 import BodyEdit from './BodyEdit';
-import { ScrollAnimationControls } from './ScrollAnimationControls';
+import { InvitationEffectsControls } from './InvitationEffectsControls';
 import TitleEdit from './TitleEdit';
 
 function BulkEdit() {
@@ -21,7 +21,10 @@ function BulkEdit() {
 
   return (
     <div className="w-full bg-white rounded-b-lg shadow-edit border border-t-0 border-black/5 transition-default">
-      <LeftEditorWrapper className="overflow-x-hidden max-h-158">
+      <LeftEditorWrapper
+        ariaLabel="전체 스타일 편집"
+        className="overflow-x-hidden max-h-158"
+      >
         <TitleEdit
           activeColorPickerId={activeColorPickerId}
           onActiveColorPickerChange={setActiveColorPickerId}
@@ -30,25 +33,18 @@ function BulkEdit() {
           activeColorPickerId={activeColorPickerId}
           onActiveColorPickerChange={setActiveColorPickerId}
         />
-        <BackGroundColorEdit />
-        <ScrollAnimationControls />
+        <section className="w-full" aria-label="배경 편집">
+          <BackGroundColorEdit
+            activeColorPickerId={activeColorPickerId}
+            onActiveColorPickerChange={setActiveColorPickerId}
+          />
+          <BackgroundTextureEdit />
+        </section>
+        <InvitationEffectsControls />
         <SectionStyleSelect
-          label="초대장 기본 카드 스타일"
+          label="기본 카드 스타일"
           value={sectionStyle}
           onChange={setSectionStyle}
-        />
-        {/* <BackGroundEdit
-          activeColorPickerId={activeColorPickerId}
-          onActiveColorPickerChange={setActiveColorPickerId}
-        /> */}
-        <EditorNoticeList
-          notices={[
-            {
-              id: 'bulk-edit',
-              text: '초대장의 글꼴과 배경, 스크롤 애니메이션, 기본 카드 스타일을 변경할 수 있습니다. 새 블록에도 기본 카드 스타일이 적용됩니다.',
-              colorClass: 'text-[#1F72EF]',
-            },
-          ]}
         />
       </LeftEditorWrapper>
     </div>

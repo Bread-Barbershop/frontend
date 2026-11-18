@@ -61,6 +61,7 @@ export function useBulkEditor(
     onBulkChange({
       ...bulkData,
       color: hex,
+      colorMode: 'custom',
     });
   };
 

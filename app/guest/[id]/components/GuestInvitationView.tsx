@@ -1,7 +1,10 @@
 'use client';
 
+import { InvitationBackgroundTexture } from '@/components/molecules/invitation-background-texture/InvitationBackgroundTexture';
 import InviaLogo from '@/shared/assets/logo/invia-logo.svg';
 import { DriveImageResolveModeProvider } from '@/shared/hooks/useDriveImageResolveMode';
+import { cn } from '@/shared/utils/cn';
+import { isDarkInvitationBackground } from '@/shared/utils/invitationBackgroundColor';
 
 import GuestBgm from './GuestBgm';
 import { GuestMainPoster } from './GuestMainPoster';
@@ -18,6 +21,7 @@ type GuestInvitationViewProps = {
   mode?: GuestInvitationViewMode;
   previewFolderId?: string;
   localAudioSrc?: string | null;
+  showVisualEffects?: boolean;
 };
 
 function GuestInvitationView({
@@ -26,6 +30,7 @@ function GuestInvitationView({
   mode = 'guest',
   previewFolderId,
   localAudioSrc,
+  showVisualEffects,
 }: GuestInvitationViewProps) {
   const Root = mode === 'guest' ? 'main' : 'div';
   const rootClassName =
@@ -36,8 +41,8 @@ function GuestInvitationView({
     mode === 'dashboard-preview' ? 'dashboard-preview' : 'public';
   const containerClassName =
     mode === 'guest'
-      ? 'relative mx-auto w-full min-w-[375px] max-w-[430px] bg-white shadow-sm'
-      : 'relative mx-auto w-full max-w-[430px] bg-white shadow-sm';
+      ? 'relative isolate mx-auto w-full min-w-[375px] max-w-[430px] shadow-sm'
+      : 'relative isolate mx-auto w-full max-w-[430px] shadow-sm';
 
   return (
     <DriveImageResolveModeProvider
@@ -45,13 +50,11 @@ function GuestInvitationView({
       mode={imageResolveMode}
     >
       <Root className={rootClassName}>
-        <div
-          id="preview-container"
-          className={containerClassName}
-          style={{
-            backgroundColor: payload.bulkData.backgroundColor,
-          }}
-        >
+        <div id="preview-container" className={containerClassName}>
+          <InvitationBackgroundTexture
+            color={payload.bulkData.backgroundColor}
+            texture={payload.bulkData.backgroundTexture}
+          />
           <div className="sticky top-0 z-50 h-0">
             <GuestBgm
               bgm={payload.bgm}
@@ -74,32 +77,48 @@ function GuestInvitationView({
               bulkData={payload.bulkData}
               renderHints={payload.renderHints}
               activePrivacyFields={payload.activePrivacyFields}
+              {...(showVisualEffects === false && { showVisualEffects: false })}
               isGuestPage
             />
           </div>
-          <GuestInvitationFooter />
+          <GuestInvitationFooter
+            darkBackground={isDarkInvitationBackground(
+              payload.bulkData.backgroundColor
+            )}
+          />
         </div>
       </Root>
     </DriveImageResolveModeProvider>
   );
 }
 
-function GuestInvitationFooter() {
+function GuestInvitationFooter({ darkBackground }: { darkBackground: boolean }) {
   return (
     <footer
-      className="flex h-[76px] w-full select-none items-center justify-center bg-inherit"
+      className="flex h-[76px] w-full select-none items-center justify-center"
       aria-label="Special moments with INVIA"
     >
       <a
         href="https://invia.co.kr"
-        className="flex items-end gap-[5px]"
+        className={cn(
+          'flex items-end gap-[5px]',
+          darkBackground && 'text-white'
+        )}
         aria-label="INVIA 홈페이지로 이동"
       >
-        <span className="font-['NanumSquare'] text-[11px] font-bold leading-[11px] text-[#4E4E4E]">
+        <span
+          className={cn(
+            "font-['NanumSquare'] text-[11px] font-bold leading-[11px]",
+            !darkBackground && 'text-[#4E4E4E]'
+          )}
+        >
           Special moments with
         </span>
         <InviaLogo
-          className="h-[12px] w-auto shrink-0"
+          className={cn(
+            'h-[12px] w-auto shrink-0',
+            darkBackground && '[&_path]:fill-current'
+          )}
           focusable="false"
           aria-hidden="true"
         />

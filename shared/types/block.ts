@@ -1,12 +1,16 @@
 import { PickerHsva } from '@/components/molecules/color-picker/components/colorPicker.types';
 import type { ScrollAnimationSettings } from '@/components/molecules/scroll-fade-in/animationConfig';
 import type { InvitationPrivacy } from '@/features/invitation/privacy/settings';
+import type { BackgroundTextureSettings } from '@/shared/data/backgroundTextures';
 import { blockRegistry } from '@/shared/data/registry/registry';
 import type { SectionStyle } from '@/shared/data/sectionStyles';
 
 import { blockSchema } from '../data/registry/block.schema';
 
 import { BlockType, PropsFromFields } from './editor';
+
+import type { InvitationEffectsSettings } from '../utils/invitationEffects';
+
 export type InvitationType =
   | 'wedding'
   | 'firstBirthday'
@@ -42,6 +46,7 @@ export interface BulkData {
   fontSize: string;
   fontWeight: string;
   color: string;
+  colorMode?: 'automatic' | 'custom';
   isDefault: boolean;
 }
 
@@ -139,10 +144,18 @@ export interface BulkSlice {
   titleData: BulkData;
   bodyData: BulkData;
   backgroundColor: string;
+  backgroundTexture: BackgroundTextureSettings;
+  setBackgroundTexture: (settings?: BackgroundTextureSettings) => void;
   isZoom: boolean;
   invitationPrivacy?: InvitationPrivacy;
   scrollAnimation: ScrollAnimationSettings;
+  invitationEffects?: InvitationEffectsSettings;
+  setInvitationEffects: (settings: InvitationEffectsSettings | undefined) => void;
+  updateInvitationEffects: (settings: InvitationEffectsSettings) => void;
+  invitationEffectsReplay: number;
+  replayInvitationEffects: () => void;
   setBackgroundColor: (color: string) => void;
+  selectBackgroundColor: (color: string) => void;
   setTitleData: (data: BulkData) => void;
   setBodyData: (data: BulkData) => void;
   setIsZoom: (isZoom: boolean) => void;

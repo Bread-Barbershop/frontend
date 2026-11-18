@@ -64,12 +64,14 @@ export function createPreviewSnapshot(posterDataUrl: string) {
       blocks: resolveFiles(editor.block),
       bulkData: {
         backgroundColor: editor.backgroundColor,
+        backgroundTexture: editor.backgroundTexture,
         sectionStyle: editor.sectionStyle,
         titleData: { ...editor.titleData },
         bodyData: { ...editor.bodyData },
         isZoom: editor.isZoom,
         invitationPrivacy: editor.invitationPrivacy,
         scrollAnimation: editor.scrollAnimation,
+        invitationEffects: editor.invitationEffects,
       },
       mainPoster: { version: '1', objects: [], thumbnailFileId: posterDataUrl },
       bgm: {

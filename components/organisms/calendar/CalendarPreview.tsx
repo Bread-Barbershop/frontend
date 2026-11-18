@@ -4,11 +4,15 @@ import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/ut
 import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { useTitleFontInfo } from '@/shared/hooks/useTitleFontInfo';
 import { EditorBlock } from '@/shared/types/block';
+import { isDarkInvitationBackground } from '@/shared/utils/invitationBackgroundColor';
 
 import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
 
+import styles from './calendarPreview.module.css';
 import { CalendarTemplates, DDayCountdown } from './components';
 import { useCalendarData } from './hooks/useCalendarData';
+
+import type { CSSProperties } from 'react';
 
 interface Props {
   blockInfo: EditorBlock<'calendar'>;
@@ -56,8 +60,12 @@ export function CalendarPreview({
   } = useCalendarData({ date, time, language, template, type: blockInfo.type });
 
   const isDateIncomplete = !date || date.length < 10;
-  const { fontFamily } = useBodyFontInfo();
+  const { fontFamily, color, isColorAutomatic } = useBodyFontInfo();
   const { mainStyle } = useTitleFontInfo();
+  const automaticLightInk =
+    isColorAutomatic && color && !isDarkInvitationBackground(color)
+      ? color
+      : undefined;
 
   if (isDateIncomplete && isGuestPage) return null;
 
@@ -66,7 +74,14 @@ export function CalendarPreview({
 
   return (
     <MiddlePreviewWrapper
-      className={`${className} relative`}
+      className={`${className} relative ${styles.preview}`}
+      style={
+        automaticLightInk
+          ? ({
+              '--calendar-automatic-body-color': automaticLightInk,
+            } as CSSProperties)
+          : undefined
+      }
       titleClassName={titleClassName}
       noTitle={isDateIncomplete}
       checkedSubTitle={isSubTitle}
@@ -78,7 +93,7 @@ export function CalendarPreview({
       {...rest}
     >
       {isDateIncomplete ? (
-        <p className="text-sm text-gray-400 font-normal">
+        <p className="text-sm text-[color:var(--calendar-muted-text,var(--color-gray-400))] font-normal">
           날짜와 시간을 입력해 주세요
         </p>
       ) : (
@@ -86,7 +101,7 @@ export function CalendarPreview({
           {/* String Date Display */}
           {showStringDate && (
             <div
-              className="flex flex-col items-center tracking-[-0.01rem] leading-[1.2] text-base font-normal text-text-primary min-h-[40px] justify-center"
+              className="flex flex-col items-center tracking-[-0.01rem] leading-[1.2] text-base font-normal text-[color:var(--calendar-text,var(--color-text-primary))] min-h-[40px] justify-center"
               style={{ fontFamily }}
             >
               <p>{stringDateFormatted}</p>

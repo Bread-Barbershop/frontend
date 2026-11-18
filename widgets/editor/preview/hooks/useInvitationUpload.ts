@@ -353,12 +353,14 @@ export const useInvitationUpload = () => {
 
       const bulkData = {
         backgroundColor: editorData.backgroundColor,
+        backgroundTexture: editorData.backgroundTexture,
         sectionStyle: editorData.sectionStyle,
         titleData: editorData.titleData,
         bodyData: editorData.bodyData,
         isZoom: editorData.isZoom,
         invitationPrivacy: editorData.invitationPrivacy,
         scrollAnimation: editorData.scrollAnimation,
+        invitationEffects: editorData.invitationEffects,
       };
 
       const mainPoster = exportIntersectedJSON() ?? {

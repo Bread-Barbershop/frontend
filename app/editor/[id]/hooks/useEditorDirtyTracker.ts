@@ -17,10 +17,12 @@ export function useEditorDirtyTracker(enabled: boolean) {
         state.titleData,
         state.bodyData,
         state.backgroundColor,
+        state.backgroundTexture,
         state.sectionStyle,
         state.isZoom,
         state.invitationPrivacy,
         state.scrollAnimation,
+        state.invitationEffects,
       ],
       () => {
         useEditorStore.getState().setIsDirty(true);

@@ -18,10 +18,12 @@ export function CalendarType5({
     <div className="w-full flex flex-col font-lineseed gap-1">
       <div className="flex flex-col items-center">
         <div className="flex-center h-11">
-          <span className="text-[#1f2937] mb-1">{currentYear}</span>
+          <span className="text-[color:var(--calendar-text,#1f2937)] mb-1">
+            {currentYear}
+          </span>
         </div>
         <div className="flex-center h-17">
-          <h3 className="text-[44px] font-bold text-[#1f2937] tracking-wider leading-none">
+          <h3 className="text-[44px] font-bold text-[color:var(--calendar-text,#1f2937)] tracking-wider leading-none">
             {monthText}
           </h3>
         </div>
@@ -35,7 +37,7 @@ export function CalendarType5({
               <div
                 key={idx}
                 className={cn(
-                  'w-full h-11 shrink-0 flex items-center justify-between text-[#1f2937]',
+                  'w-full h-11 shrink-0 flex items-center justify-between text-[color:var(--calendar-text,#1f2937)]',
                   isTarget && 'text-text-wedding'
                 )}
                 style={isTarget ? { color: accentColor } : undefined}
@@ -57,7 +59,7 @@ export function CalendarType5({
                 )}
               </div>
               {idx !== calendarDays.length - 1 && (
-                <hr className="w-full border-[#EAEAEA]" />
+                <hr className="w-full border-[color:var(--calendar-divider,#EAEAEA)]" />
               )}
             </Fragment>
           );

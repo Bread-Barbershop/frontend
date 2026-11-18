@@ -19,15 +19,19 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { EditorCallout } from '@/components/molecules/editor-callout';
+import { InvitationBackgroundTexture } from '@/components/molecules/invitation-background-texture/InvitationBackgroundTexture';
 import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
 import { EditorBgmOverlay } from '@/components/organisms/bgm/components/EditorBgmOverlay';
 import InvitationChapter from '@/components/organisms/invitation-chapter/InvitationChapter';
+import { InvitationVisualEffects } from '@/components/organisms/visualEffects/VisualEffectsPreview';
 import CalloutIcon from '@/shared/assets/icons/callout.svg';
 import { componentCls } from '@/shared/data/componentsInfo/componentInfo';
 import { isBlockEnabled } from '@/shared/data/registry/blockAvailability';
 import { blockRegistry } from '@/shared/data/registry/registry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useEditorCalloutStore } from '@/shared/store/useEditorCalloutStore';
+import { usesDarkInvitationCards } from '@/shared/utils/invitationBackgroundColor';
+import { resolveInvitationEffects } from '@/shared/utils/invitationEffects';
 import { MainPosterPreview } from '@/widgets/mainPoster/components/MainPosterPreview';
 
 import { SortablePreviewBlock } from './components/SortablePreviewBlock';
@@ -65,7 +69,11 @@ function Preview() {
     selectedBlock,
     setIsEdit,
     backgroundColor,
+    backgroundTexture,
+    darkCards,
     scrollAnimation,
+    invitationEffects,
+    invitationEffectsReplay,
     sectionStyle,
     moveBlock,
   } = useEditorStore(
@@ -75,7 +83,15 @@ function Preview() {
       selectedBlock: state.selectedBlock,
       setIsEdit: state.setIsEdit,
       backgroundColor: state.backgroundColor,
+      backgroundTexture: state.backgroundTexture,
+      darkCards: usesDarkInvitationCards(
+        state.backgroundColor,
+        state.titleData,
+        state.bodyData
+      ),
       scrollAnimation: state.scrollAnimation,
+      invitationEffects: state.invitationEffects,
+      invitationEffectsReplay: state.invitationEffectsReplay,
       sectionStyle: state.sectionStyle,
       moveBlock: state.moveBlock,
     }))
@@ -106,6 +122,12 @@ function Preview() {
     });
   }, [selectedId, block]);
 
+  useEffect(() => {
+    if (invitationEffectsReplay > 0 && previewScrollContainerRef.current) {
+      previewScrollContainerRef.current.scrollTop = 0;
+    }
+  }, [invitationEffectsReplay]);
+
   const finishDrag = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
@@ -128,9 +150,18 @@ function Preview() {
       className={`w-93.75 h-[812px] flex flex-col relative shrink-0`}
     >
       <EditorBgmOverlay />
+      {invitationEffectsReplay > 0 && (
+        <InvitationVisualEffects
+          key={invitationEffectsReplay}
+          effects={resolveInvitationEffects(invitationEffects, block)}
+          backgroundColor={backgroundColor}
+          contentRef={previewScrollContainerRef}
+          scope="editor"
+        />
+      )}
       <div
         className="h-full bg-white overflow-hidden"
-        style={{ backgroundColor }}
+        data-invitation-dark={darkCards || undefined}
       >
         <div
           ref={previewScrollContainerRef}
@@ -148,7 +179,11 @@ function Preview() {
               </div>
             </div>
           )}
-          <div className="flex flex-col min-h-full font-lineseed">
+          <div className="relative isolate flex min-h-full flex-col font-lineseed">
+            <InvitationBackgroundTexture
+              color={backgroundColor}
+              texture={backgroundTexture}
+            />
             <div
               ref={el => {
                 blockRefs.current.mainPoster = el;

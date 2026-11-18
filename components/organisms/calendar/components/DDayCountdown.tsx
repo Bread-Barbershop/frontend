@@ -1,7 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 
 import { PreviewBody } from '@/components/atoms/preview-body/PreviewBody';
-import { cn } from '@/shared/utils/cn';
 
 interface Props {
   date: string;
@@ -98,48 +97,34 @@ export function DDayCountdown({ date, time, messageJson }: Props) {
   const padZero = (num: number) => num.toString().padStart(2, '0');
 
   return (
-    <div
-      className={cn(
-        'w-full bg-transparent border-t border-border-divider py-6 px-6 flex flex-col items-center justify-center gap-4 text-center font-bold'
-      )}
-    >
-      <div className="flex w-full justify-between items-center text-center">
+    <div className="w-full bg-transparent border-t border-[color:var(--calendar-divider,var(--color-border-divider))] py-6 px-6 flex flex-col items-center justify-center gap-4 text-center font-bold">
+      <div className="flex w-full justify-between items-center text-center text-[color:var(--calendar-muted-text,#8e8e8e)]">
         <div className="flex flex-col gap-1 items-center w-1/4">
-          <span className="text-[#8e8e8e] text-xs font-serif tracking-wider">
-            DAYS
-          </span>
-          <span className="text-[#8e8e8e] text-base font-serif">
-            {padZero(timeLeft.days)}
-          </span>
+          <span className="text-xs font-serif tracking-wider">DAYS</span>
+          <span className="text-base font-serif">{padZero(timeLeft.days)}</span>
         </div>
         <div className="flex flex-col gap-1 items-center w-1/4">
-          <span className="text-[#8e8e8e] text-xs font-serif tracking-wider">
-            HOUR
-          </span>
-          <span className="text-[#8e8e8e] text-base font-serif">
+          <span className="text-xs font-serif tracking-wider">HOUR</span>
+          <span className="text-base font-serif">
             {padZero(timeLeft.hours)}
           </span>
         </div>
         <div className="flex flex-col gap-1 items-center w-1/4">
-          <span className="text-[#8e8e8e] text-xs font-serif tracking-wider">
-            MIN
-          </span>
-          <span className="text-[#8e8e8e] text-base font-serif">
+          <span className="text-xs font-serif tracking-wider">MIN</span>
+          <span className="text-base font-serif">
             {padZero(timeLeft.minutes)}
           </span>
         </div>
         <div className="flex flex-col gap-1 items-center w-1/4">
-          <span className="text-[#8e8e8e] text-xs font-serif tracking-wider">
-            SEC
-          </span>
-          <span className="text-[#8e8e8e] text-base font-serif">
+          <span className="text-xs font-serif tracking-wider">SEC</span>
+          <span className="text-base font-serif">
             {padZero(timeLeft.seconds)}
           </span>
         </div>
       </div>
       {messageJson && <PreviewBody html={processedMessageHtml} />}
       {!messageJson && (
-        <div className="text-[#8e8e8e] text-sm tracking-tight w-full text-center">
+        <div className="text-[color:var(--calendar-muted-text,#8e8e8e)] text-sm tracking-tight w-full text-center">
           {timeLeft.days}일 남았습니다.
         </div>
       )}

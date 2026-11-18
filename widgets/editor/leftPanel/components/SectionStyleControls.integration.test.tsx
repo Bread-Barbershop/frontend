@@ -27,6 +27,16 @@ jest.mock('next/navigation', () => ({ usePathname: () => '/guest/test' }));
 jest.mock('@/shared/fonts/fontLoader', () => ({
   preloadFontFamilyWeights: jest.fn().mockResolvedValue(undefined),
 }));
+jest.mock('@/components/molecules/text-editor/utils/tiptapJsonToHtml', () => {
+  const actual = jest.requireActual<
+    typeof import('@/components/molecules/text-editor/utils/tiptapJsonToHtml')
+  >('@/components/molecules/text-editor/utils/tiptapJsonToHtml');
+
+  return {
+    ...actual,
+    tiptapJsonToHtmlInBrowser: actual.tiptapJsonToHtmlUniversal,
+  };
+});
 jest.mock('./TitleEdit', () => ({ __esModule: true, default: () => null }));
 jest.mock('./BodyEdit', () => ({ __esModule: true, default: () => null }));
 jest.mock('./BackGroundColorEdit', () => ({
@@ -65,12 +75,10 @@ describe('템플릿과 추가 블록의 공통 카드 디자인', () => {
         <SectionStyleControls selectedId="added-faq" />
       </>
     );
-    expect(screen.getByLabelText('초대장 기본 카드 스타일')).toHaveValue(
-      'paper'
-    );
+    expect(screen.getByLabelText('기본 카드 스타일')).toHaveValue('paper');
     expect(screen.getByLabelText('이 블록의 카드 스타일')).toHaveValue('');
 
-    fireEvent.change(screen.getByLabelText('초대장 기본 카드 스타일'), {
+    fireEvent.change(screen.getByLabelText('기본 카드 스타일'), {
       target: { value: 'rounded' },
     });
     const inherited = createPreviewSnapshot('data:image/png;base64,test');
@@ -151,6 +159,102 @@ describe('템플릿과 추가 블록의 공통 카드 디자인', () => {
       useEditorStore.getState().reset();
     });
     expect(useEditorStore.getState().sectionStyle).toBeUndefined();
+  });
+
+  it('저장된 어두운 배경과 자동 글자색을 공개 미리보기 카드에 반영한다', () => {
+    const styledText = (text: string, color: string) => ({
+      type: 'text',
+      text,
+      marks: [
+        {
+          type: 'textStyle',
+          attrs: {
+            fontFamily: 'LINESeedKR',
+            fontSize: '14px',
+            fontWeight: '400',
+            color,
+          },
+        },
+      ],
+    });
+    act(() => {
+      const editor = useEditorStore.getState();
+      editor.addBlock('wedding', 'greeting', 'dark-greeting');
+      editor.updateBlock('dark-greeting', {
+        title: '어두운 배경 인사말',
+        messageJson: {
+          type: 'doc',
+          content: [
+            {
+              type: 'paragraph',
+              content: [
+                styledText('기존 기본 본문', '#000000'),
+                styledText('지정한 로즈', '#BC7780'),
+                styledText('지정한 검정', 'rgba(0, 0, 0, 1)'),
+              ],
+            },
+          ],
+        },
+        messageHtml:
+          '<p><span style="font-family: LINESeedKR; font-size: 14px; font-weight: 400; color: #000000">기존 기본 본문</span><span style="font-family: LINESeedKR; font-size: 14px; font-weight: 400; color: #BC7780">지정한 로즈</span><span style="font-family: LINESeedKR; font-size: 14px; font-weight: 400; color: rgba(0, 0, 0, 1)">지정한 검정</span></p>',
+      });
+      editor.setSectionStyle('outlined');
+      editor.selectBackgroundColor('#536780');
+    });
+
+    const preview = createPreviewSnapshot('data:image/png;base64,test');
+    const restored = parsePreviewSnapshot(
+      JSON.parse(JSON.stringify(preview.snapshot))
+    );
+    preview.dispose();
+    if (!restored) throw new Error('Preview snapshot was not restored');
+
+    render(<GuestRenderer {...restored.payload} />);
+
+    const title = screen.getByText('어두운 배경 인사말');
+    expect(title).toHaveStyle({ color: '#FFFAF2' });
+    expect(
+      title.closest('[data-section-style="outlined"]')
+    ).toBeInTheDocument();
+    expect(title.closest('[data-invitation-dark]')).toBeInTheDocument();
+    expect(restored.payload.bulkData).toMatchObject({
+      backgroundColor: '#536780',
+      bodyData: { color: '#E2E6ED', colorMode: 'automatic' },
+    });
+    const inherited = screen.getByText('기존 기본 본문');
+    expect(getComputedStyle(inherited).color).toBe('rgb(226, 230, 237)');
+    expect(inherited).toHaveStyle({ fontSize: '14px', fontWeight: '400' });
+    expect(screen.getByText('지정한 로즈')).toHaveStyle({ color: '#BC7780' });
+    expect(screen.getByText('지정한 검정')).toHaveStyle({ color: '#000000' });
+
+    const darkBlock = useEditorStore.getState().block[0];
+    act(() => useEditorStore.getState().selectBackgroundColor('#FFFFFF'));
+    expect(useEditorStore.getState().block[0]).toBe(darkBlock);
+    expect(useEditorStore.getState().bodyData.color).toBe('#000000');
+    expect(inherited).toHaveAttribute(
+      'style',
+      expect.not.stringContaining('color:')
+    );
+    expect(screen.getByText('지정한 로즈')).toHaveStyle({ color: '#BC7780' });
+  });
+
+  it('HTML만 남아 있는 본문에서 기존 기본 색상만 제거한다', () => {
+    act(() => {
+      const editor = useEditorStore.getState();
+      editor.addBlock('wedding', 'greeting', 'legacy-html');
+      editor.updateBlock('legacy-html', {
+        messageJson: null,
+        messageHtml:
+          '<p><span style="color: #000000; font-size: 14px; font-family: LINESeedKR; font-weight: 400; font-style: italic">기존 본문</span><strong><span style="color: #000000; font-size: 18px; font-family: LINESeedKR; font-weight: 400">직접 편집한 본문</span></strong></p>',
+      });
+      editor.selectBackgroundColor('#536780');
+    });
+
+    expect(useEditorStore.getState().block[0].props).toMatchObject({
+      messageJson: null,
+      messageHtml:
+        '<p><span style=" font-size: 14px; font-family: LINESeedKR; font-weight: 400; font-style: italic">기존 본문</span><strong><span style="color: #000000; font-size: 18px; font-family: LINESeedKR; font-weight: 400">직접 편집한 본문</span></strong></p>',
+    });
   });
 
   it('기존 저장된 카드 모양을 읽고 명시적인 기본형 선택과 레이아웃 블록의 예외를 적용한다', () => {
