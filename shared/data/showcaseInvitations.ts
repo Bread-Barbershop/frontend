@@ -427,11 +427,31 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '자유로운 레드 레터링처럼, 우리다운 경쾌한 시작.',
     palette: ['#FFFCF8', '#C8463D', '#413A35'],
     eyebrow: 'LOVE, JUST THE WAY WE ARE',
-    heading: '가장 우리다운 결혼식',
+    heading: '거리에서처럼 편하게',
     message: [
-      '서로의 엉뚱한 생각에도 가장 크게 웃어 주는 사이.',
-      '지금처럼 즐겁게, 우리만의 속도로 살아가겠습니다.',
-      '좋아하는 사람들과 웃음으로 가득한 하루를 만들고 싶습니다.',
+      '특별한 날에도 우리답게 웃고 싶어요. 좋아하는 차림으로 와서 함께 건배해 주세요.',
+    ],
+    sectionStyle: 'rounded',
+    sections: [
+      {
+        component: 'dressCode',
+        title: '오늘의 포인트 컬러',
+        colors: ['#B52A36', '#E89A98', '#263335'],
+        guidelines: [
+          '운동화도 좋아요. 빨간 양말이나 작은 액세서리 하나면 충분해요.',
+        ],
+      },
+      { component: 'greeting' },
+      { component: 'calendar', title: '우리가 결혼하는 날' },
+      { component: 'place', title: '함께 모일 홀' },
+      {
+        component: 'afterParty',
+        title: '서약 뒤의 작은 파티',
+        venue: '웨딩홀 라운지',
+        dateTime: '오후 4시부터',
+        description:
+          '음악을 들으며 첫 잔을 나눠요. 무알코올 음료도 준비합니다.',
+      },
     ],
     moments: ['기분 좋은 인사', '우리다운 세리머니', 'Cheers! 함께 건배'],
     note: '격식보다 즐거움을 준비해 주세요. 마음에 드는 포인트 컬러 하나를 더해 오셔도 좋습니다.',
