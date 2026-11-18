@@ -3,7 +3,12 @@
 import { ChevronDown, RotateCcw, Sparkles } from 'lucide-react';
 import { useShallow } from 'zustand/shallow';
 
+import {
+  navigationBarClassName,
+  navigationBarHeadingClassName,
+} from '@/components/molecules/navigation-bar/NavigationBar.style';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { cn } from '@/shared/utils/cn';
 import { resolveInvitationEffects } from '@/shared/utils/invitationEffects';
 
 import { ScrollAnimationControls } from './ScrollAnimationControls';
@@ -21,14 +26,22 @@ export function InvitationEffectsControls() {
   const { opening, confetti } = resolveInvitationEffects(settings, blocks);
 
   return (
-    <details open className="group w-full border-y border-border-divider">
-      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 text-sm font-semibold [&::-webkit-details-marker]:hidden">
-        <Sparkles size={16} aria-hidden="true" />
-        <span className="flex-1">초대장 연출</span>
+    <details
+      open
+      className="group w-full border-b border-border-divider shadow-[inset_0_1px_0_var(--color-border-divider)]"
+    >
+      <summary
+        className={cn(
+          navigationBarClassName,
+          'cursor-pointer list-none [&::-webkit-details-marker]:hidden'
+        )}
+      >
+        <Sparkles size={16} aria-hidden="true" className="absolute left-0" />
+        <span className={navigationBarHeadingClassName}>초대장 연출</span>
         <ChevronDown
           size={16}
           aria-hidden="true"
-          className="group-open:rotate-180"
+          className="absolute right-0 group-open:rotate-180"
         />
       </summary>
       <div className="flex flex-col gap-4 pb-4">

@@ -43,6 +43,7 @@ function BulkEdit() {
         <InvitationEffectsControls />
         <SectionStyleSelect
           label="기본 카드 스타일"
+          sectionHeading
           value={sectionStyle}
           onChange={setSectionStyle}
         />
