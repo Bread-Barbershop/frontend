@@ -545,11 +545,31 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '푸른 그라데이션처럼 넓어지는 생각과 연결의 가능성.',
     palette: ['#F2F6FC', '#345BC5', '#354566'],
     eyebrow: 'NEW PERSPECTIVES, NEW POSSIBILITIES',
-    heading: '새로운 관점이 열리는 곳',
+    heading: '강연이 끝나면 옆 사람과 이야기를 나눕니다',
     message: [
-      '익숙한 해답 너머에서 새로운 가능성을 발견합니다.',
-      '다양한 분야의 시선이 만나 더 넓은 지평을 만드는 시간.',
-      '다음 기회를 함께 탐색할 여러분을 기다립니다.',
+      'Andrew Jackson의 발표에서 떠오른 질문을 가져오세요. 다른 팀에서 일하는 분들과 생각을 나눌 자리를 마련했습니다.',
+    ],
+    sectionStyle: 'rounded',
+    sections: [
+      { component: 'greeting' },
+      { component: 'calendar', title: '포럼 일시' },
+      {
+        component: 'afterParty',
+        title: '자리를 옮겨 나누는 대화',
+        venue: '오디토리움 앞 라운지',
+        dateTime: '강연이 끝나는 오후 4시부터',
+        description:
+          '테이블마다 한 가지 화두를 놓습니다. 관심 있는 자리로 자유롭게 옮겨 주세요.',
+      },
+      { component: 'place', title: '강연장과 라운지' },
+      {
+        component: 'organizerInformation',
+        title: '모임을 여는 팀',
+        organizer: 'NextGrowth',
+        message:
+          '서로 다른 업계의 실무자가 한 테이블에 앉는 자리를 기획합니다.',
+        image: '/samples/seminar_01/images/09_주최사.png',
+      },
     ],
     moments: ['변화를 읽는 시선', '아이디어를 기회로', '열린 대화와 연결'],
     note: '세션 후 자유로운 네트워킹 시간이 이어집니다. 나누고 싶은 질문과 소개를 준비해 오세요.',
