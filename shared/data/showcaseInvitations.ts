@@ -389,11 +389,31 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '산책처럼 편안하고, 여행처럼 설레는 우리의 초대.',
     palette: ['#FFFFFF', '#5B7059', '#3E483C'],
     eyebrow: 'A WALK TO REMEMBER',
-    heading: '함께 걷고 싶은 사람에게',
+    heading: '우리랑 조금 걸을래요?',
     message: [
-      '좋아하는 골목, 자주 가던 카페, 함께 웃었던 오후.',
-      '작은 일상 속에서 평생 함께하고 싶은 사람을 만났습니다.',
-      '우리의 새로운 일상에 첫 손님이 되어 주세요.',
+      '함께 걷다 보면 늘 길이 짧게 느껴졌어요. 이번에는 식이 끝나고 여러분과도 느긋하게 걷고 싶습니다.',
+    ],
+    sectionStyle: 'plain',
+    sections: [
+      {
+        component: 'interview',
+        title: '둘이 가장 좋아하는 데이트',
+        question: '둘이 자주 가는 곳이 있나요?',
+        answer:
+          '토요일 아침이면 집 앞 빵집까지 걸어요. 돌아오는 길에는 빵이 꼭 하나씩 줄어 있어요.',
+        image:
+          '/samples/wedding_14/images/06_b2cf8c86-2b11-4f18-b2de-bfc8fa5c08f4.jpg',
+      },
+      { component: 'greeting' },
+      { component: 'calendar', title: '우리의 만남' },
+      { component: 'place', title: '산책의 출발점' },
+      {
+        component: 'afterParty',
+        title: '식후에 가볍게 한 바퀴',
+        venue: '웨딩홀 앞마당',
+        dateTime: '식사 후',
+        description: '시간 되시는 분들과 앞마당을 걸으며 인사 나눌게요.',
+      },
     ],
     moments: ['반가운 얼굴들', '둘이 함께하는 약속', '이야기가 있는 식사'],
     note: '예식 전후로 자유롭게 사진을 남겨 주세요. 여러분이 담아 주는 순간도 소중히 간직하겠습니다.',
