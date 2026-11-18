@@ -1,128 +1,44 @@
 import 'server-only';
 
-import { notFound } from 'next/navigation';
+import { buildAudienceGuestUrl } from '@/features/invitation/audiences/model';
 
-import { resolveDriveImageSource } from '@/shared/utils/media/driveImageUtils';
+import { guestInvitationMetadata } from './server/guestInvitationMetadata';
 import {
-  resolveShareDescription,
-  resolveShareImageUrl,
-  resolveShareTitle,
-} from '@/shared/utils/shareUrlDefaults';
+  getGuestAudienceSlug,
+  type GuestSearchParams,
+  loadGuestInvitation,
+} from './server/loadGuestInvitation';
+import { renderGuestInvitationRoute } from './server/renderGuestInvitationRoute';
 
-import { GuestAccessNotice } from './components/GuestAccessNotice';
-import GuestInvitationView from './components/GuestInvitationView';
-import { GuestUnavailableNotice } from './components/GuestUnavailableNotice';
-import { loadGuestPayload } from './server/loadGuestPayload';
-
-import type { Metadata } from 'next';
+type GuestPageProps = {
+  params: Promise<{ id: string }>;
+  searchParams?: GuestSearchParams;
+};
 
 export const dynamic = 'force-dynamic';
 
-const noindexRobots = {
-  index: false,
-  follow: false,
-  nocache: true,
-} satisfies NonNullable<Metadata['robots']>;
-
-function renderPrivateInvitationNotice() {
-  return (
-    <GuestAccessNotice
-      title="비공개 초대장이에요"
-      description={
-        <>
-          <span>초대장 주인이 공개로 전환하면</span>
-          <span>이 링크에서 다시 확인할 수 있어요.</span>
-        </>
-      }
-    />
-  );
-}
-
 export async function generateMetadata({
   params,
-}: {
-  params: Promise<{ id: string }>;
-}): Promise<Metadata> {
-  const { id } = await params;
-
-  try {
-    const result = await loadGuestPayload(id);
-    if (result.status !== 'ok') {
-      return {
-        robots: noindexRobots,
-      };
-    }
-
-    const { payload } = result;
-    const topLevelShare = payload.shareUrl;
-    const title = resolveShareTitle(topLevelShare?.urlTitle);
-    const description = resolveShareDescription(topLevelShare?.urlDescription);
-    const imageUrl = resolveShareImageUrl(topLevelShare?.urlImage?.[0]);
-
-    return {
-      title,
-      description,
-      robots: noindexRobots,
-      openGraph: {
-        title,
-        description,
-        images: imageUrl,
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title,
-        description,
-        images: imageUrl,
-      },
-      icons: {
-        icon: '/favicon.ico',
-      },
-    };
-  } catch {
-    return {
-      robots: noindexRobots,
-    };
-  }
+  searchParams,
+}: GuestPageProps) {
+  const [{ id }, query] = await Promise.all([params, searchParams]);
+  const audienceSlug = getGuestAudienceSlug(query?.to);
+  return guestInvitationMetadata(loadGuestInvitation(id, audienceSlug));
 }
 
 export default async function GuestPage({
   params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+  searchParams,
+}: GuestPageProps) {
+  const [{ id }, query] = await Promise.all([params, searchParams]);
+  const audienceSlug = getGuestAudienceSlug(query?.to);
+  const result = await loadGuestInvitation(id, audienceSlug);
 
-  const result = await loadGuestPayload(id);
-  if (result.status === 'private') {
-    return renderPrivateInvitationNotice();
-  }
-
-  if (result.status === 'unavailable') {
-    return <GuestUnavailableNotice retryHref={`/guest/${encodeURIComponent(id)}`} />;
-  }
-
-  if (result.status === 'not-found') {
-    notFound();
-  }
-
-  const { payload } = result;
-  const thumbnailFileId = payload.mainPoster?.thumbnailFileId;
-  const posterSrc = thumbnailFileId
-    ? resolveDriveImageSource(thumbnailFileId, { mode: 'public' })
-    : null;
-
-
-  return (
-    <>
-      {posterSrc && (
-        <link
-          rel="preload"
-          as="image"
-          href={posterSrc}
-          fetchPriority="high"
-        />
-      )}
-      <GuestInvitationView payload={payload} mode="guest" />
-    </>
+  return renderGuestInvitationRoute(
+    result,
+    buildAudienceGuestUrl(
+      `/guest/${encodeURIComponent(id)}`,
+      audienceSlug ?? null
+    )
   );
 }
