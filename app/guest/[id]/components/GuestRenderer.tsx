@@ -65,6 +65,7 @@ function GuestRenderer({
   ) => React.ReactNode;
 }) {
   const { titleData, bodyData } = bulkData;
+  const scrollAnimation = resolveScrollAnimation(bulkData.scrollAnimation);
   const { setTitleData, setBodyData } = useEditorStore(
     useShallow(state => ({
       setTitleData: state.setTitleData,
@@ -155,7 +156,7 @@ function GuestRenderer({
           <ScrollFadeIn
             key={block.id}
             className="w-full"
-            {...resolveScrollAnimation(block.props)}
+            {...scrollAnimation}
           >
             {renderBlock ? (
               renderBlock(block, view)

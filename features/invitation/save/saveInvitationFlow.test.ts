@@ -19,10 +19,11 @@ jest.mock('@sentry/nextjs', () => ({
 import { saveInvitationFlow } from './saveInvitationFlow';
 import { updateFileToDrive } from './updateFileToDrive';
 import * as Sentry from '@sentry/nextjs';
+import type { BulkJson } from '@/shared/types/invitationSave';
 
 const mockFetch = jest.fn();
 
-const bulkData = {
+const bulkData: BulkJson = {
   backgroundColor: '#ffffff',
   titleData: {
     font: 'font-lineseed',
@@ -39,6 +40,7 @@ const bulkData = {
     isDefault: false,
   },
   isZoom: false,
+  scrollAnimation: { animationType: 'fade-up', triggerMode: 'down-only', animationDurationMs: 700, animationEasing: 'natural' },
 };
 
 const shareUrl = {

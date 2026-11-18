@@ -19,7 +19,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { EditorCallout } from '@/components/molecules/editor-callout';
-import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
 import { EditorBgmOverlay } from '@/components/organisms/bgm/components/EditorBgmOverlay';
 import InvitationChapter from '@/components/organisms/invitation-chapter/InvitationChapter';
@@ -66,6 +65,7 @@ function Preview() {
     selectedBlock,
     setIsEdit,
     backgroundColor,
+    scrollAnimation,
     sectionStyle,
     moveBlock,
   } = useEditorStore(
@@ -75,6 +75,7 @@ function Preview() {
       selectedBlock: state.selectedBlock,
       setIsEdit: state.setIsEdit,
       backgroundColor: state.backgroundColor,
+      scrollAnimation: state.scrollAnimation,
       sectionStyle: state.sectionStyle,
       moveBlock: state.moveBlock,
     }))
@@ -187,7 +188,7 @@ function Preview() {
               >
                 {visibleBlocks.map(comp => {
                   const registryItem = blockRegistry[comp.component];
-                  const animation = resolveScrollAnimation(comp.props);
+                  const animation = scrollAnimation;
 
                   if (!registryItem.viewComponent) return null;
 

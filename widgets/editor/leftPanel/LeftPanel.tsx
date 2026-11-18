@@ -7,7 +7,6 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import BulkEdit from './components/BulkEdit';
 import Edit from './components/Edit';
-import { ScrollAnimationControls } from './components/ScrollAnimationControls';
 import { SectionStyleControls } from './components/SectionStyleControls';
 
 function LeftPanel() {
@@ -53,9 +52,6 @@ function LeftPanel() {
         </div>
       )}
 
-      {isComponentSelected && !isEdit && (
-        <ScrollAnimationControls selectedId={selectedId!} />
-      )}
       {isComponentSelected && !isEdit && (
         <SectionStyleControls key={selectedId} selectedId={selectedId!} />
       )}

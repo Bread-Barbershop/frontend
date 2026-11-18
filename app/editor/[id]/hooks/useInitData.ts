@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import { collectFontFamilies } from '@/features/invitation/save/createGuestRenderHints';
 import { resolveSectionStyle } from '@/shared/data/sectionStyles';
@@ -53,6 +54,7 @@ export const useInitData = ({
     setBackgroundColor,
     setSectionStyle,
     setIsZoom,
+    setScrollAnimation,
     setShareUrl,
     setHashFiles,
     clearHashFiles,
@@ -71,6 +73,7 @@ export const useInitData = ({
       setBackgroundColor: state.setBackgroundColor,
       setSectionStyle: state.setSectionStyle,
       setIsZoom: state.setIsZoom,
+      setScrollAnimation: state.setScrollAnimation,
       setShareUrl: state.setShareUrl,
       setHashFiles: state.setHashFiles,
       clearHashFiles: state.clearHashFiles,
@@ -181,6 +184,7 @@ export const useInitData = ({
       setBackgroundColor(bulkData.backgroundColor);
       setSectionStyle(resolveSectionStyle(bulkData.sectionStyle));
       setIsZoom(bulkData.isZoom);
+      setScrollAnimation(resolveScrollAnimation(bulkData.scrollAnimation));
     }
   }, [
     bulkData,
@@ -188,6 +192,7 @@ export const useInitData = ({
     setTitleData,
     setBackgroundColor,
     setIsZoom,
+    setScrollAnimation,
     setSectionStyle,
   ]);
   return {

@@ -1,3 +1,4 @@
+import type { ScrollAnimationSettings } from '@/components/molecules/scroll-fade-in/animationConfig';
 import type {
   BulkData,
   PersistedEditorBlock,
@@ -42,6 +43,7 @@ export type BulkJson = {
   titleData: BulkData;
   bodyData: BulkData;
   isZoom: boolean;
+  scrollAnimation: ScrollAnimationSettings;
 };
 
 export type InvitationPayload = {
