@@ -841,9 +841,35 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
           { time: '16:00', title: '네트워킹' },
         ],
       },
+      {
+        component: 'speakerInformation',
+        title: '기조 강연자',
+        name: 'Andrew Jackson',
+        bio: '시장 신호를 읽고 팀의 우선순위를 다시 정했던 두 사례를 비교합니다. 어느 시점에 결정을 내렸는지 들어보세요.',
+        image: '/images/showcase/conference-speaker.webp',
+      },
       { component: 'greeting' },
+      {
+        component: 'notice',
+        title: '입장 데스크',
+        heading: '이름표와 프로그램 수령',
+        message:
+          '오후 2시 30분부터 로비에서 이름표를 드립니다. 뒷면에는 세션 순서와 네트워킹 장소가 적혀 있습니다.',
+        preset: 'time',
+      },
       { component: 'calendar', title: '컨퍼런스 일시' },
       { component: 'place', title: '메인 오디토리움' },
+      {
+        component: 'faq',
+        title: '발표를 들으며',
+        items: [
+          {
+            question: '질문은 어디에 남기나요?',
+            answer:
+              '좌석에 놓인 카드에 적어 주세요. 진행자가 강연 마지막에 모아서 연사에게 전합니다.',
+          },
+        ],
+      },
       {
         component: 'sponsorshipInfomation',
         title: '행사를 함께 준비한 파트너',
@@ -851,6 +877,11 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
           '/samples/seminar_01/images/01_chatgpt_image_2026년_8월_12일_오후_07_36_16_1_1.png',
           '/samples/seminar_01/images/04_chatgpt_image_2026년_8월_12일_오후_07_36_17_4_1.png',
         ],
+      },
+      {
+        component: 'closingComment',
+        message:
+          '돌아가서 시도해 보고 싶은 아이디어 하나를 가져가시길 바랍니다. 컨퍼런스 운영팀',
       },
     ],
   },
