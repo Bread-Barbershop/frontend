@@ -15,22 +15,22 @@
 | showcase-4  | wedding_04.webp      | 웨딩   | 로맨틱 레터         |
 | showcase-5  | wedding_05.webp      | 웨딩   | 오거스트 에디토리얼 |
 | showcase-6  | wedding_06.webp      | 웨딩   | 콰이어트 프로미스   |
-| showcase-7  | wedding_07.png       | 웨딩   | 아워 서머 필름      |
+| showcase-7  | wedding_07.webp       | 웨딩   | 아워 서머 필름      |
 | showcase-8  | wedding_08.webp      | 웨딩   | 앰버 시티           |
 | showcase-9  | wedding_09.webp      | 웨딩   | 위켄드 인 러브      |
 | showcase-10 | wedding_11.webp      | 웨딩   | 러브 온 더 스트리트 |
-| showcase-11 | wedding_12.png       | 웨딩   | 포레스트 서약       |
-| showcase-12 | seminar_01.png       | 세미나 | 볼드 비즈니스       |
-| showcase-13 | seminar_02.png       | 세미나 | 블루 호라이즌       |
-| showcase-14 | seminar_03.png       | 세미나 | 오렌지 스파크       |
-| showcase-15 | seminar_04.png       | 세미나 | 레드 임팩트         |
-| showcase-16 | seminar_05.png       | 세미나 | 웜 인사이트         |
-| showcase-17 | birthday_01.png      | 생일   | 치어스 투 27        |
-| showcase-18 | birthday_02.png      | 생일   | 마이 데이 포토      |
-| showcase-19 | birthday_03.png      | 생일   | 핑크 케이크 클럽    |
-| showcase-20 | birthday_04.png      | 생일   | 트웬티 세븐 클럽    |
-| showcase-21 | firstBirthday_01.png | 돌잔치 | 리틀 파티 북        |
-| showcase-22 | firstBirthday_02.png | 돌잔치 | 민준이의 첫 초대    |
+| showcase-11 | wedding_12.webp       | 웨딩   | 포레스트 서약       |
+| showcase-12 | seminar_01.webp       | 세미나 | 볼드 비즈니스       |
+| showcase-13 | seminar_02.webp       | 세미나 | 블루 호라이즌       |
+| showcase-14 | seminar_03.webp       | 세미나 | 오렌지 스파크       |
+| showcase-15 | seminar_04.webp       | 세미나 | 레드 임팩트         |
+| showcase-16 | seminar_05.webp       | 세미나 | 웜 인사이트         |
+| showcase-17 | birthday_01.webp      | 생일   | 치어스 투 27        |
+| showcase-18 | birthday_02.webp      | 생일   | 마이 데이 포토      |
+| showcase-19 | birthday_03.webp      | 생일   | 핑크 케이크 클럽    |
+| showcase-20 | birthday_04.webp      | 생일   | 트웬티 세븐 클럽    |
+| showcase-21 | firstBirthday_01.webp | 돌잔치 | 리틀 파티 북        |
+| showcase-22 | firstBirthday_02.webp | 돌잔치 | 민준이의 첫 초대    |
 | showcase-23 | wedding_13.webp      | 웨딩   | 알파인 프로미스     |
 | showcase-24 | wedding_14.webp      | 웨딩   | 브릭 시티 웨딩      |
 

@@ -12,7 +12,7 @@ import { DASHBOARD_SHELL_NAV_MENU } from '../config/dashboardShell.config';
 const HEADER_NAV_LINK_CLASS =
   'flex items-center border-b border-transparent px-2 py-[6.5px] text-[16px] font-semibold text-text-plain transition-colors hover:border-black hover:text-black';
 
-function NavMenu() {
+function NavMenu({ onNavigate }: { onNavigate?: () => void }) {
   const router = useRouter();
   const pathname = usePathname();
   const { confirm } = useConfirm();
@@ -47,6 +47,7 @@ function NavMenu() {
         e.preventDefault();
         return;
       }
+      onNavigate?.();
       router.push(href);
     }
   };
@@ -58,6 +59,7 @@ function NavMenu() {
           href={menu.href}
           className={HEADER_NAV_LINK_CLASS}
           onClick={event => handleNavMenuClick(event, menu.href)}
+          onNavigate={onNavigate}
         >
           {menu.title}
         </Link>
