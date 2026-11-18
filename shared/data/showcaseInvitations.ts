@@ -511,7 +511,24 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         ],
       },
       { component: 'greeting' },
+      {
+        component: 'interview',
+        title: '사진 밖의 이야기',
+        question: '세 컷 중 가장 오래 기다린 장면은요?',
+        answer:
+          '언덕 위에 해가 걸린 순간이요. 자리를 잡고 기다리다가 둘 다 풀밭에 누워 버렸어요.',
+        image: '/images/showcase/love-letter.webp',
+      },
       { component: 'calendar', title: '상영일처럼 기다린 날' },
+      {
+        component: 'timeline',
+        title: '그날의 세 장면',
+        items: [
+          { time: '14:40', title: '로비에서 인사' },
+          { time: '15:00', title: '두 사람의 입장' },
+          { time: '15:45', title: '엔딩 크레디트 대신 단체 사진' },
+        ],
+      },
       { component: 'place', title: '예식이 열리는 곳' },
       {
         component: 'notice',
@@ -520,6 +537,18 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         message:
           '서약을 마친 뒤 홀 앞에서 한 장씩 찍을게요. 휴대폰 카메라도 환영합니다.',
         preset: 'shooting',
+      },
+      {
+        component: 'afterParty',
+        title: '촬영이 끝나면',
+        venue: '그랜드홀 연회장',
+        dateTime: '단체 사진을 찍은 뒤',
+        description:
+          '같은 테이블에 둘러앉아 방금 찍은 사진들을 같이 보려고 합니다.',
+      },
+      {
+        component: 'closingComment',
+        message: '우리의 여름 영화에 얼굴을 빌려 주셔서 고맙습니다. 민성·아현',
       },
     ],
   },
