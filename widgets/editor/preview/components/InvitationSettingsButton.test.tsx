@@ -19,12 +19,15 @@ describe('초대장 설정', () => {
     render(<InvitationSettingsButton />);
     fireEvent.click(screen.getByRole('button', { name: '초대장 설정' }));
     const enabled = screen.getByRole('checkbox', {
-      name: /행사일이 지나면 개인정보 가리기/,
+      name: /일정이 끝나면 개인정보 가리기/,
     });
+    expect(
+      screen.getByText('일정 다음 날 00:00부터 · 한국 시간 기준')
+    ).toBeInTheDocument();
     fireEvent.click(enabled);
     const media = screen.getByRole('checkbox', { name: /사진·영상/ });
     fireEvent.click(media);
-    fireEvent.change(screen.getByLabelText('행사일'), {
+    fireEvent.change(screen.getByLabelText('일정이 끝나는 날'), {
       target: { value: '2026-11-21' },
     });
     fireEvent.click(
