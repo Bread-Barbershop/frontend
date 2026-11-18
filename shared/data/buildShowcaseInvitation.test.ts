@@ -51,10 +51,34 @@ describe('첫 화면 초대장 샘플', () => {
     }
   );
 
-  it('표지마다 별도의 짧은 블록 순서를 제공한다', () => {
+  it.each(
+    [
+      { previousCount: 4, ids: [2, 5, 6, 17, 20] },
+      {
+        previousCount: 5,
+        ids: [
+          0, 1, 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 21, 22, 23, 24,
+        ],
+      },
+      { previousCount: 6, ids: [3] },
+    ].flatMap(({ previousCount, ids }) =>
+      ids.map(id => ({ id: `showcase-${id}`, previousCount }))
+    )
+  )(
+    '$id의 본문은 첫 판의 $previousCount개 블록에서 3~5개 늘어난다',
+    ({ id, previousCount }) => {
+      const design = getShowcaseInvitation(id);
+      if (!design) throw new Error(`초대장 샘플을 찾을 수 없습니다: ${id}`);
+      const added =
+        buildShowcaseInvitation(design).blocks.length - previousCount;
+      expect(added).toBeGreaterThanOrEqual(3);
+      expect(added).toBeLessThanOrEqual(5);
+    }
+  );
+
+  it('표지마다 서로 다른 블록 순서를 제공한다', () => {
     const layouts = SHOWCASE_INVITATIONS.map(design => {
       const { blocks } = buildShowcaseInvitation(design);
-      expect(blocks.length).toBeLessThanOrEqual(6);
       return blocks.map(block => block.component).join(',');
     });
     expect(new Set(layouts).size).toBe(layouts.length);
