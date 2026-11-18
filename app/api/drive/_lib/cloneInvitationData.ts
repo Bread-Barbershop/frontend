@@ -38,6 +38,18 @@ function toOriginalUrlForm(value: string, url: URL) {
   return url.href;
 }
 
+function matchesGuestAudience(source: URL, candidate: URL) {
+  const sourceAudience = source.searchParams.getAll('to');
+  const candidateAudience = candidate.searchParams.getAll('to');
+  if (sourceAudience.length === 0) return candidateAudience.length === 0;
+  return (
+    sourceAudience.length === 1 &&
+    sourceAudience[0] !== '' &&
+    candidateAudience.length === 1 &&
+    sourceAudience[0] === candidateAudience[0]
+  );
+}
+
 export function remapInvitationJson<T>(
   input: T,
   options: {
@@ -60,11 +72,13 @@ export function remapInvitationJson<T>(
     const url = asWebUrl(value);
     if (!url) return value;
     if (
-      url.pathname === `/guest/${sourceDataId}` ||
+      (url.pathname === `/guest/${sourceDataId}` &&
+        !url.searchParams.has('to')) ||
       sourceGuestUrls.some(
         source =>
           source.pathname === url.pathname &&
-          (source.origin === url.origin || url.origin === RELATIVE_ORIGIN)
+          (source.origin === url.origin || url.origin === RELATIVE_ORIGIN) &&
+          matchesGuestAudience(source, url)
       )
     ) {
       return guestUrl;

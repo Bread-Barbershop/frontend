@@ -47,12 +47,16 @@ import {
   THUMBNAIL_NAME_PNG,
   THUMBNAIL_NAME_WEBP,
 } from './ensureThumbnailFile';
+import { DriveHttpError } from './ensureWorkspace';
 import { generateUuid } from './generateUuid';
 import { guestPath } from './guestReadiness';
+import {
+  CLONE_STAGE_KIND,
+  INVITATION_KIND,
+  isInvitationAuxiliaryFolder,
+} from './invitationAudienceFolders';
 import { assertInvitationFolderAccess } from './previewAccess';
 
-const INVITATION_KIND = 'invitation';
-const STAGING_KIND = 'invitation_clone_staging';
 const DATA_NAME = 'data.json';
 const DATA_KIND = 'invitation_data_json';
 const LEGACY_KAKAO_NAME = 'kakao-share.json';
@@ -80,7 +84,7 @@ function isThumbnail(file: CloneDriveFile) {
   );
 }
 
-function findMeta(files: CloneDriveFile[]) {
+export function findSavedInvitationMetaFile(files: CloneDriveFile[]) {
   return (
     files.find(
       file =>
@@ -93,7 +97,10 @@ function findMeta(files: CloneDriveFile[]) {
   );
 }
 
-function findData(files: CloneDriveFile[], preferredId?: string | null) {
+export function findSavedInvitationDataFile(
+  files: CloneDriveFile[],
+  preferredId?: string | null
+) {
   const candidates = files.filter(
     file =>
       file.name.toLowerCase() === DATA_NAME && file.mimeType.includes('json')
@@ -110,7 +117,11 @@ async function copyAssets(
   parentId: string,
   ids: Map<string, string>
 ) {
-  const copyable = files.filter(file => file.mimeType !== SHORTCUT_MIME);
+  const copyable = files.filter(
+    file =>
+      file.mimeType !== SHORTCUT_MIME &&
+      !isInvitationAuxiliaryFolder(file.appProperties?.kind)
+  );
   const folders = copyable.filter(file => file.mimeType === DRIVE_FOLDER_MIME);
   const media = copyable.filter(file => file.mimeType !== DRIVE_FOLDER_MIME);
 
@@ -137,6 +148,9 @@ async function copyRootAssets(
   ids: Map<string, string>
 ) {
   const consumed = new Set<string>();
+  files = files.filter(
+    file => !isInvitationAuxiliaryFolder(file.appProperties?.kind)
+  );
   for (const role of ASSET_FOLDERS) {
     const matching = files.filter(
       file =>
@@ -214,17 +228,21 @@ function toInvite(
   };
 }
 
-async function resumeClone(folder: CloneDriveFile): Promise<InviteListItem> {
+async function resumeClone(
+  folder: CloneDriveFile,
+  destinationKind: string
+): Promise<InviteListItem> {
   const files = await listCloneFiles(folder.id);
-  const metaFile = findMeta(files);
+  const metaFile = findSavedInvitationMetaFile(files);
   if (!metaFile) throw cloneInProgress();
   const meta = await loadInvitationMetaByFileId(metaFile.id);
-  if (!findData(files, meta.dataJsonFileId)) throw cloneInProgress();
-  if (folder.appProperties?.kind === STAGING_KIND) {
+  if (!findSavedInvitationDataFile(files, meta.dataJsonFileId))
+    throw cloneInProgress();
+  if (folder.appProperties?.kind !== destinationKind) {
     if (!meta.dataJsonFileId || !meta.guestUrl) throw cloneInProgress();
     await commitCloneFile(folder.id, {
       ...folder.appProperties,
-      ...appProperties(INVITATION_KIND),
+      ...appProperties(destinationKind),
     });
   }
   const thumbnail = files.filter(isThumbnail).at(-1);
@@ -234,9 +252,21 @@ async function resumeClone(folder: CloneDriveFile): Promise<InviteListItem> {
 async function cleanupStage(folderId: string) {
   try {
     await deleteCloneFile(folderId);
+    return true;
   } catch (error) {
     captureDriveError({ error, operation: 'drive_clone_cleanup' });
+    return false;
   }
+}
+
+export function createCloneRequestKey(
+  parentId: string,
+  sourceFolderId: string,
+  requestId: string
+) {
+  return createHash('sha256')
+    .update(JSON.stringify([parentId, sourceFolderId, requestId]))
+    .digest('base64url');
 }
 
 export async function cloneInvitation(input: {
@@ -247,11 +277,86 @@ export async function cloneInvitation(input: {
   const { folderId: sourceFolderId, requestId, publicOrigin } = input;
   const source = await assertInvitationFolderAccess(sourceFolderId, {
     ownedOnly: true,
+    allowAudience: false,
   });
   const { workspaceFolderId } = source;
-  const requestKey = createHash('sha256')
-    .update(JSON.stringify([workspaceFolderId, sourceFolderId, requestId]))
-    .digest('base64url');
+  const sourceName = source.name?.replace(
+    / - \d{4}년 \d{2}월 \d{2}일 \d{2}시 \d{2}분$/,
+    ''
+  );
+  return cloneOwnedInvitation({
+    sourceFolderId,
+    parentId: workspaceFolderId,
+    requestKey: createCloneRequestKey(
+      workspaceFolderId,
+      sourceFolderId,
+      requestId
+    ),
+    folderName: buildInvitationFolderName({
+      baseName: `${sourceName || '초대장'} (복사본)`,
+    }),
+    stagingKind: CLONE_STAGE_KIND,
+    destinationKind: INVITATION_KIND,
+    invitationUuid: generateUuid(),
+    createGuestUrl: dataId => new URL(guestPath(dataId), publicOrigin).href,
+    beforeCopy: () => assertWorkspacePrivate(workspaceFolderId),
+  });
+}
+
+async function readCloneSource(sourceFolderId: string) {
+  const files = await listCloneFiles(sourceFolderId);
+  const sourceMetaFile = findSavedInvitationMetaFile(files);
+  const sourceMeta = sourceMetaFile
+    ? await loadInvitationMetaByFileId(sourceMetaFile.id)
+    : null;
+  const legacyKakao = files.find(
+    file =>
+      file.name === LEGACY_KAKAO_NAME &&
+      file.appProperties?.kind === LEGACY_KAKAO_KIND
+  );
+  const legacyKakaoData =
+    !sourceMeta?.kakaoShare && legacyKakao
+      ? await loadCloneJson(legacyKakao.id)
+      : null;
+  const sourceKakao =
+    sourceMeta?.kakaoShare ??
+    (isShareUrlPayload(legacyKakaoData) ? legacyKakaoData : null);
+  const sourceData = findSavedInvitationDataFile(
+    files,
+    sourceMeta?.dataJsonFileId
+  );
+  if (!sourceData) {
+    throw new InvitationCloneError(
+      '저장된 초대장 데이터를 찾을 수 없습니다.',
+      404
+    );
+  }
+  const data = await loadCloneJson(sourceData.id);
+  if (!isJsonRecord(data) || !parseGuestPayload(data).ok) {
+    throw new InvitationCloneError(
+      '저장된 초대장 데이터 형식을 확인해 주세요.',
+      422
+    );
+  }
+  return { files, sourceData, sourceMeta, sourceKakao, data };
+}
+
+/** Callers validate ownership of the source and destination before copying. */
+export async function cloneOwnedInvitation(input: {
+  sourceFolderId: string;
+  parentId: string;
+  requestKey: string;
+  folderName: string;
+  stagingKind: string;
+  destinationKind: string;
+  invitationUuid: string;
+  folderProperties?: Record<string, string>;
+  createGuestUrl: (newDataFileId: string) => string;
+  beforeCopy?: () => Promise<void>;
+  onCleanFailure?: () => Promise<void>;
+}): Promise<InviteListItem> {
+  const { sourceFolderId, parentId, requestKey, destinationKind, stagingKind } =
+    input;
 
   return withCloneLock(requestKey, async attempt => {
     const knownFolder = attempt.readyFolderId
@@ -260,75 +365,61 @@ export async function cloneInvitation(input: {
     if (
       knownFolder &&
       !knownFolder.trashed &&
-      knownFolder.parents?.includes(workspaceFolderId) &&
+      knownFolder.parents?.includes(parentId) &&
+      (knownFolder.appProperties?.kind === stagingKind ||
+        knownFolder.appProperties?.kind === destinationKind) &&
       knownFolder.appProperties?.clone_request === requestKey
     ) {
-      return resumeClone(knownFolder);
+      return resumeClone(knownFolder, destinationKind);
     }
 
-    const previous = await listCloneFiles(workspaceFolderId, [
-      `appProperties has { key='clone_request' and value='${requestKey}' }`,
-    ]);
+    const findRequestFolders = () =>
+      listCloneFiles(parentId, [
+        `appProperties has { key='clone_request' and value='${requestKey}' }`,
+      ]);
+    const previous = await findRequestFolders();
     const completed = previous.find(
-      file => file.appProperties?.kind === INVITATION_KIND
+      file => file.appProperties?.kind === destinationKind
     );
-    if (completed) return resumeClone(completed);
+    if (completed) return resumeClone(completed, destinationKind);
     for (const stage of previous.filter(
-      file => file.appProperties?.kind === STAGING_KIND
+      file => file.appProperties?.kind === stagingKind
     )) {
       if (Date.now() - Date.parse(stage.createdTime) < STALE_STAGE_MS) {
         throw cloneInProgress();
       }
-      await cleanupStage(stage.id);
+      if (!(await cleanupStage(stage.id))) throw cloneInProgress();
     }
 
-    await assertWorkspacePrivate(workspaceFolderId);
-    const files = await listCloneFiles(sourceFolderId);
-    const sourceMetaFile = findMeta(files);
-    const sourceMeta = sourceMetaFile
-      ? await loadInvitationMetaByFileId(sourceMetaFile.id)
-      : null;
-    const legacyKakao = files.find(
-      file =>
-        file.name === LEGACY_KAKAO_NAME &&
-        file.appProperties?.kind === LEGACY_KAKAO_KIND
-    );
-    const legacyKakaoData =
-      !sourceMeta?.kakaoShare && legacyKakao
-        ? await loadCloneJson(legacyKakao.id)
-        : null;
-    const sourceKakao =
-      sourceMeta?.kakaoShare ??
-      (isShareUrlPayload(legacyKakaoData) ? legacyKakaoData : null);
-    const sourceData = findData(files, sourceMeta?.dataJsonFileId);
-    if (!sourceData)
-      throw new InvitationCloneError(
-        '저장된 초대장 데이터를 찾을 수 없습니다.',
-        404
-      );
-    const data = await loadCloneJson(sourceData.id);
-    if (!isJsonRecord(data) || !parseGuestPayload(data).ok) {
-      throw new InvitationCloneError(
-        '저장된 초대장 데이터 형식을 확인해 주세요.',
-        422
-      );
-    }
+    await input.beforeCopy?.();
+    const { files, sourceData, sourceMeta, sourceKakao, data } =
+      await readCloneSource(sourceFolderId).catch(async error => {
+        await input.onCleanFailure?.();
+        throw error;
+      });
 
-    const sourceName = source.name?.replace(
-      / - \d{4}년 \d{2}월 \d{2}일 \d{2}시 \d{2}분$/,
-      ''
-    );
     const created = await createCloneFile({
-      name: buildInvitationFolderName({
-        baseName: `${sourceName || '초대장'} (복사본)`,
-      }),
+      name: input.folderName,
       mimeType: DRIVE_FOLDER_MIME,
-      parentId: workspaceFolderId,
+      parentId,
       appProperties: {
-        ...appProperties(STAGING_KIND),
-        inv_id: generateUuid(),
+        ...input.folderProperties,
+        ...appProperties(stagingKind),
+        inv_id: input.invitationUuid,
         clone_request: requestKey,
       },
+    }).catch(async error => {
+      if (input.onCleanFailure) {
+        const rejected =
+          error instanceof DriveHttpError &&
+          [400, 401, 403, 404, 429].includes(error.status);
+        // A server error can arrive after Drive has created the staging folder.
+        const noFolder =
+          rejected ||
+          (await findRequestFolders().catch(() => null))?.length === 0;
+        if (noFolder) await input.onCleanFailure();
+      }
+      throw error;
     });
 
     let commitStarted = false;
@@ -348,7 +439,7 @@ export async function cloneInvitation(input: {
         created.id,
         ids
       );
-      const guestUrl = new URL(guestPath(newData.id), publicOrigin).href;
+      const guestUrl = input.createGuestUrl(newData.id);
       const options = {
         ids,
         sourceDataId: sourceData.id,
@@ -378,12 +469,14 @@ export async function cloneInvitation(input: {
       // 목록 노출에 사용하는 kind는 데이터와 에셋이 모두 저장된 뒤에 변경한다.
       await commitCloneFile(created.id, {
         ...created.appProperties,
-        ...appProperties(INVITATION_KIND),
+        ...appProperties(destinationKind),
       });
       return toInvite(created, payload, thumbnailId);
     } catch (error) {
       // 마지막 PATCH의 결과를 알 수 없는 경우 이미 표시된 복제본을 지우지 않는다.
-      if (!commitStarted) await cleanupStage(created.id);
+      if (!commitStarted && (await cleanupStage(created.id))) {
+        await input.onCleanFailure?.();
+      }
       throw error;
     }
   });

@@ -2,6 +2,7 @@ import 'server-only';
 
 import { NextResponse } from 'next/server';
 
+import { AudienceLinkStoreUnavailableError } from '@/app/api/drive/_lib/audienceLinkStore';
 import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
 import {
   loadInvitationMeta,
@@ -11,6 +12,11 @@ import {
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import { downloadFiles } from '@/app/api/drive/_lib/getSaveDataFetch';
 import { guestPath } from '@/app/api/drive/_lib/guestReadiness';
+import {
+  getOwnedAudienceLink,
+  updateAudienceLinkTarget,
+} from '@/app/api/drive/_lib/invitationAudiences';
+import { PreviewAccessError } from '@/app/api/drive/_lib/previewAccess';
 import { getOrCreateShortCode } from '@/app/api/short-url/_lib/shortUrlStore';
 import {
   getActivePrivacyFields,
@@ -195,12 +201,25 @@ export async function POST(req: Request) {
       );
     }
 
-    const shortUrlResult = await createShareDataWithShortUrl({
+    const audience = await getOwnedAudienceLink(
       invitationFolderId,
-      dataJsonFileId,
-      shareData,
-      publicOrigin,
-    });
+      publicOrigin
+    );
+    const savedDataId = audience
+      ? await updateAudienceLinkTarget(audience, dataJsonFileId)
+      : dataJsonFileId;
+    const shortUrlResult = audience
+      ? {
+          shareData: { ...shareData, invitationUrl: audience.guestUrl },
+          guestUrl: audience.guestUrl,
+          shortCode: null,
+        }
+      : await createShareDataWithShortUrl({
+          invitationFolderId,
+          dataJsonFileId,
+          shareData,
+          publicOrigin,
+        });
 
     const metaPatch: Parameters<typeof upsertInvitationMeta>[1] = {
       kakaoShare: shortUrlResult.shareData,
@@ -208,8 +227,8 @@ export async function POST(req: Request) {
     if (shortUrlResult.guestUrl) {
       metaPatch.guestUrl = shortUrlResult.guestUrl;
     }
-    if (typeof dataJsonFileId === 'string' && dataJsonFileId.trim()) {
-      metaPatch.dataJsonFileId = dataJsonFileId.trim();
+    if (typeof savedDataId === 'string' && savedDataId.trim()) {
+      metaPatch.dataJsonFileId = savedDataId.trim();
     }
 
     const { metaFileId, payload } = await upsertInvitationMeta(
@@ -227,6 +246,12 @@ export async function POST(req: Request) {
       shortCode: shortUrlResult.shortCode,
     });
   } catch (err) {
+    if (
+      err instanceof PreviewAccessError ||
+      err instanceof AudienceLinkStoreUnavailableError
+    ) {
+      return audienceShareError(err);
+    }
     if (err instanceof DriveHttpError) {
       captureDriveError({
         error: err,
@@ -264,21 +289,30 @@ export async function GET(req: Request) {
       );
     }
 
+    const audience = await getOwnedAudienceLink(
+      invitationFolderId,
+      publicOrigin
+    );
     const meta = await loadInvitationMeta(invitationFolderId);
     if (meta?.payload.kakaoShare) {
-      const shareData = createReadableShareData(
-        meta.payload.kakaoShare,
-        meta.payload,
-        publicOrigin
-      );
+      const currentDataId = audience
+        ? await updateAudienceLinkTarget(audience)
+        : meta.payload.dataJsonFileId;
+      const shareData = audience
+        ? { ...meta.payload.kakaoShare, invitationUrl: audience.guestUrl }
+        : createReadableShareData(
+            meta.payload.kakaoShare,
+            meta.payload,
+            publicOrigin
+          );
 
       return NextResponse.json({
         ok: true,
         metaFileId: meta.metaFileId,
         shareUrlFileId: meta.metaFileId,
-        data: await protectKakaoShare(shareData, meta.payload.dataJsonFileId),
+        data: await protectKakaoShare(shareData, currentDataId),
         guestUrl: shareData.invitationUrl ?? meta.payload.guestUrl,
-        dataJsonFileId: meta.payload.dataJsonFileId,
+        dataJsonFileId: currentDataId,
       });
     }
 
@@ -290,6 +324,12 @@ export async function GET(req: Request) {
       { status: 404 }
     );
   } catch (err) {
+    if (
+      err instanceof PreviewAccessError ||
+      err instanceof AudienceLinkStoreUnavailableError
+    ) {
+      return audienceShareError(err);
+    }
     if (err instanceof DriveHttpError) {
       captureDriveError({
         error: err,
@@ -312,4 +352,19 @@ export async function GET(req: Request) {
       { status: 500 }
     );
   }
+}
+
+function audienceShareError(
+  error: PreviewAccessError | AudienceLinkStoreUnavailableError
+) {
+  return NextResponse.json(
+    {
+      ok: false,
+      error:
+        error instanceof PreviewAccessError
+          ? error.userMessage
+          : '하객 그룹의 링크를 준비할 수 없습니다.',
+    },
+    { status: error instanceof PreviewAccessError ? error.status : 503 }
+  );
 }

@@ -6,14 +6,15 @@ import type {
   NormalizedGuestPayload,
 } from '@/app/guest/[id]/validation/parseGuestPayload';
 
-import { APP_IDENTIFIER } from './ensureInvitationMetaFile';
 import { DriveHttpError } from './ensureWorkspace';
 import { escapeDriveQueryValue } from './escapeQueryValue';
 import { findWorkspaceFolderId } from './findWorkspaceFolderId';
 import { googleFetch } from './googleFetch';
-
-const DRIVE_FOLDER_MIME_TYPE = 'application/vnd.google-apps.folder';
-const INVITATION_KIND = 'invitation';
+import {
+  isInvitationAuxiliaryFolder,
+  isRootInvitationFolder,
+  readAudienceFolder,
+} from './invitationAudienceFolders';
 const DATA_JSON_NAME = 'data.json';
 // 에셋 파일은 images/audios 폴더처럼 초대장 폴더 아래 한두 단계에 위치한다.
 // 순환이나 과도한 부모 탐색을 막기 위해 검증 깊이는 제한한다.
@@ -98,7 +99,7 @@ function previewError(
   });
 }
 
-async function getDriveFile(fileId: string): Promise<DriveFile | null> {
+export async function getDriveFile(fileId: string): Promise<DriveFile | null> {
   const res = await googleFetch(
     `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(
       fileId
@@ -119,17 +120,6 @@ async function getDriveFile(fileId: string): Promise<DriveFile | null> {
   }
 
   return data;
-}
-
-function isInvitationFolder(file: DriveFile, workspaceFolderId: string) {
-  return (
-    file.id &&
-    !file.trashed &&
-    file.mimeType === DRIVE_FOLDER_MIME_TYPE &&
-    file.parents?.includes(workspaceFolderId) &&
-    file.appProperties?.app_id === APP_IDENTIFIER &&
-    file.appProperties?.kind === INVITATION_KIND
-  );
 }
 
 async function getWorkspaceFolderIdOrThrow(ownedOnly: boolean) {
@@ -154,7 +144,13 @@ async function getWorkspaceFolderIdOrThrow(ownedOnly: boolean) {
  */
 export async function assertInvitationFolderAccess(
   folderId: string,
-  { ownedOnly = false }: { ownedOnly?: boolean } = {}
+  {
+    ownedOnly = false,
+    allowAudience = true,
+  }: {
+    ownedOnly?: boolean;
+    allowAudience?: boolean;
+  } = {}
 ) {
   if (!folderId) {
     throw previewError(
@@ -167,10 +163,14 @@ export async function assertInvitationFolderAccess(
 
   const workspaceFolderId = await getWorkspaceFolderIdOrThrow(ownedOnly);
   const folder = await getDriveFile(folderId);
+  const audience = folder && allowAudience ? readAudienceFolder(folder) : null;
+  const root = audience ? await getDriveFile(audience.rootFolderId) : folder;
 
   if (
     !folder ||
-    !isInvitationFolder(folder, workspaceFolderId) ||
+    !root ||
+    !isRootInvitationFolder(root, workspaceFolderId) ||
+    (audience && (!root.ownedByMe || !folder.ownedByMe)) ||
     (ownedOnly && folder.ownedByMe !== true)
   ) {
     throw previewError(
@@ -182,7 +182,13 @@ export async function assertInvitationFolderAccess(
     );
   }
 
-  return { ...folder, workspaceFolderId };
+  return {
+    ...folder,
+    workspaceFolderId,
+    rootFolderId: audience?.rootFolderId ?? folderId,
+    rootInvitationUuid: root.appProperties?.inv_id,
+    audience: audience?.group ?? null,
+  };
 }
 
 async function findDataJsonFileId(invitationFolderId: string) {
@@ -319,7 +325,12 @@ export async function assertDriveFileUnderInvitation(
     if (!nextParentId) break;
 
     const parent = await getDriveFile(nextParentId);
-    if (!parent || parent.trashed) break;
+    if (
+      !parent ||
+      parent.trashed ||
+      isInvitationAuxiliaryFolder(parent.appProperties?.kind)
+    )
+      break;
 
     currentParents = parent.parents ?? [];
   }

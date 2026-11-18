@@ -18,6 +18,7 @@ type UploadTask = {
   file: File;
 };
 export interface SavedData {
+  audienceName?: string;
   bulkData: {
     sectionStyle?: SectionStyle;
     backgroundColor: string;
@@ -54,6 +55,7 @@ export interface JsonData {
 }
 
 export interface ResponseData {
+  audienceName?: string;
   config: JsonData;
   images: DriveListResponse;
   audios: DriveListResponse;

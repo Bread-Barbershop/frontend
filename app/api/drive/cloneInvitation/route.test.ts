@@ -10,6 +10,13 @@ jest.mock('@/app/api/drive/_lib/googleFetch', () => ({
 }));
 jest.mock('@/app/api/short-url/_lib/shortUrlStore', () => ({
   isShortUrlStoreConfigured: jest.fn(),
+  resolveShortCode: jest.fn(),
+}));
+jest.mock('@/app/api/drive/_lib/audienceLinkStore', () => ({
+  ...jest.requireActual('@/app/api/drive/_lib/audienceLinkStore'),
+  claimAudienceLink: jest.fn(),
+  commitAudienceLink: jest.fn(),
+  releaseAudienceLink: jest.fn(),
 }));
 jest.mock('@upstash/redis', () => ({ Redis: { fromEnv: jest.fn() } }));
 jest.mock('@/app/api/drive/_lib/publishPermissionWithRetry', () => ({
@@ -25,12 +32,20 @@ jest.mock('next/cache', () => ({
 }));
 
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
+import {
+  claimAudienceLink,
+  releaseAudienceLink,
+} from '@/app/api/drive/_lib/audienceLinkStore';
 import { Redis } from '@upstash/redis';
 import { waitUntilGuestReady } from '@/app/api/drive/_lib/guestReadiness';
 import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissionWithRetry';
 import { POST as publish } from '@/app/api/drive/invitationVisibility/route';
+import { POST as createAudience } from '@/app/api/drive/invitationAudiences/route';
 import { GET as readShare } from '@/app/api/drive/shareUrl/route';
-import { isShortUrlStoreConfigured } from '@/app/api/short-url/_lib/shortUrlStore';
+import {
+  isShortUrlStoreConfigured,
+  resolveShortCode,
+} from '@/app/api/short-url/_lib/shortUrlStore';
 import { BODY_BULK_DATA, TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
 
 import { POST } from './route';
@@ -107,7 +122,11 @@ const sourceData = {
   },
 };
 
-function mockDrive() {
+function mockDrive({
+  failFirstDataDownload = false,
+  firstStageStatus = 0,
+  loseStageResponse = false,
+} = {}) {
   const documents = new Map<string, Doc>();
   const copies = new Map<string, Doc>();
   const deleted: string[] = [];
@@ -230,6 +249,14 @@ function mockDrive() {
     const doc = fileId ? documents.get(fileId) : undefined;
     if (method === 'GET') {
       if (!doc) return Response.json({}, { status: 404 });
+      if (
+        failFirstDataDownload &&
+        fileId === DATA &&
+        url.searchParams.has('alt')
+      ) {
+        failFirstDataDownload = false;
+        return Response.json({}, { status: 503 });
+      }
       return Response.json(url.searchParams.has('alt') ? doc.body : doc);
     }
 
@@ -247,6 +274,13 @@ function mockDrive() {
 
     const body = JSON.parse(String(init?.body));
     if (method === 'POST') {
+      const creatingStage =
+        body.appProperties?.kind === 'invitation_audience_staging';
+      if (creatingStage && firstStageStatus) {
+        const status = firstStageStatus;
+        firstStageStatus = 0;
+        return Response.json({}, { status });
+      }
       if (doc && action === 'copy' && doc.id === failedAsset) {
         return Response.json({}, { status: 503 });
       }
@@ -255,7 +289,12 @@ function mockDrive() {
         ...body,
         id: `new-drive-id-${++counter}`,
         createdTime: new Date().toISOString(),
+        ownedByMe: true,
       });
+      if (creatingStage && loseStageResponse) {
+        loseStageResponse = false;
+        return Response.json({}, { status: 503 });
+      }
       if (doc && action === 'copy') copies.set(doc.id, created);
       return Response.json(created);
     }
@@ -298,6 +337,17 @@ function request(path: string, body: unknown) {
 function clone(requestId = 'copy-op') {
   return POST(request('cloneInvitation', { folderId: SOURCE, requestId }));
 }
+
+const createFamily = (requestId: string) =>
+  createAudience(
+    request('invitationAudiences', {
+      folderId: SOURCE,
+      sourceFolderId: SOURCE,
+      requestId,
+      name: '가족',
+      slug: 'family',
+    })
+  );
 
 describe('초대장 복제 API', () => {
   const originalOrigin = process.env.NEXT_PUBLIC_APP_URL;
@@ -423,6 +473,144 @@ describe('초대장 복제 API', () => {
         invitationUrl: invite.guestUrl,
       },
     });
+  });
+
+  it('기본 초대장을 복제할 때 하객 그룹과 다른 임시 하위 폴더를 복사하지 않는다', async () => {
+    const { documents } = mockDrive();
+    for (const kind of [
+      'invitation_audience',
+      'invitation_audience_staging',
+      'invitation_clone_staging',
+    ]) {
+      documents.set(kind, {
+        id: kind,
+        name: `images ${kind}`,
+        mimeType: FOLDER,
+        parents: [SOURCE],
+        appProperties: { app_id: APP, kind },
+      });
+    }
+    expect((await clone()).status).toBe(200);
+    expect(
+      fetchDrive.mock.calls.some(
+        ([, init]) =>
+          init?.method === 'POST' &&
+          String(init.body).includes('images invitation_')
+      )
+    ).toBe(false);
+    expect(
+      fetchDrive.mock.calls.some(
+        ([url, init]) =>
+          !init?.method &&
+          /invitation_(?:audience|clone)_?/.test(
+            new URL(url).searchParams.get('q') ?? ''
+          )
+      )
+    ).toBe(false);
+  });
+
+  it.each([
+    {
+      name: '원본 다운로드 실패',
+      drive: { failFirstDataDownload: true },
+      status: 502,
+    },
+    {
+      name: '폴더 생성 권한 거부',
+      drive: { firstStageStatus: 403 },
+      status: 403,
+    },
+    {
+      name: '폴더 생성 서비스 오류',
+      drive: { firstStageStatus: 503 },
+      status: 502,
+    },
+  ])(
+    '$name 시 예약을 해제하고 새 요청으로 하객 그룹을 생성한다',
+    async ({ drive, status }) => {
+      mockDrive(drive);
+      jest.mocked(claimAudienceLink).mockResolvedValue({
+        status: 'claimed',
+        dataJsonFileId: null,
+      });
+      expect((await createFamily('first-attempt')).status).toBe(status);
+      const [, reservation] = jest.mocked(claimAudienceLink).mock.calls[0];
+      expect(releaseAudienceLink).toHaveBeenCalledWith(DATA, {
+        slug: 'family',
+        requestId: reservation.requestId,
+      });
+      expect((await createFamily('second-attempt')).status).toBe(200);
+      expect(releaseAudienceLink).toHaveBeenCalledTimes(1);
+    }
+  );
+
+  it('Drive에 임시 폴더가 생성됐지만 응답이 유실됐으면 같은 요청을 위한 예약을 유지한다', async () => {
+    mockDrive({ loseStageResponse: true });
+    jest.mocked(claimAudienceLink).mockResolvedValue({
+      status: 'claimed',
+      dataJsonFileId: null,
+    });
+
+    expect((await createFamily('lost-response')).status).toBe(502);
+    expect(releaseAudienceLink).not.toHaveBeenCalled();
+  });
+
+  it('기본을 가족용으로 복제한 뒤 편집된 가족용 데이터와 에셋을 친구용으로 새로 복제한다', async () => {
+    const { documents, copies } = mockDrive();
+    jest
+      .mocked(claimAudienceLink)
+      .mockResolvedValue({ status: 'claimed', dataJsonFileId: null });
+    jest.mocked(resolveShortCode).mockResolvedValue(DATA);
+
+    const familyResponse = await createAudience(
+      request('invitationAudiences', {
+        folderId: SOURCE,
+        sourceFolderId: SOURCE,
+        requestId: 'family-copy',
+        name: '가족',
+        slug: 'family',
+      })
+    );
+    expect(familyResponse.status).toBe(200);
+    const { group: family } = await familyResponse.json();
+    const familyData = [...documents.values()].find(
+      doc => doc.name === 'data.json' && doc.parents.includes(family.folderId)
+    )!;
+    const familyPhotoId = copies.get(GALLERY)!.id;
+    familyData.body = {
+      ...(familyData.body as typeof sourceData),
+      bulkData: { ...sourceData.bulkData, backgroundColor: '#ff00ee' },
+    };
+
+    const friendsResponse = await createAudience(
+      request('invitationAudiences', {
+        folderId: family.folderId,
+        sourceFolderId: family.folderId,
+        requestId: 'friends-copy',
+        name: '친구',
+        slug: 'friends',
+      })
+    );
+    expect(friendsResponse.status).toBe(200);
+    const { group: friends } = await friendsResponse.json();
+    const friendsData = [...documents.values()].find(
+      doc => doc.name === 'data.json' && doc.parents.includes(friends.folderId)
+    )!;
+
+    expect(documents.get(DATA)?.body).toEqual(sourceData);
+    expect(friends.folderId).not.toBe(family.folderId);
+    expect(friends.invitationUuid).not.toBe(family.invitationUuid);
+    expect(documents.get(friends.folderId)?.parents).toEqual([SOURCE]);
+    expect(friendsData.id).not.toBe(familyData.id);
+    expect(friendsData.body).toMatchObject({
+      bulkData: { backgroundColor: '#ff00ee' },
+      invitationImage: [{ file: copies.get(familyPhotoId)?.id }],
+      shareUrl: { invitationUrl: `${GUEST_URL}?to=friends` },
+    });
+    expect((familyData.body as typeof sourceData).invitationImage[0].file).toBe(
+      familyPhotoId
+    );
+    expect(copies.get(familyPhotoId)?.id).not.toBe(familyPhotoId);
   });
 
   it('기존 메타와 앱 속성이 없는 데이터와 에셋 폴더도 복제한다', async () => {

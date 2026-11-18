@@ -9,10 +9,16 @@ import {
   loadInvitationMeta,
   upsertInvitationMeta,
 } from '@/app/api/drive/_lib/ensureInvitationMetaFile';
+import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import {
   guestPath,
   waitUntilGuestReady,
 } from '@/app/api/drive/_lib/guestReadiness';
+import {
+  getInvitationPublicOrigin,
+  getOwnedAudienceLink,
+} from '@/app/api/drive/_lib/invitationAudiences';
+import { PreviewAccessError } from '@/app/api/drive/_lib/previewAccess';
 import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissionWithRetry';
 import { revokePublicPermissionWithRetry } from '@/app/api/drive/_lib/revokePublicPermissionWithRetry';
 
@@ -58,6 +64,47 @@ export async function POST(req: Request) {
     return NextResponse.json(
       { ok: false, error: 'visible boolean required' },
       { status: 400 }
+    );
+  }
+
+  try {
+    const audience = await getOwnedAudienceLink(
+      invitationFolderId,
+      getInvitationPublicOrigin(req)
+    );
+    if (audience) {
+      const { dataJsonFileId } = await ensureDataJsonFile(invitationFolderId);
+      revalidateGuestCaches(dataJsonFileId);
+      const ready =
+        audience.published &&
+        (
+          await waitUntilGuestReady(dataJsonFileId, {
+            maxAttempts: VERIFY_MAX_ATTEMPTS,
+            delayMs: VERIFY_DELAY_MS,
+          })
+        ).ok;
+      return NextResponse.json({
+        ok: true,
+        inherited: true,
+        published: audience.published,
+        ready,
+        guestUrl: audience.guestUrl,
+        dataJsonFileId,
+      });
+    }
+  } catch (error) {
+    const status =
+      error instanceof PreviewAccessError || error instanceof DriveHttpError
+        ? error.status
+        : 502;
+    captureDriveError({
+      error,
+      operation: 'drive_audience_visibility',
+      status,
+    });
+    return NextResponse.json(
+      { ok: false, error: '초대장의 공개 상태를 확인하지 못했습니다.' },
+      { status }
     );
   }
 
@@ -130,7 +177,7 @@ export async function POST(req: Request) {
     const responseStatus =
       permissionResult.status && permissionResult.status >= 400
         ? permissionResult.status
-          : 502;
+        : 502;
 
     captureDriveError({
       error: new Error(

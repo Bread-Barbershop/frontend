@@ -179,6 +179,55 @@ describe('saveInvitationFlow', () => {
     );
   });
 
+  it('하객 그룹을 저장하고 전환할 때 전용 링크와 그룹 정보를 보존한다', async () => {
+    const defaultFetch = mockFetch.getMockImplementation();
+    mockFetch.mockImplementation(async (input: unknown, ...args: unknown[]) => {
+      if (String(input) === '/api/drive/saveInvitation') {
+        const response = await defaultFetch?.(input, ...args);
+        const prepared = await response.json();
+        return jsonResponse({
+          ...prepared,
+          invitationFolderId: 'family-folder',
+          invitationUuid: 'aud_family-uuid',
+          audienceSlug: 'family',
+        });
+      }
+      if (String(input) === '/api/drive/shareUrl') {
+        return jsonResponse({ ok: true, guestUrl: '/i/aB7kQ2x?to=family' });
+      }
+      return defaultFetch?.(input, ...args);
+    });
+
+    const result = await saveInvitationFlow({
+      bulkData,
+      images: [],
+      audio: null,
+      data: [],
+      shareUrl,
+      bgmData,
+      invitationUuid: 'aud_family-uuid',
+      preserveVisibility: true,
+      mainPoster: { version: '7.1.0', objects: [] },
+      invitationThumbnail: {
+        name: 'invitation-thumbnail.png',
+        mimeType: 'image/png',
+        dataUrl: '',
+        width: 0,
+        height: 0,
+        createdAt: '',
+      },
+    });
+
+    expect(result).toMatchObject({
+      success: true,
+      audienceSlug: 'family',
+      guestUrl: 'http://localhost/i/aB7kQ2x?to=family',
+    });
+    expect(mockFetch.mock.calls.map(([url]) => url)).not.toContain(
+      '/api/drive/invitationVisibility'
+    );
+  });
+
   it('파일 저장은 성공했지만 공개 준비 중인 상태를 결과에 보존한다', async () => {
     const defaultFetch = mockFetch.getMockImplementation();
     mockFetch.mockImplementation((input: unknown, ...args: unknown[]) => {
