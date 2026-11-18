@@ -256,11 +256,24 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '선명한 날짜와 여백이 만드는 현대적인 웨딩 에디토리얼.',
     palette: ['#FFFFFF', '#344E57', '#394348'],
     eyebrow: 'SAVE OUR DATE · 08.11',
-    heading: '우리의 여름을 기억해 주세요',
+    heading: '8월 11일을 비워 주세요',
     message: [
-      '매일의 순간을 함께 채워 온 저희가',
-      '올여름, 새로운 계절을 시작합니다.',
-      '8월 11일의 가장 반가운 얼굴이 되어 주세요.',
+      '여름 한가운데서 저희가 결혼합니다. 가장 반가운 얼굴들과 그날을 함께하고 싶습니다.',
+    ],
+    sectionStyle: 'plain',
+    sections: [
+      { component: 'calendar', title: '8월의 약속', template: 'calendarType5' },
+      { component: 'greeting' },
+      {
+        component: 'timeline',
+        title: '오후의 프로그램',
+        items: [
+          { time: '14:40', title: '로비에서 인사' },
+          { time: '15:00', title: '서약과 축가' },
+          { time: '16:00', title: '리셉션' },
+        ],
+      },
+      { component: 'place', title: '그랜드홀로 오시는 길' },
     ],
     moments: ['웰컴 리셉션', '웨딩 세리머니', '디너 리셉션'],
     note: '예식은 오후 3시에 시작합니다. 여유로운 입장을 위해 20분 전에 도착해 주세요.',
