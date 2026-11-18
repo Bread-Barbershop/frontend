@@ -899,11 +899,32 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '파란 고깔모자와 작은 미소로 전하는 사랑스러운 첫 초대장.',
     palette: ['#F3F7FF', '#47629A', '#3D4B66'],
     eyebrow: 'MINJUN’S FIRST BIRTHDAY',
-    heading: '민준이의 첫 생일에 놀러 오세요',
+    heading: '제 생일에 놀러 오세요',
     message: [
-      '안녕하세요, 어느새 한 살이 된 민준이에요.',
-      '많은 사랑 덕분에 하루하루 씩씩하게 자라고 있어요.',
-      '첫 번째 생일, 좋아하는 분들과 함께 웃고 싶어요!',
+      '엄마 아빠가 제 이름으로 초대장을 써 주셨어요. 첫 촛불을 불 때 제 옆에 있어 주세요.',
+    ],
+    sectionStyle: 'rounded',
+    sections: [
+      {
+        component: 'myChild',
+        title: '안녕하세요, 민준이에요',
+        name: '민준',
+        birthday: '2025. 08. 11',
+        message:
+          '누가 손뼉을 치면 저도 두 손을 마주쳐요. 요즘 제일 신나는 놀이예요.',
+        image: '/templates/thumbnails/firstBirthday_02.png',
+      },
+      { component: 'greeting' },
+      { component: 'calendar', title: '첫 번째 생일' },
+      { component: 'place', title: '돌상이 있는 곳' },
+      {
+        component: 'notice',
+        title: '돌잡이 사진',
+        heading: '플래시는 잠깐 꺼 주세요',
+        message:
+          '민준이가 무엇을 고를지 천천히 지켜봐 주세요. 돌잡이가 끝나면 함께 사진 찍을 시간도 있어요.',
+        preset: 'shooting',
+      },
     ],
     moments: ['민준이와 인사해요', '첫 번째 돌잡이', '생일 노래와 가족 식사'],
     note: '민준이와의 사진은 언제든 환영해요. 눈이 부시지 않도록 플래시는 잠시 꺼 주세요.',
