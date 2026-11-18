@@ -747,11 +747,27 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '꾸밈없는 사진 한 장처럼, 편안하고 솔직한 생일 초대.',
     palette: ['#FBF6F0', '#8A5C3B', '#4F4135'],
     eyebrow: '27TH BIRTHDAY · FOR MINHYUK',
-    heading: '올해의 생일도, 너희와 함께',
+    heading: '휴대폰 속 사진 한 장만 골라 와',
     message: [
-      '또 하나의 나이보다 더 기대되는 건',
-      '오랜만에 한자리에 모일 우리의 모습이에요.',
-      '편하게 와서 밥 먹고, 웃고, 사진도 많이 남겨요.',
+      '작년 생일 사진을 넘겨 보다가 다들 보고 싶어졌어. 올해는 케이크 앞에서 단체 사진도 한 장 남기자.',
+    ],
+    sectionStyle: 'paper',
+    sections: [
+      { component: 'greeting' },
+      {
+        component: 'notice',
+        title: '우리끼리의 사진 교환',
+        heading: '가져올 사진 한 장',
+        message:
+          '같이 찍은 사진도, 요즘 좋아하는 풍경도 좋아. 돌아가며 그날 얘기를 들려줘.',
+        preset: 'shooting',
+      },
+      { component: 'calendar', title: '사진 찍는 날' },
+      { component: 'place', title: '모일 곳' },
+      {
+        component: 'closingComment',
+        message: '이번 사진에도 네 자리가 있었으면 좋겠어. 민혁이가',
+      },
     ],
     moments: ['오랜만의 안부', '생일 케이크와 사진', '느긋한 저녁 식사'],
     note: '편한 옷차림이면 충분해요. 좋아하는 사진을 한 장씩 가져와 함께 추억을 나눠도 좋아요.',
