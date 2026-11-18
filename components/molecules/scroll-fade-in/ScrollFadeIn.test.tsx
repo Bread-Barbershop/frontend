@@ -62,7 +62,7 @@ describe('ScrollFadeIn 컴포넌트', () => {
     );
     expect(container.firstElementChild).toHaveStyle({
       transitionDuration: '1400ms',
-      transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
+      transitionTimingFunction: 'ease-in-out',
     });
   });
 

@@ -192,9 +192,7 @@ describe('신규 블록의 추가·저장 데이터·공개 화면 연결', () =
     const slowDuration = parseFloat(
       particle.style.getPropertyValue('--duration')
     );
-    expect(layer.style.getPropertyValue('--motion-easing')).toBe(
-      'cubic-bezier(0.22, 1, 0.36, 1)'
-    );
+    expect(layer.style.getPropertyValue('--motion-easing')).toBe('ease-in-out');
     expect(particle.textContent).toBe('');
     expect(screen.getByRole('dialog', { name: '초대장 열기' })).toHaveStyle({
       '--intro-duration': '2.4s',
