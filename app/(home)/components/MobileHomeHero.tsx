@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 
+import NoticeConfirmButton from '@/components/atoms/button/NoticeConfirmButton';
 import homeBackgroundImage from '@/shared/assets/images/home/home-background.png';
 import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 
@@ -200,13 +201,12 @@ function MobileHomeHero() {
                   브라우저 창을 넓히거나 더 큰 화면에서 이용해 주세요.
                 </p>
               </div>
-              <button
-                type="button"
+              <NoticeConfirmButton
+                className="mt-1.5 min-h-11 leading-none"
                 onClick={() => setIsPcGuideOpen(false)}
-                className="mt-1.5 inline-flex min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-full bg-bg-plain px-8 py-[13.5px] text-[14px] font-semibold leading-none text-white transition-colors hover:bg-[#202020] active:bg-[#0D0D0D]"
               >
                 닫기
-              </button>
+              </NoticeConfirmButton>
             </motion.div>
           </motion.div>
         )}
