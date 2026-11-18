@@ -1,3 +1,5 @@
+import type { SectionStyle } from './sectionStyles';
+import type { ShowcaseSection } from './showcaseSections';
 import type { InvitationType } from '@/shared/types/block';
 
 export type ShowcaseInvitation = {
@@ -13,6 +15,8 @@ export type ShowcaseInvitation = {
   date: string;
   time: string;
   venue: string;
+  sections?: ShowcaseSection[];
+  sectionStyle?: SectionStyle;
   moments: [string, string, string];
   note: string;
 };

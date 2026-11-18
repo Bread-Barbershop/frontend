@@ -9,6 +9,8 @@ import {
 import type { EditorBlock } from '@/shared/types/block';
 import type { BlockType } from '@/shared/types/editor';
 
+import { buildShowcaseSection } from './buildShowcaseSection';
+
 import type { ShowcaseInvitation } from './showcaseInvitations';
 import type { ShowcaseFamily } from './showcasePresentation';
 import type { JSONContent } from '@tiptap/core';
@@ -327,26 +329,28 @@ export function buildShowcaseInvitation(design: ShowcaseInvitation) {
     transportation,
     dressCode,
   };
-  const chapters = getShowcaseBlockTypes(design)
-    .filter(component => component !== 'closingComment')
-    .map(component => {
-      const chapter = chapterByComponent[component];
-      if (!chapter) {
-        throw new Error(`Missing showcase block: ${component}`);
-      }
-      return chapter;
-    });
-  const blocks: EditorBlock[] = [
-    block('spacer', { height: 12 }),
-    ...chapters,
-    divider,
-    closingComment,
-  ];
+  const chapters = design.sections
+    ? []
+    : getShowcaseBlockTypes(design)
+        .filter(component => component !== 'closingComment')
+        .map(component => {
+          const chapter = chapterByComponent[component];
+          if (!chapter) {
+            throw new Error(`Missing showcase block: ${component}`);
+          }
+          return chapter;
+        });
+  const blocks: EditorBlock[] = design.sections
+    ? design.sections.map((section, index) =>
+        buildShowcaseSection(design, section, index)
+      )
+    : [block('spacer', { height: 12 }), ...chapters, divider, closingComment];
 
   return {
     blocks,
     bulkData: {
-      sectionStyle: FAMILY_SECTION_STYLES[presentation.family],
+      sectionStyle:
+        design.sectionStyle ?? FAMILY_SECTION_STYLES[presentation.family],
       backgroundColor,
       titleData: {
         font: design.font,

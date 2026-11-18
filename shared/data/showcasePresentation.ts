@@ -145,6 +145,7 @@ export function getShowcasePresentation(design: ShowcaseInvitation) {
 }
 
 export function getShowcaseBlockTypes(design: ShowcaseInvitation): BlockType[] {
+  if (design.sections) return design.sections.map(section => section.component);
   const family = getShowcasePresentation(design).family;
   const closing = 'closingComment' as const;
   const seminar: BlockType[] = [
