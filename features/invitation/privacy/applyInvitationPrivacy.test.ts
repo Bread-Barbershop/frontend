@@ -216,4 +216,31 @@ describe('행사일 이후 공개 초대장', () => {
       accountList: [[{ name: '박민준', bank: '**', account: '***-****' }]],
     });
   });
+
+  it('공지사항의 업로드 사진만 가리고 안내 문구와 소유자의 원본을 유지한다', () => {
+    const original = makeInvitation();
+    const notice = block('notice', {
+      noticeList: [
+        { id: 'a', notice: '주차 안내', image: ['private-notice-photo'] },
+        { id: 'b', notice: '식사 안내', image: [] },
+      ],
+    });
+    original.blocks = [notice];
+    original.bulkData.invitationPrivacy!.fields = ['media'];
+
+    const guest = applyInvitationPrivacy(original, cutoff);
+    expect(guest.blocks[0]).toMatchObject({
+      privacyMediaHidden: true,
+      props: {
+        noticeList: [
+          { id: 'a', notice: '주차 안내', image: [] },
+          { id: 'b', notice: '식사 안내', image: [] },
+        ],
+      },
+    });
+    expect(JSON.stringify(guest)).not.toContain('private-notice-photo');
+    expect(JSON.stringify(notice)).toContain('private-notice-photo');
+    original.bulkData.invitationPrivacy!.fields = ['phone'];
+    expect(applyInvitationPrivacy(original, cutoff).blocks[0]).toBe(notice);
+  });
 });

@@ -222,6 +222,19 @@ function redactBlock(block: GuestBlock, fields: Fields): GuestBlock {
       ...block,
       props: { ...props, placeTel: maskPhone(props.placeTel) },
     };
+  if (component === 'notice' && fields.has('media')) {
+    const notices = list(props.noticeList).map(record);
+    if (notices.some(notice => list(notice.image).some(Boolean))) {
+      return {
+        ...block,
+        props: {
+          ...props,
+          noticeList: notices.map(notice => ({ ...notice, image: [] })),
+        },
+        privacyMediaHidden: true,
+      };
+    }
+  }
   if (profileBlocks.has(component) || component === 'myFamilyWedding') {
     return {
       ...block,
