@@ -642,7 +642,27 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
           '/samples/wedding_14/images/06_b2cf8c86-2b11-4f18-b2de-bfc8fa5c08f4.jpg',
       },
       { component: 'greeting' },
+      {
+        component: 'gallery',
+        title: '산책하다 멈춘 자리',
+        template: 'galleryType7',
+        ratio: '4:3',
+        images: [
+          '/samples/wedding_14/images/03_2eb9460b-b5ed-470c-beff-a088f65983f9.jpg',
+          '/samples/wedding_14/images/05_b1c68d54-033d-4053-9dc6-f9b05cc6b9ef.jpg',
+        ],
+      },
       { component: 'calendar', title: '우리의 만남' },
+      {
+        component: 'mealMenu',
+        title: '한 바퀴 걷기 전의 식사',
+        subtitle: 'Weekend Lunch',
+        style: 'bistro',
+        courses: [
+          { name: '따뜻한 접시', dishes: ['허브 치킨과 구운 감자'] },
+          { name: '후식', dishes: ['레몬 케이크'] },
+        ],
+      },
       { component: 'place', title: '산책의 출발점' },
       {
         component: 'afterParty',
@@ -650,6 +670,17 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         venue: '웨딩홀 앞마당',
         dateTime: '식사 후',
         description: '시간 되시는 분들과 앞마당을 걸으며 인사 나눌게요.',
+      },
+      {
+        component: 'faq',
+        title: '함께 걸으실 분께',
+        items: [
+          {
+            question: '산책은 얼마나 걸리나요?',
+            answer:
+              '앞마당을 천천히 돌아오는 10분 코스예요. 중간 벤치에서 기다리셔도 좋습니다.',
+          },
+        ],
       },
     ],
   },
