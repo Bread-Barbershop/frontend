@@ -1,5 +1,6 @@
 import { PickerHsva } from '@/components/molecules/color-picker/components/colorPicker.types';
 import type { ScrollAnimationSettings } from '@/components/molecules/scroll-fade-in/animationConfig';
+import type { InvitationPrivacy } from '@/features/invitation/privacy/settings';
 import { blockRegistry } from '@/shared/data/registry/registry';
 
 import { blockSchema } from '../data/registry/block.schema';
@@ -132,10 +133,12 @@ export interface BulkSlice {
   bodyData: BulkData;
   backgroundColor: string;
   isZoom: boolean;
+  invitationPrivacy?: InvitationPrivacy;
   setBackgroundColor: (color: string) => void;
   setTitleData: (data: BulkData) => void;
   setBodyData: (data: BulkData) => void;
   setIsZoom: (isZoom: boolean) => void;
+  setInvitationPrivacy: (settings: InvitationPrivacy | undefined) => void;
 }
 
 export interface ShareUrlState {

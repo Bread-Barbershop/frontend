@@ -25,11 +25,16 @@ jest.mock('@/app/api/short-url/_lib/shortUrlStore', () => ({
   getOrCreateShortCode: jest.fn(),
 }));
 
+jest.mock('@/app/api/drive/_lib/getSaveDataFetch', () => ({
+  downloadFiles: jest.fn(),
+}));
+
 import { GET, POST } from '@/app/api/drive/shareUrl/route';
 import {
   loadInvitationMeta,
   upsertInvitationMeta,
 } from '@/app/api/drive/_lib/ensureInvitationMetaFile';
+import { downloadFiles } from '@/app/api/drive/_lib/getSaveDataFetch';
 import { getOrCreateShortCode } from '@/app/api/short-url/_lib/shortUrlStore';
 
 const shareData = {
@@ -43,6 +48,7 @@ const shareData = {
 describe('shareUrl route', () => {
   beforeEach(() => {
     jest.resetAllMocks();
+    (downloadFiles as jest.Mock).mockResolvedValue({ bulkData: {} });
     (getOrCreateShortCode as jest.Mock).mockResolvedValue({
       shortCode: 'aB7kQ2x',
       guestPath: '/i/aB7kQ2x',
@@ -289,6 +295,41 @@ describe('shareUrl route', () => {
     expect(json).toEqual({
       ok: false,
       error: 'share data not found in meta.json',
+    });
+  });
+
+  it('행사가 지난 뒤 새 카카오 공유에 이름·썸네일·지도 정보를 넣지 않는다', async () => {
+    (loadInvitationMeta as jest.Mock).mockResolvedValue({
+      metaFileId: 'meta-file-id',
+      payload: {
+        dataJsonFileId: 'data-json-file-id',
+        kakaoShare: {
+          ...shareData,
+          title: '김민준의 초대장',
+          showLocationButton: true,
+          locationInfo: { placeName: '장소', lat: 37, lng: 127 },
+        },
+      },
+    });
+    (downloadFiles as jest.Mock).mockResolvedValue({
+      bulkData: {
+        invitationPrivacy: {
+          enabled: true,
+          eventDate: '2000-01-01',
+          fields: ['name', 'media', 'location'],
+        },
+      },
+    });
+
+    const res = await GET(new Request(
+      'http://localhost/api/drive/shareUrl?invitationFolderId=invitation-folder-id'
+    ));
+    expect(res.status).toBe(200);
+    expect((await res.json()).data).toEqual({
+      title: '',
+      description: '',
+      showLocationButton: false,
+      invitationUrl: 'http://localhost/guest/data-json-file-id',
     });
   });
 });

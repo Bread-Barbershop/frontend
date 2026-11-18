@@ -1,3 +1,4 @@
+import { normalizeInvitationPrivacy } from '@/features/invitation/privacy/settings';
 import type { BulkData } from '@/shared/types/block';
 import type { GuestRenderHints } from '@/shared/types/renderHints';
 
@@ -71,6 +72,7 @@ function normalizeBulkJson(x: unknown): BulkJson | null {
   if (typeof x.backgroundColor !== 'string') return null;
   if (!isBulkData(x.titleData)) return null;
   if (!isBulkData(x.bodyData)) return null;
+  const invitationPrivacy = normalizeInvitationPrivacy(x.invitationPrivacy);
 
   return {
     backgroundColor: x.backgroundColor,
@@ -78,6 +80,7 @@ function normalizeBulkJson(x: unknown): BulkJson | null {
     bodyData: x.bodyData,
     // 구형 data.json에는 isZoom이 없을 수 있으므로 안전한 기본값을 둔다.
     isZoom: typeof x.isZoom === 'boolean' ? x.isZoom : false,
+    ...(invitationPrivacy ? { invitationPrivacy } : {}),
   };
 }
 

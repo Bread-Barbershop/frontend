@@ -1,3 +1,4 @@
+import type { InvitationPrivacy } from '@/features/invitation/privacy/settings';
 import type {
   BulkData,
   PersistedEditorBlock,
@@ -42,6 +43,7 @@ export type BulkJson = {
   titleData: BulkData;
   bodyData: BulkData;
   isZoom: boolean;
+  invitationPrivacy?: InvitationPrivacy;
 };
 
 export type InvitationPayload = {

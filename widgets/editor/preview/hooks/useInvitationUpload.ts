@@ -344,6 +344,7 @@ export const useInvitationUpload = () => {
         titleData: editorData.titleData,
         bodyData: editorData.bodyData,
         isZoom: editorData.isZoom,
+        invitationPrivacy: editorData.invitationPrivacy,
       };
 
       const mainPoster = exportIntersectedJSON() ?? {

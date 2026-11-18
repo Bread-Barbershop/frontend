@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
+import { normalizeInvitationPrivacy } from '@/features/invitation/privacy/settings';
 import { collectFontFamilies } from '@/features/invitation/save/createGuestRenderHints';
 import { preloadFontFamilyWeights } from '@/shared/fonts/fontLoader';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
@@ -51,6 +52,7 @@ export const useInitData = ({
     setTitleData,
     setBackgroundColor,
     setIsZoom,
+    setInvitationPrivacy,
     setShareUrl,
     setHashFiles,
     clearHashFiles,
@@ -68,6 +70,7 @@ export const useInitData = ({
       setTitleData: state.setTitleData,
       setBackgroundColor: state.setBackgroundColor,
       setIsZoom: state.setIsZoom,
+      setInvitationPrivacy: state.setInvitationPrivacy,
       setShareUrl: state.setShareUrl,
       setHashFiles: state.setHashFiles,
       clearHashFiles: state.clearHashFiles,
@@ -172,13 +175,14 @@ export const useInitData = ({
   }, [bgm, resetBgm, setUserFile, setIsLoop, setSelectedBgmId]);
 
   const initBulkData = useCallback(() => {
+    setInvitationPrivacy(normalizeInvitationPrivacy(bulkData?.invitationPrivacy));
     if (bulkData) {
       setBodyData(bulkData.bodyData);
       setTitleData(bulkData.titleData);
       setBackgroundColor(bulkData.backgroundColor);
       setIsZoom(bulkData.isZoom);
     }
-  }, [bulkData, setBodyData, setTitleData, setBackgroundColor, setIsZoom]);
+  }, [bulkData, setBodyData, setTitleData, setBackgroundColor, setIsZoom, setInvitationPrivacy]);
   return {
     initEditStore,
     initBgmStore,

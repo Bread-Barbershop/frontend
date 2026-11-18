@@ -1,3 +1,4 @@
+import type { InvitationPrivacy, InvitationPrivacyField } from '@/features/invitation/privacy/settings';
 import { BulkData } from '@/shared/types/block';
 import type { GuestRenderHints } from '@/shared/types/renderHints';
 
@@ -15,6 +16,8 @@ export type GuestBlock = {
   type: string;
   component: string;
   props: unknown;
+  privacyPlaceholder?: 'photo' | 'video' | 'location';
+  privacyMediaHidden?: boolean;
 };
 
 export type GuestBgm = {
@@ -46,6 +49,7 @@ export type GuestPayload = {
   bgm: GuestBgm;
   mainPoster: GuestMainPosterData;
   renderHints?: GuestRenderHints;
+  activePrivacyFields?: InvitationPrivacyField[];
 };
 
 export type BulkJson = {
@@ -53,6 +57,7 @@ export type BulkJson = {
   titleData: BulkData;
   bodyData: BulkData;
   isZoom: boolean;
+  invitationPrivacy?: InvitationPrivacy;
 };
 
 export type GuestMainPosterData = {

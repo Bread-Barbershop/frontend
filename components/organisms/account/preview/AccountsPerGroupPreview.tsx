@@ -46,9 +46,11 @@ const copyTextToClipboard = async (text: string) => {
 export const AccountsPerGroupPreview = ({
   isOpenAccount,
   accountList,
+  hideActions = false,
 }: {
   isOpenAccount: boolean;
   accountList: Account[];
+  hideActions?: boolean;
 }) => {
   const { success: successToast } = useToast();
   const { fontFamily } = useBodyFontInfo();
@@ -106,7 +108,7 @@ export const AccountsPerGroupPreview = ({
                       {displayAccount}
                     </p>
                   </div>
-                  <div className="flex shrink-0 items-center justify-start gap-0.5">
+                  {!hideActions && <div className="flex shrink-0 items-center justify-start gap-0.5">
                     <Button
                       type="button"
                       variant="borderless"
@@ -147,7 +149,7 @@ export const AccountsPerGroupPreview = ({
                         <KakaoIcon width={36} height={36} />
                       </Button>
                     )}
-                  </div>
+                  </div>}
                 </div>
               );
             })}
