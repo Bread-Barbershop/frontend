@@ -7,6 +7,7 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import BulkEdit from './components/BulkEdit';
 import Edit from './components/Edit';
+import { SectionStyleControls } from './components/SectionStyleControls';
 
 function LeftPanel() {
   const { isEdit, setIsEdit, selectedId } = useEditorStore(
@@ -49,6 +50,10 @@ function LeftPanel() {
             </div>
           </div>
         </div>
+      )}
+
+      {isComponentSelected && !isEdit && (
+        <SectionStyleControls key={selectedId} selectedId={selectedId!} />
       )}
 
       <div

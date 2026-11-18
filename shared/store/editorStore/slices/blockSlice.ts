@@ -35,6 +35,14 @@ export const createBlockSlice: StateCreator<EditorState, [], [], BlockSlice> = (
           : block
       ),
     })),
+  updateBlockSectionStyle: (id, sectionStyle) =>
+    set(state => ({
+      block: state.block.map(block =>
+        block.id === id
+          ? { ...block, props: { ...block.props, sectionStyle } }
+          : block
+      ),
+    })),
   deleteBlock: (id: string) =>
     set(state => ({
       block: state.block.filter(items => items.id !== id),

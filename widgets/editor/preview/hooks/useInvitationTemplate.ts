@@ -310,6 +310,7 @@ export function useInvitationTemplate({
         useEditorStore.setState(state => ({
           block: prepared.blocks,
           backgroundColor: prepared.backgroundColor,
+          sectionStyle: prepared.sectionStyle,
           titleData: prepared.titleData,
           bodyData: prepared.bodyData,
           scrollAnimation: DEFAULT_SCROLL_ANIMATION,

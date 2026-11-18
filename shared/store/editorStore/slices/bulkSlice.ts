@@ -15,6 +15,8 @@ export const createBulkSlice: StateCreator<EditorState, [], [], BulkSlice> = (
   set,
   _
 ) => ({
+  sectionStyle: undefined,
+  setSectionStyle: sectionStyle => set({ sectionStyle }),
   backgroundColor: DEFAULT_BACKGROUND_COLOR,
   titleData: TITLE_BULK_DATA,
   bodyData: BODY_BULK_DATA,

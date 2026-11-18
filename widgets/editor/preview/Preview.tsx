@@ -66,6 +66,7 @@ function Preview() {
     setIsEdit,
     backgroundColor,
     scrollAnimation,
+    sectionStyle,
     moveBlock,
   } = useEditorStore(
     useShallow(state => ({
@@ -75,6 +76,7 @@ function Preview() {
       setIsEdit: state.setIsEdit,
       backgroundColor: state.backgroundColor,
       scrollAnimation: state.scrollAnimation,
+      sectionStyle: state.sectionStyle,
       moveBlock: state.moveBlock,
     }))
   );
@@ -221,6 +223,8 @@ function Preview() {
                         <InvitationChapter
                           component={comp.component}
                           collectionStyle={comp.props.collectionStyle}
+                          sectionStyle={comp.props.sectionStyle}
+                          defaultStyle={sectionStyle}
                         >
                           <View
                             blockInfo={comp}

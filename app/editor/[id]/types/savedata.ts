@@ -1,5 +1,6 @@
 import { DriveListResponse } from '@/app/api/drive/_lib/getSaveDataFetch';
 import type { ScrollAnimationSettings } from '@/components/molecules/scroll-fade-in/animationConfig';
+import type { SectionStyle } from '@/shared/data/sectionStyles';
 import {
   BulkData,
   PersistedEditorBlock,
@@ -17,6 +18,7 @@ type UploadTask = {
 };
 export interface SavedData {
   bulkData: {
+    sectionStyle?: SectionStyle;
     backgroundColor: string;
     titleData: BulkData;
     bodyData: BulkData;
@@ -34,6 +36,7 @@ export interface SavedData {
 
 export interface JsonData {
   bulkData: {
+    sectionStyle?: SectionStyle;
     backgroundColor: string;
     titleData: BulkData;
     bodyData: BulkData;

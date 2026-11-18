@@ -8,6 +8,7 @@ import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/an
 import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
 import InvitationChapter, {
   getCollectionStyle,
+  getBlockSectionStyle,
 } from '@/components/organisms/invitation-chapter/InvitationChapter';
 import { isBlockEnabled } from '@/shared/data/registry/blockAvailability';
 import { blockRegistry } from '@/shared/data/registry/registry';
@@ -163,6 +164,8 @@ function GuestRenderer({
               <InvitationChapter
                 component={block.component}
                 collectionStyle={getCollectionStyle(block.props)}
+                sectionStyle={getBlockSectionStyle(block.props)}
+                defaultStyle={bulkData.sectionStyle}
               >
                 {view}
               </InvitationChapter>
