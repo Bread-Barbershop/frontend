@@ -391,6 +391,25 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
       { component: 'calendar', title: '8월의 약속', template: 'calendarType5' },
       { component: 'greeting' },
       {
+        component: 'gallery',
+        title: '8월호 화보',
+        template: 'galleryType6',
+        ratio: '3:4',
+        images: [
+          '/samples/wedding_14/images/03_2eb9460b-b5ed-470c-beff-a088f65983f9.jpg',
+          '/samples/wedding_14/images/04_779358cc-330b-4bb4-818b-6b1c2e91958c.jpg',
+          '/samples/wedding_14/images/05_b1c68d54-033d-4053-9dc6-f9b05cc6b9ef.jpg',
+        ],
+      },
+      {
+        component: 'interview',
+        title: '한 문장 인터뷰',
+        question: '함께 처음 맞는 여름, 무엇을 하고 싶나요?',
+        answer:
+          '수박 한 통을 사서 냉장고에 넣어 두고, 친구들이 들를 때마다 한 조각씩 내주고 싶어요.',
+        image: '/images/showcase/vow-rings.webp',
+      },
+      {
         component: 'timeline',
         title: '오후의 프로그램',
         items: [
@@ -399,7 +418,27 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
           { time: '16:00', title: '리셉션' },
         ],
       },
+      {
+        component: 'mealMenu',
+        title: '리셉션 메뉴',
+        subtitle: 'August Issue',
+        style: 'tasting',
+        courses: [
+          { name: '한입 요리', dishes: ['토마토와 바질 타르트'] },
+          { name: '디저트', dishes: ['바닐라 아이스크림과 자두'] },
+        ],
+      },
       { component: 'place', title: '그랜드홀로 오시는 길' },
+      {
+        component: 'transportation',
+        title: '차를 가져오실 분께',
+        parkingHours: '예식 참석 차량은 두 시간 주차할 수 있습니다.',
+        alternativeParking: '귀가 전 1층 로비에서 차량 번호를 등록해 주세요.',
+      },
+      {
+        component: 'closingComment',
+        message: '8월호의 마지막 사진은 여러분과 함께 찍겠습니다. 민성·아현',
+      },
     ],
   },
   {
