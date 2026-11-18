@@ -988,6 +988,13 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
       },
       { component: 'greeting' },
       {
+        component: 'speakerInformation',
+        title: '함께 스케치할 진행자',
+        name: 'Andrew Jackson',
+        bio: 'Andrew Jackson이 관찰한 불편 하나를 그림으로 바꾸는 과정을 먼저 보여 드립니다. 그다음은 각자 가져온 사례를 펼칠 차례입니다.',
+        image: '/images/showcase/conference-speaker.webp',
+      },
+      {
         component: 'notice',
         title: '워크숍 준비물',
         heading: '필기구 한 자루',
@@ -996,8 +1003,32 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         preset: 'time',
         image: '/images/showcase/conference-hall.webp',
       },
+      {
+        component: 'faq',
+        title: '워크숍이 끝날 때',
+        items: [
+          {
+            question: '내 스케치는 가져갈 수 있나요?',
+            answer:
+              '네. 짝이 남긴 메모와 스케치를 함께 챙겨 가세요. 다른 분의 작업을 촬영할 때는 먼저 동의를 구해 주세요.',
+          },
+        ],
+      },
       { component: 'calendar', title: '워크숍 일시' },
       { component: 'place', title: '워크숍 장소' },
+      {
+        component: 'afterParty',
+        title: '작업을 둘러보는 시간',
+        venue: '오디토리움 앞 로비',
+        dateTime: '워크숍이 끝나는 오후 4시부터',
+        description:
+          '벽에 붙인 스케치를 둘러보고, 만든 분께 직접 질문을 건네 보세요. 전시는 자유롭게 참여하실 수 있습니다.',
+      },
+      {
+        component: 'closingComment',
+        message:
+          '완성한 스케치에 다음에 해 볼 실험 하나를 적어 두세요. 그 한 줄까지가 오늘의 작업입니다.',
+      },
     ],
   },
   {
