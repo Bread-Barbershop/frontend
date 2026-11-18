@@ -50,8 +50,9 @@ export function ScrollFadeIn({
   ...rest
 }: ScrollFadeInProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [isIntersected, setIsIntersected] = useState(false);
-  const [isTransitionDone, setIsTransitionDone] = useState(false);
+  const [phase, setPhase] = useState<'hidden' | 'entering' | 'visible'>(
+    'hidden'
+  );
 
   const isObserverSupported = useSyncExternalStore(
     emptySubscribe,
@@ -70,40 +71,36 @@ export function ScrollFadeIn({
     if (!element) return;
 
     // Editor preview scrolls inside a panel, while guest pages may scroll the window.
-    // Track the closest scrollable ancestor so up-only works in both environments.
     let scrollParent = element.parentElement;
     while (scrollParent) {
       const overflowY = window.getComputedStyle(scrollParent).overflowY;
-      if (
-        /(auto|scroll)/.test(overflowY) &&
-        scrollParent.scrollHeight > scrollParent.clientHeight
-      )
-        break;
+      if (/(auto|scroll)/.test(overflowY)) break;
       scrollParent = scrollParent.parentElement;
     }
-    const scrollTarget: HTMLElement | Window = scrollParent ?? window;
-    const getScrollY = () => scrollParent?.scrollTop ?? window.scrollY;
-    let lastY = getScrollY();
-    let movingUp = false;
-    const onScroll = () => {
-      const nextY = getScrollY();
-      movingUp = nextY < lastY;
-      lastY = nextY;
-    };
-    scrollTarget.addEventListener('scroll', onScroll, { passive: true });
 
+    let aboveViewport = false;
     const observer = new IntersectionObserver(
       entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            if (triggerMode !== 'up-only' || movingUp) setIsIntersected(true);
-            if (triggerMode === 'down-only') observer.unobserve(entry.target);
-          } else if (triggerMode !== 'down-only') {
-            setIsIntersected(false);
+        for (const entry of entries) {
+          if (!entry.isIntersecting) {
+            aboveViewport =
+              entry.boundingClientRect.bottom <= (entry.rootBounds?.top ?? 0);
+            // Keep one-way content visible when scrolling back up to it.
+            setPhase(
+              aboveViewport && triggerMode !== 'both' ? 'visible' : 'hidden'
+            );
+            continue;
           }
-        });
+          if (aboveViewport && triggerMode !== 'both') continue;
+          setPhase('entering');
+          if (triggerMode === 'down-only') {
+            observer.unobserve(element);
+            break;
+          }
+        }
       },
       {
+        root: scrollParent,
         threshold,
         rootMargin,
       }
@@ -111,69 +108,68 @@ export function ScrollFadeIn({
 
     observer.observe(element);
 
-    return () => {
-      observer.disconnect();
-      scrollTarget.removeEventListener('scroll', onScroll);
-    };
+    return () => observer.disconnect();
   }, [shouldBypassAnimation, threshold, rootMargin, triggerMode]);
 
-  // 애니메이션 바이패스 대상이거나 뷰포트에 도달한 경우 노출
-  const isVisible = shouldBypassAnimation || isIntersected;
+  const isVisible = shouldBypassAnimation || phase !== 'hidden';
+  const isEntering = !shouldBypassAnimation && phase === 'entering';
 
   return (
-    <div
-      ref={ref}
-      onTransitionEnd={event => {
-        // 자식 요소의 transition 버블링 방지 및 opacity/transform 전환 완료 시 will-change 해제
-        if (event.target !== event.currentTarget) return;
-        if (
-          !event.propertyName ||
-          event.propertyName === 'opacity' ||
-          event.propertyName === 'transform'
-        ) {
-          if (isVisible) {
-            setIsTransitionDone(true);
+    // Observe a stationary box so the reveal transform cannot trigger another entry.
+    <div ref={ref} className="w-full">
+      <div
+        onTransitionEnd={event => {
+          // 자식 요소의 transition 버블링 방지 및 opacity/transform 전환 완료 시 will-change 해제
+          if (event.target !== event.currentTarget) return;
+          if (
+            !event.propertyName ||
+            event.propertyName === 'opacity' ||
+            event.propertyName === 'transform'
+          ) {
+            if (isEntering) {
+              setPhase('visible');
+            }
           }
-        }
-      }}
-      className={cn(
-        'scroll-fade-in-item w-full transition-all duration-700 ease-out',
-        !isTransitionDone &&
-          !shouldBypassAnimation &&
-          'will-change-[opacity,transform]',
-        isVisible
-          ? 'opacity-100 translate-y-0 scale-100'
-          : animationType === 'fade-down'
-            ? 'opacity-0 -translate-y-6'
-            : animationType === 'fade'
-              ? 'opacity-0'
-              : animationType === 'zoom-in'
-                ? 'opacity-0 scale-95'
-                : 'opacity-0 translate-y-6',
-        className
-      )}
-      style={{
-        transitionDuration: shouldBypassAnimation
-          ? '0ms'
-          : `${boundedMotionNumber(animationDurationMs, 200, 2000, 700)}ms`,
-        transitionTimingFunction:
-          MOTION_EASINGS[resolveMotionEasing(animationEasing)],
-        ...style,
-        ...(delayMs > 0 && isVisible
-          ? { transitionDelay: `${delayMs}ms` }
-          : {}),
-      }}
-      {...rest}
-    >
-      <noscript>
-        <style>{`
+        }}
+        className={cn(
+          'scroll-fade-in-item w-full transition-all duration-700 ease-out',
+          phase !== 'visible' &&
+            !shouldBypassAnimation &&
+            'will-change-[opacity,transform]',
+          isVisible
+            ? 'opacity-100 translate-y-0 scale-100'
+            : animationType === 'fade-down'
+              ? 'opacity-0 -translate-y-6'
+              : animationType === 'fade'
+                ? 'opacity-0'
+                : animationType === 'zoom-in'
+                  ? 'opacity-0 scale-95'
+                  : 'opacity-0 translate-y-6',
+          className
+        )}
+        style={{
+          transitionDuration: isEntering
+            ? `${boundedMotionNumber(animationDurationMs, 200, 2000, 700)}ms`
+            : '0ms',
+          transitionTimingFunction:
+            MOTION_EASINGS[resolveMotionEasing(animationEasing)],
+          ...style,
+          ...(delayMs > 0 && isEntering
+            ? { transitionDelay: `${delayMs}ms` }
+            : {}),
+        }}
+        {...rest}
+      >
+        <noscript>
+          <style>{`
           .scroll-fade-in-item {
             opacity: 1 !important;
             transform: none !important;
           }
         `}</style>
-      </noscript>
-      {children}
+        </noscript>
+        {children}
+      </div>
     </div>
   );
 }
