@@ -899,7 +899,23 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     sectionStyle: 'rounded',
     sections: [
       { component: 'greeting' },
+      {
+        component: 'speakerInformation',
+        title: '테이블 대화의 첫 질문',
+        name: 'Andrew Jackson',
+        bio: '업계가 다른 두 팀이 같은 문제를 푼 사례를 소개합니다. 강연이 끝나면 여러분의 선택도 궁금합니다.',
+        image: '/images/showcase/conference-speaker.webp',
+      },
       { component: 'calendar', title: '포럼 일시' },
+      {
+        component: 'timeline',
+        title: '포럼의 흐름',
+        items: [
+          { time: '14:40', title: '등록과 테이블 주제 확인' },
+          { time: '15:00', title: '강연과 질의응답' },
+          { time: '16:00', title: '라운지 대화' },
+        ],
+      },
       {
         component: 'afterParty',
         title: '자리를 옮겨 나누는 대화',
@@ -908,7 +924,28 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         description:
           '테이블마다 한 가지 화두를 놓습니다. 관심 있는 자리로 자유롭게 옮겨 주세요.',
       },
+      {
+        component: 'faq',
+        title: '처음 오시는 분께',
+        items: [
+          {
+            question: '혼자 와도 대화에 참여할 수 있나요?',
+            answer:
+              '입구에서 관심 있는 주제를 골라 주세요. 테이블 진행자가 첫 인사를 도와드립니다.',
+          },
+        ],
+      },
       { component: 'place', title: '강연장과 라운지' },
+      {
+        component: 'mealMenu',
+        title: '라운지 음료',
+        subtitle: 'Networking Break',
+        style: 'minimal',
+        courses: [
+          { name: '차가운 음료', dishes: ['레몬 탄산수'] },
+          { name: '따뜻한 음료', dishes: ['드립커피와 루이보스 티'] },
+        ],
+      },
       {
         component: 'organizerInformation',
         title: '모임을 여는 팀',
