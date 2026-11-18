@@ -67,11 +67,32 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '한 장의 신문처럼, 오래 간직하고 싶은 우리의 첫 소식.',
     palette: ['#F8F5EF', '#705039', '#423A34'],
     eyebrow: 'THE BEGINNING OF FOREVER',
-    heading: '우리의 가장 좋은 소식',
+    heading: '민성과 아현, 결혼합니다',
     message: [
-      '서로의 평범한 하루가 가장 특별한 이야기가 되었습니다.',
-      '민성과 아현, 이제 같은 방향을 바라보며 걸어가려 합니다.',
-      '오래 기억될 첫 장에 소중한 여러분을 초대합니다.',
+      '매일 저녁 서로의 하루를 묻던 두 사람이 이제 한집에서 아침을 맞습니다. 저희의 첫 소식을 전합니다.',
+    ],
+    sectionStyle: 'paper',
+    sections: [
+      { component: 'greeting' },
+      {
+        component: 'interview',
+        title: '두 사람을 만나다',
+        question: '두 분의 첫 대화는 기억나나요?',
+        answer:
+          '비가 오던 날, 버스 정류장에서 우산을 같이 썼어요. 버스가 한 대 더 지나갈 때까지 이야기했지요.',
+        image: '/images/showcase/love-letter.webp',
+      },
+      { component: 'calendar', title: '예식 일시' },
+      {
+        component: 'timeline',
+        title: '그날의 식순',
+        items: [
+          { time: '14:30', title: '하객 맞이' },
+          { time: '15:00', title: '혼인 서약' },
+          { time: '16:00', title: '축하 식사' },
+        ],
+      },
+      { component: 'place', title: '예식장 안내' },
     ],
     moments: ['반가운 인사', '새로운 시작', '축하의 만찬'],
     note: '예식 30분 전부터 여유롭게 입장하실 수 있습니다. 따뜻한 축하의 마음만 가져와 주세요.',
