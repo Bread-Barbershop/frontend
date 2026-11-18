@@ -713,11 +713,28 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '가볍게 잔을 부딪치며 시작하는 스물일곱의 새로운 장.',
     palette: ['#FFFAF1', '#96702E', '#51462E'],
     eyebrow: 'CHEERS TO TWENTY-SEVEN',
-    heading: '스물일곱, 함께 건배해요',
+    heading: '첫 잔은 같이 들어요',
     message: [
-      '좋아하는 사람들과 맛있는 음식, 그리고 끝없는 이야기.',
-      '민혁의 스물일곱 번째 생일은 이렇게 보내고 싶어요.',
-      '빈손으로 가볍게 와서, 즐거운 기억만 가득 채워 가요.',
+      '스물일곱 생일에는 다 같이 모여 잔 부딪치는 소리를 듣고 싶어요. 빈손으로 와 주세요. 민혁 드림',
+    ],
+    sectionStyle: 'plain',
+    sections: [
+      { component: 'greeting' },
+      {
+        component: 'mealMenu',
+        title: '첫 잔을 골라 주세요',
+        subtitle: 'Birthday Drinks',
+        style: 'bistro',
+        courses: [
+          {
+            name: '건배할 때',
+            dishes: ['시트러스 스프리츠', '무알코올 자몽 소다'],
+          },
+          { name: '곁들임', dishes: ['올리브와 치즈'] },
+        ],
+      },
+      { component: 'calendar', title: '건배하는 시간' },
+      { component: 'place', title: '예약해 둔 테이블' },
     ],
     moments: ['웰컴 드링크', '케이크 & 생일 소원', '함께하는 다이닝'],
     note: '선물은 정중히 사양할게요. 함께하는 시간이 가장 큰 선물입니다. 논알코올 음료도 준비되어 있어요.',
