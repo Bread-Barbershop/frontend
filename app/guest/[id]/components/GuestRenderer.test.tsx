@@ -267,7 +267,7 @@ describe('GuestRenderer', () => {
   it('블록별 legacy 설정을 무시하고 모든 블록에 공통 설정을 적용한다', () => {
     const sharedAnimation = {
       animationType: 'fade-down',
-      triggerMode: 'up-only',
+      triggerMode: 'down-repeat',
       animationDurationMs: 1300,
       animationEasing: 'soft',
     } as const;
@@ -301,7 +301,7 @@ describe('GuestRenderer', () => {
     expect(wrappers).toHaveLength(2);
     wrappers.forEach(wrapper => {
       expect(wrapper).toHaveAttribute('data-animation-type', 'fade-down');
-      expect(wrapper).toHaveAttribute('data-trigger-mode', 'up-only');
+      expect(wrapper).toHaveAttribute('data-trigger-mode', 'down-repeat');
       expect(wrapper).toHaveAttribute('data-duration-ms', '1300');
       expect(wrapper).toHaveAttribute('data-easing', 'soft');
     });

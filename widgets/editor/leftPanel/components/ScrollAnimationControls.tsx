@@ -117,7 +117,7 @@ export function ScrollAnimationControls({ embedded = false } = {}) {
           )}
           {expanded && (
             <label className="flex flex-col gap-1 text-xs">
-              동작 방향
+              스크롤 재생 조건
               <select
                 className="h-9 rounded-md border border-border-divider px-2 text-sm"
                 value={animation.triggerMode}
@@ -127,9 +127,9 @@ export function ScrollAnimationControls({ embedded = false } = {}) {
                   })
                 }
               >
-                <option value="down-only">아래로 내릴 때 (1회)</option>
-                <option value="both">상하 반복</option>
-                <option value="up-only">위로 올릴 때</option>
+                <option value="down-only">처음 내릴 때만</option>
+                <option value="down-repeat">내릴 때마다</option>
+                <option value="both">올리거나 내릴 때마다</option>
               </select>
             </label>
           )}
