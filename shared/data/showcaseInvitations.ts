@@ -850,17 +850,17 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     ],
     sectionStyle: 'rounded',
     sections: [
+      { component: 'greeting' },
+      { component: 'calendar', title: '첫 번째 생일' },
       {
         component: 'myChild',
-        title: '안녕하세요, 민준이에요',
+        title: '한 살 민준이의 요즘',
         name: '민준',
         birthday: '2025. 08. 11',
         message:
           '누가 손뼉을 치면 저도 두 손을 마주쳐요. 요즘 제일 신나는 놀이예요.',
         image: '/templates/thumbnails/firstBirthday_02.png',
       },
-      { component: 'greeting' },
-      { component: 'calendar', title: '첫 번째 생일' },
       { component: 'place', title: '돌상이 있는 곳' },
       {
         component: 'notice',
