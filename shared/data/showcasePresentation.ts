@@ -1,3 +1,5 @@
+import type { BlockType } from '@/shared/types/editor';
+
 import type { ShowcaseInvitation } from './showcaseInvitations';
 
 export type ShowcaseFamily =
@@ -33,6 +35,8 @@ const FAMILIES: ShowcaseFamily[] = [
   'celebration',
   'scrapbook',
   'scrapbook',
+  'botanical',
+  'editorial',
 ];
 
 const WEDDING_NOTES = [
@@ -49,6 +53,11 @@ const WEDDING_NOTES = [
   '멋진 계획보다, 함께 웃을 수 있는 오늘이 더 좋아서.',
   '서로에게 그늘이 되고 뿌리가 되어, 오래 함께 자라나겠습니다.',
 ];
+
+const EXTENDED_WEDDING_NOTES: Record<number, string> = {
+  23: '맑은 공기와 산 능선이 이어지는 길처럼, 서로의 곁에서 같은 방향으로 걸어가겠습니다.',
+  24: '익숙한 골목도 함께 걸으면 새로운 풍경이 됩니다. 평범한 하루를 나누며 오래 사랑하겠습니다.',
+};
 
 export function getShowcasePresentation(design: ShowcaseInvitation) {
   const index = Number(design.id.replace('showcase-', ''));
@@ -113,7 +122,7 @@ export function getShowcasePresentation(design: ShowcaseInvitation) {
           ? '우리의 가장 기쁜 소식이 도착했어요.'
           : '당신의 자리를 비워 두었어요.',
     note: isWedding
-      ? WEDDING_NOTES[index]
+      ? (WEDDING_NOTES[index] ?? EXTENDED_WEDDING_NOTES[index])
       : isBaby
         ? '처음이라 서툴렀던 모든 날에, 당신의 사랑이 함께 있었습니다.'
         : isConference
@@ -133,6 +142,95 @@ export function getShowcasePresentation(design: ShowcaseInvitation) {
       }).format(date),
     },
   };
+}
+
+export function getShowcaseBlockTypes(design: ShowcaseInvitation): BlockType[] {
+  const family = getShowcasePresentation(design).family;
+  const closing = 'closingComment' as const;
+  const seminar: BlockType[] = [
+    'greeting',
+    'timeline',
+    'speakerInformation',
+    'picture',
+    'calendar',
+    'place',
+    'transportation',
+    'dressCode',
+    closing,
+  ];
+
+  if (design.type === 'seminar') return seminar;
+  if (design.type === 'firstBirthday') {
+    return [
+      'greeting',
+      'myChild',
+      'gallery',
+      'calendar',
+      'interview',
+      'timeline',
+      'picture',
+      'place',
+      'transportation',
+      'dressCode',
+      closing,
+    ];
+  }
+  if (design.type === 'birthday') {
+    return [
+      'greeting',
+      'picture',
+      'calendar',
+      'interview',
+      'timeline',
+      'gallery',
+      'place',
+      'dressCode',
+      closing,
+    ];
+  }
+
+  if (family === 'editorial') {
+    return [
+      'greeting',
+      'gallery',
+      'coupleIntroduction',
+      'interview',
+      'calendar',
+      'timeline',
+      'place',
+      'transportation',
+      'dressCode',
+      closing,
+    ];
+  }
+  if (family === 'botanical' || family === 'sky') {
+    return [
+      'greeting',
+      'coupleIntroduction',
+      'picture',
+      'interview',
+      'calendar',
+      'gallery',
+      'timeline',
+      'place',
+      'dressCode',
+      'transportation',
+      closing,
+    ];
+  }
+  return [
+    'greeting',
+    'coupleIntroduction',
+    'picture',
+    'calendar',
+    'gallery',
+    'interview',
+    'timeline',
+    'place',
+    'transportation',
+    'dressCode',
+    closing,
+  ];
 }
 
 export const SHOWCASE_CHAPTER_LABELS: Record<string, string> = {

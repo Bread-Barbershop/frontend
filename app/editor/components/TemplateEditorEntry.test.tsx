@@ -6,14 +6,32 @@ import {
   waitFor,
 } from '@testing-library/react';
 
+import { createInvitationTemplate } from '@/shared/data/invitationTemplates';
+
 import TemplateEditorEntry from './TemplateEditorEntry';
 
 import type { SavedData } from '../[id]/types/savedata';
 import type { ReactNode } from 'react';
 
+import { loadOriginalPosterJson } from '@/shared/data/invitationTemplates/originalPosterLoader';
+
 jest.mock('@/shared/assets/logo/invia-logo.svg', () => ({
   __esModule: true,
   default: () => null,
+}));
+jest.mock('@/shared/data/invitationTemplates/originalPosterLoader', () => ({
+  loadOriginalPosterJson: jest.fn(async () => ({
+    version: '7.2.0',
+    objects: [
+      {
+        id: 'original-title',
+        type: 'Textbox',
+        text: 'Original editable title',
+        editable: true,
+        styles: [],
+      },
+    ],
+  })),
 }));
 
 const mockReplace = jest.fn();
@@ -39,7 +57,11 @@ jest.mock('@/widgets/mainPoster/context/FabricContext', () => ({
 jest.mock('./MainContentsArea', () => ({
   __esModule: true,
   default: ({ savedData }: { savedData: SavedData }) => (
-    <div data-testid="editor" data-blocks={JSON.stringify(savedData.blocks)}>
+    <div
+      data-testid="editor"
+      data-blocks={JSON.stringify(savedData.blocks)}
+      data-bulk={JSON.stringify(savedData.bulkData)}
+    >
       제작 준비 완료
     </div>
   ),
@@ -76,6 +98,21 @@ jest.mock('@/features/session/components/DrivePermissionRequiredModal', () => ({
 describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest
+      .mocked(loadOriginalPosterJson)
+      .mockReset()
+      .mockResolvedValue({
+        version: '7.2.0',
+        objects: [
+          {
+            id: 'original-title',
+            type: 'Textbox',
+            text: 'Original editable title',
+            editable: true,
+            styles: [],
+          },
+        ],
+      });
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -95,26 +132,29 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
         new MessageEvent('message', { origin: window.location.origin, data })
       );
     });
-  const beginGoogle = () => {
+  const beginGoogle = async () => {
+    await screen.findByRole('button', { name: '개인정보 안내 확인' });
     fireEvent.click(screen.getByRole('button', { name: '개인정보 안내 확인' }));
     fireEvent.click(screen.getByRole('button', { name: 'Google로 계속하기' }));
   };
-  const expectChosenData = (id: string) => {
+  const expectChosenData = async (id: string) => {
     const blocks = JSON.parse(
       screen.getByTestId('editor').getAttribute('data-blocks')!
     );
+    const expected = await createInvitationTemplate(id);
     expect(
-      blocks.every(
-        (block: { props: { collectionStyle: string } }) =>
-          block.props.collectionStyle === id
-      )
-    ).toBe(true);
+      blocks.map((block: { component: string }) => block.component)
+    ).toEqual(expected.blocks.map(block => block.component));
+    expect(
+      JSON.parse(screen.getByTestId('editor').getAttribute('data-bulk')!)
+        .sectionStyle
+    ).toBe(expected.sectionStyle);
     const poster = JSON.parse(
       screen.getByTestId('poster').getAttribute('data-json')!
     );
     expect(
       poster.objects.some(
-        (object: { type: string }) => object.type === 'textbox'
+        (object: { type: string }) => object.type === 'Textbox'
       )
     ).toBe(true);
   };
@@ -123,6 +163,7 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
     render(
       <TemplateEditorEntry templateId="showcase-18" initialIsLoggedIn={false} />
     );
+    await screen.findByRole('heading', { name: '마이 데이 포토' });
     expect(screen.queryByTestId('editor')).not.toBeInTheDocument();
     expect(
       screen.queryByRole('progressbar', { name: '초대장을 준비하는 중' })
@@ -133,10 +174,10 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
     expect(
       screen.getByRole('heading', { name: '마이 데이 포토' })
     ).toBeVisible();
-    beginGoogle();
+    await beginGoogle();
     completeOAuth();
     await screen.findByTestId('editor');
-    expectChosenData('showcase-18');
+    await expectChosenData('showcase-18');
     expect(mockReplace).not.toHaveBeenCalled();
   });
 
@@ -144,7 +185,7 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
     const view = render(
       <TemplateEditorEntry templateId="showcase-18" initialIsLoggedIn={false} />
     );
-    beginGoogle();
+    await beginGoogle();
     completeOAuth();
     await screen.findByTestId('editor');
     expect(mockRefresh).toHaveBeenCalled();
@@ -181,11 +222,13 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
       screen.queryByRole('heading', { name: '클래식 모먼트' })
     ).not.toBeInTheDocument();
 
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
+
     await act(async () => {
       resolveSession();
     });
     await screen.findByTestId('editor');
-    expectChosenData('showcase-0');
+    await expectChosenData('showcase-0');
     first.unmount();
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
@@ -194,7 +237,7 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
     });
     render(<TemplateEditorEntry templateId="showcase-0" initialIsLoggedIn />);
     await screen.findByTestId('editor');
-    expectChosenData('showcase-0');
+    await expectChosenData('showcase-0');
     expect(window.open).not.toHaveBeenCalled();
   });
 
@@ -205,17 +248,17 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
     render(<TemplateEditorEntry templateId="showcase-12" initialIsLoggedIn />);
     await screen.findByRole('button', { name: '개인정보 안내 확인' });
     expect(mockReplace).not.toHaveBeenCalled();
-    beginGoogle();
+    await beginGoogle();
     completeOAuth();
     await screen.findByTestId('editor');
-    expectChosenData('showcase-12');
+    await expectChosenData('showcase-12');
   });
 
   it('Drive 권한을 다시 허용하는 흐름에서도 선택한 돌잔치 디자인을 유지한다', async () => {
     render(
       <TemplateEditorEntry templateId="showcase-22" initialIsLoggedIn={false} />
     );
-    beginGoogle();
+    await beginGoogle();
     completeOAuth({
       type: 'GOOGLE_OAUTH_ERROR',
       reason: 'missing_drive_scope',
@@ -225,13 +268,14 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
     );
     completeOAuth();
     await screen.findByTestId('editor');
-    expectChosenData('showcase-22');
+    await expectChosenData('showcase-22');
   });
 
   it('로그인을 취소하면 선택한 디자인을 보여주며 다시 시도할 수 있다', async () => {
     render(
       <TemplateEditorEntry templateId="showcase-18" initialIsLoggedIn={false} />
     );
+    await screen.findByRole('button', { name: '개인정보 안내 확인' });
     fireEvent.click(screen.getByRole('button', { name: '개인정보 안내 확인' }));
     fireEvent.click(screen.getByRole('button', { name: '로그인 취소' }));
     expect(screen.queryByTestId('editor')).not.toBeInTheDocument();
@@ -256,5 +300,48 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
     expect(
       screen.queryByRole('button', { name: '개인정보 안내 확인' })
     ).not.toBeInTheDocument();
+  });
+
+  it('원본 표지 로드 실패를 알리고 다시 시도할 수 있다', async () => {
+    jest
+      .mocked(loadOriginalPosterJson)
+      .mockRejectedValueOnce(new Error('network failure'));
+    render(
+      <TemplateEditorEntry templateId="showcase-24" initialIsLoggedIn={false} />
+    );
+    await screen.findByRole('heading', { name: '템플릿을 불러오지 못했어요.' });
+    expect(screen.queryByTestId('editor')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: '다시 불러오기' }));
+    await screen.findByRole('heading', { name: '브릭 시티 웨딩' });
+    expect(loadOriginalPosterJson).toHaveBeenCalledTimes(2);
+  });
+
+  it('다른 템플릿을 고르면 먼저 시작한 원본 응답이 화면을 덮지 않는다', async () => {
+    let releaseFirstLoad = (value: Record<string, unknown>) => {
+      void value;
+    };
+    jest.mocked(loadOriginalPosterJson).mockImplementationOnce(
+      () =>
+        new Promise<Record<string, unknown>>(resolve => {
+          releaseFirstLoad = resolve;
+        })
+    );
+    const view = render(
+      <TemplateEditorEntry templateId="showcase-18" initialIsLoggedIn={false} />
+    );
+
+    view.rerender(
+      <TemplateEditorEntry templateId="showcase-24" initialIsLoggedIn={false} />
+    );
+    await screen.findByRole('heading', { name: '브릭 시티 웨딩' });
+
+    await act(async () => {
+      releaseFirstLoad({ version: '7.2.0', objects: [] });
+    });
+    expect(
+      screen.getByRole('heading', { name: '브릭 시티 웨딩' })
+    ).toBeVisible();
+    expect(screen.queryByTestId('editor')).not.toBeInTheDocument();
   });
 });

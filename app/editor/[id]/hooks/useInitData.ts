@@ -1,9 +1,11 @@
 import { useCallback } from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import { normalizeInvitationPrivacy } from '@/features/invitation/privacy/settings';
 import { collectFontFamilies } from '@/features/invitation/save/createGuestRenderHints';
+import { resolveSectionStyle } from '@/shared/data/sectionStyles';
 import { preloadFontFamilyWeights } from '@/shared/fonts/fontLoader';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { extractFileGroups } from '@/shared/utils/extractFileGroups';
@@ -51,8 +53,10 @@ export const useInitData = ({
     setBodyData,
     setTitleData,
     setBackgroundColor,
+    setSectionStyle,
     setIsZoom,
     setInvitationPrivacy,
+    setScrollAnimation,
     setShareUrl,
     setHashFiles,
     clearHashFiles,
@@ -69,8 +73,10 @@ export const useInitData = ({
       setBodyData: state.setBodyData,
       setTitleData: state.setTitleData,
       setBackgroundColor: state.setBackgroundColor,
+      setSectionStyle: state.setSectionStyle,
       setIsZoom: state.setIsZoom,
       setInvitationPrivacy: state.setInvitationPrivacy,
+      setScrollAnimation: state.setScrollAnimation,
       setShareUrl: state.setShareUrl,
       setHashFiles: state.setHashFiles,
       clearHashFiles: state.clearHashFiles,
@@ -180,9 +186,20 @@ export const useInitData = ({
       setBodyData(bulkData.bodyData);
       setTitleData(bulkData.titleData);
       setBackgroundColor(bulkData.backgroundColor);
+      setSectionStyle(resolveSectionStyle(bulkData.sectionStyle));
       setIsZoom(bulkData.isZoom);
+      setScrollAnimation(resolveScrollAnimation(bulkData.scrollAnimation));
     }
-  }, [bulkData, setBodyData, setTitleData, setBackgroundColor, setIsZoom, setInvitationPrivacy]);
+  }, [
+    bulkData,
+    setBodyData,
+    setTitleData,
+    setBackgroundColor,
+    setIsZoom,
+    setInvitationPrivacy,
+    setScrollAnimation,
+    setSectionStyle,
+  ]);
   return {
     initEditStore,
     initBgmStore,

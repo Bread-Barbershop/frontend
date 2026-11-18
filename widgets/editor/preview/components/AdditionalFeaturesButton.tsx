@@ -15,7 +15,7 @@ import { cn } from '@/shared/utils/cn';
 import { parseStrictDate } from '@/shared/utils/dateValidation';
 
 const checkboxClassName =
-  'size-4 shrink-0 accent-black focus-visible:outline-2 focus-visible:outline-offset-2';
+  'size-4 shrink-0 accent-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary';
 
 function InvitationSettingsModal({
   initialIsZoom,

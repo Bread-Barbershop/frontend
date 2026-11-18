@@ -14,6 +14,8 @@ import showcase2 from '@/shared/assets/images/showcase/showcase-2.webp';
 import showcase20 from '@/shared/assets/images/showcase/showcase-20.webp';
 import showcase21 from '@/shared/assets/images/showcase/showcase-21.webp';
 import showcase22 from '@/shared/assets/images/showcase/showcase-22.webp';
+import showcase23 from '@/shared/assets/images/showcase/showcase-23.webp';
+import showcase24 from '@/shared/assets/images/showcase/showcase-24.webp';
 import showcase3 from '@/shared/assets/images/showcase/showcase-3.webp';
 import showcase4 from '@/shared/assets/images/showcase/showcase-4.webp';
 import showcase5 from '@/shared/assets/images/showcase/showcase-5.webp';
@@ -50,6 +52,8 @@ export const showcaseItems = [
   { id: 'showcase-20', image: showcase20, alt: 'Showcase image 20' },
   { id: 'showcase-21', image: showcase21, alt: 'Showcase image 21' },
   { id: 'showcase-22', image: showcase22, alt: 'Showcase image 22' },
+  { id: 'showcase-23', image: showcase23, alt: 'Showcase image 23' },
+  { id: 'showcase-24', image: showcase24, alt: 'Showcase image 24' },
 ].map(item => {
   const invitation = getShowcaseInvitation(item.id)!;
   return {

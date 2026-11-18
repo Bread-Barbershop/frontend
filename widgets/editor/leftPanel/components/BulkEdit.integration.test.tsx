@@ -4,6 +4,7 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
 
 import BodyEdit from './BodyEdit';
+import BulkEdit from './BulkEdit';
 import TitleEdit from './TitleEdit';
 
 jest.mock('@/shared/assets/icons/color.svg', () => ({
@@ -30,6 +31,20 @@ jest.mock('@/components/molecules/text-editor/utils/tiptapJsonToHtml', () => {
 
 describe('일괄 편집 즉시 반영', () => {
   beforeEach(() => useEditorStore.getState().reset());
+
+  it('배경 편집 바로 아래에 스크롤 애니메이션 설정을 표시한다', () => {
+    render(<BulkEdit />);
+
+    const backgroundHeading = screen.getByText('배경 편집');
+    const animationButton = screen.getByRole('button', {
+      name: '스크롤 애니메이션',
+    });
+
+    expect(
+      backgroundHeading.compareDocumentPosition(animationButton) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
 
   it('본문 크기 선택기의 ArrowUp 변경을 본문 설정과 리치 텍스트 블록에 즉시 반영한다', () => {
     const block = {

@@ -1,4 +1,5 @@
 import type { GuestPayload } from '@/app/guest/[id]/types/guestTypes';
+import { DEFAULT_SCROLL_ANIMATION } from '@/components/molecules/scroll-fade-in/animationConfig';
 
 import { applyInvitationPrivacy } from './applyInvitationPrivacy';
 import { INVITATION_PRIVACY_FIELDS } from './settings';
@@ -24,6 +25,7 @@ function makeInvitation(): GuestPayload {
       titleData: bulkStyle,
       bodyData: bulkStyle,
       isZoom: false,
+      scrollAnimation: DEFAULT_SCROLL_ANIMATION,
       invitationPrivacy: {
         enabled: true,
         eventDate: '2026-11-21',
