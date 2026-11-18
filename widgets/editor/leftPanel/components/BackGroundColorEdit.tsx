@@ -19,7 +19,7 @@ const BACKGROUND_COLORS = [
   { label: '피치', value: '#F9E1D2' },
   { label: '버터', value: '#FFF1B8' },
   { label: '블루', value: '#D7E3F4' },
-  { label: '남색', value: '#536780' },
+  { label: '네이비', value: '#536780' },
   { label: '블랙', value: '#54565C' },
 ];
 
