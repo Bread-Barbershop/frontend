@@ -149,6 +149,12 @@ export function buildShowcaseSection(
         colors: [...section.colors],
         guidelines: [...section.guidelines],
       });
+    case 'wreath':
+      return block('wreath', {
+        title: section.title,
+        mode: 'decline',
+        declineMessage: section.declineMessage,
+      });
     case 'faq':
       return block('faq', {
         title: section.title,

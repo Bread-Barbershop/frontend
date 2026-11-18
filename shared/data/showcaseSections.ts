@@ -49,6 +49,7 @@ export type ShowcaseSection =
       colors: string[];
       guidelines: string[];
     }
+  | { component: 'wreath'; title: string; declineMessage: string }
   | { component: 'faq'; title: string; items: FaqItem[] }
   | {
       component: 'notice';
@@ -66,6 +67,8 @@ export type ShowcaseSection =
       subwayWalk?: string;
       shuttleStop?: string;
       shuttleInterval?: string;
+      parkingHours?: string;
+      alternativeParking?: string;
     }
   | {
       component: 'afterParty';
