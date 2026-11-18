@@ -464,11 +464,31 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '짙은 숲의 고요함과 따뜻한 빛을 담은 서정적인 웨딩.',
     palette: ['#F4F3EB', '#4F5C42', '#444B3B'],
     eyebrow: 'ROOTED IN LOVE',
-    heading: '서로에게 깊은 뿌리가 되어',
+    heading: '나무 아래서 나누는 서약',
     message: [
-      '계절이 바뀌어도 변함없이 곁을 지키는 나무처럼',
-      '서로를 믿고 기대며 함께 자라나려 합니다.',
-      '저희의 새로운 뿌리가 내리는 날, 함께해 주세요.',
+      '숲길을 걷다 서로의 곁이 가장 편안하다는 걸 알았습니다. 그 길의 첫 하객이 되어 주세요.',
+    ],
+    sectionStyle: 'paper',
+    sections: [
+      { component: 'greeting' },
+      {
+        component: 'coupleIntroduction',
+        title: '함께 뿌리내릴 두 사람',
+        story:
+          '계절이 바뀌면 같은 나무를 보러 가요. 오래 곁에 서 있는 마음을 배우는 중입니다.',
+      },
+      { component: 'calendar', title: '서약의 오후' },
+      { component: 'place', title: '가든홀 입구' },
+      {
+        component: 'mealMenu',
+        title: '숲에서 나누는 식사',
+        subtitle: 'Forest Table',
+        style: 'ivy',
+        courses: [
+          { name: '따뜻한 접시', dishes: ['버섯 수프와 구운 빵'] },
+          { name: '마지막 한 입', dishes: ['배와 꿀을 곁들인 타르트'] },
+        ],
+      },
     ],
     moments: ['숲길의 환영', '변치 않을 약속', '따뜻한 저녁'],
     note: '자연과 함께하는 공간입니다. 가벼운 겉옷을 준비하시면 저녁까지 편안하게 즐기실 수 있습니다.',
