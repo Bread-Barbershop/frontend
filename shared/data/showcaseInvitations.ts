@@ -174,11 +174,45 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '햇살과 초록을 담은, 자연스러운 가든 세리머니.',
     palette: ['#F7F7EB', '#5C6541', '#434B36'],
     eyebrow: 'A DAY IN OUR GARDEN',
-    heading: '초록빛 약속에 초대합니다',
+    heading: '정원에서 혼인 서약을 나눕니다',
     message: [
-      '나뭇잎 사이로 햇살이 내려앉는 오후,',
-      '가장 좋아하는 계절에 가장 사랑하는 사람과 약속합니다.',
-      '민성과 아현의 작은 정원에 소중한 여러분을 모십니다.',
+      '꽃길 끝에 작은 식탁을 차립니다. 서약을 들으신 뒤 천천히 식사까지 함께해 주세요.',
+    ],
+    sectionStyle: 'outlined',
+    sections: [
+      {
+        component: 'picture',
+        title: '나무 그늘 아래 차린 식탁',
+        image: '/images/showcase/garden-table.webp',
+      },
+      { component: 'greeting' },
+      { component: 'calendar', title: '가든 세리머니' },
+      { component: 'place', title: '정원 입구' },
+      {
+        component: 'mealMenu',
+        title: '정원의 식탁',
+        subtitle: 'Garden Lunch',
+        style: 'garden',
+        courses: [
+          { name: '첫 접시', dishes: ['허브를 곁들인 토마토'] },
+          { name: '메인', dishes: ['레몬을 곁들인 구운 닭과 채소'] },
+        ],
+      },
+      {
+        component: 'faq',
+        title: '정원에 오시기 전에',
+        items: [
+          {
+            question: '어떤 신발이 편할까요?',
+            answer: '잔디 위를 걸어요. 굽이 낮고 바닥이 넓은 신발이 편합니다.',
+          },
+          {
+            question: '비가 오면 어디로 가나요?',
+            answer:
+              '같은 건물 1층 실내홀에서 만나요. 정원 입구에서 안내해 드릴게요.',
+          },
+        ],
+      },
     ],
     moments: ['가든 웰컴', '햇살 아래의 서약', '가든 디너'],
     note: '잔디 위를 편안하게 걸을 수 있는 신발을 추천합니다. 우천 시 같은 장소의 실내홀로 안내해 드립니다.',
