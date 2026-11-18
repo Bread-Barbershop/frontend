@@ -939,11 +939,29 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '산 능선과 맑은 공기, 함께 걷는 약속을 담은 웨딩 초대장.',
     palette: ['#F2F3EF', '#657465', '#414842'],
     eyebrow: 'A PROMISE ABOVE THE CITY',
-    heading: '높은 하늘 아래, 같은 길을 걷는 우리',
+    heading: '함께 걷기로 한 날',
     message: [
-      '산 능선을 따라 걷던 어느 날, 서로의 가장 든든한 편이 되었습니다.',
-      '맑은 공기처럼 편안한 마음으로 오래 함께하려 합니다.',
-      '저희가 나란히 걷기 시작하는 날, 소중한 여러분을 초대합니다.',
+      '산길을 걸을 때면 먼저 간 사람이 돌아서서 기다렸습니다. 앞으로도 그렇게 서로의 보폭을 맞추겠습니다.',
+    ],
+    sectionStyle: 'outlined',
+    sections: [
+      { component: 'greeting' },
+      { component: 'place', title: '마운틴홀에서 만나요' },
+      {
+        component: 'calendar',
+        title: '서약하는 날',
+        template: 'calendarType1',
+      },
+      {
+        component: 'transportation',
+        title: '홀까지 오시는 길',
+        shuttleStop: '건물 정문 앞 승차장에서 마운틴홀 입구까지 운행합니다.',
+        shuttleInterval: '예식 시작 한 시간 전부터 15분 간격',
+      },
+      {
+        component: 'closingComment',
+        message: '먼 길 와 주시는 마음을 오래 기억하겠습니다. 민성 · 아현',
+      },
     ],
     moments: ['산뜻한 환영 인사', '함께 걷는 약속', '따뜻한 축하의 식사'],
     note: '맑은 공기와 산 능선이 이어지는 길처럼, 서로의 곁에서 같은 방향으로 걸어가겠습니다.',
