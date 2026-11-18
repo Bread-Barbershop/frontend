@@ -61,7 +61,7 @@
       "name": "웨딩 07",
       "category": "wedding",
       "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/wedding_07.png",
+      "thumbnailUrl": "/templates/thumbnails/wedding_07.webp",
       "jsonUrl": "/templates/json/wedding_07.v1.json"
     },
     {
@@ -101,7 +101,7 @@
       "name": "웨딩 12",
       "category": "wedding",
       "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/wedding_12.png",
+      "thumbnailUrl": "/templates/thumbnails/wedding_12.webp",
       "jsonUrl": "/templates/json/wedding_12.v1.json"
     },
     {
@@ -125,7 +125,7 @@
       "name": "세미나 01",
       "category": "seminar",
       "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/seminar_01.png",
+      "thumbnailUrl": "/templates/thumbnails/seminar_01.webp",
       "jsonUrl": "/templates/json/seminar_01.v1.json"
     },
     {
@@ -133,7 +133,7 @@
       "name": "세미나 02",
       "category": "seminar",
       "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/seminar_02.png",
+      "thumbnailUrl": "/templates/thumbnails/seminar_02.webp",
       "jsonUrl": "/templates/json/seminar_02.v1.json"
     },
     {
@@ -141,7 +141,7 @@
       "name": "세미나 03",
       "category": "seminar",
       "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/seminar_03.png",
+      "thumbnailUrl": "/templates/thumbnails/seminar_03.webp",
       "jsonUrl": "/templates/json/seminar_03.v1.json"
     },
     {
@@ -149,7 +149,7 @@
       "name": "세미나 04",
       "category": "seminar",
       "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/seminar_04.png",
+      "thumbnailUrl": "/templates/thumbnails/seminar_04.webp",
       "jsonUrl": "/templates/json/seminar_04.v1.json"
     },
     {
@@ -157,7 +157,7 @@
       "name": "세미나 05",
       "category": "seminar",
       "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/seminar_05.png",
+      "thumbnailUrl": "/templates/thumbnails/seminar_05.webp",
       "jsonUrl": "/templates/json/seminar_05.v1.json"
     },
     {
@@ -165,7 +165,7 @@
       "name": "생일 01",
       "category": "birthday",
       "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/birthday_01.png",
+      "thumbnailUrl": "/templates/thumbnails/birthday_01.webp",
       "jsonUrl": "/templates/json/birthday_01.v1.json"
     },
     {
@@ -173,7 +173,7 @@
       "name": "생일 02",
       "category": "birthday",
       "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/birthday_02.png",
+      "thumbnailUrl": "/templates/thumbnails/birthday_02.webp",
       "jsonUrl": "/templates/json/birthday_02.v1.json"
     },
     {
@@ -181,7 +181,7 @@
       "name": "생일 03",
       "category": "birthday",
       "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/birthday_03.png",
+      "thumbnailUrl": "/templates/thumbnails/birthday_03.webp",
       "jsonUrl": "/templates/json/birthday_03.v1.json"
     },
     {
@@ -189,7 +189,7 @@
       "name": "생일 04",
       "category": "birthday",
       "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/birthday_04.png",
+      "thumbnailUrl": "/templates/thumbnails/birthday_04.webp",
       "jsonUrl": "/templates/json/birthday_04.v1.json"
     },
     {
@@ -197,7 +197,7 @@
       "name": "돌잔치 01",
       "category": "firstBirthday",
       "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/firstBirthday_01.png",
+      "thumbnailUrl": "/templates/thumbnails/firstBirthday_01.webp",
       "jsonUrl": "/templates/json/firstBirthday_01.v1.json"
     },
     {
@@ -205,7 +205,7 @@
       "name": "돌잔치 02",
       "category": "firstBirthday",
       "version": 1,
-      "thumbnailUrl": "/templates/thumbnails/firstBirthday_02.png",
+      "thumbnailUrl": "/templates/thumbnails/firstBirthday_02.webp",
       "jsonUrl": "/templates/json/firstBirthday_02.v1.json"
     },
     {
