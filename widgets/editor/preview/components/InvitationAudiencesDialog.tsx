@@ -314,10 +314,6 @@ export default function InvitationAudiencesDialog({
   }
 
   const exampleSlug = slug.trim() || 'family';
-  const example =
-    list && !validateAudienceSlug(exampleSlug)
-      ? buildAudienceGuestUrl(list.rootGuestUrl, exampleSlug)
-      : '—';
 
   return createPortal(
     <dialog
@@ -400,10 +396,6 @@ export default function InvitationAudiencesDialog({
               <ul className="grid max-h-56 gap-2 overflow-y-auto">
                 {groupOptions.map(group => {
                   const active = group.slug === (list.activeSlug ?? '');
-                  const path = buildAudienceGuestUrl(
-                    list.rootGuestUrl,
-                    group.slug
-                  );
                   return (
                     <li
                       key={group.folderId}
@@ -430,17 +422,11 @@ export default function InvitationAudiencesDialog({
                             </span>
                           )}
                         </span>
-                        <span
-                          className="mt-0.5 block truncate text-xs text-neutral-600"
-                          title={path}
-                        >
-                          {path}
-                        </span>
                       </button>
                       <button
                         type="button"
                         aria-label={`${group.name} 링크 복사`}
-                        className={SECONDARY_BUTTON}
+                        className={cn(SECONDARY_BUTTON, 'shrink-0 gap-1.5')}
                         disabled={busy}
                         onClick={() => void copyGroupLink(group)}
                       >
@@ -449,6 +435,7 @@ export default function InvitationAudiencesDialog({
                         ) : (
                           <Copy size={16} aria-hidden="true" />
                         )}
+                        링크 복사
                       </button>
                     </li>
                   );
@@ -548,13 +535,19 @@ export default function InvitationAudiencesDialog({
                 <p id={slugHelpId} className="text-xs text-neutral-600">
                   영문 소문자로 시작하고 숫자와 하이픈도 쓸 수 있어요.
                 </p>
-                <div className="flex min-w-0 items-end justify-between gap-3">
-                  <label className="grid min-w-0 gap-1 text-xs text-neutral-600">
-                    링크 예시
-                    <output className="break-all font-medium text-text-primary">
-                      {example}
+                <div className="flex min-w-0 items-center justify-end gap-3">
+                  {!validateAudienceSlug(exampleSlug) && (
+                    <output
+                      aria-label="그룹 링크 안내"
+                      className="mr-auto min-w-0 break-words text-xs text-neutral-600"
+                    >
+                      기본 링크 뒤에{' '}
+                      <strong className="break-all font-semibold text-text-primary">
+                        ?to={exampleSlug}
+                      </strong>
+                      가 붙어요.
                     </output>
-                  </label>
+                  )}
                   <button className={PRIMARY_BUTTON} type="submit">
                     <Plus size={16} aria-hidden="true" />
                     추가
