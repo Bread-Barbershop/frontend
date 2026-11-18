@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
 
+import { DEFAULT_SCROLL_ANIMATION } from '@/components/molecules/scroll-fade-in/animationConfig';
 import {
   BODY_BULK_DATA,
   DEFAULT_BACKGROUND_COLOR,
@@ -49,6 +50,7 @@ export const useEditorStore = create<EditorState>()(
           titleData: TITLE_BULK_DATA,
           bodyData: BODY_BULK_DATA,
           isZoom: false,
+          scrollAnimation: DEFAULT_SCROLL_ANIMATION,
           shareUrl: createDefaultShareUrlState(),
           hashFiles: [],
           cleanUpFiles: [],
@@ -71,6 +73,7 @@ export const selectUploadData = (state: EditorState) => ({
   titleData: state.titleData,
   bodyData: state.bodyData,
   isZoom: state.isZoom,
+  scrollAnimation: state.scrollAnimation,
   shareUrl: state.shareUrl,
   setInvitationFolderId: state.setInvitationFolderId,
   setInvitationUuid: state.setInvitationUuid,

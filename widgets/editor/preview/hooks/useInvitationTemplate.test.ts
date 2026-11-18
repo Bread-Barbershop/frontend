@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
+import { DEFAULT_SCROLL_ANIMATION } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import {
@@ -132,6 +133,12 @@ describe('useInvitationTemplate', () => {
         { id: 'shareUrl', file: [oldPhoto] },
       ],
       backgroundColor: '#FFFFFF',
+      scrollAnimation: {
+        animationType: 'fade',
+        triggerMode: 'both',
+        animationDurationMs: 1300,
+        animationEasing: 'soft',
+      },
       titleData: { ...useEditorStore.getState().titleData },
       bodyData: { ...useEditorStore.getState().bodyData },
       selectedId: 'old-block',
@@ -229,6 +236,7 @@ describe('useInvitationTemplate', () => {
     expect(state.backgroundColor).toBe('#FAF8F2');
     expect(state.titleData.font).toBe('Hahmlet');
     expect(state.bodyData.font).toBe('SUIT');
+    expect(state.scrollAnimation).toEqual(DEFAULT_SCROLL_ANIMATION);
     expect(state.selectedId).toBe('mainPoster');
     expect(state.activeTab).toBeNull();
     expect(state.isEdit).toBe(false);

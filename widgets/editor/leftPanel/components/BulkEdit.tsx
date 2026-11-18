@@ -10,6 +10,7 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import BackGroundColorEdit from './BackGroundColorEdit';
 import BodyEdit from './BodyEdit';
+import { ScrollAnimationControls } from './ScrollAnimationControls';
 import TitleEdit from './TitleEdit';
 
 function BulkEdit() {
@@ -30,6 +31,7 @@ function BulkEdit() {
           onActiveColorPickerChange={setActiveColorPickerId}
         />
         <BackGroundColorEdit />
+        <ScrollAnimationControls />
         <SectionStyleSelect
           label="초대장 기본 카드 스타일"
           value={sectionStyle}
@@ -43,7 +45,7 @@ function BulkEdit() {
           notices={[
             {
               id: 'bulk-edit',
-              text: '초대장의 글꼴과 배경, 기본 카드 스타일을 변경할 수 있습니다. 새 블록에도 기본 카드 스타일이 적용됩니다.',
+              text: '초대장의 글꼴과 배경, 스크롤 애니메이션, 기본 카드 스타일을 변경할 수 있습니다. 새 블록에도 기본 카드 스타일이 적용됩니다.',
               colorClass: 'text-[#1F72EF]',
             },
           ]}

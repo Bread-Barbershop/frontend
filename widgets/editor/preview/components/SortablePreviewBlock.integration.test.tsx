@@ -57,6 +57,7 @@ function PreviewBlocks() {
             selected
             backgroundColor="#fff"
             registerNode={() => {}}
+            onSelect={() => {}}
           >
             <p>{id} 본문</p>
             <Carousel>

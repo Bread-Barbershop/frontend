@@ -21,6 +21,7 @@ export function useEditorDirtyTracker(enabled: boolean) {
         state.backgroundColor,
         state.sectionStyle,
         state.isZoom,
+        state.scrollAnimation,
       ],
       markDirty,
       { equalityFn: shallow }

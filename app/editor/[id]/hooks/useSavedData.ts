@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
+import {
+  DEFAULT_SCROLL_ANIMATION,
+  resolveScrollAnimation,
+} from '@/components/molecules/scroll-fade-in/animationConfig';
 import { BODY_BULK_DATA, TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
 import { PersistedEditorBlock } from '@/shared/types/block';
 import { createDefaultShareUrlState } from '@/shared/utils/shareUrlDefaults';
@@ -88,7 +92,11 @@ export const useSavedData = (
           titleData: TITLE_BULK_DATA,
           bodyData: BODY_BULK_DATA,
           isZoom: false,
+          scrollAnimation: DEFAULT_SCROLL_ANIMATION,
         };
+        updatedBulkData.scrollAnimation = resolveScrollAnimation(
+          updatedBulkData.scrollAnimation
+        );
 
         // 이미지 파일 다운로드 및 ID -> File 객체 맵핑 생성
         const imageFiles = data.images.files && data.images.files.length > 0

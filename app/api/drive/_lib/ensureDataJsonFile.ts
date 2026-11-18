@@ -2,6 +2,7 @@
 
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
+import { DEFAULT_SCROLL_ANIMATION } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { BODY_BULK_DATA, TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
 import { createDefaultShareUrlState } from '@/shared/utils/shareUrlDefaults';
 
@@ -29,6 +30,7 @@ const DEFAULT_DATA_JSON_PAYLOAD = {
     titleData: TITLE_BULK_DATA,
     bodyData: BODY_BULK_DATA,
     isZoom: false,
+    scrollAnimation: DEFAULT_SCROLL_ANIMATION,
   },
   blocks: [],
   shareUrl: createDefaultShareUrlState(),

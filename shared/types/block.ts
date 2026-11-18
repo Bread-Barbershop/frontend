@@ -56,10 +56,6 @@ export interface BlockSlice {
     id: string,
     props: Partial<PropsFromFields<(typeof blockRegistry)[T]['fields']>>
   ) => void;
-  updateBlockAnimation: (
-    id: string,
-    settings: Partial<ScrollAnimationSettings>
-  ) => void;
   updateBlockSectionStyle: (
     id: string,
     style: SectionStyle | undefined
@@ -143,10 +139,13 @@ export interface BulkSlice {
   bodyData: BulkData;
   backgroundColor: string;
   isZoom: boolean;
+  scrollAnimation: ScrollAnimationSettings;
   setBackgroundColor: (color: string) => void;
   setTitleData: (data: BulkData) => void;
   setBodyData: (data: BulkData) => void;
   setIsZoom: (isZoom: boolean) => void;
+  setScrollAnimation: (settings: ScrollAnimationSettings) => void;
+  updateScrollAnimation: (settings: Partial<ScrollAnimationSettings>) => void;
 }
 
 export interface ShareUrlState {

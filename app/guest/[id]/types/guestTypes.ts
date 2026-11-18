@@ -1,3 +1,4 @@
+import type { ScrollAnimationSettings } from '@/components/molecules/scroll-fade-in/animationConfig';
 import type { SectionStyle } from '@/shared/data/sectionStyles';
 import { BulkData } from '@/shared/types/block';
 import type { GuestRenderHints } from '@/shared/types/renderHints';
@@ -54,6 +55,7 @@ export type BulkJson = {
   titleData: BulkData;
   bodyData: BulkData;
   isZoom: boolean;
+  scrollAnimation: ScrollAnimationSettings;
 };
 
 export type GuestMainPosterData = {
