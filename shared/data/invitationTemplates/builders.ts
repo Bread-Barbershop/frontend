@@ -49,6 +49,7 @@ export async function createInvitationTemplate(
   return {
     blocks: renewBlockIds(blocks) as EditorBlock[],
     backgroundColor: bulkData.backgroundColor,
+    sectionStyle: bulkData.sectionStyle,
     titleData: bulkData.titleData,
     bodyData: bulkData.bodyData,
     posterJson,

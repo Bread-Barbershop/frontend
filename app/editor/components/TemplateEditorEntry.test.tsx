@@ -6,6 +6,8 @@ import {
   waitFor,
 } from '@testing-library/react';
 
+import { createInvitationTemplate } from '@/shared/data/invitationTemplates';
+
 import TemplateEditorEntry from './TemplateEditorEntry';
 
 import type { SavedData } from '../[id]/types/savedata';
@@ -55,7 +57,11 @@ jest.mock('@/widgets/mainPoster/context/FabricContext', () => ({
 jest.mock('./MainContentsArea', () => ({
   __esModule: true,
   default: ({ savedData }: { savedData: SavedData }) => (
-    <div data-testid="editor" data-blocks={JSON.stringify(savedData.blocks)}>
+    <div
+      data-testid="editor"
+      data-blocks={JSON.stringify(savedData.blocks)}
+      data-bulk={JSON.stringify(savedData.bulkData)}
+    >
       제작 준비 완료
     </div>
   ),
@@ -131,16 +137,18 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
     fireEvent.click(screen.getByRole('button', { name: '개인정보 안내 확인' }));
     fireEvent.click(screen.getByRole('button', { name: 'Google로 계속하기' }));
   };
-  const expectChosenData = (id: string) => {
+  const expectChosenData = async (id: string) => {
     const blocks = JSON.parse(
       screen.getByTestId('editor').getAttribute('data-blocks')!
     );
+    const expected = await createInvitationTemplate(id);
     expect(
-      blocks.every(
-        (block: { props: { collectionStyle: string } }) =>
-          block.props.collectionStyle === id
-      )
-    ).toBe(true);
+      blocks.map((block: { component: string }) => block.component)
+    ).toEqual(expected.blocks.map(block => block.component));
+    expect(
+      JSON.parse(screen.getByTestId('editor').getAttribute('data-bulk')!)
+        .sectionStyle
+    ).toBe(expected.sectionStyle);
     const poster = JSON.parse(
       screen.getByTestId('poster').getAttribute('data-json')!
     );
@@ -169,7 +177,7 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
     await beginGoogle();
     completeOAuth();
     await screen.findByTestId('editor');
-    expectChosenData('showcase-18');
+    await expectChosenData('showcase-18');
     expect(mockReplace).not.toHaveBeenCalled();
   });
 
@@ -220,7 +228,7 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
       resolveSession();
     });
     await screen.findByTestId('editor');
-    expectChosenData('showcase-0');
+    await expectChosenData('showcase-0');
     first.unmount();
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
@@ -229,7 +237,7 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
     });
     render(<TemplateEditorEntry templateId="showcase-0" initialIsLoggedIn />);
     await screen.findByTestId('editor');
-    expectChosenData('showcase-0');
+    await expectChosenData('showcase-0');
     expect(window.open).not.toHaveBeenCalled();
   });
 
@@ -243,7 +251,7 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
     await beginGoogle();
     completeOAuth();
     await screen.findByTestId('editor');
-    expectChosenData('showcase-12');
+    await expectChosenData('showcase-12');
   });
 
   it('Drive 권한을 다시 허용하는 흐름에서도 선택한 돌잔치 디자인을 유지한다', async () => {
@@ -260,7 +268,7 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
     );
     completeOAuth();
     await screen.findByTestId('editor');
-    expectChosenData('showcase-22');
+    await expectChosenData('showcase-22');
   });
 
   it('로그인을 취소하면 선택한 디자인을 보여주며 다시 시도할 수 있다', async () => {

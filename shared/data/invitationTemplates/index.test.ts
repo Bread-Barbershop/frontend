@@ -7,6 +7,7 @@ import { showcaseItems } from '@/app/(home)/components/showcaseItems';
 import { buildShowcaseInvitation } from '../buildShowcaseInvitation';
 import { SHOWCASE_INVITATIONS } from '../showcaseInvitations';
 import { SHOWCASE_ORIGINAL_TEMPLATES } from '../showcaseOriginalTemplates';
+import { resolveSectionStyle } from '../sectionStyles';
 
 import {
   createInvitationTemplate,
@@ -153,6 +154,11 @@ describe('홈과 편집기가 공유하는 초대장 컬렉션', () => {
       expect(editor.backgroundColor).toBe(preview.bulkData.backgroundColor);
       expect(editor.titleData).toEqual(preview.bulkData.titleData);
       expect(editor.bodyData).toEqual(preview.bulkData.bodyData);
+      expect(editor.sectionStyle).toBe(preview.bulkData.sectionStyle);
+      expect(resolveSectionStyle(editor.sectionStyle)).toBe(
+        editor.sectionStyle
+      );
+      expect(editor.sectionStyle).toBeDefined();
       expect(editor.blocks.map(block => block.component)).toEqual(
         preview.blocks.map(block => block.component)
       );
@@ -201,16 +207,19 @@ describe('홈과 편집기가 공유하는 초대장 컬렉션', () => {
       saved.blocks.forEach((block: unknown, index: number) => {
         const normalized = normalizeGuestBlock(block, index);
         expect(normalized.ok).toBe(true);
-        if (normalized.ok)
-          expect(normalized.block.props).toMatchObject({
-            collectionStyle: design.id,
-          });
+        if (normalized.ok) {
+          expect(normalized.block.props).not.toHaveProperty('collectionStyle');
+          expect(normalized.block.props).toEqual(
+            (block as { props: unknown }).props
+          );
+        }
       });
       const guest = parseGuestPayload({
         blocks: saved.blocks,
         mainPoster: saved.posterJson,
         bulkData: {
           backgroundColor: saved.backgroundColor,
+          sectionStyle: saved.sectionStyle,
           titleData: saved.titleData,
           bodyData: saved.bodyData,
           isZoom: false,
@@ -228,6 +237,7 @@ describe('홈과 편집기가 공유하는 초대장 컬렉션', () => {
       if (guest.ok) {
         expect(guest.warnings).toEqual([]);
         expect(guest.payload.blocks).toHaveLength(editor.blocks.length);
+        expect(guest.payload.bulkData.sectionStyle).toBe(editor.sectionStyle);
         expect(guest.payload.mainPoster.objects).toEqual(
           saved.posterJson.objects
         );

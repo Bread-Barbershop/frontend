@@ -1,3 +1,25 @@
+.surface {
+  position: relative;
+  min-width: 0;
+  margin: 16px 12px 28px;
+  padding: 8px 0;
+  background: rgb(255 255 255 / 70%);
+}
+
+.surface[data-section-style='paper'] {
+  box-shadow: 3px 5px 0 rgb(89 71 51 / 9%);
+}
+
+.surface[data-section-style='rounded'] {
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgb(32 32 32 / 4%);
+}
+
+.surface[data-section-style='outlined'] {
+  border: 1px solid rgb(89 71 51 / 16%);
+}
+
+/* Compatibility styles for invitations saved before shared card presets. */
 .chapter {
   position: relative;
   margin: 0 0 26px;

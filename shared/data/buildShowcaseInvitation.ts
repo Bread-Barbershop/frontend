@@ -1,5 +1,7 @@
+import { DEFAULT_SCROLL_ANIMATION } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { blockSchema } from '@/shared/data/registry/block.schema';
+import type { SectionStyle } from '@/shared/data/sectionStyles';
 import {
   getShowcaseBlockTypes,
   getShowcasePresentation,
@@ -8,6 +10,7 @@ import type { EditorBlock } from '@/shared/types/block';
 import type { BlockType } from '@/shared/types/editor';
 
 import type { ShowcaseInvitation } from './showcaseInvitations';
+import type { ShowcaseFamily } from './showcasePresentation';
 import type { JSONContent } from '@tiptap/core';
 
 function richText(lines: string[]) {
@@ -26,6 +29,16 @@ function eventTime(time: string, offset = 0) {
   const total = hours * 60 + minutes + offset;
   return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
 }
+
+const FAMILY_SECTION_STYLES: Record<ShowcaseFamily, SectionStyle> = {
+  heritage: 'paper',
+  editorial: 'plain',
+  botanical: 'outlined',
+  sky: 'rounded',
+  celebration: 'rounded',
+  conference: 'outlined',
+  scrapbook: 'paper',
+};
 
 export function buildShowcaseInvitation(design: ShowcaseInvitation) {
   const [backgroundColor, accent, text] = design.palette;
@@ -49,7 +62,7 @@ export function buildShowcaseInvitation(design: ShowcaseInvitation) {
       id: `${design.id}-${component}`,
       type: design.type,
       component,
-      props: { ...defaults, ...overrides, collectionStyle: design.id },
+      props: { ...defaults, ...overrides },
     };
   }
 
@@ -333,6 +346,7 @@ export function buildShowcaseInvitation(design: ShowcaseInvitation) {
   return {
     blocks,
     bulkData: {
+      sectionStyle: FAMILY_SECTION_STYLES[presentation.family],
       backgroundColor,
       titleData: {
         font: design.font,
@@ -349,6 +363,7 @@ export function buildShowcaseInvitation(design: ShowcaseInvitation) {
         isDefault: false,
       },
       isZoom: false,
+      scrollAnimation: DEFAULT_SCROLL_ANIMATION,
     },
   };
 }

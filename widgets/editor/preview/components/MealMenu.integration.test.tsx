@@ -113,7 +113,14 @@ describe('식사 메뉴 블록', () => {
     ).toEqual(expectedOrder);
 
     unmount();
-    const { block, titleData, bodyData, isZoom, backgroundColor } =
+    const {
+      block,
+      titleData,
+      bodyData,
+      isZoom,
+      backgroundColor,
+      scrollAnimation,
+    } =
       useEditorStore.getState();
     const guestBlock = normalizeGuestBlock(
       JSON.parse(JSON.stringify(block[0])),
@@ -125,7 +132,13 @@ describe('식사 메뉴 블록', () => {
       render(
         <GuestRenderer
           blocks={[guestBlock.block]}
-          bulkData={{ titleData, bodyData, isZoom, backgroundColor }}
+          bulkData={{
+            titleData,
+            bodyData,
+            isZoom,
+            backgroundColor,
+            scrollAnimation,
+          }}
         />
       );
     });

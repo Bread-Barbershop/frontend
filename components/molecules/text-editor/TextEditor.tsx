@@ -44,6 +44,10 @@ import { cn } from '@/shared/utils/cn';
 import { Selector } from '../selector';
 
 import TextEditorColorPickerPopover from './components/TextEditorColorPickerPopover';
+import {
+  runAtSavedTextSelection,
+  type SavedTextSelection,
+} from './utils/applyAtSavedSelection';
 import centerLeftStyles from './utils/centerLeftText.module.css';
 import { isTextMarkFullyActive } from './utils/markState';
 import {
@@ -79,11 +83,6 @@ export interface TextEditorRef {
   getEditor: () => Editor | null;
 }
 
-type SavedTextSelection = {
-  from: number;
-  to: number;
-};
-
 type TextStyleAttributes = {
   fontFamily?: unknown;
   fontWeight?: unknown;
@@ -108,7 +107,9 @@ const TEXT_ALIGN_OPTIONS: TextAlignOption[] = [
 const DEFAULT_FONT_SIZE_OPTION =
   FONT_SIZE_OPTIONS.find(option => option.value === '14px') ??
   FONT_SIZE_OPTIONS[0];
-const DEFAULT_TEXT_ALIGN_OPTION = TEXT_ALIGN_OPTIONS.find(option => option.value === 'center') ?? TEXT_ALIGN_OPTIONS[2];
+const DEFAULT_TEXT_ALIGN_OPTION =
+  TEXT_ALIGN_OPTIONS.find(option => option.value === 'center') ??
+  TEXT_ALIGN_OPTIONS[2];
 const DEFAULT_EDITOR_TEXT = '내용을 입력해주세요';
 const MIXED_STYLE_VALUE = '__mixed__';
 
@@ -141,8 +142,9 @@ const getTextStyleAttributesAtSelection = (
 ): TextStyleAttributes => {
   const { state } = editor;
   const { selection } = state;
+  const targetsWholeDocument = selection.empty && !editor.isEmpty;
 
-  if (selection.empty) {
+  if (selection.empty && !targetsWholeDocument) {
     const shouldUseStoredMarks =
       pendingStoredMarkPosition !== null &&
       pendingStoredMarkPosition !== undefined &&
@@ -178,7 +180,10 @@ const getTextStyleAttributesAtSelection = (
     color: new Set(),
   };
 
-  state.doc.nodesBetween(selection.from, selection.to, node => {
+  const from = targetsWholeDocument ? 0 : selection.from;
+  const to = targetsWholeDocument ? state.doc.content.size : selection.to;
+
+  state.doc.nodesBetween(from, to, node => {
     if (!node.isText) return;
 
     const textStyle = getTextStyleAttributesFromMarks(node.marks);
@@ -306,33 +311,12 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       }
     }, []);
 
-    const getCommandAtSavedSelection = useCallback(
-      (editor: Editor): ChainedCommands => {
-        const command = editor.chain();
-        const savedSelection = savedSelectionRef.current;
-
-        if (!savedSelection) {
-          return command.focus();
-        }
-
-        const docSize = editor.state.doc.content.size;
-        const from = Math.min(Math.max(savedSelection.from, 0), docSize);
-        const to = Math.min(Math.max(savedSelection.to, 0), docSize);
-
-        if (from === to) {
-          return command.setTextSelection(from);
-        }
-
-        return command.setTextSelection({ from, to });
-      },
-      []
-    );
-
     const runAtSavedSelection = useCallback(
       (
         editor: Editor,
         applyCommand: (command: ChainedCommands) => ChainedCommands,
-        focusEditor: boolean = true
+        focusEditor: boolean = true,
+        kind: 'inline' | 'block' = 'inline'
       ) => {
         const savedSelection = savedSelectionRef.current;
         const selectionIsEmpty =
@@ -345,22 +329,13 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
           ? storedMarkPosition
           : null;
 
-        let command = applyCommand(getCommandAtSavedSelection(editor));
-
-        if (!selectionIsEmpty) {
-          command = command.command(({ tr }) => {
-            tr.setStoredMarks(null);
-            return true;
-          });
-        }
-
-        command.run();
-        if (focusEditor) {
-          editor.view.focus();
-        }
+        runAtSavedTextSelection(editor, savedSelection, applyCommand, {
+          focusEditor,
+          kind,
+        });
         saveSelection(editor);
       },
-      [getCommandAtSavedSelection, saveSelection]
+      [saveSelection]
     );
 
     const syncToolbarState = useCallback(
@@ -666,8 +641,11 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
     ) => {
       const selected = option as TextAlignOption;
       setTextAlignSelected(selected);
-      runAtSavedSelection(editor, command =>
-        command.setTextAlign(selected.value)
+      runAtSavedSelection(
+        editor,
+        command => command.setTextAlign(selected.value),
+        true,
+        'block'
       );
     };
 

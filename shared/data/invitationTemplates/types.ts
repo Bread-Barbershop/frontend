@@ -1,3 +1,4 @@
+import type { SectionStyle } from '@/shared/data/sectionStyles';
 import type {
   BulkData,
   EditorBlock,
@@ -101,6 +102,7 @@ export type InvitationTemplate = {
 };
 
 export type PreparedInvitationTemplate = {
+  sectionStyle?: SectionStyle;
   blocks: EditorBlock[];
   backgroundColor: string;
   titleData: BulkData;

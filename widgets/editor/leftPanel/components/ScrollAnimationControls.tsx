@@ -1,31 +1,26 @@
 'use client';
 
 import { useState } from 'react';
+import { useShallow } from 'zustand/shallow';
 
 import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/animationConfig';
-import { isBlockEnabled } from '@/shared/data/registry/blockAvailability';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import {
   MOTION_EASING_OPTIONS,
   resolveMotionEasing,
 } from '@/shared/utils/motionSettings';
 
-export function ScrollAnimationControls({
-  selectedId,
-}: {
-  selectedId: string;
-}) {
+export function ScrollAnimationControls() {
   const [expanded, setExpanded] = useState(false);
-  const selected = useEditorStore(state =>
-    state.block.find(block => block.id === selectedId)
+  const { scrollAnimation, updateScrollAnimation } = useEditorStore(
+    useShallow(state => ({
+      scrollAnimation: state.scrollAnimation,
+      updateScrollAnimation: state.updateScrollAnimation,
+    }))
   );
-  const updateBlockAnimation = useEditorStore(
-    state => state.updateBlockAnimation
-  );
-  if (!selected || !isBlockEnabled(selected.component)) return null;
-  const animation = resolveScrollAnimation(selected.props);
+  const animation = resolveScrollAnimation(scrollAnimation);
   return (
-    <div className="rounded-lg border border-black/5 bg-white p-3 shadow-edit">
+    <div className="w-full rounded-lg border border-black/5 bg-white p-3 shadow-edit">
       <button
         type="button"
         className="flex w-full items-center justify-between text-sm font-semibold"
@@ -37,13 +32,16 @@ export function ScrollAnimationControls({
       </button>
       {expanded && (
         <div className="mt-3 flex flex-col gap-3">
+          <p className="text-xs text-text-tertiary">
+            모든 블록에 동일하게 적용돼요.
+          </p>
           <label className="flex flex-col gap-1 text-xs">
             효과
             <select
               className="h-9 rounded-md border border-border-divider px-2 text-sm"
               value={animation.animationType}
               onChange={e =>
-                updateBlockAnimation(selectedId, {
+                updateScrollAnimation({
                   animationType: e.target
                     .value as typeof animation.animationType,
                 })
@@ -73,7 +71,7 @@ export function ScrollAnimationControls({
                   value={animation.animationDurationMs}
                   aria-label="등장 시간"
                   onChange={event =>
-                    updateBlockAnimation(selectedId, {
+                    updateScrollAnimation({
                       animationDurationMs: Number(event.target.value),
                     })
                   }
@@ -89,7 +87,7 @@ export function ScrollAnimationControls({
                   className="h-9 rounded-md border border-border-divider px-2 text-sm"
                   value={animation.animationEasing}
                   onChange={event =>
-                    updateBlockAnimation(selectedId, {
+                    updateScrollAnimation({
                       animationEasing: resolveMotionEasing(event.target.value),
                     })
                   }
@@ -112,7 +110,7 @@ export function ScrollAnimationControls({
               className="h-9 rounded-md border border-border-divider px-2 text-sm"
               value={animation.triggerMode}
               onChange={e =>
-                updateBlockAnimation(selectedId, {
+                updateScrollAnimation({
                   triggerMode: e.target.value as typeof animation.triggerMode,
                 })
               }

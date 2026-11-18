@@ -45,6 +45,28 @@ jest.mock('@/shared/fonts/fontLoader', () => ({
     mockPreloadFontFamilyWeights(...args),
 }));
 
+jest.mock('@/components/molecules/scroll-fade-in/ScrollFadeIn', () => ({
+  ScrollFadeIn: (props: {
+    children: React.ReactNode;
+    animationType: string;
+    triggerMode: string;
+    animationDurationMs: number;
+    animationEasing: string;
+  }) =>
+    React.createElement(
+      'div',
+      {
+        className: 'scroll-fade-in-item',
+        'data-testid': 'scroll-animation',
+        'data-animation-type': props.animationType,
+        'data-trigger-mode': props.triggerMode,
+        'data-duration-ms': props.animationDurationMs,
+        'data-easing': props.animationEasing,
+      },
+      props.children
+    ),
+}));
+
 jest.mock('@/shared/store/editorStore/useEditorStore', () => ({
   useEditorStore: (selector: unknown) =>
     (selector as CallableFunction)({
@@ -75,6 +97,7 @@ const bulkData: NormalizedGuestPayload['bulkData'] = {
     isDefault: false,
   },
   isZoom: false,
+  scrollAnimation: { animationType: 'fade-up', triggerMode: 'down-only', animationDurationMs: 700, animationEasing: 'natural' },
 };
 
 describe('GuestRenderer', () => {
@@ -156,7 +179,13 @@ describe('GuestRenderer', () => {
     expect(container.firstElementChild).not.toHaveStyle({ opacity: '0' });
   });
 
-  it('저장된 템플릿 스타일과 선택한 블록 애니메이션을 함께 복원한다', () => {
+  it('블록별 legacy 설정을 무시하고 모든 블록에 공통 설정을 적용한다', () => {
+    const sharedAnimation = {
+      animationType: 'fade-down',
+      triggerMode: 'up-only',
+      animationDurationMs: 1300,
+      animationEasing: 'soft',
+    } as const;
     const block = {
       id: 'styled-picture',
       type: 'wedding',
@@ -165,17 +194,32 @@ describe('GuestRenderer', () => {
         collectionStyle: 'showcase-11',
         animationType: 'none',
         triggerMode: 'both',
+        animationDurationMs: 200,
       },
     } as NormalizedGuestPayload['blocks'][number];
-    const { container } = render(
-      <GuestRenderer blocks={[block]} bulkData={bulkData} />
+    const newBlock = {
+      id: 'new-picture',
+      type: 'wedding',
+      component: 'picture',
+      props: {},
+    } as NormalizedGuestPayload['blocks'][number];
+    render(
+      <GuestRenderer
+        blocks={[block, newBlock]}
+        bulkData={{ ...bulkData, scrollAnimation: sharedAnimation }}
+      />
     );
-    const chapter = screen.getByTestId('picture-view').closest('section');
+    const chapter = screen.getAllByTestId('picture-view')[0].closest('section');
     expect(chapter).toHaveAttribute('data-design', 'showcase-11');
-    expect(chapter?.closest('.scroll-fade-in-item')).toHaveClass('opacity-100');
-    expect(
-      container.querySelectorAll('[data-testid="picture-view"]')
-    ).toHaveLength(1);
+    expect(screen.getAllByTestId('picture-view')).toHaveLength(2);
+    const wrappers = screen.getAllByTestId('scroll-animation');
+    expect(wrappers).toHaveLength(2);
+    wrappers.forEach(wrapper => {
+      expect(wrapper).toHaveAttribute('data-animation-type', 'fade-down');
+      expect(wrapper).toHaveAttribute('data-trigger-mode', 'up-only');
+      expect(wrapper).toHaveAttribute('data-duration-ms', '1300');
+      expect(wrapper).toHaveAttribute('data-easing', 'soft');
+    });
   });
 
   it('폰트 로딩이 실패해도 초대장 본문을 표시한다', async () => {
