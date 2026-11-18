@@ -1375,6 +1375,23 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         template: 'calendarType4',
       },
       { component: 'greeting' },
+      {
+        component: 'notice',
+        title: '신청곡 한 곡',
+        heading: '가수와 제목을 같이 적어 줘',
+        message:
+          '입구에 있는 카드에 적어서 턴테이블 옆 바구니에 넣어 줘. 사연 한 줄도 대환영!',
+        preset: 'party',
+        image: '/images/showcase/birthday-evening.webp',
+      },
+      {
+        component: 'dressCode',
+        title: '오늘의 앨범 커버',
+        colors: ['#F0A2BB', '#242424', '#FAF4ED'],
+        guidelines: [
+          '밴드 티셔츠나 자주 입는 청바지도 좋아. 단체 사진은 우리 앨범 표지처럼 찍자.',
+        ],
+      },
       { component: 'place', title: '오늘의 클럽하우스' },
       {
         component: 'timeline',
@@ -1384,6 +1401,28 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
           { time: '15:30', title: '생일 노래와 촛불' },
           { time: '16:00', title: '친구들이 고른 곡 듣기' },
         ],
+      },
+      {
+        component: 'mealMenu',
+        title: '한 곡 쉬어 갈 때',
+        subtitle: 'Listening Bar',
+        style: 'minimal',
+        courses: [
+          { name: '마실 것', dishes: ['라임 소다', '아이스티'] },
+          { name: '간식', dishes: ['소금 팝콘과 프레첼'] },
+        ],
+      },
+      {
+        component: 'afterParty',
+        title: '마지막 곡 뒤의 앙코르',
+        venue: '프라이빗 다이닝룸',
+        dateTime: '오후 5시부터',
+        description: '듣지 못한 신청곡을 틀어 놓고 남은 케이크를 같이 먹자.',
+      },
+      {
+        component: 'closingComment',
+        message:
+          '나중에 이 노래들이 나오면 오늘 테이블이 생각날 것 같아. 고마워, 민혁이가',
       },
     ],
   },
