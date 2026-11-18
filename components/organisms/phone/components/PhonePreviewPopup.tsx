@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import MessageIcon from '@/shared/assets/icons/message.svg';
 import PhoneActionIcon from '@/shared/assets/icons/phone.svg';
 import PhoneIcon from '@/shared/assets/icons/phoneIcon.svg';
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { formatPhoneNumber } from '@/shared/utils/phoneNumber';
@@ -29,6 +30,8 @@ function PhonePreviewPopup({ groups = [], hideActions = false }: Props) {
   const { fontFamily, color } = useBodyFontInfo();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const closePopup = () => setIsPopupOpen(false);
+  const backdropDismiss = useBackdropDismiss<HTMLDialogElement>(closePopup);
   const visibleGroups = groups
     .map(group => ({
       ...group,
@@ -78,13 +81,9 @@ function PhonePreviewPopup({ groups = [], hideActions = false }: Props) {
             transition={{ duration: 0.2, ease: 'easeInOut' }}
             onCancel={event => {
               event.preventDefault();
-              setIsPopupOpen(false);
+              closePopup();
             }}
-            onClick={event => {
-              if (event.target === event.currentTarget) {
-                setIsPopupOpen(false);
-              }
-            }}
+            {...backdropDismiss}
           >
             <motion.section
               className={`w-[280px] rounded-lg bg-white shadow-edit ${

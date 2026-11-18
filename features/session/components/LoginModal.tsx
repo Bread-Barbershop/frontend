@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import InviaSimpleLogo3d from '@/shared/assets/logo/invia-simple-logo-3d.png';
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 import {
   trapFocus,
   disableBodyScroll,
@@ -40,6 +41,8 @@ function LoginModal({
       setIsClosing(false);
     }, FADE_OUT_MS);
   };
+
+  const backdropDismiss = useBackdropDismiss<HTMLDivElement>(closeWithFade);
 
   useEffect(() => {
     if (!open || isClosing) return;
@@ -79,16 +82,16 @@ function LoginModal({
       className={`fixed inset-0 z-9999 flex items-center justify-center transition-opacity duration-200 ${
         isClosing ? 'opacity-0' : 'animate-[fade-in_180ms_ease-out] opacity-100'
       }`}
-      onClick={closeWithFade}
+      {...backdropDismiss}
       role="dialog"
       aria-modal="true"
       aria-labelledby="login-modal-title"
       tabIndex={-1}
     >
-      <div className="absolute inset-0 bg-[rgb(0_0_0_/_8%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[rgb(0_0_0_/_8%)]" />
 
       <div
-        className={`relative flex w-fit flex-col items-center gap-6 rounded-[12px] bg-white p-5 ring-1 ring-white/22 ring-inset transition-all duration-200 ${
+        className={`relative flex w-[min(392px,calc(100vw-40px))] flex-col items-center gap-6 rounded-[12px] bg-white p-5 ring-1 ring-white/22 ring-inset transition-all duration-200 ${
           isClosing
             ? 'scale-[0.98] opacity-0'
             : 'animate-[fade-in_180ms_ease-out] scale-100 opacity-100'
@@ -109,7 +112,7 @@ function LoginModal({
           type="button"
           onClick={onGoogleLogin}
           disabled={isLoading}
-          className="relative flex h-11 w-[352px] cursor-pointer items-center justify-center rounded-[8px] bg-white px-2 py-1.5 text-[15px] font-medium text-[#111827] ring-1 ring-[#EBEBEB] ring-inset enabled:hover:bg-[#FAFAFB] enabled:active:bg-[#F5F8FF] disabled:cursor-not-allowed disabled:opacity-60"
+          className="relative flex h-11 w-full cursor-pointer items-center justify-center rounded-[8px] bg-white px-2 py-1.5 text-[15px] font-medium text-[#111827] ring-1 ring-[#EBEBEB] ring-inset enabled:hover:bg-[#FAFAFB] enabled:active:bg-[#F5F8FF] disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Image
             src="/assets/icons/google-icon.svg"

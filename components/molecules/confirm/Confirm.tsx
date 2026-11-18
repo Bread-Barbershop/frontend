@@ -3,6 +3,7 @@
 import { forwardRef, useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 import { cn } from '@/shared/utils/cn';
 import {
   trapFocus,
@@ -52,6 +53,9 @@ const Confirm = forwardRef<HTMLDivElement, ConfirmProps>(
     }: ConfirmProps,
     ref
   ) => {
+    const backdropDismiss = useBackdropDismiss<HTMLDivElement>(
+      isBusy ? undefined : onClose
+    );
     const messageId = useId();
     const descriptionId = useId();
     const errorId = useId();
@@ -108,7 +112,7 @@ const Confirm = forwardRef<HTMLDivElement, ConfirmProps>(
     return createPortal(
       <div
         className={confirmPositionVariants({ xPosition, yPosition })}
-        onClick={onClose}
+        {...backdropDismiss}
       >
         <div
           ref={ref}

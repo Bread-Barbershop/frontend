@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import NoticeConfirmButton from '@/components/atoms/button/NoticeConfirmButton';
 import homeBackgroundImage from '@/shared/assets/images/home/home-background.png';
 import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 
 import { MobileShowcaseCardStack } from './MobileShowcaseCardStack';
 import { showcaseItems } from './showcaseItems';
@@ -104,6 +105,8 @@ function useMobileHomeViewport() {
 
 function MobileHomeHero() {
   const [isPcGuideOpen, setIsPcGuideOpen] = useState(false);
+  const closePcGuide = () => setIsPcGuideOpen(false);
+  const backdropDismiss = useBackdropDismiss<HTMLDivElement>(closePcGuide);
   const openPreview = useShowcasePreview();
   useMobileHomeViewport();
 
@@ -166,7 +169,7 @@ function MobileHomeHero() {
         {isPcGuideOpen && (
           <motion.div
             className="fixed inset-0 z-[50000] flex items-center justify-center overflow-y-auto bg-[rgb(0_0_0_/_16%)] px-5 py-5"
-            onClick={() => setIsPcGuideOpen(false)}
+            {...backdropDismiss}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -203,7 +206,7 @@ function MobileHomeHero() {
               </div>
               <NoticeConfirmButton
                 className="mt-1.5 min-h-11 leading-none"
-                onClick={() => setIsPcGuideOpen(false)}
+                onClick={closePcGuide}
               >
                 닫기
               </NoticeConfirmButton>

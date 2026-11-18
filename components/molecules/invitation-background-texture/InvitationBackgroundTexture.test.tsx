@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 
 import { InvitationBackgroundTexture } from './InvitationBackgroundTexture';
 
@@ -21,6 +21,39 @@ describe('초대장 배경 질감 레이어', () => {
     });
     expect(Number(texture?.style.opacity)).toBeCloseTo(0.4);
     expect(texture?.parentElement).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('질감을 바꾸면 두 무늬가 겹쳐 전환된 뒤 마지막으로 선택한 무늬만 남는다', async () => {
+    const { container, rerender } = render(
+      <InvitationBackgroundTexture
+        color="#FFFFFF"
+        texture={{ material: 'wood', strength: 65 }}
+      />
+    );
+    const wood = container.querySelector('[style*="wood.webp"]');
+
+    rerender(
+      <InvitationBackgroundTexture
+        color="#FFFFFF"
+        texture={{ material: 'linen', strength: 26 }}
+      />
+    );
+    const linen = container.querySelector('[style*="linen.webp"]');
+    expect(wood).toBeInTheDocument();
+    expect(linen).toBeInTheDocument();
+    await waitFor(() => {
+      expect(wood).not.toBeInTheDocument();
+      expect(linen).toHaveStyle({ opacity: '0.26' });
+    });
+
+    rerender(
+      <InvitationBackgroundTexture
+        color="#FFFFFF"
+        texture={{ material: 'none', strength: 26 }}
+      />
+    );
+    expect(linen).toBeInTheDocument();
+    await waitFor(() => expect(linen).not.toBeInTheDocument());
   });
 
   it.each([

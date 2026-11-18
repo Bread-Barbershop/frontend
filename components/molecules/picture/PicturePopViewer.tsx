@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 
 import { Image } from '@/components/atoms/image';
 import GalleryNavButtons from '@/components/organisms/gallery/components/GalleryNavButtons';
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 import { cn } from '@/shared/utils/cn';
 
 interface Props {
@@ -24,6 +25,7 @@ export const PicturePopViewer = ({
   onClose,
   ratio = '1:1',
 }: Props) => {
+  const backdropDismiss = useBackdropDismiss<HTMLDivElement>(onClose);
   const isClient = useSyncExternalStore(
     emptySubscribe,
     () => true,
@@ -157,7 +159,7 @@ export const PicturePopViewer = ({
         'inset-0 z-50 bg-black/75 backdrop-blur-[2px] flex justify-center items-center flex-col px-4 select-none',
         pathname?.startsWith('/editor') ? 'absolute' : 'fixed'
       )}
-      onClick={onClose}
+      {...backdropDismiss}
     >
       {/* 닫기 (X) 버튼 */}
       <button
