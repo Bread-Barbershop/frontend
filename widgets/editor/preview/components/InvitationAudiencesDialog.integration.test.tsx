@@ -88,25 +88,41 @@ describe('하객별 구분', () => {
     jest.restoreAllMocks();
   });
 
-  it('기본 초대장만 있으면 원본 목록 없이 기본 링크와 실시간 링크 예시를 제공한다', async () => {
+  it('공유 주소는 복사 버튼으로 제공하고 화면에는 입력한 그룹의 쿼리만 안내한다', async () => {
     const user = userEvent.setup();
     const writeText = jest.spyOn(navigator.clipboard, 'writeText');
-    mockList([basicAudience]);
+    const guestPath = '/guest/root-data';
+    mockFetch.mockResolvedValueOnce(
+      reply({
+        rootGuestUrl: guestPath,
+        groups: [basicAudience],
+        activeSlug: '',
+      })
+    );
     render(<Dialog />);
 
     const copy = await screen.findByRole('button', { name: '기본 링크 복사' });
     expect(
-      screen.getByRole('button', { name: /기본 편집 중/ })
+      screen.getByRole('button', { name: '기본 편집 중' })
     ).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('dialog')).not.toHaveTextContent(guestPath);
+    expect(copy).toHaveTextContent('링크 복사');
+    const example = screen.getByLabelText('그룹 링크 안내');
+    expect(example).toHaveTextContent('기본 링크 뒤에 ?to=family가 붙어요.');
     expect(
       screen.queryByRole('combobox', { name: '복제할 초대장' })
     ).not.toBeInTheDocument();
     await user.click(copy);
-    expect(writeText).toHaveBeenCalledWith('http://localhost/i/abc123');
+    expect(writeText).toHaveBeenCalledWith(`http://localhost${guestPath}`);
 
-    await user.type(screen.getByLabelText('링크 영문명'), 'coworkers');
-    expect(screen.getByLabelText('링크 예시')).toHaveTextContent(
-      '/i/abc123?to=coworkers'
+    const slug = screen.getByLabelText('링크 영문명');
+    await user.type(slug, 'coworkers');
+    expect(example).toHaveTextContent('기본 링크 뒤에 ?to=coworkers가 붙어요.');
+    await user.type(slug, '@');
+    expect(screen.queryByLabelText('그룹 링크 안내')).not.toBeInTheDocument();
+    await user.clear(slug);
+    expect(screen.getByLabelText('그룹 링크 안내')).toHaveTextContent(
+      '?to=family'
     );
   });
 
@@ -160,6 +176,7 @@ describe('하객별 구분', () => {
       name: '복제할 초대장',
     });
     await user.selectOptions(source, familyAudience.folderId);
+    expect(screen.getByRole('button', { name: '가족' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: '가족 링크 복사' }));
     expect(writeText).toHaveBeenCalledWith(
       'http://localhost/i/abc123?to=family'
@@ -318,7 +335,7 @@ describe('하객별 구분', () => {
     render(<Dialog />);
 
     const target = await screen.findByRole('button', {
-      name: `기본 ${rootGuestUrl}`,
+      name: '기본',
     });
     act(() => useBgmStore.getState().setVolume(0.35));
     expect(useEditorStore.getState().isDirty).toBe(true);
