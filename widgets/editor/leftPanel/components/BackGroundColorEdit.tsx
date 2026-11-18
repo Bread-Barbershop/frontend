@@ -25,7 +25,8 @@ const BACKGROUND_COLORS = [
 
 const swatchButtonClass =
   'flex min-h-12 min-w-0 cursor-pointer flex-col items-center justify-start gap-1.5 rounded-md text-center text-xs leading-tight text-text-primary focus-visible:outline-2 focus-visible:outline-primary';
-const swatchClass = 'size-8 shrink-0 rounded-full border border-black/10';
+const swatchClass =
+  'size-8 shrink-0 rounded-full border border-black/10 motion-safe:transition-shadow motion-safe:duration-200';
 const selectedSwatchClass = 'ring-2 ring-primary ring-offset-2';
 
 interface BackGroundColorEditProps {
