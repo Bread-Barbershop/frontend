@@ -83,7 +83,9 @@ function normalizeBulkJson(x: unknown): BulkJson | null {
 
   return {
     backgroundColor: x.backgroundColor,
-    backgroundTexture: resolveBackgroundTexture(x.backgroundTexture),
+    ...(x.backgroundTexture !== undefined && {
+      backgroundTexture: resolveBackgroundTexture(x.backgroundTexture),
+    }),
     ...(sectionStyle && { sectionStyle }),
     titleData: x.titleData,
     bodyData: x.bodyData,

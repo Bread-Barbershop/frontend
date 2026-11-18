@@ -30,7 +30,7 @@ function GuestInvitationView({
   mode = 'guest',
   previewFolderId,
   localAudioSrc,
-  showVisualEffects = true,
+  showVisualEffects,
 }: GuestInvitationViewProps) {
   const Root = mode === 'guest' ? 'main' : 'div';
   const rootClassName =
@@ -77,7 +77,7 @@ function GuestInvitationView({
               bulkData={payload.bulkData}
               renderHints={payload.renderHints}
               activePrivacyFields={payload.activePrivacyFields}
-              showVisualEffects={showVisualEffects}
+              {...(showVisualEffects === false && { showVisualEffects: false })}
               isGuestPage
             />
           </div>
