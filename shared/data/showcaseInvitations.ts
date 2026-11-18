@@ -352,11 +352,31 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '도시의 깊은 색과 앰버 포인트로 완성한 시크한 초대.',
     palette: ['#F6F2EB', '#95622D', '#494037'],
     eyebrow: 'LOVE IN THE CITY',
-    heading: '도시 한가운데, 우리의 시작',
+    heading: '도시 한가운데서 만나요',
     message: [
-      '익숙한 거리도 함께 걸으면 새로운 풍경이 됩니다.',
-      '수많은 하루를 지나, 서로의 내일이 되기로 했습니다.',
-      '민성과 아현의 다음 장을 함께 축하해 주세요.',
+      '한낮의 예식이 끝나면 잔을 들고 조금 더 함께하고 싶습니다. 두 자리 모두 편히 들러 주세요.',
+    ],
+    sectionStyle: 'outlined',
+    sections: [
+      { component: 'greeting' },
+      {
+        component: 'afterParty',
+        title: '예식 뒤의 건배',
+        venue: '그랜드홀 옆 라운지',
+        dateTime: '예식 후 오후 4시',
+        description:
+          '앰버빛 라운지에서 웰컴 드링크와 작은 접시 요리를 나눕니다.',
+      },
+      { component: 'calendar', title: '예식 시작' },
+      { component: 'place', title: '예식과 리셉션' },
+      {
+        component: 'transportation',
+        title: '지하철로 오시면',
+        subwayStation: '강남역',
+        subwayExit: '11번 출구',
+        subwayWalk:
+          '출구에서 테헤란로1길로 들어오세요. 로비에서 그랜드홀로 안내해 드립니다.',
+      },
     ],
     moments: ['웰컴 드링크', '시티 세리머니', '이브닝 다이닝'],
     note: '대중교통을 이용하시면 더욱 편리합니다. 예식 후 저녁 식사를 함께 즐겨 주세요.',
