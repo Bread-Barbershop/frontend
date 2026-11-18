@@ -9,17 +9,21 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 
+import type { MealMenuStyle } from '@/components/organisms/mealMenu/mealMenuContent';
 import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 import {
   getInvitationTemplates,
   type InvitationTemplateType,
 } from '@/shared/data/invitationTemplates';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useConfirmStore } from '@/shared/store/useConfirmStore';
+import type { InvitationType } from '@/shared/types/block';
 import { trapFocus } from '@/shared/utils/focusTrap';
 import { useInvitationTemplate } from '@/widgets/editor/preview/hooks/useInvitationTemplate';
 
 import ContentsArea from './ContentsArea';
 import InvitationTemplatePicker from './InvitationTemplatePicker';
+import MealMenuTemplatePicker from './MealMenuTemplatePicker';
 import TabArea from './TabArea';
 
 interface Props {
@@ -39,10 +43,18 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [templatePickerType, setTemplatePickerType] =
     useState<InvitationTemplateType | null>(null);
+  const [mealMenuPickerType, setMealMenuPickerType] =
+    useState<InvitationType | null>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
     null
   );
   const { applyTemplate, isApplying } = useInvitationTemplate();
+  const isPickerOpen = templatePickerType !== null || mealMenuPickerType !== null;
+  const dialogLabel = mealMenuPickerType
+    ? '식사 메뉴 디자인 선택'
+    : templatePickerType
+      ? '초대장 템플릿 선택'
+      : '블록 추가';
 
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -56,6 +68,7 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
     if (isApplying) return;
     setSearchQuery('');
     setTemplatePickerType(null);
+    setMealMenuPickerType(null);
     onPopClose();
   }, [isApplying, onPopClose]);
 
@@ -108,7 +121,7 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
   }, [open]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || isPickerOpen) return;
     const container = scrollContainerRef.current;
     if (!container) return;
 
@@ -134,7 +147,7 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
     });
 
     return () => observer.disconnect();
-  }, [open, searchQuery]);
+  }, [open, isPickerOpen, searchQuery]);
 
   useEffect(() => {
     return () => {
@@ -186,6 +199,16 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
     }
   };
 
+  const handleAddMealMenu = (style: MealMenuStyle) => {
+    if (!mealMenuPickerType) return;
+    const { addBlock, selectedBlock, setIsEdit } = useEditorStore.getState();
+    const id = crypto.randomUUID();
+    addBlock(mealMenuPickerType, 'mealMenu', id, { menuStyle: style });
+    selectedBlock(id);
+    setIsEdit(false);
+    handleClose();
+  };
+
   if (!mounted) return null;
 
   return createPortal(
@@ -205,11 +228,17 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
           <div
             role="dialog"
             aria-modal="true"
-            aria-label={templatePickerType ? '초대장 템플릿 선택' : '블록 추가'}
+            aria-label={dialogLabel}
             ref={dialogRef}
-            className={`absolute flex flex-col gap-3 overflow-hidden bg-white shadow-edit pointer-events-auto ${templatePickerType ? 'left-1/2 top-1/2 h-[min(820px,calc(100dvh-64px))] min-h-[min(580px,calc(100dvh-64px))] w-[min(1040px,calc(100vw-48px))] -translate-x-1/2 -translate-y-1/2 rounded-2xl' : 'bottom-12 left-1/2 h-99.5 w-164 -translate-x-1/2 rounded-md'}`}
+            className={`absolute flex flex-col gap-3 overflow-hidden bg-white shadow-edit pointer-events-auto ${isPickerOpen ? 'left-1/2 top-1/2 h-[min(820px,calc(100dvh-64px))] min-h-[min(580px,calc(100dvh-64px))] w-[min(1040px,calc(100vw-48px))] -translate-x-1/2 -translate-y-1/2 rounded-2xl' : 'bottom-12 left-1/2 h-99.5 w-164 -translate-x-1/2 rounded-md'}`}
           >
-            {templatePickerType ? (
+            {mealMenuPickerType ? (
+              <MealMenuTemplatePicker
+                onBack={() => setMealMenuPickerType(null)}
+                onClose={handleClose}
+                onAdd={handleAddMealMenu}
+              />
+            ) : templatePickerType ? (
               <InvitationTemplatePicker
                 type={templatePickerType}
                 selectedId={selectedTemplateId}
@@ -226,7 +255,6 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
                   <TabArea
                     active={active}
                     tabClick={english => handleTabClick(english)}
-                    closeClick={handleClose}
                     searchQuery={searchQuery}
                     onSearchChange={setSearchQuery}
                   />
@@ -236,6 +264,7 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
                   sectionRefs={sectionRefs}
                   searchQuery={searchQuery}
                   onOpenTemplatePicker={handleOpenTemplatePicker}
+                  onOpenMealMenuPicker={setMealMenuPickerType}
                 />
               </>
             )}

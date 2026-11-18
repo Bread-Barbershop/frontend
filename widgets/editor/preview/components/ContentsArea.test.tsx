@@ -13,6 +13,7 @@ describe('ContentsArea 컴포넌트', () => {
   const mockAddAllBlock = jest.fn();
   const mockSetIsEdit = jest.fn();
   const mockOpenTemplatePicker = jest.fn();
+  const mockOpenMealMenuPicker = jest.fn();
 
   const scrollContainerRef = { current: document.createElement('div') };
   const sectionRefs = { current: {} };
@@ -34,6 +35,7 @@ describe('ContentsArea 컴포넌트', () => {
         sectionRefs={sectionRefs}
         searchQuery=""
         onOpenTemplatePicker={mockOpenTemplatePicker}
+        onOpenMealMenuPicker={mockOpenMealMenuPicker}
       />
     );
 
@@ -48,6 +50,7 @@ describe('ContentsArea 컴포넌트', () => {
         sectionRefs={sectionRefs}
         searchQuery="신랑신부"
         onOpenTemplatePicker={mockOpenTemplatePicker}
+        onOpenMealMenuPicker={mockOpenMealMenuPicker}
       />
     );
 
@@ -63,6 +66,7 @@ describe('ContentsArea 컴포넌트', () => {
         sectionRefs={sectionRefs}
         searchQuery="일치하지않는컴포넌트명xyz"
         onOpenTemplatePicker={mockOpenTemplatePicker}
+        onOpenMealMenuPicker={mockOpenMealMenuPicker}
       />
     );
 
@@ -76,10 +80,11 @@ describe('ContentsArea 컴포넌트', () => {
         sectionRefs={sectionRefs}
         searchQuery="신랑신부"
         onOpenTemplatePicker={mockOpenTemplatePicker}
+        onOpenMealMenuPicker={mockOpenMealMenuPicker}
       />
     );
 
-    const item = screen.getByText('신랑신부소개').closest('li')!;
+    const item = screen.getByRole('button', { name: '신랑신부소개' });
     fireEvent.click(item);
 
     expect(mockAddBlock).toHaveBeenCalledWith(
@@ -98,6 +103,7 @@ describe('ContentsArea 컴포넌트', () => {
         sectionRefs={sectionRefs}
         searchQuery=""
         onOpenTemplatePicker={mockOpenTemplatePicker}
+        onOpenMealMenuPicker={mockOpenMealMenuPicker}
       />
     );
 

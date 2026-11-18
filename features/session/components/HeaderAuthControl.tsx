@@ -7,6 +7,7 @@ import { useConfirm } from '@/shared/hooks/useConfirm';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import DrivePermissionRequiredModal from './DrivePermissionRequiredModal';
+import HeaderSupportersButton from './HeaderSupportersButton';
 import LoginModal from './LoginModal';
 import PrivacyNoticeModal from './PrivacyNoticeModal';
 
@@ -106,6 +107,7 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
         >
           My Page
         </button>
+        <HeaderSupportersButton className={HEADER_ACTION_CLASS} />
         <button
           type="button"
           onClick={handleLogoutClick}
@@ -121,6 +123,7 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
 
   return (
     <>
+      <HeaderSupportersButton className={HEADER_ACTION_CLASS} />
       <button
         type="button"
         onClick={login}

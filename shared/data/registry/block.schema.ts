@@ -12,6 +12,7 @@ import { gallerySchema } from '@/components/organisms/gallery/Gallery.schema';
 import { greetingSchema } from '@/components/organisms/greeting/Greeting.schema';
 import { guestbookSchema } from '@/components/organisms/guestbook/Guestbook.schema';
 import { interviewSchema } from '@/components/organisms/interview/Interview.schema';
+import { mealMenuSchema } from '@/components/organisms/mealMenu/MealMenu.schema';
 import { myChildSchema } from '@/components/organisms/myChild/MyChild.schema';
 import { myFamilySchema } from '@/components/organisms/myFamily/MyFamily.schema';
 import { myFamilyWeddingSchema } from '@/components/organisms/myFamilyWedding/MyFamilyWedding.schema';
@@ -50,6 +51,7 @@ export const blockSchema = {
   notice: noticeSchema,
   calendar: calendarSchema,
   timeline: timelineSchema,
+  mealMenu: mealMenuSchema,
   countdown: countdownSchema,
   dressCode: dressCodeSchema,
   interview: interviewSchema,

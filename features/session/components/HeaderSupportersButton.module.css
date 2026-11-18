@@ -1,0 +1,43 @@
+.logoFrame {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .logoFrame {
+    transition: transform 500ms ease-out;
+  }
+
+  .logoFrame::after {
+    position: absolute;
+    inset: -25%;
+    background: linear-gradient(
+      116deg,
+      transparent 39%,
+      rgb(255 255 255 / 68%) 50%,
+      transparent 61%
+    );
+    transform: translateX(-100%);
+    pointer-events: none;
+    content: '';
+  }
+
+  .logoLink:is(:hover, :focus-visible) .logoFrame {
+    transform: scale(1.1);
+  }
+
+  .logoLink:is(:hover, :focus-visible) .logoFrame::after {
+    animation: logoShine 700ms ease-out;
+  }
+}
+
+@keyframes logoShine {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
+}

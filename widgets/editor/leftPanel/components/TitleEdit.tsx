@@ -1,15 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
-import { UtilityButton } from '@/components/atoms/button';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { TextEditorPreview } from '@/components/molecules/preview-text-editor';
 import type { BulkColorPickerId } from '@/components/molecules/preview-text-editor/types';
 import { TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
-import { BulkData } from '@/shared/types/block';
 import { toStyle } from '@/shared/utils/toStyle';
 
 type TitleEditProps = {
@@ -27,42 +24,26 @@ function TitleEdit({
       setTitleData: state.setTitleData,
     }))
   );
-  const [bulkTitleData, setBulkTitleData] = useState<BulkData>(
-    titleData.isDefault ? TITLE_BULK_DATA : titleData
-  );
-
-  // const handleReset = () => {
-  //   setBulkTitleData(TITLE_BULK_DATA);
-  //   setTitleData(TITLE_BULK_DATA);
-  // };
+  const bulkTitleData = titleData.isDefault ? TITLE_BULK_DATA : titleData;
+  const handleTitleChange = (next: typeof bulkTitleData) => {
+    if (
+      next.font === bulkTitleData.font &&
+      next.fontSize === bulkTitleData.fontSize &&
+      next.fontWeight === bulkTitleData.fontWeight &&
+      next.color.toUpperCase() === bulkTitleData.color.toUpperCase()
+    ) {
+      return;
+    }
+    setTitleData({ ...next, isDefault: false });
+  };
 
   return (
     <div className="w-full">
       <div className="w-full">
-        <NavigationBar
-          action={
-            <div className="flex items-center gap-1">
-              {/* <UtilityButton size="md" variant="primary" onClick={handleReset}>
-                되돌리기
-              </UtilityButton> */}
-              <UtilityButton
-                size="md"
-                variant="primary"
-                onClick={() => {
-                  setTitleData({ ...bulkTitleData, isDefault: false });
-                }}
-              >
-                적용하기
-              </UtilityButton>
-            </div>
-          }
-          direction="right"
-        >
-          제목 편집
-        </NavigationBar>
+        <NavigationBar>제목 편집</NavigationBar>
         <TextEditorPreview
           value={bulkTitleData}
-          onChange={setBulkTitleData}
+          onChange={handleTitleChange}
           colorPickerId="title"
           activeColorPickerId={activeColorPickerId}
           onActiveColorPickerChange={onActiveColorPickerChange}

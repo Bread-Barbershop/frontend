@@ -2,6 +2,8 @@ import { useCallback } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
+import { collectFontFamilies } from '@/features/invitation/save/createGuestRenderHints';
+import { preloadFontFamilyWeights } from '@/shared/fonts/fontLoader';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { extractFileGroups } from '@/shared/utils/extractFileGroups';
 import { getFileKey } from '@/shared/utils/fileUtils';
@@ -74,6 +76,11 @@ export const useInitData = ({
   );
 
   const initEditStore = useCallback(async () => {
+    const fontsReady = Promise.all(
+      Array.from(collectFontFamilies([bulkData, blocks]), family =>
+        preloadFontFamilyWeights(family)
+      )
+    );
     // 새 데이터 로딩 전 이전 해시 캐시 이력 초기화
     clearHashFiles();
     clearCleanUpFiles();
@@ -124,9 +131,11 @@ export const useInitData = ({
         updateImage('shareUrl', shareFiles);
       }
     }
+    await fontsReady;
     selectedBlock('mainPoster');
   }, [
     blocks,
+    bulkData,
     imageFolderId,
     audioFolderId,
     uuid,

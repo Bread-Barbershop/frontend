@@ -56,7 +56,12 @@ const guestMainPosterMock = jest.fn((props: { thumbnailFileId: string }) => {
 });
 
 const guestRendererMock = jest.fn(
-  (props: { blocks: unknown; bulkData: unknown; renderHints?: unknown }) => {
+  (props: {
+    blocks: unknown;
+    bulkData: unknown;
+    isGuestPage: boolean;
+    renderHints?: unknown;
+  }) => {
     return React.createElement(
       'div',
       { 'data-testid': 'guest-renderer' },
@@ -80,7 +85,7 @@ jest.mock('@/app/guest/[id]/components/GuestMainPoster', () => ({
 
 jest.mock('@/app/guest/[id]/components/GuestRenderer', () => ({
   __esModule: true,
-  default: (props: { blocks: unknown; bulkData: unknown }) =>
+  default: (props: Parameters<typeof guestRendererMock>[0]) =>
     guestRendererMock(props),
 }));
 
@@ -210,6 +215,7 @@ describe('GuestPage 서버 컴포넌트 테스트', () => {
     expect(guestRendererMock).toHaveBeenCalledWith({
       blocks: validGuestPayload.blocks,
       bulkData: validGuestPayload.bulkData,
+      isGuestPage: true,
       renderHints: undefined,
     });
 
@@ -270,6 +276,7 @@ describe('GuestPage 서버 컴포넌트 테스트', () => {
         ...validGuestPayload.bulkData,
         isZoom: false,
       },
+      isGuestPage: true,
       renderHints: undefined,
     });
   });
@@ -301,6 +308,7 @@ describe('GuestPage 서버 컴포넌트 테스트', () => {
         ...validGuestPayload.bulkData,
         isZoom: false,
       },
+      isGuestPage: true,
       renderHints: payloadWithRenderHints.renderHints,
     });
   });

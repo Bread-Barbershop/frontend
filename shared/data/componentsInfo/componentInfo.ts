@@ -52,6 +52,7 @@ export const weddingComponents: ListType[] = withSearchAliases([
   { contents: '참석 여부', component: 'rsvp', isType: false },
   { contents: '디지털 방명록', component: 'guestbook', isType: false },
   { contents: '식순 / 타임라인', component: 'timeline', isType: false },
+  { contents: '식사 메뉴', component: 'mealMenu', isType: false },
   { contents: '세로 구분선', component: 'divider', isType: false },
   { contents: '드레스 코드', component: 'dressCode', isType: false },
   { contents: '여백', component: 'spacer', isType: false },
@@ -81,6 +82,7 @@ export const firstBirthdayComponents: ListType[] = withSearchAliases([
   { contents: '참석 여부', component: 'rsvp', isType: false },
   { contents: '디지털 방명록', component: 'guestbook', isType: false },
   { contents: '식순 / 타임라인', component: 'timeline', isType: false },
+  { contents: '식사 메뉴', component: 'mealMenu', isType: false },
   { contents: '드레스 코드', component: 'dressCode', isType: false },
   { contents: '여백', component: 'spacer', isType: false },
   { contents: '마무리문구', component: 'closingComment', isType: false },
@@ -102,6 +104,7 @@ export const birthdayComponents: ListType[] = withSearchAliases([
   { contents: '참석 여부', component: 'rsvp', isType: false },
   { contents: '디지털 방명록', component: 'guestbook', isType: false },
   { contents: '식순 / 타임라인', component: 'timeline', isType: false },
+  { contents: '식사 메뉴', component: 'mealMenu', isType: false },
   { contents: '드레스 코드', component: 'dressCode', isType: false },
   { contents: '마무리문구', component: 'closingComment', isType: false },
 ]);
@@ -123,6 +126,7 @@ export const seminarComponents: ListType[] = withSearchAliases([
   { contents: '참석 여부', component: 'rsvp', isType: false },
   { contents: '디지털 방명록', component: 'guestbook', isType: false },
   { contents: '식순 / 타임라인', component: 'timeline', isType: false },
+  { contents: '식사 메뉴', component: 'mealMenu', isType: false },
   { contents: '마무리문구', component: 'closingComment', isType: false },
 ]);
 export const etcComponents: ListType[] = withSearchAliases([
@@ -138,6 +142,7 @@ export const etcComponents: ListType[] = withSearchAliases([
   { contents: '참석 여부', component: 'rsvp', isType: false },
   { contents: '디지털 방명록', component: 'guestbook', isType: false },
   { contents: '식순 / 타임라인', component: 'timeline', isType: false },
+  { contents: '식사 메뉴', component: 'mealMenu', isType: false },
   { contents: '세로 구분선', component: 'divider', isType: false },
   { contents: '여백', component: 'spacer', isType: false },
   { contents: '마무리문구', component: 'closingComment', isType: false },
@@ -177,7 +182,7 @@ export const componentCls: SampleDataType[] = [
   },
   {
     english: 'layout',
-    korea: '디자인 / 레이아웃',
+    korea: '레이아웃',
     list: layoutComponents,
   },
 ];

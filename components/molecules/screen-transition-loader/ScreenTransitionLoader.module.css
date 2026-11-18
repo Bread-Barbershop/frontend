@@ -1,0 +1,119 @@
+.screen {
+  position: fixed;
+  z-index: 40;
+  inset: 0;
+  display: grid;
+  box-sizing: border-box;
+  place-items: center;
+  padding: 42px 24px 58px;
+  color-scheme: light dark;
+  color: light-dark(#24211e, #f7f3eb);
+  background: light-dark(#fbfaf7, #191817);
+}
+
+.content {
+  display: grid;
+  justify-items: center;
+  max-inline-size: 100%;
+  text-align: center;
+}
+
+.envelope {
+  position: relative;
+  box-sizing: border-box;
+  inline-size: 32px;
+  block-size: 22px;
+  margin-block-end: 23px;
+  overflow: hidden;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+}
+
+.envelope::before {
+  position: absolute;
+  inset-block-start: -11px;
+  inset-inline-start: 5px;
+  inline-size: 20px;
+  block-size: 20px;
+  box-sizing: border-box;
+  border: solid currentColor;
+  border-width: 0 1px 1px 0;
+  border-end-end-radius: 3px;
+  transform: rotate(45deg);
+  content: '';
+}
+
+.wordmark {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.3em;
+  max-inline-size: 100%;
+  font-family: var(--font-inter), var(--font-pretendard), sans-serif;
+  font-size: clamp(32px, 7.9vw, 54px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.065em;
+  white-space: nowrap;
+}
+
+.logo {
+  display: block;
+  flex: 0 0 auto;
+  inline-size: auto;
+  block-size: 0.66em;
+  color: currentColor;
+}
+
+.progress {
+  inline-size: min(160px, 100%);
+  block-size: 3px;
+  margin-block-start: 26px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: light-dark(#e7e3db, #3d3934);
+}
+
+.progressSegment {
+  display: block;
+  inline-size: 40%;
+  block-size: 100%;
+  border-radius: inherit;
+  background: light-dark(#524940, #e6dbc9);
+  animation: screen-transition-sweep 1.85s cubic-bezier(0.45, 0, 0.55, 1)
+    infinite;
+}
+
+@keyframes screen-transition-sweep {
+  from {
+    transform: translateX(-72%);
+  }
+
+  to {
+    transform: translateX(250%);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .logo {
+    filter: invert(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progressSegment {
+    margin-inline: auto;
+    animation: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .progress {
+    forced-color-adjust: none;
+    background: GrayText;
+  }
+
+  .progressSegment {
+    background: CanvasText;
+  }
+}

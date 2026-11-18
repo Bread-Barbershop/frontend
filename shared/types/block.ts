@@ -44,7 +44,12 @@ export interface BulkData {
 
 export interface BlockSlice {
   block: EditorBlock[];
-  addBlock: (type: InvitationType, component: BlockType, id: string) => void;
+  addBlock: <T extends BlockType>(
+    type: InvitationType,
+    component: T,
+    id: string,
+    initialProps?: Partial<EditorBlock<NoInfer<T>>['props']>
+  ) => void;
   updateBlock: <T extends BlockType>(
     id: string,
     props: Partial<PropsFromFields<(typeof blockRegistry)[T]['fields']>>

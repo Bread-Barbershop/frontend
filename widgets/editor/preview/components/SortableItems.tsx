@@ -7,6 +7,8 @@ import { componentCls } from '@/shared/data/componentsInfo/componentInfo';
 import { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 
+import { BlockLabel } from './BlockLabel';
+
 interface Props {
   id: string;
   blockInfo: EditorBlock;
@@ -75,14 +77,9 @@ const SortableItems = React.memo(
             isSelected ? 'bg-[#DBE8FC]' : ''
           )}
         >
-          {blockInfo.component === 'afterParty' ? (
-            <span className="text-center leading-relaxed">
-              <span className="block whitespace-nowrap">피로연 ·</span>
-              <span className="block whitespace-nowrap">애프터파티</span>
-            </span>
-          ) : (
+          <BlockLabel component={blockInfo.component}>
             <ItemContent contents={componentName?.contents} />
-          )}
+          </BlockLabel>
           {!isDragging && onDeleteRequest && (
             <button
               type="button"

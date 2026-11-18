@@ -38,7 +38,9 @@ describe('블록 Delete 단축키', () => {
   afterEach(() => {
     window.innerWidth = originalInnerWidth;
     act(() => useEditorStore.getState().reset());
-    document.querySelector('[role="dialog"]')?.remove();
+    document
+      .querySelectorAll('[role="dialog"], [data-shortcut-guard-test]')
+      .forEach(dialog => dialog.remove());
   });
 
   it('선택한 항목을 삭제하고 포스터를 선택한다', () => {
@@ -93,5 +95,36 @@ describe('블록 Delete 단축키', () => {
     fireEvent.keyDown(window, { key: 'Delete' });
 
     expect(useEditorStore.getState().block).toHaveLength(1);
+  });
+
+  it('열린 네이티브 대화상자 안에서 Delete를 눌러도 배경 블록을 지우지 않는다', () => {
+    render(<OrderPanel />);
+
+    const dialog = document.createElement('dialog');
+    dialog.open = true;
+    dialog.dataset.shortcutGuardTest = 'true';
+    const cancelButton = document.createElement('button');
+    cancelButton.textContent = '취소';
+    dialog.append(cancelButton);
+    document.body.append(dialog);
+    cancelButton.focus();
+
+    fireEvent.keyDown(cancelButton, { key: 'Delete' });
+
+    expect(useEditorStore.getState().block).toHaveLength(1);
+  });
+
+  it('네이티브 대화상자를 닫으면 Delete 단축키가 다시 동작한다', () => {
+    render(<OrderPanel />);
+
+    const dialog = document.createElement('dialog');
+    dialog.open = true;
+    dialog.dataset.shortcutGuardTest = 'true';
+    document.body.append(dialog);
+    dialog.open = false;
+
+    fireEvent.keyDown(window, { key: 'Delete' });
+
+    expect(useEditorStore.getState().block).toHaveLength(0);
   });
 });

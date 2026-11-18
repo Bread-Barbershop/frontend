@@ -9,7 +9,6 @@ import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrap
 import BackGroundColorEdit from './BackGroundColorEdit';
 import BodyEdit from './BodyEdit';
 import TitleEdit from './TitleEdit';
-import ZoomEdit from './ZoomEdit';
 
 function BulkEdit() {
   const [activeColorPickerId, setActiveColorPickerId] =
@@ -31,7 +30,6 @@ function BulkEdit() {
           activeColorPickerId={activeColorPickerId}
           onActiveColorPickerChange={setActiveColorPickerId}
         /> */}
-        <ZoomEdit />
         <EditorNoticeList
           notices={[
             {

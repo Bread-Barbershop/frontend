@@ -16,6 +16,7 @@ type GuestInvitationViewProps = {
   payload: NormalizedGuestPayload;
   mode?: GuestInvitationViewMode;
   previewFolderId?: string;
+  localAudioSrc?: string | null;
 };
 
 function GuestInvitationView({
@@ -23,10 +24,13 @@ function GuestInvitationView({
   payload,
   mode = 'guest',
   previewFolderId,
+  localAudioSrc,
 }: GuestInvitationViewProps) {
   const Root = mode === 'guest' ? 'main' : 'div';
   const rootClassName =
-    mode === 'guest' ? 'min-h-screen bg-neutral-50' : 'min-h-full bg-neutral-50';
+    mode === 'guest'
+      ? 'min-h-screen bg-neutral-50'
+      : 'min-h-full bg-neutral-50';
   const imageResolveMode =
     mode === 'dashboard-preview' ? 'dashboard-preview' : 'public';
   const containerClassName =
@@ -52,6 +56,7 @@ function GuestInvitationView({
               bgm={payload.bgm}
               mode={mode}
               previewFolderId={previewFolderId}
+              localAudioSrc={localAudioSrc}
             />
           </div>
           <GuestMainPoster
@@ -63,6 +68,7 @@ function GuestInvitationView({
               blocks={payload.blocks}
               bulkData={payload.bulkData}
               renderHints={payload.renderHints}
+              isGuestPage
             />
           </div>
           <GuestInvitationFooter />
@@ -78,12 +84,20 @@ function GuestInvitationFooter() {
       className="flex h-[76px] w-full select-none items-center justify-center bg-inherit"
       aria-label="Special moments with INVIA"
     >
-      <div className="flex items-end gap-[5px]" aria-hidden="true">
+      <a
+        href="https://invia.co.kr"
+        className="flex items-end gap-[5px]"
+        aria-label="INVIA 홈페이지로 이동"
+      >
         <span className="font-['NanumSquare'] text-[11px] font-bold leading-[11px] text-[#4E4E4E]">
           Special moments with
         </span>
-        <InviaLogo className="h-[12px] w-auto shrink-0" focusable="false" />
-      </div>
+        <InviaLogo
+          className="h-[12px] w-auto shrink-0"
+          focusable="false"
+          aria-hidden="true"
+        />
+      </a>
     </footer>
   );
 }
