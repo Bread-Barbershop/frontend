@@ -264,6 +264,15 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         image: '/images/showcase/garden-table.webp',
       },
       { component: 'greeting' },
+      {
+        component: 'timeline',
+        title: '정원의 오후',
+        items: [
+          { time: '14:40', title: '나무 그늘에서 웰컴 티' },
+          { time: '15:00', title: '꽃길 입장과 서약' },
+          { time: '15:40', title: '정원 식탁으로 이동' },
+        ],
+      },
       { component: 'calendar', title: '가든 세리머니' },
       { component: 'place', title: '정원 입구' },
       {
@@ -275,6 +284,12 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
           { name: '첫 접시', dishes: ['허브를 곁들인 토마토'] },
           { name: '메인', dishes: ['레몬을 곁들인 구운 닭과 채소'] },
         ],
+      },
+      {
+        component: 'wreath',
+        title: '정원의 꽃으로 충분합니다',
+        declineMessage:
+          '꽃길을 따라 자란 꽃들로 예식장을 꾸몄습니다. 축하 화환은 정중히 사양합니다.',
       },
       {
         component: 'faq',
@@ -290,6 +305,11 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
               '같은 건물 1층 실내홀에서 만나요. 정원 입구에서 안내해 드릴게요.',
           },
         ],
+      },
+      {
+        component: 'closingComment',
+        message:
+          '식사가 끝나도 서두르지 마세요. 나무 그늘에서 한 분씩 뵙고 싶습니다.',
       },
     ],
   },
