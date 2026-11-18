@@ -674,11 +674,30 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '차분한 공간에서 깊이 나누는, 사람 중심의 비즈니스 대화.',
     palette: ['#F8F4EC', '#7B654B', '#50473B'],
     eyebrow: 'THOUGHTFUL CONVERSATIONS',
-    heading: '좋은 대화가 남기는 것',
+    heading: '커피 한 잔 놓고 이야기해요',
     message: [
-      '속도를 잠시 늦추고, 중요한 이야기에 귀 기울입니다.',
-      '깊이 있는 인사이트와 편안한 대화가 이어지는 오후.',
-      '다음 한 걸음을 위한 생각의 여백을 함께 나눠 주세요.',
+      '따뜻한 커피와 작은 테이블을 준비했습니다. Andrew Jackson이 일을 하며 만난 사람들, 그리고 그들에게서 배운 이야기를 들려드립니다.',
+    ],
+    sectionStyle: 'paper',
+    sections: [
+      { component: 'greeting' },
+      {
+        component: 'speakerInformation',
+        title: '오늘의 대화 상대',
+        name: 'Andrew Jackson',
+        bio: '팀의 의견이 갈리던 날 한 동료가 건넨 질문에서 이야기를 시작합니다. 여러분이 기억하는 한마디도 들려주세요.',
+        image: '/images/showcase/conference-speaker.webp',
+      },
+      {
+        component: 'place',
+        title: '대화를 나눌 공간',
+        detail: '입구에서 커피를 받아 편한 자리에 앉아 주세요.',
+      },
+      { component: 'calendar', title: '오후의 만남' },
+      {
+        component: 'closingComment',
+        message: '조금 일찍 오셔도 좋아요. 따뜻한 잔을 준비해 두겠습니다.',
+      },
     ],
     moments: [
       '웰컴 커피와 인사',
