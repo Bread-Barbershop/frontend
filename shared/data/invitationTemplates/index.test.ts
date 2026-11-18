@@ -60,15 +60,17 @@ afterAll(() => {
 });
 
 describe('홈과 편집기가 공유하는 초대장 컬렉션', () => {
-  it('홈의 25개 디자인을 실제 제작 가능한 카테고리별 템플릿으로 제공한다', () => {
-    expect(showcaseItems).toHaveLength(25);
+  it('홈의 모든 디자인을 실제 제작 가능한 카테고리별 템플릿으로 제공한다', () => {
+    expect(showcaseItems.map(item => item.id)).toEqual(
+      INVITATION_TEMPLATES.map(item => item.id)
+    );
     expect(INVITATION_TEMPLATES.map(item => item.id)).toEqual(
       SHOWCASE_INVITATIONS.map(item => item.id)
     );
     expect(getInvitationTemplates('wedding')).toHaveLength(14);
-    expect(getInvitationTemplates('seminar')).toHaveLength(5);
-    expect(getInvitationTemplates('birthday')).toHaveLength(4);
-    expect(getInvitationTemplates('firstBirthday')).toHaveLength(2);
+    expect(getInvitationTemplates('seminar')).toHaveLength(9);
+    expect(getInvitationTemplates('birthday')).toHaveLength(9);
+    expect(getInvitationTemplates('firstBirthday')).toHaveLength(9);
     expect(Object.keys(SHOWCASE_ORIGINAL_TEMPLATES)).toEqual(
       SHOWCASE_INVITATIONS.map(item => item.id)
     );
@@ -192,7 +194,7 @@ describe('홈과 편집기가 공유하는 초대장 컬렉션', () => {
           .filter(object => object.slot)
           .every(object => {
             const slot = object.slot as { filled?: boolean };
-            return slot.filled === false;
+            return slot.filled === (object.type === 'Image');
           })
       ).toBe(true);
       expect(objects.some(object => object.id === 'background-layer')).toBe(

@@ -8,9 +8,14 @@ import ShowcasePreviewProvider, {
 function SampleCard() {
   const openPreview = useShowcasePreview();
   return (
-    <button onClick={() => openPreview('showcase-22')}>
-      민준이의 첫 초대 미리보기
-    </button>
+    <>
+      <button onClick={() => openPreview('showcase-22')}>
+        민준이의 첫 초대 미리보기
+      </button>
+      <button onClick={() => openPreview('showcase-40')}>
+        마지막 초대장 미리보기
+      </button>
+    </>
   );
 }
 
@@ -24,7 +29,7 @@ describe('첫 화면 카드 미리보기', () => {
     };
   });
 
-  it('22번에서 23번, 24번을 지나 첫 카드로 순환한다', async () => {
+  it('기존 카드에서 새 컬렉션으로 이동하고 첫 카드로 순환한다', async () => {
     const user = userEvent.setup();
     render(
       <ShowcasePreviewProvider>
@@ -50,6 +55,13 @@ describe('첫 화면 카드 미리보기', () => {
     expectCurrentInvitation('알파인 프로미스', 'showcase-23');
     await user.click(screen.getByRole('button', { name: '다음 초대장' }));
     expectCurrentInvitation('브릭 시티 웨딩', 'showcase-24');
+    await user.click(screen.getByRole('button', { name: '다음 초대장' }));
+    expectCurrentInvitation('비단에 담은 첫돌', 'showcase-25');
+    await user.click(screen.getByRole('button', { name: '미리보기 닫기' }));
+    await user.click(
+      screen.getByRole('button', { name: '마지막 초대장 미리보기' })
+    );
+    expectCurrentInvitation('커피 감각 연구소', 'showcase-40');
     await user.click(screen.getByRole('button', { name: '다음 초대장' }));
     expectCurrentInvitation('클래식 모먼트', 'showcase-0');
   });

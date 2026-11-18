@@ -155,6 +155,75 @@ export const SHOWCASE_ORIGINAL_TEMPLATES: Record<
     'Pretendard',
     'Pathway Gothic One',
   ]),
+  'showcase-25': original('firstBirthday_03', 'webp', ['고운 바탕', 'SUIT']),
+  'showcase-26': original('firstBirthday_04', 'webp', [
+    'DM Serif Display',
+    'LINESeedKR',
+    'SUIT',
+    '고운 바탕',
+  ]),
+  'showcase-27': original('firstBirthday_05', 'webp', [
+    'SUIT',
+    'Noto Serif KR',
+    'Barlow Condensed',
+    '고운 바탕',
+  ]),
+  'showcase-28': original('firstBirthday_06', 'webp', [
+    'Cormorant Garamond',
+    '고운 바탕',
+    'SUIT',
+  ]),
+  'showcase-29': original('firstBirthday_07', 'webp', [
+    'SUIT',
+    'Barlow Condensed',
+    'Bodoni Moda',
+    'Noto Serif KR',
+  ]),
+  'showcase-30': original('firstBirthday_08', 'webp', [
+    'SUIT',
+    'Anton',
+    'ONE Mobile POP',
+    'Barlow Condensed',
+  ]),
+  'showcase-31': original('firstBirthday_09', 'webp', ['SUIT', '고운 바탕']),
+  'showcase-32': original('birthday_05', 'webp', [
+    'SUIT',
+    'Anton',
+    'DM Serif Display',
+  ]),
+  'showcase-33': original('birthday_06', 'webp', [
+    'Bodoni Moda',
+    '고운 바탕',
+    'SUIT',
+  ]),
+  'showcase-34': original('birthday_07', 'webp', [
+    'SUIT',
+    'Anton',
+    'Noto Serif KR',
+    'Barlow Condensed',
+  ]),
+  'showcase-35': original('birthday_08', 'webp', [
+    'Cormorant Garamond',
+    '고운 바탕',
+    'SUIT',
+  ]),
+  'showcase-36': original('birthday_09', 'webp', [
+    'SUIT',
+    'LINESeedKR',
+    '고운 바탕',
+  ]),
+  'showcase-37': original('seminar_06', 'webp', [
+    'SUIT',
+    'DM Serif Display',
+    '고운 바탕',
+  ]),
+  'showcase-38': original('seminar_07', 'webp', ['SUIT', 'Barlow Condensed']),
+  'showcase-39': original('seminar_08', 'webp', ['SUIT']),
+  'showcase-40': original('seminar_09', 'webp', [
+    'SUIT',
+    'DM Serif Display',
+    '고운 바탕',
+  ]),
 };
 
 export function getShowcaseOriginalTemplate(id: string) {

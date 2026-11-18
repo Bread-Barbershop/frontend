@@ -7,6 +7,36 @@ import InvitationTemplatePicker from './InvitationTemplatePicker';
 describe('InvitationTemplatePicker', () => {
   const templates = getInvitationTemplates('wedding');
 
+  it.each([
+    ['firstBirthday', '첫돌 우체국', 'showcase-31'],
+    ['birthday', '별 아래 생일 캠프', 'showcase-36'],
+    ['seminar', '커피 감각 연구소', 'showcase-40'],
+  ] as const)(
+    '%s 탭에서 아홉 번째 템플릿을 선택할 수 있다',
+    (type, name, id) => {
+      const onSelect = jest.fn();
+      render(
+        <InvitationTemplatePicker
+          type={type}
+          selectedId={null}
+          isApplying={false}
+          onSelect={onSelect}
+          onTypeChange={jest.fn()}
+          onBack={jest.fn()}
+          onClose={jest.fn()}
+          onApply={jest.fn()}
+        />
+      );
+      expect(
+        screen.getAllByRole('button', { name: /템플릿 선택$/ })
+      ).toHaveLength(9);
+      fireEvent.click(
+        screen.getByRole('button', { name: `${name} 템플릿 선택` })
+      );
+      expect(onSelect).toHaveBeenCalledWith(id);
+    }
+  );
+
   it('포스터와 설명을 보여주고 카드 선택 상태를 접근성 속성으로 표시한다', () => {
     const onSelect = jest.fn();
 

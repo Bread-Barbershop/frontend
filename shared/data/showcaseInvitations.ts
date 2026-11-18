@@ -1,5 +1,9 @@
 import type { InvitationType } from '@/shared/types/block';
 
+import { birthdayCollection } from './showcaseBirthdayCollection';
+import { firstBirthdayCollection } from './showcaseFirstBirthdayCollection';
+import { seminarCollection } from './showcaseSeminarCollection';
+
 import type { SectionStyle } from './sectionStyles';
 import type { ShowcaseSection } from './showcaseSections';
 
@@ -1709,6 +1713,9 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
       },
     ],
   },
+  ...firstBirthdayCollection,
+  ...birthdayCollection,
+  ...seminarCollection,
 ];
 
 export function getShowcaseInvitation(id: string) {

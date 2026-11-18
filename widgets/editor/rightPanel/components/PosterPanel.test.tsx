@@ -11,10 +11,10 @@ jest.mock('@/widgets/editor/preview/hooks/useInvitationTemplate', () => ({
 }));
 
 describe('카테고리별 실제 편집 가능한 표지 목록', () => {
-  it('25종을 제공하고 새 웨딩 표지와 생일 표지를 선택해 표지만 적용한다', () => {
+  it('41종을 제공하고 웨딩 표지와 생일 표지를 선택해 표지만 적용한다', () => {
     render(<PosterPanel />);
     expect(screen.getAllByRole('button', { name: /표지 적용$/ })).toHaveLength(
-      25
+      41
     );
 
     fireEvent.click(
@@ -36,7 +36,7 @@ describe('카테고리별 실제 편집 가능한 표지 목록', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '생일', exact: true }));
     expect(screen.getAllByRole('button', { name: /표지 적용$/ })).toHaveLength(
-      4
+      9
     );
     expect(
       screen.queryByRole('button', { name: '클래식 모먼트 표지 적용' })
