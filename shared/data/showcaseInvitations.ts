@@ -780,11 +780,33 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '딸기 우유빛 핑크와 케이크처럼 달콤한 생일 파티.',
     palette: ['#FFF1F4', '#AD526E', '#68434E'],
     eyebrow: 'A LITTLE CAKE, A LOT OF LOVE',
-    heading: '우리의 달콤한 오후',
+    heading: '케이크 자를 때 같이 있어 줘',
     message: [
-      '케이크 한 조각에 다정한 축하를 더해 주세요.',
-      '민혁의 생일을 핑크빛 웃음으로 채워 볼까요?',
-      '좋아하는 사람들과 보내는 달콤한 오후에 초대해요.',
+      '딸기를 얹고 초를 꽂으면 우리 생일상이 완성돼요. 차 한 잔씩 들고 천천히 놀다 가세요.',
+    ],
+    sectionStyle: 'rounded',
+    sections: [
+      {
+        component: 'mealMenu',
+        title: '오늘의 케이크와 차',
+        subtitle: 'Cake & Tea',
+        style: 'ribbon',
+        courses: [
+          { name: '케이크', dishes: ['딸기 생크림 케이크'] },
+          { name: '차', dishes: ['따뜻한 얼그레이', '아이스 베리 티'] },
+        ],
+      },
+      { component: 'greeting' },
+      {
+        component: 'dressCode',
+        title: '작은 핑크 포인트',
+        colors: ['#EEA9BD', '#C95775', '#FFF0E4'],
+        guidelines: [
+          '양말이나 머리핀에 분홍색 한 점이면 충분해요. 편한 차림도 환영해요.',
+        ],
+      },
+      { component: 'calendar', title: '티 파티 시간' },
+      { component: 'place', title: '우리의 케이크 테이블' },
     ],
     moments: ['달콤한 웰컴 티', '생일 노래 & 케이크', '우리들의 포토 타임'],
     note: '작은 핑크 포인트를 더해 오면 더 즐거울 거예요. 디저트와 차를 넉넉하게 준비할게요.',
