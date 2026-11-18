@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ScreenTransitionLoader } from '@/components/molecules/screen-transition-loader';
+import { DEFAULT_SCROLL_ANIMATION } from '@/components/molecules/scroll-fade-in/animationConfig';
 import DrivePermissionRequiredModal from '@/features/session/components/DrivePermissionRequiredModal';
 import LoginModal from '@/features/session/components/LoginModal';
 import PrivacyNoticeModal from '@/features/session/components/PrivacyNoticeModal';
@@ -26,9 +27,11 @@ export function prepareTemplateEditorData(templateId: string): SavedData {
     blocks: prepared.blocks as PersistedEditorBlock[],
     bulkData: {
       backgroundColor: prepared.backgroundColor,
+      sectionStyle: prepared.sectionStyle,
       titleData: prepared.titleData,
       bodyData: prepared.bodyData,
       isZoom: false,
+      scrollAnimation: DEFAULT_SCROLL_ANIMATION,
     },
     mainPoster: JSON.stringify(prepared.posterJson),
     bgm: { bgmInfo: null, bgmFile: null },

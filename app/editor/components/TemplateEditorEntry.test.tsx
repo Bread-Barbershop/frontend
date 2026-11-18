@@ -6,6 +6,8 @@ import {
   waitFor,
 } from '@testing-library/react';
 
+import { createInvitationTemplate } from '@/shared/data/invitationTemplates';
+
 import TemplateEditorEntry from './TemplateEditorEntry';
 
 import type { SavedData } from '../[id]/types/savedata';
@@ -39,7 +41,11 @@ jest.mock('@/widgets/mainPoster/context/FabricContext', () => ({
 jest.mock('./MainContentsArea', () => ({
   __esModule: true,
   default: ({ savedData }: { savedData: SavedData }) => (
-    <div data-testid="editor" data-blocks={JSON.stringify(savedData.blocks)}>
+    <div
+      data-testid="editor"
+      data-blocks={JSON.stringify(savedData.blocks)}
+      data-bulk={JSON.stringify(savedData.bulkData)}
+    >
       제작 준비 완료
     </div>
   ),
@@ -103,12 +109,14 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
     const blocks = JSON.parse(
       screen.getByTestId('editor').getAttribute('data-blocks')!
     );
+    const expected = createInvitationTemplate(id);
     expect(
-      blocks.every(
-        (block: { props: { collectionStyle: string } }) =>
-          block.props.collectionStyle === id
-      )
-    ).toBe(true);
+      blocks.map((block: { component: string }) => block.component)
+    ).toEqual(expected.blocks.map(block => block.component));
+    expect(
+      JSON.parse(screen.getByTestId('editor').getAttribute('data-bulk')!)
+        .sectionStyle
+    ).toBe(expected.sectionStyle);
     const poster = JSON.parse(
       screen.getByTestId('poster').getAttribute('data-json')!
     );

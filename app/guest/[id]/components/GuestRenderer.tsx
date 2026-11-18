@@ -8,6 +8,7 @@ import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/an
 import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
 import InvitationChapter, {
   getCollectionStyle,
+  getBlockSectionStyle,
 } from '@/components/organisms/invitation-chapter/InvitationChapter';
 import { isBlockEnabled } from '@/shared/data/registry/blockAvailability';
 import { blockRegistry } from '@/shared/data/registry/registry';
@@ -64,6 +65,7 @@ function GuestRenderer({
   ) => React.ReactNode;
 }) {
   const { titleData, bodyData } = bulkData;
+  const scrollAnimation = resolveScrollAnimation(bulkData.scrollAnimation);
   const { setTitleData, setBodyData } = useEditorStore(
     useShallow(state => ({
       setTitleData: state.setTitleData,
@@ -154,7 +156,7 @@ function GuestRenderer({
           <ScrollFadeIn
             key={block.id}
             className="w-full"
-            {...resolveScrollAnimation(block.props)}
+            {...scrollAnimation}
           >
             {renderBlock ? (
               renderBlock(block, view)
@@ -162,6 +164,8 @@ function GuestRenderer({
               <InvitationChapter
                 component={block.component}
                 collectionStyle={getCollectionStyle(block.props)}
+                sectionStyle={getBlockSectionStyle(block.props)}
+                defaultStyle={bulkData.sectionStyle}
               >
                 {view}
               </InvitationChapter>

@@ -4,6 +4,7 @@ import {
   ResponseData,
   UpdateInvitationResponse,
 } from '@/app/editor/[id]/types/savedata';
+import { DEFAULT_SCROLL_ANIMATION } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { BODY_BULK_DATA, TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
 import { PersistedEditorBlock } from '@/shared/types/block';
 
@@ -39,6 +40,7 @@ export async function GET(
         titleData: TITLE_BULK_DATA,
         bodyData: BODY_BULK_DATA,
         isZoom: false,
+        scrollAnimation: DEFAULT_SCROLL_ANIMATION,
       },
       blocks: [], // singular
       mainPoster: '',
@@ -118,6 +120,7 @@ export async function GET(
             titleData: TITLE_BULK_DATA,
             bodyData: BODY_BULK_DATA,
             isZoom: false,
+            scrollAnimation: DEFAULT_SCROLL_ANIMATION,
           },
           blocks: [] as PersistedEditorBlock[],
           mainPoster: '',

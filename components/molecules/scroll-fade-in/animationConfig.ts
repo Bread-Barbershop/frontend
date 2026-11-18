@@ -16,6 +16,13 @@ export type ScrollAnimationSettings = {
   animationEasing: MotionEasing;
 };
 
+export const DEFAULT_SCROLL_ANIMATION: ScrollAnimationSettings = {
+  animationType: 'fade-up',
+  triggerMode: 'down-only',
+  animationDurationMs: 700,
+  animationEasing: 'natural',
+};
+
 export function resolveScrollAnimation(
   input: unknown
 ): ScrollAnimationSettings {

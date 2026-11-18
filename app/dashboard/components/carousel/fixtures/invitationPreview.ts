@@ -1,5 +1,6 @@
 import type { InviteListItem } from '@/app/dashboard/types';
 import type { NormalizedGuestPayload } from '@/app/guest/[id]/validation/parseGuestPayload';
+import { DEFAULT_SCROLL_ANIMATION } from '@/components/molecules/scroll-fade-in/animationConfig';
 
 export const privateInvite: InviteListItem = {
   folderId: 'private-folder',
@@ -24,6 +25,7 @@ export const savedPayload: NormalizedGuestPayload = {
     titleData: textStyle,
     bodyData: textStyle,
     isZoom: false,
+    scrollAnimation: DEFAULT_SCROLL_ANIMATION,
   },
   mainPoster: {
     version: '1',

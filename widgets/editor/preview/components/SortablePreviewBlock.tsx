@@ -22,6 +22,7 @@ interface Props {
   selected: boolean;
   backgroundColor: string;
   registerNode: (element: HTMLDivElement | null) => void;
+  onSelect: () => void;
   children: ReactNode;
 }
 
@@ -31,6 +32,7 @@ export function SortablePreviewBlock({
   selected,
   backgroundColor,
   registerNode,
+  onSelect,
   children,
 }: Props) {
   const {
@@ -64,6 +66,7 @@ export function SortablePreviewBlock({
         transition,
         ...(isDragging ? { backgroundColor, opacity: 0.9 } : {}),
       }}
+      onClick={onSelect}
       onDragStart={event => event.preventDefault()}
       onMouseDown={event => {
         if (!canDragPreviewBlock(event.target)) return;

@@ -52,7 +52,7 @@ function AdditionalFeaturesModal({
             type="checkbox"
             checked={draftIsZoom}
             onChange={event => setDraftIsZoom(event.target.checked)}
-            className="size-4 shrink-0 accent-black focus:outline-2 focus:outline-offset-2 focus:outline-black"
+            className="size-4 shrink-0 accent-primary focus:outline-2 focus:outline-offset-2 focus:outline-primary"
           />
           <span>초대장 확대 방지</span>
         </label>
