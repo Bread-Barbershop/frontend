@@ -109,6 +109,11 @@ export async function configure(
     return config;
   });
 }
+export async function removeCollection(id: string) {
+  const key = configKey(id);
+  await withSaveLock(key, () => authRedis().redis.del(key, grantKey(id)));
+}
+
 export async function hasGrant(id: string) {
   return Boolean(await authRedis().redis.exists(grantKey(id)));
 }

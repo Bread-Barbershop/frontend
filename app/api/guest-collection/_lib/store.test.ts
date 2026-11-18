@@ -65,15 +65,13 @@ it('선택한 초대장만 마감까지 보관하고 편집자가 떠난 뒤 40�
       .mockImplementation(async key =>
         saved.has(key) ? decryptRecord(saved.get(key)!, key) : null
       );
-    jest
-      .mocked(serverAccessToken)
-      .mockResolvedValue({
-        userId: 'owner',
-        accessToken: 'mock-access',
-        refreshToken: 'mock-refresh',
-        scope: GOOGLE_AUTH_SCOPE,
-        expiresAt: start + 3600000,
-      } as never);
+    jest.mocked(serverAccessToken).mockResolvedValue({
+      userId: 'owner',
+      accessToken: 'mock-access',
+      refreshToken: 'mock-refresh',
+      scope: GOOGLE_AUTH_SCOPE,
+      expiresAt: start + 3600000,
+    } as never);
     const options = { eventDate: '2027-04-01', guestbook: true, photos: false };
     await expect(configure('root', options, false)).rejects.toMatchObject({
       status: 400,
@@ -85,14 +83,12 @@ it('선택한 초대장만 마감까지 보관하고 편집자가 떠난 뒤 40�
     expect(expiration.get(key)).toBe(Date.parse('2027-04-05T00:00:00+09:00'));
     jest.mocked(serverAccessToken).mockClear();
     jest.setSystemTime(start + 40 * 86400000);
-    jest
-      .mocked(tokenRefresh)
-      .mockResolvedValue({
-        accessToken: 'renewed',
-        expiresAt: Date.now() + 3600000,
-        scope: GOOGLE_AUTH_SCOPE,
-        refreshToken: undefined,
-      });
+    jest.mocked(tokenRefresh).mockResolvedValue({
+      accessToken: 'renewed',
+      expiresAt: Date.now() + 3600000,
+      scope: GOOGLE_AUTH_SCOPE,
+      refreshToken: undefined,
+    });
     global.fetch = jest.fn(async () => Response.json({}));
     await (
       await guestGoogle('data')

@@ -126,9 +126,10 @@ export default function CollectionSettings({
                 />
               </label>
               <p>
-                {lastCollectionDay(values.eventDate) || '예식 후 3일째'} 밤
-                12시까지(한국 시간) 새 글과 사진을 받아요. 가족·친구용 링크도
-                같은 방명록과 사진함을 사용해요.
+                {lastCollectionDay(values.eventDate)
+                  ? `예식 후 3일째인 ${lastCollectionDay(values.eventDate)} 23:59까지 새 글과 사진을 받아요(한국 시간).`
+                  : '예식일을 선택하면 접수가 끝나는 날짜를 확인할 수 있어요.'}{' '}
+                가족·친구용 링크도 같은 방명록과 사진함을 사용해요.
               </p>
               {values.guestbook && (
                 <p>

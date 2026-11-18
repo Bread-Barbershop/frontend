@@ -93,6 +93,11 @@ export async function enableGuestbook(id: string) {
   const permissions = await sharing(id, (url, init) =>
     googleFetch(String(url), init)
   );
+  if (permissions.some(p => p.type === 'anyone' && p.role !== 'reader'))
+    failure(
+      '방명록 파일의 링크 공유를 뷰어로 바꾼 뒤 다시 시도해 주세요.',
+      403
+    );
   if (!permissions.some(p => p.type === 'anyone' && p.role === 'reader')) {
     await checked(
       await googleFetch(

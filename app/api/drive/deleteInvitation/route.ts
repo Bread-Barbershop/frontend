@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 
+import { serverSessionsEnabled } from '@/app/api/auth/_lib/authStorage';
 import { deleteAudienceLinks } from '@/app/api/drive/_lib/audienceLinkStore';
 import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
 import { getAudienceIndexRootDataId } from '@/app/api/drive/_lib/invitationAudiences';
+import { removeCollection } from '@/app/api/guest-collection/_lib/store';
 import { deleteShortCodeMapping } from '@/app/api/short-url/_lib/shortUrlStore';
 
 import {
@@ -62,6 +64,16 @@ export async function DELETE(req: Request) {
     }
 
     if (rootDataId) {
+      if (serverSessionsEnabled()) {
+        try {
+          await removeCollection(rootDataId);
+        } catch (error) {
+          captureDriveError({
+            error,
+            operation: 'drive_guest_collection_cleanup',
+          });
+        }
+      }
       try {
         await deleteAudienceLinks(rootDataId);
       } catch (error) {

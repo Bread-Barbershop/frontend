@@ -12,15 +12,13 @@ import { GET } from './route';
 it('마감 뒤에는 Google 토큰 없이 공개 방명록의 줄바꿈과 쉼표를 읽는다', async () => {
   const old = global.fetch;
   try {
-    jest
-      .mocked(getCollection)
-      .mockResolvedValue({
-        sheet: 'sheet',
-        tabId: 0,
-        guestbook: true,
-        photos: false,
-        closesAt: 0,
-      } as never);
+    jest.mocked(getCollection).mockResolvedValue({
+      sheet: 'sheet',
+      tabId: 0,
+      guestbook: true,
+      photos: false,
+      closesAt: 0,
+    } as never);
     global.fetch = jest.fn(
       async () =>
         new Response('"이름","축하해, 친구야!\n행복해","2027-01-01"', {

@@ -136,6 +136,7 @@ export async function submitGuest(
   const rootPermissions = await sharing(config.root, request);
   if (!rootPermissions.some(p => p.type === 'anyone' && p.role === 'reader'))
     failure('현재 비공개인 초대장이에요.', 403);
+  if (Date.now() >= config.closesAt) failure('접수가 종료됐어요.', 410);
   if (!photo) {
     if (!config.sheet || config.tabId === undefined)
       failure('방명록을 준비하고 있어요.', 503);
@@ -151,6 +152,7 @@ export async function submitGuest(
   }
   if (!config.photoFolder) failure('사진함을 준비하고 있어요.', 503);
   await checkPrivateFolder(config.photoFolder, request);
+  if (Date.now() >= config.closesAt) failure('접수가 종료됐어요.', 410);
   const response = await checked(
     await request(
       'https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable',
