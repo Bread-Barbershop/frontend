@@ -68,8 +68,21 @@ jest.mock('./MainContentsArea', () => ({
 }));
 jest.mock('@/features/session/components/PrivacyNoticeModal', () => ({
   __esModule: true,
-  default: ({ open, onClose }: { open: boolean; onClose: () => void }) =>
-    open ? <button onClick={onClose}>개인정보 안내 확인</button> : null,
+  default: ({
+    open,
+    onClose,
+    onConfirm,
+  }: {
+    open: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+  }) =>
+    open ? (
+      <div>
+        <button onClick={onConfirm}>개인정보 안내 확인</button>
+        <button onClick={onClose}>개인정보 안내 닫기</button>
+      </div>
+    ) : null,
 }));
 jest.mock('@/features/session/components/LoginModal', () => ({
   __esModule: true,
@@ -287,6 +300,27 @@ describe('선택한 템플릿으로 로그인 후 바로 제작', () => {
         screen.getByRole('button', { name: '개인정보 안내 확인' })
       ).toBeVisible()
     );
+  });
+
+  it('개인정보 안내를 닫으면 선택한 디자인에서 다시 로그인을 시도할 수 있다', async () => {
+    render(
+      <TemplateEditorEntry templateId="showcase-18" initialIsLoggedIn={false} />
+    );
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: '개인정보 안내 닫기' })
+    );
+
+    expect(
+      screen.queryByRole('button', { name: 'Google로 계속하기' })
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '마이 데이 포토' })).toBeVisible();
+
+    fireEvent.click(screen.getByRole('button', { name: '로그인하고 시작하기' }));
+
+    expect(
+      screen.getByRole('button', { name: '개인정보 안내 확인' })
+    ).toBeVisible();
   });
 
   it('잘못된 ID일 때 인증이나 빈 초대장을 열지 않고 다시 고를 수 있게 한다', () => {

@@ -14,6 +14,7 @@ import { createPortal } from 'react-dom';
 
 import { UtilityButton } from '@/components/atoms/button';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 import { cn } from '@/shared/utils/cn';
 import {
   clampFloatingValue,
@@ -62,6 +63,7 @@ export const Popup = ({
   const handleClosePopup = useCallback(() => {
     onClose?.();
   }, [onClose]);
+  const backdropDismiss = useBackdropDismiss<HTMLDivElement>(handleClosePopup);
 
   useLayoutEffect(() => {
     if (variant !== 'floating') return;
@@ -137,14 +139,16 @@ export const Popup = ({
       }
     };
 
-    document.addEventListener('pointerdown', handlePointerDown, true);
+    if (variant === 'floating') {
+      document.addEventListener('pointerdown', handlePointerDown, true);
+    }
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       document.removeEventListener('pointerdown', handlePointerDown, true);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handleClosePopup, triggerRef]);
+  }, [handleClosePopup, triggerRef, variant]);
 
   if (typeof document === 'undefined') return null;
 
@@ -191,11 +195,7 @@ export const Popup = ({
       )}
       role="button"
       tabIndex={0}
-      onClick={event => {
-        if (event.target === event.currentTarget) {
-          handleClosePopup();
-        }
-      }}
+      {...backdropDismiss}
     >
       {popupContent}
     </div>,

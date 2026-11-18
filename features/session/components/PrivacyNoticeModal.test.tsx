@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import PrivacyNoticeModal from './PrivacyNoticeModal';
 
@@ -49,6 +50,32 @@ describe('PrivacyNoticeModal', () => {
     fireEvent.click(confirmButton);
 
     expect(mockOnClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('바깥 오버레이를 누르면 확인 없이 안내를 닫는다', async () => {
+    const user = userEvent.setup();
+    const onConfirm = jest.fn();
+    render(
+      <PrivacyNoticeModal open onClose={mockOnClose} onConfirm={onConfirm} />
+    );
+    const backdrop = screen.getByRole('dialog').parentElement!;
+
+    await user.click(backdrop);
+
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
+    expect(onConfirm).not.toHaveBeenCalled();
+  });
+
+  it('알겠어요 버튼은 별도로 지정한 확인 콜백을 호출한다', () => {
+    const onConfirm = jest.fn();
+    render(
+      <PrivacyNoticeModal open onClose={mockOnClose} onConfirm={onConfirm} />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: '알겠어요' }));
+
+    expect(onConfirm).toHaveBeenCalledTimes(1);
+    expect(mockOnClose).not.toHaveBeenCalled();
   });
 
   it('calls onClose when Escape key is pressed', () => {

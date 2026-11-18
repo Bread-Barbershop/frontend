@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import InviaSimpleLogo3d from '@/shared/assets/logo/invia-simple-logo-3d.png';
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 import {
   trapFocus,
   disableBodyScroll,
@@ -40,6 +41,8 @@ function LoginModal({
       setIsClosing(false);
     }, FADE_OUT_MS);
   };
+
+  const backdropDismiss = useBackdropDismiss<HTMLDivElement>(closeWithFade);
 
   useEffect(() => {
     if (!open || isClosing) return;
@@ -79,13 +82,13 @@ function LoginModal({
       className={`fixed inset-0 z-9999 flex items-center justify-center transition-opacity duration-200 ${
         isClosing ? 'opacity-0' : 'animate-[fade-in_180ms_ease-out] opacity-100'
       }`}
-      onClick={closeWithFade}
+      {...backdropDismiss}
       role="dialog"
       aria-modal="true"
       aria-labelledby="login-modal-title"
       tabIndex={-1}
     >
-      <div className="absolute inset-0 bg-[rgb(0_0_0_/_8%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[rgb(0_0_0_/_8%)]" />
 
       <div
         className={`relative flex w-fit flex-col items-center gap-6 rounded-[12px] bg-white p-5 ring-1 ring-white/22 ring-inset transition-all duration-200 ${

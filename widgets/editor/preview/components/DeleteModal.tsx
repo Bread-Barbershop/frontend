@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import React, { forwardRef, useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 import {
   trapFocus,
   disableBodyScroll,
@@ -20,6 +21,8 @@ const emptySubscribe = () => () => {};
 
 const DeleteModal = forwardRef<HTMLDivElement, DeleteModalProps>(
   ({ setIsDeleteModal, onDelete }: DeleteModalProps, ref) => {
+    const closeModal = () => setIsDeleteModal(false);
+    const backdropDismiss = useBackdropDismiss<HTMLDivElement>(closeModal);
     const mounted = useSyncExternalStore(
       emptySubscribe,
       () => true,
@@ -64,7 +67,7 @@ const DeleteModal = forwardRef<HTMLDivElement, DeleteModalProps>(
         exit={{ opacity: 0 }}
         transition={{ duration: 0.18, ease: 'easeOut' }}
         className="fixed inset-0 z-9999 flex items-center justify-center bg-black/30"
-        onClick={() => setIsDeleteModal(false)}
+        {...backdropDismiss}
       >
         <motion.div
           ref={ref}
@@ -98,7 +101,7 @@ const DeleteModal = forwardRef<HTMLDivElement, DeleteModalProps>(
             <button
               type="button"
               className="text-[13px] text-text-primary rounded-lg w-[66px] h-8 hover:bg-[#FFE8E8]/32 cursor-pointer transition-colors"
-              onClick={() => setIsDeleteModal(false)}
+              onClick={closeModal}
             >
               아니오
             </button>
