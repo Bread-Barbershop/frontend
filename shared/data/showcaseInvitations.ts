@@ -81,6 +81,14 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
           '비가 오던 날, 버스 정류장에서 우산을 같이 썼어요. 버스가 한 대 더 지나갈 때까지 이야기했지요.',
         image: '/images/showcase/love-letter.webp',
       },
+      {
+        component: 'picture',
+        title: '사진으로 전하는 한 컷',
+        image:
+          '/samples/wedding_14/images/04_779358cc-330b-4bb4-818b-6b1c2e91958c.jpg',
+        caption:
+          '촬영을 마치려던 참에 해가 났습니다. 그날 가장 좋아하게 된 사진이에요.',
+      },
       { component: 'calendar', title: '예식 일시' },
       {
         component: 'timeline',
@@ -91,7 +99,31 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
           { time: '16:00', title: '축하 식사' },
         ],
       },
+      {
+        component: 'mealMenu',
+        title: '축하 오찬 메뉴',
+        subtitle: 'Wedding Lunch',
+        style: 'classic',
+        courses: [
+          { name: '따뜻한 요리', dishes: ['양송이 수프', '허브 치킨'] },
+          { name: '후식', dishes: ['복숭아 셔벗'] },
+        ],
+      },
       { component: 'place', title: '예식장 안내' },
+      {
+        component: 'notice',
+        title: '오늘의 신문을 드립니다',
+        heading: '로비에서 한 부씩 가져가세요',
+        message:
+          '두 사람의 인터뷰와 웨딩 촬영 사진을 실은 작은 신문을 접수대에 두었습니다. 집에 가는 길에 펼쳐 보세요.',
+        preset: 'time',
+        image: '/images/showcase/vow-rings.webp',
+      },
+      {
+        component: 'closingComment',
+        message:
+          '오늘 소식의 마지막 줄에는 이 자리에 와 주신 분들의 이름을 담고 싶습니다. 민성·아현 올림',
+      },
     ],
   },
   {
