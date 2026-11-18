@@ -148,8 +148,30 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         caption: '두 사람이 고른, 장식 없는 한 쌍.',
       },
       { component: 'greeting' },
+      {
+        component: 'coupleIntroduction',
+        title: '나란히 걷는 사람들',
+        story:
+          '민성은 골목을 기억하고 아현은 가게 이름을 기억합니다. 낯선 동네에서도 둘이면 길을 잘 찾아요.',
+      },
       { component: 'calendar', title: '3월의 예식' },
+      {
+        component: 'dressCode',
+        title: '흑백사진에 담길 옷차림',
+        colors: ['#262626', '#757575', '#E5E1DB'],
+        guidelines: [
+          '가족사진은 흑백으로도 한 장 남겨요. 평소 좋아하는 편한 옷으로 와 주세요.',
+        ],
+      },
       { component: 'place', title: '만나는 곳' },
+      {
+        component: 'transportation',
+        title: '그랜드홀까지',
+        subwayStation: '강남역',
+        subwayExit: '11번 출구',
+        subwayWalk:
+          '테헤란로1길 입구에서 건물 로비로 들어와 8층으로 올라오세요.',
+      },
       {
         component: 'closingComment',
         message:
