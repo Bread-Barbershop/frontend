@@ -26,10 +26,7 @@ export function InvitationEffectsControls() {
   const { opening, confetti } = resolveInvitationEffects(settings, blocks);
 
   return (
-    <details
-      open
-      className="group w-full border-b border-border-divider shadow-[inset_0_1px_0_var(--color-border-divider)]"
-    >
+    <details open className="group w-full border-b border-border-divider">
       <summary
         className={cn(
           navigationBarClassName,

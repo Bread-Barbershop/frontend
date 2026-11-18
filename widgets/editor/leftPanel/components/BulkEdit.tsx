@@ -33,7 +33,10 @@ function BulkEdit() {
           activeColorPickerId={activeColorPickerId}
           onActiveColorPickerChange={setActiveColorPickerId}
         />
-        <section className="w-full" aria-label="배경 편집">
+        <section
+          className="w-full border-b border-border-divider pb-1"
+          aria-label="배경 편집"
+        >
           <BackGroundColorEdit
             activeColorPickerId={activeColorPickerId}
             onActiveColorPickerChange={setActiveColorPickerId}
