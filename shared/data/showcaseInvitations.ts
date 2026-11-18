@@ -568,6 +568,12 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     sections: [
       { component: 'greeting' },
       {
+        component: 'coupleIntroduction',
+        title: '도시에서 만난 두 사람',
+        story:
+          '퇴근 시간이 자주 겹쳐 같은 골목을 걸었습니다. 어느 날부터는 먼저 도착한 쪽이 가로등 아래서 기다렸어요.',
+      },
+      {
         component: 'afterParty',
         title: '예식 뒤의 건배',
         venue: '그랜드홀 옆 라운지',
@@ -575,8 +581,29 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         description:
           '앰버빛 라운지에서 웰컴 드링크와 작은 접시 요리를 나눕니다.',
       },
+      {
+        component: 'mealMenu',
+        title: '라운지의 첫 잔',
+        subtitle: 'Amber Hour',
+        style: 'artDeco',
+        courses: [
+          {
+            name: '잔을 들 때',
+            dishes: ['오렌지 진저 에이드', '시트러스 하이볼'],
+          },
+          { name: '함께 먹을 것', dishes: ['치즈와 올리브 꼬치'] },
+        ],
+      },
       { component: 'calendar', title: '예식 시작' },
       { component: 'place', title: '예식과 리셉션' },
+      {
+        component: 'dressCode',
+        title: '라운지의 색',
+        colors: ['#945B32', '#C59D73', '#323238'],
+        guidelines: [
+          '사진에 따뜻한 색을 담고 싶은 분은 브라운 포인트를 더해 주세요. 예식 때 입은 옷 그대로 오셔도 좋아요.',
+        ],
+      },
       {
         component: 'transportation',
         title: '지하철로 오시면',
@@ -584,6 +611,10 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         subwayExit: '11번 출구',
         subwayWalk:
           '출구에서 테헤란로1길로 들어오세요. 로비에서 그랜드홀로 안내해 드립니다.',
+      },
+      {
+        component: 'closingComment',
+        message: '해 질 무렵 라운지에서 한 번 더 인사드릴게요. 민성·아현',
       },
     ],
   },
