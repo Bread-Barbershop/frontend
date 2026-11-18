@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowDown, ArrowLeft, ArrowRight, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, X } from 'lucide-react';
 import Link from 'next/link';
 import {
   createContext,
@@ -198,10 +198,6 @@ function ShowcasePreviewModal({
               </div>
             </div>
             <div className="mt-8">
-              <div className="mb-5 flex items-center gap-2 text-[12px] text-black/45">
-                <ArrowDown size={14} />
-                아래로 내려 초대장 전체를 살펴보세요
-              </div>
               <Link
                 href={`/editor?template=${encodeURIComponent(design.id)}`}
                 className="flex min-h-11 w-full items-center justify-center gap-3 rounded-full bg-bg-plain px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#202020] focus-visible:outline-2 focus-visible:outline-offset-4"
