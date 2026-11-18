@@ -6,8 +6,7 @@ import { useDashboardInvitationPreview } from '@/app/dashboard/hooks/useDashboar
 import useDashboardInvitations from '@/app/dashboard/hooks/useDashboardInvitations';
 import { InviteListItem } from '@/app/dashboard/types';
 import { getInvitationShowcaseItem } from '@/app/dashboard/utils/getInvitationShowcaseItem';
-
-import DashboardInvitationPreviewModal from '../preview/DashboardInvitationPreviewModal';
+import InvitationPreviewModal from '@/features/invitation/preview/InvitationPreviewModal';
 
 import CarouselBase from './CarouselBase';
 import { dashboardCarouselLayout } from './carouselLayout';
@@ -129,7 +128,8 @@ function CarouselWrapper({
     isVisibilityUpdating,
     getVisibilityError,
   } = useDashboardInvitations(initialInvites, { loadOnMount });
-  const preview = useDashboardInvitationPreview();
+  const { preview, closePreview, openPreview } =
+    useDashboardInvitationPreview();
   const orderedInvites = useMemo(() => [...invites].reverse(), [invites]);
   const startIndex = Math.max(orderedInvites.length - 1, 0);
   const [resolvedImages, setResolvedImages] = useState<ResolvedImageMap>({});
@@ -258,7 +258,7 @@ function CarouselWrapper({
         showSideActions
         showCenterActions
         onDelete={handleDelete}
-        onPreview={preview.openPreview}
+        onPreview={openPreview}
         onUpdate={handleUpdate}
         onToggleVisibility={handleToggleVisibility}
         onCopyUrl={handleCopyGuestUrl}
@@ -269,16 +269,21 @@ function CarouselWrapper({
         isVisibilityUpdating={isVisibilityUpdating}
         getVisibilityError={getVisibilityError}
       />
-      <DashboardInvitationPreviewModal
-        errorMessage={preview.errorMessage}
-        folderId={preview.folderId}
-        isOpen={preview.isOpen}
-        onClose={preview.closePreview}
-        onRetry={preview.openPreview}
-        payload={preview.payload}
-        requestId={preview.requestId}
-        status={preview.status}
-      />
+      {preview && (
+        <InvitationPreviewModal
+          source="saved"
+          snapshot={preview.snapshot}
+          onClose={closePreview}
+          loadError={
+            preview.errorMessage
+              ? {
+                  message: preview.errorMessage,
+                  onRetry: () => void openPreview(preview.folderId),
+                }
+              : undefined
+          }
+        />
+      )}
     </>
   );
 }

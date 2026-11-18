@@ -111,6 +111,7 @@ function CarouselItem({
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.target !== event.currentTarget) return;
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       onSelect(index);
@@ -173,6 +174,7 @@ function CarouselItem({
               }}
               className="cursor-pointer"
               aria-label="초대장 미리보기"
+              aria-haspopup="dialog"
             >
               <PreviewButton />
             </button>
