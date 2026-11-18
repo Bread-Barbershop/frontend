@@ -1581,6 +1581,16 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     sectionStyle: 'outlined',
     sections: [
       { component: 'greeting' },
+      {
+        component: 'gallery',
+        title: '둘이 걸어온 능선',
+        template: 'galleryType5',
+        ratio: '4:3',
+        images: [
+          '/samples/wedding_14/images/03_2eb9460b-b5ed-470c-beff-a088f65983f9.jpg',
+          '/samples/wedding_14/images/06_b2cf8c86-2b11-4f18-b2de-bfc8fa5c08f4.jpg',
+        ],
+      },
       { component: 'place', title: '마운틴홀에서 만나요' },
       {
         component: 'calendar',
@@ -1588,10 +1598,39 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         template: 'calendarType1',
       },
       {
+        component: 'dressCode',
+        title: '산바람에 맞는 차림',
+        colors: ['#747E70', '#A7A392', '#E4E4DC'],
+        guidelines: [
+          '셔틀에서 내려 홀까지 짧은 바깥길이 있어요. 봄바람을 막아 줄 가벼운 겉옷을 챙겨 주세요.',
+        ],
+      },
+      {
         component: 'transportation',
         title: '홀까지 오시는 길',
         shuttleStop: '건물 정문 앞 승차장에서 마운틴홀 입구까지 운행합니다.',
         shuttleInterval: '예식 시작 한 시간 전부터 15분 간격',
+      },
+      {
+        component: 'mealMenu',
+        title: '산길 끝의 식탁',
+        subtitle: 'Mountain Table',
+        style: 'ivy',
+        courses: [
+          { name: '따뜻하게', dishes: ['구운 버섯 수프'] },
+          { name: '든든하게', dishes: ['허브 감자를 곁들인 로스트 치킨'] },
+        ],
+      },
+      {
+        component: 'faq',
+        title: '셔틀 이용 안내',
+        items: [
+          {
+            question: '유모차나 짐이 있으면 어떻게 하나요?',
+            answer:
+              '정문 승차장에서 안내 직원에게 말씀해 주세요. 짐을 먼저 싣고 여유 있게 탑승하실 수 있어요.',
+          },
+        ],
       },
       {
         component: 'closingComment',
