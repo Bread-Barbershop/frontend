@@ -15,7 +15,8 @@ const LEGACY_WORKSPACE_NAME = '나의 모바일 청첩장';
 const APP_IDENTIFIER = 'Bread-Barbershop';
 
 async function findWorkspaceFolderIdByName(
-  name: string
+  name: string,
+  ownedOnly: boolean
 ): Promise<string | null> {
   const q = [
     `name='${escapeDriveQueryValue(name)}'`,
@@ -24,6 +25,7 @@ async function findWorkspaceFolderIdByName(
     `appProperties has { key='app_id' and value='${escapeDriveQueryValue(
       APP_IDENTIFIER
     )}' }`,
+    ...(ownedOnly ? ["'me' in owners"] : []),
   ].join(' and ');
 
   const searchParams = new URLSearchParams({
@@ -57,9 +59,11 @@ async function findWorkspaceFolderIdByName(
  * - 없으면 null 반환
  * - 생성은 절대 하지 않음
  */
-export async function findWorkspaceFolderId(): Promise<string | null> {
+export async function findWorkspaceFolderId({
+  ownedOnly = false,
+}: { ownedOnly?: boolean } = {}): Promise<string | null> {
   return (
-    (await findWorkspaceFolderIdByName(WORKSPACE_NAME)) ??
-    (await findWorkspaceFolderIdByName(LEGACY_WORKSPACE_NAME))
+    (await findWorkspaceFolderIdByName(WORKSPACE_NAME, ownedOnly)) ??
+    (await findWorkspaceFolderIdByName(LEGACY_WORKSPACE_NAME, ownedOnly))
   );
 }
