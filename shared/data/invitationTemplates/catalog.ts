@@ -3,7 +3,6 @@ import {
   SHOWCASE_INVITATIONS,
 } from '../showcaseInvitations';
 import { getShowcaseOriginalTemplate } from '../showcaseOriginalTemplates';
-import { getShowcaseBlockTypes } from '../showcasePresentation';
 
 import type { InvitationTemplate } from './types';
 
@@ -27,6 +26,6 @@ export const INVITATION_TEMPLATES: InvitationTemplate[] =
       posterImage: original.thumbnailUrl,
       posterJsonUrl: original.jsonUrl,
       fontFamilies: original.fontFamilies,
-      blockTypes: getShowcaseBlockTypes(design),
+      blockTypes: design.sections.map(section => section.component),
     };
   });

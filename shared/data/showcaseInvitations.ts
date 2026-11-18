@@ -1,6 +1,7 @@
+import type { InvitationType } from '@/shared/types/block';
+
 import type { SectionStyle } from './sectionStyles';
 import type { ShowcaseSection } from './showcaseSections';
-import type { InvitationType } from '@/shared/types/block';
 
 export type ShowcaseInvitation = {
   id: string;
@@ -15,10 +16,8 @@ export type ShowcaseInvitation = {
   date: string;
   time: string;
   venue: string;
-  sections?: ShowcaseSection[];
-  sectionStyle?: SectionStyle;
-  moments: [string, string, string];
-  note: string;
+  sections: ShowcaseSection[];
+  sectionStyle: SectionStyle;
 };
 
 const wedding = {
@@ -94,8 +93,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
       },
       { component: 'place', title: '예식장 안내' },
     ],
-    moments: ['반가운 인사', '새로운 시작', '축하의 만찬'],
-    note: '예식 30분 전부터 여유롭게 입장하실 수 있습니다. 따뜻한 축하의 마음만 가져와 주세요.',
   },
   {
     ...wedding,
@@ -127,8 +124,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
           '사진 속 빈자리에는 그날의 여러분을 모시고 싶습니다. 민성 · 아현',
       },
     ],
-    moments: ['함께 모이는 시간', '우리의 약속', '사진과 식사'],
-    note: '단정하고 편안한 차림으로 와 주세요. 예식 후 함께 사진을 남기고 싶습니다.',
   },
   {
     ...wedding,
@@ -163,8 +158,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         ],
       },
     ],
-    moments: ['설레는 만남', '하나가 되는 순간', '마음을 나누는 식사'],
-    note: '봄바람이 불 수 있으니 가벼운 겉옷을 준비해 주세요. 예식은 실내에서 진행됩니다.',
   },
   {
     ...wedding,
@@ -214,8 +207,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         ],
       },
     ],
-    moments: ['가든 웰컴', '햇살 아래의 서약', '가든 디너'],
-    note: '잔디 위를 편안하게 걸을 수 있는 신발을 추천합니다. 우천 시 같은 장소의 실내홀로 안내해 드립니다.',
   },
   {
     ...wedding,
@@ -245,8 +236,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
           '와 주시면 손을 잡고 직접 인사드릴게요. 사랑을 담아, 민성·아현 올림',
       },
     ],
-    moments: ['환영의 인사', '사랑의 서약', '감사의 식사'],
-    note: '예식 전 신부대기실에서 인사 나눌 수 있습니다. 일찍 오신 분들을 위한 웰컴 티를 준비했습니다.',
   },
   {
     ...wedding,
@@ -275,8 +264,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
       },
       { component: 'place', title: '그랜드홀로 오시는 길' },
     ],
-    moments: ['웰컴 리셉션', '웨딩 세리머니', '디너 리셉션'],
-    note: '예식은 오후 3시에 시작합니다. 여유로운 입장을 위해 20분 전에 도착해 주세요.',
   },
   {
     ...wedding,
@@ -301,8 +288,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
       { component: 'calendar', title: '예식 일시' },
       { component: 'place', title: '예식 장소' },
     ],
-    moments: ['소중한 만남', '혼인 서약', '감사의 인사와 식사'],
-    note: '별도의 드레스 코드 없이 편안한 마음으로 오시면 됩니다. 예식 후 감사의 인사를 전하겠습니다.',
   },
   {
     ...wedding,
@@ -341,8 +326,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         preset: 'shooting',
       },
     ],
-    moments: ['여름의 인사', '우리의 웨딩 필름', '노을빛 리셉션'],
-    note: '예식 후 포토 타임이 마련되어 있습니다. 우리와 함께 여러분의 여름도 사진으로 남겨 주세요.',
   },
   {
     ...wedding,
@@ -378,8 +361,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
           '출구에서 테헤란로1길로 들어오세요. 로비에서 그랜드홀로 안내해 드립니다.',
       },
     ],
-    moments: ['웰컴 드링크', '시티 세리머니', '이브닝 다이닝'],
-    note: '대중교통을 이용하시면 더욱 편리합니다. 예식 후 저녁 식사를 함께 즐겨 주세요.',
   },
   {
     ...wedding,
@@ -415,8 +396,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         description: '시간 되시는 분들과 앞마당을 걸으며 인사 나눌게요.',
       },
     ],
-    moments: ['반가운 얼굴들', '둘이 함께하는 약속', '이야기가 있는 식사'],
-    note: '예식 전후로 자유롭게 사진을 남겨 주세요. 여러분이 담아 주는 순간도 소중히 간직하겠습니다.',
   },
   {
     ...wedding,
@@ -453,8 +432,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
           '음악을 들으며 첫 잔을 나눠요. 무알코올 음료도 준비합니다.',
       },
     ],
-    moments: ['기분 좋은 인사', '우리다운 세리머니', 'Cheers! 함께 건배'],
-    note: '격식보다 즐거움을 준비해 주세요. 마음에 드는 포인트 컬러 하나를 더해 오셔도 좋습니다.',
   },
   {
     ...wedding,
@@ -490,8 +467,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         ],
       },
     ],
-    moments: ['숲길의 환영', '변치 않을 약속', '따뜻한 저녁'],
-    note: '자연과 함께하는 공간입니다. 가벼운 겉옷을 준비하시면 저녁까지 편안하게 즐기실 수 있습니다.',
   },
   {
     ...seminar,
@@ -531,12 +506,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         ],
       },
     ],
-    moments: [
-      '비즈니스의 다음 장',
-      '현장에서 찾은 성장의 단서',
-      '질문과 네트워킹',
-    ],
-    note: '행사 시작 30분 전부터 입장 가능합니다. 편안한 비즈니스 캐주얼 차림으로 참여해 주세요.',
   },
   {
     ...seminar,
@@ -571,8 +540,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         image: '/samples/seminar_01/images/09_주최사.png',
       },
     ],
-    moments: ['변화를 읽는 시선', '아이디어를 기회로', '열린 대화와 연결'],
-    note: '세션 후 자유로운 네트워킹 시간이 이어집니다. 나누고 싶은 질문과 소개를 준비해 오세요.',
   },
   {
     ...seminar,
@@ -617,12 +584,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
       { component: 'calendar', title: '워크숍 일시' },
       { component: 'place', title: '워크숍 장소' },
     ],
-    moments: [
-      '새로운 아이디어의 시작',
-      '실행을 만드는 워크숍',
-      '인사이트 나누기',
-    ],
-    note: '짧은 참여형 워크숍이 포함되어 있습니다. 메모할 도구와 열린 마음을 준비해 주세요.',
   },
   {
     ...seminar,
@@ -664,8 +625,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         ],
       },
     ],
-    moments: ['변화의 출발점', '실행하는 리더의 선택', '라이브 Q&A'],
-    note: '현장 질의응답이 진행됩니다. 평소 궁금했던 질문을 한 가지씩 준비해 오시면 좋습니다.',
   },
   {
     ...seminar,
@@ -699,12 +658,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         message: '조금 일찍 오셔도 좋아요. 따뜻한 잔을 준비해 두겠습니다.',
       },
     ],
-    moments: [
-      '웰컴 커피와 인사',
-      '지속 가능한 성장의 조건',
-      '라운드테이블 토크',
-    ],
-    note: '웰컴 커피가 준비되어 있습니다. 조금 일찍 도착해 편안하게 대화를 시작해 보세요.',
   },
   {
     ...birthday,
@@ -736,8 +689,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
       { component: 'calendar', title: '건배하는 시간' },
       { component: 'place', title: '예약해 둔 테이블' },
     ],
-    moments: ['웰컴 드링크', '케이크 & 생일 소원', '함께하는 다이닝'],
-    note: '선물은 정중히 사양할게요. 함께하는 시간이 가장 큰 선물입니다. 논알코올 음료도 준비되어 있어요.',
   },
   {
     ...birthday,
@@ -769,8 +720,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         message: '이번 사진에도 네 자리가 있었으면 좋겠어. 민혁이가',
       },
     ],
-    moments: ['오랜만의 안부', '생일 케이크와 사진', '느긋한 저녁 식사'],
-    note: '편한 옷차림이면 충분해요. 좋아하는 사진을 한 장씩 가져와 함께 추억을 나눠도 좋아요.',
   },
   {
     ...birthday,
@@ -808,8 +757,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
       { component: 'calendar', title: '티 파티 시간' },
       { component: 'place', title: '우리의 케이크 테이블' },
     ],
-    moments: ['달콤한 웰컴 티', '생일 노래 & 케이크', '우리들의 포토 타임'],
-    note: '작은 핑크 포인트를 더해 오면 더 즐거울 거예요. 디저트와 차를 넉넉하게 준비할게요.',
   },
   {
     ...birthday,
@@ -841,8 +788,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         ],
       },
     ],
-    moments: ['파티 체크인', '소원을 말해 봐', '플레이리스트 & 토크'],
-    note: '함께 듣고 싶은 노래 한 곡을 골라 와 주세요. 우리의 플레이리스트를 함께 완성해요.',
   },
   {
     ...firstBirthday,
@@ -888,8 +833,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         detail: '유아 의자와 잠시 쉬어 갈 가족 휴식 공간이 있습니다.',
       },
     ],
-    moments: ['반가운 가족 인사', '두근두근 돌잡이', '첫 생일 축하와 식사'],
-    note: '아이가 낯설어할 수 있어 잠시 적응할 시간을 주세요. 유아 의자와 가족 휴식 공간을 준비했습니다.',
   },
   {
     ...firstBirthday,
@@ -926,8 +869,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         preset: 'shooting',
       },
     ],
-    moments: ['민준이와 인사해요', '첫 번째 돌잡이', '생일 노래와 가족 식사'],
-    note: '민준이와의 사진은 언제든 환영해요. 눈이 부시지 않도록 플래시는 잠시 꺼 주세요.',
   },
   {
     ...wedding,
@@ -963,8 +904,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         message: '먼 길 와 주시는 마음을 오래 기억하겠습니다. 민성 · 아현',
       },
     ],
-    moments: ['산뜻한 환영 인사', '함께 걷는 약속', '따뜻한 축하의 식사'],
-    note: '맑은 공기와 산 능선이 이어지는 길처럼, 서로의 곁에서 같은 방향으로 걸어가겠습니다.',
   },
   {
     ...wedding,
@@ -1004,8 +943,6 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
           '11번 출구에서 테헤란로1길을 따라오세요. 브릭 라운지 입구에서 식장으로 안내해 드립니다.',
       },
     ],
-    moments: ['반가운 인사와 산책', '우리다운 서약', '함께 나누는 식사'],
-    note: '익숙한 골목도 함께 걸으면 새로운 풍경이 됩니다. 평범한 하루를 나누며 오래 사랑하겠습니다.',
   },
 ];
 

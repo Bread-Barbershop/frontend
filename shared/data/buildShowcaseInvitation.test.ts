@@ -51,20 +51,37 @@ describe('첫 화면 초대장 샘플', () => {
     }
   );
 
-  it('사진은 인증이나 외부 네트워크 없이 제공할 수 있는 로컬 파일이다', () => {
-    for (const design of SHOWCASE_INVITATIONS) {
-      const picture = buildShowcaseInvitation(design).blocks.find(
-        block => block.component === 'picture'
-      );
-      if (!picture) continue;
-      const images = (picture.props as { image: string[] }).image;
-      expect(images.length).toBeGreaterThan(0);
-      for (const image of images) {
-        expect(image).toMatch(/^\/(images|samples|templates)\//);
-        expect(existsSync(path.join(process.cwd(), 'public', image))).toBe(
-          true
-        );
-      }
-    }
+  it('표지마다 별도의 짧은 블록 순서를 제공한다', () => {
+    const layouts = SHOWCASE_INVITATIONS.map(design => {
+      const { blocks } = buildShowcaseInvitation(design);
+      expect(blocks.length).toBeLessThanOrEqual(6);
+      return blocks.map(block => block.component).join(',');
+    });
+    expect(new Set(layouts).size).toBe(layouts.length);
   });
+
+  it.each(SHOWCASE_INVITATIONS)(
+    '$name의 본문 사진은 로컬 파일로 열 수 있다',
+    design => {
+      const { blocks } = buildShowcaseInvitation(design);
+      // 사진 블록뿐 아니라 인터뷰·연사·후원사 등 중첩된 이미지 필드도 확인한다.
+      function checkImages(value: unknown): void {
+        if (!value || typeof value !== 'object') return;
+        for (const [key, child] of Object.entries(value)) {
+          if (key === 'image' || key === 'images') {
+            expect(Array.isArray(child)).toBe(true);
+            for (const image of child as string[]) {
+              expect(image).toMatch(/^\/(images|samples|templates)\//);
+              expect(
+                existsSync(path.join(process.cwd(), 'public', image))
+              ).toBe(true);
+            }
+          } else {
+            checkImages(child);
+          }
+        }
+      }
+      checkImages(blocks);
+    }
+  );
 });

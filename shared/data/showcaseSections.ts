@@ -1,10 +1,10 @@
+import type { FaqItem } from '@/components/organisms/faq/Faq.schema';
 import type {
   GalleryVariant,
   RatioType,
 } from '@/components/organisms/gallery/types/galleryType';
 import type { MealMenuStyle } from '@/components/organisms/mealMenu/mealMenuContent';
 import type { NoticePresetId } from '@/components/organisms/notice/noticeList';
-import type { FaqItem } from '@/components/organisms/faq/Faq.schema';
 
 export type ShowcaseSection =
   | { component: 'greeting' }
