@@ -333,8 +333,40 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         image: '/images/showcase/love-letter.webp',
         caption: '말로는 쑥스러웠던 감사 인사도 함께 담았습니다.',
       },
+      {
+        component: 'interview',
+        title: '처음 건넨 편지',
+        question: '첫 편지에는 무슨 말을 썼나요?',
+        answer:
+          '아현이 감기에 걸렸을 때 민성이 죽 통에 쪽지를 붙였어요. 다 먹으면 냉장고에 귤도 있다는 말. 아직 서랍 안에 있어요.',
+        image: '/images/showcase/vow-rings.webp',
+      },
       { component: 'calendar', title: '편지에 적어 둔 날' },
+      {
+        component: 'notice',
+        title: '답장을 남기는 자리',
+        heading: '로비의 작은 우편함',
+        message:
+          '준비한 엽서에 이름과 축하 한 줄을 적어 넣어 주세요. 신혼집에 돌아가 천천히 읽겠습니다.',
+        preset: 'time',
+      },
       { component: 'place', title: '기다리고 있을 곳' },
+      {
+        component: 'mealMenu',
+        title: '편지 곁의 찻상',
+        subtitle: 'Tea & Sweets',
+        style: 'classic',
+        courses: [
+          { name: '차', dishes: ['따뜻한 캐모마일'] },
+          { name: '다과', dishes: ['레몬 마들렌과 버터 쿠키'] },
+        ],
+      },
+      {
+        component: 'wreath',
+        title: '축하 화환 안내',
+        declineMessage:
+          '화환 대신 손글씨 한 줄을 부탁드려요. 두고두고 꺼내 읽을게요.',
+      },
       {
         component: 'closingComment',
         message:
