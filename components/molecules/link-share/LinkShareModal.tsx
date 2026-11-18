@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 import {
   disableBodyScroll,
   getHiddenRoot,
@@ -24,6 +25,7 @@ type QrResult = {
 
 export function LinkShareModal({ url, notice, onClose }: LinkShareModalProps) {
   const titleId = useId();
+  const backdropDismiss = useBackdropDismiss<HTMLDivElement>(onClose);
   const modalRef = useRef<HTMLDivElement>(null);
   const shareUrl = new URL(url, window.location.origin).href;
   const [qrResult, setQrResult] = useState<QrResult | null>(null);
@@ -102,9 +104,7 @@ export function LinkShareModal({ url, notice, onClose }: LinkShareModalProps) {
   return createPortal(
     <div
       className="fixed inset-0 z-[110] flex items-center justify-center bg-black/10 p-4"
-      onMouseDown={event => {
-        if (event.target === event.currentTarget) onClose();
-      }}
+      {...backdropDismiss}
     >
       <div
         ref={modalRef}

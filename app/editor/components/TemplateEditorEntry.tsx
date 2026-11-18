@@ -197,6 +197,7 @@ export default function TemplateEditorEntry({
       <PrivacyNoticeModal
         open={auth.isPrivacyNoticeOpen}
         onClose={auth.closePrivacyNotice}
+        onConfirm={auth.confirmPrivacyNotice}
       />
       <DrivePermissionRequiredModal
         open={auth.isDrivePermissionRequiredOpen}

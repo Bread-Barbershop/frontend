@@ -8,6 +8,7 @@ import {
   DASHBOARD_PENDING_INVITATION_KEY,
   type DashboardPendingInvitation,
 } from '@/shared/constants/dashboardPendingInvitation';
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 
 import { SaveLottie } from './SaveLottie';
 
@@ -158,36 +159,41 @@ const ModalFrame = forwardRef<
     loadingAnimation?: SaveLoadingMessageAnimation;
     onClose: () => void;
   }
->(({ children, isLoading, loadingMessage, loadingAnimation, onClose }, ref) => (
-  <>
-    <div
-      className="fixed inset-0 z-[100] bg-[rgb(0_0_0_/_8%)]"
-      onMouseDown={() => {
-        if (!isLoading) onClose();
-      }}
-    />
-    <div
-      ref={ref}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="save-modal-title"
-      tabIndex={-1}
-      className={`fixed top-1/2 left-1/2 z-[101] flex min-h-[249px] max-h-[calc(100dvh-32px)] w-[335px] max-w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-6 overflow-y-auto rounded-xl bg-white p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%)] ${isLoading ? 'justify-center' : ''}`}
-    >
-      {isLoading ? (
-        <div className="-mt-2 flex flex-col items-center gap-3 text-center">
-          <SaveLottie variant="loading" loop />
-          <SaveLoadingMessage
-            message={loadingMessage}
-            animation={loadingAnimation}
-          />
-        </div>
-      ) : (
-        children
-      )}
-    </div>
-  </>
-));
+>(({ children, isLoading, loadingMessage, loadingAnimation, onClose }, ref) => {
+  const backdropDismiss = useBackdropDismiss<HTMLDivElement>(
+    isLoading ? undefined : onClose
+  );
+
+  return (
+    <>
+      <div
+        className="fixed inset-0 z-[100] bg-[rgb(0_0_0_/_8%)]"
+        {...backdropDismiss}
+      />
+      <div
+        ref={ref}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="save-modal-title"
+        tabIndex={-1}
+        className={`fixed top-1/2 left-1/2 z-[101] flex min-h-[249px] max-h-[calc(100dvh-32px)] w-[335px] max-w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-6 overflow-y-auto rounded-xl bg-white p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%)] ${isLoading ? 'justify-center' : ''}`}
+      >
+        {isLoading ? (
+          <div className="-mt-2 flex flex-col items-center gap-3 text-center">
+            <SaveLottie variant="loading" loop />
+            <SaveLoadingMessage
+              message={loadingMessage}
+              animation={loadingAnimation}
+            />
+          </div>
+        ) : (
+          children
+        )}
+      </div>
+    </>
+  );
+});
+
 ModalFrame.displayName = 'ModalFrame';
 
 const SaveStepView = ({

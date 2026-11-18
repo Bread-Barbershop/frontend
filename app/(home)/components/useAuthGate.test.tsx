@@ -61,7 +61,7 @@ describe('useAuthGate', () => {
     expect(result.current.isLoginOpen).toBe(false);
 
     act(() => {
-      result.current.closePrivacyNotice();
+      result.current.confirmPrivacyNotice();
     });
 
     expect(result.current.isPrivacyNoticeOpen).toBe(false);
@@ -81,11 +81,43 @@ describe('useAuthGate', () => {
     expect(result.current.isLoginOpen).toBe(false);
 
     act(() => {
-      result.current.closePrivacyNotice();
+      result.current.confirmPrivacyNotice();
     });
 
     expect(result.current.isPrivacyNoticeOpen).toBe(false);
     expect(result.current.isLoginOpen).toBe(true);
+  });
+
+  it('개인정보 안내를 닫은 요청은 다음 로그인 성공 시 실행하지 않는다', () => {
+    const action = jest.fn();
+    const { result } = renderHook(() => useAuthGate());
+
+    act(() => {
+      result.current.runAfterAuth(action);
+    });
+    act(() => {
+      result.current.closePrivacyNotice();
+    });
+
+    expect(result.current.isPrivacyNoticeOpen).toBe(false);
+    expect(result.current.isLoginOpen).toBe(false);
+
+    act(() => {
+      result.current.login();
+      result.current.confirmPrivacyNotice();
+      result.current.loginWithGoogle();
+    });
+    act(() => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          origin: window.location.origin,
+          data: { type: 'GOOGLE_OAUTH_SUCCESS' },
+        })
+      );
+    });
+
+    expect(result.current.isLoggedIn).toBe(true);
+    expect(action).not.toHaveBeenCalled();
   });
 
   it('opens an OAuth popup when loginWithGoogle is called', async () => {
@@ -153,7 +185,7 @@ describe('useAuthGate', () => {
     });
 
     act(() => {
-      result.current.closePrivacyNotice();
+      result.current.confirmPrivacyNotice();
     });
 
     act(() => {
@@ -214,7 +246,7 @@ describe('useAuthGate', () => {
     });
 
     act(() => {
-      result.current.closePrivacyNotice();
+      result.current.confirmPrivacyNotice();
     });
 
     act(() => {
@@ -251,7 +283,7 @@ describe('useAuthGate', () => {
     });
 
     act(() => {
-      result.current.closePrivacyNotice();
+      result.current.confirmPrivacyNotice();
     });
 
     act(() => {

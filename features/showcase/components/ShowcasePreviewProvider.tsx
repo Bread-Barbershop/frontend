@@ -17,6 +17,7 @@ import {
   SHOWCASE_INVITATIONS,
   type ShowcaseInvitation,
 } from '@/shared/data/showcaseInvitations';
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 
 import type { ReactNode, RefObject } from 'react';
 
@@ -73,6 +74,12 @@ function ShowcasePreviewModal({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const pcNoticeRef = useRef<HTMLDialogElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const backdropDismiss = useBackdropDismiss<HTMLDialogElement>(onClose);
+  const closePcNotice = () => pcNoticeRef.current?.close();
+  const pcNoticeBackdropDismiss = useBackdropDismiss<HTMLDialogElement>(
+    closePcNotice,
+    'outside-dialog'
+  );
   const design = invitations[index];
 
   useEffect(() => {
@@ -120,9 +127,7 @@ function ShowcasePreviewModal({
         event.preventDefault();
         onClose();
       }}
-      onClick={event => {
-        if (event.target === event.currentTarget) onClose();
-      }}
+      {...backdropDismiss}
       className="fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none bg-transparent p-0 text-[#252522] backdrop:bg-black/55 backdrop:backdrop-blur-sm open:flex open:items-center open:justify-center min-[800px]:p-9"
     >
       <section className="relative flex h-full w-full flex-col overflow-hidden bg-[#F5F4F0] min-[800px]:max-h-[920px] min-[800px]:max-w-[1050px] min-[800px]:rounded-[24px] min-[800px]:shadow-2xl">
@@ -268,6 +273,7 @@ function ShowcasePreviewModal({
       </section>
       <dialog
         ref={pcNoticeRef}
+        {...pcNoticeBackdropDismiss}
         aria-labelledby="showcase-pc-notice-title"
         aria-describedby="showcase-pc-notice-description"
         className="fixed inset-x-0 top-auto bottom-0 m-0 max-h-dvh w-full max-w-none overflow-auto overscroll-contain rounded-t-[22px] border border-black/8 bg-[#F9F8F3] px-6 pt-6 pb-[max(24px,env(safe-area-inset-bottom))] text-text-plain backdrop:bg-black/40"
@@ -285,7 +291,7 @@ function ShowcasePreviewModal({
           이 템플릿은 PC에서 로그인한 뒤 사용할 수 있어요.
         </p>
         <div className="flex justify-center">
-          <NoticeConfirmButton onClick={() => pcNoticeRef.current?.close()} />
+          <NoticeConfirmButton onClick={closePcNotice} />
         </div>
       </dialog>
     </dialog>

@@ -15,6 +15,7 @@ import {
   getInvitationTemplates,
   type InvitationTemplateType,
 } from '@/shared/data/invitationTemplates';
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useConfirmStore } from '@/shared/store/useConfirmStore';
 import type { InvitationType } from '@/shared/types/block';
@@ -209,6 +210,8 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
     handleClose();
   };
 
+  const backdropDismiss = useBackdropDismiss<HTMLDivElement>(handleClose);
+
   if (!mounted) return null;
 
   return createPortal(
@@ -223,7 +226,7 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
         >
           <div
             className="absolute inset-0 pointer-events-auto"
-            onClick={handleClose}
+            {...backdropDismiss}
           />
           <div
             role="dialog"

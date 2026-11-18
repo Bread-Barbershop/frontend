@@ -6,13 +6,13 @@ import {
   useId,
   useState,
   type ChangeEvent,
-  type MouseEvent,
 } from 'react';
 
 import { UtilityButton } from '@/components/atoms/button';
 import { Radio } from '@/components/atoms/radio';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 import { cn } from '@/shared/utils/cn';
 
 import type { JSONContent } from '@tiptap/react';
@@ -137,20 +137,18 @@ export function PopupOptionsJSON({
     }
   };
 
-  const handleBackdropClick = () => handleClose();
-  const handleDialogClick = (event: MouseEvent<HTMLElement>) =>
-    event.stopPropagation();
+  const backdropDismiss = useBackdropDismiss<HTMLDivElement>(handleClose);
 
   return (
     <div
       className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
-      onClick={handleBackdropClick}
+      {...backdropDismiss}
     >
       <section
         role="dialog"
         aria-modal="true"
         className="w-full max-w-lg rounded-xl bg-white shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
-        onClick={handleDialogClick}
+        onClick={event => event.stopPropagation()}
       >
         <NavigationBar
           action={

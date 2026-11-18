@@ -24,7 +24,6 @@ import { resolveFontFamily } from '@/shared/fonts/fontRegistry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { BulkData } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
-import { isDarkInvitationBackground } from '@/shared/utils/invitationBackgroundColor';
 
 import { Selector } from '../selector';
 import {
@@ -65,7 +64,6 @@ export function TextEditorPreview({
 }: TextEditorPreviewProps) {
   const colorPickerOpen = activeColorPickerId === colorPickerId;
   const backgroundColor = useEditorStore(state => state.backgroundColor);
-  const darkBackground = isDarkInvitationBackground(backgroundColor);
   const [customFontSizeInput, setCustomFontSizeInput] = useState<string | null>(
     null
   );
@@ -273,12 +271,12 @@ export function TextEditorPreview({
         </div>
       </div>
 
-      <div
+      <figure
         className="bg-bg-base border border-border-neutral rounded-lg py-4"
-        style={darkBackground ? { backgroundColor } : undefined}
+        style={{ backgroundColor }}
       >
         {children}
-      </div>
+      </figure>
     </div>
   );
 }

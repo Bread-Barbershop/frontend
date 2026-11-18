@@ -23,6 +23,7 @@ function Cta({ initialIsLoggedIn }: CtaProps) {
     isDrivePermissionRequiredOpen,
     closeLogin,
     closePrivacyNotice,
+    confirmPrivacyNotice,
     closeDrivePermissionRequired,
     loginWithGoogle,
     retryDrivePermission,
@@ -89,6 +90,7 @@ function Cta({ initialIsLoggedIn }: CtaProps) {
       <PrivacyNoticeModal
         open={isPrivacyNoticeOpen}
         onClose={closePrivacyNotice}
+        onConfirm={confirmPrivacyNotice}
       />
       <DrivePermissionRequiredModal
         open={isDrivePermissionRequiredOpen}

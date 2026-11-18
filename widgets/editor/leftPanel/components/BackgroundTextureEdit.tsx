@@ -1,9 +1,11 @@
 'use client';
 
+import { animate, motion, useMotionValue, useTransform } from 'framer-motion';
 import { Check } from 'lucide-react';
-import { useId } from 'react';
+import { useEffect, useId } from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import { usePrefersReducedMotion } from '@/components/organisms/gallery/hooks/usePrefersReducedMotion';
 import {
   BACKGROUND_TEXTURE_OPTIONS,
   backgroundTextureImage,
@@ -22,7 +24,6 @@ export default function BackgroundTextureEdit() {
       }))
     );
   const headingId = useId();
-  const rangeId = useId();
   const color = parseInvitationBackgroundColor(backgroundColor);
   const swatchColor = color
     ? `rgb(${color.r}, ${color.g}, ${color.b})`
@@ -65,8 +66,8 @@ export default function BackgroundTextureEdit() {
               <span
                 aria-hidden="true"
                 className={cn(
-                  'relative block h-8 rounded-md border border-black/10',
-                  selected && 'outline-2 outline-offset-1 outline-primary'
+                  'relative block h-8 rounded-md border border-black/10 motion-safe:transition-[background-color,box-shadow] motion-safe:duration-300',
+                  selected && 'ring-2 ring-offset-1 ring-primary'
                 )}
                 style={{ backgroundColor: swatchColor }}
               >
@@ -80,11 +81,14 @@ export default function BackgroundTextureEdit() {
                     }}
                   />
                 )}
-                {selected && (
-                  <span className="absolute right-0.5 bottom-0.5 grid size-4 place-items-center rounded-full bg-primary text-white">
-                    <Check size={11} strokeWidth={3} />
-                  </span>
-                )}
+                <span
+                  className={cn(
+                    'absolute right-0.5 bottom-0.5 grid size-4 place-items-center rounded-full bg-primary text-white motion-safe:transition-opacity motion-safe:duration-200',
+                    selected ? 'opacity-100' : 'opacity-0'
+                  )}
+                >
+                  <Check size={11} strokeWidth={3} />
+                </span>
               </span>
               <span>{label}</span>
             </button>
@@ -92,28 +96,74 @@ export default function BackgroundTextureEdit() {
         })}
       </div>
       {backgroundTexture.material !== 'none' && (
-        <div className="grid grid-cols-[auto_1fr_3ch] items-center gap-2 text-xs text-text-secondary">
-          <label htmlFor={rangeId}>질감 강도</label>
-          <input
-            id={rangeId}
-            type="range"
-            min={0}
-            max={100}
-            value={backgroundTexture.strength}
-            aria-valuetext={`${backgroundTexture.strength}%`}
-            className="w-full min-w-0 cursor-pointer accent-primary"
-            onChange={event =>
-              setBackgroundTexture({
-                ...backgroundTexture,
-                strength: Number(event.target.value),
-              })
-            }
-          />
-          <output htmlFor={rangeId} className="text-right tabular-nums">
-            {backgroundTexture.strength}%
-          </output>
-        </div>
+        <TextureStrengthSlider
+          strength={backgroundTexture.strength}
+          onChange={strength =>
+            setBackgroundTexture({ ...backgroundTexture, strength })
+          }
+        />
       )}
     </section>
+  );
+}
+
+function TextureStrengthSlider({
+  strength,
+  onChange,
+}: {
+  strength: number;
+  onChange: (strength: number) => void;
+}) {
+  const rangeId = useId();
+  const reducedMotion = usePrefersReducedMotion();
+  const displayed = useMotionValue(strength);
+  const percent = useTransform(displayed, value => `${Math.round(value)}%`);
+
+  useEffect(() => {
+    if (reducedMotion) {
+      displayed.jump(strength);
+      return;
+    }
+    const animation = animate(displayed, strength, {
+      duration: 0.3,
+      ease: 'easeOut',
+    });
+    return () => animation.stop();
+  }, [displayed, reducedMotion, strength]);
+
+  return (
+    <div className="grid grid-cols-[auto_1fr_4ch] items-center gap-2 text-xs text-text-secondary">
+      <label htmlFor={rangeId}>질감 강도</label>
+      <div className="relative grid h-5 min-w-0 items-center">
+        <input
+          id={rangeId}
+          type="range"
+          min={0}
+          max={100}
+          value={strength}
+          aria-valuetext={`${strength}%`}
+          className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer opacity-0 accent-primary forced-colors:opacity-100"
+          onChange={event => onChange(Number(event.target.value))}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none mx-2 h-1.5 rounded-full bg-black/15 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-4 peer-focus-visible:outline-primary forced-colors:hidden"
+        >
+          <motion.div
+            className="relative h-full rounded-full bg-primary"
+            style={{ width: percent }}
+          >
+            <span className="absolute top-1/2 right-0 size-4 translate-x-1/2 -translate-y-1/2 rounded-full bg-primary" />
+          </motion.div>
+        </div>
+      </div>
+      <motion.output
+        htmlFor={rangeId}
+        aria-live="off"
+        className="text-right tabular-nums"
+      >
+        {percent}
+      </motion.output>
+    </div>
   );
 }

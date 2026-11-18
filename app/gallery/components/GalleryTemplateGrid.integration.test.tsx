@@ -71,6 +71,31 @@ describe('초대장 갤러리', () => {
     );
   });
 
+  it('미리보기 안에서 바깥으로 드래그하면 유지하고 바깥을 클릭하면 닫는다', async () => {
+    const user = userEvent.setup();
+    renderGallery('seminar');
+
+    await user.click(screen.getByRole('button', { name: '커피 감각 연구소' }));
+    const previewButton = screen.getByRole('button', {
+      name: '디자인 미리보기',
+    });
+    await user.click(previewButton);
+    const dialog = screen.getByRole('dialog', { name: '커피 감각 연구소' });
+    const title = within(dialog).getByRole('heading', {
+      name: '커피 감각 연구소',
+    });
+
+    await user.pointer([
+      { target: title, keys: '[MouseLeft>]' },
+      { target: dialog, keys: '[/MouseLeft]' },
+    ]);
+    expect(dialog).toBeVisible();
+
+    await user.click(dialog);
+    expect(dialog).not.toBeInTheDocument();
+    expect(previewButton).toHaveFocus();
+  });
+
   it('제작 동작을 선택한 템플릿의 새 작성 경로에 연결한다', async () => {
     const user = userEvent.setup();
     renderGallery('seminar');

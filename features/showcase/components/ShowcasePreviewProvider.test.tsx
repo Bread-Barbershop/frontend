@@ -86,32 +86,47 @@ describe('초대장 카드 미리보기', () => {
     document.body.style.overflow = '';
   });
 
-  it('PC 제작 안내를 확인하면 보고 있던 초대장으로 돌아간다', async () => {
-    const user = userEvent.setup();
-    render(
-      <ShowcasePreviewProvider>
-        <SampleCard />
-      </ShowcasePreviewProvider>
-    );
-    await user.click(
-      screen.getByRole('button', { name: '민준이의 첫 초대 미리보기' })
-    );
-    const preview = screen.getByTitle('민준이의 첫 초대 초대장 내용');
+  it.each(['알겠어요', '바깥 오버레이'])(
+    'PC 제작 안내를 %s로 닫으면 보고 있던 초대장으로 돌아간다',
+    async dismissWith => {
+      const user = userEvent.setup();
+      render(
+        <ShowcasePreviewProvider>
+          <SampleCard />
+        </ShowcasePreviewProvider>
+      );
+      await user.click(
+        screen.getByRole('button', { name: '민준이의 첫 초대 미리보기' })
+      );
+      const preview = screen.getByTitle('민준이의 첫 초대 초대장 내용');
 
-    await user.click(screen.getByRole('button', { name: '이거 쓸래요' }));
-    expect(
-      screen.getByRole('dialog', { name: '민준이의 첫 초대 시작하기' })
-    ).toBeVisible();
-    await user.click(screen.getByRole('button', { name: '알겠어요' }));
+      await user.click(screen.getByRole('button', { name: '이거 쓸래요' }));
+      const notice = screen.getByRole('dialog', {
+        name: '민준이의 첫 초대 시작하기',
+      });
+      expect(notice).toBeVisible();
+      if (dismissWith === '바깥 오버레이') {
+        jest
+          .spyOn(notice, 'getBoundingClientRect')
+          .mockReturnValue(new DOMRect(0, 300, 350, 180));
+        await user.pointer({
+          target: notice,
+          keys: '[MouseLeft]',
+          coords: { clientX: 150, clientY: 200 },
+        });
+      } else {
+        await user.click(screen.getByRole('button', { name: '알겠어요' }));
+      }
 
-    expect(
-      screen.queryByRole('dialog', { name: '민준이의 첫 초대 시작하기' })
-    ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('dialog', { name: '민준이의 첫 초대' })
-    ).toBeVisible();
-    expect(screen.getByTitle('민준이의 첫 초대 초대장 내용')).toBe(preview);
-  });
+      expect(
+        screen.queryByRole('dialog', { name: '민준이의 첫 초대 시작하기' })
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('dialog', { name: '민준이의 첫 초대' })
+      ).toBeVisible();
+      expect(screen.getByTitle('민준이의 첫 초대 초대장 내용')).toBe(preview);
+    }
+  );
 
   it('초대장 iframe에서 온 Escape 메시지만 받아 미리보기를 닫는다', async () => {
     const user = userEvent.setup();

@@ -2,7 +2,11 @@ import { ReactNode } from 'react';
 
 import { cn } from '@/shared/utils/cn';
 
-import { actionVariants } from './NavigationBar.style';
+import {
+  actionVariants,
+  navigationBarClassName,
+  navigationBarHeadingClassName,
+} from './NavigationBar.style';
 
 interface NavigationBarProps {
   children: ReactNode;
@@ -17,15 +21,8 @@ export const NavigationBar = ({
   className,
 }: NavigationBarProps) => {
   return (
-    <div
-      className={cn(
-        'relative flex-center w-full h-11 bg-transparent',
-        className
-      )}
-    >
-      <h3 className="select-none font-semibold text-[14px] py-[13.5px] text-center">
-        {children}
-      </h3>
+    <div className={cn(navigationBarClassName, className)}>
+      <h3 className={navigationBarHeadingClassName}>{children}</h3>
       {action && (
         <div className={cn(actionVariants({ direction }))}>{action}</div>
       )}
