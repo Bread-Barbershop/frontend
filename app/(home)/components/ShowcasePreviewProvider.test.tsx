@@ -79,7 +79,9 @@ describe('첫 화면 카드 미리보기', () => {
     });
     await user.click(card);
     expect(document.body.style.overflow).toBe('hidden');
-    await user.click(screen.getByRole('button', { name: '미리보기 닫기' }));
+    const closeButton = screen.getByRole('button', { name: '미리보기 닫기' });
+    expect(closeButton).toHaveTextContent('닫기');
+    await user.click(closeButton);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(card).toHaveFocus();
     expect(document.body.style.overflow).toBe('auto');
