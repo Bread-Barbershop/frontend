@@ -42,12 +42,12 @@ import {
   upsertInvitationMeta,
   type InvitationMetaPayload,
 } from './ensureInvitationMetaFile';
-import { DriveHttpError } from './ensureWorkspace';
 import {
   THUMBNAIL_KIND,
   THUMBNAIL_NAME_PNG,
   THUMBNAIL_NAME_WEBP,
 } from './ensureThumbnailFile';
+import { DriveHttpError } from './ensureWorkspace';
 import { generateUuid } from './generateUuid';
 import { guestPath } from './guestReadiness';
 import {
