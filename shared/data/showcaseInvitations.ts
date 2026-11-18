@@ -1319,6 +1319,12 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
       },
       { component: 'greeting' },
       {
+        component: 'picture',
+        title: '티 테이블을 차렸어요',
+        image: '/images/showcase/birthday-table.webp',
+        caption: '찻잔을 놓고 고깔모자도 하나씩 꺼내 뒀어요.',
+      },
+      {
         component: 'dressCode',
         title: '작은 핑크 포인트',
         colors: ['#EEA9BD', '#C95775', '#FFF0E4'],
@@ -1327,7 +1333,27 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         ],
       },
       { component: 'calendar', title: '티 파티 시간' },
+      {
+        component: 'timeline',
+        title: '케이크를 나누는 오후',
+        items: [
+          { time: '15:00', title: '취향대로 차 고르기' },
+          { time: '15:20', title: '초를 불고 첫 조각 나누기' },
+          { time: '15:45', title: '핑크 포인트 단체 사진' },
+        ],
+      },
       { component: 'place', title: '우리의 케이크 테이블' },
+      {
+        component: 'faq',
+        title: '디저트 한 조각 더',
+        items: [
+          {
+            question: '먹기 어려운 재료가 있으면요?',
+            answer:
+              '케이크에는 우유, 달걀, 밀이 들어가요. 따로 드실 디저트가 필요하면 오기 전에 민혁에게 알려 주세요.',
+          },
+        ],
+      },
     ],
   },
   {
