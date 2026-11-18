@@ -11,6 +11,10 @@ import { escapeDriveQueryValue } from '@/app/api/drive/_lib/escapeQueryValue';
 import { findWorkspaceFolderId } from '@/app/api/drive/_lib/findWorkspaceFolderId';
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
 import { InviteListItem, LoadInvitationResponse } from '@/app/dashboard/types';
+import {
+  previewDriveFileUrl,
+  publicDriveFileUrl,
+} from '@/shared/utils/media/driveImageUtils';
 
 const APP_IDENTIFIER = 'Bread-Barbershop';
 const INVITATION_KIND = 'invitation';
@@ -33,7 +37,7 @@ type DriveSearchResponse = {
   error?: unknown;
 };
 
-async function loadThumbnailUrl(
+async function loadThumbnailFileId(
   invitationFolderId: string
 ): Promise<string | null> {
   try {
@@ -67,12 +71,7 @@ async function loadThumbnailUrl(
       return null;
     }
 
-    const thumbnailFileId = searchData.files?.[0]?.id;
-    if (!thumbnailFileId) {
-      return null;
-    }
-
-    return `https://lh3.googleusercontent.com/d/${encodeURIComponent(thumbnailFileId)}`;
+    return searchData.files?.[0]?.id || null;
   } catch {
     return null;
   }
@@ -143,14 +142,19 @@ export async function loadDashboardInvitations(): Promise<LoadInvitationResponse
 
   const invites = await Promise.all(
     invitationFolders.map(async invite => {
-      const [meta, thumbnailUrl] = await Promise.all([
+      const [meta, thumbnailFileId] = await Promise.all([
         loadDashboardMeta(invite.folderId),
-        loadThumbnailUrl(invite.folderId),
+        loadThumbnailFileId(invite.folderId),
       ]);
       const metaPayload = meta?.payload;
       const guestUrl = metaPayload?.guestUrl ?? null;
       const dataJsonFileId = metaPayload?.dataJsonFileId ?? undefined;
       const published = metaPayload?.published ?? false;
+      const thumbnailUrl = thumbnailFileId
+        ? published
+          ? publicDriveFileUrl(thumbnailFileId)
+          : previewDriveFileUrl(thumbnailFileId, { folderId: invite.folderId })
+        : null;
       return {
         ...invite,
         dataJsonFileId,

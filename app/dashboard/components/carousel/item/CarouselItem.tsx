@@ -1,6 +1,8 @@
+import { Copy } from 'lucide-react';
 import Image from 'next/image';
 import { KeyboardEvent, MouseEvent, useEffect, useState } from 'react';
 
+import type { InviteListItem } from '@/app/dashboard/types';
 import EditIcon from '@/shared/assets/icons/edit.svg';
 import KakaoIcon from '@/shared/assets/icons/kakao2.svg';
 import LinkIcon from '@/shared/assets/icons/link.svg';
@@ -30,6 +32,7 @@ type CarouselItemProps = {
   preloadImage?: boolean;
   showPreviewLabel?: boolean;
   onSelect: (index: number) => void;
+  onClone?: (invite: InviteListItem) => void;
   onDelete?: (folderId: string) => void | Promise<void>;
   onPreview?: (folderId: string) => void;
   onUpdate?: (folderId: string, uuid?: string) => void;
@@ -57,6 +60,7 @@ function CarouselItem({
   preloadImage = false,
   showPreviewLabel = false,
   onSelect,
+  onClone,
   onDelete,
   onPreview,
   onUpdate,
@@ -111,6 +115,7 @@ function CarouselItem({
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.target !== event.currentTarget) return;
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       onSelect(index);
@@ -165,6 +170,30 @@ function CarouselItem({
               minHeight: dashboardCarouselLayout.sideActionSize,
             }}
           >
+            {onClone && (
+              <button
+                type="button"
+                onClick={event => {
+                  handleActionClick(event);
+                  event.currentTarget.focus();
+                  onClone(invite);
+                }}
+                className="flex cursor-pointer items-center justify-center rounded-lg bg-white transition-colors hover:bg-[#E5E7EB]"
+                style={{
+                  width: dashboardCarouselLayout.sideActionSize,
+                  height: dashboardCarouselLayout.sideActionSize,
+                  boxShadow: dashboardCarouselLayout.sideActionShadow,
+                }}
+                aria-label="초대장 복사"
+                aria-haspopup="dialog"
+              >
+                <Copy
+                  size={dashboardCarouselLayout.sideActionIconSize}
+                  strokeWidth={1.5}
+                  aria-hidden="true"
+                />
+              </button>
+            )}
             <button
               type="button"
               onClick={event => {

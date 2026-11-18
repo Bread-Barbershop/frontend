@@ -3,6 +3,7 @@
 import useEmblaCarousel from 'embla-carousel-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import type { InviteListItem } from '@/app/dashboard/types';
 import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 
 import { dashboardCarouselLayout } from './carouselLayout';
@@ -19,7 +20,9 @@ type CarouselBaseProps = {
   stageHeight?: string;
   selectedLift?: string;
   preloadItemCount?: number;
+  focusCardId?: string | null;
   onCardActivate?: (id: string) => void;
+  onClone?: (invite: InviteListItem) => void;
   onDelete?: (folderId: string) => void | Promise<void>;
   onPreview?: (folderId: string) => void;
   onUpdate?: (folderId: string, uuid?: string) => void;
@@ -45,7 +48,9 @@ function CarouselBase({
   stageHeight = dashboardCarouselLayout.stageHeight,
   selectedLift,
   preloadItemCount = 0,
+  focusCardId,
   onCardActivate,
+  onClone,
   onDelete,
   onPreview,
   onUpdate,
@@ -60,6 +65,7 @@ function CarouselBase({
 }: CarouselBaseProps) {
   const [selectedIndex, setSelectedIndex] = useState(startIndex);
   const hasHandledInitialLayoutRef = useRef(false);
+  const focusedCardIdRef = useRef<string | null>(null);
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'center',
     containScroll: false,
@@ -107,6 +113,19 @@ function CarouselBase({
     emblaApi.scrollTo(clampedStartIndex, true);
   }, [emblaApi, items.length, startIndex]);
 
+  useEffect(() => {
+    if (!emblaApi || !focusCardId || focusedCardIdRef.current === focusCardId) {
+      return;
+    }
+
+    const index = items.findIndex(item => item.id === focusCardId);
+    if (index < 0) return;
+
+    focusedCardIdRef.current = focusCardId;
+    emblaApi.scrollTo(index, true);
+    emblaApi.slideNodes()[index]?.focus({ preventScroll: true });
+  }, [emblaApi, focusCardId, items]);
+
   const handleSelect = useCallback(
     (index: number) => {
       emblaApi?.scrollTo(index);
@@ -148,6 +167,7 @@ function CarouselBase({
         preloadItemCount={preloadItemCount}
         showPreviewLabel={Boolean(onCardActivate)}
         onSelect={handleSelect}
+        onClone={onClone}
         onDelete={onDelete}
         onPreview={onPreview}
         onUpdate={onUpdate}
