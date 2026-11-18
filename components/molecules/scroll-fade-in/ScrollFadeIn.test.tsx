@@ -1,9 +1,7 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
 import { ScrollFadeIn } from './ScrollFadeIn';
-
-type BlockPosition = 'inside' | 'above' | 'below';
 
 describe('ScrollFadeIn 컴포넌트', () => {
   let originalIntersectionObserver: typeof window.IntersectionObserver;
@@ -11,7 +9,7 @@ describe('ScrollFadeIn 컴포넌트', () => {
   let observeMock: jest.Mock;
   let unobserveMock: jest.Mock;
   let disconnectMock: jest.Mock;
-  let triggerIntersect: jest.Mock<void, [position?: BlockPosition]>;
+  let triggerIntersect: jest.Mock<void, [isIntersecting?: boolean]>;
 
   beforeEach(() => {
     originalIntersectionObserver = window.IntersectionObserver;
@@ -21,18 +19,11 @@ describe('ScrollFadeIn 컴포넌트', () => {
     disconnectMock = jest.fn();
 
     window.IntersectionObserver = jest.fn().mockImplementation(callback => {
-      triggerIntersect = jest.fn((position: BlockPosition = 'inside') => {
+      triggerIntersect = jest.fn((isIntersecting = true) => {
         const target = observeMock.mock.calls[0]?.[0] as
           | HTMLElement
           | undefined;
-        callback([
-          {
-            target,
-            isIntersecting: position === 'inside',
-            boundingClientRect: { bottom: position === 'above' ? 90 : 1000 },
-            rootBounds: { top: 100 },
-          },
-        ]);
+        callback([{ target, isIntersecting }]);
       });
       return {
         observe: observeMock,
@@ -43,6 +34,7 @@ describe('ScrollFadeIn 컴포넌트', () => {
   });
 
   afterEach(() => {
+    fireEvent.scroll(window, { target: { scrollY: 0 } });
     window.IntersectionObserver = originalIntersectionObserver;
     window.matchMedia = originalMatchMedia;
     jest.restoreAllMocks();
@@ -107,7 +99,7 @@ describe('ScrollFadeIn 컴포넌트', () => {
   });
 
   it.each(['down-only', 'down-repeat'] as const)(
-    '%s 모드에서는 위로 돌아온 블록을 즉시 보여 주고 다음 하향 진입 때 재생한다',
+    '%s 모드에서는 건너뛴 블록으로 올라오면 즉시 표시하고 다음 하향 진입 때 재생한다',
     triggerMode => {
       render(
         <div style={{ overflowY: 'auto' }} data-testid="preview-panel">
@@ -117,18 +109,19 @@ describe('ScrollFadeIn 컴포넌트', () => {
         </div>
       );
       const block = screen.getByTestId('block');
-      expect(window.IntersectionObserver).toHaveBeenCalledWith(
-        expect.any(Function),
-        expect.objectContaining({ root: screen.getByTestId('preview-panel') })
-      );
-      act(() => triggerIntersect('above'));
+      const panel = screen.getByTestId('preview-panel');
+      act(() => triggerIntersect(false));
+      fireEvent.scroll(panel, { target: { scrollTop: 1500 } });
+      fireEvent.scroll(panel, { target: { scrollTop: 1100 } });
       act(() => triggerIntersect());
       expect(block).toHaveClass('opacity-100');
       expect(block).toHaveStyle({ transitionDuration: '0ms' });
       expect(unobserveMock).not.toHaveBeenCalled();
 
-      act(() => triggerIntersect('below'));
+      fireEvent.scroll(panel, { target: { scrollTop: 0 } });
+      act(() => triggerIntersect(false));
       expect(block).toHaveClass('opacity-0');
+      fireEvent.scroll(panel, { target: { scrollTop: 1100 } });
       act(() => triggerIntersect());
       expect(block).toHaveClass('opacity-100');
       expect(block).toHaveStyle({ transitionDuration: '700ms' });
@@ -150,14 +143,19 @@ describe('ScrollFadeIn 컴포넌트', () => {
         </ScrollFadeIn>
       );
       const block = screen.getByTestId('block');
+      fireEvent.scroll(window, { target: { scrollY: 1100 } });
       act(() => triggerIntersect());
-      act(() => triggerIntersect('above'));
+      fireEvent.scroll(window, { target: { scrollY: 1500 } });
+      act(() => triggerIntersect(false));
+      fireEvent.scroll(window, { target: { scrollY: 1100 } });
       act(() => triggerIntersect());
       expect(block).toHaveClass('opacity-100');
       expect(block).toHaveStyle({ transitionDuration: upwardDuration });
 
-      act(() => triggerIntersect('below'));
+      fireEvent.scroll(window, { target: { scrollY: 0 } });
+      act(() => triggerIntersect(false));
       expect(block).toHaveClass('opacity-0');
+      fireEvent.scroll(window, { target: { scrollY: 1100 } });
       act(() => triggerIntersect());
       expect(block).toHaveClass('opacity-100');
       expect(block).toHaveStyle({ transitionDuration: '700ms' });

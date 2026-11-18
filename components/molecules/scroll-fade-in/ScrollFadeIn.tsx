@@ -78,23 +78,33 @@ export function ScrollFadeIn({
       scrollParent = scrollParent.parentElement;
     }
 
-    let aboveViewport = false;
+    const scrollTarget = scrollParent ?? window;
+    const scrollY = () => scrollParent?.scrollTop ?? window.scrollY;
+    let lastY = scrollY();
+    let movingUp = false;
+    const trackDirection = () => {
+      const nextY = scrollY();
+      if (nextY !== lastY) movingUp = nextY < lastY;
+      lastY = nextY;
+    };
+    if (triggerMode !== 'both') {
+      scrollTarget.addEventListener('scroll', trackDirection, { passive: true });
+    }
     const observer = new IntersectionObserver(
       entries => {
         for (const entry of entries) {
           if (!entry.isIntersecting) {
-            aboveViewport =
-              entry.boundingClientRect.bottom <= (entry.rootBounds?.top ?? 0);
-            // Keep one-way content visible when scrolling back up to it.
-            setPhase(
-              aboveViewport && triggerMode !== 'both' ? 'visible' : 'hidden'
-            );
+            setPhase('hidden');
             continue;
           }
-          if (aboveViewport && triggerMode !== 'both') continue;
+          if (movingUp && triggerMode !== 'both') {
+            setPhase('visible');
+            continue;
+          }
           setPhase('entering');
           if (triggerMode === 'down-only') {
             observer.unobserve(element);
+            scrollTarget.removeEventListener('scroll', trackDirection);
             break;
           }
         }
@@ -108,7 +118,10 @@ export function ScrollFadeIn({
 
     observer.observe(element);
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      scrollTarget.removeEventListener('scroll', trackDirection);
+    };
   }, [shouldBypassAnimation, threshold, rootMargin, triggerMode]);
 
   const isVisible = shouldBypassAnimation || phase !== 'hidden';
