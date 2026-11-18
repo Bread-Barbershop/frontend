@@ -138,11 +138,30 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '맑은 하늘 아래, 가볍고 투명하게 피어나는 설렘.',
     palette: ['#F1F7FA', '#496D86', '#394F5F'],
     eyebrow: 'UNDER THE SAME SKY',
-    heading: '우리의 하늘이 만나는 날',
+    heading: '맑은 날에도, 비 오는 날에도',
     message: [
-      '하늘을 올려다보면 같은 마음을 떠올리는 사람이 생겼습니다.',
-      '맑은 날에도, 비 오는 날에도 서로의 곁을 지키겠습니다.',
-      '저희의 푸른 시작을 함께 축복해 주세요.',
+      '같은 하늘 아래 서로의 편이 되기로 했습니다. 봄이 막 시작되는 날, 저희 결혼식에 초대합니다.',
+    ],
+    sectionStyle: 'rounded',
+    sections: [
+      { component: 'greeting' },
+      {
+        component: 'calendar',
+        title: '우리의 봄날',
+        template: 'calendarType2',
+      },
+      { component: 'place', title: '예식이 열리는 곳' },
+      {
+        component: 'faq',
+        title: '봄날의 하객 안내',
+        items: [
+          {
+            question: '예식은 야외에서 하나요?',
+            answer:
+              '예식은 실내 그랜드홀에서 진행합니다. 바깥에서 사진을 남기실 분은 가벼운 겉옷을 챙겨 주세요.',
+          },
+        ],
+      },
     ],
     moments: ['설레는 만남', '하나가 되는 순간', '마음을 나누는 식사'],
     note: '봄바람이 불 수 있으니 가벼운 겉옷을 준비해 주세요. 예식은 실내에서 진행됩니다.',
