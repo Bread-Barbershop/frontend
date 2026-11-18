@@ -199,7 +199,23 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         title: '우리의 봄날',
         template: 'calendarType2',
       },
+      {
+        component: 'picture',
+        title: '봄바람 불던 오후',
+        image:
+          '/samples/wedding_14/images/05_b1c68d54-033d-4053-9dc6-f9b05cc6b9ef.jpg',
+        caption: '바람이 불 때마다 웃음이 났던 촬영 날입니다.',
+      },
       { component: 'place', title: '예식이 열리는 곳' },
+      {
+        component: 'timeline',
+        title: '봄날의 식순',
+        items: [
+          { time: '14:40', title: '로비에서 인사' },
+          { time: '15:00', title: '서로에게 쓰는 서약' },
+          { time: '15:40', title: '함께 찍는 첫 가족사진' },
+        ],
+      },
       {
         component: 'faq',
         title: '봄날의 하객 안내',
@@ -210,6 +226,21 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
               '예식은 실내 그랜드홀에서 진행합니다. 바깥에서 사진을 남기실 분은 가벼운 겉옷을 챙겨 주세요.',
           },
         ],
+      },
+      {
+        component: 'mealMenu',
+        title: '예식 뒤 따뜻한 한 끼',
+        subtitle: 'Spring Table',
+        style: 'minimal',
+        courses: [
+          { name: '첫 접시', dishes: ['봄나물과 구운 감자'] },
+          { name: '식사', dishes: ['버섯 솥밥과 맑은 국'] },
+        ],
+      },
+      {
+        component: 'closingComment',
+        message:
+          '올봄을 떠올릴 때마다 이날의 얼굴들도 같이 떠오를 것 같아요. 민성·아현 드림',
       },
     ],
   },
