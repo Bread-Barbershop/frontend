@@ -23,6 +23,8 @@ export type DriveListResponse = {
     id?: string;
     name?: string;
     mimeType?: string;
+    ownedByMe?: boolean;
+    parents?: string[];
     appProperties?: Record<string, string>;
   }>;
 

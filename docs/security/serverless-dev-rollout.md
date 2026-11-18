@@ -33,7 +33,7 @@ Google OAuth에 개발 도메인의 `/api/auth/callback`을 redirect URI로 등�
 
 - 로그인 쿠키는 AES-256-GCM, HttpOnly, Secure(Vercel), SameSite=Lax로 보호한다. 절대 만료는 로그인 후 30일이다. 갱신 응답은 로그인 쿠키를 재생성할 수 없다. 로그아웃은 해당 브라우저의 쿠키를 삭제한다. 유출된 쿠키 사본까지 즉시 철회해야 한다면 Google 권한을 철회한다.
 - 일반 로그인은 Google 인증 정보를 Upstash에 쓰지 않는다. 하객 접수 동의 시에만 초대장별 토큰을 별도 암호화하여 한국 시간 D+4 0시까지 저장한다. 암호화 키는 Vercel에 둔다.
-- Google Sheets API를 활성화한다. 공개 방명록 읽기에 사용할 서버 전용 `GOOGLE_SHEETS_READ_API_KEY`를 Sheets API로 제한하여 설정한다. OAuth 앱이 외부 Testing 상태라면 Drive 리프레시 토큰은 7일에 만료되므로 운영 기간 검증에 반영한다.
+- Google Sheets API를 활성화한다. 공개 읽기는 전용 스프레드시트의 CSV 게시 주소를 익명으로 조회하므로 별도 읽기 키를 요구하지 않는다. OAuth 앱이 외부 Testing 상태라면 Drive 리프레시 토큰은 7일에 만료되므로 운영 기간 검증에 반영한다.
 - 요청 scope는 `openid drive.file`. 과거의 더 넓은 Drive scope가 반환되면 새 연결을 거절한다. 필요하면 Google 계정에서 이전 연결을 해제한 뒤 재로그인한다.
 - 파일 접근은 소유권, 삭제 여부, 앱 전용 `appProperties`, 실제 부모 체인을 검사한다. 이름만 같은 다른 파일을 관리 대상으로 삼지 않는다.
 - 기존 버전이 만든 이미지·음악은 파일 자체에 앱 표시가 없을 수 있다. 호환을 위해 검증된 초대장 하위의 에셋을 허용한다. Google이 이미 앱에 허용한 파일이라는 사실과 앱 내부 리소스 검증은 서로 다른 방어다. 무조건 ‘생성한 파일만 접근 가능’이라는 보장은 하지 않는다.

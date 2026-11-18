@@ -20,6 +20,8 @@ const mimeType = 'application/vnd.google-apps.folder';
 const legacyData = {
   id: 'legacy-data',
   name: 'data.json',
+  parents: ['invitation-root'],
+  ownedByMe: true,
   mimeType: 'application/json',
 };
 
@@ -30,6 +32,27 @@ describe('하객 그룹이 있는 초대장의 편집 데이터 API', () => {
     jest.mocked(googleFetch).mockImplementation(async input => {
       const url = new URL(input);
       const q = url.searchParams.get('q') ?? '';
+      if (q.includes("'me' in owners"))
+        return Response.json({ files: [{ id: 'workspace' }] });
+      if (url.pathname.endsWith('/workspace'))
+        return Response.json({
+          id: 'workspace',
+          ownedByMe: true,
+          mimeType,
+          appProperties: { app_id: 'Bread-Barbershop' },
+        });
+      if (url.pathname.endsWith('/invitation-root'))
+        return Response.json({
+          id: 'invitation-root',
+          ownedByMe: true,
+          mimeType,
+          parents: ['workspace'],
+          appProperties: {
+            app_id: 'Bread-Barbershop',
+            kind: 'invitation',
+            inv_id: 'uuid',
+          },
+        });
       if (url.pathname.endsWith('/legacy-data')) {
         return Response.json({
           blocks: [],
@@ -40,7 +63,13 @@ describe('하객 그룹이 있는 초대장의 편집 데이터 API', () => {
       if (q.startsWith("'invitation-root' in parents")) {
         return Response.json({
           files: [
-            { id: 'image-folder', name: 'images', mimeType },
+            {
+              id: 'image-folder',
+              name: 'images',
+              mimeType,
+              parents: ['invitation-root'],
+              ownedByMe: true,
+            },
             {
               id: 'audience-folder',
               name: 'Family Images',

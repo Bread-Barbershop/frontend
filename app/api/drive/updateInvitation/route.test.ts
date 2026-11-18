@@ -67,19 +67,22 @@ describe('updateInvitation Route Handler 테스트', () => {
         {
           id: 'image-folder-id',
           name: 'images',
-          appProperties: { kind: 'assets_images' },
+          appProperties: { app_id: 'Bread-Barbershop', kind: 'assets_images' },
           mimeType: 'application/vnd.google-apps.folder',
         },
         {
           id: 'audio-folder-id',
           name: 'audio',
-          appProperties: { kind: 'assets_audios' },
+          appProperties: { app_id: 'Bread-Barbershop', kind: 'assets_audios' },
           mimeType: 'application/vnd.google-apps.folder',
         },
         {
           id: 'data-json-id',
           name: 'data.json',
-          appProperties: { kind: 'invitation_data_json' },
+          appProperties: {
+            app_id: 'Bread-Barbershop',
+            kind: 'invitation_data_json',
+          },
           mimeType: 'application/json',
         },
       ],
@@ -335,7 +338,10 @@ describe('updateInvitation Route Handler 테스트', () => {
         {
           id: 'data-json-only-id',
           name: 'data.json',
-          appProperties: { kind: 'invitation_data_json' },
+          appProperties: {
+            app_id: 'Bread-Barbershop',
+            kind: 'invitation_data_json',
+          },
           mimeType: 'application/json',
         },
       ],

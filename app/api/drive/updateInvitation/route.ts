@@ -86,16 +86,27 @@ export async function GET(request: Request) {
       throw new Error('초대장 목록이 없거나 불러오지 못했습니다.');
     }
 
-    const dataFiles = result.files.filter(
+    // Early invitations had no per-file markers. Only recognize a unique, owned canonical child of the validated invitation.
+    const legacyChild = (
+      file: NonNullable<typeof result.files>[number],
+      name: string
+    ) =>
+      file.ownedByMe === true &&
+      file.parents?.includes(fileId ?? '') &&
+      !file.appProperties?.kind &&
+      !file.appProperties?.app_id &&
+      file.name === name;
+    const marked = result.files.find(
       file =>
-        file.id &&
-        file.mimeType?.includes('json') &&
-        file.appProperties?.kind === 'invitation_data_json'
+        file.mimeType === 'application/json' &&
+        file.appProperties?.kind === 'invitation_data_json' &&
+        file.appProperties.app_id === 'Bread-Barbershop'
     );
-    const dataFile =
-      dataFiles.find(
-        file => file.appProperties?.kind === 'invitation_data_json'
-      ) ?? dataFiles[0];
+    const legacy = result.files.filter(
+      file =>
+        file.mimeType === 'application/json' && legacyChild(file, 'data.json')
+    );
+    const dataFile = marked ?? (legacy.length === 1 ? legacy[0] : undefined);
     const fileContent = dataFile?.id ? await downloadFiles(dataFile.id) : null;
     if (
       !fileContent ||
@@ -118,14 +129,17 @@ export async function GET(request: Request) {
       // 1. 폴더인 경우: 내부 파일 리스트(ID, Name)만 수집
       if (file.mimeType?.includes('folder')) {
         if (!file.id) continue;
-        const kind = file.appProperties?.kind;
-        if (kind === 'assets_images') {
+        const kind =
+          file.appProperties?.app_id === 'Bread-Barbershop'
+            ? file.appProperties.kind
+            : undefined;
+        if (kind === 'assets_images' || legacyChild(file, 'images')) {
           const images = await getFilesInFolder(file.id);
           if (!images)
             throw new Error('저장된 이미지 목록을 불러오지 못했습니다.');
           responseData.imageFolderId = file.id;
           responseData.images = images;
-        } else if (kind === 'assets_audios') {
+        } else if (kind === 'assets_audios' || legacyChild(file, 'audios')) {
           const audios = await getFilesInFolder(file.id);
           if (!audios)
             throw new Error('저장된 오디오 목록을 불러오지 못했습니다.');

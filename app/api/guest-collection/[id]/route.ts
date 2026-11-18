@@ -1,3 +1,4 @@
+import { parse } from 'csv-parse/sync';
 import { NextResponse } from 'next/server';
 
 import { assertSameOriginRequest } from '@/app/api/drive/_lib/driveAccess';
@@ -5,7 +6,6 @@ import { driveErrorResponse } from '@/app/api/drive/_lib/driveErrorResponse';
 import { loadGuestPayload } from '@/app/guest/[id]/server/loadGuestPayload';
 
 import { submitGuest } from '../_lib/guestWrites';
-import { sheets } from '../_lib/resources';
 import { getCollection, hasGrant } from '../_lib/store';
 
 type Context = { params: Promise<{ id: string }> };
@@ -24,17 +24,31 @@ export async function GET(_req: Request, { params }: Context) {
     let readFailed = false;
     if (c.sheet) {
       try {
-        const result = await fetch(`${sheets}/${c.sheet}/values/A:C`, {
-          headers: {
-            'X-Goog-Api-Key': process.env.GOOGLE_SHEETS_READ_API_KEY ?? '',
-          },
+        const address = new URL(
+          'https://docs.google.com/spreadsheets/d/' +
+            encodeURIComponent(c.sheet) +
+            '/export'
+        );
+        address.searchParams.set('format', 'csv');
+        address.searchParams.set('gid', String(c.tabId));
+        const result = await fetch(address, {
           cache: 'no-store',
+          credentials: 'omit',
           signal: AbortSignal.timeout(8000),
         });
-        if (!result.ok) throw new Error();
-        const data = await result.json();
-        entries = (data.values ?? [])
-          .filter((row: unknown) => Array.isArray(row) && row.length >= 2)
+        if (
+          !result.ok ||
+          !result.headers.get('content-type')?.toLowerCase().includes('csv')
+        )
+          throw new Error('sheet_unavailable');
+        const rows: string[][] = parse(await result.text(), {
+          bom: true,
+          skip_empty_lines: true,
+          relax_column_count: true,
+        });
+        entries = rows
+          .filter(row => row.length >= 2 && row[0] && row[1])
+          .map(row => row.slice(0, 3))
           .reverse();
       } catch {
         readFailed = true;

@@ -82,8 +82,6 @@ export async function checkPrivateFolder(id: string, request: typeof fetch) {
     failure('사진 폴더의 공유를 해제한 뒤 다시 시도해 주세요.', 403);
 }
 export async function enableGuestbook(id: string) {
-  if (!process.env.GOOGLE_SHEETS_READ_API_KEY)
-    failure('공개 방명록 읽기 설정이 필요해요.', 503);
   const info = await (
     await checked(
       await googleFetch(`${sheets}/${id}?fields=sheets(properties(sheetId))`)

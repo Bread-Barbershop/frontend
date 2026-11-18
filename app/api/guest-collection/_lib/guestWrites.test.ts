@@ -34,13 +34,11 @@ describe('하객 접수', () => {
     expect(rows).toEqual(['=축하해요', '행복하세요']);
   });
   it('D+4에는 Google 자격 증명에 접근하기 전에 두 종류의 쓰기를 거절한다', async () => {
-    jest
-      .mocked(getCollection)
-      .mockResolvedValue({
-        guestbook: true,
-        photos: true,
-        closesAt: Date.now() - 1,
-      } as never);
+    jest.mocked(getCollection).mockResolvedValue({
+      guestbook: true,
+      photos: true,
+      closesAt: Date.now() - 1,
+    } as never);
     for (const kind of ['message', 'photo'])
       await expect(
         submitGuest(new Request('https://invia.test'), 'id', { kind })

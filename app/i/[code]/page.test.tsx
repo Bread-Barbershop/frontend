@@ -74,6 +74,7 @@ describe('ShortGuestPage', () => {
     expect(guestInvitationViewMock).toHaveBeenCalledWith({
       payload,
       mode: 'guest',
+      collectionId: 'data-json-file-id',
     });
     expect(html).toContain('data-testid="short-guest-view"');
     expect(notFoundMock).not.toHaveBeenCalled();

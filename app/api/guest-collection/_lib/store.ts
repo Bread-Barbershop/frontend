@@ -112,13 +112,13 @@ export async function configure(
 export async function hasGrant(id: string) {
   return Boolean(await authRedis().redis.exists(grantKey(id)));
 }
-export async function guestGoogle(id: string) {
+export async function guestGoogle(id: string, forceRefresh = false) {
   const key = grantKey(id);
   const { redis } = authRedis();
   let sealed = await redis.get<string>(key);
   if (!sealed) failure('작성자가 Google 연결을 다시 확인해야 해요.', 409);
   let grant = decryptRecord<Grant>(sealed, key);
-  if (grant.expiresAt <= Date.now() + 60_000) {
+  if (forceRefresh || grant.expiresAt <= Date.now() + 60_000) {
     const refreshed = await tokenRefresh(grant.refreshToken).catch(
       async error => {
         if (error instanceof Error && error.message === 'invalid_grant') {
@@ -153,14 +153,22 @@ export async function guestGoogle(id: string) {
     sealed = current;
     grant = decryptRecord<Grant>(sealed, key);
   }
-  return (url: RequestInfo | URL, init?: RequestInit) => {
+  return async (
+    url: RequestInfo | URL,
+    init?: RequestInit
+  ): Promise<Response> => {
     const headers = new Headers(init?.headers);
     headers.set('Authorization', 'Bearer ' + grant.accessToken);
-    return fetch(url, {
+    const response = await fetch(url, {
       ...init,
       headers,
       cache: 'no-store',
       signal: AbortSignal.timeout(12000),
     });
+    if (response.status === 401 && !forceRefresh) {
+      const retry = await guestGoogle(id, true);
+      return retry(url, init);
+    }
+    return response;
   };
 }

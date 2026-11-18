@@ -25,7 +25,7 @@ describe('PrivacyNoticeModal', () => {
     expect(screen.getByText(/‘모바일 초대장 invia’/i)).toBeInTheDocument();
 
     expect(
-      screen.getByText(/서버에 보관하는 인증 정보는 암호화해요/)
+      screen.getByText(/로그인 정보는 이 브라우저에 암호화해/)
     ).toBeInTheDocument();
     expect(
       screen.getByText(/로그아웃하면 해당 계정의 초안을 삭제해요/)

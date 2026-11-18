@@ -36,12 +36,20 @@ export default function GuestCollection({ id }: { id: string }) {
     return () => controller.abort();
   }, [refresh]);
   const closesAt = view?.closesAt ?? 0;
-  const closed = now >= closesAt;
   useEffect(() => {
-    if (closed) return;
-    const timer = setInterval(() => setNow(Date.now()), Math.min(60000, Math.max(1, closesAt-Date.now())));
-    return () => clearInterval(timer);
-  }, [closesAt, closed]);
+    let timer: ReturnType<typeof setTimeout>;
+    function syncDeadline() {
+      const current = Date.now();
+      setNow(current);
+      if (current < closesAt)
+        timer = setTimeout(
+          syncDeadline,
+          Math.min(closesAt - current, 2_000_000_000)
+        );
+    }
+    syncDeadline();
+    return () => clearTimeout(timer);
+  }, [closesAt]);
   async function post(body: unknown) {
     const r = await fetch(endpoint, {
       method: 'POST',
