@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import NoticeConfirmButton from '@/components/atoms/button/NoticeConfirmButton';
 import InviaSimpleLogo3d from '@/shared/assets/logo/invia-simple-logo-3d.png';
 import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 import {
@@ -130,14 +131,13 @@ function DrivePermissionRequiredModal({
           >
             {isLoading ? '권한 요청 중...' : '다시 권한 허용하기'}
           </button>
-          <button
-            type="button"
+          <NoticeConfirmButton
+            className="h-10 w-full px-4 py-0 font-medium"
             onClick={closeWithFade}
             disabled={isLoading}
-            className="h-10 w-full cursor-pointer rounded-lg text-[14px] font-medium text-[#4b5563] transition-colors enabled:hover:bg-white/50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             닫기
-          </button>
+          </NoticeConfirmButton>
         </div>
       </div>
     </div>,
