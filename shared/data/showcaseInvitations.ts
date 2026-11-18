@@ -285,11 +285,21 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '절제된 흑백과 세리프에 담긴 조용하고 깊은 마음.',
     palette: ['#FBFBF9', '#373737', '#505050'],
     eyebrow: 'WE ARE GETTING MARRIED',
-    heading: '조용히, 오래 사랑하겠습니다',
+    heading: '조용히 건네는 약속',
     message: [
-      '화려한 말보다 매일의 작은 다정함으로',
-      '서로에게 가장 편안한 집이 되어 주려 합니다.',
-      '저희의 소박하고 단단한 약속을 지켜봐 주세요.',
+      '서로의 이야기를 끝까지 듣는 사람이 되겠습니다. 저희가 그 약속을 나누는 자리에 함께해 주세요.',
+    ],
+    sectionStyle: 'plain',
+    sections: [
+      {
+        component: 'coupleIntroduction',
+        title: '서약하는 두 사람',
+        story:
+          '먼저 일어난 사람이 물을 올리고, 늦게 오는 사람을 기다리는 저녁을 오래 지켜 가겠습니다.',
+      },
+      { component: 'greeting' },
+      { component: 'calendar', title: '예식 일시' },
+      { component: 'place', title: '예식 장소' },
     ],
     moments: ['소중한 만남', '혼인 서약', '감사의 인사와 식사'],
     note: '별도의 드레스 코드 없이 편안한 마음으로 오시면 됩니다. 예식 후 감사의 인사를 전하겠습니다.',
