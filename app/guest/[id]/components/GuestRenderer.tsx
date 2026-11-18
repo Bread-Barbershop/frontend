@@ -13,7 +13,7 @@ import InvitationChapter, {
 import { InvitationVisualEffects } from '@/components/organisms/visualEffects/VisualEffectsPreview';
 import { isBlockEnabled } from '@/shared/data/registry/blockAvailability';
 import { blockRegistry } from '@/shared/data/registry/registry';
-import { preloadFontFamilyWeights } from '@/shared/fonts/fontLoader';
+import { getFontFaces } from '@/shared/fonts/fontRegistry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { usesDarkInvitationCards } from '@/shared/utils/invitationBackgroundColor';
 import { resolveInvitationEffects } from '@/shared/utils/invitationEffects';
@@ -91,14 +91,20 @@ function GuestRenderer({
   const isGuestPage =
     isGuestPageOverride ??
     (pathname.startsWith('/guest/') || pathname.startsWith('/i/'));
-  // renderHints가 있으면 그 값을 쓰고, 없으면 기존 block 스캔 방식으로 fallback한다.
-  const fontFamiliesToPreload = useMemo(
+  // 글꼴을 선언하면 브라우저가 실제 본문에 쓰인 굵기와 스타일만 요청한다.
+  const fontFaceStyles = useMemo(
     () =>
       resolveGuestFontFamiliesToPreload({
         blocks,
         bulkData,
         renderHints,
-      }),
+      })
+        .flatMap(getFontFaces)
+        .map(
+          face =>
+            `@font-face { font-family: "${face.family}"; src: ${face.url}; font-weight: ${face.weight}; font-style: ${face.style}; font-display: swap; }`
+        )
+        .join('\n'),
     [blocks, bulkData, renderHints]
   );
 
@@ -106,15 +112,6 @@ function GuestRenderer({
     setTitleData(titleData);
     setBodyData(bodyData);
   }, [setTitleData, setBodyData, titleData, bodyData]);
-
-  useEffect(() => {
-    // 폰트는 본문 표시를 막지 않고 백그라운드에서 준비한다.
-    void Promise.allSettled(
-      fontFamiliesToPreload.map(fontFamily =>
-        preloadFontFamilyWeights(fontFamily)
-      )
-    );
-  }, [fontFamiliesToPreload]);
 
   useEffect(() => {
     if (bulkData.isZoom) {
@@ -148,6 +145,7 @@ function GuestRenderer({
       className="flex flex-col"
       data-invitation-dark={darkCards || undefined}
     >
+      {fontFaceStyles && <style>{fontFaceStyles}</style>}
       {effects && (
         <InvitationVisualEffects
           effects={effects}
