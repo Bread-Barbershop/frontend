@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import {
   act,
   fireEvent,
@@ -9,6 +12,7 @@ import {
 import { useInitData } from '@/app/editor/[id]/hooks/useInitData';
 import type { SavedData } from '@/app/editor/[id]/types/savedata';
 import GuestRenderer from '@/app/guest/[id]/components/GuestRenderer';
+import calendarStyles from '@/components/organisms/calendar/calendarPreview.module.css';
 import InvitationChapter from '@/components/organisms/invitation-chapter/InvitationChapter';
 import {
   createPreviewSnapshot,
@@ -255,6 +259,86 @@ describe('템플릿과 추가 블록의 공통 카드 디자인', () => {
       messageHtml:
         '<p><span style=" font-size: 14px; font-family: LINESeedKR; font-weight: 400; font-style: italic">기존 본문</span><strong><span style="color: #000000; font-size: 18px; font-family: LINESeedKR; font-weight: 400">직접 편집한 본문</span></strong></p>',
     });
+  });
+
+  it('구형 흰색 카드의 인사말과 달력에 저장된 초대장 배경의 명암을 적용한다', () => {
+    // Next Jest stubs CSS modules, so load the styles for the computed-style checks.
+    const style = document.createElement('style');
+    const readStylesheet = (file: string) =>
+      readFileSync(join(process.cwd(), 'components/organisms', file), 'utf8');
+    style.textContent = [
+      readStylesheet('invitation-chapter/invitationChapter.module.css'),
+      readStylesheet('calendar/calendarPreview.module.css').replace(
+        ':global([data-invitation-dark])',
+        '[data-invitation-dark]'
+      ),
+    ].join('\n');
+    document.head.append(style);
+
+    try {
+      act(() => {
+        const editor = useEditorStore.getState();
+        editor.addBlock('wedding', 'greeting', 'legacy-greeting', {
+          collectionStyle: 'showcase-18',
+          title: '구형 인사말',
+          messageHtml:
+            '<p>기본 본문 <span style="color: #bc7780">지정한 색</span></p>',
+        });
+        editor.addBlock('wedding', 'calendar', 'legacy-calendar', {
+          collectionStyle: 'showcase-18',
+          title: '구형 달력',
+          date: '2026-03-19',
+          showDday: false,
+        });
+      });
+
+      const savedPayload = () => {
+        const preview = createPreviewSnapshot('data:image/png;base64,test');
+        const restored = parsePreviewSnapshot(
+          JSON.parse(JSON.stringify(preview.snapshot))
+        );
+        preview.dispose();
+        if (!restored) throw new Error('Preview snapshot was not restored');
+        return restored.payload;
+      };
+      const guest = render(<GuestRenderer {...savedPayload()} />);
+      const title = screen.getByText('구형 인사말');
+      const greeting = title.closest('[data-design="showcase-18"]');
+      const calendar = screen
+        .getByText('2026년 3월 19일')
+        .closest(`.${calendarStyles.preview}`);
+      const calendarChapter = calendar?.closest('[data-design="showcase-18"]');
+      if (!calendar) throw new Error('Calendar preview was not rendered');
+      const calendarTextColor = () =>
+        getComputedStyle(calendar).getPropertyValue('--calendar-text').trim();
+
+      expect(greeting).toHaveStyle({ backgroundColor: '#fff' });
+      expect(calendarChapter).toHaveStyle({ backgroundColor: '#fff' });
+      expect(calendarTextColor()).toBe('');
+
+      act(() => useEditorStore.getState().selectBackgroundColor('#536780'));
+      guest.rerender(<GuestRenderer {...savedPayload()} />);
+
+      expect(greeting).toHaveStyle({ backgroundColor: 'rgba(0, 0, 0, 0.12)' });
+      expect(calendarChapter).toHaveStyle({
+        backgroundColor: 'rgba(0, 0, 0, 0.12)',
+      });
+      expect(title).toHaveStyle({ color: '#FFFAF2' });
+      expect(screen.getByText(/기본 본문/).parentElement).toHaveStyle({
+        color: '#E2E6ED',
+      });
+      expect(screen.getByText('지정한 색')).toHaveStyle({ color: '#bc7780' });
+      expect(calendarTextColor()).toBe('#ffffff');
+
+      act(() => useEditorStore.getState().selectBackgroundColor('#FFFFFF'));
+      guest.rerender(<GuestRenderer {...savedPayload()} />);
+
+      expect(greeting).toHaveStyle({ backgroundColor: '#fff' });
+      expect(calendarChapter).toHaveStyle({ backgroundColor: '#fff' });
+      expect(calendarTextColor()).toBe('');
+    } finally {
+      style.remove();
+    }
   });
 
   it('기존 저장된 카드 모양을 읽고 명시적인 기본형 선택과 레이아웃 블록의 예외를 적용한다', () => {

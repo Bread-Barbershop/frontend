@@ -19,10 +19,6 @@
   border: 1px solid rgb(89 71 51 / 16%);
 }
 
-[data-invitation-dark] .surface {
-  background: rgb(0 0 0 / 12%);
-}
-
 [data-invitation-dark] .surface[data-section-style='outlined'] {
   border-color: rgb(255 255 255 / 28%);
 }
@@ -64,7 +60,8 @@
   padding: 25px 0;
 }
 .chapter[data-design='showcase-4'] {
-  background-image: url('/images/showcase/paper-grain.webp');
+  --chapter-paper-grain: url('/images/showcase/paper-grain.webp');
+  background-image: var(--chapter-paper-grain);
   background-size: 100% auto;
   margin: 14px 12px 30px;
   box-shadow: 0 4px 15px #6b493312;
@@ -148,4 +145,28 @@
   margin: 18px 16px 34px;
   border-top: 1px solid #a65d4355;
   background: #f5f1e960;
+}
+
+[data-invitation-dark] .surface,
+[data-invitation-dark]
+  .chapter:is(
+    [data-design='showcase-2'],
+    [data-design='showcase-4'],
+    [data-design='showcase-7'],
+    [data-design='showcase-13'],
+    [data-design='showcase-17'],
+    [data-design='showcase-18'],
+    [data-design='showcase-21'],
+    [data-design='showcase-22'],
+    [data-design='showcase-23'],
+    [data-design='showcase-24']
+  ) {
+  background-color: rgb(0 0 0 / 12%);
+}
+
+[data-invitation-dark] .chapter[data-design='showcase-4'] {
+  /* Darken the paper image itself so the original pale texture cannot cover the fill. */
+  background-image:
+    linear-gradient(rgb(0 0 0 / 72%), rgb(0 0 0 / 72%)),
+    var(--chapter-paper-grain);
 }
