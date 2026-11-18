@@ -25,6 +25,7 @@ type DriveFile = {
   mimeType?: string;
   parents?: string[];
   trashed?: boolean;
+  ownedByMe?: boolean;
   appProperties?: Record<string, string>;
 };
 
@@ -101,7 +102,7 @@ async function getDriveFile(fileId: string): Promise<DriveFile | null> {
   const res = await googleFetch(
     `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(
       fileId
-    )}?fields=id,name,mimeType,parents,trashed,appProperties`,
+    )}?fields=id,name,mimeType,parents,trashed,appProperties,ownedByMe`,
     { cache: 'no-store' }
   );
 
@@ -131,8 +132,10 @@ function isInvitationFolder(file: DriveFile, workspaceFolderId: string) {
   );
 }
 
-async function getWorkspaceFolderIdOrThrow() {
-  const workspaceFolderId = await findWorkspaceFolderId();
+async function getWorkspaceFolderIdOrThrow(ownedOnly: boolean) {
+  const workspaceFolderId = await (ownedOnly
+    ? findWorkspaceFolderId({ ownedOnly })
+    : findWorkspaceFolderId());
   if (!workspaceFolderId) {
     throw previewError(
       'INVITATION_NOT_FOUND',
@@ -149,7 +152,10 @@ async function getWorkspaceFolderIdOrThrow() {
  * 대시보드 미리보기는 공개 여부와 무관하게 "내 workspace 안의 초대장"만 읽어야 한다.
  * folderId가 조작되어도 다른 Drive 폴더를 미리보기 데이터로 사용할 수 없도록 여기서 먼저 막는다.
  */
-export async function assertInvitationFolderAccess(folderId: string) {
+export async function assertInvitationFolderAccess(
+  folderId: string,
+  { ownedOnly = false }: { ownedOnly?: boolean } = {}
+) {
   if (!folderId) {
     throw previewError(
       'FOLDER_ID_REQUIRED',
@@ -159,10 +165,14 @@ export async function assertInvitationFolderAccess(folderId: string) {
     );
   }
 
-  const workspaceFolderId = await getWorkspaceFolderIdOrThrow();
+  const workspaceFolderId = await getWorkspaceFolderIdOrThrow(ownedOnly);
   const folder = await getDriveFile(folderId);
 
-  if (!folder || !isInvitationFolder(folder, workspaceFolderId)) {
+  if (
+    !folder ||
+    !isInvitationFolder(folder, workspaceFolderId) ||
+    (ownedOnly && folder.ownedByMe !== true)
+  ) {
     throw previewError(
       'INVITATION_NOT_FOUND',
       404,
@@ -172,7 +182,7 @@ export async function assertInvitationFolderAccess(folderId: string) {
     );
   }
 
-  return folder;
+  return { ...folder, workspaceFolderId };
 }
 
 async function findDataJsonFileId(invitationFolderId: string) {
