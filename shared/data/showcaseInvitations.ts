@@ -224,11 +224,26 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '크림빛 종이 위에 정성껏 적어 내려간 초대의 편지.',
     palette: ['#FAF7F2', '#806353', '#51443D'],
     eyebrow: 'WITH ALL OUR LOVE',
-    heading: '소중한 당신께 보내는 편지',
+    heading: '소중한 당신께',
     message: [
-      '기쁜 소식을 전하며 가장 먼저 여러분의 얼굴을 떠올렸습니다.',
-      '서로를 아끼는 마음으로 한 가족의 이야기를 시작합니다.',
-      '그 첫날, 함께 웃어 주신다면 더없이 행복하겠습니다.',
+      '이 편지를 쓰며 가장 먼저 당신의 얼굴을 떠올렸습니다. 저희가 한 가족이 되는 날, 꼭 모시고 싶어요.',
+    ],
+    sectionStyle: 'paper',
+    sections: [
+      { component: 'greeting' },
+      {
+        component: 'picture',
+        title: '봉투를 닫기 전에',
+        image: '/images/showcase/love-letter.webp',
+        caption: '말로는 쑥스러웠던 감사 인사도 함께 담았습니다.',
+      },
+      { component: 'calendar', title: '편지에 적어 둔 날' },
+      { component: 'place', title: '기다리고 있을 곳' },
+      {
+        component: 'closingComment',
+        message:
+          '와 주시면 손을 잡고 직접 인사드릴게요. 사랑을 담아, 민성·아현 올림',
+      },
     ],
     moments: ['환영의 인사', '사랑의 서약', '감사의 식사'],
     note: '예식 전 신부대기실에서 인사 나눌 수 있습니다. 일찍 오신 분들을 위한 웰컴 티를 준비했습니다.',
