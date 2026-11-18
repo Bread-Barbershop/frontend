@@ -700,18 +700,20 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     eyebrow: '27TH BIRTHDAY · FOR MINHYUK',
     heading: '휴대폰 속 사진 한 장만 골라 와',
     message: [
-      '작년 생일 사진을 넘겨 보다가 다들 보고 싶어졌어. 올해는 케이크 앞에서 단체 사진도 한 장 남기자.',
+      '작년 생일 사진을 넘겨 보다가 다들 보고 싶어졌어. 같이 찍은 사진 하나씩 골라 와. 케이크 먹으면서 그날 얘기도 듣고 싶어.',
     ],
     sectionStyle: 'paper',
     sections: [
       { component: 'greeting' },
       {
-        component: 'notice',
-        title: '우리끼리의 사진 교환',
-        heading: '가져올 사진 한 장',
-        message:
-          '같이 찍은 사진도, 요즘 좋아하는 풍경도 좋아. 돌아가며 그날 얘기를 들려줘.',
-        preset: 'shooting',
+        component: 'gallery',
+        title: '작년 생일에 남긴 두 컷',
+        images: [
+          '/images/showcase/birthday-table.webp',
+          '/images/showcase/birthday-evening.webp',
+        ],
+        template: 'galleryType5',
+        ratio: '4:3',
       },
       { component: 'calendar', title: '사진 찍는 날' },
       { component: 'place', title: '모일 곳' },
