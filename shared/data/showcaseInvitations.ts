@@ -1528,7 +1528,27 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
           '누가 손뼉을 치면 저도 두 손을 마주쳐요. 요즘 제일 신나는 놀이예요.',
         image: '/templates/thumbnails/firstBirthday_02.png',
       },
+      {
+        component: 'timeline',
+        title: '민준이의 생일 순서',
+        items: [
+          { time: '15:00', title: '함께 생일 노래 부르기' },
+          { time: '15:15', title: '민준이의 첫 돌잡이' },
+          { time: '15:40', title: '가족사진과 식사' },
+        ],
+      },
       { component: 'place', title: '돌상이 있는 곳' },
+      {
+        component: 'faq',
+        title: '아이와 함께 오실 때',
+        items: [
+          {
+            question: '유모차는 어디에 두면 될까요?',
+            answer:
+              '8층 패밀리룸 입구에 유모차를 둘 공간이 있어요. 잠든 아이는 그대로 데리고 들어오셔도 괜찮아요.',
+          },
+        ],
+      },
       {
         component: 'notice',
         title: '돌잡이 사진',
@@ -1536,6 +1556,11 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         message:
           '민준이가 무엇을 고를지 천천히 지켜봐 주세요. 돌잡이가 끝나면 함께 사진 찍을 시간도 있어요.',
         preset: 'shooting',
+      },
+      {
+        component: 'closingComment',
+        message:
+          '제 이름을 불러 주시면 손뼉으로 대답해 볼게요. 생일날 만나요! 민준 올림',
       },
     ],
   },
