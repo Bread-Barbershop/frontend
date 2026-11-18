@@ -55,6 +55,7 @@ function CopyInvitationDialog({
       confirmText={isCloning ? '복사 중…' : errorMessage ? '다시 시도' : '복사'}
       cancelText="취소"
       confirmTone="neutral"
+      actionButtonClassName="font-pretendard text-[14px] font-semibold leading-5"
       initialFocus="cancel"
       isBusy={isCloning}
       errorMessage={errorMessage}
