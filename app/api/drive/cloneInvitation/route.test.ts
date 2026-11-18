@@ -10,6 +10,13 @@ jest.mock('@/app/api/drive/_lib/googleFetch', () => ({
 }));
 jest.mock('@/app/api/short-url/_lib/shortUrlStore', () => ({
   isShortUrlStoreConfigured: jest.fn(),
+  resolveShortCode: jest.fn(),
+}));
+jest.mock('@/app/api/drive/_lib/audienceLinkStore', () => ({
+  ...jest.requireActual('@/app/api/drive/_lib/audienceLinkStore'),
+  claimAudienceLink: jest.fn(),
+  commitAudienceLink: jest.fn(),
+  releaseAudienceLink: jest.fn(),
 }));
 jest.mock('@upstash/redis', () => ({ Redis: { fromEnv: jest.fn() } }));
 jest.mock('@/app/api/drive/_lib/publishPermissionWithRetry', () => ({
@@ -25,12 +32,17 @@ jest.mock('next/cache', () => ({
 }));
 
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
+import { claimAudienceLink } from '@/app/api/drive/_lib/audienceLinkStore';
 import { Redis } from '@upstash/redis';
 import { waitUntilGuestReady } from '@/app/api/drive/_lib/guestReadiness';
 import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissionWithRetry';
 import { POST as publish } from '@/app/api/drive/invitationVisibility/route';
+import { POST as createAudience } from '@/app/api/drive/invitationAudiences/route';
 import { GET as readShare } from '@/app/api/drive/shareUrl/route';
-import { isShortUrlStoreConfigured } from '@/app/api/short-url/_lib/shortUrlStore';
+import {
+  isShortUrlStoreConfigured,
+  resolveShortCode,
+} from '@/app/api/short-url/_lib/shortUrlStore';
 import { BODY_BULK_DATA, TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
 
 import { POST } from './route';
@@ -255,6 +267,7 @@ function mockDrive() {
         ...body,
         id: `new-drive-id-${++counter}`,
         createdTime: new Date().toISOString(),
+        ownedByMe: true,
       });
       if (doc && action === 'copy') copies.set(doc.id, created);
       return Response.json(created);
@@ -423,6 +436,98 @@ describe('초대장 복제 API', () => {
         invitationUrl: invite.guestUrl,
       },
     });
+  });
+
+  it('기본 초대장을 복제할 때 하객 그룹과 다른 임시 하위 폴더를 복사하지 않는다', async () => {
+    const { documents } = mockDrive();
+    for (const kind of [
+      'invitation_audience',
+      'invitation_audience_staging',
+      'invitation_clone_staging',
+    ]) {
+      documents.set(kind, {
+        id: kind,
+        name: `images ${kind}`,
+        mimeType: FOLDER,
+        parents: [SOURCE],
+        appProperties: { app_id: APP, kind },
+      });
+    }
+    expect((await clone()).status).toBe(200);
+    expect(
+      fetchDrive.mock.calls.some(
+        ([, init]) =>
+          init?.method === 'POST' &&
+          String(init.body).includes('images invitation_')
+      )
+    ).toBe(false);
+    expect(
+      fetchDrive.mock.calls.some(
+        ([url, init]) =>
+          !init?.method &&
+          /invitation_(?:audience|clone)_?/.test(
+            new URL(url).searchParams.get('q') ?? ''
+          )
+      )
+    ).toBe(false);
+  });
+
+  it('기본을 가족용으로 복제한 뒤 편집된 가족용 데이터와 에셋을 친구용으로 새로 복제한다', async () => {
+    const { documents, copies } = mockDrive();
+    jest
+      .mocked(claimAudienceLink)
+      .mockResolvedValue({ status: 'claimed', dataJsonFileId: null });
+    jest.mocked(resolveShortCode).mockResolvedValue(DATA);
+
+    const familyResponse = await createAudience(
+      request('invitationAudiences', {
+        folderId: SOURCE,
+        sourceFolderId: SOURCE,
+        requestId: 'family-copy',
+        name: '가족',
+        slug: 'family',
+      })
+    );
+    expect(familyResponse.status).toBe(200);
+    const { group: family } = await familyResponse.json();
+    const familyData = [...documents.values()].find(
+      doc => doc.name === 'data.json' && doc.parents.includes(family.folderId)
+    )!;
+    const familyPhotoId = copies.get(GALLERY)!.id;
+    familyData.body = {
+      ...(familyData.body as typeof sourceData),
+      bulkData: { ...sourceData.bulkData, backgroundColor: '#ff00ee' },
+    };
+
+    const friendsResponse = await createAudience(
+      request('invitationAudiences', {
+        folderId: family.folderId,
+        sourceFolderId: family.folderId,
+        requestId: 'friends-copy',
+        name: '친구',
+        slug: 'friends',
+      })
+    );
+    expect(friendsResponse.status).toBe(200);
+    const { group: friends } = await friendsResponse.json();
+    const friendsData = [...documents.values()].find(
+      doc => doc.name === 'data.json' && doc.parents.includes(friends.folderId)
+    )!;
+
+    expect(documents.get(DATA)?.body).toEqual(sourceData);
+    expect(friends.folderId).not.toBe(family.folderId);
+    expect(friends.invitationUuid).not.toBe(family.invitationUuid);
+    expect(documents.get(friends.folderId)?.parents).toEqual([SOURCE]);
+    expect(friendsData.id).not.toBe(familyData.id);
+    expect(friendsData.body).toMatchObject({
+      bulkData: { backgroundColor: '#ff00ee' },
+      invitationImage: [{ file: copies.get(familyPhotoId)?.id }],
+      shareUrl: { invitationUrl: `${GUEST_URL}?to=friends` },
+    });
+    expect((familyData.body as typeof sourceData).invitationImage[0].file).toBe(
+      familyPhotoId
+    );
+    expect(copies.get(familyPhotoId)?.id).not.toBe(familyPhotoId);
   });
 
   it('기존 메타와 앱 속성이 없는 데이터와 에셋 폴더도 복제한다', async () => {

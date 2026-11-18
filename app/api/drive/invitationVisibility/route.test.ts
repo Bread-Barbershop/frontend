@@ -23,6 +23,10 @@ jest.mock('@/app/api/drive/_lib/publishPermissionWithRetry', () => ({
 jest.mock('@/app/api/drive/_lib/revokePublicPermissionWithRetry', () => ({
   revokePublicPermissionWithRetry: jest.fn(),
 }));
+jest.mock('@/app/api/drive/_lib/invitationAudiences', () => ({
+  getInvitationPublicOrigin: () => 'http://localhost',
+  getOwnedAudienceLink: jest.fn(),
+}));
 
 import { POST } from '@/app/api/drive/invitationVisibility/route';
 import { revalidatePath, revalidateTag } from 'next/cache';
@@ -33,6 +37,7 @@ import {
 } from '@/app/api/drive/_lib/ensureInvitationMetaFile';
 import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissionWithRetry';
 import { revokePublicPermissionWithRetry } from '@/app/api/drive/_lib/revokePublicPermissionWithRetry';
+import { getOwnedAudienceLink } from '@/app/api/drive/_lib/invitationAudiences';
 
 const validGuestPayload = {
   bulkData: {
@@ -97,6 +102,36 @@ describe('invitationVisibility route', () => {
     (loadInvitationMeta as jest.Mock).mockResolvedValue(null);
   });
 
+  it('비공개 원본의 하객 그룹을 저장할 때 공개 권한을 바꾸지 않는다', async () => {
+    const guestUrl = 'http://localhost/guest/root-data?to=family';
+    jest.mocked(getOwnedAudienceLink).mockResolvedValue({
+      rootFolderId: 'root-folder',
+      rootDataJsonFileId: 'root-data',
+      requestId: 'claim-key',
+      guestUrl,
+      published: false,
+      group: {
+        folderId: 'invitation-folder-id',
+        invitationUuid: 'aud_group',
+        name: '가족',
+        slug: 'family',
+      },
+    });
+
+    const response = await POST(createRequest(true));
+
+    expect(await response.json()).toMatchObject({
+      ok: true,
+      inherited: true,
+      published: false,
+      ready: false,
+      guestUrl,
+    });
+    expect(publishPermissionWithRetry).not.toHaveBeenCalled();
+    expect(revokePublicPermissionWithRetry).not.toHaveBeenCalled();
+    expect(upsertInvitationMeta).not.toHaveBeenCalled();
+  });
+
   afterEach(() => {
     jest.useRealTimers();
   });
@@ -131,10 +166,9 @@ describe('invitationVisibility route', () => {
       guestUrl: '/guest/data-json-file-id',
       dataJsonFileId: 'data-json-file-id',
     });
-    expect(revalidateTag).toHaveBeenCalledWith(
-      'invitation:data-json-file-id',
-      { expire: 0 }
-    );
+    expect(revalidateTag).toHaveBeenCalledWith('invitation:data-json-file-id', {
+      expire: 0,
+    });
     expect(revalidatePath).toHaveBeenCalledWith('/guest/data-json-file-id');
   });
 

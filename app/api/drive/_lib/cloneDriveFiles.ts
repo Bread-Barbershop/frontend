@@ -6,7 +6,7 @@ import { googleFetch } from './googleFetch';
 
 const DRIVE_FILES_URL = 'https://www.googleapis.com/drive/v3/files';
 const FILE_FIELDS =
-  'id,name,mimeType,appProperties,createdTime,trashed,parents';
+  'id,name,mimeType,appProperties,createdTime,trashed,parents,ownedByMe';
 const BATCH_SIZE = 5;
 
 export const DRIVE_FOLDER_MIME = 'application/vnd.google-apps.folder';
@@ -19,6 +19,7 @@ export type CloneDriveFile = {
   createdTime: string;
   appProperties?: Record<string, string>;
   trashed?: boolean;
+  ownedByMe?: boolean;
   parents?: string[];
 };
 

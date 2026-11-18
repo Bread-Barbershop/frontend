@@ -5,6 +5,10 @@ import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
 
 import { escapeDriveQueryValue } from './escapeQueryValue';
 import { generateUuid } from './generateUuid';
+import {
+  AUDIENCE_UUID_PREFIX,
+  findOwnedAudienceByUuid,
+} from './invitationAudienceFolders';
 
 type DriveFile = {
   id: string;
@@ -17,6 +21,7 @@ export type EnsureInvitationFolderResult = {
   invitationFolderId: string;
   invitationUuid: string;
   reused: boolean;
+  audienceSlug?: string;
 };
 
 const DEFAULT_INVITATION_FOLDER_BASE_NAME = '초대장';
@@ -122,6 +127,21 @@ export async function ensureInvitationFolder(params: {
   }
 
   const invitationUuid = params.invitationUuid ?? generateUuid();
+  if (invitationUuid.startsWith(AUDIENCE_UUID_PREFIX)) {
+    const audience = await findOwnedAudienceByUuid(
+      workspaceFolderId,
+      invitationUuid
+    );
+    if (!audience) {
+      throw new DriveHttpError('하객 그룹을 찾을 수 없습니다.', 404, null);
+    }
+    return {
+      invitationFolderId: audience.group.folderId,
+      invitationUuid,
+      reused: true,
+      audienceSlug: audience.group.slug,
+    };
+  }
 
   // 1) uuid 기반 검색 (이름은 조건에 넣지 않음)
   const q = [
@@ -142,7 +162,7 @@ export async function ensureInvitationFolder(params: {
     spaces: 'drive',
     fields: 'files(id,name,createdTime,appProperties)',
     orderBy: 'createdTime', // 가장 오래된 것을 정본으로 정함.
-    pageSize: '10',         // 중복 방어
+    pageSize: '10', // 중복 방어
   });
 
   const searchRes = await googleFetch(

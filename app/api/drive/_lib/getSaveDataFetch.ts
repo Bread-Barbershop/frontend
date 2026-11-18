@@ -1,8 +1,13 @@
 import 'server-only';
 
 import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
+import {
+  DRIVE_FOLDER_MIME,
+  listCloneFiles,
+} from '@/app/api/drive/_lib/cloneDriveFiles';
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
+import { isInvitationAuxiliaryFolder } from '@/app/api/drive/_lib/invitationAudienceFolders';
 import { JsonData } from '@/app/editor/[id]/types/savedata';
 
 export type InviteListItem = {
@@ -17,6 +22,7 @@ export type DriveListResponse = {
     id?: string;
     name?: string;
     mimeType?: string;
+    appProperties?: Record<string, string>;
   }>;
 
   error?: unknown;
@@ -33,23 +39,12 @@ export async function loadInvitations(
 ): Promise<DriveListResponse | null> {
   if (!id) return null;
   try {
-  const listRes = await googleFetch(
-      `https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents&fields=files(id, name, mimeType)`,
-      { cache: 'no-store' }
-    );
-    const listData = (await listRes
-      .json()
-      .catch(() => ({}))) as DriveListResponse;
-
-    if (!listRes.ok) {
-      throw new DriveHttpError(
-        '초대장 목록 조회 실패',
-        listRes.status,
-        listData
-      );
-    }
-
-    return listData;
+    const files = await listCloneFiles(id);
+    return {
+      files: files.filter(
+        file => !isInvitationAuxiliaryFolder(file.appProperties?.kind)
+      ),
+    };
   } catch (error) {
     captureDriveError({ error, operation: 'drive_editor_load_list' });
     console.error(error);
@@ -59,7 +54,7 @@ export async function loadInvitations(
 
 export async function downloadFiles(id: string): Promise<JsonData | null> {
   try {
-  const listRes = await googleFetch(
+    const listRes = await googleFetch(
       `https://www.googleapis.com/drive/v3/files/${id}?alt=media`,
       { cache: 'no-store' }
     );
@@ -85,29 +80,16 @@ export async function getFilesInFolder(
   folderId: string
 ): Promise<DriveListResponse | null> {
   try {
-    // q 파라미터는 띄어쓰기가 포함되므로 인코딩이 필요합니다.
-    const query = encodeURIComponent(
-      `'${folderId}' in parents and trashed = false`
-    );
-
-    // fields를 지정하면 응답 속도가 빨라지고 데이터가 깔끔해집니다.
-    const fields = encodeURIComponent(
-      'files(id, name, mimeType, size, thumbnailLink, createdTime)'
-    );
-
-    const url = `https://www.googleapis.com/drive/v3/files?q=${query}&fields=${fields}`;
-
-    const listRes = await googleFetch(url, { cache: 'no-store' });
-    const data = (await listRes.json()) as DriveListResponse;
-    if (!listRes.ok) {
-      throw new DriveHttpError(
-        '폴더 내 파일 목록 조회 실패',
-        listRes.status,
-        data
-      );
+    const files = [];
+    const folders = [folderId];
+    for (const currentFolderId of folders) {
+      for (const file of await listCloneFiles(currentFolderId)) {
+        if (isInvitationAuxiliaryFolder(file.appProperties?.kind)) continue;
+        if (file.mimeType === DRIVE_FOLDER_MIME) folders.push(file.id);
+        else files.push(file);
+      }
     }
-
-    return data; // { files: [...] }
+    return { files };
   } catch (error) {
     captureDriveError({ error, operation: 'drive_editor_load_assets' });
     console.error(error);

@@ -24,6 +24,10 @@ jest.mock('@/app/api/drive/_lib/ensureInvitationMetaFile', () => ({
 jest.mock('@/app/api/short-url/_lib/shortUrlStore', () => ({
   getOrCreateShortCode: jest.fn(),
 }));
+jest.mock('@/app/api/drive/_lib/invitationAudiences', () => ({
+  getOwnedAudienceLink: jest.fn(),
+  updateAudienceLinkTarget: jest.fn(),
+}));
 
 import { GET, POST } from '@/app/api/drive/shareUrl/route';
 import {
@@ -31,6 +35,10 @@ import {
   upsertInvitationMeta,
 } from '@/app/api/drive/_lib/ensureInvitationMetaFile';
 import { getOrCreateShortCode } from '@/app/api/short-url/_lib/shortUrlStore';
+import {
+  getOwnedAudienceLink,
+  updateAudienceLinkTarget,
+} from '@/app/api/drive/_lib/invitationAudiences';
 
 const shareData = {
   title: '초대장',
@@ -47,6 +55,62 @@ describe('shareUrl route', () => {
       shortCode: 'aB7kQ2x',
       guestPath: '/i/aB7kQ2x',
     });
+  });
+
+  it('하객 그룹 저장 시 초대장 대표 URL에 대상을 붙이고 별도 짧은 링크를 발급하지 않는다', async () => {
+    const guestUrl = 'http://localhost/i/aB7kQ2x?to=family';
+    jest.mocked(getOwnedAudienceLink).mockResolvedValue({
+      rootFolderId: 'root-folder',
+      rootDataJsonFileId: 'root-data-file',
+      requestId: 'claim-key',
+      guestUrl,
+      published: false,
+      group: {
+        folderId: 'group-folder',
+        invitationUuid: 'aud_group',
+        name: '가족',
+        slug: 'family',
+      },
+    });
+    jest.mocked(updateAudienceLinkTarget).mockResolvedValue('group-data-file');
+    jest.mocked(upsertInvitationMeta).mockResolvedValue({
+      metaFileId: 'meta-group-file',
+      reused: true,
+      payload: {
+        version: 1,
+        published: false,
+        updatedAt: '2026-11-18T00:00:00Z',
+        guestUrl,
+        dataJsonFileId: 'group-data-file',
+        kakaoShare: { ...shareData, invitationUrl: guestUrl },
+      },
+    });
+
+    const response = await POST(
+      new Request('http://localhost/api/drive/shareUrl', {
+        method: 'POST',
+        body: JSON.stringify({
+          invitationFolderId: 'group-folder',
+          dataJsonFileId: 'group-data-file',
+          shareData,
+        }),
+      })
+    );
+
+    expect(await response.json()).toMatchObject({
+      ok: true,
+      guestUrl,
+      shortCode: null,
+    });
+    expect(upsertInvitationMeta).toHaveBeenCalledWith(
+      'group-folder',
+      expect.objectContaining({
+        guestUrl,
+        dataJsonFileId: 'group-data-file',
+        kakaoShare: expect.objectContaining({ invitationUrl: guestUrl }),
+      })
+    );
+    expect(getOrCreateShortCode).not.toHaveBeenCalled();
   });
 
   it('공유 데이터를 meta.json에 저장한다', async () => {
