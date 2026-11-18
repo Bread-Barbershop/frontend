@@ -169,12 +169,8 @@ describe('홈과 편집기가 공유하는 초대장 컬렉션', () => {
             component => component !== 'spacer' && component !== 'divider'
           )
       ).toEqual(template.blockTypes);
-      expect(
-        editor.blocks.find(block => block.component === 'greeting')?.props
-          .messageHtml
-      ).toBe(
-        preview.blocks.find(block => block.component === 'greeting')?.props
-          .messageHtml
+      expect(withoutFreshIds(editor.blocks)).toEqual(
+        withoutFreshIds(preview.blocks)
       );
       expect(editor.posterJson.objects).toHaveLength(
         (sourcePoster.objects as unknown[]).length
@@ -254,7 +250,13 @@ describe('홈과 편집기가 공유하는 초대장 컬렉션', () => {
       const firstObjects = a.posterJson.objects as Record<string, unknown>[];
       const secondObjects = b.posterJson.objects as Record<string, unknown>[];
 
-      expect(first.length).toBeGreaterThan(10);
+      expect(a.blocks).toHaveLength(design.sections.length);
+      for (const block of a.blocks) {
+        expect(block.id).toMatch(
+          /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+        );
+      }
+      expect(second).toHaveLength(first.length);
       expect(new Set(first).size).toBe(first.length);
       expect(first.every(id => !second.includes(id))).toBe(true);
       const objectIds = firstObjects
