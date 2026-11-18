@@ -80,6 +80,47 @@ describe('일괄 편집 즉시 반영', () => {
     preview.dispose();
   });
 
+  it('배경 효과와 범위를 미리보기에 저장하고 오프닝 컨페티를 독립적으로 끈다', () => {
+    render(<BulkEdit />);
+    const effect = screen.getByRole('combobox', { name: '배경 효과' });
+    expect(effect).toHaveValue('none');
+    expect(screen.queryByRole('combobox', { name: '표시 범위' })).toBeNull();
+
+    fireEvent.change(effect, { target: { value: 'confetti' } });
+    const scope = screen.getByRole('combobox', { name: '표시 범위' });
+    expect(scope).toHaveValue('poster');
+    fireEvent.change(scope, { target: { value: 'screen' } });
+    const openingConfetti = screen.getByRole('switch', {
+      name: '축하 효과 컨페티',
+    });
+    fireEvent.click(openingConfetti);
+    fireEvent.click(openingConfetti);
+
+    const preview = createPreviewSnapshot('data:image/png;base64,test');
+    expect(preview.snapshot.payload.bulkData.invitationEffects).toEqual({
+      ambientEffect: 'confetti',
+      ambientScope: 'screen',
+      confetti: false,
+    });
+    preview.dispose();
+  });
+
+  it('예전 컨페티 조합에서도 오프닝 스위치로 배경 효과가 사라지지 않는다', () => {
+    const store = useEditorStore.getState();
+    store.addBlock('wedding', 'visualEffects', 'old-confetti');
+    store.updateBlock('old-confetti', { effect: 'confetti' });
+    store.addBlock('wedding', 'visualEffects', 'old-petals');
+    store.updateBlock('old-petals', { effect: 'petals' });
+    render(<BulkEdit />);
+    fireEvent.click(screen.getByRole('switch', { name: '축하 효과 컨페티' }));
+    expect(screen.getByRole('combobox', { name: '배경 효과' })).toHaveValue(
+      'blocks'
+    );
+    expect(screen.getByRole('combobox', { name: '표시 범위' })).toHaveValue(
+      'screen'
+    );
+  });
+
   it('배경색을 지정된 순서대로 표시하고 선택한 색상을 반영한다', () => {
     render(<BulkEdit />);
 

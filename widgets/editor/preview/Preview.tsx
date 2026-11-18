@@ -23,6 +23,7 @@ import { InvitationBackgroundTexture } from '@/components/molecules/invitation-b
 import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
 import { EditorBgmOverlay } from '@/components/organisms/bgm/components/EditorBgmOverlay';
 import InvitationChapter from '@/components/organisms/invitation-chapter/InvitationChapter';
+import { AmbientParticles } from '@/components/organisms/visualEffects/ParticleLayer';
 import { InvitationVisualEffects } from '@/components/organisms/visualEffects/VisualEffectsPreview';
 import CalloutIcon from '@/shared/assets/icons/callout.svg';
 import { componentCls } from '@/shared/data/componentsInfo/componentInfo';
@@ -96,6 +97,7 @@ function Preview() {
       moveBlock: state.moveBlock,
     }))
   );
+  const effects = resolveInvitationEffects(invitationEffects, block);
   const isPreviewCalloutOpen = useEditorCalloutStore(
     state => state.callouts['preview-panel']
   );
@@ -150,10 +152,16 @@ function Preview() {
       className={`w-93.75 h-[812px] flex flex-col relative shrink-0`}
     >
       <EditorBgmOverlay />
+      <AmbientParticles
+        key={`ambient-${invitationEffectsReplay}`}
+        effects={effects}
+        placement="screen"
+        contained
+      />
       {invitationEffectsReplay > 0 && (
         <InvitationVisualEffects
           key={invitationEffectsReplay}
-          effects={resolveInvitationEffects(invitationEffects, block)}
+          effects={effects}
           backgroundColor={backgroundColor}
           contentRef={previewScrollContainerRef}
           scope="editor"
@@ -185,11 +193,17 @@ function Preview() {
               texture={backgroundTexture}
             />
             <div
+              className="relative"
               ref={el => {
                 blockRefs.current.mainPoster = el;
               }}
             >
               <MainPosterPreview />
+              <AmbientParticles
+                key={invitationEffectsReplay}
+                effects={effects}
+                placement="poster"
+              />
             </div>
             <DndContext
               sensors={sensors}

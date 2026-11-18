@@ -4,12 +4,13 @@ import { createRef } from 'react';
 import { normalizeGuestBlock } from '@/app/guest/[id]/validation/normalizeGuestBlock';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
-import { resolveInvitationEffects } from '@/shared/utils/invitationEffects';
 import type { BlockType } from '@/shared/types/editor';
+import { resolveInvitationEffects } from '@/shared/utils/invitationEffects';
 
 import { AfterPartyPreview } from './afterParty/AfterPartyPreview';
 import { FaqPreview } from './faq/FaqPreview';
 import { GuestbookPreview } from './guestbook/GuestbookPreview';
+import { AmbientParticles } from './visualEffects/ParticleLayer';
 import { InvitationVisualEffects } from './visualEffects/VisualEffectsPreview';
 
 function persisted<T extends BlockType>(
@@ -171,6 +172,47 @@ describe('신규 블록의 추가·저장 데이터·공개 화면 연결', () =
 
     expect(contentRef.current).not.toHaveAttribute('inert');
     expect(frame.querySelector('.invia-effect-burst')).toBeInTheDocument();
+  });
+
+  it('포스터 효과를 화면 전체로 옮기고 오프닝 컨페티가 끝나도 계속 재생한다', () => {
+    function Invitation({ scope }: { scope: 'poster' | 'screen' }) {
+      const effects = resolveInvitationEffects(
+        {
+          opening: 'envelope',
+          confetti: true,
+          ambientEffect: 'petals',
+          ambientScope: scope,
+        },
+        []
+      );
+      return (
+        <>
+          <header>
+            <AmbientParticles placement="poster" effects={effects} />
+          </header>
+          <InvitationVisualEffects effects={effects} />
+        </>
+      );
+    }
+    const view = render(<Invitation scope="poster" />);
+    const poster = screen.getByRole('banner');
+    expect(poster.querySelector('.invia-effect-petals')).toBeInTheDocument();
+    expect(document.querySelectorAll('.invia-effect-layer')).toHaveLength(1);
+
+    const envelope = screen.getByRole('dialog');
+    fireEvent.click(screen.getByRole('button', { name: '초대장 열기' }));
+    fireEvent.animationEnd(envelope);
+    fireEvent.animationEnd(document.querySelector('.invia-effect-burst')!);
+    expect(poster.querySelector('.invia-effect-petals')).toBeInTheDocument();
+
+    view.rerender(<Invitation scope="screen" />);
+    expect(poster.querySelector('.invia-effect-layer')).toBeNull();
+    expect(
+      document.body.querySelector(
+        ':scope > .invia-effect-layer .invia-effect-petals'
+      )
+    ).toBeInTheDocument();
+    expect(document.querySelectorAll('.invia-effect-layer')).toHaveLength(1);
   });
 
   it('저장한 배경 속도와 부드러움을 공개 효과와 오프닝에 함께 적용한다', () => {
