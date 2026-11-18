@@ -16,6 +16,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { EditorCallout } from '@/components/molecules/editor-callout';
+import { isBlockEnabled } from '@/shared/data/registry/blockAvailability';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useEditorCalloutStore } from '@/shared/store/useEditorCalloutStore';
 import { shouldIgnoreEditorShortcut } from '@/shared/utils/editorShortcutGuard';
@@ -50,6 +51,7 @@ function OrderPanel() {
   const isOrderCalloutOpen = useEditorCalloutStore(
     state => state.callouts['order-panel']
   );
+  const visibleBlocks = block.filter(item => isBlockEnabled(item.component));
 
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [isDrag, setIsDrag] = useState(false);
@@ -74,7 +76,9 @@ function OrderPanel() {
 
       const state = useEditorStore.getState();
       const targetId = state.selectedId;
-      const isSelectedBlock = state.block.some(block => block.id === targetId);
+      const isSelectedBlock = state.block.some(
+        block => block.id === targetId && isBlockEnabled(block.component)
+      );
 
       if (!targetId || targetId === 'mainPoster' || !isSelectedBlock) return;
 
@@ -171,6 +175,7 @@ function OrderPanel() {
       >
         <p className="font-semibold text-sm px-9 py-3.5 select-none">순서</p>
         <div className="w-full px-2 relative">
+          {/* Reserve shell chrome, action controls, title/margins, both arrows, and header clearance. */}
           <ChipCarousel
             options={{
               align: 'start',
@@ -179,7 +184,7 @@ function OrderPanel() {
               dragFree: true,
               watchDrag: !isDrag,
             }}
-            parentClassName="flex-col mb-2"
+            parentClassName="flex-col mb-2 max-h-[min(376px,calc(100dvh-532px))]"
             onReset={() => {
               setContextMenu(null);
             }}
@@ -192,10 +197,10 @@ function OrderPanel() {
               포스터
             </button>
             <SortableContext
-              items={block.map(b => b.id)}
+              items={visibleBlocks.map(b => b.id)}
               strategy={verticalListSortingStrategy}
             >
-              {block.map(items => (
+              {visibleBlocks.map(items => (
                 <SortableItems
                   key={items.id}
                   id={items.id}
@@ -241,7 +246,7 @@ function OrderPanel() {
         targetAnchor={{ x: 0.5, y: 0 }}
         offset={0}
         className="max-w-[300px] break-keep text-[14px] leading-5"
-        text="우클릭으로 삭제 혹은 꾹 누른 상태로 순서를 변경할 수 있어요! 선택한 블록은 Delete 키로 삭제할 수 있어요."
+        text="블록을 꾹 누른 채로 끌어 순서를 변경할 수 있어요. 선택한 블록은 Delete 키로 삭제할 수 있어요."
       />
       <AnimatePresence>
         {deleteTargetId && (

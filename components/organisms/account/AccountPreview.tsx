@@ -11,12 +11,14 @@ interface Props {
   blockInfo: EditorBlock<'account'>;
   titleClassName?: string;
   className?: string;
+  hideActions?: boolean;
 }
 
 export const AccountPreview = ({
   blockInfo,
   className,
   titleClassName,
+  hideActions,
   ...rest
 }: Props) => {
   const {
@@ -50,6 +52,7 @@ export const AccountPreview = ({
               <AccountsPerGroupPreview
                 isOpenAccount={isOpenAccount}
                 accountList={accountList[i] ?? []}
+                hideActions={hideActions}
               />
             )}
           </GroupPreview>

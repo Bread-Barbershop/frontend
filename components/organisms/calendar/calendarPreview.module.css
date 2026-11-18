@@ -1,0 +1,11 @@
+/* The editor and guest renderer mark the invitation's new dark surfaces. */
+:global([data-invitation-dark]) .preview {
+  --calendar-text: #ffffff;
+  --calendar-muted-text: color-mix(
+    in srgb,
+    var(--calendar-automatic-body-color, #fdfdfd),
+    #ffffff 25%
+  );
+  --calendar-outside-month-opacity: 1;
+  --calendar-divider: rgb(255 255 255 / 28%);
+}

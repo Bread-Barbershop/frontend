@@ -10,15 +10,21 @@ import {
 } from 'react';
 
 import FontColorIcon from '@/shared/assets/icons/color.svg';
-import { hasCustomFontFace, loadCustomFont } from '@/shared/fonts/fontLoader';
+import {
+  hasCustomFontFace,
+  loadCustomFont,
+  loadFontPreview,
+} from '@/shared/fonts/fontLoader';
 import {
   FontFamilyOption,
   FontWeightOption,
   getDefaultFontFamilyOption,
 } from '@/shared/fonts/fontOptions';
 import { resolveFontFamily } from '@/shared/fonts/fontRegistry';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { BulkData } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
+import { isDarkInvitationBackground } from '@/shared/utils/invitationBackgroundColor';
 
 import { Selector } from '../selector';
 import {
@@ -58,6 +64,8 @@ export function TextEditorPreview({
   onActiveColorPickerChange,
 }: TextEditorPreviewProps) {
   const colorPickerOpen = activeColorPickerId === colorPickerId;
+  const backgroundColor = useEditorStore(state => state.backgroundColor);
+  const darkBackground = isDarkInvitationBackground(backgroundColor);
   const [customFontSizeInput, setCustomFontSizeInput] = useState<string | null>(
     null
   );
@@ -113,18 +121,45 @@ export function TextEditorPreview({
   };
 
   const handleFontSizeInputChange = (input: string) => {
-    const numericValue = input.replace(/[^0-9]/g, '');
-    setCustomFontSizeInput(numericValue);
-    if (numericValue) {
+    const digits = input.replace(/[^0-9]/g, '');
+    const numericValue = Number(digits);
+    setCustomFontSizeInput(digits);
+    if (digits && Number.isSafeInteger(numericValue) && numericValue > 0) {
       onChange({ ...value, fontSize: `${numericValue}px` });
     }
   };
 
   const handleFontSizeInputBlur = () => {
-    if (customFontSizeInput === '') {
-      setCustomFontSizeInput(null);
-      onChange({ ...value, fontSize: DEFAULT_FONT_SIZE_OPTION.value });
-    }
+    setCustomFontSizeInput(null);
+  };
+
+  const currentSize = Number.parseInt(value.fontSize, 10);
+  const selectedFamilyIndex = FONT_FAMILY_OPTIONS.findIndex(
+    option => option.value === fontFamilySelected.value
+  );
+  const selectedWeightIndex = fontWeightOptions.findIndex(
+    option => option.value === fontWeightSelected.value
+  );
+
+  const stepFontSize = (direction: 1 | -1) => {
+    const size = Number.isFinite(currentSize)
+      ? currentSize
+      : Number.parseInt(DEFAULT_FONT_SIZE_OPTION.value, 10);
+    const nextSize = Math.max(1, size + direction);
+    setCustomFontSizeInput(null);
+    handleFontSizeSelect({ label: String(nextSize), value: `${nextSize}px` });
+  };
+
+  const stepFontFamily = (direction: 1 | -1) => {
+    const nextIndex = selectedFamilyIndex + direction;
+    if (nextIndex < 0 || nextIndex >= FONT_FAMILY_OPTIONS.length) return;
+    handleFontFamilySelect(FONT_FAMILY_OPTIONS[nextIndex]);
+  };
+
+  const stepFontWeight = (direction: 1 | -1) => {
+    const nextIndex = selectedWeightIndex + direction;
+    if (nextIndex < 0 || nextIndex >= fontWeightOptions.length) return;
+    handleFontWeightSelect(fontWeightOptions[nextIndex]);
   };
 
   useEffect(() => {
@@ -151,8 +186,17 @@ export function TextEditorPreview({
             onSelect={handleFontFamilySelect}
             placeholder="Font"
             variant="fontFamily"
+            onOptionVisible={loadFontPreview}
             showCheckbox={false}
             className="w-full"
+            stepControls={{
+              onUp: () => stepFontFamily(-1),
+              onDown: () => stepFontFamily(1),
+              upDisabled: selectedFamilyIndex <= 0,
+              downDisabled:
+                selectedFamilyIndex < 0 ||
+                selectedFamilyIndex >= FONT_FAMILY_OPTIONS.length - 1,
+            }}
           />
         </div>
         <div className="flex h-8 gap-3 items-center justify-between">
@@ -164,6 +208,14 @@ export function TextEditorPreview({
             variant="fontWeight"
             showCheckbox={false}
             className="w-full"
+            stepControls={{
+              onUp: () => stepFontWeight(1),
+              onDown: () => stepFontWeight(-1),
+              upDisabled:
+                selectedWeightIndex < 0 ||
+                selectedWeightIndex >= fontWeightOptions.length - 1,
+              downDisabled: selectedWeightIndex <= 0,
+            }}
           />
           <Selector<FontSizeOption>
             options={FONT_SIZE_OPTIONS}
@@ -175,6 +227,11 @@ export function TextEditorPreview({
             variant="fontSize"
             showCheckbox={false}
             className="w-full"
+            stepControls={{
+              onUp: () => stepFontSize(1),
+              onDown: () => stepFontSize(-1),
+              downDisabled: Number.isFinite(currentSize) && currentSize <= 1,
+            }}
           />
           <div className="relative">
             <button
@@ -216,7 +273,10 @@ export function TextEditorPreview({
         </div>
       </div>
 
-      <div className="bg-bg-base border border-border-neutral rounded-lg py-4">
+      <div
+        className="bg-bg-base border border-border-neutral rounded-lg py-4"
+        style={darkBackground ? { backgroundColor } : undefined}
+      >
         {children}
       </div>
     </div>

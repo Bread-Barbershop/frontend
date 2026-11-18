@@ -1,4 +1,5 @@
 import { cn } from '@/shared/utils/cn';
+import { getContrastingTextColor } from '@/shared/utils/invitationBackgroundColor';
 
 import { CalendarTemplateProps } from '../types/calendar';
 
@@ -9,10 +10,15 @@ export function CalendarType1({
   headerDays,
   accentColor,
 }: CalendarTemplateProps) {
+  const selectedDayStyle = {
+    backgroundColor: accentColor,
+    color: getContrastingTextColor(accentColor),
+  };
+
   return (
     <div className="flex flex-col w-full font-lineseed">
       <div className="flex items-end justify-center mb-6 ">
-        <h3 className="text-xl font-semibold text-text-primary tracking-wider hidden">
+        <h3 className="text-xl font-semibold text-[color:var(--calendar-text,var(--color-text-primary))] tracking-wider hidden">
           {currentYear}. {currentMonth.toString().padStart(2, '0')}
         </h3>
       </div>
@@ -21,7 +27,7 @@ export function CalendarType1({
           <div
             key={day}
             className={cn(
-              'text-center font-bold text-sm text-text-tertiary',
+              'text-center font-bold text-sm text-[color:var(--calendar-muted-text,var(--color-text-tertiary))]',
               idx === 0 && 'text-text-wedding'
             )}
             style={idx === 0 ? { color: accentColor } : undefined}
@@ -36,21 +42,19 @@ export function CalendarType1({
           >
             <div
               className={cn(
-                'flex items-center justify-center relative z-1 transition-colors w-8 h-8 text-sm text-text-tertiary',
-                !dayObj.isCurrentMonth && 'opacity-30'
+                'flex items-center justify-center relative z-1 transition-colors w-8 h-8 text-sm',
+                dayObj.isCurrentMonth
+                  ? 'text-[color:var(--calendar-text,var(--color-text-tertiary))]'
+                  : 'text-[color:var(--calendar-muted-text,var(--color-text-tertiary))] opacity-[var(--calendar-outside-month-opacity,0.3)]'
               )}
               style={idx % 7 === 0 ? { color: accentColor } : undefined}
             >
               <span
                 className={cn(
                   'flex items-center justify-center leading-none',
-                  dayObj.isTargetDate && 'size-5.5 rounded-full text-white'
+                  dayObj.isTargetDate && 'size-5.5 rounded-full'
                 )}
-                style={
-                  dayObj.isTargetDate
-                    ? { backgroundColor: accentColor }
-                    : undefined
-                }
+                style={dayObj.isTargetDate ? selectedDayStyle : undefined}
               >
                 <span
                   className={cn(

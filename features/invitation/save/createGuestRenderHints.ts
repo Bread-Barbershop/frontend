@@ -44,7 +44,10 @@ function extractFontFamiliesFromString(value: string) {
   return families;
 }
 
-function collectFontFamilies(value: unknown, families = new Set<string>()) {
+export function collectFontFamilies(
+  value: unknown,
+  families = new Set<string>()
+) {
   if (typeof value === 'string') {
     extractFontFamiliesFromString(value).forEach(fontFamily => {
       families.add(fontFamily);

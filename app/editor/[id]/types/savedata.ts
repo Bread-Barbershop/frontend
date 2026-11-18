@@ -1,10 +1,15 @@
 import { DriveListResponse } from '@/app/api/drive/_lib/getSaveDataFetch';
+import type { ScrollAnimationSettings } from '@/components/molecules/scroll-fade-in/animationConfig';
+import type { InvitationPrivacy } from '@/features/invitation/privacy/settings';
+import type { BackgroundTextureSettings } from '@/shared/data/backgroundTextures';
+import type { SectionStyle } from '@/shared/data/sectionStyles';
 import {
   BulkData,
   PersistedEditorBlock,
   ShareUrlState,
 } from '@/shared/types/block';
 import type { BgmData } from '@/shared/types/invitationSave';
+import type { InvitationEffectsSettings } from '@/shared/utils/invitationEffects';
 
 export interface BgmFile {
   bgmInfo: BgmData | null;
@@ -15,11 +20,17 @@ type UploadTask = {
   file: File;
 };
 export interface SavedData {
+  audienceName?: string;
   bulkData: {
+    sectionStyle?: SectionStyle;
     backgroundColor: string;
+    backgroundTexture?: BackgroundTextureSettings;
     titleData: BulkData;
     bodyData: BulkData;
     isZoom: boolean;
+    invitationPrivacy?: InvitationPrivacy;
+    scrollAnimation: ScrollAnimationSettings;
+    invitationEffects?: InvitationEffectsSettings;
   };
   blocks: PersistedEditorBlock[];
   mainPoster: string;
@@ -32,10 +43,15 @@ export interface SavedData {
 
 export interface JsonData {
   bulkData: {
+    sectionStyle?: SectionStyle;
     backgroundColor: string;
+    backgroundTexture?: BackgroundTextureSettings;
     titleData: BulkData;
     bodyData: BulkData;
     isZoom: boolean;
+    invitationPrivacy?: InvitationPrivacy;
+    scrollAnimation: ScrollAnimationSettings;
+    invitationEffects?: InvitationEffectsSettings;
   };
   blocks: PersistedEditorBlock[]; // singular to match store
   shareUrl?: ShareUrlState;
@@ -45,6 +61,7 @@ export interface JsonData {
 }
 
 export interface ResponseData {
+  audienceName?: string;
   config: JsonData;
   images: DriveListResponse;
   audios: DriveListResponse;

@@ -1,10 +1,12 @@
 import { InvitationType } from '@/shared/types/block';
 import { BlockType } from '@/shared/types/editor';
 
+import { isBlockEnabled } from '../registry/blockAvailability';
+
 import { BLOCK_SEARCH_ALIASES } from './blockSearchAliases';
 
 export type SampleDataType = {
-  english: InvitationType;
+  english: InvitationType | 'layout';
   korea: string;
   list: ListType[];
 };
@@ -16,12 +18,14 @@ export type ListType = {
   aliases?: string[];
 };
 const withSearchAliases = (items: ListType[]): ListType[] =>
-  items.map(item => ({
-    ...item,
-    ...(item.component && BLOCK_SEARCH_ALIASES[item.component]
-      ? { aliases: BLOCK_SEARCH_ALIASES[item.component] }
-      : {}),
-  }));
+  items
+    .filter(item => !item.component || isBlockEnabled(item.component))
+    .map(item => ({
+      ...item,
+      ...(item.component && BLOCK_SEARCH_ALIASES[item.component]
+        ? { aliases: BLOCK_SEARCH_ALIASES[item.component] }
+        : {}),
+    }));
 
 export const weddingComponents: ListType[] = withSearchAliases([
   { contents: '인사말', component: 'greeting', isType: false },
@@ -31,18 +35,24 @@ export const weddingComponents: ListType[] = withSearchAliases([
   { contents: 'D-Day', component: 'countdown', isType: false },
   { contents: '예식장소', component: 'place', isType: false },
   { contents: '교통 / 주차', component: 'transportation', isType: false },
+  { contents: '피로연 · 애프터파티', component: 'afterParty', isType: false },
   { contents: '갤러리', component: 'gallery', isType: true },
   { contents: '연락처', component: 'phone', isType: false },
   { contents: '배경음악', component: 'bgm', isType: false },
+  { contents: '배경 · 오프닝 효과', component: 'visualEffects', isType: false },
   { contents: '계좌번호', component: 'account', isType: false },
+  { contents: '축하 화환', component: 'wreath', isType: false },
   // { contents: '방명록', component: null, isType: false },
   { contents: '인터뷰', component: 'interview', isType: false },
   // { contents: '모청스냅', component: null, isType: false },
   { contents: '공지사항', component: 'notice', isType: false },
+  { contents: '자주 묻는 질문', component: 'faq', isType: false },
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
   { contents: '참석 여부', component: 'rsvp', isType: false },
+  { contents: '디지털 방명록', component: 'guestbook', isType: false },
   { contents: '식순 / 타임라인', component: 'timeline', isType: false },
+  { contents: '식사 메뉴', component: 'mealMenu', isType: false },
   { contents: '세로 구분선', component: 'divider', isType: false },
   { contents: '드레스 코드', component: 'dressCode', isType: false },
   { contents: '여백', component: 'spacer', isType: false },
@@ -57,10 +67,12 @@ export const firstBirthdayComponents: ListType[] = withSearchAliases([
   { contents: '가족소개', component: 'myFamily', isType: false },
   { contents: '행사장소', component: 'place', isType: false },
   { contents: '교통 / 주차', component: 'transportation', isType: false },
+  { contents: '피로연 · 애프터파티', component: 'afterParty', isType: false },
   { contents: '갤러리', component: 'gallery', isType: true },
   { contents: '연락처', component: 'phone', isType: false },
   { contents: '계좌번호', component: 'account', isType: false },
   { contents: '배경음악', component: 'bgm', isType: false },
+  { contents: '배경 · 오프닝 효과', component: 'visualEffects', isType: false },
   // { contents: '모청스냅', component: null, isType: false },
   // { contents: '이벤트', component: null, isType: false },
   // { contents: '방명록', component: null, isType: false },
@@ -68,7 +80,9 @@ export const firstBirthdayComponents: ListType[] = withSearchAliases([
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
   { contents: '참석 여부', component: 'rsvp', isType: false },
+  { contents: '디지털 방명록', component: 'guestbook', isType: false },
   { contents: '식순 / 타임라인', component: 'timeline', isType: false },
+  { contents: '식사 메뉴', component: 'mealMenu', isType: false },
   { contents: '드레스 코드', component: 'dressCode', isType: false },
   { contents: '여백', component: 'spacer', isType: false },
   { contents: '마무리문구', component: 'closingComment', isType: false },
@@ -79,14 +93,18 @@ export const birthdayComponents: ListType[] = withSearchAliases([
   { contents: 'D-Day', component: 'countdown', isType: false },
   { contents: '행사장소', component: 'place', isType: false },
   { contents: '교통 / 주차', component: 'transportation', isType: false },
+  { contents: '피로연 · 애프터파티', component: 'afterParty', isType: false },
   { contents: '갤러리', component: 'gallery', isType: true },
   { contents: '연락처', component: 'phone', isType: false },
   { contents: '배경음악', component: 'bgm', isType: false },
+  { contents: '배경 · 오프닝 효과', component: 'visualEffects', isType: false },
   { contents: '공지사항', component: 'notice', isType: false },
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
   { contents: '참석 여부', component: 'rsvp', isType: false },
+  { contents: '디지털 방명록', component: 'guestbook', isType: false },
   { contents: '식순 / 타임라인', component: 'timeline', isType: false },
+  { contents: '식사 메뉴', component: 'mealMenu', isType: false },
   { contents: '드레스 코드', component: 'dressCode', isType: false },
   { contents: '마무리문구', component: 'closingComment', isType: false },
 ]);
@@ -99,13 +117,16 @@ export const seminarComponents: ListType[] = withSearchAliases([
   { contents: 'D-Day', component: 'countdown', isType: false },
   { contents: '행사장소', component: 'place', isType: false },
   { contents: '교통 / 주차', component: 'transportation', isType: false },
+  { contents: '피로연 · 애프터파티', component: 'afterParty', isType: false },
   { contents: '계좌번호', component: 'account', isType: false },
   { contents: '공지사항', component: 'notice', isType: false },
   { contents: '연락처', component: 'phone', isType: false },
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
   { contents: '참석 여부', component: 'rsvp', isType: false },
+  { contents: '디지털 방명록', component: 'guestbook', isType: false },
   { contents: '식순 / 타임라인', component: 'timeline', isType: false },
+  { contents: '식사 메뉴', component: 'mealMenu', isType: false },
   { contents: '마무리문구', component: 'closingComment', isType: false },
 ]);
 export const etcComponents: ListType[] = withSearchAliases([
@@ -113,15 +134,24 @@ export const etcComponents: ListType[] = withSearchAliases([
   { contents: '행사일시', component: 'calendar', isType: false },
   { contents: '행사장소', component: 'place', isType: false },
   { contents: '교통 / 주차', component: 'transportation', isType: false },
+  { contents: '피로연 · 애프터파티', component: 'afterParty', isType: false },
   { contents: '공지사항', component: 'notice', isType: false },
   { contents: '연락처', component: 'phone', isType: false },
   { contents: '동영상', component: 'video', isType: false },
   { contents: '사진', component: 'picture', isType: false },
   { contents: '참석 여부', component: 'rsvp', isType: false },
+  { contents: '디지털 방명록', component: 'guestbook', isType: false },
   { contents: '식순 / 타임라인', component: 'timeline', isType: false },
+  { contents: '식사 메뉴', component: 'mealMenu', isType: false },
   { contents: '세로 구분선', component: 'divider', isType: false },
   { contents: '여백', component: 'spacer', isType: false },
   { contents: '마무리문구', component: 'closingComment', isType: false },
+]);
+
+export const layoutComponents: ListType[] = withSearchAliases([
+  { contents: '세로 구분선', component: 'divider', isType: false },
+  { contents: '여백', component: 'spacer', isType: false },
+  { contents: '배경 · 오프닝 효과', component: 'visualEffects', isType: false },
 ]);
 
 export const componentCls: SampleDataType[] = [
@@ -149,5 +179,10 @@ export const componentCls: SampleDataType[] = [
     english: 'etc',
     korea: '기타',
     list: etcComponents,
+  },
+  {
+    english: 'layout',
+    korea: '레이아웃',
+    list: layoutComponents,
   },
 ];

@@ -7,6 +7,7 @@ import {
   type Transition,
   useMotionValue,
 } from 'framer-motion';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Image, { StaticImageData } from 'next/image';
 import {
   type CSSProperties,
@@ -17,6 +18,9 @@ import {
   useRef,
   useState,
 } from 'react';
+
+import { INVITATION_TEMPLATES } from '@/shared/data/invitationTemplates/catalog';
+import InvitationTemplatePoster from '@/widgets/editor/preview/components/InvitationTemplatePoster';
 
 type CardData = {
   id: string;
@@ -64,6 +68,7 @@ type StackCardProps = {
   topDragX: MotionValue<number>;
   onSwipeStart: (instanceId: number) => void;
   onSwipeComplete: (instanceId: number) => void;
+  onPreview: (id: string) => void;
 };
 
 const STACK_OFFSETS: StackOffset[] = [
@@ -110,7 +115,11 @@ function StackCard({
   topDragX,
   onSwipeStart,
   onSwipeComplete,
+  onPreview,
 }: StackCardProps) {
+  const collectionTemplate = INVITATION_TEMPLATES.find(
+    template => template.id === card.id
+  );
   const x = useMotionValue(offset.x);
   const y = useMotionValue(offset.y);
   const baseRotate = useMotionValue(offset.rotate);
@@ -124,6 +133,7 @@ function StackCard({
   const previousStackPositionRef = useRef(stackPosition);
   const previousSwipeCycleRef = useRef(swipeCycle);
   const previousIsOutgoingRef = useRef(isOutgoing);
+  const hasDraggedRef = useRef(false);
 
   const rotate = isTop || isOutgoing ? baseRotate : preparedRotate;
 
@@ -134,9 +144,7 @@ function StackCard({
       const progress = Math.min(Math.abs(dragX) / SWIPE_THRESHOLD, 1);
       const current = baseRotate.get();
 
-      preparedRotate.set(
-        current + (nextOffset.rotate - current) * progress
-      );
+      preparedRotate.set(current + (nextOffset.rotate - current) * progress);
     },
     [baseRotate, isOutgoing, isTop, nextOffset, preparedRotate]
   );
@@ -165,8 +173,7 @@ function StackCard({
   );
 
   useLayoutEffect(() => {
-    const positionChanged =
-      previousStackPositionRef.current !== stackPosition;
+    const positionChanged = previousStackPositionRef.current !== stackPosition;
     const cycleChanged = previousSwipeCycleRef.current !== swipeCycle;
     const wasOutgoing = previousIsOutgoingRef.current;
 
@@ -255,6 +262,7 @@ function StackCard({
   const handleDragStart = () => {
     if (!isTop || isOutgoing || isFlyingOutRef.current) return;
 
+    hasDraggedRef.current = true;
     stopActiveAnimations();
     topDragX.set(0);
   };
@@ -298,6 +306,26 @@ function StackCard({
 
   return (
     <motion.div
+      role="button"
+      tabIndex={isTop && !isOutgoing ? 0 : -1}
+      aria-label={`${card.alt} 미리보기`}
+      aria-haspopup="dialog"
+      onPointerDownCapture={() => {
+        hasDraggedRef.current = false;
+      }}
+      onClick={() => {
+        if (isTop && !isOutgoing && !hasDraggedRef.current) onPreview(card.id);
+      }}
+      onKeyDown={event => {
+        if (
+          isTop &&
+          !isOutgoing &&
+          (event.key === 'Enter' || event.key === ' ')
+        ) {
+          event.preventDefault();
+          onPreview(card.id);
+        }
+      }}
       data-card-id={card.id}
       data-card-instance-id={instanceId}
       data-stack-position={isOutgoing ? undefined : stackPosition}
@@ -312,7 +340,7 @@ function StackCard({
         scale,
         opacity,
         zIndex,
-        pointerEvents: isOutgoing ? 'none' : 'auto',
+        pointerEvents: isOutgoing || !isTop ? 'none' : 'auto',
         touchAction: isTop ? 'none' : 'auto',
         willChange: 'transform, opacity',
       }}
@@ -323,15 +351,26 @@ function StackCard({
       onDragEnd={handleDragEnd}
       aria-hidden={!isTop}
     >
-      <Image
-        src={card.image}
-        alt={card.alt}
-        fill
-        sizes={CARD_IMAGE_SIZES}
-        className="pointer-events-none object-cover"
-        draggable={false}
-        priority={stackPosition === 0}
-      />
+      {collectionTemplate ? (
+        <InvitationTemplatePoster template={collectionTemplate} />
+      ) : (
+        <Image
+          src={card.image}
+          alt={card.alt}
+          fill
+          sizes={CARD_IMAGE_SIZES}
+          className="pointer-events-none object-cover"
+          draggable={false}
+          priority={stackPosition === 0}
+        />
+      )}
+      {isTop && !isOutgoing && (
+        <span className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center">
+          <span className="rounded-full border border-black/5 bg-white/95 px-4 py-2 text-[11px] font-semibold text-[#252522] shadow-lg backdrop-blur-sm">
+            미리보기 <span aria-hidden="true">↗</span>
+          </span>
+        </span>
+      )}
     </motion.div>
   );
 }
@@ -343,7 +382,13 @@ function createInitialDeck(length: number): DeckEntry[] {
   }));
 }
 
-export function MobileShowcaseCardStack({ cards }: { cards: CardData[] }) {
+export function MobileShowcaseCardStack({
+  cards,
+  onPreview,
+}: {
+  cards: CardData[];
+  onPreview: (id: string) => void;
+}) {
   const [deckState, setDeckState] = useState<DeckState>(() => ({
     activeOrder: createInitialDeck(cards.length),
     outgoing: [],
@@ -416,6 +461,21 @@ export function MobileShowcaseCardStack({ cards }: { cards: CardData[] }) {
     });
   };
 
+  const moveCard = (direction: -1 | 1) => {
+    setDeckState(current => {
+      if (current.outgoing.length || current.activeOrder.length < 2)
+        return current;
+      const order = [...current.activeOrder];
+      if (direction === 1) order.push(order.shift()!);
+      else order.unshift(order.pop()!);
+      return {
+        ...current,
+        activeOrder: order,
+        swipeCycle: current.swipeCycle + 1,
+      };
+    });
+  };
+
   return (
     <div
       className="relative mt-[23px] h-[var(--mobile-card-height)] w-screen touch-none overflow-visible"
@@ -423,7 +483,6 @@ export function MobileShowcaseCardStack({ cards }: { cards: CardData[] }) {
       aria-label="초대장 쇼케이스 카드"
     >
       <div className="absolute left-1/2 top-0 h-full max-w-[196px] -translate-x-1/2 aspect-[196/397]">
-        {/* TODO: add non-drag previous/next controls if an accessible fallback is required. */}
         {renderEntries.map(({ entry, isOutgoing, stackPosition, zIndex }) => {
           const card = cards[entry.cardIndex];
           if (!card) return null;
@@ -433,7 +492,7 @@ export function MobileShowcaseCardStack({ cards }: { cards: CardData[] }) {
           // The offset this card will move to when the top card is swiped away
           const nextOffset =
             !isOutgoing && stackPosition > 0
-              ? STACK_OFFSETS[stackPosition - 1] ?? null
+              ? (STACK_OFFSETS[stackPosition - 1] ?? null)
               : null;
 
           return (
@@ -449,16 +508,33 @@ export function MobileShowcaseCardStack({ cards }: { cards: CardData[] }) {
               offset={
                 isOutgoing
                   ? STACK_OFFSETS[0]
-                  : STACK_OFFSETS[stackPosition] ?? STACK_OFFSETS.at(-1)!
+                  : (STACK_OFFSETS[stackPosition] ?? STACK_OFFSETS.at(-1)!)
               }
               nextOffset={nextOffset}
               topDragX={topDragX}
               onSwipeStart={handleSwipeStart}
               onSwipeComplete={handleSwipeComplete}
+              onPreview={onPreview}
             />
           );
         })}
       </div>
+      <button
+        type="button"
+        aria-label="이전 쇼케이스 카드"
+        onClick={() => moveCard(-1)}
+        className="absolute left-[calc(50%-153px)] top-1/2 flex size-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-black/5 bg-white/65 text-black/55 backdrop-blur-sm hover:bg-white"
+      >
+        <ChevronLeft size={18} />
+      </button>
+      <button
+        type="button"
+        aria-label="다음 쇼케이스 카드"
+        onClick={() => moveCard(1)}
+        className="absolute right-[calc(50%-153px)] top-1/2 flex size-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-black/5 bg-white/65 text-black/55 backdrop-blur-sm hover:bg-white"
+      >
+        <ChevronRight size={18} />
+      </button>
     </div>
   );
 }

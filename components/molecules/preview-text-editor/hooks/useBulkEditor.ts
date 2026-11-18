@@ -1,8 +1,4 @@
-import {
-  hasCustomFontFace,
-  loadCustomFont,
-  preloadFontFamilyWeights,
-} from '@/shared/fonts/fontLoader';
+import { hasCustomFontFace, loadCustomFont } from '@/shared/fonts/fontLoader';
 import {
   getFallbackWeight,
   getFontFamilyOption,
@@ -50,7 +46,6 @@ export function useBulkEditor(
       const style = 'normal';
 
       if (hasCustomFontFace(nextFamily, nextWeight, style)) {
-        await preloadFontFamilyWeights(nextFamily, style);
         await loadCustomFont(nextFamily, nextWeight, style);
       }
     })();
@@ -66,6 +61,7 @@ export function useBulkEditor(
     onBulkChange({
       ...bulkData,
       color: hex,
+      colorMode: 'custom',
     });
   };
 

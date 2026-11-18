@@ -8,7 +8,7 @@ export function CalendarType4({
 }: CalendarTemplateProps) {
   return (
     <div className="w-full flex flex-col items-center font-lineseed">
-      <h3 className="h-[68px] text-[44px] text-[#111827] tracking-wide uppercase mb-1">
+      <h3 className="h-[68px] text-[44px] text-[color:var(--calendar-text,#111827)] tracking-wide uppercase mb-1">
         {monthText}
       </h3>
 
@@ -16,7 +16,7 @@ export function CalendarType4({
         {headerDays.map((day, idx) => (
           <div
             key={idx}
-            className="flex-center text-center text-[12px] text-[#A0AEC0] font-sans font-medium h-11"
+            className="flex-center text-center text-[12px] text-[color:var(--calendar-muted-text,#A0AEC0)] font-sans font-medium h-11"
           >
             {day}
           </div>
@@ -30,7 +30,7 @@ export function CalendarType4({
               key={dayObj.num + '-' + idx}
               className="flex items-center justify-center relative aspect-square h-11 mx-auto"
             >
-              <div className="relative flex size-8 items-center justify-center text-[14px] text-[#2D3748]">
+              <div className="relative flex size-8 items-center justify-center text-[14px] text-[color:var(--calendar-text,#2D3748)]">
                 {isTarget && (
                   <svg
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"

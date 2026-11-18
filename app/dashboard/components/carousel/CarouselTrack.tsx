@@ -1,3 +1,5 @@
+import type { InviteListItem } from '@/app/dashboard/types';
+
 import {
   dashboardCarouselLayout,
   dashboardCarouselVars,
@@ -15,7 +17,9 @@ type CarouselTrackProps = {
   showCenterActions?: boolean;
   selectedLift?: string;
   preloadItemCount?: number;
+  showPreviewLabel?: boolean;
   onSelect: (index: number) => void;
+  onClone?: (invite: InviteListItem) => void;
   onDelete?: (folderId: string) => void | Promise<void>;
   onPreview?: (folderId: string) => void;
   onUpdate?: (folderId: string, uuid?: string) => void;
@@ -42,7 +46,9 @@ function CarouselTrack({
   showCenterActions = false,
   selectedLift,
   preloadItemCount = 0,
+  showPreviewLabel = false,
   onSelect,
+  onClone,
   onDelete,
   onPreview,
   onUpdate,
@@ -85,7 +91,9 @@ function CarouselTrack({
             showCenterActions={showCenterActions}
             selectedLift={selectedLift}
             preloadImage={index < preloadItemCount}
+            showPreviewLabel={showPreviewLabel}
             onSelect={onSelect}
+            onClone={onClone}
             onDelete={onDelete}
             onPreview={onPreview}
             onUpdate={onUpdate}

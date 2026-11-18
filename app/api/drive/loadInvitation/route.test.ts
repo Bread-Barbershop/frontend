@@ -65,7 +65,7 @@ describe('loadInvitation route', () => {
     (googleFetch as jest.Mock).mockImplementation((url: string) => {
       const decodedUrl = decodeURIComponent(url);
 
-      if (url.includes('orderBy=createdTime+desc')) {
+      if (url.includes('orderBy=createdTime+desc') && url.includes('pageSize=100')) {
         return Promise.resolve(
           mockJsonResponse({
             files: [
@@ -123,7 +123,10 @@ describe('loadInvitation route', () => {
       }
 
       if (decodedUrl.includes('invitation_thumbnail')) {
-        return Promise.resolve(mockJsonResponse({ files: [] }));
+        const id = decodedUrl.includes('folder-1')
+          ? 'public-thumbnail'
+          : 'private-thumbnail';
+        return Promise.resolve(mockJsonResponse({ files: [{ id }] }));
       }
 
       throw new Error(`Unexpected googleFetch url: ${url}`);
@@ -145,7 +148,7 @@ describe('loadInvitation route', () => {
           guestUrl: '/guest/data-json-file-id-1',
           published: true,
           readiness: 'ready',
-          thumbnailUrl: null,
+          thumbnailUrl: 'https://lh3.googleusercontent.com/d/public-thumbnail',
           hasKakaoShareData: true,
         },
         {
@@ -156,7 +159,8 @@ describe('loadInvitation route', () => {
           guestUrl: null,
           published: false,
           readiness: 'idle',
-          thumbnailUrl: null,
+          thumbnailUrl:
+            '/api/drive/previewAsset?kind=image&fileId=private-thumbnail&folderId=folder-2',
           hasKakaoShareData: false,
         },
       ],

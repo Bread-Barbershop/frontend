@@ -1,9 +1,16 @@
 import { PickerHsva } from '@/components/molecules/color-picker/components/colorPicker.types';
+import type { ScrollAnimationSettings } from '@/components/molecules/scroll-fade-in/animationConfig';
+import type { InvitationPrivacy } from '@/features/invitation/privacy/settings';
+import type { BackgroundTextureSettings } from '@/shared/data/backgroundTextures';
 import { blockRegistry } from '@/shared/data/registry/registry';
+import type { SectionStyle } from '@/shared/data/sectionStyles';
 
 import { blockSchema } from '../data/registry/block.schema';
 
 import { BlockType, PropsFromFields } from './editor';
+
+import type { InvitationEffectsSettings } from '../utils/invitationEffects';
+
 export type InvitationType =
   | 'wedding'
   | 'firstBirthday'
@@ -15,7 +22,11 @@ export type EditorBlock<T extends BlockType = BlockType> = {
   id: string;
   type: InvitationType;
   component: T;
-  props: PropsFromFields<(typeof blockSchema)[T]['fields']>;
+  props: PropsFromFields<(typeof blockSchema)[T]['fields']> & {
+    /** Bundled collection styling, persisted with native editable block props. */
+    collectionStyle?: string;
+    sectionStyle?: SectionStyle;
+  };
 };
 
 export type PersistedBlockType = Exclude<BlockType, 'shareUrl'>;
@@ -35,15 +46,25 @@ export interface BulkData {
   fontSize: string;
   fontWeight: string;
   color: string;
+  colorMode?: 'automatic' | 'custom';
   isDefault: boolean;
 }
 
 export interface BlockSlice {
   block: EditorBlock[];
-  addBlock: (type: InvitationType, component: BlockType, id: string) => void;
+  addBlock: <T extends BlockType>(
+    type: InvitationType,
+    component: T,
+    id: string,
+    initialProps?: Partial<EditorBlock<NoInfer<T>>['props']>
+  ) => void;
   updateBlock: <T extends BlockType>(
     id: string,
     props: Partial<PropsFromFields<(typeof blockRegistry)[T]['fields']>>
+  ) => void;
+  updateBlockSectionStyle: (
+    id: string,
+    style: SectionStyle | undefined
   ) => void;
   deleteBlock: (id: string) => void;
   moveBlock: (from: number, to: number) => void;
@@ -118,14 +139,29 @@ export interface DriveSlice {
   setImageFolderId: (id: string) => void;
 }
 export interface BulkSlice {
+  sectionStyle?: SectionStyle;
+  setSectionStyle: (style: SectionStyle | undefined) => void;
   titleData: BulkData;
   bodyData: BulkData;
   backgroundColor: string;
+  backgroundTexture: BackgroundTextureSettings;
+  setBackgroundTexture: (settings?: BackgroundTextureSettings) => void;
   isZoom: boolean;
+  invitationPrivacy?: InvitationPrivacy;
+  scrollAnimation: ScrollAnimationSettings;
+  invitationEffects?: InvitationEffectsSettings;
+  setInvitationEffects: (settings: InvitationEffectsSettings | undefined) => void;
+  updateInvitationEffects: (settings: InvitationEffectsSettings) => void;
+  invitationEffectsReplay: number;
+  replayInvitationEffects: () => void;
   setBackgroundColor: (color: string) => void;
+  selectBackgroundColor: (color: string) => void;
   setTitleData: (data: BulkData) => void;
   setBodyData: (data: BulkData) => void;
   setIsZoom: (isZoom: boolean) => void;
+  setInvitationPrivacy: (settings: InvitationPrivacy | undefined) => void;
+  setScrollAnimation: (settings: ScrollAnimationSettings) => void;
+  updateScrollAnimation: (settings: Partial<ScrollAnimationSettings>) => void;
 }
 
 export interface ShareUrlState {

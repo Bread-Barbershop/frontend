@@ -1,0 +1,172 @@
+.surface {
+  position: relative;
+  min-width: 0;
+  margin: 16px 12px 28px;
+  padding: 8px 0;
+  background: rgb(255 255 255 / 70%);
+}
+
+.surface[data-section-style='paper'] {
+  box-shadow: 3px 5px 0 rgb(89 71 51 / 9%);
+}
+
+.surface[data-section-style='rounded'] {
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgb(32 32 32 / 4%);
+}
+
+.surface[data-section-style='outlined'] {
+  border: 1px solid rgb(89 71 51 / 16%);
+}
+
+[data-invitation-dark] .surface[data-section-style='outlined'] {
+  border-color: rgb(255 255 255 / 28%);
+}
+
+/* Compatibility styles for invitations saved before shared card presets. */
+.chapter {
+  position: relative;
+  margin: 0 0 26px;
+  padding: 20px 0;
+}
+.chapter[data-component='greeting'] {
+  padding-top: 48px;
+  padding-bottom: 40px;
+}
+.chapter[data-component='closingComment'] {
+  padding: 45px 0 60px;
+}
+.chapter[data-design='showcase-0'] {
+  margin: 18px 20px;
+  border-top: 1px solid #70503955;
+}
+.chapter[data-design='showcase-0'][data-component='greeting'] {
+  border-top: 3px double #70503988;
+}
+.chapter[data-design='showcase-1'],
+.chapter[data-design='showcase-6'] {
+  border-bottom: 1px solid #2222;
+  margin: 0 20px 32px;
+}
+.chapter[data-design='showcase-2'] {
+  margin: 16px 12px 35px;
+  background: #ffffff80;
+  border-radius: 100px 100px 3px 3px;
+}
+.chapter[data-design='showcase-3'],
+.chapter[data-design='showcase-11'] {
+  border: 1px solid #4f5c4240;
+  margin: 22px 15px;
+  padding: 25px 0;
+}
+.chapter[data-design='showcase-4'] {
+  --chapter-paper-grain: url('/images/showcase/paper-grain.webp');
+  background-image: var(--chapter-paper-grain);
+  background-size: 100% auto;
+  margin: 14px 12px 30px;
+  box-shadow: 0 4px 15px #6b493312;
+}
+.chapter[data-design='showcase-5'] {
+  margin: 0 0 35px;
+  border-bottom: 1px solid #c4b6a755;
+}
+.chapter[data-design='showcase-7'] {
+  background: #fff9;
+  margin: 16px 15px 38px;
+  box-shadow: 3px 5px 0 #626c4020;
+}
+.chapter[data-design='showcase-8'] {
+  border-top: 1px solid #95622d55;
+  margin: 15px 20px 30px;
+}
+.chapter[data-design='showcase-9'] {
+  margin: 12px 0 48px;
+}
+.chapter[data-design='showcase-10'] {
+  border-top: 3px solid #c8463d;
+  margin: 20px 18px;
+}
+.chapter[data-design='showcase-12'] {
+  border-top: 4px solid #245bc6;
+  margin: 22px 18px;
+}
+.chapter[data-design='showcase-13'] {
+  border-top: 1px dashed #55644a88;
+  margin: 22px 16px;
+  background: #ffffff60;
+}
+.chapter[data-design='showcase-14'] {
+  border-left: 3px solid #89965f;
+  margin: 25px 15px;
+}
+.chapter[data-design='showcase-15'] {
+  border-top: 1px solid #b6333566;
+  margin: 20px 18px;
+}
+.chapter[data-design='showcase-16'] {
+  margin: 26px 12px 55px;
+  border-bottom: 1px solid #7b654b33;
+}
+.chapter[data-design='showcase-17'] {
+  background: #fff9;
+  margin: 15px 13px 36px;
+  border-top: 1px solid #96702e55;
+}
+.chapter[data-design='showcase-18'] {
+  background: #fff;
+  margin: 20px 15px 36px;
+  box-shadow: 0 4px 12px #4f41350d;
+}
+.chapter[data-design='showcase-19'] {
+  border: 1px solid #ad526e30;
+  margin: 18px 12px 30px;
+  border-radius: 70px 70px 0 0;
+}
+.chapter[data-design='showcase-20'] {
+  border-top: 3px solid #9f4968;
+  margin: 20px 15px;
+}
+.chapter[data-design='showcase-21'] {
+  background: #fff8;
+  margin: 20px 12px 40px;
+  box-shadow: 3px 5px 0 #8c684518;
+}
+.chapter[data-design='showcase-22'] {
+  background: #fff8;
+  margin: 18px 12px 32px;
+  border-radius: 25px;
+}
+.chapter[data-design='showcase-23'] {
+  margin: 20px 16px 36px;
+  border-left: 2px solid #65746570;
+  background: #f2f3ef70;
+}
+.chapter[data-design='showcase-24'] {
+  margin: 18px 16px 34px;
+  border-top: 1px solid #a65d4355;
+  background: #f5f1e960;
+}
+
+[data-invitation-dark] .surface,
+[data-invitation-dark]
+  .chapter:is(
+    [data-design='showcase-2'],
+    [data-design='showcase-4'],
+    [data-design='showcase-7'],
+    [data-design='showcase-13'],
+    [data-design='showcase-17'],
+    [data-design='showcase-18'],
+    [data-design='showcase-21'],
+    [data-design='showcase-22'],
+    [data-design='showcase-23'],
+    [data-design='showcase-24']
+  ) {
+  background-color: rgb(0 0 0 / 12%);
+}
+
+[data-invitation-dark] .chapter[data-design='showcase-4'] {
+  /* Darken the paper image itself so the original pale texture cannot cover the fill. */
+  background-image:
+    linear-gradient(rgb(0 0 0 / 72%), rgb(0 0 0 / 72%)),
+    var(--chapter-paper-grain);
+}

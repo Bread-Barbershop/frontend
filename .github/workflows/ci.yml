@@ -58,9 +58,8 @@ jobs:
       - name: Build Next.js & Type Check
         run: npm run build
 
-      # 7. Jest 단위/통합 테스트 (기존 5건 테스트 수정 작업 진행 중이므로 임시 continue-on-error)
+      # 7. Jest 단위/통합 테스트: 하나라도 실패하면 CI 실패 처리
       - name: Run Jest Tests
-        continue-on-error: true
         run: npm test -- --ci --maxWorkers=2
 
       # 8. CI 실패 시 디스코드 알림 전송 (github-script로 안전한 JSON 직렬화)

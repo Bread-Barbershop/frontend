@@ -6,14 +6,15 @@ import type {
   NormalizedGuestPayload,
 } from '@/app/guest/[id]/validation/parseGuestPayload';
 
-import { APP_IDENTIFIER } from './ensureInvitationMetaFile';
 import { DriveHttpError } from './ensureWorkspace';
 import { escapeDriveQueryValue } from './escapeQueryValue';
 import { findWorkspaceFolderId } from './findWorkspaceFolderId';
 import { googleFetch } from './googleFetch';
-
-const DRIVE_FOLDER_MIME_TYPE = 'application/vnd.google-apps.folder';
-const INVITATION_KIND = 'invitation';
+import {
+  isInvitationAuxiliaryFolder,
+  isRootInvitationFolder,
+  readAudienceFolder,
+} from './invitationAudienceFolders';
 const DATA_JSON_NAME = 'data.json';
 // 에셋 파일은 images/audios 폴더처럼 초대장 폴더 아래 한두 단계에 위치한다.
 // 순환이나 과도한 부모 탐색을 막기 위해 검증 깊이는 제한한다.
@@ -25,6 +26,7 @@ type DriveFile = {
   mimeType?: string;
   parents?: string[];
   trashed?: boolean;
+  ownedByMe?: boolean;
   appProperties?: Record<string, string>;
 };
 
@@ -97,11 +99,11 @@ function previewError(
   });
 }
 
-async function getDriveFile(fileId: string): Promise<DriveFile | null> {
+export async function getDriveFile(fileId: string): Promise<DriveFile | null> {
   const res = await googleFetch(
     `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(
       fileId
-    )}?fields=id,name,mimeType,parents,trashed,appProperties`,
+    )}?fields=id,name,mimeType,parents,trashed,appProperties,ownedByMe`,
     { cache: 'no-store' }
   );
 
@@ -120,19 +122,10 @@ async function getDriveFile(fileId: string): Promise<DriveFile | null> {
   return data;
 }
 
-function isInvitationFolder(file: DriveFile, workspaceFolderId: string) {
-  return (
-    file.id &&
-    !file.trashed &&
-    file.mimeType === DRIVE_FOLDER_MIME_TYPE &&
-    file.parents?.includes(workspaceFolderId) &&
-    file.appProperties?.app_id === APP_IDENTIFIER &&
-    file.appProperties?.kind === INVITATION_KIND
-  );
-}
-
-async function getWorkspaceFolderIdOrThrow() {
-  const workspaceFolderId = await findWorkspaceFolderId();
+async function getWorkspaceFolderIdOrThrow(ownedOnly: boolean) {
+  const workspaceFolderId = await (ownedOnly
+    ? findWorkspaceFolderId({ ownedOnly })
+    : findWorkspaceFolderId());
   if (!workspaceFolderId) {
     throw previewError(
       'INVITATION_NOT_FOUND',
@@ -149,7 +142,16 @@ async function getWorkspaceFolderIdOrThrow() {
  * 대시보드 미리보기는 공개 여부와 무관하게 "내 workspace 안의 초대장"만 읽어야 한다.
  * folderId가 조작되어도 다른 Drive 폴더를 미리보기 데이터로 사용할 수 없도록 여기서 먼저 막는다.
  */
-export async function assertInvitationFolderAccess(folderId: string) {
+export async function assertInvitationFolderAccess(
+  folderId: string,
+  {
+    ownedOnly = false,
+    allowAudience = true,
+  }: {
+    ownedOnly?: boolean;
+    allowAudience?: boolean;
+  } = {}
+) {
   if (!folderId) {
     throw previewError(
       'FOLDER_ID_REQUIRED',
@@ -159,10 +161,18 @@ export async function assertInvitationFolderAccess(folderId: string) {
     );
   }
 
-  const workspaceFolderId = await getWorkspaceFolderIdOrThrow();
+  const workspaceFolderId = await getWorkspaceFolderIdOrThrow(ownedOnly);
   const folder = await getDriveFile(folderId);
+  const audience = folder && allowAudience ? readAudienceFolder(folder) : null;
+  const root = audience ? await getDriveFile(audience.rootFolderId) : folder;
 
-  if (!folder || !isInvitationFolder(folder, workspaceFolderId)) {
+  if (
+    !folder ||
+    !root ||
+    !isRootInvitationFolder(root, workspaceFolderId) ||
+    (audience && (!root.ownedByMe || !folder.ownedByMe)) ||
+    (ownedOnly && folder.ownedByMe !== true)
+  ) {
     throw previewError(
       'INVITATION_NOT_FOUND',
       404,
@@ -172,7 +182,13 @@ export async function assertInvitationFolderAccess(folderId: string) {
     );
   }
 
-  return folder;
+  return {
+    ...folder,
+    workspaceFolderId,
+    rootFolderId: audience?.rootFolderId ?? folderId,
+    rootInvitationUuid: root.appProperties?.inv_id,
+    audience: audience?.group ?? null,
+  };
 }
 
 async function findDataJsonFileId(invitationFolderId: string) {
@@ -309,7 +325,12 @@ export async function assertDriveFileUnderInvitation(
     if (!nextParentId) break;
 
     const parent = await getDriveFile(nextParentId);
-    if (!parent || parent.trashed) break;
+    if (
+      !parent ||
+      parent.trashed ||
+      isInvitationAuxiliaryFolder(parent.appProperties?.kind)
+    )
+      break;
 
     currentParents = parent.parents ?? [];
   }

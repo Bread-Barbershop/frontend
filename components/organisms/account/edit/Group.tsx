@@ -15,6 +15,8 @@ interface Props {
     bank: string;
     account: string;
     kakao: boolean;
+    kakaoPayUrl?: string;
+    tossUrl?: string;
   }[];
   handleUpdateBlock: (
     key: string,
@@ -123,6 +125,24 @@ export const Group = ({
                 ),
             }}
           />
+          <label className="flex flex-col gap-1 text-xs text-text-secondary">
+            카카오페이 송금 링크 (선택)
+            <input className="h-9 w-full min-w-0 rounded-md border border-border-divider px-2 text-sm"
+              placeholder="https://qr.kakaopay.com/..."
+              value={account.kakaoPayUrl ?? ''} maxLength={2048}
+              onChange={e => handleUpdateBlock(
+                `accountList.${groupIndex}.${i}.kakaoPayUrl`, e.target.value
+              )} />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-text-secondary">
+            토스 송금 링크 (선택)
+            <input className="h-9 w-full min-w-0 rounded-md border border-border-divider px-2 text-sm"
+              placeholder="https://toss.me/..."
+              value={account.tossUrl ?? ''} maxLength={2048}
+              onChange={e => handleUpdateBlock(
+                `accountList.${groupIndex}.${i}.tossUrl`, e.target.value
+              )} />
+          </label>
           <div className="flex items-center gap-2 w-full">
             <p className="text-sm font-semibold px-1 select-none">추가기능</p>
             <Checkbox

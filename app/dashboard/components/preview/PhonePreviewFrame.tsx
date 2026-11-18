@@ -1,10 +1,13 @@
 'use client';
 
 import Image from 'next/image';
+import { useRef } from 'react';
 
 import GuestInvitationView from '@/app/guest/[id]/components/GuestInvitationView';
 import type { NormalizedGuestPayload } from '@/app/guest/[id]/validation/parseGuestPayload';
+import { InvitationVisualEffects } from '@/components/organisms/visualEffects/VisualEffectsPreview';
 import PhoneFrameImage from '@/shared/assets/images/dashboard/invitation-preview-frame.png';
+import { resolveInvitationEffects } from '@/shared/utils/invitationEffects';
 
 import type { ReactNode } from 'react';
 
@@ -26,6 +29,7 @@ function PhonePreviewFrame({
   onMainPosterReady,
   payload,
 }: PhonePreviewFrameProps) {
+  const screenContentRef = useRef<HTMLDivElement>(null);
   return (
     <div
       className="relative shrink-0"
@@ -35,14 +39,17 @@ function PhonePreviewFrame({
       }}
     >
       <div
-        className="absolute overflow-hidden bg-white"
+        className="absolute isolate overflow-hidden bg-white"
         style={{
           // PNG 프레임의 실제 화면 구멍에 맞춘 값이다. 프레임 원본 크기는 유지한다.
           inset: '24px 27px 31px',
           borderRadius: '48px',
         }}
       >
-        <div className="h-full w-full overflow-y-auto rounded-[48px] bg-white [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div
+          ref={screenContentRef}
+          className="h-full w-full overflow-y-auto rounded-[48px] bg-white [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
           {payload && (
             <div
               className={`transition-opacity duration-200 ${
@@ -54,6 +61,7 @@ function PhonePreviewFrame({
                 payload={payload}
                 mode="dashboard-preview"
                 previewFolderId={folderId}
+                showVisualEffects={false}
               />
             </div>
           )}
@@ -62,6 +70,17 @@ function PhonePreviewFrame({
             <div className="absolute inset-0 bg-white">{children}</div>
           )}
         </div>
+        {payload && isPosterReady && (
+          <InvitationVisualEffects
+            effects={resolveInvitationEffects(
+              payload.bulkData.invitationEffects,
+              payload.blocks
+            )}
+            backgroundColor={payload.bulkData.backgroundColor}
+            contentRef={screenContentRef}
+            scope="frame"
+          />
+        )}
       </div>
       <Image
         src={PhoneFrameImage}

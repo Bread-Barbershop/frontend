@@ -35,6 +35,8 @@ export const accountSchema = {
         bank: string;
         account: string;
         kakao: boolean;
+        kakaoPayUrl?: string;
+        tossUrl?: string;
       }[][],
       required: true,
     },

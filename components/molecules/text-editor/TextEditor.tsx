@@ -31,7 +31,7 @@ import UnderlineIcon from '@/shared/assets/icons/underline.svg';
 import {
   hasCustomFontFace,
   loadCustomFont,
-  preloadFontFamilyWeights,
+  loadFontPreview,
 } from '@/shared/fonts/fontLoader';
 import {
   FontFamilyOption,
@@ -39,11 +39,17 @@ import {
   getFallbackWeight,
 } from '@/shared/fonts/fontOptions';
 import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { cn } from '@/shared/utils/cn';
+import { isDarkInvitationBackground } from '@/shared/utils/invitationBackgroundColor';
 
 import { Selector } from '../selector';
 
 import TextEditorColorPickerPopover from './components/TextEditorColorPickerPopover';
+import {
+  runAtSavedTextSelection,
+  type SavedTextSelection,
+} from './utils/applyAtSavedSelection';
 import centerLeftStyles from './utils/centerLeftText.module.css';
 import { isTextMarkFullyActive } from './utils/markState';
 import {
@@ -79,11 +85,6 @@ export interface TextEditorRef {
   getEditor: () => Editor | null;
 }
 
-type SavedTextSelection = {
-  from: number;
-  to: number;
-};
-
 type TextStyleAttributes = {
   fontFamily?: unknown;
   fontWeight?: unknown;
@@ -108,7 +109,9 @@ const TEXT_ALIGN_OPTIONS: TextAlignOption[] = [
 const DEFAULT_FONT_SIZE_OPTION =
   FONT_SIZE_OPTIONS.find(option => option.value === '14px') ??
   FONT_SIZE_OPTIONS[0];
-const DEFAULT_TEXT_ALIGN_OPTION = TEXT_ALIGN_OPTIONS.find(option => option.value === 'center') ?? TEXT_ALIGN_OPTIONS[2];
+const DEFAULT_TEXT_ALIGN_OPTION =
+  TEXT_ALIGN_OPTIONS.find(option => option.value === 'center') ??
+  TEXT_ALIGN_OPTIONS[2];
 const DEFAULT_EDITOR_TEXT = '내용을 입력해주세요';
 const MIXED_STYLE_VALUE = '__mixed__';
 
@@ -141,8 +144,9 @@ const getTextStyleAttributesAtSelection = (
 ): TextStyleAttributes => {
   const { state } = editor;
   const { selection } = state;
+  const targetsWholeDocument = selection.empty && !editor.isEmpty;
 
-  if (selection.empty) {
+  if (selection.empty && !targetsWholeDocument) {
     const shouldUseStoredMarks =
       pendingStoredMarkPosition !== null &&
       pendingStoredMarkPosition !== undefined &&
@@ -178,7 +182,10 @@ const getTextStyleAttributesAtSelection = (
     color: new Set(),
   };
 
-  state.doc.nodesBetween(selection.from, selection.to, node => {
+  const from = targetsWholeDocument ? 0 : selection.from;
+  const to = targetsWholeDocument ? state.doc.content.size : selection.to;
+
+  state.doc.nodesBetween(from, to, node => {
     if (!node.isText) return;
 
     const textStyle = getTextStyleAttributesFromMarks(node.marks);
@@ -225,6 +232,11 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
     const [, forceUpdate] = useReducer((count: number) => count + 1, 0);
 
     const bodyFontInfo = useBodyFontInfo();
+    const darkBackgroundColor = useEditorStore(state =>
+      isDarkInvitationBackground(state.backgroundColor)
+        ? state.backgroundColor
+        : undefined
+    );
     const fallbackStyle = useMemo(
       () => ({
         fontFamily: bodyFontInfo.resolvedFontFamily,
@@ -274,12 +286,12 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
     const loadEditorFont = useCallback(
       async (family: string, weight: string, style: 'normal' | 'italic') => {
         try {
-          if (!hasCustomFontFace(family, weight, style)) {
-            return;
+          const availableStyle = hasCustomFontFace(family, weight, style)
+            ? style
+            : 'normal';
+          if (hasCustomFontFace(family, weight, availableStyle)) {
+            await loadCustomFont(family, weight, availableStyle);
           }
-
-          await preloadFontFamilyWeights(family, style);
-          await loadCustomFont(family, weight, style);
         } catch (error) {
           if (process.env.NODE_ENV !== 'production') {
             console.error('Failed to load editor font.', {
@@ -306,33 +318,12 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       }
     }, []);
 
-    const getCommandAtSavedSelection = useCallback(
-      (editor: Editor): ChainedCommands => {
-        const command = editor.chain();
-        const savedSelection = savedSelectionRef.current;
-
-        if (!savedSelection) {
-          return command.focus();
-        }
-
-        const docSize = editor.state.doc.content.size;
-        const from = Math.min(Math.max(savedSelection.from, 0), docSize);
-        const to = Math.min(Math.max(savedSelection.to, 0), docSize);
-
-        if (from === to) {
-          return command.setTextSelection(from);
-        }
-
-        return command.setTextSelection({ from, to });
-      },
-      []
-    );
-
     const runAtSavedSelection = useCallback(
       (
         editor: Editor,
         applyCommand: (command: ChainedCommands) => ChainedCommands,
-        focusEditor: boolean = true
+        focusEditor: boolean = true,
+        kind: 'inline' | 'block' = 'inline'
       ) => {
         const savedSelection = savedSelectionRef.current;
         const selectionIsEmpty =
@@ -345,22 +336,13 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
           ? storedMarkPosition
           : null;
 
-        let command = applyCommand(getCommandAtSavedSelection(editor));
-
-        if (!selectionIsEmpty) {
-          command = command.command(({ tr }) => {
-            tr.setStoredMarks(null);
-            return true;
-          });
-        }
-
-        command.run();
-        if (focusEditor) {
-          editor.view.focus();
-        }
+        runAtSavedTextSelection(editor, savedSelection, applyCommand, {
+          focusEditor,
+          kind,
+        });
         saveSelection(editor);
       },
-      [getCommandAtSavedSelection, saveSelection]
+      [saveSelection]
     );
 
     const syncToolbarState = useCallback(
@@ -442,6 +424,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
 
     const editorContentStyle = useMemo<CSSProperties>(
       () => ({
+        backgroundColor: darkBackgroundColor,
         fontFamily: editorBaseStyles.fontFamily.style?.fontFamily,
         fontWeight: editorBaseStyles.fontWeight.value,
         fontSize:
@@ -452,7 +435,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
             ? undefined
             : (editorBaseStyles.textAlign.value as CSSProperties['textAlign']),
       }),
-      [editorBaseStyles]
+      [darkBackgroundColor, editorBaseStyles]
     );
 
     const editor = useEditor({
@@ -534,7 +517,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
             fontFamily: fallbackStyle.fontFamily,
             fontWeight: fallbackStyle.fontWeight,
             fontSize: fallbackStyle.fontSize,
-            color: fallbackStyle.color,
+            color: bodyFontInfo.isColorAutomatic ? null : fallbackStyle.color,
           });
           editor.view.dispatch(editor.state.tr.setStoredMarks([mark]));
         }
@@ -543,7 +526,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       syncToolbarState(editor);
       forceUpdate();
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [fallbackStyle, editor]);
+    }, [fallbackStyle, editor, bodyFontInfo.isColorAutomatic]);
 
     useEffect(() => {
       void loadEditorFont(
@@ -666,8 +649,11 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
     ) => {
       const selected = option as TextAlignOption;
       setTextAlignSelected(selected);
-      runAtSavedSelection(editor, command =>
-        command.setTextAlign(selected.value)
+      runAtSavedSelection(
+        editor,
+        command => command.setTextAlign(selected.value),
+        true,
+        'block'
       );
     };
 
@@ -727,6 +713,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
               onSelect={handleFontFamilySelect}
               placeholder="Font"
               variant="fontFamily"
+              onOptionVisible={loadFontPreview}
               showCheckbox={false}
             />
 

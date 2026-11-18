@@ -46,6 +46,7 @@ export async function POST(req: Request) {
     const {
       invitationFolderId,
       invitationUuid: finalInvitationUuid,
+      audienceSlug,
       reused: invitationReused,
     } = invitation;
 
@@ -61,6 +62,7 @@ export async function POST(req: Request) {
       workspaceFolderId,
       invitationFolderId,
       invitationUuid: finalInvitationUuid,
+      ...(audienceSlug ? { audienceSlug } : {}),
       imageFolderId: assets.imageFolderId,
       audioFolderId: assets.audioFolderId,
 

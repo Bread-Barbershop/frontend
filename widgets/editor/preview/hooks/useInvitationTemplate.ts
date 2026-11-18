@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { DEFAULT_SCROLL_ANIMATION } from '@/components/molecules/scroll-fade-in/animationConfig';
+import { DEFAULT_BACKGROUND_TEXTURE } from '@/shared/data/backgroundTextures';
 import {
   createInvitationTemplate,
   INVITATION_TEMPLATES,
@@ -195,7 +197,7 @@ export function useInvitationTemplate({
   }, []);
 
   const applyTemplate = useCallback(
-    async (templateId: string) => {
+    async (templateId: string, options: { posterOnly?: boolean } = {}) => {
       if (isApplyingRef.current) return false;
       isApplyingRef.current = true;
       const requestId = ++latestRequestIdRef.current;
@@ -219,7 +221,9 @@ export function useInvitationTemplate({
         if (!template)
           throw new Error(`Unknown invitation template: ${templateId}`);
 
-        const confirmMessage = `“${template.name}” 템플릿을 사용하시겠습니까?\n현재 포스터와 페이지, 입력한 내용이 템플릿 기본값으로 교체됩니다.`;
+        const confirmMessage = options.posterOnly
+          ? `“${template.name}” 표지를 적용할까요?\n현재 표지만 교체되며 본문과 입력한 내용은 유지됩니다.`
+          : `“${template.name}” 템플릿을 사용하시겠습니까?\n현재 포스터와 페이지, 입력한 내용이 템플릿 기본값으로 교체됩니다.`;
         activeConfirmMessageRef.current = confirmMessage;
         const isConfirmed = await confirm({
           message: confirmMessage,
@@ -235,7 +239,7 @@ export function useInvitationTemplate({
         if (!isConfirmed) return false;
         if (!canvas) throw new Error('The poster canvas is not ready.');
 
-        const prepared = createInvitationTemplate(templateId);
+        const prepared = await createInvitationTemplate(templateId);
         await waitForFontPreparation(prepared);
         if (!isCurrentRequest()) return false;
         if (!isCanvasUsable()) {
@@ -285,6 +289,18 @@ export function useInvitationTemplate({
           return false;
         }
 
+        if (options.posterOnly) {
+          useEditorStore.setState({
+            selectedId: 'mainPoster',
+            activeTab: null,
+            isEdit: false,
+            isDirty: true,
+          });
+          success(`${template.name} 표지를 적용했습니다.`);
+          onApplied?.();
+          return true;
+        }
+
         const removedImageIds = new Set<string>();
         const previousBlocks = useEditorStore.getState().block;
         previousBlocks.forEach(block => {
@@ -295,8 +311,13 @@ export function useInvitationTemplate({
         useEditorStore.setState(state => ({
           block: prepared.blocks,
           backgroundColor: prepared.backgroundColor,
+          backgroundTexture: DEFAULT_BACKGROUND_TEXTURE,
+          sectionStyle: prepared.sectionStyle,
           titleData: prepared.titleData,
           bodyData: prepared.bodyData,
+          scrollAnimation: DEFAULT_SCROLL_ANIMATION,
+          invitationEffects: undefined,
+          invitationEffectsReplay: 0,
           images: state.images.filter(image => !removedImageIds.has(image.id)),
           selectedId: 'mainPoster',
           activeTab: null,
@@ -304,17 +325,13 @@ export function useInvitationTemplate({
           isDirty: true,
         }));
 
-        success(`${template.name} 템플릿을 적용했습니다.`, {
-          placement: 'top-right',
-        });
+        success(`${template.name} 템플릿을 적용했습니다.`);
         onApplied?.();
         return true;
       } catch (applyError) {
         if (!isCurrentRequest()) return false;
         console.error('초대장 템플릿 적용 중 오류가 발생했습니다.', applyError);
-        showError('템플릿을 적용하지 못했습니다. 다시 시도해 주세요.', {
-          placement: 'top-right',
-        });
+        showError('템플릿을 적용하지 못했습니다. 다시 시도해 주세요.');
         return false;
       } finally {
         isApplyingRef.current = false;

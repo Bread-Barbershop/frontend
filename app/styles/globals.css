@@ -3,6 +3,18 @@
 @import './_utilities.css';
 @import 'tailwindcss';
 
+:root {
+  --noto-kr: 'Noto Sans KR';
+}
+
+@font-face {
+  font-family: 'Noto Sans KR';
+  src: url('/font/NotoSansKR-Variable.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @font-face {
   font-family: 'NanumSquare';
   src: url('/font/NanumSquare/NanumSquare_acB.ttf') format('truetype');
@@ -13,8 +25,7 @@
 
 @font-face {
   font-family: 'MaruBuri';
-  src: url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-ExtraLight.woff2')
-    format('woff2');
+  src: url('/font/naver/MaruBuri-ExtraLight.woff') format('woff');
   font-weight: 200;
   font-style: normal;
   font-display: swap;
@@ -22,8 +33,7 @@
 
 @font-face {
   font-family: 'MaruBuri';
-  src: url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Light.woff2')
-    format('woff2');
+  src: url('/font/naver/MaruBuri-Light.woff') format('woff');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -31,8 +41,15 @@
 
 @font-face {
   font-family: 'MaruBuri';
-  src: url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-SemiBold.woff2')
-    format('woff2');
+  src: url('/font/naver/MaruBuri-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MaruBuri';
+  src: url('/font/naver/MaruBuri-SemiBold.woff') format('woff');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -40,8 +57,7 @@
 
 @font-face {
   font-family: 'MaruBuri';
-  src: url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Bold.woff2')
-    format('woff2');
+  src: url('/font/naver/MaruBuri-Bold.woff') format('woff');
   font-weight: 700;
   font-style: normal;
   font-display: swap;

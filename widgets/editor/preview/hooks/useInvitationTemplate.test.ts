@@ -1,6 +1,8 @@
 import { act, renderHook } from '@testing-library/react';
 
+import { DEFAULT_SCROLL_ANIMATION } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
+import { createInvitationTemplate } from '@/shared/data/invitationTemplates';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import {
@@ -132,6 +134,13 @@ describe('useInvitationTemplate', () => {
         { id: 'shareUrl', file: [oldPhoto] },
       ],
       backgroundColor: '#FFFFFF',
+      backgroundTexture: { material: 'wood', strength: 74 },
+      scrollAnimation: {
+        animationType: 'fade',
+        triggerMode: 'both',
+        animationDurationMs: 1300,
+        animationEasing: 'soft',
+      },
       titleData: { ...useEditorStore.getState().titleData },
       bodyData: { ...useEditorStore.getState().bodyData },
       selectedId: 'old-block',
@@ -171,6 +180,29 @@ describe('useInvitationTemplate', () => {
     expect(useEditorStore.getState().isDirty).toBe(false);
   });
 
+  it('표지 목록에서 적용할 때는 기존 본문과 사진, 글꼴과 배경을 유지한다', async () => {
+    const before = useEditorStore.getState();
+    const { result } = renderHook(() => useInvitationTemplate());
+    await act(async () => {
+      expect(
+        await result.current.applyTemplate('test-template', {
+          posterOnly: true,
+        })
+      ).toBe(true);
+    });
+    const after = useEditorStore.getState();
+    expect(mockCanvas.loadFromJSON).toHaveBeenCalledTimes(1);
+    expect(after.block).toBe(before.block);
+    expect(after.images).toBe(before.images);
+    expect(after.backgroundColor).toBe(before.backgroundColor);
+    expect(after.backgroundTexture).toBe(before.backgroundTexture);
+    expect(after.titleData).toBe(before.titleData);
+    expect(after.bodyData).toBe(before.bodyData);
+    expect(after.selectedId).toBe('mainPoster');
+    expect(after.isDirty).toBe(true);
+    expect(mockConfirm.mock.calls[0][0].message).toContain('현재 표지만 교체');
+  });
+
   it('확인 창이 열린 동안 중복 적용 요청을 막는다', async () => {
     mockConfirm.mockImplementation(
       () =>
@@ -205,8 +237,10 @@ describe('useInvitationTemplate', () => {
     expect(setStateSpy).toHaveBeenCalledTimes(1);
     expect(state.block[0].id).toBe('new-page');
     expect(state.backgroundColor).toBe('#FAF8F2');
+    expect(state.backgroundTexture.material).toBe('none');
     expect(state.titleData.font).toBe('Hahmlet');
     expect(state.bodyData.font).toBe('SUIT');
+    expect(state.scrollAnimation).toEqual(DEFAULT_SCROLL_ANIMATION);
     expect(state.selectedId).toBe('mainPoster');
     expect(state.activeTab).toBeNull();
     expect(state.isEdit).toBe(false);
@@ -243,8 +277,7 @@ describe('useInvitationTemplate', () => {
       { save: true }
     );
     expect(mockSuccess).toHaveBeenCalledWith(
-      '테스트 템플릿 템플릿을 적용했습니다.',
-      expect.any(Object)
+      '테스트 템플릿 템플릿을 적용했습니다.'
     );
 
     setStateSpy.mockRestore();
@@ -278,6 +311,33 @@ describe('useInvitationTemplate', () => {
     );
     expect(useEditorStore.getState().block).toBe(initialBlock);
     expect(mockError).toHaveBeenCalledTimes(1);
+  });
+
+  it('원본 표지 로드가 실패하면 기존 캔버스와 에디터 데이터를 유지한다', async () => {
+    const initialBlock = useEditorStore.getState().block;
+    const initialImages = useEditorStore.getState().images;
+    const consoleError = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+    jest
+      .mocked(createInvitationTemplate)
+      .mockRejectedValueOnce(new Error('original poster unavailable'));
+    const { result } = renderHook(() => useInvitationTemplate());
+
+    try {
+      await act(async () => {
+        await result.current.applyTemplate('test-template');
+      });
+
+      expect(mockCanvas.toObject).not.toHaveBeenCalled();
+      expect(mockCanvas.loadFromJSON).not.toHaveBeenCalled();
+      expect(useEditorStore.getState().block).toBe(initialBlock);
+      expect(useEditorStore.getState().images).toBe(initialImages);
+      expect(useEditorStore.getState().isDirty).toBe(false);
+      expect(mockError).toHaveBeenCalledTimes(1);
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 
   it('오래된 블록에서 이미지 ID만 재귀 수집하고 공유 URL과 문구는 제외한다', () => {

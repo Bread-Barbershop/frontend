@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import GuestRenderer from './GuestRenderer';
@@ -14,6 +14,9 @@ const mockCalendarView = jest.fn((props: Record<string, unknown>) =>
 );
 const mockPictureView = jest.fn((props: Record<string, unknown>) =>
   React.createElement('div', { 'data-testid': 'picture-view' }, props.className)
+);
+const mockGuestbookView = jest.fn(() =>
+  React.createElement('div', null, '축하 메시지 작성하기')
 );
 const mockSetTitleData = jest.fn();
 const mockSetBodyData = jest.fn();
@@ -33,12 +36,36 @@ jest.mock('@/shared/data/registry/registry', () => ({
     picture: {
       viewComponent: (props: Record<string, unknown>) => mockPictureView(props),
     },
+    guestbook: { viewComponent: () => mockGuestbookView() },
+    visualEffects: { viewComponent: () => <div data-testid="effect-block" /> },
   },
 }));
 
 jest.mock('@/shared/fonts/fontLoader', () => ({
   preloadFontFamilyWeights: (...args: unknown[]) =>
     mockPreloadFontFamilyWeights(...args),
+}));
+
+jest.mock('@/components/molecules/scroll-fade-in/ScrollFadeIn', () => ({
+  ScrollFadeIn: (props: {
+    children: React.ReactNode;
+    animationType: string;
+    triggerMode: string;
+    animationDurationMs: number;
+    animationEasing: string;
+  }) =>
+    React.createElement(
+      'div',
+      {
+        className: 'scroll-fade-in-item',
+        'data-testid': 'scroll-animation',
+        'data-animation-type': props.animationType,
+        'data-trigger-mode': props.triggerMode,
+        'data-duration-ms': props.animationDurationMs,
+        'data-easing': props.animationEasing,
+      },
+      props.children
+    ),
 }));
 
 jest.mock('@/shared/store/editorStore/useEditorStore', () => ({
@@ -71,6 +98,7 @@ const bulkData: NormalizedGuestPayload['bulkData'] = {
     isDefault: false,
   },
   isZoom: false,
+  scrollAnimation: { animationType: 'fade-up', triggerMode: 'down-only', animationDurationMs: 700, animationEasing: 'natural' },
 };
 
 describe('GuestRenderer', () => {
@@ -78,6 +106,108 @@ describe('GuestRenderer', () => {
     jest.clearAllMocks();
     mockPreloadFontFamilyWeights.mockResolvedValue(undefined);
     mockResolveGuestFontFamiliesToPreload.mockReturnValue([]);
+  });
+
+  it('저장된 방명록 데이터는 삭제하지 않고 공개 화면에서 비활성화한다', () => {
+    const blocks = [
+      {
+        id: 'saved-guestbook',
+        type: 'wedding',
+        component: 'guestbook',
+        props: { formUrl: 'https://forms.gle/saved-form' },
+      },
+      { id: 'picture', type: 'wedding', component: 'picture', props: {} },
+    ] as NormalizedGuestPayload['blocks'];
+    const before = JSON.stringify(blocks);
+    render(<GuestRenderer blocks={blocks} bulkData={bulkData} />);
+    expect(mockGuestbookView).not.toHaveBeenCalled();
+    expect(screen.queryByText('축하 메시지 작성하기')).not.toBeInTheDocument();
+    expect(screen.getByTestId('picture-view')).toBeInTheDocument();
+    expect(JSON.stringify(blocks)).toBe(before);
+  });
+
+  it('오래된 효과 블록이 중복되어도 한 봉투를 열고 컨페티를 한 번 재생한다', () => {
+    HTMLDialogElement.prototype.showModal = function () {
+      this.setAttribute('open', '');
+    };
+    HTMLDialogElement.prototype.close = function () {
+      this.removeAttribute('open');
+    };
+    const blocks: NormalizedGuestPayload['blocks'] = [
+      {
+        id: 'old-effect-1',
+        type: 'wedding',
+        component: 'visualEffects',
+        props: { effect: 'confetti', showEnvelopeIntro: true },
+      },
+      {
+        id: 'old-effect-2',
+        type: 'wedding',
+        component: 'visualEffects',
+        props: { effect: 'confetti', showEnvelopeIntro: true },
+      },
+      { id: 'picture', type: 'wedding', component: 'picture', props: {} },
+    ];
+    render(
+      <GuestRenderer
+        bulkData={{ ...bulkData, invitationEffects: { confetti: true } }}
+        blocks={blocks}
+      />
+    );
+
+    const cover = screen.getByRole('dialog', { name: '초대장 열기' });
+    expect(screen.getAllByTestId('scroll-animation')).toHaveLength(1);
+    expect(document.querySelector('.invia-effect-layer')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: '초대장 열기' }));
+    fireEvent.animationEnd(cover);
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    const bursts = document.querySelectorAll('.invia-effect-burst');
+    expect(bursts).toHaveLength(1);
+    fireEvent.animationEnd(bursts[0]);
+    expect(document.querySelector('.invia-effect-layer')).toBeNull();
+  });
+
+  it('바로 시작하고 축하 효과를 켜면 첫 화면에서 컨페티를 재생한다', () => {
+    render(
+      <GuestRenderer
+        bulkData={{ ...bulkData, invitationEffects: { opening: 'direct', confetti: true } }}
+        blocks={[]}
+      />
+    );
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(document.querySelectorAll('.invia-effect-burst')).toHaveLength(1);
+  });
+
+  it('전체 스타일에서 기존 봉투와 컨페티를 끄면 저장된 눈 내림은 유지한다', () => {
+    const blocks: NormalizedGuestPayload['blocks'] = [
+      {
+        id: 'old-effect',
+        type: 'wedding',
+        component: 'visualEffects',
+        props: { effect: 'confetti', showEnvelopeIntro: true },
+      },
+      {
+        id: 'old-snow',
+        type: 'wedding',
+        component: 'visualEffects',
+        props: { effect: 'snow', effectSpeed: 2, motionEasing: 'linear' },
+      },
+    ];
+    render(
+      <GuestRenderer
+        bulkData={{ ...bulkData, invitationEffects: { opening: 'direct', confetti: false } }}
+        blocks={blocks}
+      />
+    );
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(document.querySelector('.invia-effect-confetti')).toBeNull();
+    expect(document.querySelector('.invia-effect-snow')).toBeInTheDocument();
+    expect(document.querySelector('.invia-effect-layer')).toHaveStyle({
+      '--motion-easing': 'linear',
+    });
   });
 
   it('passes isGuestPage only to guest-aware preview components', async () => {
@@ -132,6 +262,49 @@ describe('GuestRenderer', () => {
 
     expect(screen.getByTestId('picture-view')).toBeInTheDocument();
     expect(container.firstElementChild).not.toHaveStyle({ opacity: '0' });
+  });
+
+  it('블록별 legacy 설정을 무시하고 모든 블록에 공통 설정을 적용한다', () => {
+    const sharedAnimation = {
+      animationType: 'fade-down',
+      triggerMode: 'up-only',
+      animationDurationMs: 1300,
+      animationEasing: 'soft',
+    } as const;
+    const block = {
+      id: 'styled-picture',
+      type: 'wedding',
+      component: 'picture',
+      props: {
+        collectionStyle: 'showcase-11',
+        animationType: 'none',
+        triggerMode: 'both',
+        animationDurationMs: 200,
+      },
+    } as NormalizedGuestPayload['blocks'][number];
+    const newBlock = {
+      id: 'new-picture',
+      type: 'wedding',
+      component: 'picture',
+      props: {},
+    } as NormalizedGuestPayload['blocks'][number];
+    render(
+      <GuestRenderer
+        blocks={[block, newBlock]}
+        bulkData={{ ...bulkData, scrollAnimation: sharedAnimation }}
+      />
+    );
+    const chapter = screen.getAllByTestId('picture-view')[0].closest('section');
+    expect(chapter).toHaveAttribute('data-design', 'showcase-11');
+    expect(screen.getAllByTestId('picture-view')).toHaveLength(2);
+    const wrappers = screen.getAllByTestId('scroll-animation');
+    expect(wrappers).toHaveLength(2);
+    wrappers.forEach(wrapper => {
+      expect(wrapper).toHaveAttribute('data-animation-type', 'fade-down');
+      expect(wrapper).toHaveAttribute('data-trigger-mode', 'up-only');
+      expect(wrapper).toHaveAttribute('data-duration-ms', '1300');
+      expect(wrapper).toHaveAttribute('data-easing', 'soft');
+    });
   });
 
   it('폰트 로딩이 실패해도 초대장 본문을 표시한다', async () => {

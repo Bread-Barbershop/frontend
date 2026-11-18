@@ -5,6 +5,7 @@ import { ExternalLink } from 'lucide-react';
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 
+import NoticeConfirmButton from '@/components/atoms/button/NoticeConfirmButton';
 import { disableBodyScroll } from '@/shared/utils/focusTrap';
 
 type PrivacyNoticeModalProps = {
@@ -154,13 +155,7 @@ function PrivacyNoticeModal({
                   있도록 노력할게요.
                 </p>
               </div>
-              <button
-                type="button"
-                className="shrink-0 cursor-pointer rounded-full bg-bg-plain px-8 py-[13.5px] font-pretendard text-[14px] font-semibold leading-5 text-white transition-colors hover:bg-[#202020] active:bg-[#0D0D0D]"
-                onClick={handleClose}
-              >
-                알겠어요
-              </button>
+              <NoticeConfirmButton onClick={handleClose} />
             </div>
           </motion.div>
         </motion.div>

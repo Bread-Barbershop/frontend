@@ -6,19 +6,18 @@ import { useConfirm } from './useConfirm';
 
 export function usePreventBack() {
   const { confirm } = useConfirm();
-  const isDirty = useEditorStore(state => state.isDirty);
 
   useEffect(() => {
     // 1. 탭 닫기 / 새로고침 방지
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (isDirty) {
+      if (useEditorStore.getState().isDirty) {
         e.preventDefault();
       }
     };
 
     // 2. 뒤로가기 방지
     const handlePopState = async () => {
-      if (!isDirty) {
+      if (!useEditorStore.getState().isDirty) {
         return;
       }
 
@@ -44,5 +43,5 @@ export function usePreventBack() {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [confirm, isDirty]);
+  }, [confirm]);
 }

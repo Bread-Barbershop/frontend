@@ -1,4 +1,5 @@
 import { cn } from '@/shared/utils/cn';
+import { getContrastingTextColor } from '@/shared/utils/invitationBackgroundColor';
 
 import { CalendarTemplateProps } from '../types/calendar';
 
@@ -7,13 +8,18 @@ export function CalendarType2({
   headerDays,
   accentColor,
 }: CalendarTemplateProps) {
+  const selectedDayStyle = {
+    backgroundColor: accentColor,
+    color: getContrastingTextColor(accentColor),
+  };
+
   return (
     <div className="w-full flex flex-col font-lineseed">
       <div className="grid grid-cols-7 gap-y-1 gap-x-1">
         {headerDays.map((day, idx) => (
           <div
             key={`${day}-${idx}`}
-            className="text-center font-medium text-sm text-text-tertiary"
+            className="text-center font-medium text-sm text-[color:var(--calendar-muted-text,var(--color-text-tertiary))]"
           >
             {day}
           </div>
@@ -27,21 +33,18 @@ export function CalendarType2({
             >
               <div
                 className={cn(
-                  'flex items-center justify-center relative z-1 transition-colors w-full h-full text-sm text-text-tertiary',
-                  dayObj.isCurrentMonth && 'text-text-primary',
-                  dayObj.isTargetDate && 'text-white'
+                  'flex items-center justify-center relative z-1 transition-colors w-full h-full text-sm',
+                  dayObj.isCurrentMonth
+                    ? 'text-[color:var(--calendar-text,var(--color-text-primary))]'
+                    : 'text-[color:var(--calendar-muted-text,var(--color-text-tertiary))]'
                 )}
               >
                 <span
                   className={cn(
                     'flex items-center justify-center leading-none',
-                    dayObj.isTargetDate && 'size-5.5 rounded-full text-white'
+                    dayObj.isTargetDate && 'size-5.5 rounded-full'
                   )}
-                  style={
-                    dayObj.isTargetDate
-                      ? { backgroundColor: accentColor }
-                      : undefined
-                  }
+                  style={dayObj.isTargetDate ? selectedDayStyle : undefined}
                 >
                   <span
                     className={cn(

@@ -1,7 +1,13 @@
-import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
-import { normalizeTimelineItems } from '@/components/organisms/timeline/timelineItems';
-import { componentCls } from '@/shared/data/componentsInfo/componentInfo';
-import { blockRegistry } from '@/shared/data/registry/registry';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+import { normalizeGuestBlock } from '@/app/guest/[id]/validation/normalizeGuestBlock';
+import { parseGuestPayload } from '@/app/guest/[id]/validation/parseGuestPayload';
+import { showcaseItems } from '@/app/(home)/components/showcaseItems';
+import { buildShowcaseInvitation } from '../buildShowcaseInvitation';
+import { SHOWCASE_INVITATIONS } from '../showcaseInvitations';
+import { SHOWCASE_ORIGINAL_TEMPLATES } from '../showcaseOriginalTemplates';
+import { resolveSectionStyle } from '../sectionStyles';
 
 import {
   createInvitationTemplate,
@@ -9,279 +15,265 @@ import {
   INVITATION_TEMPLATES,
 } from './index';
 
-const UUID_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const originalFetch = global.fetch;
 
-describe('초대장 템플릿 카탈로그', () => {
-  it('유형마다 세 개의 고유 템플릿을 제공한다', () => {
-    expect(INVITATION_TEMPLATES).toHaveLength(12);
-    expect(
-      new Set(INVITATION_TEMPLATES.map(template => template.id)).size
-    ).toBe(12);
+const readOriginal = (url: string) =>
+  JSON.parse(
+    readFileSync(join(process.cwd(), 'public', url.replace(/^\//, '')), 'utf8')
+  ) as Record<string, unknown>;
 
-    for (const type of [
-      'wedding',
-      'firstBirthday',
-      'birthday',
-      'seminar',
-    ] as const) {
-      expect(getInvitationTemplates(type)).toHaveLength(3);
+const withoutFreshIds = (value: unknown, key?: string): unknown => {
+  if (Array.isArray(value)) return value.map(item => withoutFreshIds(item));
+  if (!value || typeof value !== 'object') return value;
+  return Object.fromEntries(
+    Object.entries(value).flatMap(([childKey, child]) => {
+      if (childKey === 'id' || (key === 'slot' && childKey === 'key'))
+        return [];
+      return [[childKey, withoutFreshIds(child, childKey)]];
+    })
+  );
+};
+
+const collectIds = (value: unknown): string[] => {
+  if (Array.isArray(value)) return value.flatMap(collectIds);
+  if (!value || typeof value !== 'object') return [];
+  return Object.entries(value).flatMap(([key, child]) =>
+    key === 'id' && typeof child === 'string' && child !== 'background-layer'
+      ? [child]
+      : collectIds(child)
+  );
+};
+
+beforeAll(() => {
+  global.fetch = jest.fn(async input => {
+    const pathname = new URL(String(input), 'http://localhost').pathname;
+    return {
+      ok: true,
+      status: 200,
+      json: async () => readOriginal(pathname),
+    } as Response;
+  }) as typeof fetch;
+});
+
+afterAll(() => {
+  global.fetch = originalFetch;
+});
+
+describe('홈과 편집기가 공유하는 초대장 컬렉션', () => {
+  it('홈의 25개 디자인을 실제 제작 가능한 카테고리별 템플릿으로 제공한다', () => {
+    expect(showcaseItems).toHaveLength(25);
+    expect(INVITATION_TEMPLATES.map(item => item.id)).toEqual(
+      SHOWCASE_INVITATIONS.map(item => item.id)
+    );
+    expect(getInvitationTemplates('wedding')).toHaveLength(14);
+    expect(getInvitationTemplates('seminar')).toHaveLength(5);
+    expect(getInvitationTemplates('birthday')).toHaveLength(4);
+    expect(getInvitationTemplates('firstBirthday')).toHaveLength(2);
+    expect(Object.keys(SHOWCASE_ORIGINAL_TEMPLATES)).toEqual(
+      SHOWCASE_INVITATIONS.map(item => item.id)
+    );
+
+    for (const template of INVITATION_TEMPLATES) {
+      expect(
+        existsSync(
+          join(process.cwd(), 'public', template.posterImage.replace(/^\//, ''))
+        )
+      ).toBe(true);
+      expect(
+        existsSync(
+          join(
+            process.cwd(),
+            'public',
+            template.posterJsonUrl.replace(/^\//, '')
+          )
+        )
+      ).toBe(true);
     }
   });
 
-  it('모든 템플릿이 블록 스키마의 필수 필드를 채운다', () => {
-    for (const template of INVITATION_TEMPLATES) {
-      const prepared = createInvitationTemplate(template.id);
+  it('원본 JSON 로드에 실패하면 문서 적용에 쓸 데이터를 만들지 않는다', async () => {
+    const mockFetch = jest.mocked(global.fetch);
+    mockFetch.mockRejectedValueOnce(new Error('network failure'));
+    await expect(createInvitationTemplate('showcase-24')).rejects.toThrow(
+      'network failure'
+    );
+    await expect(
+      createInvitationTemplate('showcase-24')
+    ).resolves.toMatchObject({
+      posterJson: { objects: expect.any(Array) },
+    });
+  });
 
-      for (const block of prepared.blocks) {
-        const props = block.props as unknown as Record<string, unknown>;
-        const fields = blockRegistry[block.component].fields as Record<
-          string,
-          { required: boolean }
-        >;
+  it('원본 JSON 응답이 멈추면 제한 시간 후 다시 요청할 수 있다', async () => {
+    const mockFetch = jest.mocked(global.fetch);
+    mockFetch.mockImplementationOnce(() => new Promise<Response>(() => {}));
+    jest.useFakeTimers();
 
-        for (const [fieldName, field] of Object.entries(fields)) {
-          if (field.required) {
-            expect(props[fieldName]).toBeDefined();
+    try {
+      const pending = createInvitationTemplate('showcase-23');
+      const pendingError = expect(pending).rejects.toThrow('timed out');
+      await jest.advanceTimersByTimeAsync(15_000);
+      await pendingError;
+    } finally {
+      jest.useRealTimers();
+    }
+
+    await expect(
+      createInvitationTemplate('showcase-23')
+    ).resolves.toMatchObject({
+      posterJson: { objects: expect.any(Array) },
+    });
+  });
+
+  it.each(SHOWCASE_INVITATIONS)(
+    '$name의 원본 포스터와 본문을 편집해 저장 후 복원한다',
+    async design => {
+      const original = SHOWCASE_ORIGINAL_TEMPLATES[design.id];
+      const sourcePoster = readOriginal(original.jsonUrl);
+      const preview = buildShowcaseInvitation(design);
+      const editor = await createInvitationTemplate(design.id);
+      const template = INVITATION_TEMPLATES.find(
+        item => item.id === design.id
+      )!;
+      const sourceFonts = new Set<string>();
+      for (const object of sourcePoster.objects as Record<string, unknown>[]) {
+        if (typeof object.fontFamily === 'string') {
+          sourceFonts.add(object.fontFamily);
+        }
+        if (Array.isArray(object.styles)) {
+          for (const run of object.styles as Record<string, unknown>[]) {
+            const style = run.style as Record<string, unknown> | undefined;
+            if (typeof style?.fontFamily === 'string') {
+              sourceFonts.add(style.fontFamily);
+            }
           }
         }
       }
-    }
-  });
+      expect(template.fontFamilies).toEqual([...sourceFonts]);
 
-  it('템플릿의 모든 페이지를 해당 분류에서 편집 가능한 이름으로 찾을 수 있다', () => {
-    for (const template of INVITATION_TEMPLATES) {
-      const category = componentCls.find(
-        item => item.english === template.type
+      expect(editor.backgroundColor).toBe(preview.bulkData.backgroundColor);
+      expect(editor.titleData).toEqual(preview.bulkData.titleData);
+      expect(editor.bodyData).toEqual(preview.bulkData.bodyData);
+      expect(editor.sectionStyle).toBe(preview.bulkData.sectionStyle);
+      expect(resolveSectionStyle(editor.sectionStyle)).toBe(
+        editor.sectionStyle
+      );
+      expect(editor.sectionStyle).toBeDefined();
+      expect(editor.blocks.map(block => block.component)).toEqual(
+        preview.blocks.map(block => block.component)
+      );
+      expect(
+        editor.blocks
+          .map(block => block.component)
+          .filter(
+            component => component !== 'spacer' && component !== 'divider'
+          )
+      ).toEqual(template.blockTypes);
+      expect(withoutFreshIds(editor.blocks)).toEqual(
+        withoutFreshIds(preview.blocks)
+      );
+      expect(editor.posterJson.objects).toHaveLength(
+        (sourcePoster.objects as unknown[]).length
+      );
+      expect(withoutFreshIds(editor.posterJson)).toEqual(
+        withoutFreshIds(sourcePoster)
       );
 
-      expect(category).toBeDefined();
-      for (const blockType of template.blockTypes) {
-        const block = category?.list.find(item => item.component === blockType);
-        expect(block?.contents).toBeTruthy();
-      }
-    }
-  });
-
-  it('각 호출에 새 블록, poster 객체, 중첩 상태와 UUID를 만든다', () => {
-    for (const template of INVITATION_TEMPLATES) {
-      const first = createInvitationTemplate(template.id);
-      const second = createInvitationTemplate(template.id);
-
-      expect(first.blocks).not.toBe(second.blocks);
-      expect(first.blocks[0]).not.toBe(second.blocks[0]);
-      expect(first.blocks[0].props).not.toBe(second.blocks[0].props);
-      expect(first.titleData).not.toBe(second.titleData);
-      expect(first.bodyData).not.toBe(second.bodyData);
-
-      const firstIds = first.blocks.map(block => block.id);
-      const secondIds = second.blocks.map(block => block.id);
-      expect(new Set(firstIds).size).toBe(firstIds.length);
-      expect(firstIds.every(id => UUID_PATTERN.test(id))).toBe(true);
-      expect(firstIds.some(id => secondIds.includes(id))).toBe(false);
-
-      const firstObjects = first.posterJson.objects as Record<
-        string,
-        unknown
-      >[];
-      const secondObjects = second.posterJson.objects as Record<
-        string,
-        unknown
-      >[];
-      expect(firstObjects).not.toBe(secondObjects);
-      expect(first.posterJson.background).toBe(template.poster.background);
-      expect(firstObjects).toHaveLength(template.poster.objects.length);
-      expect(firstObjects.some(object => object.id === 'background-layer')).toBe(false);
-
-      const firstObjectIds = firstObjects.map(object => object.id as string);
-      const secondObjectIds = secondObjects.map(object => object.id as string);
-      expect(firstObjectIds.every(id => UUID_PATTERN.test(id))).toBe(true);
-      expect(firstObjectIds.some(id => secondObjectIds.includes(id))).toBe(
-        false
+      const originalObjects = sourcePoster.objects as Record<string, unknown>[];
+      const objects = editor.posterJson.objects as Record<string, unknown>[];
+      expect(objects.map(object => object.type)).toEqual(
+        originalObjects.map(object => object.type)
+      );
+      expect(
+        objects.some(object => object.type === 'Textbox' && object.editable)
+      ).toBe(true);
+      expect(
+        objects
+          .filter(object => object.slot)
+          .every(object => {
+            const slot = object.slot as { filled?: boolean };
+            return slot.filled === false;
+          })
+      ).toBe(true);
+      expect(objects.some(object => object.id === 'background-layer')).toBe(
+        originalObjects.some(object => object.id === 'background-layer')
       );
 
-      const firstSlot = firstObjects.find(
-        object => object.name === 'slot-placeholder'
-      );
-      const secondSlot = secondObjects.find(
-        object => object.name === 'slot-placeholder'
-      );
-      if (firstSlot && secondSlot) {
-        expect(firstSlot.id).not.toBe(secondSlot.id);
-        expect(firstSlot.slot).toMatchObject({
-          label: '표지 사진',
-          replaceable: true,
-          aspectMode: 'cover',
-          required: false,
-          order: 1,
-          filled: false,
-        });
-        expect((firstSlot.slot as { key: string }).key).not.toBe(
-          (secondSlot.slot as { key: string }).key
-        );
-      }
-
-      for (const firstBlock of first.blocks) {
-        const secondBlock = second.blocks.find(
-          block => block.component === firstBlock.component
-        );
-        if (!secondBlock) continue;
-
-        const firstProps = firstBlock.props as unknown as Record<
-          string,
-          unknown
-        >;
-        const secondProps = secondBlock.props as unknown as Record<
-          string,
-          unknown
-        >;
-        if (firstBlock.component === 'timeline') {
-          const firstItems = firstProps.items as { id: string }[];
-          const secondItems = secondProps.items as { id: string }[];
-          expect(firstItems.map(item => item.id)).not.toEqual(
-            secondItems.map(item => item.id)
+      const saved = JSON.parse(JSON.stringify(editor));
+      saved.blocks.forEach((block: unknown, index: number) => {
+        const normalized = normalizeGuestBlock(block, index);
+        expect(normalized.ok).toBe(true);
+        if (normalized.ok) {
+          expect(normalized.block.props).not.toHaveProperty('collectionStyle');
+          expect(normalized.block.props).toEqual(
+            (block as { props: unknown }).props
           );
         }
-        if (firstBlock.component === 'speakerInformation') {
-          const firstSpeakers = firstProps.speakers as { id: string }[];
-          const secondSpeakers = secondProps.speakers as { id: string }[];
-          expect(firstSpeakers[0].id).not.toBe(secondSpeakers[0].id);
-        }
-        if (firstBlock.component === 'coupleIntroduction') {
-          const firstGroom = firstProps.groomImage as { id: string };
-          const secondGroom = secondProps.groomImage as { id: string };
-          expect(firstGroom.id).not.toBe(secondGroom.id);
-        }
-      }
-    }
-  });
-
-  it('날짜, 이미지, 개인 정보를 비운 상태로 편집 블록을 준비한다', () => {
-    for (const template of INVITATION_TEMPLATES) {
-      const prepared = createInvitationTemplate(template.id);
-
-      for (const block of prepared.blocks) {
-        const props = block.props as unknown as Record<string, unknown>;
-
-        if (block.component === 'calendar') {
-          expect(props.date).toBe('');
-          expect(props.time).toBe('');
-        }
-        if (block.component === 'gallery') {
-          expect(props.images).toEqual([]);
-        }
-        if (block.component === 'myChild') {
-          expect(props.name).toBe('');
-          expect(props.nickname).toBe('');
-          expect(props.birthday).toBe('');
-          expect(props.image).toEqual([]);
-        }
-        if (block.component === 'coupleIntroduction') {
-          expect(props.groom).toBe('');
-          expect(props.bride).toBe('');
-        }
-        if (block.component === 'place') {
-          expect(props.placeName).toBe('');
-          expect(props.placeAddress).toBe('');
-          expect(props.placeDetail).toBe('');
-        }
-        if (block.component === 'speakerInformation') {
-          expect(props.speakers).toEqual([
-            expect.objectContaining({ name: '', messageJson: null, image: [] }),
-          ]);
-        }
-        if (block.component === 'notice') {
-          expect(props.noticeList).toEqual([]);
-        }
-        if (block.component === 'timeline') {
-          const items = props.items as {
-            id: string;
-            time: string;
-            title: string;
-            description: string;
-          }[];
-          expect(items.length).toBeGreaterThan(0);
-          expect(items.every(item => item.time === '')).toBe(true);
-          expect(items.every(item => item.description === '')).toBe(true);
-          expect(items.every(item => UUID_PATTERN.test(item.id))).toBe(true);
-          expect(normalizeTimelineItems(items)).toEqual(items);
-        }
-        if (block.component === 'rsvp') {
-          expect(props.formUrl).toBe('');
-        }
-        if (block.component === 'transportation') {
-          expect(props.navigationUrl).toBe('');
-          expect(props.subwayLine).toBe('');
-          expect(props.busRoutes).toBe('');
-        }
-      }
-    }
-  });
-
-  it('인사말의 여러 문단을 HTML로 직렬화한다', () => {
-    for (const template of INVITATION_TEMPLATES) {
-      const greeting = createInvitationTemplate(template.id).blocks.find(
-        block => block.component === 'greeting'
-      );
-      expect(greeting).toBeDefined();
-
-      const props = greeting!.props as unknown as {
-        messageJson: Parameters<typeof tiptapJsonToHtmlUniversal>[0];
-        messageHtml: string;
-      };
-      expect(props.messageJson?.content).toHaveLength(2);
-      expect(props.messageHtml).toMatch(/<\/p><p(?:\s|>)/);
-      expect(props.messageHtml).toBe(
-        tiptapJsonToHtmlUniversal(props.messageJson)
-      );
-    }
-  });
-
-  it('테마 색상과 제목 글꼴 설정을 bulk 데이터 및 블록 팔레트에 적용한다', () => {
-    for (const template of INVITATION_TEMPLATES) {
-      const prepared = createInvitationTemplate(template.id);
-      expect(prepared.titleData).toMatchObject({
-        color: template.colors.accent,
-        fontSize: '22px',
       });
-      expect(prepared.bodyData.color).toBe(template.colors.text);
-
-      const divider = prepared.blocks.find(
-        block => block.component === 'divider'
-      );
-      if (divider) {
-        expect(divider.props.color).toBe(template.colors.accent);
-      }
-
-      const dressCode = prepared.blocks.find(
-        block => block.component === 'dressCode'
-      );
-      if (dressCode) {
-        expect(dressCode.props.colors).toEqual([
-          template.colors.background,
-          template.colors.accent,
-          template.colors.text,
-        ]);
+      const guest = parseGuestPayload({
+        blocks: saved.blocks,
+        mainPoster: saved.posterJson,
+        bulkData: {
+          backgroundColor: saved.backgroundColor,
+          sectionStyle: saved.sectionStyle,
+          titleData: saved.titleData,
+          bodyData: saved.bodyData,
+          isZoom: false,
+        },
+        bgm: {
+          selectedBgmId: null,
+          isLoop: false,
+          volume: 0.5,
+          userBgmTitle: null,
+          userBgmDuration: null,
+          userBgmFileId: null,
+        },
+      });
+      expect(guest.ok).toBe(true);
+      if (guest.ok) {
+        expect(guest.warnings).toEqual([]);
+        expect(guest.payload.blocks).toHaveLength(editor.blocks.length);
+        expect(guest.payload.bulkData.sectionStyle).toBe(editor.sectionStyle);
+        expect(guest.payload.mainPoster.objects).toEqual(
+          saved.posterJson.objects
+        );
       }
     }
+  );
 
-    expect(
-      createInvitationTemplate('wedding-classic-letter').titleData
-    ).toMatchObject({
-      font: 'Hahmlet',
-      fontWeight: '500',
-    });
-    expect(
-      createInvitationTemplate('first-birthday-first-year-story').titleData
-    ).toMatchObject({
-      font: '고운 바탕',
-      fontWeight: '400',
-    });
+  it('같은 원본을 다시 적용해도 Fabric 오브젝트와 블록 ID를 새로 만든다', async () => {
+    for (const design of SHOWCASE_INVITATIONS) {
+      const a = await createInvitationTemplate(design.id);
+      const b = await createInvitationTemplate(design.id);
+      const first = collectIds(a);
+      const second = collectIds(b);
+      const firstObjects = a.posterJson.objects as Record<string, unknown>[];
+      const secondObjects = b.posterJson.objects as Record<string, unknown>[];
+
+      expect(a.blocks).toHaveLength(design.sections.length);
+      for (const block of a.blocks) {
+        expect(block.id).toMatch(
+          /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+        );
+      }
+      expect(second).toHaveLength(first.length);
+      expect(new Set(first).size).toBe(first.length);
+      expect(first.every(id => !second.includes(id))).toBe(true);
+      const objectIds = firstObjects
+        .map(object => object.id)
+        .filter((id): id is string => typeof id === 'string');
+      expect(new Set(objectIds).size).toBe(objectIds.length);
+      expect(
+        firstObjects.find(object => object.id === 'background-layer')?.id
+      ).toBe(
+        secondObjects.find(object => object.id === 'background-layer')?.id
+      );
+    }
   });
 
-  it('등록되지 않은 템플릿 ID는 오류를 던진다', () => {
-    expect(() => createInvitationTemplate('unknown-template')).toThrow(
-      'Invitation template not found: unknown-template'
+  it('유효하지 않은 템플릿으로 빈 편집기를 만들지 않는다', async () => {
+    await expect(createInvitationTemplate('unknown-template')).rejects.toThrow(
+      'Unknown template'
     );
   });
 });

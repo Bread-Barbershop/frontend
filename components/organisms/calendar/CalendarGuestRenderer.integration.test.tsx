@@ -72,6 +72,12 @@ const bulkData: NormalizedGuestPayload['bulkData'] = {
     isDefault: false,
   },
   isZoom: false,
+  scrollAnimation: {
+    animationType: 'fade-up',
+    triggerMode: 'down-only',
+    animationDurationMs: 700,
+    animationEasing: 'natural',
+  },
 };
 
 const calendarBlock = (date: string) =>
@@ -92,7 +98,7 @@ const calendarBlock = (date: string) =>
       messageHtml: null,
       isSubTitle: true,
     },
-  }) as NormalizedGuestPayload['blocks'][number];
+  }) satisfies NormalizedGuestPayload['blocks'][number];
 
 function renderCalendarAt(pathname: string, date: string) {
   mockPathname = pathname;
@@ -137,8 +143,44 @@ describe('GuestRenderer 달력 공개 미리보기', () => {
   it('비공개 편집 경로에서는 날짜 입력 안내를 표시한다', () => {
     renderCalendarAt('/editor', '');
 
-    expect(
-      screen.getByText('날짜와 시간을 입력해 주세요')
-    ).toBeInTheDocument();
+    expect(screen.getByText('날짜와 시간을 입력해 주세요')).toBeInTheDocument();
+  });
+
+  it('어두운 카드의 카운트다운에 맞는 색을 적용하고 작성자가 지정한 본문색을 유지한다', () => {
+    mockPathname = '/guest/test';
+    const block = calendarBlock('2026-03-19');
+    render(
+      <GuestRenderer
+        blocks={[
+          {
+            ...block,
+            props: {
+              ...block.props,
+              showDday: true,
+              messageHtml:
+                '<p><span style="color: #bc7780">초대 문구</span></p>',
+            },
+          },
+        ]}
+        bulkData={{
+          ...bulkData,
+          backgroundColor: '#536780',
+          sectionStyle: 'rounded',
+          bodyData: {
+            ...bulkData.bodyData,
+            color: '#E2E6ED',
+            colorMode: 'automatic',
+          },
+        }}
+      />
+    );
+
+    const days = screen.getByText('DAYS');
+    expect(days.closest('[data-invitation-dark]')).toBeInTheDocument();
+    expect(days.closest('[data-section-style="rounded"]')).toBeInTheDocument();
+    expect(days.parentElement?.parentElement?.className).toContain(
+      '--calendar-muted-text'
+    );
+    expect(screen.getByText('초대 문구')).toHaveStyle({ color: '#bc7780' });
   });
 });

@@ -1,5 +1,10 @@
+import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/animationConfig';
+import { normalizeInvitationPrivacy } from '@/features/invitation/privacy/settings';
+import { resolveBackgroundTexture } from '@/shared/data/backgroundTextures';
+import { resolveSectionStyle } from '@/shared/data/sectionStyles';
 import type { BulkData } from '@/shared/types/block';
 import type { GuestRenderHints } from '@/shared/types/renderHints';
+import { normalizeInvitationEffects } from '@/shared/utils/invitationEffects';
 
 import {
   normalizeGuestBlock,
@@ -71,13 +76,25 @@ function normalizeBulkJson(x: unknown): BulkJson | null {
   if (typeof x.backgroundColor !== 'string') return null;
   if (!isBulkData(x.titleData)) return null;
   if (!isBulkData(x.bodyData)) return null;
+  const invitationPrivacy = normalizeInvitationPrivacy(x.invitationPrivacy);
+
+  const sectionStyle = resolveSectionStyle(x.sectionStyle);
+  const invitationEffects = normalizeInvitationEffects(x.invitationEffects);
 
   return {
     backgroundColor: x.backgroundColor,
+    ...(x.backgroundTexture !== undefined && {
+      backgroundTexture: resolveBackgroundTexture(x.backgroundTexture),
+    }),
+    ...(sectionStyle && { sectionStyle }),
     titleData: x.titleData,
     bodyData: x.bodyData,
     // 구형 data.json에는 isZoom이 없을 수 있으므로 안전한 기본값을 둔다.
     isZoom: typeof x.isZoom === 'boolean' ? x.isZoom : false,
+    ...(invitationPrivacy ? { invitationPrivacy } : {}),
+    // 개별 블록에 남아 있는 legacy 설정은 사용하지 않고 공통 설정만 읽는다.
+    scrollAnimation: resolveScrollAnimation(x.scrollAnimation),
+    ...(invitationEffects && { invitationEffects }),
   };
 }
 

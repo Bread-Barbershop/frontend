@@ -7,6 +7,8 @@ import { componentCls } from '@/shared/data/componentsInfo/componentInfo';
 import { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 
+import { BlockLabel } from './BlockLabel';
+
 interface Props {
   id: string;
   blockInfo: EditorBlock;
@@ -42,9 +44,11 @@ const SortableItems = React.memo(
     } = useSortable({ id });
 
     const array = componentCls.find(items => items.english === blockInfo.type);
-    const componentName = array?.list.find(
-      item => item.component === blockInfo.component
-    );
+    const componentName =
+      array?.list.find(item => item.component === blockInfo.component) ??
+      componentCls
+        .flatMap(category => category.list)
+        .find(item => item.component === blockInfo.component);
 
     const style = {
       transform: CSS.Translate.toString(transform),
@@ -73,7 +77,9 @@ const SortableItems = React.memo(
             isSelected ? 'bg-[#DBE8FC]' : ''
           )}
         >
-          <ItemContent contents={componentName?.contents} />
+          <BlockLabel component={blockInfo.component}>
+            <ItemContent contents={componentName?.contents} />
+          </BlockLabel>
           {!isDragging && onDeleteRequest && (
             <button
               type="button"

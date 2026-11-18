@@ -1,9 +1,5 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useShallow } from 'zustand/shallow';
-
-import { UtilityButton } from '@/components/atoms/button';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { TextEditorPreview } from '@/components/molecules/preview-text-editor';
 import type { BulkColorPickerId } from '@/components/molecules/preview-text-editor/types';
@@ -12,6 +8,7 @@ import { resolveFontFamily } from '@/shared/fonts/fontRegistry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { BulkData } from '@/shared/types/block';
 import { applyBulkBodyStyleToBlocks } from '@/shared/utils/applyBulkBodyStyle';
+import { usesAutomaticBulkColor } from '@/shared/utils/invitationBackgroundColor';
 import { toStyle } from '@/shared/utils/toStyle';
 
 type BodyEditProps = {
@@ -23,57 +20,39 @@ function BodyEdit({
   activeColorPickerId,
   onActiveColorPickerChange,
 }: BodyEditProps) {
-  const { bodyData, block, setBlock, setBodyData } = useEditorStore(
-    useShallow(state => ({
-      block: state.block,
-      bodyData: state.bodyData,
-      setBlock: state.setBlock,
-      setBodyData: state.setBodyData,
-    }))
-  );
+  const bodyData = useEditorStore(state => state.bodyData);
 
-  const [bulkBodyData, setBulkBodyData] = useState<BulkData>(
-    bodyData.isDefault ? BODY_BULK_DATA : bodyData
-  );
+  const bulkBodyData = bodyData.isDefault
+    ? {
+        ...BODY_BULK_DATA,
+        color: bodyData.color,
+        colorMode: bodyData.colorMode,
+      }
+    : bodyData;
 
-  // const handleReset = () => {
-  //   setBulkBodyData(BODY_BULK_DATA);
-  //   setBodyData(BODY_BULK_DATA);
-  //   setBlock(applyBulkBodyFontSizeToBlocks(block, BODY_BULK_DATA.fontSize));
-  // };
-
-  const handleApply = () => {
-    setBodyData({ ...bulkBodyData, isDefault: false });
-    setBlock(
-      applyBulkBodyStyleToBlocks(block, {
-        fontSize: bulkBodyData.fontSize,
-        fontFamily: resolveFontFamily(bulkBodyData.font),
-        fontWeight: bulkBodyData.fontWeight,
-        color: bulkBodyData.color,
-      })
-    );
+  const handleBodyChange = (next: BulkData) => {
+    useEditorStore.setState(state => {
+      const bodyData = { ...next, isDefault: false };
+      return {
+        bodyData,
+        block: applyBulkBodyStyleToBlocks(state.block, {
+          fontSize: bodyData.fontSize,
+          fontFamily: resolveFontFamily(bodyData.font),
+          fontWeight: bodyData.fontWeight,
+          color: usesAutomaticBulkColor(bodyData, BODY_BULK_DATA.color)
+            ? null
+            : bodyData.color,
+        }),
+      };
+    });
   };
 
   return (
     <div className="w-full">
-      <NavigationBar
-        action={
-          <div className="flex items-center gap-1">
-            {/* <UtilityButton size="md" variant="primary" onClick={handleReset}>
-              되돌리기
-            </UtilityButton> */}
-            <UtilityButton size="md" variant="primary" onClick={handleApply}>
-              적용하기
-            </UtilityButton>
-          </div>
-        }
-        direction="right"
-      >
-        본문 편집
-      </NavigationBar>
+      <NavigationBar>본문 글꼴</NavigationBar>
       <TextEditorPreview
         value={bulkBodyData}
-        onChange={setBulkBodyData}
+        onChange={handleBodyChange}
         colorPickerId="body"
         activeColorPickerId={activeColorPickerId}
         onActiveColorPickerChange={onActiveColorPickerChange}

@@ -7,6 +7,7 @@ import { useToast } from '@/shared/hooks/useToast';
 
 type UseAuthGateOptions = {
   initialIsLoggedIn?: boolean;
+  stayOnSessionExpiry?: boolean;
 };
 
 type SessionResponse = {
@@ -228,8 +229,10 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
         setIsLoginOpen(false);
         setIsPrivacyNoticeOpen(false);
         setIsDrivePermissionRequiredOpen(false);
-        router.replace('/');
-        router.refresh();
+        if (!options.stayOnSessionExpiry) {
+          router.replace('/');
+          router.refresh();
+        }
         return false;
       }
 
@@ -269,9 +272,15 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
       if (isBusy) return;
 
       setIsBusy(true);
-      void (async () => {
+      return (async () => {
         const isSessionValid = await validateSession();
-        if (!isSessionValid) return;
+        if (!isSessionValid) {
+          if (options.stayOnSessionExpiry) {
+            pendingActionRef.current = action;
+            login();
+          }
+          return;
+        }
 
         await Promise.resolve(action());
       })()
@@ -279,7 +288,6 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
         .finally(() => {
           setIsBusy(false);
         });
-      return;
     }
 
     pendingActionRef.current = action;

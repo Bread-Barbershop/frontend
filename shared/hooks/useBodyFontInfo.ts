@@ -2,8 +2,10 @@
 
 import { useMemo } from 'react';
 
+import { BODY_BULK_DATA } from '@/shared/data/sample/bulkData';
 import { resolveFontFamily } from '@/shared/fonts/fontRegistry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { usesAutomaticBulkColor } from '@/shared/utils/invitationBackgroundColor';
 import { toStyle } from '@/shared/utils/toStyle';
 
 export const useBodyFontInfo = () => {
@@ -22,6 +24,7 @@ export const useBodyFontInfo = () => {
       textDecoration: style.textDecoration || undefined,
       fontSize: style.fontSize || undefined,
       color: style.color || undefined,
+      isColorAutomatic: usesAutomaticBulkColor(bodyData, BODY_BULK_DATA.color),
       textAlign: style.textAlign || undefined,
     };
   }, [bodyData]);

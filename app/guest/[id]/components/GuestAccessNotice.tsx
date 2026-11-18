@@ -5,11 +5,13 @@ import inviaLogo3d from '@/shared/assets/logo/invia-simple-logo-3d.png';
 import type { ReactNode } from 'react';
 
 type GuestAccessNoticeProps = {
+  kind?: 'private' | 'link';
   title: string;
   description: ReactNode;
 };
 
 export function GuestAccessNotice({
+  kind = 'private',
   title,
   description,
 }: GuestAccessNoticeProps) {
@@ -25,7 +27,7 @@ export function GuestAccessNotice({
           className="mx-auto mb-2 h-[100px] w-[100px] object-contain"
         />
         <p className="mb-3 font-pretendard text-[12px] font-bold tracking-[0.2em] text-[#9AA3AF]">
-          PRIVATE INVITATION
+          {kind === 'private' ? 'PRIVATE INVITATION' : 'GUEST INVITATION'}
         </p>
         <h1 className="font-pretendard text-[24px] font-bold leading-8 tracking-[-0.02em] text-[#111827] sm:text-[26px] sm:leading-9">
           {title}
@@ -34,10 +36,18 @@ export function GuestAccessNotice({
           {description}
         </p>
         <div className="mt-4 rounded-2xl bg-[#F8FAFC] px-4 py-3 font-pretendard text-[13px] font-semibold leading-[140%] text-[#4B5563]">
-          <span className="block">잠시 후 다시 열어보거나,</span>
-          <span className="block">
-            초대장을 보내준 분에게 공개 상태를 확인해 주세요.
-          </span>
+          {kind === 'private' ? (
+            <>
+              <span className="block">잠시 후 다시 열어보거나,</span>
+              <span className="block">
+                초대장을 보내준 분에게 공개 상태를 확인해 주세요.
+              </span>
+            </>
+          ) : (
+            <span className="block">
+              초대장을 보내준 분에게 링크를 확인해 주세요.
+            </span>
+          )}
         </div>
       </section>
     </main>

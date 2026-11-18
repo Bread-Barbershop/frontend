@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
   DeleteInvitationResponse,
@@ -25,6 +25,7 @@ import {
   isAbortError,
   mergeGuestReadinessResult,
   mergePendingInvite,
+  normalizeInvite,
   normalizeInvites,
   PENDING_INVITATION_MAX_ATTEMPTS,
   PENDING_INVITATION_POLL_DELAYS_MS,
@@ -38,6 +39,9 @@ import {
 import { useDashboardInvitationTransientState } from './useDashboardInvitationTransientState';
 
 type LoadInvitationErrorPayload = { message?: string };
+type CloneInvitationResponse =
+  | { success: true; invite: InviteListItem }
+  | { success: false; message?: string };
 type UseDashboardInvitationsOptions = {
   loadOnMount?: boolean;
 };
@@ -46,6 +50,8 @@ type ShareUrlResponse = {
   data?: KakaoShareData;
   error?: string;
 };
+
+const CLONE_ERROR_MESSAGE = '초대장 복사에 실패했습니다.';
 
 function shareInvitationWithKakao(shareData: KakaoShareData) {
   if (typeof window === 'undefined' || !window.Kakao) {
@@ -151,6 +157,12 @@ function useDashboardInvitations(
   const [invites, setInvites] = useState<InviteListItem[]>(
     normalizedInitialInvites
   );
+  const clonedFolderIdsRef = useRef(new Set<string>());
+  const listVersionsRef = useRef({
+    requested: 0,
+    applied: 0,
+    folderIds: new Set<string>(),
+  });
   const {
     deleteBusy,
     setDeleteBusy,
@@ -192,7 +204,31 @@ function useDashboardInvitations(
     []
   );
 
+  const replaceInvites = useCallback(
+    (loadedInvites: InviteListItem[], version: number) => {
+      const versions = listVersionsRef.current;
+      if (version < versions.applied) return false;
+      versions.applied = version;
+      versions.folderIds = new Set(loadedInvites.map(invite => invite.folderId));
+
+      const clonedFolderIds = clonedFolderIdsRef.current;
+      for (const folderId of clonedFolderIds) {
+        if (versions.folderIds.has(folderId)) clonedFolderIds.delete(folderId);
+      }
+
+      // Drive 목록에 등장하기 전까지만 화면에 추가한 복사본을 보존한다.
+      const unconfirmedClones = new Set(clonedFolderIds);
+      setInvites(prev => [
+        ...prev.filter(invite => unconfirmedClones.has(invite.folderId)),
+        ...loadedInvites,
+      ]);
+      return true;
+    },
+    []
+  );
+
   const loadInvitations = useCallback(async () => {
+    const version = ++listVersionsRef.current.requested;
     setLoading(true);
     setError(null);
 
@@ -207,6 +243,8 @@ function useDashboardInvitations(
         | LoadInvitationErrorPayload
         | null;
       const payloadMessage = getPayloadMessage(payload);
+
+      if (version < listVersionsRef.current.applied) return;
 
       if (shouldRedirectToHome(res.status, payloadMessage)) {
         setInvites([]);
@@ -231,7 +269,7 @@ function useDashboardInvitations(
         ? mergePendingInvite(loadedInvites, activePendingInvitation)
         : loadedInvites;
 
-      setInvites(nextInvites);
+      replaceInvites(nextInvites, version);
       setDeleteBusy({});
       setDeleteErrors({});
       setVisibilityBusy({});
@@ -240,6 +278,7 @@ function useDashboardInvitations(
       setReadinessPolling({});
       setInvitationResults(createInitialInvitationResults(nextInvites));
     } catch (err) {
+      if (version < listVersionsRef.current.applied) return;
       console.error(err);
       setInvites([]);
       setDeleteBusy({});
@@ -253,7 +292,12 @@ function useDashboardInvitations(
     } finally {
       setLoading(false);
     }
-  }, [abortAllReadinessPolling, resetInvitationResultState, router]);
+  }, [
+    abortAllReadinessPolling,
+    replaceInvites,
+    resetInvitationResultState,
+    router,
+  ]);
 
   const pollPendingInvitation = useCallback(
     async (pendingInvitation: DashboardPendingInvitation) => {
@@ -282,6 +326,7 @@ function useDashboardInvitations(
             await sleep(delayMs, signal);
           }
 
+          const version = ++listVersionsRef.current.requested;
           const res = await fetch('/api/drive/loadInvitation', {
             method: 'GET',
             cache: 'no-store',
@@ -293,6 +338,11 @@ function useDashboardInvitations(
             | LoadInvitationErrorPayload
             | null;
           const payloadMessage = getPayloadMessage(payload);
+
+          if (version < listVersionsRef.current.applied) {
+            attempt += 1;
+            continue;
+          }
 
           if (shouldRedirectToHome(res.status, payloadMessage)) {
             pendingInvitationRef.current = null;
@@ -316,11 +366,12 @@ function useDashboardInvitations(
           );
 
           if (!loadedPendingInvite) {
-            setInvites(
+            replaceInvites(
               mergePendingInvite(loadedInvites, pendingInvitation, {
                 readiness: 'pending',
                 isPending: true,
-              })
+              }),
+              version
             );
             attempt += 1;
             continue;
@@ -358,13 +409,19 @@ function useDashboardInvitations(
             isGuestReady,
           });
 
-          setInvites(
+          const applied = replaceInvites(
             mergePendingInvite(
               loadedInvites,
               pendingInvitation,
               pendingTransition.patch
-            )
+            ),
+            version
           );
+
+          if (!applied) {
+            attempt += 1;
+            continue;
+          }
 
           setInvitationResults(prev => ({
             ...prev,
@@ -413,7 +470,7 @@ function useDashboardInvitations(
         }
       }
     },
-    [abortPendingInvitationPolling, router]
+    [abortPendingInvitationPolling, replaceInvites, router]
   );
 
   useEffect(() => {
@@ -624,6 +681,47 @@ function useDashboardInvitations(
     ]
   );
 
+  const handleClone = useCallback(
+    async (folderId: string, requestId: string) => {
+      const res = await fetch('/api/drive/cloneInvitation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ folderId, requestId }),
+      }).catch(() => null);
+      const payload = (await res?.json().catch(() => null)) as
+        | CloneInvitationResponse
+        | null
+        | undefined;
+
+      if (
+        !res?.ok ||
+        payload?.success !== true ||
+        !payload.invite?.folderId ||
+        payload.invite.folderId === folderId
+      ) {
+        throw new Error(
+          (payload?.success === false && payload.message) || CLONE_ERROR_MESSAGE
+        );
+      }
+
+      const invite = normalizeInvite(payload.invite);
+      if (!listVersionsRef.current.folderIds.has(invite.folderId)) {
+        clonedFolderIdsRef.current.add(invite.folderId);
+      }
+      setInvites(prev => [
+        invite,
+        ...prev.filter(item => item.folderId !== invite.folderId),
+      ]);
+      setInvitationResults(prev => ({
+        ...prev,
+        ...createInitialInvitationResults([invite]),
+      }));
+      successToast('초대장이 복사되었습니다.');
+      return invite.folderId;
+    },
+    [setInvitationResults, successToast]
+  );
+
   const handleDelete = useCallback(
     async (folderId: string) => {
       if (!folderId) return;
@@ -656,6 +754,7 @@ function useDashboardInvitations(
           throw new Error(payload?.message ?? '초대장 삭제에 실패했습니다.');
         }
 
+        clonedFolderIdsRef.current.delete(folderId);
         setInvites(prev => prev.filter(invite => invite.folderId !== folderId));
         isDeleted = true;
         clearInvitationTransientState(folderId);
@@ -817,6 +916,7 @@ function useDashboardInvitations(
     loading,
     error,
     loadInvitations,
+    handleClone,
     handleDelete,
     handleToggleVisibility,
     handleUpdate,

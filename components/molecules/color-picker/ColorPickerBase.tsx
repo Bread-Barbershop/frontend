@@ -27,6 +27,7 @@ export type ColorPickerBaseProps = {
   value?: ColorPickerValue;
   defaultValue?: ColorPickerValue;
   onChange?: (nextColor: ColorPickerChange) => void;
+  preserveAlpha?: boolean;
   paletteClassName?: string;
   pointerSize?: GlassPointerSize;
   historyColumnCount?: number;
@@ -37,6 +38,7 @@ function ColorPickerBase({
   value,
   defaultValue,
   onChange,
+  preserveAlpha = false,
   paletteClassName,
   pointerSize,
   historyColumnCount = COLOR_HISTORY_COLUMN_COUNT,
@@ -149,7 +151,8 @@ function ColorPickerBase({
         inputMode={inputMode}
         onInputModeChange={setInputMode}
         onHexChange={nextHex => {
-          applyHsva(hexToHsva(nextHex) as PickerHsva);
+          const color = hexToHsva(nextHex);
+          applyHsva(preserveAlpha ? { ...color, a: hsva.a } : color);
         }}
         onRgbChange={nextColor => {
           applyHsva(nextColor);

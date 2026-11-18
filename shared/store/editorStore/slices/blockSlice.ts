@@ -9,7 +9,7 @@ export const createBlockSlice: StateCreator<EditorState, [], [], BlockSlice> = (
   get
 ) => ({
   block: [],
-  addBlock: (type, component, id) =>
+  addBlock: (type, component, id, initialProps) =>
     set(state => ({
       block: [
         ...state.block,
@@ -17,7 +17,7 @@ export const createBlockSlice: StateCreator<EditorState, [], [], BlockSlice> = (
           id,
           type,
           component,
-          props: createDefaultProps(component, type),
+          props: { ...createDefaultProps(component, type), ...initialProps },
         },
       ],
     })),
@@ -32,6 +32,14 @@ export const createBlockSlice: StateCreator<EditorState, [], [], BlockSlice> = (
                 ...props,
               },
             }
+          : block
+      ),
+    })),
+  updateBlockSectionStyle: (id, sectionStyle) =>
+    set(state => ({
+      block: state.block.map(block =>
+        block.id === id
+          ? { ...block, props: { ...block.props, sectionStyle } }
           : block
       ),
     })),
@@ -58,7 +66,7 @@ export const createBlockSlice: StateCreator<EditorState, [], [], BlockSlice> = (
       // UISlice의 기능을 get()을 통해 참조 가능
       if (index === 0) get().selectedBlock(id);
       if (item.component) {
-        get().addBlock(selectedType.english, item.component, id);
+        get().addBlock(english, item.component, id);
       }
     });
   },

@@ -4,6 +4,7 @@ import {
   ResponseData,
   UpdateInvitationResponse,
 } from '@/app/editor/[id]/types/savedata';
+import { DEFAULT_SCROLL_ANIMATION } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { BODY_BULK_DATA, TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
 import { PersistedEditorBlock } from '@/shared/types/block';
 
@@ -12,6 +13,11 @@ import {
   getFilesInFolder,
   loadInvitations,
 } from '../_lib/getSaveDataFetch';
+import { AUDIENCE_UUID_PREFIX } from '../_lib/invitationAudienceFolders';
+import {
+  assertInvitationFolderAccess,
+  PreviewAccessError,
+} from '../_lib/previewAccess';
 
 const normalizePersistedBlocks = (blocks: unknown): PersistedEditorBlock[] => {
   if (!Array.isArray(blocks)) return [];
@@ -30,6 +36,7 @@ export async function GET(
 ): Promise<NextResponse<UpdateInvitationResponse>> {
   const { searchParams } = new URL(request.url);
   const fileId = searchParams.get('id');
+  const uuid = searchParams.get('uuid');
 
   // 반환할 데이터 구조 정의
   const responseData: ResponseData = {
@@ -39,6 +46,7 @@ export async function GET(
         titleData: TITLE_BULK_DATA,
         bodyData: BODY_BULK_DATA,
         isZoom: false,
+        scrollAnimation: DEFAULT_SCROLL_ANIMATION,
       },
       blocks: [], // singular
       mainPoster: '',
@@ -59,65 +67,99 @@ export async function GET(
   };
 
   try {
+    let audienceName: string | undefined;
+    if (fileId && uuid?.startsWith(AUDIENCE_UUID_PREFIX)) {
+      const { audience } = await assertInvitationFolderAccess(fileId, {
+        ownedOnly: true,
+      });
+      if (audience?.invitationUuid !== uuid) {
+        throw new PreviewAccessError({
+          code: 'INVITATION_NOT_FOUND',
+          status: 404,
+          message: 'Audience editor UUID does not match folder',
+          userMessage: '하객 그룹을 찾을 수 없습니다.',
+        });
+      }
+      audienceName = audience.name;
+    }
     const result = await loadInvitations(fileId);
 
     if (!result || !result.files || result.files.length === 0) {
       throw new Error('초대장 목록이 없거나 불러오지 못했습니다.');
     }
 
+    const dataFiles = result.files.filter(
+      file =>
+        file.id &&
+        file.mimeType?.includes('json') &&
+        file.name?.toLowerCase() === 'data.json'
+    );
+    const dataFile =
+      dataFiles.find(
+        file => file.appProperties?.kind === 'invitation_data_json'
+      ) ?? dataFiles[0];
+    const fileContent = dataFile?.id ? await downloadFiles(dataFile.id) : null;
+    if (
+      !fileContent ||
+      typeof fileContent !== 'object' ||
+      Array.isArray(fileContent) ||
+      !fileContent.bgm
+    ) {
+      throw new Error('저장된 초대장 데이터를 불러오지 못했습니다.');
+    }
+    responseData.config = {
+      bulkData: fileContent.bulkData,
+      blocks: normalizePersistedBlocks(fileContent.blocks),
+      mainPoster: fileContent.mainPoster,
+      bgm: fileContent.bgm,
+      invitationImage: fileContent.invitationImage,
+      shareUrl: fileContent.shareUrl,
+    };
+
     for (const file of result.files) {
       // 1. 폴더인 경우: 내부 파일 리스트(ID, Name)만 수집
       if (file.mimeType?.includes('folder')) {
         if (!file.id) continue;
-        if (file.name?.toLowerCase().includes('image')) {
-          responseData.imageFolderId = file.id!;
-        } else if (file.name?.toLowerCase().includes('audio')) {
-          responseData.audioFolderId = file.id!;
-        }
-        const folderContent = await getFilesInFolder(file.id!);
-
-        // 폴더 이름에 따라 분류 (예: 'images' 폴더, 'audio' 폴더)
-        if (folderContent) {
-          if (file.name?.toLowerCase().includes('image')) {
-            responseData.images = folderContent;
-          } else if (file.name?.toLowerCase().includes('audio')) {
-            responseData.audios = folderContent;
-          }
-        }
-      }
-
-      // // 2. JSON 파일인 경우: 설정값(Config)으로 파싱해서 저장
-      else if (file.mimeType?.includes('json') && file.name?.toLowerCase() === 'data.json') {
-        const fileContent = await downloadFiles(file.id!);
-        // 데이터 호환성 처리 (block vs blocks)
-        if (fileContent) {
-          responseData.config = {
-            bulkData: fileContent.bulkData,
-            blocks: normalizePersistedBlocks(fileContent.blocks),
-            mainPoster: fileContent.mainPoster,
-            bgm: fileContent.bgm,
-            invitationImage: fileContent.invitationImage,
-            shareUrl: fileContent.shareUrl,
-          };
+        const folderName = file.name?.toLowerCase();
+        if (folderName?.includes('image')) {
+          const images = await getFilesInFolder(file.id);
+          if (!images)
+            throw new Error('저장된 이미지 목록을 불러오지 못했습니다.');
+          responseData.imageFolderId = file.id;
+          responseData.images = images;
+        } else if (folderName?.includes('audio')) {
+          const audios = await getFilesInFolder(file.id);
+          if (!audios)
+            throw new Error('저장된 오디오 목록을 불러오지 못했습니다.');
+          responseData.audioFolderId = file.id;
+          responseData.audios = audios;
         }
       }
     }
 
     // 배열이 아닌 구조화된 객체 응답
 
-    return NextResponse.json({ success: true, ...responseData });
+    return NextResponse.json({
+      success: true,
+      ...responseData,
+      ...(audienceName ? { audienceName } : {}),
+    });
   } catch (error) {
     console.error('updateInvitation error:', error);
     return NextResponse.json(
       {
         success: false,
-        error: (error as Error).message,
+        error:
+          error instanceof PreviewAccessError
+            ? error.userMessage
+            : (error as Error).message,
         config: {
           bulkData: {
             backgroundColor: '#FFFFFF',
             titleData: TITLE_BULK_DATA,
             bodyData: BODY_BULK_DATA,
             isZoom: false,
+            scrollAnimation: DEFAULT_SCROLL_ANIMATION,
           },
           blocks: [] as PersistedEditorBlock[],
           mainPoster: '',
@@ -137,7 +179,7 @@ export async function GET(
         audioFolderId: '',
       } as UpdateInvitationResponse,
       {
-        status: 500,
+        status: error instanceof PreviewAccessError ? error.status : 500,
       }
     );
   }

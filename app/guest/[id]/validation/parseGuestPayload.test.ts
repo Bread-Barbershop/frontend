@@ -65,8 +65,17 @@ describe('parseGuestPayload', () => {
     expect(result.payload.blocks).toHaveLength(1);
     expect(result.payload.blocks[0].props).toMatchObject({
       title: '초대합니다',
-      englishTitle: 'INVITATION',
+      checkedSubTitle: true,
+      subTitle: 'INVITATION',
     });
+  });
+
+  it('이전 초대장에 저장되지 않은 배경 질감 필드를 생략한다', () => {
+    const result = parseGuestPayload(basePayload);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.payload.bulkData).not.toHaveProperty('backgroundTexture');
   });
 
   it('renderHints가 있으면 optional 힌트로 정규화한다', () => {

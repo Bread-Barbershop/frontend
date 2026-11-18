@@ -5,6 +5,7 @@ import { ScrollFadeIn } from './ScrollFadeIn';
 
 describe('ScrollFadeIn 컴포넌트', () => {
   let originalIntersectionObserver: typeof window.IntersectionObserver;
+  let originalMatchMedia: typeof window.matchMedia;
   let observeMock: jest.Mock;
   let unobserveMock: jest.Mock;
   let disconnectMock: jest.Mock;
@@ -12,13 +13,16 @@ describe('ScrollFadeIn 컴포넌트', () => {
 
   beforeEach(() => {
     originalIntersectionObserver = window.IntersectionObserver;
+    originalMatchMedia = window.matchMedia;
     observeMock = jest.fn();
     unobserveMock = jest.fn();
     disconnectMock = jest.fn();
 
     window.IntersectionObserver = jest.fn().mockImplementation(callback => {
       triggerIntersect = () => {
-        const target = observeMock.mock.calls[0]?.[0] as HTMLElement | undefined;
+        const target = observeMock.mock.calls[0]?.[0] as
+          | HTMLElement
+          | undefined;
         callback([
           {
             target,
@@ -36,6 +40,7 @@ describe('ScrollFadeIn 컴포넌트', () => {
 
   afterEach(() => {
     window.IntersectionObserver = originalIntersectionObserver;
+    window.matchMedia = originalMatchMedia;
     jest.restoreAllMocks();
   });
 
@@ -47,6 +52,18 @@ describe('ScrollFadeIn 컴포넌트', () => {
     );
 
     expect(screen.getByText('테스트 컴포넌트')).toBeInTheDocument();
+  });
+
+  it('선택한 전환 시간과 부드러움을 실제 렌더링에 적용한다', () => {
+    const { container } = render(
+      <ScrollFadeIn animationDurationMs={1400} animationEasing="soft">
+        <p>초대합니다</p>
+      </ScrollFadeIn>
+    );
+    expect(container.firstElementChild).toHaveStyle({
+      transitionDuration: '1400ms',
+      transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
+    });
   });
 
   it('초기에는 비가시화 상태 클래스(opacity-0, translate-y-6)를 갖는다', () => {
@@ -145,7 +162,7 @@ describe('ScrollFadeIn 컴포넌트', () => {
 
     // wrapper 본인의 transitionend (opacity 또는 transform) 발생 시 해제
     act(() => {
-      const selfEvent = new Event('transitionend');
+      const selfEvent = new Event('transitionend', { bubbles: true });
       Object.defineProperty(selfEvent, 'propertyName', { value: 'opacity' });
       wrapper.dispatchEvent(selfEvent);
     });
