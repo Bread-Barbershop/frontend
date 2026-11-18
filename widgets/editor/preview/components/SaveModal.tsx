@@ -1,8 +1,9 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { LinkShareModal } from '@/components/molecules/link-share/LinkShareModal';
 import {
   DASHBOARD_PENDING_INVITATION_KEY,
   type DashboardPendingInvitation,
@@ -170,7 +171,7 @@ const ModalFrame = forwardRef<
       aria-modal="true"
       aria-labelledby="save-modal-title"
       tabIndex={-1}
-      className={`fixed top-1/2 left-1/2 z-[101] flex h-[249px] w-[335px] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-6 rounded-xl bg-white p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%)] ${isLoading ? 'justify-center' : ''}`}
+      className={`fixed top-1/2 left-1/2 z-[101] flex min-h-[249px] max-h-[calc(100dvh-32px)] w-[335px] max-w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-6 overflow-y-auto rounded-xl bg-white p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%)] ${isLoading ? 'justify-center' : ''}`}
     >
       {isLoading ? (
         <div className="-mt-2 flex flex-col items-center gap-3 text-center">
@@ -191,19 +192,21 @@ ModalFrame.displayName = 'ModalFrame';
 const SaveStepView = ({
   isFail,
   publicationPending,
+  onShare,
   onRetry,
   onClose,
   onExit,
 }: {
   isFail: boolean;
   publicationPending: boolean;
+  onShare?: () => void;
   onRetry: () => void;
   onClose: () => void;
   onExit: () => void;
 }) => (
   <>
     <div>
-      <p className="text-sm font-semibold">
+      <p id="save-modal-title" className="text-sm font-semibold">
         {isFail
           ? '파일 저장에 실패했습니다.'
           : publicationPending
@@ -214,7 +217,7 @@ const SaveStepView = ({
     <div>
       <SaveLottie variant={isFail ? 'fail' : 'success'} />
     </div>
-    <div className="flex w-full items-center gap-2">
+    <div className="flex w-full flex-col gap-2">
       {isFail ? (
         <button
           type="button"
@@ -225,20 +228,31 @@ const SaveStepView = ({
         </button>
       ) : (
         <>
-          <button
-            type="button"
-            className="font-semibold text-sm rounded-[8px] bg-white text-black flex-center h-[44px] flex-1 cursor-pointer transition-colors hover:bg-[#F9F9F9] active:bg-[#EFEFEF]"
-            onClick={onClose}
-          >
-            다시 수정하기
-          </button>
-          <button
-            type="button"
-            className="font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center h-[44px] flex-1 cursor-pointer transition-colors hover:bg-[#202020] active:bg-[#0D0D0D]"
-            onClick={onExit}
-          >
-            여기서 나가기
-          </button>
+          {onShare && (
+            <button
+              type="button"
+              className="flex h-11 w-full cursor-pointer items-center justify-center rounded-lg bg-black text-sm font-semibold text-white hover:bg-[#202020]"
+              onClick={onShare}
+            >
+              링크 공유하기
+            </button>
+          )}
+          <div className="flex w-full items-center gap-2">
+            <button
+              type="button"
+              className="font-semibold text-sm rounded-[8px] bg-white text-black flex-center h-[44px] flex-1 cursor-pointer transition-colors hover:bg-[#F9F9F9] active:bg-[#EFEFEF]"
+              onClick={onClose}
+            >
+              다시 수정하기
+            </button>
+            <button
+              type="button"
+              className="font-semibold text-sm border border-white/12 rounded-lg bg-black text-white flex-center h-[44px] flex-1 cursor-pointer transition-colors hover:bg-[#202020] active:bg-[#0D0D0D]"
+              onClick={onExit}
+            >
+              여기서 나가기
+            </button>
+          </div>
         </>
       )}
     </div>
@@ -259,6 +273,7 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
     ref
   ) => {
     const router = useRouter();
+    const [isSharing, setIsSharing] = useState(false);
 
     const handleExit = () => {
       if (typeof window !== 'undefined' && pendingInvitation) {
@@ -269,6 +284,22 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
       }
       router.replace('/dashboard');
     };
+
+    if (isSharing && !isLoading && !isFail && pendingInvitation?.guestUrl) {
+      return (
+        <LinkShareModal
+          url={pendingInvitation.guestUrl}
+          notice={
+            pendingInvitation.published === false
+              ? '비공개 초대장이에요. 대시보드에서 공개로 변경하면 링크와 QR로 접속할 수 있어요.'
+              : pendingInvitation.ready === false
+                ? '초대장 공개를 준비 중이에요. 준비가 끝나면 링크와 QR로 접속할 수 있어요.'
+                : undefined
+          }
+          onClose={() => setIsSharing(false)}
+        />
+      );
+    }
 
     return createPortal(
       <ModalFrame
@@ -283,6 +314,9 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
           publicationPending={
             pendingInvitation?.published === true &&
             pendingInvitation.ready === false
+          }
+          onShare={
+            pendingInvitation?.guestUrl ? () => setIsSharing(true) : undefined
           }
           onRetry={retry}
           onClose={onClose}
