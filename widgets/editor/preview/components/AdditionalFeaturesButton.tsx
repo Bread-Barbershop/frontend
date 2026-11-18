@@ -105,10 +105,10 @@ function InvitationSettingsModal({
               />
               <span>
                 <span className="block font-medium">
-                  행사일이 지나면 개인정보 가리기
+                  일정이 끝나면 개인정보 가리기
                 </span>
                 <span className="block text-xs text-text-secondary">
-                  행사 다음 날 00:00부터 · 한국 시간 기준
+                  일정 다음 날 00:00부터 · 한국 시간 기준
                 </span>
               </span>
             </label>
@@ -148,7 +148,7 @@ function InvitationSettingsModal({
             <div className="min-h-0 overflow-hidden">
               <div className="ml-1.5 mt-3 space-y-4 border-l border-black/10 pl-4">
                 <label className="flex flex-col items-start gap-1 text-sm">
-                  <span>행사일</span>
+                  <span>일정이 끝나는 날</span>
                   <input
                     type="date"
                     className="min-h-10 w-full rounded-md border border-black/15 px-2"
@@ -205,7 +205,7 @@ function InvitationSettingsModal({
           </div>
           {privacy.enabled && !parseStrictDate(privacy.eventDate) && (
             <p className="mt-2 text-xs text-red-700">
-              가리기를 시작할 기준 행사일을 입력해 주세요.
+              일정이 끝나는 날을 입력해 주세요.
             </p>
           )}
           {missingFields && (
