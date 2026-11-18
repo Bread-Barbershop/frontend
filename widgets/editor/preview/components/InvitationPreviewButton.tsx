@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useEditorBgmPlayer } from '@/components/organisms/bgm/context/EditorBgmPlayerContext';
+import InvitationPreviewModal from '@/features/invitation/preview/InvitationPreviewModal';
 import {
   createPreviewSnapshot,
   type PreviewSnapshot,
@@ -11,8 +12,6 @@ import {
   useFabricActionsContext,
   useFabricViewContext,
 } from '@/widgets/mainPoster/context/FabricContext';
-
-import InvitationPreviewModal from './InvitationPreviewModal';
 
 export default function InvitationPreviewButton() {
   const { canvas } = useFabricViewContext();
@@ -67,7 +66,11 @@ export default function InvitationPreviewButton() {
         </p>
       )}
       {snapshot && (
-        <InvitationPreviewModal snapshot={snapshot} onClose={close} />
+        <InvitationPreviewModal
+          snapshot={snapshot}
+          source="draft"
+          onClose={close}
+        />
       )}
     </>
   );

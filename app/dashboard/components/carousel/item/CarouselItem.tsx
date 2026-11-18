@@ -202,6 +202,7 @@ function CarouselItem({
               }}
               className="cursor-pointer"
               aria-label="초대장 미리보기"
+              aria-haspopup="dialog"
             >
               <PreviewButton />
             </button>
