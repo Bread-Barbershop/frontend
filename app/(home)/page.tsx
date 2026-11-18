@@ -1,12 +1,12 @@
 import { getAuthSession } from '@/app/api/auth/_lib/getAuthSession';
 import DashboardShell from '@/features/session/components/DashboardShell';
+import ShowcasePreviewProvider from '@/features/showcase/components/ShowcasePreviewProvider';
 import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 
 import Cta from './components/Cta';
 import HomeShowcaseCarousel from './components/HomeShowcaseCarousel';
 import MobileHomeHero from './components/MobileHomeHero';
 import { getShuffledShowcaseItems } from './components/showcaseItems';
-import ShowcasePreviewProvider from './components/ShowcasePreviewProvider';
 
 import type { Metadata } from 'next';
 

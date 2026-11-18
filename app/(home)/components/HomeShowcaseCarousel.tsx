@@ -1,8 +1,7 @@
 'use client';
 
 import CarouselBase from '@/app/dashboard/components/carousel/CarouselBase';
-
-import { useShowcasePreview } from './ShowcasePreviewProvider';
+import { useShowcasePreview } from '@/features/showcase/components/ShowcasePreviewProvider';
 
 import type { showcaseItems } from './showcaseItems';
 

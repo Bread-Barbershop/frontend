@@ -19,7 +19,7 @@ function SampleCard() {
   );
 }
 
-describe('첫 화면 카드 미리보기', () => {
+describe('초대장 카드 미리보기', () => {
   beforeEach(() => {
     HTMLDialogElement.prototype.showModal = function () {
       this.setAttribute('open', '');
