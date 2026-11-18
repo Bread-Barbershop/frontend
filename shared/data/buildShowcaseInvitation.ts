@@ -2,7 +2,10 @@ import { DEFAULT_SCROLL_ANIMATION } from '@/components/molecules/scroll-fade-in/
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { blockSchema } from '@/shared/data/registry/block.schema';
 import type { SectionStyle } from '@/shared/data/sectionStyles';
-import { getShowcasePresentation } from '@/shared/data/showcasePresentation';
+import {
+  getShowcaseBlockTypes,
+  getShowcasePresentation,
+} from '@/shared/data/showcasePresentation';
 import type { EditorBlock } from '@/shared/types/block';
 import type { BlockType } from '@/shared/types/editor';
 
@@ -310,78 +313,29 @@ export function buildShowcaseInvitation(design: ShowcaseInvitation) {
     topSpacing: 12,
     bottomSpacing: 12,
   });
-  const chapters: EditorBlock[] = isSeminar
-    ? [
-        introduction,
-        timeline,
-        speaker,
-        picture,
-        calendar,
-        place,
-        transportation,
-        dressCode,
-      ]
-    : isBaby
-      ? [
-          introduction,
-          child,
-          gallery,
-          calendar,
-          interview,
-          timeline,
-          picture,
-          place,
-          transportation,
-          dressCode,
-        ]
-      : !isWedding
-        ? [
-            introduction,
-            picture,
-            calendar,
-            interview,
-            timeline,
-            gallery,
-            place,
-            dressCode,
-          ]
-        : presentation.family === 'editorial'
-          ? [
-              introduction,
-              gallery,
-              couple,
-              interview,
-              calendar,
-              timeline,
-              place,
-              transportation,
-              dressCode,
-            ]
-          : presentation.family === 'botanical' || presentation.family === 'sky'
-            ? [
-                introduction,
-                couple,
-                picture,
-                interview,
-                calendar,
-                gallery,
-                timeline,
-                place,
-                dressCode,
-                transportation,
-              ]
-            : [
-                introduction,
-                couple,
-                picture,
-                calendar,
-                gallery,
-                interview,
-                timeline,
-                place,
-                transportation,
-                dressCode,
-              ];
+  const chapterByComponent: Partial<Record<BlockType, EditorBlock>> = {
+    greeting: introduction,
+    coupleIntroduction: couple,
+    myChild: child,
+    gallery,
+    picture,
+    calendar,
+    timeline,
+    interview,
+    speakerInformation: speaker,
+    place,
+    transportation,
+    dressCode,
+  };
+  const chapters = getShowcaseBlockTypes(design)
+    .filter(component => component !== 'closingComment')
+    .map(component => {
+      const chapter = chapterByComponent[component];
+      if (!chapter) {
+        throw new Error(`Missing showcase block: ${component}`);
+      }
+      return chapter;
+    });
   const blocks: EditorBlock[] = [
     block('spacer', { height: 12 }),
     ...chapters,

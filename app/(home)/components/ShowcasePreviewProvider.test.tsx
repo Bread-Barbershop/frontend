@@ -24,7 +24,7 @@ describe('첫 화면 카드 미리보기', () => {
     };
   });
 
-  it('선택한 카드의 초대장을 열고 마지막에서 첫 번째 샘플로 이동한다', async () => {
+  it('22번에서 23번, 24번을 지나 첫 카드로 순환한다', async () => {
     const user = userEvent.setup();
     render(
       <ShowcasePreviewProvider>
@@ -34,25 +34,24 @@ describe('첫 화면 카드 미리보기', () => {
     await user.click(
       screen.getByRole('button', { name: '민준이의 첫 초대 미리보기' })
     );
-    expect(
-      screen.getByRole('dialog', { name: '민준이의 첫 초대' })
-    ).toBeVisible();
-    expect(screen.getByTitle('민준이의 첫 초대 초대장 내용')).toHaveAttribute(
-      'src',
-      '/showcase/showcase-22'
-    );
-    expect(
-      screen.getByRole('link', { name: '이 템플릿으로 시작하기' })
-    ).toHaveAttribute('href', '/editor?template=showcase-22');
+    const expectCurrentInvitation = (name: string, id: string) => {
+      expect(screen.getByRole('dialog', { name })).toBeVisible();
+      expect(screen.getByTitle(`${name} 초대장 내용`)).toHaveAttribute(
+        'src',
+        `/showcase/${id}`
+      );
+      expect(
+        screen.getByRole('link', { name: '이 템플릿으로 시작하기' })
+      ).toHaveAttribute('href', `/editor?template=${id}`);
+    };
+
+    expectCurrentInvitation('민준이의 첫 초대', 'showcase-22');
     await user.click(screen.getByRole('button', { name: '다음 초대장' }));
-    expect(screen.getByRole('dialog', { name: '클래식 모먼트' })).toBeVisible();
-    expect(screen.getByTitle('클래식 모먼트 초대장 내용')).toHaveAttribute(
-      'src',
-      '/showcase/showcase-0'
-    );
-    expect(
-      screen.getByRole('link', { name: '이 템플릿으로 시작하기' })
-    ).toHaveAttribute('href', '/editor?template=showcase-0');
+    expectCurrentInvitation('알파인 프로미스', 'showcase-23');
+    await user.click(screen.getByRole('button', { name: '다음 초대장' }));
+    expectCurrentInvitation('브릭 시티 웨딩', 'showcase-24');
+    await user.click(screen.getByRole('button', { name: '다음 초대장' }));
+    expectCurrentInvitation('클래식 모먼트', 'showcase-0');
   });
 
   it('닫으면 카드에 포커스를 돌려주고 원래 스크롤 상태를 복구한다', async () => {
