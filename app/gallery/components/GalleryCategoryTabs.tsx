@@ -43,6 +43,7 @@ function GalleryCategoryTabs() {
           <button
             key={category.value}
             type="button"
+            aria-pressed={selected}
             className={`h-12 cursor-pointer rounded-full px-8 text-[20px] font-semibold transition-colors ${
               selected
                 ? 'bg-black text-white'
