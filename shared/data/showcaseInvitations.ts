@@ -581,11 +581,41 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '따뜻한 에너지로 아이디어에 불을 켜는 크리에이티브 세션.',
     palette: ['#FFF6EA', '#A85223', '#5D402B'],
     eyebrow: 'IDEAS INTO ACTION',
-    heading: '생각에 작은 불씨를 더하다',
+    heading: '아이디어 하나를 가져가세요',
     message: [
-      '좋은 아이디어는 작은 대화에서 시작됩니다.',
-      '서로의 경험을 나누고, 내일 바로 시도할 영감을 발견하세요.',
-      '호기심과 열정을 가진 여러분을 초대합니다.',
+      'Andrew Jackson과 함께 아이디어를 종이에 그리고, 짝과 바꿔 보며 한 번 더 다듬습니다. 스케치를 처음 해보는 분도 환영합니다.',
+    ],
+    sectionStyle: 'outlined',
+    sections: [
+      {
+        component: 'timeline',
+        title: '아이디어 워크숍',
+        items: [
+          {
+            time: '15:00',
+            title: '관찰하기',
+            description: '요즘 일하면서 자주 마주친 불편을 씁니다.',
+          },
+          {
+            time: '15:20',
+            title: '그려 보기',
+            description: '한 가지 해결책을 종이에 담습니다.',
+          },
+          { time: '15:45', title: '짝과 바꿔 읽기' },
+        ],
+      },
+      { component: 'greeting' },
+      {
+        component: 'notice',
+        title: '워크숍 준비물',
+        heading: '필기구 한 자루',
+        message:
+          '평소 쓰는 펜을 가져와 주세요. 스케치할 종이는 현장에서 나눠 드립니다.',
+        preset: 'time',
+        image: '/images/showcase/conference-hall.webp',
+      },
+      { component: 'calendar', title: '워크숍 일시' },
+      { component: 'place', title: '워크숍 장소' },
     ],
     moments: [
       '새로운 아이디어의 시작',
