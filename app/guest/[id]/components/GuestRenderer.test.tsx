@@ -20,7 +20,6 @@ const mockGuestbookView = jest.fn(() =>
 );
 const mockSetTitleData = jest.fn();
 const mockSetBodyData = jest.fn();
-const mockPreloadFontFamilyWeights = jest.fn().mockResolvedValue(undefined);
 const mockResolveGuestFontFamiliesToPreload = jest.fn(() => [] as string[]);
 
 jest.mock('next/navigation', () => ({
@@ -39,11 +38,6 @@ jest.mock('@/shared/data/registry/registry', () => ({
     guestbook: { viewComponent: () => mockGuestbookView() },
     visualEffects: { viewComponent: () => <div data-testid="effect-block" /> },
   },
-}));
-
-jest.mock('@/shared/fonts/fontLoader', () => ({
-  preloadFontFamilyWeights: (...args: unknown[]) =>
-    mockPreloadFontFamilyWeights(...args),
 }));
 
 jest.mock('@/components/molecules/scroll-fade-in/ScrollFadeIn', () => ({
@@ -104,7 +98,6 @@ const bulkData: NormalizedGuestPayload['bulkData'] = {
 describe('GuestRenderer', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockPreloadFontFamilyWeights.mockResolvedValue(undefined);
     mockResolveGuestFontFamiliesToPreload.mockReturnValue([]);
   });
 
@@ -246,9 +239,8 @@ describe('GuestRenderer', () => {
     );
   });
 
-  it('폰트 로딩이 끝나지 않아도 초대장 본문을 표시한다', () => {
-    mockResolveGuestFontFamiliesToPreload.mockReturnValue(['font-pending']);
-    mockPreloadFontFamilyWeights.mockReturnValue(new Promise(() => undefined));
+  it('본문을 바로 표시하고 선택한 글꼴의 굵기는 브라우저가 필요할 때 불러온다', () => {
+    mockResolveGuestFontFamiliesToPreload.mockReturnValue(['고운 바탕']);
 
     const pictureBlock = {
       id: 'picture-block',
@@ -261,6 +253,10 @@ describe('GuestRenderer', () => {
     );
 
     expect(screen.getByTestId('picture-view')).toBeInTheDocument();
+    const rules = container.querySelector('style')?.textContent;
+    expect(rules).toContain('GowunBatang-Regular.ttf');
+    expect(rules).toContain('GowunBatang-Bold.ttf');
+    expect(rules).not.toContain('NotoSansKR');
     expect(container.firstElementChild).not.toHaveStyle({ opacity: '0' });
   });
 
@@ -307,11 +303,8 @@ describe('GuestRenderer', () => {
     });
   });
 
-  it('폰트 로딩이 실패해도 초대장 본문을 표시한다', async () => {
-    mockResolveGuestFontFamiliesToPreload.mockReturnValue(['font-failed']);
-    mockPreloadFontFamilyWeights.mockRejectedValueOnce(
-      new Error('font preload failed')
-    );
+  it('등록되지 않은 폰트가 저장된 경우에도 초대장 본문을 표시한다', async () => {
+    mockResolveGuestFontFamiliesToPreload.mockReturnValue(['unknown-font']);
 
     const pictureBlock = {
       id: 'picture-block',

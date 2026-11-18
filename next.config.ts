@@ -2,6 +2,24 @@ import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  async rewrites() {
+    // 기존 초대장에 저장된 파일 경로도 새 포맷으로 제공한다.
+    return {
+      beforeFiles: [],
+      afterFiles: [],
+      fallback: [
+        {
+          source: '/templates/thumbnails/:name.png',
+          destination: '/templates/thumbnails/:name.webp',
+        },
+        {
+          source: '/font/:name(NotoSansKR-Variable|NotoSerifKR-Variable).ttf',
+          destination: '/font/:name.woff2',
+        },
+      ],
+    };
+  },
+
   images: {
     remotePatterns: [
       {

@@ -1,6 +1,7 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { PreviewBody } from '@/components/atoms/preview-body/PreviewBody';
+import { parseStrictDate } from '@/shared/utils/dateValidation';
 
 interface Props {
   date: string;
@@ -8,125 +9,108 @@ interface Props {
   time?: string;
 }
 
+const MS_PER_SECOND = 1000;
+const SECONDS_PER_DAY = 24 * 60 * 60;
+const summaryClassName =
+  'text-[color:var(--calendar-muted-text,#8e8e8e)] text-sm tracking-tight w-full text-center';
+
+function getTargetDate(date: string, time?: string) {
+  const parts = parseStrictDate(date);
+  if (!parts) return null;
+
+  const target = new Date(0);
+  target.setFullYear(parts.year, parts.month - 1, parts.day);
+  target.setHours(12, 0, 0, 0);
+
+  const match = time
+    ?.trim()
+    .match(
+      /^(?:(오전|오후|am|pm)\s*)?(\d{1,2}):(\d{2})(?:\s*(오전|오후|am|pm))?$/i
+    );
+  if (!match) return target;
+
+  const [, prefix, rawHour, rawMinute, suffix] = match;
+  const period = (prefix || suffix)?.toLowerCase();
+  const hour = Number(rawHour);
+  const minute = Number(rawMinute);
+  const validHour = period ? hour >= 1 && hour <= 12 : hour <= 23;
+  if (validHour && minute <= 59 && !(prefix && suffix)) {
+    const isPM = period === '오후' || period === 'pm';
+    target.setHours(period ? (hour % 12) + (isPM ? 12 : 0) : hour, minute);
+  }
+
+  return target;
+}
+
 export function DDayCountdown({ date, time, messageJson }: Props) {
-  const [timeLeft, setTimeLeft] = useState<{
-    days: number;
-    hours: number;
-    minutes: number;
-    seconds: number;
-  }>({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
+  const targetDate = useMemo(() => getTargetDate(date, time), [date, time]);
+  const targetTime = targetDate?.getTime();
+  const [clock, setClock] = useState<{ now: number; target: number }>();
 
-  // 1. 목표 날짜(Target Date) 객체를 date와 time이 변경될 때만 한 번 계산
-  const targetDate = useMemo(() => {
-    // date가 유효한 10자리 형식이 아니면 (예: 입력 중) null 반환
-    if (!date || date.length !== 10) return null;
-
-    const [year, month, day] = date.split('-').map(Number);
-    const timeMatch = time?.match(/(\d{1,2}):(\d{2})/);
-    const isPM = time?.includes('오후') || time?.toLowerCase().includes('pm');
-
-    const { h, m } = timeMatch
-      ? (() => {
-          const rawH = parseInt(timeMatch[1], 10);
-          const rawM = parseInt(timeMatch[2], 10);
-          const adjustedH =
-            isPM && rawH < 12 ? rawH + 12 : !isPM && rawH === 12 ? 0 : rawH;
-          return { h: adjustedH, m: rawM };
-        })()
-      : { h: 12, m: 0 };
-
-    return new Date(year, month - 1, day, h, m, 0, 0);
-  }, [date, time]);
-
-  // D-Day 텍스트 계산 (ex: D-5, D-Day, D+3)
-  const ddayString = useMemo(() => {
-    if (!targetDate) return '(D-Day)';
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-
-    const target = new Date(targetDate);
-    target.setHours(0, 0, 0, 0);
-
-    const diffDays = Math.round((target.getTime() - now.getTime()) / 86400000);
-    return Math.abs(diffDays).toString();
-  }, [targetDate]);
-
-  // (D-Day) 문구를 실제 D-Day 카운트로 치환
-  const processedMessageHtml = useMemo(() => {
-    if (!messageJson) return '';
-    return messageJson.replace(/\(D-Day\)/g, ddayString);
-  }, [messageJson, ddayString]);
-
-  // 2. 카운트다운 타이머 동작 (타겟 날짜가 있을 때만 실행)
   useEffect(() => {
-    if (!targetDate) {
-      // 컴포넌트 마운트 이후 비동기적으로(timeout) 영점화하여 cascaded render 경고 회피
-      const resetTimer = setTimeout(() => {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-      }, 0);
-      return () => clearTimeout(resetTimer);
-    }
+    if (targetTime === undefined) return;
 
-    const updateCountdown = () => {
-      const difference = targetDate.getTime() - new Date().getTime();
-
-      if (difference <= 0) {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-        return;
-      }
-
-      setTimeLeft({
-        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((difference / 1000 / 60) % 60),
-        seconds: Math.floor((difference / 1000) % 60),
-      });
+    let timer: ReturnType<typeof setTimeout>;
+    const tick = () => {
+      const now = Date.now();
+      setClock({ now, target: targetTime });
+      const remaining = targetTime - now;
+      if (remaining > 0)
+        timer = setTimeout(tick, Math.min(MS_PER_SECOND, remaining));
     };
 
-    updateCountdown(); // 렌더링 직후 즉시 먼저 한 번 실행
-    const intervalTimer = setInterval(updateCountdown, 1000);
+    // Read the client clock after hydration so the initial markup stays stable.
+    timer = setTimeout(tick, 0);
+    return () => clearTimeout(timer);
+  }, [targetTime]);
 
-    return () => clearInterval(intervalTimer); // 언마운트 시 클린업(Cleanup) 보장
-  }, [targetDate]);
+  if (!targetDate || !clock || clock.target !== targetTime) return null;
 
-  const padZero = (num: number) => num.toString().padStart(2, '0');
+  const remaining = clock.target - clock.now;
+  const ended = remaining <= 0;
+  const totalSeconds = Math.floor(remaining / MS_PER_SECOND);
+  const days = Math.floor(totalSeconds / SECONDS_PER_DAY);
+  const segments = [
+    ['DAYS', days],
+    ['HOUR', Math.floor(totalSeconds / 3600) % 24],
+    ['MIN', Math.floor(totalSeconds / 60) % 60],
+    ['SEC', totalSeconds % 60],
+  ] as const;
+  const dayDifference = Math.round(
+    (new Date(targetDate).setHours(0, 0, 0, 0) -
+      new Date(clock.now).setHours(0, 0, 0, 0)) /
+      (SECONDS_PER_DAY * MS_PER_SECOND)
+  );
 
   return (
     <div className="w-full bg-transparent border-t border-[color:var(--calendar-divider,var(--color-border-divider))] py-6 px-6 flex flex-col items-center justify-center gap-4 text-center font-bold">
-      <div className="flex w-full justify-between items-center text-center text-[color:var(--calendar-muted-text,#8e8e8e)]">
-        <div className="flex flex-col gap-1 items-center w-1/4">
-          <span className="text-xs font-serif tracking-wider">DAYS</span>
-          <span className="text-base font-serif">{padZero(timeLeft.days)}</span>
-        </div>
-        <div className="flex flex-col gap-1 items-center w-1/4">
-          <span className="text-xs font-serif tracking-wider">HOUR</span>
-          <span className="text-base font-serif">
-            {padZero(timeLeft.hours)}
-          </span>
-        </div>
-        <div className="flex flex-col gap-1 items-center w-1/4">
-          <span className="text-xs font-serif tracking-wider">MIN</span>
-          <span className="text-base font-serif">
-            {padZero(timeLeft.minutes)}
-          </span>
-        </div>
-        <div className="flex flex-col gap-1 items-center w-1/4">
-          <span className="text-xs font-serif tracking-wider">SEC</span>
-          <span className="text-base font-serif">
-            {padZero(timeLeft.seconds)}
-          </span>
-        </div>
-      </div>
-      {messageJson && <PreviewBody html={processedMessageHtml} />}
-      {!messageJson && (
-        <div className="text-[color:var(--calendar-muted-text,#8e8e8e)] text-sm tracking-tight w-full text-center">
-          {timeLeft.days}일 남았습니다.
-        </div>
+      {ended ? (
+        <p className={summaryClassName}>종료된 일정이에요</p>
+      ) : (
+        <>
+          <div className="flex w-full justify-between items-center text-center text-[color:var(--calendar-muted-text,#8e8e8e)]">
+            {segments.map(([label, value]) => (
+              <div
+                key={label}
+                className="flex flex-col gap-1 items-center w-1/4"
+              >
+                <span className="text-xs font-serif tracking-wider">
+                  {label}
+                </span>
+                <span className="text-base font-serif">
+                  {String(value).padStart(2, '0')}
+                </span>
+              </div>
+            ))}
+          </div>
+          {messageJson ? (
+            <PreviewBody
+              html={messageJson.replace(/\(D-Day\)/g, String(dayDifference))}
+            />
+          ) : (
+            <p className={summaryClassName}>{days}일 남았습니다.</p>
+          )}
+        </>
       )}
     </div>
   );
