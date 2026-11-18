@@ -461,8 +461,28 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
           '먼저 일어난 사람이 물을 올리고, 늦게 오는 사람을 기다리는 저녁을 오래 지켜 가겠습니다.',
       },
       { component: 'greeting' },
+      {
+        component: 'picture',
+        title: '서약을 쓰던 밤',
+        image: '/images/showcase/love-letter.webp',
+        caption:
+          '한 문장씩 고쳐 쓰다가 둘 다 같은 말을 남겼습니다. 잘 듣고, 자주 웃자고요.',
+      },
       { component: 'calendar', title: '예식 일시' },
+      {
+        component: 'wreath',
+        title: '마음만 전해 주세요',
+        declineMessage:
+          '작은 예식이라 축하 화환은 사양합니다. 두 사람이 서약을 읽는 순간 함께 앉아 주시면 기쁘겠습니다.',
+      },
       { component: 'place', title: '예식 장소' },
+      {
+        component: 'afterParty',
+        title: '서약 뒤의 식탁',
+        venue: '그랜드홀 옆 식사 공간',
+        dateTime: '예식 후 오후 4시',
+        description: '두 사람이 테이블을 돌며 직접 인사드리겠습니다.',
+      },
     ],
   },
   {
