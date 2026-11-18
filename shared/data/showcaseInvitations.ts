@@ -1661,6 +1661,14 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
       },
       { component: 'greeting' },
       {
+        component: 'interview',
+        title: '동네에서 보낸 첫날',
+        question: '첫 식사 뒤에는 어디로 갔나요?',
+        answer:
+          '골목 끝 작은 빵집이요. 마지막 남은 소금빵을 반씩 나누고 다음 주에도 같이 오자고 했어요.',
+        image: '/images/showcase/love-letter.webp',
+      },
+      {
         component: 'coupleIntroduction',
         title: '이 골목을 고른 이유',
         story:
@@ -1668,12 +1676,36 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
       },
       { component: 'calendar', title: '라운지에서 만나는 날' },
       {
+        component: 'timeline',
+        title: '골목에서 시작하는 하루',
+        items: [
+          { time: '14:40', title: '브릭 라운지 입구에서 인사' },
+          { time: '15:00', title: '서약과 축가' },
+          { time: '15:50', title: '라운지 식탁에 모여 식사' },
+        ],
+      },
+      {
+        component: 'mealMenu',
+        title: '둘이 자주 시키던 것들',
+        subtitle: 'Our Neighborhood',
+        style: 'bistro',
+        courses: [
+          { name: '첫 접시', dishes: ['소금빵과 토마토 수프'] },
+          { name: '메인', dishes: ['버섯 크림 파스타'] },
+        ],
+      },
+      {
         component: 'transportation',
         title: '강남역에서 걸어오실 때',
         subwayStation: '강남역',
         subwayExit: '11번 출구',
         subwayWalk:
           '11번 출구에서 테헤란로1길을 따라오세요. 브릭 라운지 입구에서 식장으로 안내해 드립니다.',
+      },
+      {
+        component: 'closingComment',
+        message:
+          '이 골목에 우리만큼 반가운 얼굴들이 모이는 건 처음이에요. 조심히 오세요. 민성·아현',
       },
     ],
   },
