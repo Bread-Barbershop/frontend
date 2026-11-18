@@ -42,6 +42,7 @@ import {
   upsertInvitationMeta,
   type InvitationMetaPayload,
 } from './ensureInvitationMetaFile';
+import { DriveHttpError } from './ensureWorkspace';
 import {
   THUMBNAIL_KIND,
   THUMBNAIL_NAME_PNG,
@@ -372,9 +373,11 @@ export async function cloneOwnedInvitation(input: {
       return resumeClone(knownFolder, destinationKind);
     }
 
-    const previous = await listCloneFiles(parentId, [
-      `appProperties has { key='clone_request' and value='${requestKey}' }`,
-    ]);
+    const findRequestFolders = () =>
+      listCloneFiles(parentId, [
+        `appProperties has { key='clone_request' and value='${requestKey}' }`,
+      ]);
+    const previous = await findRequestFolders();
     const completed = previous.find(
       file => file.appProperties?.kind === destinationKind
     );
@@ -405,6 +408,18 @@ export async function cloneOwnedInvitation(input: {
         inv_id: input.invitationUuid,
         clone_request: requestKey,
       },
+    }).catch(async error => {
+      if (input.onCleanFailure) {
+        const rejected =
+          error instanceof DriveHttpError &&
+          [400, 401, 403, 404, 429].includes(error.status);
+        // A server error can arrive after Drive has created the staging folder.
+        const noFolder =
+          rejected ||
+          (await findRequestFolders().catch(() => null))?.length === 0;
+        if (noFolder) await input.onCleanFailure();
+      }
+      throw error;
     });
 
     let commitStarted = false;

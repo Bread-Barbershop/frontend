@@ -122,7 +122,11 @@ const sourceData = {
   },
 };
 
-function mockDrive({ failFirstDataDownload = false } = {}) {
+function mockDrive({
+  failFirstDataDownload = false,
+  firstStageStatus = 0,
+  loseStageResponse = false,
+} = {}) {
   const documents = new Map<string, Doc>();
   const copies = new Map<string, Doc>();
   const deleted: string[] = [];
@@ -270,6 +274,13 @@ function mockDrive({ failFirstDataDownload = false } = {}) {
 
     const body = JSON.parse(String(init?.body));
     if (method === 'POST') {
+      const creatingStage =
+        body.appProperties?.kind === 'invitation_audience_staging';
+      if (creatingStage && firstStageStatus) {
+        const status = firstStageStatus;
+        firstStageStatus = 0;
+        return Response.json({}, { status });
+      }
       if (doc && action === 'copy' && doc.id === failedAsset) {
         return Response.json({}, { status: 503 });
       }
@@ -280,6 +291,10 @@ function mockDrive({ failFirstDataDownload = false } = {}) {
         createdTime: new Date().toISOString(),
         ownedByMe: true,
       });
+      if (creatingStage && loseStageResponse) {
+        loseStageResponse = false;
+        return Response.json({}, { status: 503 });
+      }
       if (doc && action === 'copy') copies.set(doc.id, created);
       return Response.json(created);
     }
@@ -322,6 +337,17 @@ function request(path: string, body: unknown) {
 function clone(requestId = 'copy-op') {
   return POST(request('cloneInvitation', { folderId: SOURCE, requestId }));
 }
+
+const createFamily = (requestId: string) =>
+  createAudience(
+    request('invitationAudiences', {
+      folderId: SOURCE,
+      sourceFolderId: SOURCE,
+      requestId,
+      name: '가족',
+      slug: 'family',
+    })
+  );
 
 describe('초대장 복제 API', () => {
   const originalOrigin = process.env.NEXT_PUBLIC_APP_URL;
@@ -483,31 +509,50 @@ describe('초대장 복제 API', () => {
     ).toBe(false);
   });
 
-  it('원본 다운로드 실패 시 하객 그룹 예약을 해제하고 새 요청으로 다시 생성한다', async () => {
-    mockDrive({ failFirstDataDownload: true });
+  it.each([
+    {
+      name: '원본 다운로드 실패',
+      drive: { failFirstDataDownload: true },
+      status: 502,
+    },
+    {
+      name: '폴더 생성 권한 거부',
+      drive: { firstStageStatus: 403 },
+      status: 403,
+    },
+    {
+      name: '폴더 생성 서비스 오류',
+      drive: { firstStageStatus: 503 },
+      status: 502,
+    },
+  ])(
+    '$name 시 예약을 해제하고 새 요청으로 하객 그룹을 생성한다',
+    async ({ drive, status }) => {
+      mockDrive(drive);
+      jest.mocked(claimAudienceLink).mockResolvedValue({
+        status: 'claimed',
+        dataJsonFileId: null,
+      });
+      expect((await createFamily('first-attempt')).status).toBe(status);
+      const [, reservation] = jest.mocked(claimAudienceLink).mock.calls[0];
+      expect(releaseAudienceLink).toHaveBeenCalledWith(DATA, {
+        slug: 'family',
+        requestId: reservation.requestId,
+      });
+      expect((await createFamily('second-attempt')).status).toBe(200);
+      expect(releaseAudienceLink).toHaveBeenCalledTimes(1);
+    }
+  );
+
+  it('Drive에 임시 폴더가 생성됐지만 응답이 유실됐으면 같은 요청을 위한 예약을 유지한다', async () => {
+    mockDrive({ loseStageResponse: true });
     jest.mocked(claimAudienceLink).mockResolvedValue({
       status: 'claimed',
       dataJsonFileId: null,
     });
-    const createFamily = (requestId: string) =>
-      createAudience(
-        request('invitationAudiences', {
-          folderId: SOURCE,
-          sourceFolderId: SOURCE,
-          requestId,
-          name: '가족',
-          slug: 'family',
-        })
-      );
 
-    expect((await createFamily('first-attempt')).status).toBe(502);
-    const [, reservation] = jest.mocked(claimAudienceLink).mock.calls[0];
-    expect(releaseAudienceLink).toHaveBeenCalledWith(DATA, {
-      slug: 'family',
-      requestId: reservation.requestId,
-    });
-    expect((await createFamily('second-attempt')).status).toBe(200);
-    expect(releaseAudienceLink).toHaveBeenCalledTimes(1);
+    expect((await createFamily('lost-response')).status).toBe(502);
+    expect(releaseAudienceLink).not.toHaveBeenCalled();
   });
 
   it('기본을 가족용으로 복제한 뒤 편집된 가족용 데이터와 에셋을 친구용으로 새로 복제한다', async () => {
