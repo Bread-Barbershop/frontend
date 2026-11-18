@@ -2,24 +2,38 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { PreviewSnapshot } from '@/features/invitation/preview/previewSnapshot';
+import type { NormalizedGuestPayload } from '@/app/guest/[id]/validation/parseGuestPayload';
 
-type ActivePreview = {
+type PreviewStatus = 'idle' | 'loading' | 'success' | 'error';
+
+type PreviewState = {
   errorMessage: string | null;
-  folderId: string;
-  snapshot: PreviewSnapshot | null;
+  folderId: string | null;
+  isOpen: boolean;
+  payload: NormalizedGuestPayload | null;
+  requestId: number;
+  status: PreviewStatus;
 };
 
 type PreviewInvitationResponse =
   | {
       ok: true;
-      payload: PreviewSnapshot['payload'];
+      payload: NormalizedGuestPayload;
     }
   | {
       ok: false;
       message?: string;
       userMessage?: string;
     };
+
+const initialState: PreviewState = {
+  errorMessage: null,
+  folderId: null,
+  isOpen: false,
+  payload: null,
+  requestId: 0,
+  status: 'idle',
+};
 
 function resolvePreviewErrorMessage(payload: PreviewInvitationResponse | null) {
   if (payload && payload.ok === false) {
@@ -34,7 +48,7 @@ function resolvePreviewErrorMessage(payload: PreviewInvitationResponse | null) {
 }
 
 export function useDashboardInvitationPreview() {
-  const [preview, setPreview] = useState<ActivePreview | null>(null);
+  const [state, setState] = useState<PreviewState>(initialState);
   const abortControllerRef = useRef<AbortController | null>(null);
   const requestIdRef = useRef(0);
 
@@ -42,7 +56,11 @@ export function useDashboardInvitationPreview() {
     requestIdRef.current += 1;
     abortControllerRef.current?.abort();
     abortControllerRef.current = null;
-    setPreview(null);
+    // fade-out 애니메이션이 끝날 때까지 마지막 payload는 유지한다.
+    setState(prev => ({
+      ...prev,
+      isOpen: false,
+    }));
   }, []);
 
   const openPreview = useCallback(async (folderId: string) => {
@@ -56,11 +74,20 @@ export function useDashboardInvitationPreview() {
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
-    setPreview({ errorMessage: null, folderId, snapshot: null });
+    setState({
+      errorMessage: null,
+      folderId,
+      isOpen: true,
+      payload: null,
+      requestId,
+      status: 'loading',
+    });
 
     try {
       const res = await fetch(
-        `/api/drive/previewInvitation?folderId=${encodeURIComponent(folderId)}`,
+        `/api/drive/previewInvitation?folderId=${encodeURIComponent(
+          folderId
+        )}`,
         {
           cache: 'no-store',
           signal: controller.signal,
@@ -70,40 +97,43 @@ export function useDashboardInvitationPreview() {
         .json()
         .catch(() => null)) as PreviewInvitationResponse | null;
 
-      if (controller.signal.aborted || requestIdRef.current !== requestId) {
-        return;
-      }
+      if (requestIdRef.current !== requestId) return;
 
       if (!res.ok || !payload?.ok) {
-        setPreview({
+        setState({
           errorMessage: resolvePreviewErrorMessage(payload),
           folderId,
-          snapshot: null,
+          isOpen: true,
+          payload: null,
+          requestId,
+          status: 'error',
         });
         return;
       }
 
-      setPreview({
+      setState({
         errorMessage: null,
         folderId,
-        snapshot: {
-          payload: payload.payload,
-          previewFolderId: folderId,
-          localAudioSrc: null,
-        },
+        isOpen: true,
+        payload: payload.payload,
+        requestId,
+        status: 'success',
       });
     } catch (err) {
       if (controller.signal.aborted || requestIdRef.current !== requestId) {
         return;
       }
 
-      setPreview({
+      setState({
         errorMessage:
           err instanceof Error
             ? err.message
             : '미리보기를 불러오는 중 오류가 발생했습니다.',
         folderId,
-        snapshot: null,
+        isOpen: true,
+        payload: null,
+        requestId,
+        status: 'error',
       });
     }
   }, []);
@@ -115,7 +145,7 @@ export function useDashboardInvitationPreview() {
   }, []);
 
   return {
-    preview,
+    ...state,
     closePreview,
     openPreview,
   };
