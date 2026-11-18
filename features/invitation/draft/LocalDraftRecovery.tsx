@@ -22,6 +22,8 @@ const EDITOR_KEYS = [
   'block',
   'images',
   'backgroundColor',
+  'invitationPrivacy',
+  'scrollAnimation',
   'titleData',
   'bodyData',
   'isZoom',

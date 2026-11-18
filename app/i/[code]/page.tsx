@@ -1,144 +1,78 @@
 import 'server-only';
 
-import { notFound } from 'next/navigation';
 import { cache } from 'react';
 
-import { resolveShortCode } from '@/app/api/short-url/_lib/shortUrlStore';
-import { GuestAccessNotice } from '@/app/guest/[id]/components/GuestAccessNotice';
-import GuestInvitationView from '@/app/guest/[id]/components/GuestInvitationView';
-import { GuestUnavailableNotice } from '@/app/guest/[id]/components/GuestUnavailableNotice';
-import { loadGuestPayload } from '@/app/guest/[id]/server/loadGuestPayload';
-import { resolveDriveImageSource } from '@/shared/utils/media/driveImageUtils';
 import {
-  resolveShareDescription,
-  resolveShareImageUrl,
-  resolveShareTitle,
-} from '@/shared/utils/shareUrlDefaults';
+  isShortUrlStoreConfigured,
+  resolveShortCode,
+} from '@/app/api/short-url/_lib/shortUrlStore';
+import { guestInvitationMetadata } from '@/app/guest/[id]/server/guestInvitationMetadata';
+import {
+  getGuestAudienceSlug,
+  type GuestInvitationResult,
+  type GuestSearchParams,
+  loadGuestInvitation,
+} from '@/app/guest/[id]/server/loadGuestInvitation';
+import { renderGuestInvitationRoute } from '@/app/guest/[id]/server/renderGuestInvitationRoute';
+import { buildAudienceGuestUrl } from '@/features/invitation/audiences/model';
 
-import type { Metadata } from 'next';
+type ShortGuestPageProps = {
+  params: Promise<{ code: string }>;
+  searchParams?: GuestSearchParams;
+};
 
 export const dynamic = 'force-dynamic';
 
-const noindexRobots = {
-  index: false,
-  follow: false,
-  nocache: true,
-} satisfies NonNullable<Metadata['robots']>;
+const loadShortGuestInvitation = cache(
+  async (
+    code: string,
+    audienceSlug: string | null | undefined
+  ): Promise<GuestInvitationResult> => {
+    if (audienceSlug === null) return { status: 'invalid-audience' };
 
-function renderPrivateInvitationNotice() {
-  return (
-    <GuestAccessNotice
-      title="비공개 초대장이에요"
-      description={
-        <>
-          <span>초대장 주인이 공개로 전환하면</span>
-          <span>이 링크에서 다시 확인할 수 있어요.</span>
-        </>
-      }
-    />
-  );
-}
-
-const resolveDataJsonFileId = cache(async (code: string) => {
-  try {
-    // Metadata와 본문에서 한 요청당 한 번만 조회한다.
-    return await resolveShortCode(code);
-  } catch {
-    return 'unavailable' as const;
-  }
-});
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ code: string }>;
-}): Promise<Metadata> {
-  const { code } = await params;
-  const dataJsonFileId = await resolveDataJsonFileId(code);
-
-  if (!dataJsonFileId || dataJsonFileId === 'unavailable') {
-    return { robots: noindexRobots };
-  }
-
-  try {
-    const result = await loadGuestPayload(dataJsonFileId);
-    if (result.status !== 'ok') {
+    let dataJsonFileId: string | null;
+    try {
+      dataJsonFileId = await resolveShortCode(code);
+    } catch {
       return {
-        robots: noindexRobots,
+        status: audienceSlug ? 'audience-unavailable' : 'missing-short-code',
+      };
+    }
+    if (!dataJsonFileId) {
+      if (!audienceSlug) return { status: 'missing-short-code' };
+      return {
+        status: isShortUrlStoreConfigured()
+          ? 'invalid-audience'
+          : 'audience-unavailable',
       };
     }
 
-    const { payload } = result;
-    const topLevelShare = payload.shareUrl;
-    const title = resolveShareTitle(topLevelShare?.urlTitle);
-    const description = resolveShareDescription(topLevelShare?.urlDescription);
-    const imageUrl = resolveShareImageUrl(topLevelShare?.urlImage?.[0]);
-
-    return {
-      title,
-      description,
-      robots: noindexRobots,
-      openGraph: {
-        title,
-        description,
-        images: imageUrl,
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title,
-        description,
-        images: imageUrl,
-      },
-      icons: {
-        icon: '/favicon.ico',
-      },
-    };
-  } catch {
-    return {
-      robots: noindexRobots,
-    };
+    return loadGuestInvitation(dataJsonFileId, audienceSlug);
   }
+);
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: ShortGuestPageProps) {
+  const [{ code }, query] = await Promise.all([params, searchParams]);
+  const audienceSlug = getGuestAudienceSlug(query?.to);
+  return guestInvitationMetadata(loadShortGuestInvitation(code, audienceSlug));
 }
 
 export default async function ShortGuestPage({
   params,
-}: {
-  params: Promise<{ code: string }>;
-}) {
-  const { code } = await params;
-  const dataJsonFileId = await resolveDataJsonFileId(code);
+  searchParams,
+}: ShortGuestPageProps) {
+  const [{ code }, query] = await Promise.all([params, searchParams]);
+  const audienceSlug = getGuestAudienceSlug(query?.to);
+  const result = await loadShortGuestInvitation(code, audienceSlug);
 
-  if (!dataJsonFileId) {
-    notFound();
-  }
-
-  const result = await loadGuestPayload(dataJsonFileId);
-  if (result.status === 'private') {
-    return renderPrivateInvitationNotice();
-  }
-
-  if (result.status === 'unavailable') {
-    return (
-      <GuestUnavailableNotice retryHref={`/i/${encodeURIComponent(code)}`} />
-    );
-  }
-
-  if (result.status === 'not-found') {
-    notFound();
-  }
-
-  const { payload } = result;
-  const thumbnailFileId = payload.mainPoster?.thumbnailFileId;
-  const posterSrc = thumbnailFileId
-    ? resolveDriveImageSource(thumbnailFileId, { mode: 'public' })
-    : null;
-
-  return (
-    <>
-      {posterSrc && (
-        <link rel="preload" as="image" href={posterSrc} fetchPriority="high" />
-      )}
-      <GuestInvitationView payload={payload} mode="guest" />
-    </>
+  return renderGuestInvitationRoute(
+    result,
+    buildAudienceGuestUrl(
+      `/i/${encodeURIComponent(code)}`,
+      audienceSlug ?? null
+    )
   );
 }

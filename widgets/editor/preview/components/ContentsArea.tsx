@@ -10,6 +10,8 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { InvitationType } from '@/shared/types/block';
 import { BlockType } from '@/shared/types/editor';
 
+import { BlockLabel } from './BlockLabel';
+
 const COLORS = {
   wedding: 'bg-[#E96B8A]',
   firstBirthday: 'bg-[#F2A65A]',
@@ -25,6 +27,7 @@ interface Props {
   sectionRefs: RefObject<Record<string, HTMLDivElement | null>>;
   searchQuery?: string;
   onOpenTemplatePicker: (type: InvitationTemplateType) => void;
+  onOpenMealMenuPicker: (type: InvitationType) => void;
 }
 
 function ContentsArea({
@@ -32,6 +35,7 @@ function ContentsArea({
   sectionRefs,
   searchQuery = '',
   onOpenTemplatePicker,
+  onOpenMealMenuPicker,
 }: Props) {
   const { addBlock, selectedBlock, addAllBlock, setIsEdit } = useEditorStore(
     useShallow(state => ({
@@ -48,7 +52,9 @@ function ContentsArea({
     [query]
   );
 
-  const resolveInvitationType = (category: InvitationType | 'layout'): InvitationType =>
+  const resolveInvitationType = (
+    category: InvitationType | 'layout'
+  ): InvitationType =>
     category === 'layout'
       ? (useEditorStore.getState().block[0]?.type ?? 'etc')
       : category;
@@ -78,7 +84,12 @@ function ContentsArea({
     } else {
       if (category.english === 'layout') {
         category.list.forEach(item => {
-          if (item.component) addBlock(resolveInvitationType(category.english), item.component, crypto.randomUUID());
+          if (item.component)
+            addBlock(
+              resolveInvitationType(category.english),
+              item.component,
+              crypto.randomUUID()
+            );
         });
         setIsEdit(false);
       } else {
@@ -118,7 +129,8 @@ function ContentsArea({
                     aria-label={`${items.korea} 템플릿 선택 열기`}
                     onClick={() => {
                       const type = items.english;
-                      if (type !== 'etc' && type !== 'layout') onOpenTemplatePicker(type);
+                      if (type !== 'etc' && type !== 'layout')
+                        onOpenTemplatePicker(type);
                     }}
                   >
                     템플릿 사용하기
@@ -137,19 +149,31 @@ function ContentsArea({
                 {items.list.map((item, index) => (
                   <li
                     key={index}
-                    className="w-25.25 h-11 flex items-center gap-0.5 cursor-pointer hover:opacity-80 transition-opacity"
-                    onClick={() =>
-                      handleAddComponent(items.english, item.component)
-                    }
+                    className="h-11 w-25.25"
                   >
-                    <span
-                      className={`shrink-0 text-white rounded-sm w-4.5 h-4.5 flex-center font-normal text-xs ${COLORS[items.english]}`}
+                    <button
+                      type="button"
+                      className="flex size-full items-center gap-0.5 rounded-sm transition-opacity hover:opacity-80"
+                      onClick={() => {
+                        if (item.component === 'mealMenu') {
+                          onOpenMealMenuPicker(resolveInvitationType(items.english));
+                        } else {
+                          handleAddComponent(items.english, item.component);
+                        }
+                      }}
                     >
-                      {index + 1}
-                    </span>
-                    <p className="font-normal text-[13px] flex-1 flex flex-wrap justify-center text-center break-keep">
-                      {item.contents}
-                    </p>
+                      <span
+                        aria-hidden="true"
+                        className={`shrink-0 text-white rounded-sm w-4.5 h-4.5 flex-center font-normal text-xs ${COLORS[items.english]}`}
+                      >
+                        {index + 1}
+                      </span>
+                      <span className="font-normal text-[13px] flex-1 flex flex-wrap justify-center text-center break-keep">
+                        <BlockLabel component={item.component}>
+                          {item.contents}
+                        </BlockLabel>
+                      </span>
+                    </button>
                   </li>
                 ))}
               </ul>

@@ -8,6 +8,7 @@ import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/an
 import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
 import InvitationChapter, {
   getCollectionStyle,
+  getBlockSectionStyle,
 } from '@/components/organisms/invitation-chapter/InvitationChapter';
 import { isBlockEnabled } from '@/shared/data/registry/blockAvailability';
 import { blockRegistry } from '@/shared/data/registry/registry';
@@ -15,6 +16,7 @@ import { preloadFontFamilyWeights } from '@/shared/fonts/fontLoader';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import { resolveGuestFontFamiliesToPreload } from './guestFontPreload';
+import { GuestPrivacyNotice } from './GuestPrivacyNotice';
 
 import type { NormalizedGuestPayload } from '../validation/parseGuestPayload';
 
@@ -32,6 +34,7 @@ const GUEST_PAGE_PROP_COMPONENTS = new Set<GuestRendererBlock['component']>([
   'afterParty',
   'dressCode',
   'gallery',
+  'mealMenu',
   'myChild',
   'myFamily',
   'organizerInformation',
@@ -50,12 +53,14 @@ function GuestRenderer({
   blocks,
   bulkData,
   renderHints,
+  activePrivacyFields,
   isGuestPage: isGuestPageOverride,
   renderBlock,
 }: {
   blocks: NormalizedGuestPayload['blocks'];
   bulkData: GuestRendererBulkData;
   renderHints?: GuestRendererRenderHints;
+  activePrivacyFields?: NormalizedGuestPayload['activePrivacyFields'];
   isGuestPage?: boolean;
   renderBlock?: (
     block: GuestRendererBlock,
@@ -63,6 +68,7 @@ function GuestRenderer({
   ) => React.ReactNode;
 }) {
   const { titleData, bodyData } = bulkData;
+  const scrollAnimation = resolveScrollAnimation(bulkData.scrollAnimation);
   const { setTitleData, setBodyData } = useEditorStore(
     useShallow(state => ({
       setTitleData: state.setTitleData,
@@ -138,22 +144,32 @@ function GuestRenderer({
           blockInfo: GuestRendererBlock;
           className?: string;
           isGuestPage?: boolean;
+          hideActions?: boolean;
         }>;
 
-        const view = (
-          <View
-            blockInfo={block}
-            className=""
-            {...(isGuestPage && GUEST_PAGE_PROP_COMPONENTS.has(block.component)
-              ? { isGuestPage: true }
-              : {})}
-          />
+        const hideActions = block.component === 'account'
+          ? activePrivacyFields?.includes('account')
+          : ['phone', 'place'].includes(block.component) && activePrivacyFields?.includes('phone');
+        const view = block.privacyPlaceholder ? (
+          <GuestPrivacyNotice kind={block.privacyPlaceholder} />
+        ) : (
+          <>
+            {block.privacyMediaHidden && <GuestPrivacyNotice kind="photo" />}
+            <View
+              blockInfo={block}
+              className=""
+              {...(hideActions ? { hideActions: true } : {})}
+              {...(isGuestPage && GUEST_PAGE_PROP_COMPONENTS.has(block.component)
+                ? { isGuestPage: true }
+                : {})}
+            />
+          </>
         );
         return (
           <ScrollFadeIn
             key={block.id}
             className="w-full"
-            {...resolveScrollAnimation(block.props)}
+            {...scrollAnimation}
           >
             {renderBlock ? (
               renderBlock(block, view)
@@ -161,6 +177,8 @@ function GuestRenderer({
               <InvitationChapter
                 component={block.component}
                 collectionStyle={getCollectionStyle(block.props)}
+                sectionStyle={getBlockSectionStyle(block.props)}
+                defaultStyle={bulkData.sectionStyle}
               >
                 {view}
               </InvitationChapter>

@@ -1,17 +1,19 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useDashboardInvitationPreview } from '@/app/dashboard/hooks/useDashboardInvitationPreview';
 import useDashboardInvitations from '@/app/dashboard/hooks/useDashboardInvitations';
 import { InviteListItem } from '@/app/dashboard/types';
 import { getInvitationShowcaseItem } from '@/app/dashboard/utils/getInvitationShowcaseItem';
+import { LinkShareModal } from '@/components/molecules/link-share/LinkShareModal';
 
 import DashboardInvitationPreviewModal from '../preview/DashboardInvitationPreviewModal';
 
 import CarouselBase from './CarouselBase';
 import { dashboardCarouselLayout } from './carouselLayout';
 import { CarouselCardItem } from './carouselTypes';
+import CopyInvitationDialog from './CopyInvitationDialog';
 import DashboardCarouselSkeleton from './DashboardCarouselSkeleton';
 import EmptyInvitationCard from './EmptyInvitationCard';
 
@@ -118,6 +120,7 @@ function CarouselWrapper({
   const {
     invites,
     loading,
+    handleClone,
     handleDelete,
     handleUpdate,
     handleToggleVisibility,
@@ -130,6 +133,10 @@ function CarouselWrapper({
     getVisibilityError,
   } = useDashboardInvitations(initialInvites, { loadOnMount });
   const preview = useDashboardInvitationPreview();
+  const [linkShare, setLinkShare] = useState<{
+    url: string;
+    notice?: string;
+  } | null>(null);
   const orderedInvites = useMemo(() => [...invites].reverse(), [invites]);
   const startIndex = Math.max(orderedInvites.length - 1, 0);
   const [resolvedImages, setResolvedImages] = useState<ResolvedImageMap>({});
@@ -137,6 +144,13 @@ function CarouselWrapper({
     string | null
   >(null);
   const backgroundPreloadedKeysRef = useRef<Set<string>>(new Set());
+
+  const [cloneTarget, setCloneTarget] = useState<InviteListItem | null>(null);
+  const [focusCardId, setFocusCardId] = useState<string | null>(null);
+  const closeCloneDialog = useCallback(() => {
+    setCloneTarget(null);
+  }, []);
+
   const items: CarouselCardItem[] = useMemo(
     () =>
       orderedInvites.map(invite => {
@@ -239,7 +253,7 @@ function CarouselWrapper({
     };
   }, [initialImagesReady, initialPreloadIds, items]);
 
-  if (loading || (items.length > 0 && !initialImagesReady)) {
+  if (loading || (items.length > 0 && readyInitialPreloadKey === null)) {
     return <DashboardCarouselSkeleton />;
   }
 
@@ -249,6 +263,18 @@ function CarouselWrapper({
 
   return (
     <>
+      {cloneTarget && (
+        <CopyInvitationDialog
+          key={cloneTarget.folderId}
+          invite={cloneTarget}
+          onClone={handleClone}
+          onCloned={folderId => {
+            closeCloneDialog();
+            setFocusCardId(folderId);
+          }}
+          onClose={closeCloneDialog}
+        />
+      )}
       <CarouselBase
         items={displayItems}
         startIndex={startIndex}
@@ -257,11 +283,26 @@ function CarouselWrapper({
         showHeader
         showSideActions
         showCenterActions
+        focusCardId={focusCardId}
+        onClone={setCloneTarget}
         onDelete={handleDelete}
         onPreview={preview.openPreview}
         onUpdate={handleUpdate}
         onToggleVisibility={handleToggleVisibility}
-        onCopyUrl={handleCopyGuestUrl}
+        onCopyUrl={folderId => {
+          const invite = invites.find(item => item.folderId === folderId);
+          const url = invite?.guestUrl ?? getGuestUrl(folderId);
+          if (!url) return;
+
+          void handleCopyGuestUrl(folderId);
+          setLinkShare({
+            url,
+            notice:
+              invite?.published === false
+                ? '비공개 초대장이에요. 공개로 변경하면 링크와 QR로 접속할 수 있어요.'
+                : undefined,
+          });
+        }}
         onShare={handleShare}
         getGuestUrl={getGuestUrl}
         isDeleting={isDeleting}
@@ -269,6 +310,13 @@ function CarouselWrapper({
         isVisibilityUpdating={isVisibilityUpdating}
         getVisibilityError={getVisibilityError}
       />
+      {linkShare && (
+        <LinkShareModal
+          url={linkShare.url}
+          notice={linkShare.notice}
+          onClose={() => setLinkShare(null)}
+        />
+      )}
       <DashboardInvitationPreviewModal
         errorMessage={preview.errorMessage}
         folderId={preview.folderId}

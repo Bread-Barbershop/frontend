@@ -1,6 +1,8 @@
 import { PickerHsva } from '@/components/molecules/color-picker/components/colorPicker.types';
 import type { ScrollAnimationSettings } from '@/components/molecules/scroll-fade-in/animationConfig';
+import type { InvitationPrivacy } from '@/features/invitation/privacy/settings';
 import { blockRegistry } from '@/shared/data/registry/registry';
+import type { SectionStyle } from '@/shared/data/sectionStyles';
 
 import { blockSchema } from '../data/registry/block.schema';
 
@@ -19,6 +21,7 @@ export type EditorBlock<T extends BlockType = BlockType> = {
   props: PropsFromFields<(typeof blockSchema)[T]['fields']> & {
     /** Bundled collection styling, persisted with native editable block props. */
     collectionStyle?: string;
+    sectionStyle?: SectionStyle;
   };
 };
 
@@ -44,12 +47,20 @@ export interface BulkData {
 
 export interface BlockSlice {
   block: EditorBlock[];
-  addBlock: (type: InvitationType, component: BlockType, id: string) => void;
+  addBlock: <T extends BlockType>(
+    type: InvitationType,
+    component: T,
+    id: string,
+    initialProps?: Partial<EditorBlock<NoInfer<T>>['props']>
+  ) => void;
   updateBlock: <T extends BlockType>(
     id: string,
     props: Partial<PropsFromFields<(typeof blockRegistry)[T]['fields']>>
   ) => void;
-  updateBlockAnimation: (id: string, settings: Partial<ScrollAnimationSettings>) => void;
+  updateBlockSectionStyle: (
+    id: string,
+    style: SectionStyle | undefined
+  ) => void;
   deleteBlock: (id: string) => void;
   moveBlock: (from: number, to: number) => void;
   addAllBlock: (type: InvitationType) => void;
@@ -123,14 +134,21 @@ export interface DriveSlice {
   setImageFolderId: (id: string) => void;
 }
 export interface BulkSlice {
+  sectionStyle?: SectionStyle;
+  setSectionStyle: (style: SectionStyle | undefined) => void;
   titleData: BulkData;
   bodyData: BulkData;
   backgroundColor: string;
   isZoom: boolean;
+  invitationPrivacy?: InvitationPrivacy;
+  scrollAnimation: ScrollAnimationSettings;
   setBackgroundColor: (color: string) => void;
   setTitleData: (data: BulkData) => void;
   setBodyData: (data: BulkData) => void;
   setIsZoom: (isZoom: boolean) => void;
+  setInvitationPrivacy: (settings: InvitationPrivacy | undefined) => void;
+  setScrollAnimation: (settings: ScrollAnimationSettings) => void;
+  updateScrollAnimation: (settings: Partial<ScrollAnimationSettings>) => void;
 }
 
 export interface ShareUrlState {

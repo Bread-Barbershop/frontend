@@ -72,6 +72,9 @@ export async function POST(request: Request) {
               imageFolderId,
               audioFolderId,
               invitationUuid,
+              ...(cached.audienceSlug
+                ? { audienceSlug: cached.audienceSlug }
+                : {}),
             },
             { headers: { 'Cache-Control': 'no-store' } }
           );
@@ -95,6 +98,9 @@ export async function POST(request: Request) {
         workspaceFolderId: workspace.folderId,
         invitationFolderId: invitation.invitationFolderId,
         invitationUuid,
+        ...(invitation.audienceSlug
+          ? { audienceSlug: invitation.audienceSlug }
+          : {}),
         dataJsonFileId: data.dataJsonFileId,
         imageFolderId: assets.imageFolderId,
         audioFolderId: assets.audioFolderId,

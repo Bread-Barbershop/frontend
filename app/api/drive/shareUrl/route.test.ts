@@ -31,13 +31,26 @@ jest.mock('@/app/api/drive/_lib/ensureInvitationMetaFile', () => ({
 jest.mock('@/app/api/short-url/_lib/shortUrlStore', () => ({
   getOrCreateShortCode: jest.fn(),
 }));
+jest.mock('@/app/api/drive/_lib/invitationAudiences', () => ({
+  getOwnedAudienceLink: jest.fn(),
+  updateAudienceLinkTarget: jest.fn(),
+}));
+
+jest.mock('@/app/api/drive/_lib/getSaveDataFetch', () => ({
+  downloadFiles: jest.fn(),
+}));
 
 import { GET, POST } from '@/app/api/drive/shareUrl/route';
 import {
   loadInvitationMeta,
   upsertInvitationMeta,
 } from '@/app/api/drive/_lib/ensureInvitationMetaFile';
+import { downloadFiles } from '@/app/api/drive/_lib/getSaveDataFetch';
 import { getOrCreateShortCode } from '@/app/api/short-url/_lib/shortUrlStore';
+import {
+  getOwnedAudienceLink,
+  updateAudienceLinkTarget,
+} from '@/app/api/drive/_lib/invitationAudiences';
 
 const shareData = {
   title: '초대장',
@@ -50,9 +63,101 @@ const shareData = {
 describe('shareUrl route', () => {
   beforeEach(() => {
     jest.resetAllMocks();
+    (downloadFiles as jest.Mock).mockResolvedValue({ bulkData: {} });
     (getOrCreateShortCode as jest.Mock).mockResolvedValue({
       shortCode: 'aB7kQ2x',
       guestPath: '/i/aB7kQ2x',
+    });
+  });
+
+  it('하객 그룹 저장 시 초대장 대표 URL에 대상을 붙이고 별도 짧은 링크를 발급하지 않는다', async () => {
+    const guestUrl = 'http://localhost/i/aB7kQ2x?to=family';
+    jest.mocked(getOwnedAudienceLink).mockResolvedValue({
+      rootFolderId: 'root-folder',
+      rootDataJsonFileId: 'root-data-file',
+      requestId: 'claim-key',
+      guestUrl,
+      published: false,
+      group: {
+        folderId: 'group-folder',
+        invitationUuid: 'aud_group',
+        name: '가족',
+        slug: 'family',
+      },
+    });
+    jest.mocked(updateAudienceLinkTarget).mockResolvedValue('group-data-file');
+    jest.mocked(upsertInvitationMeta).mockResolvedValue({
+      metaFileId: 'meta-group-file',
+      reused: true,
+      payload: {
+        version: 1,
+        published: false,
+        updatedAt: '2026-11-18T00:00:00Z',
+        guestUrl,
+        dataJsonFileId: 'group-data-file',
+        kakaoShare: { ...shareData, invitationUrl: guestUrl },
+      },
+    });
+
+    const response = await POST(
+      new Request('http://localhost/api/drive/shareUrl', {
+        method: 'POST',
+        body: JSON.stringify({
+          invitationFolderId: 'group-folder',
+          dataJsonFileId: 'group-data-file',
+          shareData,
+        }),
+      })
+    );
+
+    expect(await response.json()).toMatchObject({
+      ok: true,
+      guestUrl,
+      shortCode: null,
+    });
+    expect(upsertInvitationMeta).toHaveBeenCalledWith(
+      'group-folder',
+      expect.objectContaining({
+        guestUrl,
+        dataJsonFileId: 'group-data-file',
+        kakaoShare: expect.objectContaining({ invitationUrl: guestUrl }),
+      })
+    );
+    expect(getOrCreateShortCode).not.toHaveBeenCalled();
+  });
+
+  it('하객 그룹 공유는 메타데이터가 오래돼도 현재 그룹의 개인정보 설정을 읽는다', async () => {
+    const guestUrl = 'http://localhost/i/aB7kQ2x?to=family';
+    jest.mocked(getOwnedAudienceLink).mockResolvedValue({
+      rootFolderId: 'root-folder',
+      rootDataJsonFileId: 'root-data-file',
+      requestId: 'claim-key',
+      guestUrl,
+      published: true,
+      group: {
+        folderId: 'group-folder',
+        invitationUuid: 'aud_group',
+        name: '가족',
+        slug: 'family',
+      },
+    });
+    jest.mocked(updateAudienceLinkTarget).mockResolvedValue('current-group-data');
+    (loadInvitationMeta as jest.Mock).mockResolvedValue({
+      metaFileId: 'group-meta',
+      payload: { dataJsonFileId: 'old-data', kakaoShare: shareData },
+    });
+    (downloadFiles as jest.Mock).mockImplementation(async id => ({
+      bulkData: id === 'current-group-data'
+        ? { invitationPrivacy: { enabled: true, eventDate: '2000-01-01', fields: ['name'] } }
+        : {},
+    }));
+
+    const response = await GET(new Request(
+      'http://localhost/api/drive/shareUrl?invitationFolderId=group-folder'
+    ));
+    expect(await response.json()).toMatchObject({
+      data: { title: '', description: '', invitationUrl: guestUrl },
+      dataJsonFileId: 'current-group-data',
     });
   });
 
@@ -296,6 +401,41 @@ describe('shareUrl route', () => {
     expect(json).toEqual({
       ok: false,
       error: 'share data not found in meta.json',
+    });
+  });
+
+  it('행사가 지난 뒤 새 카카오 공유에 이름·썸네일·지도 정보를 넣지 않는다', async () => {
+    (loadInvitationMeta as jest.Mock).mockResolvedValue({
+      metaFileId: 'meta-file-id',
+      payload: {
+        dataJsonFileId: 'data-json-file-id',
+        kakaoShare: {
+          ...shareData,
+          title: '김민준의 초대장',
+          showLocationButton: true,
+          locationInfo: { placeName: '장소', lat: 37, lng: 127 },
+        },
+      },
+    });
+    (downloadFiles as jest.Mock).mockResolvedValue({
+      bulkData: {
+        invitationPrivacy: {
+          enabled: true,
+          eventDate: '2000-01-01',
+          fields: ['name', 'media', 'location'],
+        },
+      },
+    });
+
+    const res = await GET(new Request(
+      'http://localhost/api/drive/shareUrl?invitationFolderId=invitation-folder-id'
+    ));
+    expect(res.status).toBe(200);
+    expect((await res.json()).data).toEqual({
+      title: '',
+      description: '',
+      showLocationButton: false,
+      invitationUrl: 'http://localhost/guest/data-json-file-id',
     });
   });
 });

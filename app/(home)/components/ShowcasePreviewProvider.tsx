@@ -11,6 +11,7 @@ import {
   useState,
 } from 'react';
 
+import NoticeConfirmButton from '@/components/atoms/button/NoticeConfirmButton';
 import {
   getShowcaseInvitation,
   SHOWCASE_CATEGORY_LABELS,
@@ -57,6 +58,7 @@ function ShowcasePreviewModal({
   onClose: () => void;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const pcNoticeRef = useRef<HTMLDialogElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const design = getShowcaseInvitation(selectedId)!;
   const index = SHOWCASE_INVITATIONS.findIndex(item => item.id === selectedId);
@@ -100,9 +102,10 @@ function ShowcasePreviewModal({
   return (
     <dialog
       ref={dialogRef}
-      aria-labelledby="showcase-preview-title"
+      aria-label={design.name}
       aria-describedby="showcase-preview-description"
       onCancel={event => {
+        if (event.target !== event.currentTarget) return;
         event.preventDefault();
         onClose();
       }}
@@ -112,31 +115,46 @@ function ShowcasePreviewModal({
       className="fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none bg-transparent p-0 text-[#252522] backdrop:bg-black/55 backdrop:backdrop-blur-sm open:flex open:items-center open:justify-center min-[800px]:p-9"
     >
       <section className="relative flex h-full w-full flex-col overflow-hidden bg-[#F5F4F0] min-[800px]:max-h-[920px] min-[800px]:max-w-[1050px] min-[800px]:rounded-[24px] min-[800px]:shadow-2xl">
-        <header className="flex shrink-0 items-center justify-between border-b border-black/8 px-5 py-3 min-[800px]:px-7 min-[800px]:py-4">
-          <div className="flex items-center gap-3">
-            <span className="text-[15px] font-black tracking-[-0.06em]">
+        <header className="flex shrink-0 items-center justify-between gap-2 border-b border-black/8 pt-[max(3.5px,env(safe-area-inset-top))] pr-2.5 pb-[3.5px] pl-3.5 max-[359px]:gap-1 max-[359px]:pr-1 max-[359px]:pl-2.5 min-[800px]:px-7 min-[800px]:py-4">
+          <div className="flex min-w-0 items-center gap-2 max-[359px]:gap-1.5 min-[800px]:gap-3">
+            <span className="shrink-0 text-[15px] font-black tracking-[-0.06em]">
               invia
             </span>
-            <span aria-hidden="true" className="h-3 w-px bg-black/15" />
-            <span className="text-[12px] text-black/55">초대장 미리보기</span>
+            <span
+              aria-hidden="true"
+              className="h-3 w-px shrink-0 bg-black/15"
+            />
+            <span className="min-w-0 truncate text-[12px] text-black/55 max-[359px]:text-[11.5px]">
+              초대장 미리보기
+              <span aria-live="polite" className="min-[800px]:hidden">
+                {' - '}
+                {design.name}
+              </span>
+            </span>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="미리보기 닫기"
-            className="flex size-10 cursor-pointer items-center justify-center rounded-full bg-black/5 transition-colors hover:bg-black/10 focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="group flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 min-[800px]:size-10"
           >
-            <X size={20} strokeWidth={1.5} />
+            <span className="flex size-8 items-center justify-center rounded-full bg-black/5 transition-colors group-hover:bg-black/10 min-[800px]:size-10">
+              <X
+                aria-hidden="true"
+                strokeWidth={1.5}
+                className="size-4 min-[800px]:size-5"
+              />
+            </span>
           </button>
         </header>
 
         <div className="flex min-h-0 flex-1 flex-col min-[800px]:flex-row">
-          <aside className="flex shrink-0 flex-col px-5 py-3 min-[800px]:w-[340px] min-[800px]:justify-between min-[800px]:px-9 min-[800px]:py-10">
+          <aside className="hidden w-[340px] shrink-0 flex-col justify-between px-9 py-10 min-[800px]:flex">
             <div>
-              <p className="hidden text-[11px] tracking-[0.2em] text-black/45 min-[800px]:block">
+              <p className="text-[11px] tracking-[0.2em] text-black/45">
                 THE INVIA COLLECTION
               </p>
-              <div className="flex items-center gap-2 min-[800px]:mt-8">
+              <div className="mt-8 flex items-center gap-2">
                 <span
                   className="size-1.5 rounded-full"
                   style={{ backgroundColor: design.palette[1] }}
@@ -144,27 +162,17 @@ function ShowcasePreviewModal({
                 <p className="text-[11px] text-black/55">
                   {SHOWCASE_CATEGORY_LABELS[design.type]}
                 </p>
-                <span className="ml-auto text-[11px] tabular-nums text-black/40 min-[800px]:hidden">
-                  {String(index + 1).padStart(2, '0')} /{' '}
-                  {SHOWCASE_INVITATIONS.length}
-                </span>
               </div>
-              <h2
-                id="showcase-preview-title"
-                className="mt-1 text-xl font-semibold tracking-[-0.04em] min-[800px]:mt-4 min-[800px]:text-[30px] min-[800px]:leading-[1.3]"
-              >
+              <h2 className="mt-4 text-[30px] leading-[1.3] font-semibold tracking-[-0.04em]">
                 {design.name}
               </h2>
               <p
                 id="showcase-preview-description"
-                className="mt-4 hidden break-keep text-[14px] leading-7 text-black/55 min-[800px]:block"
+                className="mt-4 break-keep text-[14px] leading-7 text-black/55"
               >
                 {design.description}
               </p>
-              <div
-                aria-label="초대장 색상"
-                className="mt-7 hidden gap-2 min-[800px]:flex"
-              >
+              <div aria-label="초대장 색상" className="mt-7 flex gap-2">
                 {design.palette.map((color, i) => (
                   <span
                     key={i}
@@ -174,8 +182,8 @@ function ShowcasePreviewModal({
                 ))}
               </div>
             </div>
-            <div className="mt-4 min-[800px]:mt-8">
-              <div className="mb-5 hidden items-center gap-2 text-[12px] text-black/45 min-[800px]:flex">
+            <div className="mt-8">
+              <div className="mb-5 flex items-center gap-2 text-[12px] text-black/45">
                 <ArrowDown size={14} />
                 아래로 내려 초대장 전체를 살펴보세요
               </div>
@@ -188,14 +196,8 @@ function ShowcasePreviewModal({
               </Link>
               <p className="mt-3 text-[11px] leading-5 text-black/45">
                 로그인 후 이 디자인으로 바로 시작해요.
-                <span className="hidden min-[800px]:inline">
-                  <br />
-                  사진과 문구는 자유롭게 바꿀 수 있어요.
-                </span>
-                <span className="min-[800px]:hidden">
-                  {' '}
-                  제작은 PC에서 할 수 있어요.
-                </span>
+                <br />
+                사진과 문구는 자유롭게 바꿀 수 있어요.
               </p>
             </div>
           </aside>
@@ -214,19 +216,19 @@ function ShowcasePreviewModal({
 
         <nav
           aria-label="다른 초대장 미리보기"
-          className="flex shrink-0 items-center justify-between border-t border-black/8 px-5 py-2 pb-[max(8px,env(safe-area-inset-bottom))] min-[800px]:px-7 min-[800px]:py-3"
+          className="grid shrink-0 grid-cols-[44px_minmax(0,1fr)_44px] items-center justify-between gap-4 border-t border-black/8 px-2.5 pt-1.5 pb-[max(6px,env(safe-area-inset-bottom))] min-[800px]:flex min-[800px]:px-7 min-[800px]:py-3"
         >
           <button
             type="button"
             onClick={() => move(-1)}
-            className="flex min-h-10 cursor-pointer items-center gap-2 rounded-full px-3 text-[12px] transition-colors hover:bg-black/5"
+            className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full text-[12px] transition-colors hover:bg-black/5 min-[800px]:min-h-10 min-[800px]:px-3"
             aria-label="이전 초대장"
           >
-            <ArrowLeft size={16} />
-            이전
+            <ArrowLeft size={16} aria-hidden="true" />
+            <span className="hidden min-[800px]:inline">이전</span>
           </button>
           <p
-            className="text-[11px] tabular-nums tracking-[0.12em] text-black/45"
+            className="hidden text-[11px] tabular-nums tracking-[0.12em] text-black/45 min-[800px]:block"
             aria-live="polite"
           >
             {String(index + 1).padStart(2, '0')}{' '}
@@ -235,15 +237,47 @@ function ShowcasePreviewModal({
           </p>
           <button
             type="button"
+            onClick={event => {
+              event.currentTarget.focus({ preventScroll: true });
+              pcNoticeRef.current?.showModal();
+            }}
+            className="min-h-11 w-[126px] max-w-full cursor-pointer justify-self-center rounded-full bg-bg-plain px-4 text-[13px] font-semibold text-white transition-colors hover:bg-[#202020] active:bg-[#0D0D0D] min-[800px]:hidden"
+          >
+            이거 쓸래요
+          </button>
+          <button
+            type="button"
             onClick={() => move(1)}
-            className="flex min-h-10 cursor-pointer items-center gap-2 rounded-full px-3 text-[12px] transition-colors hover:bg-black/5"
+            className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full text-[12px] transition-colors hover:bg-black/5 min-[800px]:min-h-10 min-[800px]:px-3"
             aria-label="다음 초대장"
           >
-            다음
-            <ArrowRight size={16} />
+            <span className="hidden min-[800px]:inline">다음</span>
+            <ArrowRight size={16} aria-hidden="true" />
           </button>
         </nav>
       </section>
+      <dialog
+        ref={pcNoticeRef}
+        aria-labelledby="showcase-pc-notice-title"
+        aria-describedby="showcase-pc-notice-description"
+        className="fixed inset-x-0 top-auto bottom-0 m-0 max-h-dvh w-full max-w-none overflow-auto overscroll-contain rounded-t-[22px] border border-black/8 bg-[#F9F8F3] px-6 pt-6 pb-[max(24px,env(safe-area-inset-bottom))] text-text-plain backdrop:bg-black/40"
+      >
+        <h2
+          id="showcase-pc-notice-title"
+          className="break-keep text-[22px] font-bold tracking-[-0.045em]"
+        >
+          {design.name} 시작하기
+        </h2>
+        <p
+          id="showcase-pc-notice-description"
+          className="mt-3 mb-5 break-keep text-sm leading-relaxed text-black/60"
+        >
+          이 템플릿은 PC에서 로그인한 뒤 사용할 수 있어요.
+        </p>
+        <div className="flex justify-center">
+          <NoticeConfirmButton onClick={() => pcNoticeRef.current?.close()} />
+        </div>
+      </dialog>
     </dialog>
   );
 }

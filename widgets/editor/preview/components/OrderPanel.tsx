@@ -175,6 +175,7 @@ function OrderPanel() {
       >
         <p className="font-semibold text-sm px-9 py-3.5 select-none">순서</p>
         <div className="w-full px-2 relative">
+          {/* Reserve shell chrome, action controls, title/margins, both arrows, and header clearance. */}
           <ChipCarousel
             options={{
               align: 'start',
@@ -183,7 +184,7 @@ function OrderPanel() {
               dragFree: true,
               watchDrag: !isDrag,
             }}
-            parentClassName="flex-col mb-2"
+            parentClassName="flex-col mb-2 max-h-[min(376px,calc(100dvh-532px))]"
             onReset={() => {
               setContextMenu(null);
             }}

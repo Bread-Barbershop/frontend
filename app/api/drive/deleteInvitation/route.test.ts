@@ -16,15 +16,24 @@ jest.mock('@/app/api/drive/_lib/googleFetch', () => ({
 jest.mock('@/app/api/short-url/_lib/shortUrlStore', () => ({
   deleteShortCodeMapping: jest.fn(),
 }));
+jest.mock('@/app/api/drive/_lib/invitationAudiences', () => ({
+  getAudienceIndexRootDataId: jest.fn(),
+}));
+jest.mock('@/app/api/drive/_lib/audienceLinkStore', () => ({
+  deleteAudienceLinks: jest.fn(),
+}));
 
 import { DELETE } from '@/app/api/drive/deleteInvitation/route';
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
 import { deleteShortCodeMapping } from '@/app/api/short-url/_lib/shortUrlStore';
+import { getAudienceIndexRootDataId } from '@/app/api/drive/_lib/invitationAudiences';
+import { deleteAudienceLinks } from '@/app/api/drive/_lib/audienceLinkStore';
 
 describe('deleteInvitation Route Handler 테스트', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     (deleteShortCodeMapping as jest.Mock).mockResolvedValue(true);
+    jest.mocked(getAudienceIndexRootDataId).mockResolvedValue(null);
   });
 
   it('folderId가 없으면 400을 반환한다', async () => {
@@ -47,6 +56,7 @@ describe('deleteInvitation Route Handler 테스트', () => {
   });
 
   it('삭제가 성공하면 success true를 반환한다', async () => {
+    jest.mocked(getAudienceIndexRootDataId).mockResolvedValue('root-data-id');
     (googleFetch as jest.Mock).mockResolvedValue({
       ok: true,
       status: 204,
@@ -69,6 +79,7 @@ describe('deleteInvitation Route Handler 테스트', () => {
       { method: 'DELETE' }
     );
     expect(deleteShortCodeMapping).toHaveBeenCalledWith('folder-123');
+    expect(deleteAudienceLinks).toHaveBeenCalledWith('root-data-id');
   });
 
   it('Redis 매핑 정리가 실패해도 Drive 삭제 성공 응답을 유지한다', async () => {

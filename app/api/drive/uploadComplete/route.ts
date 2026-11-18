@@ -7,6 +7,7 @@ import {
 } from '@/app/api/drive/_lib/commitInvitationData';
 import {
   assertManagedFileAccess,
+  readManagedDriveMetadata,
   assertSameOriginRequest,
 } from '@/app/api/drive/_lib/driveAccess';
 import { driveErrorResponse } from '@/app/api/drive/_lib/driveErrorResponse';
@@ -36,16 +37,15 @@ export async function POST(request: Request) {
         entry.dataJsonFileId,
         entry.folderId
       );
-      await cleanupStagingFile(entry);
+      await cleanupStagingFile(entry, uploadId);
       return NextResponse.json(
         { fileId: file.id, name: file.name },
         { headers: { 'Cache-Control': 'no-store' } }
       );
     }
-    const { file } = await assertManagedFileAccess(
-      entry.fileId,
-      entry.dataJsonFileId ? entry.folderId : undefined
-    );
+    const file = entry.dataJsonFileId
+      ? await readManagedDriveMetadata(entry.fileId)
+      : (await assertManagedFileAccess(entry.fileId, undefined)).file;
     const response = await googleFetch(
       `https://www.googleapis.com/drive/v3/files/${entry.fileId}?fields=size,mimeType,parents,appProperties`
     );
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
       !response.ok ||
       Number(metadata.size) !== entry.size ||
       metadata.mimeType !== entry.mimeType ||
-      !metadata.parents?.includes(entry.folderId) ||
+      (!entry.dataJsonFileId && !metadata.parents?.includes(entry.folderId)) ||
       file.appProperties?.upload_key !== uploadId
     ) {
       throw new DriveHttpError(
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
       { ...entry, uploadUrl: undefined, complete: true },
       JOURNAL_SECONDS
     );
-    if (entry.dataJsonFileId) await cleanupStagingFile(entry);
+    if (entry.dataJsonFileId) await cleanupStagingFile(entry, uploadId);
     return NextResponse.json(result, {
       headers: { 'Cache-Control': 'no-store' },
     });
@@ -94,13 +94,14 @@ export async function POST(request: Request) {
   }
 }
 
-async function cleanupStagingFile(entry: UploadJournal) {
+async function cleanupStagingFile(entry: UploadJournal, uploadId: string) {
   try {
-    const { file } = await assertManagedFileAccess(
-      entry.fileId,
-      entry.folderId
-    );
-    if (file.appProperties?.kind !== 'invitation_staging_json') return;
+    const file = await readManagedDriveMetadata(entry.fileId);
+    if (
+      file.appProperties?.kind !== 'invitation_staging_json' ||
+      file.appProperties.upload_key !== uploadId
+    )
+      return;
     await googleFetch(
       'https://www.googleapis.com/drive/v3/files/' + entry.fileId,
       { method: 'DELETE' }

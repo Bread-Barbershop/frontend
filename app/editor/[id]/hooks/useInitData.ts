@@ -1,7 +1,12 @@
 import { useCallback } from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
+import { normalizeInvitationPrivacy } from '@/features/invitation/privacy/settings';
+import { collectFontFamilies } from '@/features/invitation/save/createGuestRenderHints';
+import { resolveSectionStyle } from '@/shared/data/sectionStyles';
+import { preloadFontFamilyWeights } from '@/shared/fonts/fontLoader';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { extractFileGroups } from '@/shared/utils/extractFileGroups';
 import { getFileKey } from '@/shared/utils/fileUtils';
@@ -28,14 +33,16 @@ export const useInitData = ({
     invitationImage,
   } = savedData || {};
 
-  const { resetBgm, setSelectedBgmId, setIsLoop, setUserFile } = useBgmStore(
-    useShallow(state => ({
-      resetBgm: state.reset,
-      setSelectedBgmId: state.setSelectedBgmId,
-      setIsLoop: state.setIsLoop,
-      setUserFile: state.setUserFile,
-    }))
-  );
+  const { resetBgm, setSelectedBgmId, setIsLoop, setUserFile, setVolume } =
+    useBgmStore(
+      useShallow(state => ({
+        resetBgm: state.reset,
+        setSelectedBgmId: state.setSelectedBgmId,
+        setIsLoop: state.setIsLoop,
+        setUserFile: state.setUserFile,
+        setVolume: state.setVolume,
+      }))
+    );
 
   const {
     setBlock,
@@ -48,7 +55,10 @@ export const useInitData = ({
     setBodyData,
     setTitleData,
     setBackgroundColor,
+    setSectionStyle,
     setIsZoom,
+    setInvitationPrivacy,
+    setScrollAnimation,
     setShareUrl,
     setHashFiles,
     clearHashFiles,
@@ -65,7 +75,10 @@ export const useInitData = ({
       setBodyData: state.setBodyData,
       setTitleData: state.setTitleData,
       setBackgroundColor: state.setBackgroundColor,
+      setSectionStyle: state.setSectionStyle,
       setIsZoom: state.setIsZoom,
+      setInvitationPrivacy: state.setInvitationPrivacy,
+      setScrollAnimation: state.setScrollAnimation,
       setShareUrl: state.setShareUrl,
       setHashFiles: state.setHashFiles,
       clearHashFiles: state.clearHashFiles,
@@ -74,6 +87,11 @@ export const useInitData = ({
   );
 
   const initEditStore = useCallback(async () => {
+    const fontsReady = Promise.all(
+      Array.from(collectFontFamilies([bulkData, blocks]), family =>
+        preloadFontFamilyWeights(family)
+      )
+    );
     // 새 데이터 로딩 전 이전 해시 캐시 이력 초기화
     clearHashFiles();
     clearCleanUpFiles();
@@ -124,9 +142,11 @@ export const useInitData = ({
         updateImage('shareUrl', shareFiles);
       }
     }
+    await fontsReady;
     selectedBlock('mainPoster');
   }, [
     blocks,
+    bulkData,
     imageFolderId,
     audioFolderId,
     uuid,
@@ -159,17 +179,32 @@ export const useInitData = ({
       }
       setIsLoop(bgm.bgmInfo?.isLoop || false);
       setSelectedBgmId(bgm.bgmInfo?.selectedBgmId || null);
+      if (typeof bgm.bgmInfo?.volume === 'number') {
+        setVolume(bgm.bgmInfo.volume);
+      }
     }
-  }, [bgm, resetBgm, setUserFile, setIsLoop, setSelectedBgmId]);
+  }, [bgm, resetBgm, setUserFile, setIsLoop, setSelectedBgmId, setVolume]);
 
   const initBulkData = useCallback(() => {
+    setInvitationPrivacy(normalizeInvitationPrivacy(bulkData?.invitationPrivacy));
     if (bulkData) {
       setBodyData(bulkData.bodyData);
       setTitleData(bulkData.titleData);
       setBackgroundColor(bulkData.backgroundColor);
+      setSectionStyle(resolveSectionStyle(bulkData.sectionStyle));
       setIsZoom(bulkData.isZoom);
+      setScrollAnimation(resolveScrollAnimation(bulkData.scrollAnimation));
     }
-  }, [bulkData, setBodyData, setTitleData, setBackgroundColor, setIsZoom]);
+  }, [
+    bulkData,
+    setBodyData,
+    setTitleData,
+    setBackgroundColor,
+    setIsZoom,
+    setInvitationPrivacy,
+    setScrollAnimation,
+    setSectionStyle,
+  ]);
   return {
     initEditStore,
     initBgmStore,

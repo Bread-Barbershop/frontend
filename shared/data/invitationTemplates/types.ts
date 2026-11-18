@@ -1,3 +1,4 @@
+import type { SectionStyle } from '@/shared/data/sectionStyles';
 import type {
   BulkData,
   EditorBlock,
@@ -79,8 +80,6 @@ export type PosterElement =
 export type PosterDesign = {
   width: 375;
   height: 812;
-  background: string;
-  objects: PosterElement[];
 };
 
 export type InvitationTemplate = {
@@ -96,10 +95,14 @@ export type InvitationTemplate = {
     text: string;
   };
   poster: PosterDesign;
+  posterImage: string;
+  posterJsonUrl: string;
+  fontFamilies: readonly string[];
   blockTypes: BlockType[];
 };
 
 export type PreparedInvitationTemplate = {
+  sectionStyle?: SectionStyle;
   blocks: EditorBlock[];
   backgroundColor: string;
   titleData: BulkData;

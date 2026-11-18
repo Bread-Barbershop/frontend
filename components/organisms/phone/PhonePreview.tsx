@@ -8,12 +8,13 @@ import PhonePreviewPopup from './components/PhonePreviewPopup';
 interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'phone'>;
   className: string;
+  hideActions?: boolean;
 }
 
-function PhonePreview({ blockInfo, className, ...rest }: Props) {
+function PhonePreview({ blockInfo, className, hideActions, ...rest }: Props) {
   return (
     <MiddlePreviewWrapper noTitle={true} className={className} {...rest}>
-      <PhonePreviewPopup groups={blockInfo.props.groups} />
+      <PhonePreviewPopup groups={blockInfo.props.groups} hideActions={hideActions} />
     </MiddlePreviewWrapper>
   );
 }

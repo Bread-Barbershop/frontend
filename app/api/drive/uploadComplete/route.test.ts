@@ -6,6 +6,7 @@ jest.mock('@/app/api/drive/_lib/commitInvitationData', () => ({
   commitInvitationData: jest.fn(),
 }));
 jest.mock('@/app/api/drive/_lib/driveAccess', () => ({
+  readManagedDriveMetadata: jest.fn(),
   assertSameOriginRequest: jest.fn(),
   assertManagedFileAccess: jest.fn(),
 }));
@@ -23,7 +24,10 @@ import {
   assertDataJsonAccess,
   commitInvitationData,
 } from '@/app/api/drive/_lib/commitInvitationData';
-import { assertManagedFileAccess } from '@/app/api/drive/_lib/driveAccess';
+import {
+  readManagedDriveMetadata,
+  assertManagedFileAccess,
+} from '@/app/api/drive/_lib/driveAccess';
 import {
   invitationPayloadFixture,
   dataJsonAccessFixture,
@@ -46,6 +50,14 @@ const request = () =>
 describe('업로드 완료 확인', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest
+      .mocked(readManagedDriveMetadata)
+      .mockResolvedValue({
+        appProperties: {
+          upload_key: uploadIdFixture,
+          kind: 'invitation_staging_json',
+        },
+      } as never);
     jest.mocked(readJournal).mockResolvedValue(uploadJournalFixture);
     jest.mocked(assertManagedFileAccess).mockResolvedValue({
       file: { appProperties: { upload_key: uploadIdFixture } },
@@ -87,24 +99,20 @@ describe('업로드 완료 확인', () => {
     expect(googleFetch).not.toHaveBeenCalled();
   });
   it('큰 JSON은 임시 파일을 읽고 서버 검증 경로로 본문에 반영한다', async () => {
-    jest
-      .mocked(readJournal)
-      .mockResolvedValue({
-        ...uploadJournalFixture,
-        folderId: 'invitation',
-        mimeType: 'application/json',
-        dataJsonFileId: 'canonical-data',
-      });
-    jest
-      .mocked(assertManagedFileAccess)
-      .mockResolvedValue({
-        file: {
-          appProperties: {
-            upload_key: uploadIdFixture,
-            kind: 'invitation_staging_json',
-          },
+    jest.mocked(readJournal).mockResolvedValue({
+      ...uploadJournalFixture,
+      folderId: 'invitation',
+      mimeType: 'application/json',
+      dataJsonFileId: 'canonical-data',
+    });
+    jest.mocked(assertManagedFileAccess).mockResolvedValue({
+      file: {
+        appProperties: {
+          upload_key: uploadIdFixture,
+          kind: 'invitation_staging_json',
         },
-      } as never);
+      },
+    } as never);
     jest
       .mocked(googleFetch)
       .mockReset()
@@ -133,14 +141,12 @@ describe('업로드 완료 확인', () => {
     });
   });
   it('본문 반영 응답이 유실돼도 완료 기록으로 재전송 없이 복구한다', async () => {
-    jest
-      .mocked(readJournal)
-      .mockResolvedValue({
-        ...uploadJournalFixture,
-        folderId: 'invitation',
-        dataJsonFileId: 'canonical-data',
-        complete: true,
-      });
+    jest.mocked(readJournal).mockResolvedValue({
+      ...uploadJournalFixture,
+      folderId: 'invitation',
+      dataJsonFileId: 'canonical-data',
+      complete: true,
+    });
     jest
       .mocked(assertDataJsonAccess)
       .mockResolvedValue(dataJsonAccessFixture as never);

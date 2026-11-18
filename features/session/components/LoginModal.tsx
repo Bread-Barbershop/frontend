@@ -111,10 +111,9 @@ function LoginModal({
             Google Drive 연결
           </h2>
           <p className="mt-3 text-sm leading-6 text-text-secondary">
-            초대장을 저장·수정·삭제하고 공개 상태를 관리하기 위해 Google 계정을
-            연결해요. 계정 연결에 필요한 인증 정보는 암호화해 최대{' '}
-            {AUTH_SESSION_MAX_AGE_DAYS}일간 보관하며, 로그아웃하면 해당 로그인
-            정보를 삭제해요.
+            내 Drive에 초대장을 저장하고 수정할 수 있도록 Google 계정을 연결해요.
+            로그인 정보는 이 브라우저에 암호화해 최대 {AUTH_SESSION_MAX_AGE_DAYS}일간 보관하고 로그아웃하면 삭제해요.
+            방명록이나 하객 사진을 받으려면 초대장 설정에서 따로 동의해 주세요.
           </p>
           <p className="mt-2 text-sm leading-6 text-text-secondary">
             아래 버튼을 누르면 이 인증 정보 처리에 동의하고 Google의 권한 확인

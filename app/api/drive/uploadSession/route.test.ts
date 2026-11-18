@@ -90,7 +90,7 @@ describe('한정된 Drive 업로드 연결', () => {
     expect((await POST(request())).status).toBe(403);
     expect(googleFetch).not.toHaveBeenCalled();
   });
-  it('큰 JSON의 임시 파일은 검증된 본문 파일의 초대장 폴더에만 만든다', async () => {
+  it('큰 JSON의 임시 파일은 공개 초대장 밖의 내 드라이브에 만든다', async () => {
     jest
       .mocked(assertDataJsonAccess)
       .mockResolvedValue({ invitationFolderId: 'invitation' } as never);
@@ -99,6 +99,7 @@ describe('한정된 Drive 업로드 연결', () => {
         method: 'POST',
         body: JSON.stringify({
           ...uploadRequestFixture,
+          attempt: crypto.randomUUID(),
           folderId: 'unrelated-folder',
           dataJsonFileId: 'canonical-data',
           mimeType: 'application/json',
@@ -109,7 +110,7 @@ describe('한정된 Drive 업로드 연결', () => {
     const metadata = JSON.parse(
       jest.mocked(googleFetch).mock.calls[1][1]?.body as string
     );
-    expect(metadata.parents).toEqual(['invitation']);
+    expect(metadata.parents).toEqual(['root']);
     expect(metadata.appProperties.kind).toBe('invitation_staging_json');
     expect(assertAssetFolderAccess).not.toHaveBeenCalled();
   });

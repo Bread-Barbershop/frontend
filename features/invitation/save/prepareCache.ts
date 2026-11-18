@@ -2,6 +2,7 @@ export type PreparedInvitationSave = {
   workspaceFolderId: string;
   invitationFolderId: string;
   invitationUuid: string;
+  audienceSlug?: string;
   dataJsonFileId: string;
   imageFolderId: string;
   audioFolderId: string;

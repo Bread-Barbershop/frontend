@@ -15,7 +15,7 @@ jest.mock('next/headers', () => ({
 jest.mock('./tokenRefresh', () => ({ tokenRefresh: jest.fn() }));
 
 import { authKey, authRedis, AuthStorageError } from './authStorage';
-import { cookieEntries, redisEntries, redisMock } from './fixtures/redis';
+import { cookieEntries, redisEntries } from './fixtures/redis';
 import { testEncryptionKey } from './fixtures/session';
 import { GOOGLE_AUTH_SCOPE } from './googleScopes';
 import {
@@ -53,11 +53,12 @@ describe('서버 전용 Google 세션', () => {
       expires_in,
       scope: GOOGLE_AUTH_SCOPE,
     });
-  it('쿠키에는 무작위 세션 ID만 넣고 Redis에도 토큰 평문을 넣지 않는다', async () => {
+  it('일반 로그인 정보는 암호화한 쿠키에만 보관한다', async () => {
     await create();
     expect(cookieEntries.size).toBe(1);
-    expect(cookieEntries.get(SESSION_COOKIE)).toMatch(/^[a-zA-Z0-9_-]{43}$/);
-    expect([...redisEntries.values()].join()).not.toContain('fake-access');
+    expect(cookieEntries.get(SESSION_COOKIE)).toMatch(/^v1\./);
+    expect(redisEntries.size).toBe(0);
+    expect(cookieEntries.get(SESSION_COOKIE)).not.toContain('fake-access');
     expect([...redisEntries.keys()].join()).not.toContain(
       cookieEntries.get(SESSION_COOKIE)
     );
@@ -81,11 +82,12 @@ describe('서버 전용 Google 세션', () => {
       [...redisEntries.keys()].filter(key => key.includes(':session:'))
     ).toHaveLength(0);
   });
-  it('저장소 장애 시 토큰을 브라우저로 우회 전달하지 않고 503을 반환한다', async () => {
+  it('Redis 설정 없이도 로그인하고 로그아웃할 수 있다', async () => {
+    delete process.env.AUTH_REDIS_REST_URL;
     await create();
-    redisMock.get.mockRejectedValueOnce(new Error('offline'));
-    await expect(serverAccessToken()).rejects.toBeInstanceOf(AuthStorageError);
-    expect(cookieEntries.has('access_token')).toBe(false);
+    expect((await serverAccessToken()).accessToken).toBe('fake-access');
+    await deleteServerSession();
+    expect(await readServerSession()).toBeNull();
   });
   it('설정 누락 시 기존 숏링크 Redis로 대체하지 않는다', () => {
     delete process.env.AUTH_REDIS_REST_URL;

@@ -1,6 +1,8 @@
+import { Copy } from 'lucide-react';
 import Image from 'next/image';
 import { KeyboardEvent, MouseEvent, useEffect, useState } from 'react';
 
+import type { InviteListItem } from '@/app/dashboard/types';
 import EditIcon from '@/shared/assets/icons/edit.svg';
 import KakaoIcon from '@/shared/assets/icons/kakao2.svg';
 import LinkIcon from '@/shared/assets/icons/link.svg';
@@ -30,6 +32,7 @@ type CarouselItemProps = {
   preloadImage?: boolean;
   showPreviewLabel?: boolean;
   onSelect: (index: number) => void;
+  onClone?: (invite: InviteListItem) => void;
   onDelete?: (folderId: string) => void | Promise<void>;
   onPreview?: (folderId: string) => void;
   onUpdate?: (folderId: string, uuid?: string) => void;
@@ -57,6 +60,7 @@ function CarouselItem({
   preloadImage = false,
   showPreviewLabel = false,
   onSelect,
+  onClone,
   onDelete,
   onPreview,
   onUpdate,
@@ -73,6 +77,9 @@ function CarouselItem({
   const collectionTemplate = showPreviewLabel
     ? INVITATION_TEMPLATES.find(template => template.id === item.id)
     : undefined;
+  const cardWidth = collectionTemplate
+    ? `${(Number.parseFloat(dashboardCarouselLayout.cardHeight) * collectionTemplate.poster.width) / collectionTemplate.poster.height}px`
+    : dashboardCarouselLayout.cardWidth;
   const [hasImageError, setHasImageError] = useState(false);
   const invite = item.invite;
   const guestUrl = invite?.guestUrl ?? guestUrlProp;
@@ -108,6 +115,7 @@ function CarouselItem({
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.target !== event.currentTarget) return;
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       onSelect(index);
@@ -132,7 +140,7 @@ function CarouselItem({
       }`}
       draggable={false}
       style={{
-        width: dashboardCarouselLayout.cardWidth,
+        width: cardWidth,
         height: dashboardCarouselLayout.cardHeight,
       }}
     >
@@ -162,6 +170,30 @@ function CarouselItem({
               minHeight: dashboardCarouselLayout.sideActionSize,
             }}
           >
+            {onClone && (
+              <button
+                type="button"
+                onClick={event => {
+                  handleActionClick(event);
+                  event.currentTarget.focus();
+                  onClone(invite);
+                }}
+                className="flex cursor-pointer items-center justify-center rounded-lg bg-white transition-colors hover:bg-[#E5E7EB]"
+                style={{
+                  width: dashboardCarouselLayout.sideActionSize,
+                  height: dashboardCarouselLayout.sideActionSize,
+                  boxShadow: dashboardCarouselLayout.sideActionShadow,
+                }}
+                aria-label="초대장 복사"
+                aria-haspopup="dialog"
+              >
+                <Copy
+                  size={dashboardCarouselLayout.sideActionIconSize}
+                  strokeWidth={1.5}
+                  aria-hidden="true"
+                />
+              </button>
+            )}
             <button
               type="button"
               onClick={event => {
@@ -170,6 +202,7 @@ function CarouselItem({
               }}
               className="cursor-pointer"
               aria-label="초대장 미리보기"
+              aria-haspopup="dialog"
             >
               <PreviewButton />
             </button>
@@ -192,15 +225,17 @@ function CarouselItem({
         )}
 
         <div
-          className="absolute bottom-0 left-0 z-10 rounded-xl"
+          className={`absolute bottom-0 left-0 z-10 rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.06),0_2px_10px_rgba(0,0,0,0.08)] ${
+            showPreviewLabel
+              ? 'transition-shadow duration-300 ease-in-out motion-reduce:transition-none group-hover:shadow-[0_12px_32px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.13)] group-focus-visible:shadow-[0_12px_32px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.13)]'
+              : ''
+          }`}
           style={{
-            width: dashboardCarouselLayout.cardWidth,
+            width: cardWidth,
             height:
               isSelected && showHeader
                 ? dashboardCarouselLayout.selectedVisualHeight
                 : dashboardCarouselLayout.cardHeight,
-            boxShadow:
-              '0 8px 24px rgba(0, 0, 0, 0.06), 0 2px 10px rgba(0, 0, 0, 0.08)',
           }}
         >
           {isSelected && showHeader && (
@@ -224,7 +259,7 @@ function CarouselItem({
               isSelected && showHeader ? 'rounded-b-xl' : 'rounded-xl'
             }`}
             style={{
-              width: dashboardCarouselLayout.cardWidth,
+              width: cardWidth,
               height: dashboardCarouselLayout.cardHeight,
             }}
           >
@@ -253,7 +288,7 @@ function CarouselItem({
               }`}
             />
             {showPreviewLabel && (
-              <div className="pointer-events-none absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/40 via-transparent to-transparent p-6 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
+              <div className="pointer-events-none absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/40 via-transparent to-transparent p-6 opacity-0 transition-opacity duration-300 ease-in-out motion-reduce:transition-none group-hover:opacity-100 group-focus-visible:opacity-100">
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/95 px-5 py-3 text-[13px] font-semibold text-[#252522] shadow-lg backdrop-blur-sm">
                   미리보기 <span aria-hidden="true">↗</span>
                 </span>

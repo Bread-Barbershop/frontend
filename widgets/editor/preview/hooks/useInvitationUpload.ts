@@ -42,6 +42,12 @@ const SAVE_PROGRESS_ORDER: Record<SaveProgressStep, number> = {
 
 const MIN_SAVE_PROGRESS_MESSAGE_MS = 2000;
 
+type SavedEditorInvitation = DashboardPendingInvitation & {
+  audienceSlug?: string;
+};
+
+type UploadOptions = { preserveVisibility?: boolean };
+
 export const useInvitationUpload = () => {
   const editorData = useEditorStore(useShallow(selectUploadData));
   const {
@@ -96,7 +102,7 @@ export const useInvitationUpload = () => {
   const [isFail, setIsFail] = useState(false);
   const [isCleaningUp, setIsCleaningUp] = useState(false);
   const [pendingInvitation, setPendingInvitation] =
-    useState<DashboardPendingInvitation | null>(null);
+    useState<SavedEditorInvitation | null>(null);
   const { info, success, error: showError } = useToast();
 
   const clearProgressMessageTimer = useCallback(() => {
@@ -185,16 +191,17 @@ export const useInvitationUpload = () => {
     editorData.setImageFolderId(saveResult.folders.imageFolderId);
     editorData.setAudioFolderId(saveResult.folders.audioFolderId);
     editorData.setInvitationFolderId(saveResult.folders.invitationFolderId);
-    setPendingInvitation({
+    const savedInvitation: SavedEditorInvitation = {
       invitationFolderId: saveResult.folders.invitationFolderId,
       invitationUuid: saveResult.invitationUuid,
+      audienceSlug: saveResult.audienceSlug,
       dataJsonFileId: saveResult.files.dataJsonFileId,
       guestUrl: saveResult.guestUrl,
       thumbnailFileId: saveResult.files.thumbnailFileId,
       published: saveResult.visibility.published,
       ready: saveResult.visibility.ready,
       createdAt: new Date().toISOString(),
-    });
+    };
 
     // 성공한 File 객체들에 driveFileId 속성 심기 (다음 저장 시 참조용)
     saveResult.results.images.ok.forEach(ok => {
@@ -233,6 +240,9 @@ export const useInvitationUpload = () => {
         }
       }
     }
+
+    setPendingInvitation(savedInvitation);
+    return savedInvitation;
   };
 
   const performCleanup = async (fileIds: string[]) => {
@@ -241,7 +251,7 @@ export const useInvitationUpload = () => {
     }
 
     setIsCleaningUp(true);
-    info('파일 정리 중...', { placement: 'top-right' });
+    info('파일 정리 중...');
 
     try {
       const deleteFolder = (id: string) =>
@@ -267,9 +277,9 @@ export const useInvitationUpload = () => {
 
       if (failedIds.length > 0) {
         console.error('[cleanup] 재시도 후에도 삭제 실패:', failedIds);
-        showError('파일 정리에 실패했습니다.', { placement: 'top-right' });
+        showError('파일 정리에 실패했습니다.');
       } else {
-        success('파일 정리가 완료되었습니다.', { placement: 'top-right' });
+        success('파일 정리가 완료되었습니다.');
       }
     } catch (error) {
       console.error('[cleanup] DELETE 중 오류:', error);
@@ -279,7 +289,9 @@ export const useInvitationUpload = () => {
     }
   };
 
-  const handleUpload = async () => {
+  const handleUpload = async ({ preserveVisibility }: UploadOptions = {}) => {
+    if (isSaveLoadingRef.current || isCleaningUp) return null;
+
     try {
       if (isSaveLoadingRef.current) return;
       const stableUuid =
@@ -347,9 +359,12 @@ export const useInvitationUpload = () => {
 
       const bulkData = {
         backgroundColor: editorData.backgroundColor,
+        sectionStyle: editorData.sectionStyle,
         titleData: editorData.titleData,
         bodyData: editorData.bodyData,
         isZoom: editorData.isZoom,
+        invitationPrivacy: editorData.invitationPrivacy,
+        scrollAnimation: editorData.scrollAnimation,
       };
 
       const mainPoster = exportIntersectedJSON() ?? {
@@ -365,40 +380,26 @@ export const useInvitationUpload = () => {
         createdAt: '',
       };
 
-      if (editorData.invitationUuid === '') {
-        const saveResult = await saveInvitationFlow({
-          bulkData,
-          images: allTasks,
-          uploadImages: newTasks,
-          audio: userFile,
-          data: editorData.block,
-          shareUrl: editorData.shareUrl,
-          bgmData, // bgm의 data 버전.
-          mainPoster,
-          invitationThumbnail,
-          invitationUuid: stableUuid,
-          onProgress: queueProgressStep,
-        });
-        await applySaveResult(saveResult, allTasks);
-        useEditorStore.getState().setIsDirty(false);
-      } else {
-        const saveResult = await saveInvitationFlow({
-          bulkData,
-          images: allTasks,
-          uploadImages: newTasks,
-          audio: userFile,
-          data: editorData.block,
-          shareUrl: editorData.shareUrl,
-          bgmData, // bgm의 data 버전.
-          mainPoster,
-          invitationThumbnail,
-          invitationUuid: stableUuid,
-          onProgress: queueProgressStep,
-        });
-        await applySaveResult(saveResult, allTasks);
-        useEditorStore.getState().setIsDirty(false);
+      const invitationUuid = editorData.invitationUuid || undefined;
+      const saveResult = await saveInvitationFlow({
+        bulkData,
+        images: allTasks,
+        uploadImages: newTasks,
+        audio: userFile,
+        data: editorData.block,
+        shareUrl: editorData.shareUrl,
+        bgmData,
+        mainPoster,
+        invitationThumbnail,
+        invitationUuid: stableUuid,
+        preserveVisibility,
+        onProgress: queueProgressStep,
+      });
+      const savedInvitation = await applySaveResult(saveResult, allTasks);
+      useEditorStore.getState().setIsDirty(false);
 
-        // 클린업 대상 계산 및 실행 (non-blocking)
+      if (invitationUuid) {
+        // 저장 직후 복제하거나 편집기를 전환할 때는 파일 정리까지 마친다.
         const newHashFileIds = new Set(
           useEditorStore
             .getState()
@@ -410,11 +411,15 @@ export const useInvitationUpload = () => {
           id => !newHashFileIds.has(id)
         );
         toCleanIds.forEach(id => setCleanUpFiles(id));
-        performCleanup(toCleanIds);
+        const cleanup = performCleanup(toCleanIds);
+        if (preserveVisibility) await cleanup;
       }
+
+      return savedInvitation;
     } catch (error) {
       console.error('[uploadFlow] 저장 중 오류 발생:', error);
       setIsFail(true);
+      return null;
     } finally {
       isSaveLoadingRef.current = false;
       pendingProgressStepRef.current = null;

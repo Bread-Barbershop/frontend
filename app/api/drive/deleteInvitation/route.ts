@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+import { deleteAudienceLinks } from '@/app/api/drive/_lib/audienceLinkStore';
+import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
+import { getAudienceIndexRootDataId } from '@/app/api/drive/_lib/invitationAudiences';
 import { deleteShortCodeMapping } from '@/app/api/short-url/_lib/shortUrlStore';
 
 import {
@@ -26,7 +29,13 @@ export async function DELETE(req: Request) {
 
     const { folderId } = body;
     await assertDeletableFileAccess(folderId);
-    const url = `https://www.googleapis.com/drive/v3/files/${folderId}`;
+    const rootDataId = await getAudienceIndexRootDataId(folderId).catch(
+      error => {
+        captureDriveError({ error, operation: 'drive_audience_delete_lookup' });
+        return null;
+      }
+    );
+    const url = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(folderId)}`;
 
     const res = await googleFetch(url, {
       method: 'DELETE',
@@ -50,6 +59,14 @@ export async function DELETE(req: Request) {
       await deleteShortCodeMapping(folderId);
     } catch (error) {
       console.error('Short URL mapping delete failed:', error);
+    }
+
+    if (rootDataId) {
+      try {
+        await deleteAudienceLinks(rootDataId);
+      } catch (error) {
+        captureDriveError({ error, operation: 'drive_audience_delete_index' });
+      }
     }
 
     return NextResponse.json({ success: true });

@@ -43,14 +43,7 @@ const getPageNames = (template: InvitationTemplate) => {
   );
 };
 
-const getFontFamilies = (template: InvitationTemplate) =>
-  Array.from(
-    new Set(
-      template.poster.objects
-        .filter(object => object.kind === 'text')
-        .map(object => object.fontFamily)
-    )
-  );
+const getFontFamilies = (template: InvitationTemplate) => template.fontFamilies;
 
 function TemplateDetails({ template }: { template: InvitationTemplate }) {
   const colors = Object.values(template.colors);
@@ -207,7 +200,7 @@ function InvitationTemplatePicker({
                 style={{ backgroundColor: template.colors.background }}
               >
                 <span className="h-full aspect-[375/812] shadow-lg">
-                  <InvitationTemplatePoster template={template} />
+                  <InvitationTemplatePoster template={template} sizes="220px" />
                 </span>
               </span>
               <span className="w-full truncate text-sm font-semibold text-neutral-900">

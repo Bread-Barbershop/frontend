@@ -1,7 +1,7 @@
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Metadata, Viewport } from 'next';
-import { Inter, Noto_Sans_KR } from 'next/font/google';
+import { Noto_Sans_KR } from 'next/font/google';
 import localFont from 'next/font/local';
 import Script from 'next/script';
 import { ReactNode } from 'react';
@@ -18,10 +18,12 @@ const pretendard = localFont({
   weight: '100 900',
   variable: '--pretendard',
 });
-const inter = Inter({
+const inter = localFont({
+  src: '../public/font/InterVariable.woff2',
+  display: 'swap',
   variable: '--inter',
-  subsets: ['latin'],
-  weight: ['400', '500', '700'],
+  weight: '100 900',
+  preload: false,
 });
 
 const notoSansKr = Noto_Sans_KR({

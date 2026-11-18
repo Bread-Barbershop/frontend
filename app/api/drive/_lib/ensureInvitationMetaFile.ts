@@ -62,7 +62,7 @@ function isStringOrNull(value: unknown): value is string | null {
   return typeof value === 'string' || value === null;
 }
 
-function isShareUrlPayload(value: unknown): value is ShareUrlPayload {
+export function isShareUrlPayload(value: unknown): value is ShareUrlPayload {
   if (value === null) return false;
   if (typeof value !== 'object') return false;
 

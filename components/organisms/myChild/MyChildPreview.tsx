@@ -62,14 +62,14 @@ export const MyChildPreview = ({
         </div>
       )}
       <section
-        className="grid grid-cols-[1fr_2fr_1fr] w-full items-center gap-10 text-text-primary"
+        className="flex w-full flex-col items-center gap-2 text-text-primary"
         style={{ fontFamily }}
       >
-        <p className="col-start-2 text-[16px]">
+        <p className="text-[16px]">
           {name}
           {nickname && <span className="text-[16px]">({nickname})</span>}
         </p>
-        <p className="col-start-3">{birthday}</p>
+        <p className="text-sm">{birthday}</p>
       </section>
       <PreviewBody html={html} />
     </MiddlePreviewWrapper>

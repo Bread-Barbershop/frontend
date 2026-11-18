@@ -2,75 +2,30 @@ import {
   SHOWCASE_CATEGORY_LABELS,
   SHOWCASE_INVITATIONS,
 } from '../showcaseInvitations';
-
-import { createCollectionPoster } from './collectionPosters';
+import { getShowcaseOriginalTemplate } from '../showcaseOriginalTemplates';
 
 import type { InvitationTemplate } from './types';
 
 export const INVITATION_TEMPLATES: InvitationTemplate[] =
-  SHOWCASE_INVITATIONS.map(design => ({
-    id: design.id,
-    type: design.type,
-    name: design.name,
-    eyebrow: design.eyebrow,
-    description: design.description,
-    tags: [SHOWCASE_CATEGORY_LABELS[design.type], '사진·문구 편집 가능'],
-    colors: {
-      background: design.palette[0],
-      accent: design.palette[1],
-      text: design.palette[2],
-    },
-    poster: createCollectionPoster(design),
-    blockTypes:
-      design.type === 'seminar'
-        ? [
-            'greeting',
-            'timeline',
-            'speakerInformation',
-            'picture',
-            'calendar',
-            'place',
-            'transportation',
-            'dressCode',
-            'closingComment',
-          ]
-        : design.type === 'firstBirthday'
-          ? [
-              'greeting',
-              'myChild',
-              'gallery',
-              'calendar',
-              'interview',
-              'timeline',
-              'picture',
-              'place',
-              'transportation',
-              'dressCode',
-              'closingComment',
-            ]
-          : design.type === 'birthday'
-            ? [
-                'greeting',
-                'picture',
-                'calendar',
-                'interview',
-                'timeline',
-                'gallery',
-                'place',
-                'dressCode',
-                'closingComment',
-              ]
-            : [
-                'greeting',
-                'coupleIntroduction',
-                'picture',
-                'calendar',
-                'gallery',
-                'interview',
-                'timeline',
-                'place',
-                'transportation',
-                'dressCode',
-                'closingComment',
-              ],
-  }));
+  SHOWCASE_INVITATIONS.map(design => {
+    const original = getShowcaseOriginalTemplate(design.id);
+    if (!original) throw new Error(`Missing original template: ${design.id}`);
+    return {
+      id: design.id,
+      type: design.type,
+      name: design.name,
+      eyebrow: design.eyebrow,
+      description: design.description,
+      tags: [SHOWCASE_CATEGORY_LABELS[design.type], '사진·문구 편집 가능'],
+      colors: {
+        background: design.palette[0],
+        accent: design.palette[1],
+        text: design.palette[2],
+      },
+      poster: { width: 375, height: 812 },
+      posterImage: original.thumbnailUrl,
+      posterJsonUrl: original.jsonUrl,
+      fontFamilies: original.fontFamilies,
+      blockTypes: design.sections.map(section => section.component),
+    };
+  });

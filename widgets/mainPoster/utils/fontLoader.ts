@@ -1,4 +1,7 @@
-import { getFontFaces, getFontFamilies } from '@/shared/fonts/fontRegistry';
+import {
+  getDefaultFontWeight,
+  getFontFaces,
+} from '@/shared/fonts/fontRegistry';
 
 const loadingFontMap = new Map<string, Promise<void>>();
 
@@ -62,29 +65,20 @@ export const loadCustomFont = async (
     await fontFace.load();
     document.fonts.add(fontFace);
     await document.fonts.load(`${style} ${normalizedWeight} 16px "${family}"`);
-  })();
+  })().catch(error => {
+    loadingFontMap.delete(fontKey);
+    throw error;
+  });
   loadingFontMap.set(fontKey, promise);
   return promise;
 };
 
-export const getPreviewFonts = () => {
-  return getFontFamilies()
-    .map(fontFamily => {
-      const regular = fontFamily.faces.find(face => String(face.weight) === '400');
-
-      return regular ?? fontFamily.faces[0];
-    })
-    .filter(Boolean);
-};
-
-export const preloadPreviewFonts = async () => {
-  const previewFonts = getPreviewFonts();
-
-  await Promise.allSettled(
-    previewFonts.map(font =>
-      loadCustomFont(font.family, String(font.weight), font.style)
-    )
+export const loadFontPreview = (family: string) => {
+  const weight = getDefaultFontWeight(family);
+  const face = getFontFaces(family).find(
+    candidate => candidate.weight === weight && candidate.style === 'normal'
   );
+  if (face) void loadCustomFont(family, weight).catch(() => {});
 };
 
 export const preloadFontFamilyWeights = async (

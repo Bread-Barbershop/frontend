@@ -3,6 +3,10 @@ import 'server-only';
 import { DriveHttpError } from './ensureWorkspace';
 import { findWorkspaceFolderId } from './findWorkspaceFolderId';
 import { googleFetch } from './googleFetch';
+import {
+  readAudienceFolder,
+  isInvitationAuxiliaryFolder,
+} from './invitationAudienceFolders';
 
 const APP_ID = 'Bread-Barbershop';
 const FOLDER = 'application/vnd.google-apps.folder';
@@ -85,8 +89,11 @@ export async function assertInvitationAccess(folderId: string) {
   assertDriveId(folderId);
   const workspace = await workspaceId();
   const folder = await readManagedDriveMetadata(folderId);
-  if (!isInvitation(folder) || !folder.parents?.includes(workspace))
-    forbidden();
+  const audience = readAudienceFolder(folder);
+  const root = audience
+    ? await readManagedDriveMetadata(audience.rootFolderId)
+    : folder;
+  if (!isInvitation(root) || !root.parents?.includes(workspace)) forbidden();
   return folder;
 }
 
@@ -104,6 +111,16 @@ export async function assertManagedFileAccess(
   for (let depth = 0; depth < 5; depth++) {
     if (seen.has(current.id)) forbidden();
     seen.add(current.id);
+    const audience = readAudienceFolder(current);
+    if (audience) {
+      if (expectedInvitationId && current.id !== expectedInvitationId)
+        forbidden();
+      const root = await readManagedDriveMetadata(audience.rootFolderId);
+      if (!isInvitation(root) || !root.parents?.includes(workspace))
+        forbidden();
+      return { file, invitationFolderId: current.id, invitation: current };
+    }
+    if (isInvitationAuxiliaryFolder(current.appProperties?.kind)) forbidden();
     if (isInvitation(current) && current.parents?.includes(workspace)) {
       if (expectedInvitationId && current.id !== expectedInvitationId)
         forbidden();

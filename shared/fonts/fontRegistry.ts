@@ -1,5 +1,7 @@
 import { CUSTOM_FONTS } from '@/shared/fonts/fonts';
 
+import { getFontLabel } from './providerFonts';
+
 export type AppFontFace = {
   family: string;
   weight: string;
@@ -23,6 +25,8 @@ const DEFAULT_WEIGHT_BY_FAMILY: Record<string, string> = {
   'Noto Sans KR': '400',
   Inter: '400',
   MaruBuri: '400',
+  '나눔스퀘어 기본': '400',
+  '나눔스퀘어 라운드': '400',
 };
 
 const LEGACY_FONT_TOKEN_MAP: Record<string, string> = {
@@ -50,7 +54,7 @@ const buildFontRegistry = () => {
     if (!existing) {
       familyMap.set(font.family, {
         family: font.family,
-        label: font.family,
+        label: getFontLabel(font.family),
         defaultWeight:
           DEFAULT_WEIGHT_BY_FAMILY[font.family] ?? normalizeWeight(font.weight),
         fallback: DEFAULT_FALLBACK_FAMILY,

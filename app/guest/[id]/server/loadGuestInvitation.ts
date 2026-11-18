@@ -1,0 +1,54 @@
+import 'server-only';
+
+import { cache } from 'react';
+
+import { resolveAudienceLink } from '@/app/api/drive/_lib/audienceLinkStore';
+import { validateAudienceSlug } from '@/features/invitation/audiences/model';
+
+import {
+  loadGuestPayload,
+  type LoadGuestPayloadResult,
+} from './loadGuestPayload';
+
+export type GuestSearchParams = Promise<{ to?: string | string[] }>;
+
+// undefined is the original route. null is an invalid, explicitly supplied group.
+export function getGuestAudienceSlug(to: string | string[] | undefined) {
+  if (to === undefined) return undefined;
+  if (typeof to !== 'string' || to !== to.trim() || validateAudienceSlug(to))
+    return null;
+  return to;
+}
+
+export type GuestInvitationResult = (
+  | LoadGuestPayloadResult
+  | { status: 'invalid-audience' }
+  | { status: 'audience-unavailable' }
+  | { status: 'missing-short-code' }) & { rootDataFileId?: string };
+
+export const loadGuestInvitation = cache(
+  async (
+    rootDataFileId: string,
+    audienceSlug: string | null | undefined
+  ): Promise<GuestInvitationResult> => {
+    if (audienceSlug === null) return { status: 'invalid-audience' };
+
+    const root = await loadGuestPayload(rootDataFileId);
+    if (audienceSlug === undefined) return root.status === 'ok' ? {...root, rootDataFileId} : root;
+    if (root.status === 'not-found') return { status: 'invalid-audience' };
+    if (root.status !== 'ok') return root;
+
+    let childDataFileId: string | null;
+    try {
+      childDataFileId = await resolveAudienceLink(rootDataFileId, audienceSlug);
+    } catch {
+      return { status: 'audience-unavailable' };
+    }
+    if (!childDataFileId) return { status: 'invalid-audience' };
+
+    const child = await loadGuestPayload(childDataFileId);
+    return child.status === 'not-found'
+      ? { status: 'invalid-audience' }
+      : child.status === 'ok' ? {...child,rootDataFileId} : child;
+  }
+);

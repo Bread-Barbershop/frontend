@@ -1,3 +1,4 @@
+const saveAttempts = new WeakMap<File, string>();
 const CHUNK_SIZE = 8 * 256 * 1024;
 
 async function api(path: string, body: unknown) {
@@ -30,13 +31,18 @@ export async function resumableUpload(
     ),
     byte => byte.toString(16).padStart(2, '0')
   ).join('');
+  let attempt = saveAttempts.get(file);
+  if (dataJsonFileId && !attempt) {
+    attempt = crypto.randomUUID();
+    saveAttempts.set(file, attempt);
+  }
   const metadata = {
     folderId,
     name: file.name,
     size: file.size,
     mimeType: file.type,
     digest,
-    ...(dataJsonFileId ? { dataJsonFileId } : {}),
+    ...(dataJsonFileId ? { dataJsonFileId, attempt } : {}),
   };
   for (let restart = 0; restart < 2; restart++) {
     const session = await api('/api/drive/uploadSession', {

@@ -5,19 +5,18 @@ import { showcaseItems } from '@/app/(home)/components/showcaseItems';
 import { normalizeGuestBlock } from '@/app/guest/[id]/validation/normalizeGuestBlock';
 
 import { buildShowcaseInvitation } from './buildShowcaseInvitation';
-import { getShowcasePresentation } from './showcasePresentation';
 import {
   getShowcaseInvitation,
   SHOWCASE_INVITATIONS,
 } from './showcaseInvitations';
 
 describe('첫 화면 초대장 샘플', () => {
-  it('23개 카드 모두 고유한 본문과 일대일로 연결된다', () => {
-    expect(showcaseItems).toHaveLength(23);
+  it('25개 카드 모두 고유한 본문과 일대일로 연결된다', () => {
+    expect(showcaseItems).toHaveLength(25);
     expect(SHOWCASE_INVITATIONS).toHaveLength(showcaseItems.length);
-    expect(new Set(SHOWCASE_INVITATIONS.map(item => item.id)).size).toBe(23);
+    expect(new Set(SHOWCASE_INVITATIONS.map(item => item.id)).size).toBe(25);
     expect(new Set(SHOWCASE_INVITATIONS.map(item => item.heading)).size).toBe(
-      23
+      25
     );
     for (const card of showcaseItems)
       expect(getShowcaseInvitation(card.id)).toBeDefined();
@@ -28,7 +27,9 @@ describe('첫 화면 초대장 샘플', () => {
     '$name 샘플의 모든 블록을 게스트 화면에서 손실 없이 표시할 수 있다',
     design => {
       const sample = buildShowcaseInvitation(design);
-      expect(sample.blocks.length).toBeGreaterThanOrEqual(9);
+      expect(
+        sample.blocks.find(block => block.component === 'place')?.props
+      ).toMatchObject({ placeName: design.venue });
       expect(new Set(sample.blocks.map(block => block.id)).size).toBe(
         sample.blocks.length
       );
@@ -50,48 +51,37 @@ describe('첫 화면 초대장 샘플', () => {
     }
   );
 
-  it('사진은 인증이나 외부 네트워크 없이 제공할 수 있는 로컬 파일이다', () => {
-    for (const design of SHOWCASE_INVITATIONS) {
-      const picture = buildShowcaseInvitation(design).blocks.find(
-        block => block.component === 'picture'
-      );
-      if (!picture) continue;
-      const images = (picture.props as { image: string[] }).image;
-      expect(images.length).toBeGreaterThan(0);
-      for (const image of images) {
-        expect(image).toMatch(/^\/images\/showcase\//);
-        expect(existsSync(path.join(process.cwd(), 'public', image))).toBe(
-          true
-        );
-      }
-    }
+  it('표지마다 별도의 짧은 블록 순서를 제공한다', () => {
+    const layouts = SHOWCASE_INVITATIONS.map(design => {
+      const { blocks } = buildShowcaseInvitation(design);
+      expect(blocks.length).toBeLessThanOrEqual(6);
+      return blocks.map(block => block.component).join(',');
+    });
+    expect(new Set(layouts).size).toBe(layouts.length);
   });
 
-  it('7가지 편집 구성과 행사에 맞는 이야기 블록, 실제 갤러리 사진을 제공한다', () => {
-    expect(
-      new Set(
-        SHOWCASE_INVITATIONS.map(
-          design => getShowcasePresentation(design).family
-        )
-      ).size
-    ).toBe(7);
-    for (const design of SHOWCASE_INVITATIONS) {
+  it.each(SHOWCASE_INVITATIONS)(
+    '$name의 본문 사진은 로컬 파일로 열 수 있다',
+    design => {
       const { blocks } = buildShowcaseInvitation(design);
-      const expected =
-        design.type === 'wedding'
-          ? ['coupleIntroduction', 'gallery', 'interview']
-          : design.type === 'firstBirthday'
-            ? ['myChild', 'gallery', 'interview']
-            : design.type === 'seminar'
-              ? ['speakerInformation', 'picture', 'transportation']
-              : ['gallery', 'interview'];
-      expect(blocks.map(block => block.component)).toEqual(
-        expect.arrayContaining(expected)
-      );
-      for (const image of getShowcasePresentation(design).photos)
-        expect(existsSync(path.join(process.cwd(), 'public', image))).toBe(
-          true
-        );
+      // 사진 블록뿐 아니라 인터뷰·연사·후원사 등 중첩된 이미지 필드도 확인한다.
+      function checkImages(value: unknown): void {
+        if (!value || typeof value !== 'object') return;
+        for (const [key, child] of Object.entries(value)) {
+          if (key === 'image' || key === 'images') {
+            expect(Array.isArray(child)).toBe(true);
+            for (const image of child as string[]) {
+              expect(image).toMatch(/^\/(images|samples|templates)\//);
+              expect(
+                existsSync(path.join(process.cwd(), 'public', image))
+              ).toBe(true);
+            }
+          } else {
+            checkImages(child);
+          }
+        }
+      }
+      checkImages(blocks);
     }
-  });
+  );
 });

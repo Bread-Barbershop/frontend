@@ -6,12 +6,19 @@ import type {
   NormalizedGuestPayload,
 } from '@/app/guest/[id]/validation/parseGuestPayload';
 
-import { assertInvitationAccess, assertManagedFileAccess } from './driveAccess';
 import { DriveHttpError } from './ensureWorkspace';
 import { escapeDriveQueryValue } from './escapeQueryValue';
+import { findWorkspaceFolderId } from './findWorkspaceFolderId';
 import { googleFetch } from './googleFetch';
-
+import {
+  isInvitationAuxiliaryFolder,
+  isRootInvitationFolder,
+  readAudienceFolder,
+} from './invitationAudienceFolders';
 const DATA_JSON_NAME = 'data.json';
+// 에셋 파일은 images/audios 폴더처럼 초대장 폴더 아래 한두 단계에 위치한다.
+// 순환이나 과도한 부모 탐색을 막기 위해 검증 깊이는 제한한다.
+const MAX_PARENT_DEPTH = 4;
 
 type DriveFile = {
   id?: string;
@@ -19,6 +26,7 @@ type DriveFile = {
   mimeType?: string;
   parents?: string[];
   trashed?: boolean;
+  ownedByMe?: boolean;
   appProperties?: Record<string, string>;
 };
 
@@ -91,8 +99,96 @@ function previewError(
   });
 }
 
-export async function assertInvitationFolderAccess(folderId: string) {
-  return assertInvitationAccess(folderId);
+export async function getDriveFile(fileId: string): Promise<DriveFile | null> {
+  const res = await googleFetch(
+    `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(
+      fileId
+    )}?fields=id,name,mimeType,parents,trashed,appProperties,ownedByMe`,
+    { cache: 'no-store' }
+  );
+
+  const data = (await res.json().catch(() => ({}))) as DriveFile & {
+    error?: unknown;
+  };
+
+  if (res.status === 404) {
+    return null;
+  }
+
+  if (!res.ok) {
+    throw new DriveHttpError('Drive file lookup failed', res.status, data);
+  }
+
+  return data;
+}
+
+async function getWorkspaceFolderIdOrThrow(ownedOnly: boolean) {
+  const workspaceFolderId = await (ownedOnly
+    ? findWorkspaceFolderId({ ownedOnly })
+    : findWorkspaceFolderId());
+  if (!workspaceFolderId) {
+    throw previewError(
+      'INVITATION_NOT_FOUND',
+      404,
+      'Workspace folder not found',
+      '초대장을 찾을 수 없습니다.'
+    );
+  }
+
+  return workspaceFolderId;
+}
+
+/**
+ * 대시보드 미리보기는 공개 여부와 무관하게 "내 workspace 안의 초대장"만 읽어야 한다.
+ * folderId가 조작되어도 다른 Drive 폴더를 미리보기 데이터로 사용할 수 없도록 여기서 먼저 막는다.
+ */
+export async function assertInvitationFolderAccess(
+  folderId: string,
+  {
+    ownedOnly = true,
+    allowAudience = true,
+  }: {
+    ownedOnly?: boolean;
+    allowAudience?: boolean;
+  } = {}
+) {
+  if (!folderId) {
+    throw previewError(
+      'FOLDER_ID_REQUIRED',
+      400,
+      'folderId is required',
+      '미리볼 초대장 정보를 찾지 못했습니다.'
+    );
+  }
+
+  const workspaceFolderId = await getWorkspaceFolderIdOrThrow(ownedOnly);
+  const folder = await getDriveFile(folderId);
+  const audience = folder && allowAudience ? readAudienceFolder(folder) : null;
+  const root = audience ? await getDriveFile(audience.rootFolderId) : folder;
+
+  if (
+    !folder ||
+    !root ||
+    !isRootInvitationFolder(root, workspaceFolderId) ||
+    (audience && (!root.ownedByMe || !folder.ownedByMe)) ||
+    (ownedOnly && folder.ownedByMe !== true)
+  ) {
+    throw previewError(
+      'INVITATION_NOT_FOUND',
+      404,
+      'Invitation folder not found',
+      '초대장을 찾을 수 없습니다.',
+      { folderId }
+    );
+  }
+
+  return {
+    ...folder,
+    workspaceFolderId,
+    rootFolderId: audience?.rootFolderId ?? folderId,
+    rootInvitationUuid: root.appProperties?.inv_id,
+    audience: audience?.group ?? null,
+  };
 }
 
 async function findDataJsonFileId(invitationFolderId: string) {
@@ -100,8 +196,6 @@ async function findDataJsonFileId(invitationFolderId: string) {
     `'${escapeDriveQueryValue(invitationFolderId)}' in parents`,
     `trashed=false`,
     `name='${escapeDriveQueryValue(DATA_JSON_NAME)}'`,
-    `appProperties has { key='kind' and value='invitation_data_json' }`,
-    `appProperties has { key='app_id' and value='Bread-Barbershop' }`,
   ].join(' and ');
 
   const searchParams = new URLSearchParams({
@@ -198,7 +292,56 @@ export async function assertDriveFileUnderInvitation(
   fileId: string,
   invitationFolderId: string
 ): Promise<DriveFile> {
-  return (await assertManagedFileAccess(fileId, invitationFolderId)).file;
+  if (!fileId) {
+    throw previewError(
+      'FILE_ID_REQUIRED',
+      400,
+      'fileId is required',
+      '미리보기 파일 정보를 찾지 못했습니다.'
+    );
+  }
+
+  await assertInvitationFolderAccess(invitationFolderId);
+
+  const file = await getDriveFile(fileId);
+  if (!file || file.trashed || file.ownedByMe !== true) {
+    throw previewError(
+      'ASSET_FORBIDDEN',
+      403,
+      'Preview asset is not accessible',
+      '이 미리보기 파일에 접근할 수 없습니다.',
+      { fileId, invitationFolderId }
+    );
+  }
+
+  let currentParents = file.parents ?? [];
+
+  for (let depth = 0; depth < MAX_PARENT_DEPTH; depth += 1) {
+    if (currentParents.includes(invitationFolderId)) {
+      return file;
+    }
+
+    const nextParentId = currentParents[0];
+    if (!nextParentId) break;
+
+    const parent = await getDriveFile(nextParentId);
+    if (
+      !parent ||
+      parent.trashed || parent.ownedByMe !== true ||
+      isInvitationAuxiliaryFolder(parent.appProperties?.kind)
+    )
+      break;
+
+    currentParents = parent.parents ?? [];
+  }
+
+  throw previewError(
+    'ASSET_FORBIDDEN',
+    403,
+    'Preview asset is outside the invitation folder',
+    '이 미리보기 파일에 접근할 수 없습니다.',
+    { fileId, invitationFolderId }
+  );
 }
 
 export function parsePreviewAssetKind(value: string | null): PreviewAssetKind {

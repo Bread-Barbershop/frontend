@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 
+import NoticeConfirmButton from '@/components/atoms/button/NoticeConfirmButton';
 import { AUTH_SESSION_MAX_AGE_DAYS } from '@/shared/config/authSession';
 import { disableBodyScroll } from '@/shared/utils/focusTrap';
 
@@ -109,11 +110,7 @@ function PrivacyNoticeModal({
                     필요가 없어요.
                   </li>
                   <li>
-                    이름, 연락처, 이메일을 별도 입력받지 않으며, 초대장 제작을
-                    위한 Google 계정 연결에 필요한 식별 정보와 인증 정보를
-                    처리해요. 서버에 보관하는 인증 정보는 암호화해요. 해당
-                    로그인 정보는 최대 {AUTH_SESSION_MAX_AGE_DAYS}일간 보관하며,
-                    로그아웃하면 삭제해요.
+                    로그인 정보는 이 브라우저에 암호화해 최대 {AUTH_SESSION_MAX_AGE_DAYS}일간 보관하고, 로그아웃하면 삭제해요. 방명록이나 하객 사진을 켤 때만 로그아웃 후에도 접수를 이어갈 수 있도록 Google 연결 정보를 별도로 보관해요.
                   </li>
                   <li>
                     청첩장에 사용되는 사진과 자료는 이용자님의{' '}
@@ -176,13 +173,7 @@ function PrivacyNoticeModal({
                   노력할게요.
                 </p>
               </div>
-              <button
-                type="button"
-                className="shrink-0 cursor-pointer rounded-full bg-bg-plain px-8 py-[13.5px] font-pretendard text-[14px] font-semibold leading-5 text-white transition-colors hover:bg-[#202020] active:bg-[#0D0D0D]"
-                onClick={handleClose}
-              >
-                알겠어요
-              </button>
+              <NoticeConfirmButton onClick={handleClose} />
             </div>
           </motion.div>
         </motion.div>

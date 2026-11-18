@@ -9,6 +9,7 @@ import {
   assertAssetFolderAccess,
   assertDriveId,
   assertManagedFileAccess,
+  readManagedDriveMetadata,
   assertSameOriginRequest,
 } from '@/app/api/drive/_lib/driveAccess';
 import { driveErrorResponse } from '@/app/api/drive/_lib/driveErrorResponse';
@@ -53,6 +54,7 @@ export async function POST(request: Request) {
       typeof body.mimeType !== 'string' ||
       (isJson
         ? body.mimeType !== 'application/json' ||
+          !/^[a-f0-9-]{36}$/i.test(body.attempt ?? '') ||
           body.size > MAX_INVITATION_JSON_BYTES
         : !/^(image\/(jpeg|png|webp|gif|avif|heic|heif)|audio\/[a-z0-9.+-]+)$/.test(
             body.mimeType
@@ -80,7 +82,7 @@ export async function POST(request: Request) {
       folderId = body.folderId;
     }
     const uploadId = sessionHash(
-      `${folderId}:${body.digest}:${body.size}:${body.mimeType}:${body.dataJsonFileId ?? ''}`
+      `${folderId}:${body.digest}:${body.size}:${body.mimeType}:${body.dataJsonFileId ?? ''}:${isJson ? body.attempt : ''}`
     );
     const key = await journalKey('upload', uploadId);
     return await withSaveLock(key, async () => {
@@ -141,7 +143,7 @@ export async function POST(request: Request) {
             id: entry.fileId,
             name: entry.name,
             mimeType: entry.mimeType,
-            parents: [entry.folderId],
+            parents: [entry.dataJsonFileId ? 'root' : entry.folderId],
             appProperties: {
               app_id: 'Bread-Barbershop',
               kind: entry.dataJsonFileId
@@ -153,7 +155,9 @@ export async function POST(request: Request) {
         }
       );
       if (response.status === 409) {
-        const { file } = await assertManagedFileAccess(entry.fileId);
+        const file = entry.dataJsonFileId
+          ? await readManagedDriveMetadata(entry.fileId)
+          : (await assertManagedFileAccess(entry.fileId)).file;
         if (file.appProperties?.upload_key === uploadId) {
           await writeJournal(
             key,
