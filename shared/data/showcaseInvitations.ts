@@ -631,11 +631,38 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '강렬한 레드와 명확한 메시지로 전하는 새로운 움직임.',
     palette: ['#FFF4F2', '#B63335', '#563A3B'],
     eyebrow: 'MAKE YOUR NEXT MOVE',
-    heading: '변화를 만드는 한 번의 만남',
+    heading: '리더의 결정을 묻습니다',
     message: [
-      '새로운 움직임은 질문하는 용기에서 시작됩니다.',
-      '한계를 넘어 실행해 온 사람들의 솔직한 이야기를 듣고',
-      '우리의 다음 행동을 함께 찾아보려 합니다.',
+      '이번에는 청중의 질문에도 마이크를 엽니다. 지금 팀에서 풀고 싶은 문제를 한 가지 떠올려 오세요.',
+    ],
+    sectionStyle: 'plain',
+    sections: [
+      {
+        component: 'speakerInformation',
+        title: '무대에 오르는 연사',
+        name: 'Andrew Jackson',
+        bio: '전략을 실행에 옮길 때 리더가 마주하는 선택을 다룹니다. 발표 후에는 청중의 사례를 함께 살펴봅니다.',
+        image: '/images/showcase/conference-speaker.webp',
+      },
+      { component: 'greeting' },
+      { component: 'calendar', title: '강연 일시' },
+      { component: 'place', title: '강연장' },
+      {
+        component: 'faq',
+        title: '라이브 질의응답',
+        items: [
+          {
+            question: '질문은 언제 받나요?',
+            answer:
+              '발표 뒤에 객석 마이크를 돌립니다. 손을 들어 주시면 진행자가 찾아갑니다.',
+          },
+          {
+            question: '질문을 미리 준비해야 하나요?',
+            answer:
+              '현장에서 떠오른 질문도 좋습니다. 한 분씩 말씀하실 수 있게 하나씩 부탁드립니다.',
+          },
+        ],
+      },
     ],
     moments: ['변화의 출발점', '실행하는 리더의 선택', '라이브 Q&A'],
     note: '현장 질의응답이 진행됩니다. 평소 궁금했던 질문을 한 가지씩 준비해 오시면 좋습니다.',
