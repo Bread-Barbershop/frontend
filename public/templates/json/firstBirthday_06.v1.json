@@ -1,0 +1,683 @@
+{
+  "version": "7.2.0",
+  "objects": [
+    {
+      "type": "Rect",
+      "id": "firstBirthday_06-1",
+      "originX": "left",
+      "originY": "top",
+      "left": 0,
+      "top": 0,
+      "strokeWidth": 0,
+      "width": 375,
+      "height": 812,
+      "fill": "#202844"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_06-2",
+      "originX": "left",
+      "originY": "top",
+      "left": 32,
+      "top": 48,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          6,
+          0
+        ],
+        [
+          "L",
+          7.32,
+          4.5600000000000005
+        ],
+        [
+          "L",
+          12,
+          6
+        ],
+        [
+          "L",
+          7.32,
+          7.4399999999999995
+        ],
+        [
+          "L",
+          6,
+          12
+        ],
+        [
+          "L",
+          4.68,
+          7.4399999999999995
+        ],
+        [
+          "L",
+          0,
+          6
+        ],
+        [
+          "L",
+          4.68,
+          4.5600000000000005
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#E9BD79"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_06-3",
+      "originX": "left",
+      "originY": "top",
+      "left": 298,
+      "top": 79,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          7.5,
+          0
+        ],
+        [
+          "L",
+          9.15,
+          5.7
+        ],
+        [
+          "L",
+          15,
+          7.5
+        ],
+        [
+          "L",
+          9.15,
+          9.3
+        ],
+        [
+          "L",
+          7.5,
+          15
+        ],
+        [
+          "L",
+          5.8500000000000005,
+          9.3
+        ],
+        [
+          "L",
+          0,
+          7.5
+        ],
+        [
+          "L",
+          5.8500000000000005,
+          5.7
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#E9BD79"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_06-4",
+      "originX": "left",
+      "originY": "top",
+      "left": 327,
+      "top": 158,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          4,
+          0
+        ],
+        [
+          "L",
+          4.88,
+          3.04
+        ],
+        [
+          "L",
+          8,
+          4
+        ],
+        [
+          "L",
+          4.88,
+          4.96
+        ],
+        [
+          "L",
+          4,
+          8
+        ],
+        [
+          "L",
+          3.12,
+          4.96
+        ],
+        [
+          "L",
+          0,
+          4
+        ],
+        [
+          "L",
+          3.12,
+          3.04
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#E9BD79"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_06-5",
+      "originX": "left",
+      "originY": "top",
+      "left": 33,
+      "top": 160,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          3.5,
+          0
+        ],
+        [
+          "L",
+          4.27,
+          2.66
+        ],
+        [
+          "L",
+          7,
+          3.5
+        ],
+        [
+          "L",
+          4.27,
+          4.34
+        ],
+        [
+          "L",
+          3.5,
+          7
+        ],
+        [
+          "L",
+          2.73,
+          4.34
+        ],
+        [
+          "L",
+          0,
+          3.5
+        ],
+        [
+          "L",
+          2.73,
+          2.66
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#E9BD79"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_06-6",
+      "originX": "left",
+      "originY": "top",
+      "left": 277,
+      "top": 35,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          3.5,
+          0
+        ],
+        [
+          "L",
+          4.27,
+          2.66
+        ],
+        [
+          "L",
+          7,
+          3.5
+        ],
+        [
+          "L",
+          4.27,
+          4.34
+        ],
+        [
+          "L",
+          3.5,
+          7
+        ],
+        [
+          "L",
+          2.73,
+          4.34
+        ],
+        [
+          "L",
+          0,
+          3.5
+        ],
+        [
+          "L",
+          2.73,
+          2.66
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#E9BD79"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_06-7",
+      "originX": "left",
+      "originY": "top",
+      "left": 47,
+      "top": 577,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          6,
+          0
+        ],
+        [
+          "L",
+          7.32,
+          4.5600000000000005
+        ],
+        [
+          "L",
+          12,
+          6
+        ],
+        [
+          "L",
+          7.32,
+          7.4399999999999995
+        ],
+        [
+          "L",
+          6,
+          12
+        ],
+        [
+          "L",
+          4.68,
+          7.4399999999999995
+        ],
+        [
+          "L",
+          0,
+          6
+        ],
+        [
+          "L",
+          4.68,
+          4.5600000000000005
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#E9BD79"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_06-8",
+      "originX": "left",
+      "originY": "top",
+      "left": 315,
+      "top": 591,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          4,
+          0
+        ],
+        [
+          "L",
+          4.88,
+          3.04
+        ],
+        [
+          "L",
+          8,
+          4
+        ],
+        [
+          "L",
+          4.88,
+          4.96
+        ],
+        [
+          "L",
+          4,
+          8
+        ],
+        [
+          "L",
+          3.12,
+          4.96
+        ],
+        [
+          "L",
+          0,
+          4
+        ],
+        [
+          "L",
+          3.12,
+          3.04
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#E9BD79"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_06-9",
+      "originX": "left",
+      "originY": "top",
+      "left": 333,
+      "top": 641,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          6,
+          0
+        ],
+        [
+          "L",
+          7.32,
+          4.5600000000000005
+        ],
+        [
+          "L",
+          12,
+          6
+        ],
+        [
+          "L",
+          7.32,
+          7.4399999999999995
+        ],
+        [
+          "L",
+          6,
+          12
+        ],
+        [
+          "L",
+          4.68,
+          7.4399999999999995
+        ],
+        [
+          "L",
+          0,
+          6
+        ],
+        [
+          "L",
+          4.68,
+          4.5600000000000005
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#E9BD79"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_06-10",
+      "originX": "left",
+      "originY": "top",
+      "left": 28,
+      "top": 662,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          3.5,
+          0
+        ],
+        [
+          "L",
+          4.27,
+          2.66
+        ],
+        [
+          "L",
+          7,
+          3.5
+        ],
+        [
+          "L",
+          4.27,
+          4.34
+        ],
+        [
+          "L",
+          3.5,
+          7
+        ],
+        [
+          "L",
+          2.73,
+          4.34
+        ],
+        [
+          "L",
+          0,
+          3.5
+        ],
+        [
+          "L",
+          2.73,
+          2.66
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#E9BD79"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_06-11",
+      "originX": "left",
+      "originY": "top",
+      "left": 166,
+      "top": 41,
+      "strokeWidth": 0,
+      "radius": 22,
+      "fill": "#E9BD79"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_06-12",
+      "originX": "left",
+      "originY": "top",
+      "left": 177,
+      "top": 34,
+      "strokeWidth": 0,
+      "radius": 21,
+      "fill": "#202844"
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_06-13",
+      "originX": "left",
+      "originY": "top",
+      "left": 18,
+      "top": 96,
+      "strokeWidth": 0,
+      "text": "Lunar Lullaby",
+      "width": 339,
+      "fontSize": 43,
+      "fontFamily": "Cormorant Garamond",
+      "fontWeight": 600,
+      "textAlign": "center",
+      "fill": "#FBEDD9",
+      "lineHeight": 1.04,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": []
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_06-14",
+      "originX": "left",
+      "originY": "top",
+      "left": 18,
+      "top": 162,
+      "strokeWidth": 0,
+      "text": "민준이의 첫 번째 밤하늘",
+      "width": 339,
+      "fontSize": 19,
+      "fontFamily": "고운 바탕",
+      "fontWeight": 400,
+      "textAlign": "center",
+      "fill": "#FBEDD9",
+      "lineHeight": 1.04,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": []
+    },
+    {
+      "type": "Rect",
+      "id": "firstBirthday_06-15",
+      "originX": "left",
+      "originY": "top",
+      "left": 38,
+      "top": 217,
+      "strokeWidth": 1,
+      "width": 299,
+      "height": 321,
+      "fill": "transparent",
+      "stroke": "#E9BD79"
+    },
+    {
+      "type": "Image",
+      "id": "firstBirthday_06-16",
+      "originX": "center",
+      "originY": "center",
+      "left": 187.5,
+      "top": 377.5,
+      "strokeWidth": 0,
+      "width": 928.3387622149837,
+      "height": 1000,
+      "scaleX": 0.307,
+      "scaleY": 0.307,
+      "cropX": 35.83061889250814,
+      "cropY": 0,
+      "src": "/images/showcase/moon.webp",
+      "crossOrigin": "anonymous",
+      "slot": {
+        "key": "firstBirthday_06-photo",
+        "label": "표지 사진",
+        "replaceable": true,
+        "aspectMode": "cover",
+        "order": 1,
+        "required": false,
+        "filled": true
+      },
+      "slotFrameLeft": 187.5,
+      "slotFrameTop": 377.5,
+      "slotFrameWidth": 285,
+      "slotFrameHeight": 307,
+      "slotFrameAngle": 0,
+      "slotImageBaseScale": 0.307,
+      "slotZoomScale": 1,
+      "slotImageOffsetX": 0,
+      "slotImageOffsetY": 0
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_06-17",
+      "originX": "left",
+      "originY": "top",
+      "left": 44,
+      "top": 575,
+      "strokeWidth": 0,
+      "text": "별 하나, 달 하나.\n어느새 우리의 한 살.",
+      "width": 287,
+      "fontSize": 22,
+      "fontFamily": "고운 바탕",
+      "fontWeight": 400,
+      "textAlign": "center",
+      "fill": "#FBEDD9",
+      "lineHeight": 1.33,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": []
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_06-18",
+      "originX": "left",
+      "originY": "top",
+      "left": 29,
+      "top": 704,
+      "strokeWidth": 0,
+      "text": "2027.01.16   ·   17:00",
+      "width": 317,
+      "fontSize": 15,
+      "fontFamily": "SUIT",
+      "fontWeight": 400,
+      "textAlign": "center",
+      "fill": "#E9BD79",
+      "lineHeight": 1.04,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": []
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_06-19",
+      "originX": "left",
+      "originY": "top",
+      "left": 29,
+      "top": 739,
+      "strokeWidth": 0,
+      "text": "인비아 라운지 · 달빛방",
+      "width": 317,
+      "fontSize": 13,
+      "fontFamily": "고운 바탕",
+      "fontWeight": 400,
+      "textAlign": "center",
+      "fill": "#FBEDD9",
+      "lineHeight": 1.04,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": []
+    }
+  ],
+  "background": "#F2EFF7"
+}

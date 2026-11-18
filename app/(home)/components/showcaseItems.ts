@@ -1,3 +1,19 @@
+import vinylCover from '@/public/templates/thumbnails/birthday_05.webp';
+import citrusCover from '@/public/templates/thumbnails/birthday_06.webp';
+import cinemaCover from '@/public/templates/thumbnails/birthday_07.webp';
+import flowersCover from '@/public/templates/thumbnails/birthday_08.webp';
+import campCover from '@/public/templates/thumbnails/birthday_09.webp';
+import hanbokCover from '@/public/templates/thumbnails/firstBirthday_03.webp';
+import orchardCover from '@/public/templates/thumbnails/firstBirthday_04.webp';
+import seaCover from '@/public/templates/thumbnails/firstBirthday_05.webp';
+import moonCover from '@/public/templates/thumbnails/firstBirthday_06.webp';
+import portraitCover from '@/public/templates/thumbnails/firstBirthday_07.webp';
+import dinoCover from '@/public/templates/thumbnails/firstBirthday_08.webp';
+import postCover from '@/public/templates/thumbnails/firstBirthday_09.webp';
+import clayCover from '@/public/templates/thumbnails/seminar_06.webp';
+import prismCover from '@/public/templates/thumbnails/seminar_07.webp';
+import cityCover from '@/public/templates/thumbnails/seminar_08.webp';
+import coffeeCover from '@/public/templates/thumbnails/seminar_09.webp';
 import showcase0 from '@/shared/assets/images/showcase/showcase-0.webp';
 import showcase1 from '@/shared/assets/images/showcase/showcase-1.webp';
 import showcase10 from '@/shared/assets/images/showcase/showcase-10.webp';
@@ -54,6 +70,22 @@ export const showcaseItems = [
   { id: 'showcase-22', image: showcase22, alt: 'Showcase image 22' },
   { id: 'showcase-23', image: showcase23, alt: 'Showcase image 23' },
   { id: 'showcase-24', image: showcase24, alt: 'Showcase image 24' },
+  { id: 'showcase-25', image: hanbokCover },
+  { id: 'showcase-26', image: orchardCover },
+  { id: 'showcase-27', image: seaCover },
+  { id: 'showcase-28', image: moonCover },
+  { id: 'showcase-29', image: portraitCover },
+  { id: 'showcase-30', image: dinoCover },
+  { id: 'showcase-31', image: postCover },
+  { id: 'showcase-32', image: vinylCover },
+  { id: 'showcase-33', image: citrusCover },
+  { id: 'showcase-34', image: cinemaCover },
+  { id: 'showcase-35', image: flowersCover },
+  { id: 'showcase-36', image: campCover },
+  { id: 'showcase-37', image: clayCover },
+  { id: 'showcase-38', image: prismCover },
+  { id: 'showcase-39', image: cityCover },
+  { id: 'showcase-40', image: coffeeCover },
 ].map(item => {
   const invitation = getShowcaseInvitation(item.id)!;
   return {

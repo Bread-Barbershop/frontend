@@ -1,0 +1,1984 @@
+{
+  "version": "7.2.0",
+  "objects": [
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-1",
+      "originX": "left",
+      "originY": "top",
+      "left": 0,
+      "top": 0,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#58778C"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-2",
+      "originX": "left",
+      "originY": "top",
+      "left": 0,
+      "top": 803,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#B04E45"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-3",
+      "originX": "left",
+      "originY": "top",
+      "left": 24,
+      "top": 0,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#B04E45"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-4",
+      "originX": "left",
+      "originY": "top",
+      "left": 24,
+      "top": 803,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#58778C"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-5",
+      "originX": "left",
+      "originY": "top",
+      "left": 48,
+      "top": 0,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#58778C"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-6",
+      "originX": "left",
+      "originY": "top",
+      "left": 48,
+      "top": 803,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#B04E45"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-7",
+      "originX": "left",
+      "originY": "top",
+      "left": 72,
+      "top": 0,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#B04E45"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-8",
+      "originX": "left",
+      "originY": "top",
+      "left": 72,
+      "top": 803,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#58778C"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-9",
+      "originX": "left",
+      "originY": "top",
+      "left": 96,
+      "top": 0,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#58778C"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-10",
+      "originX": "left",
+      "originY": "top",
+      "left": 96,
+      "top": 803,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#B04E45"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-11",
+      "originX": "left",
+      "originY": "top",
+      "left": 120,
+      "top": 0,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#B04E45"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-12",
+      "originX": "left",
+      "originY": "top",
+      "left": 120,
+      "top": 803,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#58778C"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-13",
+      "originX": "left",
+      "originY": "top",
+      "left": 144,
+      "top": 0,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#58778C"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-14",
+      "originX": "left",
+      "originY": "top",
+      "left": 144,
+      "top": 803,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#B04E45"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-15",
+      "originX": "left",
+      "originY": "top",
+      "left": 168,
+      "top": 0,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#B04E45"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-16",
+      "originX": "left",
+      "originY": "top",
+      "left": 168,
+      "top": 803,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#58778C"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-17",
+      "originX": "left",
+      "originY": "top",
+      "left": 192,
+      "top": 0,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#58778C"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-18",
+      "originX": "left",
+      "originY": "top",
+      "left": 192,
+      "top": 803,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#B04E45"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-19",
+      "originX": "left",
+      "originY": "top",
+      "left": 216,
+      "top": 0,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#B04E45"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-20",
+      "originX": "left",
+      "originY": "top",
+      "left": 216,
+      "top": 803,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#58778C"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-21",
+      "originX": "left",
+      "originY": "top",
+      "left": 240,
+      "top": 0,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#58778C"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-22",
+      "originX": "left",
+      "originY": "top",
+      "left": 240,
+      "top": 803,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#B04E45"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-23",
+      "originX": "left",
+      "originY": "top",
+      "left": 264,
+      "top": 0,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#B04E45"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-24",
+      "originX": "left",
+      "originY": "top",
+      "left": 264,
+      "top": 803,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#58778C"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-25",
+      "originX": "left",
+      "originY": "top",
+      "left": 288,
+      "top": 0,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#58778C"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-26",
+      "originX": "left",
+      "originY": "top",
+      "left": 288,
+      "top": 803,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#B04E45"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-27",
+      "originX": "left",
+      "originY": "top",
+      "left": 312,
+      "top": 0,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#B04E45"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-28",
+      "originX": "left",
+      "originY": "top",
+      "left": 312,
+      "top": 803,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#58778C"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-29",
+      "originX": "left",
+      "originY": "top",
+      "left": 336,
+      "top": 0,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#58778C"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-30",
+      "originX": "left",
+      "originY": "top",
+      "left": 336,
+      "top": 803,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#B04E45"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-31",
+      "originX": "left",
+      "originY": "top",
+      "left": 360,
+      "top": 0,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#B04E45"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_09-32",
+      "originX": "left",
+      "originY": "top",
+      "left": 360,
+      "top": 803,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          9
+        ],
+        [
+          "L",
+          9,
+          0
+        ],
+        [
+          "L",
+          20,
+          0
+        ],
+        [
+          "L",
+          11,
+          9
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#58778C"
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_09-33",
+      "originX": "left",
+      "originY": "top",
+      "left": 23,
+      "top": 39,
+      "strokeWidth": 0,
+      "text": "PAR AVION   /   AIR MAIL",
+      "width": 286,
+      "fontSize": 11,
+      "fontFamily": "SUIT",
+      "fontWeight": 700,
+      "textAlign": "left",
+      "fill": "#58778C",
+      "lineHeight": 1.04,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": [],
+      "charSpacing": 115
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_09-34",
+      "originX": "left",
+      "originY": "top",
+      "left": 21,
+      "top": 78,
+      "strokeWidth": 0,
+      "text": "첫돌 우체국",
+      "width": 332,
+      "fontSize": 47,
+      "fontFamily": "고운 바탕",
+      "fontWeight": 400,
+      "textAlign": "left",
+      "fill": "#B04E45",
+      "lineHeight": 1.04,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": []
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_09-35",
+      "originX": "left",
+      "originY": "top",
+      "left": 24,
+      "top": 157,
+      "strokeWidth": 0,
+      "text": "받는 분    민준이를 사랑해 주신 분께",
+      "width": 327,
+      "fontSize": 16,
+      "fontFamily": "고운 바탕",
+      "fontWeight": 400,
+      "textAlign": "left",
+      "fill": "#424A58",
+      "lineHeight": 1.04,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": []
+    },
+    {
+      "type": "Rect",
+      "id": "firstBirthday_09-36",
+      "originX": "left",
+      "originY": "top",
+      "left": 47,
+      "top": 221,
+      "strokeWidth": 1.3,
+      "width": 281,
+      "height": 296,
+      "fill": "#F8DFC3",
+      "stroke": "#B04E45"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-37",
+      "originX": "left",
+      "originY": "top",
+      "left": 51,
+      "top": 217,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-38",
+      "originX": "left",
+      "originY": "top",
+      "left": 51,
+      "top": 513,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-39",
+      "originX": "left",
+      "originY": "top",
+      "left": 71,
+      "top": 217,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-40",
+      "originX": "left",
+      "originY": "top",
+      "left": 71,
+      "top": 513,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-41",
+      "originX": "left",
+      "originY": "top",
+      "left": 91,
+      "top": 217,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-42",
+      "originX": "left",
+      "originY": "top",
+      "left": 91,
+      "top": 513,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-43",
+      "originX": "left",
+      "originY": "top",
+      "left": 111,
+      "top": 217,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-44",
+      "originX": "left",
+      "originY": "top",
+      "left": 111,
+      "top": 513,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-45",
+      "originX": "left",
+      "originY": "top",
+      "left": 131,
+      "top": 217,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-46",
+      "originX": "left",
+      "originY": "top",
+      "left": 131,
+      "top": 513,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-47",
+      "originX": "left",
+      "originY": "top",
+      "left": 151,
+      "top": 217,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-48",
+      "originX": "left",
+      "originY": "top",
+      "left": 151,
+      "top": 513,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-49",
+      "originX": "left",
+      "originY": "top",
+      "left": 171,
+      "top": 217,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-50",
+      "originX": "left",
+      "originY": "top",
+      "left": 171,
+      "top": 513,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-51",
+      "originX": "left",
+      "originY": "top",
+      "left": 191,
+      "top": 217,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-52",
+      "originX": "left",
+      "originY": "top",
+      "left": 191,
+      "top": 513,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-53",
+      "originX": "left",
+      "originY": "top",
+      "left": 211,
+      "top": 217,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-54",
+      "originX": "left",
+      "originY": "top",
+      "left": 211,
+      "top": 513,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-55",
+      "originX": "left",
+      "originY": "top",
+      "left": 231,
+      "top": 217,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-56",
+      "originX": "left",
+      "originY": "top",
+      "left": 231,
+      "top": 513,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-57",
+      "originX": "left",
+      "originY": "top",
+      "left": 251,
+      "top": 217,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-58",
+      "originX": "left",
+      "originY": "top",
+      "left": 251,
+      "top": 513,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-59",
+      "originX": "left",
+      "originY": "top",
+      "left": 271,
+      "top": 217,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-60",
+      "originX": "left",
+      "originY": "top",
+      "left": 271,
+      "top": 513,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-61",
+      "originX": "left",
+      "originY": "top",
+      "left": 291,
+      "top": 217,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-62",
+      "originX": "left",
+      "originY": "top",
+      "left": 291,
+      "top": 513,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-63",
+      "originX": "left",
+      "originY": "top",
+      "left": 311,
+      "top": 217,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-64",
+      "originX": "left",
+      "originY": "top",
+      "left": 311,
+      "top": 513,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-65",
+      "originX": "left",
+      "originY": "top",
+      "left": 43,
+      "top": 228,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-66",
+      "originX": "left",
+      "originY": "top",
+      "left": 324,
+      "top": 228,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-67",
+      "originX": "left",
+      "originY": "top",
+      "left": 43,
+      "top": 249,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-68",
+      "originX": "left",
+      "originY": "top",
+      "left": 324,
+      "top": 249,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-69",
+      "originX": "left",
+      "originY": "top",
+      "left": 43,
+      "top": 270,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-70",
+      "originX": "left",
+      "originY": "top",
+      "left": 324,
+      "top": 270,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-71",
+      "originX": "left",
+      "originY": "top",
+      "left": 43,
+      "top": 291,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-72",
+      "originX": "left",
+      "originY": "top",
+      "left": 324,
+      "top": 291,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-73",
+      "originX": "left",
+      "originY": "top",
+      "left": 43,
+      "top": 312,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-74",
+      "originX": "left",
+      "originY": "top",
+      "left": 324,
+      "top": 312,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-75",
+      "originX": "left",
+      "originY": "top",
+      "left": 43,
+      "top": 333,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-76",
+      "originX": "left",
+      "originY": "top",
+      "left": 324,
+      "top": 333,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-77",
+      "originX": "left",
+      "originY": "top",
+      "left": 43,
+      "top": 354,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-78",
+      "originX": "left",
+      "originY": "top",
+      "left": 324,
+      "top": 354,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-79",
+      "originX": "left",
+      "originY": "top",
+      "left": 43,
+      "top": 375,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-80",
+      "originX": "left",
+      "originY": "top",
+      "left": 324,
+      "top": 375,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-81",
+      "originX": "left",
+      "originY": "top",
+      "left": 43,
+      "top": 396,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-82",
+      "originX": "left",
+      "originY": "top",
+      "left": 324,
+      "top": 396,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-83",
+      "originX": "left",
+      "originY": "top",
+      "left": 43,
+      "top": 417,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-84",
+      "originX": "left",
+      "originY": "top",
+      "left": 324,
+      "top": 417,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-85",
+      "originX": "left",
+      "originY": "top",
+      "left": 43,
+      "top": 438,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-86",
+      "originX": "left",
+      "originY": "top",
+      "left": 324,
+      "top": 438,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-87",
+      "originX": "left",
+      "originY": "top",
+      "left": 43,
+      "top": 459,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-88",
+      "originX": "left",
+      "originY": "top",
+      "left": 324,
+      "top": 459,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-89",
+      "originX": "left",
+      "originY": "top",
+      "left": 43,
+      "top": 480,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-90",
+      "originX": "left",
+      "originY": "top",
+      "left": 324,
+      "top": 480,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-91",
+      "originX": "left",
+      "originY": "top",
+      "left": 43,
+      "top": 501,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Circle",
+      "id": "firstBirthday_09-92",
+      "originX": "left",
+      "originY": "top",
+      "left": 324,
+      "top": 501,
+      "strokeWidth": 0,
+      "radius": 4,
+      "fill": "#FFF2E7"
+    },
+    {
+      "type": "Image",
+      "id": "firstBirthday_09-93",
+      "originX": "center",
+      "originY": "center",
+      "left": 187.5,
+      "top": 358,
+      "strokeWidth": 0,
+      "width": 1000,
+      "height": 972.7626459143969,
+      "scaleX": 0.257,
+      "scaleY": 0.257,
+      "cropX": 0,
+      "cropY": 13.61867704280155,
+      "src": "/images/showcase/post.webp",
+      "crossOrigin": "anonymous",
+      "slot": {
+        "key": "firstBirthday_09-photo",
+        "label": "표지 사진",
+        "replaceable": true,
+        "aspectMode": "cover",
+        "order": 1,
+        "required": false,
+        "filled": true
+      },
+      "slotFrameLeft": 187.5,
+      "slotFrameTop": 358,
+      "slotFrameWidth": 257,
+      "slotFrameHeight": 250,
+      "slotFrameAngle": 0,
+      "slotImageBaseScale": 0.257,
+      "slotZoomScale": 1,
+      "slotImageOffsetX": 0,
+      "slotImageOffsetY": 0
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_09-94",
+      "originX": "left",
+      "originY": "top",
+      "left": 60,
+      "top": 489,
+      "strokeWidth": 0,
+      "text": "한 살 기념 우표   ·   FIRST POST",
+      "width": 256,
+      "fontSize": 13,
+      "fontFamily": "고운 바탕",
+      "fontWeight": 400,
+      "textAlign": "center",
+      "fill": "#B04E45",
+      "lineHeight": 1.04,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": []
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_09-95",
+      "originX": "left",
+      "originY": "top",
+      "left": 24,
+      "top": 555,
+      "strokeWidth": 0,
+      "text": "작은 손으로 꾹 눌러 쓴\n첫 생일 초대장을 보냅니다.",
+      "width": 331,
+      "fontSize": 23,
+      "fontFamily": "고운 바탕",
+      "fontWeight": 400,
+      "textAlign": "left",
+      "fill": "#424A58",
+      "lineHeight": 1.24,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": []
+    },
+    {
+      "type": "Rect",
+      "id": "firstBirthday_09-96",
+      "originX": "left",
+      "originY": "top",
+      "left": 24,
+      "top": 649,
+      "strokeWidth": 0,
+      "width": 327,
+      "height": 1,
+      "fill": "#58778C"
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_09-97",
+      "originX": "left",
+      "originY": "top",
+      "left": 24,
+      "top": 665,
+      "strokeWidth": 0,
+      "text": "보낸 사람",
+      "width": 164,
+      "fontSize": 11,
+      "fontFamily": "SUIT",
+      "fontWeight": 700,
+      "textAlign": "left",
+      "fill": "#58778C",
+      "lineHeight": 1.04,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": [],
+      "charSpacing": 115
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_09-98",
+      "originX": "left",
+      "originY": "top",
+      "left": 24,
+      "top": 686,
+      "strokeWidth": 0,
+      "text": "민준이네 가족",
+      "width": 317,
+      "fontSize": 20,
+      "fontFamily": "고운 바탕",
+      "fontWeight": 400,
+      "textAlign": "left",
+      "fill": "#424A58",
+      "lineHeight": 1.04,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": []
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_09-99",
+      "originX": "left",
+      "originY": "top",
+      "left": 24,
+      "top": 740,
+      "strokeWidth": 0,
+      "text": "2027.05.15   ·   12:30",
+      "width": 323,
+      "fontSize": 15,
+      "fontFamily": "SUIT",
+      "fontWeight": 400,
+      "textAlign": "left",
+      "fill": "#424A58",
+      "lineHeight": 1.04,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": []
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_09-100",
+      "originX": "left",
+      "originY": "top",
+      "left": 24,
+      "top": 766,
+      "strokeWidth": 0,
+      "text": "인비아 패밀리룸 · 편지방",
+      "width": 323,
+      "fontSize": 12,
+      "fontFamily": "SUIT",
+      "fontWeight": 400,
+      "textAlign": "left",
+      "fill": "#424A58",
+      "lineHeight": 1.04,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": []
+    }
+  ],
+  "background": "#FFF2E7"
+}

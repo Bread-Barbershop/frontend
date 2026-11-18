@@ -207,6 +207,134 @@
       "version": 1,
       "thumbnailUrl": "/templates/thumbnails/firstBirthday_02.png",
       "jsonUrl": "/templates/json/firstBirthday_02.v1.json"
+    },
+    {
+      "id": "firstBirthday_03",
+      "name": "비단에 담은 첫돌",
+      "category": "firstBirthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/firstBirthday_03.webp",
+      "jsonUrl": "/templates/json/firstBirthday_03.v1.json"
+    },
+    {
+      "id": "firstBirthday_04",
+      "name": "사과밭 첫 소풍",
+      "category": "firstBirthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/firstBirthday_04.webp",
+      "jsonUrl": "/templates/json/firstBirthday_04.v1.json"
+    },
+    {
+      "id": "firstBirthday_05",
+      "name": "꼬마 선장의 항해일지",
+      "category": "firstBirthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/firstBirthday_05.webp",
+      "jsonUrl": "/templates/json/firstBirthday_05.v1.json"
+    },
+    {
+      "id": "firstBirthday_06",
+      "name": "달빛 자장가",
+      "category": "firstBirthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/firstBirthday_06.webp",
+      "jsonUrl": "/templates/json/firstBirthday_06.v1.json"
+    },
+    {
+      "id": "firstBirthday_07",
+      "name": "한 살 사진관",
+      "category": "firstBirthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/firstBirthday_07.webp",
+      "jsonUrl": "/templates/json/firstBirthday_07.v1.json"
+    },
+    {
+      "id": "firstBirthday_08",
+      "name": "꼬마 공룡 박물관",
+      "category": "firstBirthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/firstBirthday_08.webp",
+      "jsonUrl": "/templates/json/firstBirthday_08.v1.json"
+    },
+    {
+      "id": "firstBirthday_09",
+      "name": "첫돌 우체국",
+      "category": "firstBirthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/firstBirthday_09.webp",
+      "jsonUrl": "/templates/json/firstBirthday_09.v1.json"
+    },
+    {
+      "id": "birthday_05",
+      "name": "생일 B면",
+      "category": "birthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/birthday_05.webp",
+      "jsonUrl": "/templates/json/birthday_05.v1.json"
+    },
+    {
+      "id": "birthday_06",
+      "name": "레몬 타르트 클럽",
+      "category": "birthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/birthday_06.webp",
+      "jsonUrl": "/templates/json/birthday_06.v1.json"
+    },
+    {
+      "id": "birthday_07",
+      "name": "생일 심야극장",
+      "category": "birthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/birthday_07.webp",
+      "jsonUrl": "/templates/json/birthday_07.v1.json"
+    },
+    {
+      "id": "birthday_08",
+      "name": "꽃시장 브런치",
+      "category": "birthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/birthday_08.webp",
+      "jsonUrl": "/templates/json/birthday_08.v1.json"
+    },
+    {
+      "id": "birthday_09",
+      "name": "별 아래 생일 캠프",
+      "category": "birthday",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/birthday_09.webp",
+      "jsonUrl": "/templates/json/birthday_09.v1.json"
+    },
+    {
+      "id": "seminar_06",
+      "name": "흙의 작업실",
+      "category": "seminar",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/seminar_06.webp",
+      "jsonUrl": "/templates/json/seminar_06.v1.json"
+    },
+    {
+      "id": "seminar_07",
+      "name": "프리즘 광학 세미나",
+      "category": "seminar",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/seminar_07.webp",
+      "jsonUrl": "/templates/json/seminar_07.v1.json"
+    },
+    {
+      "id": "seminar_08",
+      "name": "도시 산책 기록",
+      "category": "seminar",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/seminar_08.webp",
+      "jsonUrl": "/templates/json/seminar_08.v1.json"
+    },
+    {
+      "id": "seminar_09",
+      "name": "커피 감각 연구소",
+      "category": "seminar",
+      "version": 1,
+      "thumbnailUrl": "/templates/thumbnails/seminar_09.webp",
+      "jsonUrl": "/templates/json/seminar_09.v1.json"
     }
   ]
 }

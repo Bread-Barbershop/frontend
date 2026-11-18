@@ -11,12 +11,14 @@ import {
 } from './showcaseInvitations';
 
 describe('첫 화면 초대장 샘플', () => {
-  it('25개 카드 모두 고유한 본문과 일대일로 연결된다', () => {
-    expect(showcaseItems).toHaveLength(25);
+  it('41개 카드 모두 고유한 본문과 일대일로 연결된다', () => {
+    expect(showcaseItems).toHaveLength(41);
     expect(SHOWCASE_INVITATIONS).toHaveLength(showcaseItems.length);
-    expect(new Set(SHOWCASE_INVITATIONS.map(item => item.id)).size).toBe(25);
+    expect(new Set(SHOWCASE_INVITATIONS.map(item => item.id)).size).toBe(
+      showcaseItems.length
+    );
     expect(new Set(SHOWCASE_INVITATIONS.map(item => item.heading)).size).toBe(
-      25
+      showcaseItems.length
     );
     for (const card of showcaseItems)
       expect(getShowcaseInvitation(card.id)).toBeDefined();
