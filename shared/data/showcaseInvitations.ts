@@ -1051,8 +1051,24 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         bio: '전략을 실행에 옮길 때 리더가 마주하는 선택을 다룹니다. 발표 후에는 청중의 사례를 함께 살펴봅니다.',
         image: '/images/showcase/conference-speaker.webp',
       },
+      {
+        component: 'timeline',
+        title: '마이크가 넘어가는 순서',
+        items: [
+          { time: '15:00', title: '기조 발표' },
+          { time: '15:35', title: '좌석에서 질문 정리' },
+          { time: '15:40', title: '객석 마이크 개방' },
+        ],
+      },
       { component: 'greeting' },
       { component: 'calendar', title: '강연 일시' },
+      {
+        component: 'picture',
+        title: '질문이 시작되는 객석',
+        image: '/images/showcase/conference-hall.webp',
+        caption:
+          '질문하실 때는 자리에 앉아 손을 들어 주세요. 진행자가 마이크를 가져갑니다.',
+      },
       { component: 'place', title: '강연장' },
       {
         component: 'faq',
@@ -1069,6 +1085,14 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
               '현장에서 떠오른 질문도 좋습니다. 한 분씩 말씀하실 수 있게 하나씩 부탁드립니다.',
           },
         ],
+      },
+      {
+        component: 'organizerInformation',
+        title: '질의응답을 진행하는 팀',
+        organizer: 'NextGrowth',
+        message:
+          '객석 마이크와 발언 순서를 맡습니다. 말로 묻기 어려운 분은 입장 때 질문 카드를 받아 주세요.',
+        image: '/samples/seminar_01/images/09_주최사.png',
       },
     ],
   },
