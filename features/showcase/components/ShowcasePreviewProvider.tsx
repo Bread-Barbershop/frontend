@@ -13,9 +13,9 @@ import {
 
 import NoticeConfirmButton from '@/components/atoms/button/NoticeConfirmButton';
 import {
-  getShowcaseInvitation,
   SHOWCASE_CATEGORY_LABELS,
   SHOWCASE_INVITATIONS,
+  type ShowcaseInvitation,
 } from '@/shared/data/showcaseInvitations';
 
 import type { ReactNode, RefObject } from 'react';
@@ -28,18 +28,29 @@ export function useShowcasePreview() {
 
 export default function ShowcasePreviewProvider({
   children,
+  invitationIds,
 }: {
   children: ReactNode;
+  invitationIds?: readonly string[];
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const close = useCallback(() => setSelectedId(null), []);
+  const invitations = invitationIds
+    ? SHOWCASE_INVITATIONS.filter(invitation =>
+        invitationIds.includes(invitation.id)
+      )
+    : SHOWCASE_INVITATIONS;
+  const index = invitations.findIndex(
+    invitation => invitation.id === selectedId
+  );
 
   return (
     <ShowcasePreviewContext.Provider value={setSelectedId}>
       {children}
-      {selectedId && (
+      {index >= 0 && (
         <ShowcasePreviewModal
-          selectedId={selectedId}
+          invitations={invitations}
+          index={index}
           onSelect={setSelectedId}
           onClose={close}
         />
@@ -49,19 +60,20 @@ export default function ShowcasePreviewProvider({
 }
 
 function ShowcasePreviewModal({
-  selectedId,
+  invitations,
+  index,
   onSelect,
   onClose,
 }: {
-  selectedId: string;
+  invitations: readonly ShowcaseInvitation[];
+  index: number;
   onSelect: (id: string) => void;
   onClose: () => void;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const pcNoticeRef = useRef<HTMLDialogElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const design = getShowcaseInvitation(selectedId)!;
-  const index = SHOWCASE_INVITATIONS.findIndex(item => item.id === selectedId);
+  const design = invitations[index];
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -94,9 +106,8 @@ function ShowcasePreviewModal({
 
   function move(direction: -1 | 1) {
     const nextIndex =
-      (index + direction + SHOWCASE_INVITATIONS.length) %
-      SHOWCASE_INVITATIONS.length;
-    onSelect(SHOWCASE_INVITATIONS[nextIndex].id);
+      (index + direction + invitations.length) % invitations.length;
+    onSelect(invitations[nextIndex].id);
   }
 
   return (
@@ -232,8 +243,7 @@ function ShowcasePreviewModal({
             aria-live="polite"
           >
             {String(index + 1).padStart(2, '0')}{' '}
-            <span className="mx-2 opacity-40">/</span>{' '}
-            {SHOWCASE_INVITATIONS.length}
+            <span className="mx-2 opacity-40">/</span> {invitations.length}
           </p>
           <button
             type="button"
