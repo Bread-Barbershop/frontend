@@ -4,6 +4,8 @@ import { RotateCcw, X } from 'lucide-react';
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
+
 import {
   INVITATION_PREVIEW_PATH,
   PREVIEW_MESSAGE,
@@ -30,6 +32,7 @@ export default function InvitationPreviewModal({
 }: InvitationPreviewModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleId = useId();
+  const backdropDismiss = useBackdropDismiss<HTMLDialogElement>(onClose);
   const [session, setSession] = useState(0);
 
   useEffect(() => {
@@ -59,9 +62,7 @@ export default function InvitationPreviewModal({
         event.preventDefault();
         onClose();
       }}
-      onClick={event => {
-        if (event.target === event.currentTarget) onClose();
-      }}
+      {...backdropDismiss}
       className="fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none bg-transparent p-0 text-[#252522] backdrop:bg-black/50 backdrop:backdrop-blur-sm open:flex open:items-center open:justify-center sm:p-6"
     >
       <section className="flex h-full w-full max-w-[1040px] flex-col overflow-hidden bg-[#F5F4F0] sm:max-h-[940px] sm:rounded-[24px] sm:shadow-2xl">

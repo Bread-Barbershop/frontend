@@ -9,6 +9,7 @@ import {
   INVITATION_PRIVACY_FIELDS,
   type InvitationPrivacy,
 } from '@/features/invitation/privacy/settings';
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
@@ -28,6 +29,10 @@ function InvitationSettingsModal({
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const checkboxRef = useRef<HTMLInputElement>(null);
+  const backdropDismiss = useBackdropDismiss<HTMLDialogElement>(
+    onClose,
+    'outside-dialog'
+  );
   const titleId = useId();
   const optionsId = useId();
   const [draftIsZoom, setDraftIsZoom] = useState(initialIsZoom);
@@ -55,9 +60,7 @@ function InvitationSettingsModal({
         event.preventDefault();
         onClose();
       }}
-      onClick={event => {
-        if (event.target === event.currentTarget) onClose();
-      }}
+      {...backdropDismiss}
       className="fixed inset-0 m-auto max-h-[calc(100dvh-32px)] w-[min(440px,calc(100vw-32px))] overflow-y-auto rounded-2xl bg-white p-0 text-text-primary shadow-edit backdrop:bg-black/50"
     >
       <form

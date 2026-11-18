@@ -13,6 +13,7 @@ import DrivePermissionRequiredModal from '@/features/session/components/DrivePer
 import LoginModal from '@/features/session/components/LoginModal';
 import PrivacyNoticeModal from '@/features/session/components/PrivacyNoticeModal';
 import { useAuthGate } from '@/features/session/hooks/useAuthGate';
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 
 const CARD_WIDTH = 240;
 const CARD_HEIGHT = 520;
@@ -84,6 +85,7 @@ function GallerySampleGrid({
     isDrivePermissionRequiredOpen,
     closeLogin,
     closePrivacyNotice,
+    confirmPrivacyNotice,
     closeDrivePermissionRequired,
     loginWithGoogle,
     retryDrivePermission,
@@ -289,6 +291,7 @@ function GallerySampleGrid({
       <PrivacyNoticeModal
         open={isPrivacyNoticeOpen}
         onClose={closePrivacyNotice}
+        onConfirm={confirmPrivacyNotice}
       />
       <DrivePermissionRequiredModal
         open={isDrivePermissionRequiredOpen}
@@ -349,6 +352,7 @@ function GalleryPreviewModal({
   preview: Exclude<PreviewState, { status: 'closed' }>;
 }) {
   const isSuccess = preview.status === 'success';
+  const backdropDismiss = useBackdropDismiss<HTMLDivElement>(onClose);
 
   return (
     <div
@@ -356,7 +360,7 @@ function GalleryPreviewModal({
       role="dialog"
       aria-modal="true"
       aria-label={`${preview.title} 디자인 미리보기`}
-      onClick={onClose}
+      {...backdropDismiss}
     >
       <div onClick={event => event.stopPropagation()}>
         <PhonePreviewFrame

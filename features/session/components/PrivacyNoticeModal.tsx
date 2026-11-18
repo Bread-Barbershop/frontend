@@ -6,11 +6,13 @@ import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 
 import NoticeConfirmButton from '@/components/atoms/button/NoticeConfirmButton';
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 import { disableBodyScroll } from '@/shared/utils/focusTrap';
 
 type PrivacyNoticeModalProps = {
   open: boolean;
   onClose: () => void;
+  onConfirm?: () => void;
   variant?: 'default' | 'mobileHome';
 };
 
@@ -19,6 +21,7 @@ const emptySubscribe = () => () => {};
 function PrivacyNoticeModal({
   open,
   onClose,
+  onConfirm = onClose,
   variant = 'default',
 }: PrivacyNoticeModalProps) {
   const isMobileHome = variant === 'mobileHome';
@@ -31,6 +34,7 @@ function PrivacyNoticeModal({
   const handleClose = useCallback(() => {
     onClose();
   }, [onClose]);
+  const backdropDismiss = useBackdropDismiss<HTMLDivElement>(handleClose);
 
   useEffect(() => {
     if (!open) return;
@@ -62,7 +66,7 @@ function PrivacyNoticeModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25, ease: 'easeOut' }}
-          onClick={handleClose}
+          {...backdropDismiss}
         >
           <motion.div
             role="dialog"
@@ -155,7 +159,7 @@ function PrivacyNoticeModal({
                   있도록 노력할게요.
                 </p>
               </div>
-              <NoticeConfirmButton onClick={handleClose} />
+              <NoticeConfirmButton onClick={onConfirm} />
             </div>
           </motion.div>
         </motion.div>

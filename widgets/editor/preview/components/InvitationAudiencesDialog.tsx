@@ -14,6 +14,7 @@ import {
   validateAudienceName,
   validateAudienceSlug,
 } from '@/features/invitation/audiences/model';
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { cn } from '@/shared/utils/cn';
 
@@ -182,6 +183,11 @@ export default function InvitationAudiencesDialog({
     if (!busyRef.current && !busy) onClose();
   }
 
+  const backdropDismiss = useBackdropDismiss<HTMLDialogElement>(
+    closeDialog,
+    'outside-dialog'
+  );
+
   async function continueAction(action: Action) {
     if (busyRef.current || busy) return;
     busyRef.current = true;
@@ -327,9 +333,7 @@ export default function InvitationAudiencesDialog({
         event.preventDefault();
         closeDialog();
       }}
-      onClick={event => {
-        if (event.target === event.currentTarget) closeDialog();
-      }}
+      {...backdropDismiss}
       className="fixed inset-0 m-auto max-h-[calc(100dvh-32px)] w-[min(560px,calc(100vw-32px))] overflow-y-auto rounded-2xl border border-[#deddd6] bg-white p-0 font-pretendard text-text-primary shadow-edit backdrop:bg-black/50"
     >
       <section className="grid gap-5 p-5 sm:p-6">

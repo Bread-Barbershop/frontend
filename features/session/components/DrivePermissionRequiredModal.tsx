@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import InviaSimpleLogo3d from '@/shared/assets/logo/invia-simple-logo-3d.png';
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 import {
   trapFocus,
   disableBodyScroll,
@@ -40,6 +41,8 @@ function DrivePermissionRequiredModal({
       setIsClosing(false);
     }, FADE_OUT_MS);
   }, [isClosing, isLoading, onClose]);
+
+  const backdropDismiss = useBackdropDismiss<HTMLDivElement>(closeWithFade);
 
   useEffect(() => {
     if (!open || isClosing) return;
@@ -78,13 +81,13 @@ function DrivePermissionRequiredModal({
       className={`fixed inset-0 z-9999 flex items-center justify-center transition-opacity duration-200 ${
         isClosing ? 'opacity-0' : 'animate-[fade-in_180ms_ease-out] opacity-100'
       }`}
-      onClick={closeWithFade}
+      {...backdropDismiss}
       role="dialog"
       aria-modal="true"
       aria-labelledby="drive-permission-title"
       tabIndex={-1}
     >
-      <div className="absolute inset-0 bg-[rgb(0_0_0_/_8%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[rgb(0_0_0_/_8%)]" />
 
       <div
         className={`relative flex w-[min(392px,calc(100vw-40px))] flex-col items-center gap-5 rounded-xl border border-white/22 bg-white/72 p-5 text-center shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%),0_1px_8px_-2px_rgb(255_255_255_/_35%)] backdrop-blur-xl transition-all duration-200 ${
