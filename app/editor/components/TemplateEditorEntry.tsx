@@ -8,7 +8,6 @@ import { ScreenTransitionLoader } from '@/components/molecules/screen-transition
 import { DEFAULT_SCROLL_ANIMATION } from '@/components/molecules/scroll-fade-in/animationConfig';
 import DrivePermissionRequiredModal from '@/features/session/components/DrivePermissionRequiredModal';
 import LoginModal from '@/features/session/components/LoginModal';
-import PrivacyNoticeModal from '@/features/session/components/PrivacyNoticeModal';
 import { useAuthGate } from '@/features/session/hooks/useAuthGate';
 import { createInvitationTemplate } from '@/shared/data/invitationTemplates';
 import { INVITATION_TEMPLATES } from '@/shared/data/invitationTemplates/catalog';
@@ -191,10 +190,6 @@ export default function TemplateEditorEntry({
         isLoading={auth.isLoginPending}
         onClose={auth.closeLogin}
         onGoogleLogin={auth.loginWithGoogle}
-      />
-      <PrivacyNoticeModal
-        open={auth.isPrivacyNoticeOpen}
-        onClose={auth.closePrivacyNotice}
       />
       <DrivePermissionRequiredModal
         open={auth.isDrivePermissionRequiredOpen}

@@ -1,5 +1,6 @@
 import { blockSchema } from '@/shared/data/registry/block.schema';
 import type { BlockType } from '@/shared/types/editor';
+import { sanitizeInvitationHtml } from '@/shared/utils/sanitizeInvitationHtml';
 
 import type { GuestBlock } from '../types/guestTypes';
 
@@ -78,7 +79,7 @@ function normalizeProps(
     }
   });
 
-  return normalizedProps;
+  return sanitizeInvitationHtml(normalizedProps) as Record<string, unknown>;
 }
 
 export function normalizeGuestBlock(

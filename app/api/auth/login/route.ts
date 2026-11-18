@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+import { serverSessionsEnabled } from '@/app/api/auth/_lib/authStorage';
 import { generateOAuthState } from '@/app/api/auth/_lib/generateOAuthState';
 import { GOOGLE_AUTH_SCOPE } from '@/app/api/auth/_lib/googleScopes';
 import {
@@ -16,6 +17,16 @@ export async function GET(request: Request) {
     return NextResponse.json(
       { error: 'GOOGLE_CLIENT_ID is missing' },
       { status: 500 }
+    );
+  }
+
+  if (!serverSessionsEnabled()) {
+    return NextResponse.json(
+      { error: 'secure_login_unavailable' },
+      {
+        status: 503,
+        headers: { 'Cache-Control': 'no-store' },
+      }
     );
   }
 
@@ -49,7 +60,7 @@ export async function GET(request: Request) {
   authUrl.searchParams.set('response_type', 'code');
   authUrl.searchParams.set('access_type', 'offline');
   authUrl.searchParams.set('prompt', 'consent');
-  authUrl.searchParams.set('include_granted_scopes', 'true');
+  authUrl.searchParams.set('include_granted_scopes', 'false');
   authUrl.searchParams.set('scope', GOOGLE_AUTH_SCOPE);
   authUrl.searchParams.set('state', state);
   authUrl.searchParams.set('code_challenge', codeChallenge);

@@ -14,3 +14,11 @@ export function parseGrantedScopes(scope: unknown): Set<string> {
 export function hasRequiredDriveScope(scope: unknown): boolean {
   return parseGrantedScopes(scope).has(GOOGLE_DRIVE_FILE_SCOPE);
 }
+
+export function hasExcessiveDriveScope(scope: unknown): boolean {
+  return [...parseGrantedScopes(scope)].some(
+    value =>
+      value.startsWith('https://www.googleapis.com/auth/drive') &&
+      value !== GOOGLE_DRIVE_FILE_SCOPE
+  );
+}

@@ -2,6 +2,13 @@
  * @jest-environment node
  */
 
+jest.mock('@/app/api/drive/_lib/driveAccess', () => ({
+  assertInvitationAccess: jest.fn(),
+  assertManagedFileAccess: jest.fn(),
+  assertDeletableFileAccess: jest.fn(),
+  assertSameOriginRequest: jest.fn(),
+}));
+
 jest.mock('@/app/api/drive/_lib/ensureWorkspace', () => ({
   DriveHttpError: class DriveHttpError extends Error {
     status: number;

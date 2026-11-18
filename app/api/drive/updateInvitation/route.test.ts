@@ -20,6 +20,13 @@
 // updateInvitation route가 사용하는 helper 함수 mock
 // 실제 Google Drive를 조회하지 않고 가짜 응답으로 분기만 검증한다.
 // ------------------------------
+jest.mock('@/app/api/drive/_lib/driveAccess', () => ({
+  assertInvitationAccess: jest.fn(),
+  assertManagedFileAccess: jest.fn(),
+  assertDeletableFileAccess: jest.fn(),
+  assertSameOriginRequest: jest.fn(),
+}));
+
 jest.mock('@/app/api/drive/_lib/getSaveDataFetch', () => ({
   loadInvitations: jest.fn(),
   getFilesInFolder: jest.fn(),
@@ -60,16 +67,22 @@ describe('updateInvitation Route Handler 테스트', () => {
         {
           id: 'image-folder-id',
           name: 'images',
+          appProperties: { app_id: 'Bread-Barbershop', kind: 'assets_images' },
           mimeType: 'application/vnd.google-apps.folder',
         },
         {
           id: 'audio-folder-id',
           name: 'audio',
+          appProperties: { app_id: 'Bread-Barbershop', kind: 'assets_audios' },
           mimeType: 'application/vnd.google-apps.folder',
         },
         {
           id: 'data-json-id',
           name: 'data.json',
+          appProperties: {
+            app_id: 'Bread-Barbershop',
+            kind: 'invitation_data_json',
+          },
           mimeType: 'application/json',
         },
       ],
@@ -325,6 +338,10 @@ describe('updateInvitation Route Handler 테스트', () => {
         {
           id: 'data-json-only-id',
           name: 'data.json',
+          appProperties: {
+            app_id: 'Bread-Barbershop',
+            kind: 'invitation_data_json',
+          },
           mimeType: 'application/json',
         },
       ],

@@ -243,7 +243,13 @@ function mockDrive({
       });
     }
     if (method === 'GET' && fileId === WORKSPACE) {
-      return Response.json({ permissions: [{ type: 'user' }] });
+      return Response.json({
+        id: WORKSPACE,
+        mimeType: FOLDER,
+        ownedByMe: true,
+        appProperties: { app_id: APP },
+        permissions: [{ type: 'user' }],
+      });
     }
 
     const doc = fileId ? documents.get(fileId) : undefined;

@@ -81,11 +81,26 @@ describe('auth login Route Handler 테스트', () => {
 
     process.env = {
       ...originalEnv,
+      AUTH_SERVER_SESSIONS: 'true',
     };
   });
 
   afterAll(() => {
     process.env = originalEnv;
+  });
+
+  it('서버 세션이 비활성화돼 있으면 이전 인증 방식으로 우회하지 않는다', async () => {
+    process.env.GOOGLE_CLIENT_ID = 'google-client-id-123';
+    process.env.AUTH_SERVER_SESSIONS = 'false';
+    const response = await GET(
+      new Request('http://localhost:3000/api/auth/login')
+    );
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({
+      error: 'secure_login_unavailable',
+    });
+    expect(generateOAuthState).not.toHaveBeenCalled();
+    expect(cookies).not.toHaveBeenCalled();
   });
 
   it('GOOGLE_CLIENT_ID가 없으면 500을 반환한다', async () => {
@@ -177,7 +192,9 @@ describe('auth login Route Handler 테스트', () => {
     expect(redirectUrl.searchParams.get('response_type')).toBe('code');
     expect(redirectUrl.searchParams.get('access_type')).toBe('offline');
     expect(redirectUrl.searchParams.get('prompt')).toBe('consent');
-    expect(redirectUrl.searchParams.get('include_granted_scopes')).toBe('true');
+    expect(redirectUrl.searchParams.get('include_granted_scopes')).toBe(
+      'false'
+    );
     expect(redirectUrl.searchParams.get('scope')).toBe(
       'openid https://www.googleapis.com/auth/drive.file'
     );

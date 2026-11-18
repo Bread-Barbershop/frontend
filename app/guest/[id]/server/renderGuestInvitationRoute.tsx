@@ -57,7 +57,7 @@ export function renderGuestInvitationRoute(
       {posterSrc && (
         <link rel="preload" as="image" href={posterSrc} fetchPriority="high" />
       )}
-      <GuestInvitationView payload={payload} mode="guest" />
+      <GuestInvitationView payload={payload} mode="guest" collectionId={result.rootDataFileId} />
     </>
   );
 }

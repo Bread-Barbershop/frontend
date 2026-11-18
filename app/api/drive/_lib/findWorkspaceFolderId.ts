@@ -60,7 +60,7 @@ async function findWorkspaceFolderIdByName(
  * - 생성은 절대 하지 않음
  */
 export async function findWorkspaceFolderId({
-  ownedOnly = false,
+  ownedOnly = true,
 }: { ownedOnly?: boolean } = {}): Promise<string | null> {
   return (
     (await findWorkspaceFolderIdByName(WORKSPACE_NAME, ownedOnly)) ??

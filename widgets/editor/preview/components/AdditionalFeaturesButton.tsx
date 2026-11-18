@@ -4,6 +4,7 @@ import { ChevronDown } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import CollectionSettings from '@/features/invitation/collection/CollectionSettings';
 import {
   DEFAULT_INVITATION_PRIVACY,
   INVITATION_PRIVACY_FIELDS,
@@ -234,6 +235,7 @@ function InvitationSettingsModal({
           </button>
         </div>
       </form>
+      <div className="px-6 pb-6"><CollectionSettings suggestedDate={initialPrivacy.eventDate} /></div>
     </dialog>,
     document.body
   );

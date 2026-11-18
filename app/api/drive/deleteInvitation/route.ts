@@ -1,10 +1,17 @@
 import { NextResponse } from 'next/server';
 
+import { serverSessionsEnabled } from '@/app/api/auth/_lib/authStorage';
 import { deleteAudienceLinks } from '@/app/api/drive/_lib/audienceLinkStore';
 import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
 import { getAudienceIndexRootDataId } from '@/app/api/drive/_lib/invitationAudiences';
+import { removeCollection } from '@/app/api/guest-collection/_lib/store';
 import { deleteShortCodeMapping } from '@/app/api/short-url/_lib/shortUrlStore';
 
+import {
+  assertDeletableFileAccess,
+  assertSameOriginRequest,
+} from '../_lib/driveAccess';
+import { DriveHttpError } from '../_lib/ensureWorkspace';
 import { googleFetch } from '../_lib/googleFetch';
 
 /**
@@ -13,6 +20,7 @@ import { googleFetch } from '../_lib/googleFetch';
 
 export async function DELETE(req: Request) {
   try {
+    assertSameOriginRequest(req);
     const body = await req.json().catch(() => null);
     if (!body || !body.folderId) {
       return NextResponse.json(
@@ -22,6 +30,7 @@ export async function DELETE(req: Request) {
     }
 
     const { folderId } = body;
+    await assertDeletableFileAccess(folderId);
     const rootDataId = await getAudienceIndexRootDataId(folderId).catch(
       error => {
         captureDriveError({ error, operation: 'drive_audience_delete_lookup' });
@@ -55,6 +64,16 @@ export async function DELETE(req: Request) {
     }
 
     if (rootDataId) {
+      if (serverSessionsEnabled()) {
+        try {
+          await removeCollection(rootDataId);
+        } catch (error) {
+          captureDriveError({
+            error,
+            operation: 'drive_guest_collection_cleanup',
+          });
+        }
+      }
       try {
         await deleteAudienceLinks(rootDataId);
       } catch (error) {
@@ -64,6 +83,12 @@ export async function DELETE(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    if (error instanceof DriveHttpError) {
+      return NextResponse.json(
+        { success: false, message: error.message },
+        { status: error.status }
+      );
+    }
     console.error('Delete invitation error:', error);
     return NextResponse.json(
       { success: false, message: '서버 오류가 발생했습니다.' },

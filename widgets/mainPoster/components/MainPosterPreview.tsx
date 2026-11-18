@@ -20,6 +20,7 @@ import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { cn } from '@/shared/utils/cn';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
+import { markCanvasInitialized } from '@/widgets/mainPoster/utils/canvasReadiness';
 
 import { useKeyboardEvents } from '../hooks/useKeyboardEvents';
 import { useSetFabricControls } from '../hooks/useSetFabricControls';
@@ -152,6 +153,7 @@ export const MainPosterPreview = () => {
         console.error('Fabric load Error:', error);
         isInitialLoadDoneRef.current = true;
       } finally {
+        markCanvasInitialized(canvas);
         setIsCanvasLoading(false);
       }
     };
@@ -478,7 +480,10 @@ export const MainPosterPreview = () => {
 
           if (!file || !canvas || !pendingSlotId) return;
 
-          const slotTarget = findPrimarySlotTargetBySlotId(canvas, pendingSlotId);
+          const slotTarget = findPrimarySlotTargetBySlotId(
+            canvas,
+            pendingSlotId
+          );
           if (!slotTarget) {
             pendingSlotRef.current = null;
             suppressSelectionClearedRef.current = false;

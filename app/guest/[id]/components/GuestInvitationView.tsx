@@ -1,5 +1,6 @@
 'use client';
 
+import GuestCollection from '@/features/invitation/collection/GuestCollection';
 import InviaLogo from '@/shared/assets/logo/invia-logo.svg';
 import { DriveImageResolveModeProvider } from '@/shared/hooks/useDriveImageResolveMode';
 
@@ -13,6 +14,7 @@ import type { NormalizedGuestPayload } from '../validation/parseGuestPayload';
 type GuestInvitationViewMode = 'guest' | 'dashboard-preview';
 
 type GuestInvitationViewProps = {
+  collectionId?: string;
   onMainPosterReady?: () => void;
   payload: NormalizedGuestPayload;
   mode?: GuestInvitationViewMode;
@@ -21,6 +23,7 @@ type GuestInvitationViewProps = {
 };
 
 function GuestInvitationView({
+  collectionId,
   onMainPosterReady,
   payload,
   mode = 'guest',
@@ -77,6 +80,7 @@ function GuestInvitationView({
               isGuestPage
             />
           </div>
+          {collectionId && mode === 'guest' && <GuestCollection id={collectionId} />}
           <GuestInvitationFooter />
         </div>
       </Root>

@@ -2,6 +2,7 @@ import { ShieldCheck } from 'lucide-react';
 
 import ContactEmailActions from '@/features/contact/components/ContactEmailActions';
 import DashboardShell from '@/features/session/components/DashboardShell';
+import { AUTH_SESSION_MAX_AGE_DAYS } from '@/shared/config/authSession';
 
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
@@ -42,7 +43,7 @@ type PolicySection = {
 const policyInfo = {
   title: '개인정보처리방침',
   effectiveDate: '2026년 4월 24일',
-  lastUpdated: '2026년 6월 14일',
+  lastUpdated: '2026년 11월 17일',
   descriptions: [
     'Invia는 이용자의 개인정보를 중요하게 생각하며 관련 법령을 준수합니다.',
     '본 방침은 서비스가 이용자의 개인정보와 Google Drive 데이터를 어떻게 처리하는지 설명합니다.',
@@ -89,6 +90,7 @@ const policySections: PolicySection[] = [
         type: 'list',
         items: [
           'Google OAuth 인증과 Drive 연동에 필요한 access token, refresh token, 승인된 권한 범위 정보',
+          'Google 계정을 구분하기 위한 식별 정보의 해시값, 로그인 세션 식별자 및 만료 정보',
           '서비스가 생성한 Google Drive 파일 및 폴더의 생성, 조회, 수정, 삭제 권한 정보',
         ],
       },
@@ -121,6 +123,7 @@ const policySections: PolicySection[] = [
           '초대장 공개/비공개 상태 관리',
           '초대장 공유 링크와 카카오톡 공유 미리보기 제공',
           '서비스 안정성 유지와 장애 대응',
+          '작성 중인 초안 복구와 중단된 저장 작업의 재시도',
         ],
       },
     ],
@@ -135,7 +138,11 @@ const policySections: PolicySection[] = [
         items: [
           '초대장 데이터와 주요 콘텐츠는 이용자의 Google Drive에 저장됩니다.',
           '서비스는 초대장 본문을 별도 서버 DB에 영구 저장하지 않습니다.',
-          '이용자가 Google Drive에서 파일을 삭제하거나 계정 연동을 해제하면, 해당 데이터는 서비스 접근 범위에서 제외됩니다.',
+          `일반 로그인 정보는 이 기기의 HttpOnly 쿠키에 암호화하여 최대 ${AUTH_SESSION_MAX_AGE_DAYS}일 보관하고 로그아웃하면 삭제합니다. 일반 로그인을 위해 Upstash에 Google 토큰을 보관하지 않습니다.`,
+          '중단된 저장 작업을 복구하기 위한 초대장·파일·폴더 식별 정보, 임시 업로드 주소와 진행 상태는 Upstash에 암호화해 최대 7일간 보관합니다. 이 진행 정보에는 Google OAuth 토큰이나 사진·음악의 원본 파일을 저장하지 않습니다.',
+          '공유 링크 제공에 필요한 짧은 코드와 초대장 파일·폴더 식별자의 연결 정보도 Upstash에 보관하며, 초대장 삭제 시 해당 연결 정보를 정리합니다.',
+          '작성 중인 초안은 사진·음악·포스터를 포함해 이용 중인 기기와 브라우저의 IndexedDB에 보관될 수 있습니다. 마지막 수정 후 7일이 지난 초안은 다음 방문에 정리하며, 로그아웃하면 해당 계정의 로컬 초안을 삭제합니다. 브라우저 저장 공간 부족이나 사이트 데이터 삭제 등으로 복구되지 않을 수 있습니다.',
+          '로그아웃하거나 로그인 세션이 만료돼도 이용자의 Google Drive에 저장된 초대장 파일은 삭제되지 않습니다.',
         ],
       },
     ],
@@ -148,7 +155,7 @@ const policySections: PolicySection[] = [
         id: 'visibility-intro',
         type: 'paragraph',
         content:
-          '이용자가 초대장을 공개로 전환하거나 공유 기능을 사용하는 경우, 초대장 표시와 공유 미리보기 제공을 위해 일부 데이터가 링크를 가진 사람이 접근 가능한 상태로 제공될 수 있습니다.',
+          '현재 서비스는 초대장 저장이 완료되면 자동으로 공개합니다. 초대장 표시와 공유 미리보기 제공을 위해 일부 데이터가 링크를 가진 사람이 접근 가능한 상태로 제공될 수 있으며, 마이페이지에서 비공개로 전환할 수 있습니다.',
       },
       {
         id: 'visibility-list',
@@ -188,8 +195,13 @@ const policySections: PolicySection[] = [
       {
         id: 'google-token-storage',
         type: 'paragraph',
+        content: '방명록 또는 하객 사진 수집에 별도로 동의한 경우에만 해당 초대장용 Google 인증 정보를 Upstash에 암호화해 보관합니다. 작성자가 로그아웃해도 하객을 대신해 전용 시트에 글을 추가하고 비공개 폴더에 사진을 받기 위해서입니다. 두 기능을 모두 끄거나 한국 시간으로 예식 후 4일째 0시가 되면 해당 연결 정보를 삭제합니다. 이미 발급한 사진 전송 주소로 시작한 업로드는 마감 뒤에도 완료될 수 있습니다.',
+      },
+      {
+        id: 'logout-and-google-revocation',
+        type: 'paragraph',
         content:
-          'Invia는 로그인 및 Drive 연동 유지를 위해 Google OAuth access token, refresh token, 승인된 권한 범위 정보를 인증 쿠키에 저장할 수 있습니다. 이 정보는 초대장 저장, 수정, 삭제, 공개 상태 변경 등 이용자가 요청한 기능을 제공하기 위해서만 사용됩니다.',
+          '서비스 로그아웃은 현재 로그인 세션과 그 세션의 저장된 인증 정보를 삭제하는 동작입니다. Google에 부여한 접근 권한을 철회하거나 Drive 파일의 공개 상태를 해제하는 동작과는 다릅니다. Google 계정 권한 관리에서 Invia 연결을 해제하면 이후 Google API 접근이 제한됩니다. 서비스가 해당 권한의 철회나 만료를 확인하면 사용할 수 없는 인증 정보를 삭제합니다.',
       },
       {
         id: 'google-policy',
@@ -211,6 +223,21 @@ const policySections: PolicySection[] = [
             준수합니다.
           </>
         ),
+      },
+    ],
+  },
+  {
+    id: 'cloud-services',
+    title: '서비스 운영에 이용하는 클라우드',
+    contents: [
+      {
+        id: 'cloud-service-list',
+        type: 'list',
+        items: [
+          'Vercel: 웹사이트 호스팅과 서버리스 요청 처리, Google OAuth 인증 및 Drive API 요청 처리에 이용합니다. Google 인증 정보의 암호화 키는 저장소와 분리된 서버 환경에서 관리합니다.',
+          'Upstash는 선택한 하객 접수의 암호화된 Google 연결, 접수 설정, 저장 진행 정보 및 짧은 공유 링크 연결 정보를 보관합니다. 방명록의 이름·글·작성일은 공개 읽기 전용 Google 스프레드시트에, 하객 사진은 작성자 Drive의 별도 비공개 폴더에 저장됩니다. 마감 뒤에도 공개 방명록을 읽을 수 있습니다. 작성자는 Drive에서 공유를 해제하거나 파일을 삭제할 수 있습니다.',
+          'Google: OAuth 로그인과 이용자 본인의 Google Drive 파일 보관에 이용합니다. 이용자는 Google 계정 권한 관리에서 Invia에 부여한 접근 권한을 철회할 수 있습니다.',
+        ],
       },
     ],
   },
@@ -246,6 +273,7 @@ const policySections: PolicySection[] = [
           '마이페이지에서 초대장의 공개/비공개 상태 변경',
           '마이페이지에서 초대장 삭제',
           '서비스 로그아웃 및 이용 중단',
+          '로그아웃은 현재 세션의 인증 정보와 해당 계정의 이 기기 초안을 삭제하며, Google 접근 권한의 철회는 위 Google 계정 권한 관리에서 별도로 진행할 수 있습니다.',
           '문의처를 통한 개인정보 관련 권리 행사 요청',
         ],
       },
@@ -262,6 +290,10 @@ const policySections: PolicySection[] = [
           'OAuth 기반 인증 적용',
           '최소 권한 원칙에 따른 Google API scope 사용',
           'HTTPS 기반 통신 적용',
+          '서버에 보관하는 Google OAuth 인증 정보의 암호화 및 암호화 키 분리 관리',
+          'Google OAuth 토큰을 브라우저 JavaScript 응답에 포함하지 않도록 제한',
+          '소유권과 앱의 관리 대상 여부에 따른 Drive 파일 접근 검증',
+          '오류 수집 정보에서 인증 토큰, 세션 쿠키와 임시 업로드 주소 제거',
           '애플리케이션 코드에서 초대장 본문 로그 저장 방지',
         ],
       },

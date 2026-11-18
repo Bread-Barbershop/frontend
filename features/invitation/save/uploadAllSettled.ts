@@ -15,10 +15,9 @@ export type UploadFail = {
 export async function uploadAllSettled(params: {
   originFile: UploadTask[];
   folderId: string;
-  accessToken: string;
   concurrency?: number; // 동시 업로드 개수 옵션. 호출할 때 지정하면서 테스트.
 }): Promise<{ ok: UploadOk[]; fail: UploadFail[] }> {
-  const { originFile, folderId, accessToken, concurrency } = params;
+  const { originFile, folderId, concurrency } = params;
 
   // 파일이 없으면 바로 끝
   if (originFile.length === 0) return { ok: [], fail: [] };
@@ -32,7 +31,7 @@ export async function uploadAllSettled(params: {
     const chunk = originFile.slice(i, i + limit);
 
     const tasks = chunk.map(async file => {
-      const result = await uploadFileToDrive(file.file, folderId, accessToken);
+      const result = await uploadFileToDrive(file.file, folderId);
       return { id: file.id, file: file.file, ...result };
     });
 

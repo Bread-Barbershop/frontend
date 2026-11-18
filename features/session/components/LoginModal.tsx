@@ -1,10 +1,12 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import InviaSimpleLogo3d from '@/shared/assets/logo/invia-simple-logo-3d.png';
+import { AUTH_SESSION_MAX_AGE_DAYS } from '@/shared/config/authSession';
 import {
   trapFocus,
   disableBodyScroll,
@@ -88,7 +90,7 @@ function LoginModal({
       <div className="absolute inset-0 bg-[rgb(0_0_0_/_8%)]" />
 
       <div
-        className={`relative flex w-fit flex-col items-center gap-6 rounded-[12px] bg-white p-5 ring-1 ring-white/22 ring-inset transition-all duration-200 ${
+        className={`relative flex max-h-[calc(100dvh-40px)] w-[392px] max-w-[calc(100vw-40px)] flex-col items-center gap-5 overflow-y-auto rounded-[12px] bg-white p-5 ring-1 ring-white/22 ring-inset transition-all duration-200 ${
           isClosing
             ? 'scale-[0.98] opacity-0'
             : 'animate-[fade-in_180ms_ease-out] scale-100 opacity-100'
@@ -104,12 +106,35 @@ function LoginModal({
           priority
         />
 
+        <div className="w-full text-left">
+          <h2 id="login-modal-title" className="text-lg font-semibold">
+            Google Drive 연결
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-text-secondary">
+            내 Drive에 초대장을 저장하고 수정할 수 있도록 Google 계정을 연결해요.
+            로그인 정보는 이 브라우저에 암호화해 최대 {AUTH_SESSION_MAX_AGE_DAYS}일간 보관하고 로그아웃하면 삭제해요.
+            방명록이나 하객 사진을 받으려면 초대장 설정에서 따로 동의해 주세요.
+          </p>
+          <p className="mt-2 text-sm leading-6 text-text-secondary">
+            아래 버튼을 누르면 이 인증 정보 처리에 동의하고 Google의 권한 확인
+            화면으로 이동해요. Google 권한 해제는 로그아웃과 별개예요.
+          </p>
+          <Link
+            href="/policy#google-user-data"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-block text-sm underline underline-offset-4"
+          >
+            개인정보처리방침 및 연결 해제 방법
+          </Link>
+        </div>
+
         <button
           ref={googleButtonRef}
           type="button"
           onClick={onGoogleLogin}
           disabled={isLoading}
-          className="relative flex h-11 w-[352px] cursor-pointer items-center justify-center rounded-[8px] bg-white px-2 py-1.5 text-[15px] font-medium text-[#111827] ring-1 ring-[#EBEBEB] ring-inset enabled:hover:bg-[#FAFAFB] enabled:active:bg-[#F5F8FF] disabled:cursor-not-allowed disabled:opacity-60"
+          className="relative flex min-h-11 w-full shrink-0 cursor-pointer items-center justify-center rounded-[8px] bg-white py-1.5 pl-11 pr-3 text-[14px] font-medium text-[#111827] ring-1 ring-[#EBEBEB] ring-inset enabled:hover:bg-[#FAFAFB] enabled:active:bg-[#F5F8FF] disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Image
             src="/assets/icons/google-icon.svg"
@@ -118,7 +143,14 @@ function LoginModal({
             height={32}
             className="absolute left-2"
           />
-          <p>{isLoading ? '로그인중..' : 'Google로 계속하기'}</p>
+          <p>{isLoading ? '로그인중..' : '동의하고 Google로 계속하기'}</p>
+        </button>
+        <button
+          type="button"
+          onClick={closeWithFade}
+          className="text-sm text-text-secondary underline underline-offset-4"
+        >
+          취소
         </button>
       </div>
     </div>,

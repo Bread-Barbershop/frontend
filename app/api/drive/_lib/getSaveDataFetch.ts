@@ -5,6 +5,7 @@ import {
   DRIVE_FOLDER_MIME,
   listCloneFiles,
 } from '@/app/api/drive/_lib/cloneDriveFiles';
+import { assertDriveId } from '@/app/api/drive/_lib/driveAccess';
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
 import { isInvitationAuxiliaryFolder } from '@/app/api/drive/_lib/invitationAudienceFolders';
@@ -22,6 +23,8 @@ export type DriveListResponse = {
     id?: string;
     name?: string;
     mimeType?: string;
+    ownedByMe?: boolean;
+    parents?: string[];
     appProperties?: Record<string, string>;
   }>;
 
@@ -38,6 +41,7 @@ export async function loadInvitations(
   id: string | null
 ): Promise<DriveListResponse | null> {
   if (!id) return null;
+  assertDriveId(id);
   try {
     const files = await listCloneFiles(id);
     return {
@@ -53,6 +57,7 @@ export async function loadInvitations(
 }
 
 export async function downloadFiles(id: string): Promise<JsonData | null> {
+  assertDriveId(id);
   try {
     const listRes = await googleFetch(
       `https://www.googleapis.com/drive/v3/files/${id}?alt=media`,
@@ -79,6 +84,7 @@ export async function downloadFiles(id: string): Promise<JsonData | null> {
 export async function getFilesInFolder(
   folderId: string
 ): Promise<DriveListResponse | null> {
+  assertDriveId(folderId);
   try {
     const files = [];
     const folders = [folderId];

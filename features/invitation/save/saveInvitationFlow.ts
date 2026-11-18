@@ -22,11 +22,8 @@ import { createGuestRenderHints } from './createGuestRenderHints';
 import {
   getPreparedInvitation,
   invalidatePreparedInvitation,
-  isPreparedTokenValid,
-  normalizeExpiresAt,
   runPrepareOnce,
   setPreparedInvitation,
-  updatePreparedAccessToken,
   type PreparedInvitationSave,
 } from './prepareCache';
 import { retryFailedOnce } from './retryFailedOnce';
@@ -47,8 +44,6 @@ type SaveInvitationPrepareResponse = {
   dataJsonFileId: string;
   imageFolderId: string;
   audioFolderId: string;
-  accessToken: string;
-  expiresAt: string | number;
   meta?: unknown;
 };
 
@@ -100,10 +95,6 @@ type SaveInvitationFlowResult = {
     imageFolderId: string;
     audioFolderId: string;
   };
-  debug: {
-    refreshedToken: boolean;
-    usedAccessToken: string;
-  };
   visibility: {
     attempted: boolean;
     ok: boolean;
@@ -116,14 +107,6 @@ type SaveInvitationFlowResult = {
 
 type StepResult = {
   final: BatchResult;
-  usedAccessToken: string;
-};
-
-type TokenState = {
-  currentToken: string;
-  currentExpiresAt: number;
-  refreshedToken: boolean;
-  refreshAccessToken: () => Promise<string>;
 };
 
 type SaveFailureStage =
@@ -235,10 +218,7 @@ type InitialVisibilityResult = SaveInvitationFlowResult['visibility'];
 function toPreparedInvitationSave(
   response: SaveInvitationPrepareResponse
 ): PreparedInvitationSave {
-  return {
-    ...response,
-    expiresAt: normalizeExpiresAt(response.expiresAt),
-  };
+  return response;
 }
 
 async function requestPrepare(
@@ -259,53 +239,18 @@ async function requestPrepare(
   );
 }
 
-// prepare: 저장에 필요한 Drive 폴더, data.json, access token을 준비한다.
-// 캐시된 Drive 구조가 있으면 재사용하고, token만 만료되었으면 token만 갱신한다.
+// 저장에 필요한 Drive 구조만 준비한다. Google 토큰은 서버 밖으로 나오지 않는다.
 async function prepare(
   invitationUuid: string | undefined
 ): Promise<PreparedInvitationSave> {
   const cached = getPreparedInvitation(invitationUuid);
 
-  if (cached) {
-    return isPreparedTokenValid(cached)
-      ? cached
-      : await getFreshPreparedAccessToken(cached);
-  }
+  if (cached) return cached;
 
   return runPrepareOnce({
     invitationUuid,
     run: () => requestPrepare(invitationUuid),
   });
-}
-
-// upload/commit 단계에서 같은 토큰 상태를 공유한다.
-// 401 재시도 중 토큰이 갱신되면 이후 단계도 갱신된 토큰을 사용한다.
-function createTokenState(prep: PreparedInvitationSave): TokenState {
-  const token: TokenState = {
-    currentToken: prep.accessToken,
-    currentExpiresAt: prep.expiresAt,
-    refreshedToken: false,
-    refreshAccessToken: async () => {
-      const r = await fetch('/api/drive/getToken', { method: 'POST' });
-      if (!r.ok) throw new Error(`refresh-token failed: ${r.status}`);
-      const j = await r.json();
-
-      token.currentToken = j.accessToken as string;
-      token.currentExpiresAt = normalizeExpiresAt(
-        j.expiresAt as string | number
-      );
-      token.refreshedToken = true;
-      updatePreparedAccessToken({
-        invitationUuid: prep.invitationUuid,
-        accessToken: token.currentToken,
-        expiresAt: token.currentExpiresAt,
-      });
-
-      return token.currentToken;
-    },
-  };
-
-  return token;
 }
 
 // upload: 현재 저장에 필요한 이미지와 오디오 파일을 Drive에 업로드한다.
@@ -314,11 +259,10 @@ async function upload(params: {
   prep: PreparedInvitationSave;
   images: UploadTask[];
   audio: File | null;
-  token: TokenState;
   diagnostics: SaveDiagnostics;
   onProgress?: (step: SaveProgressStep) => void;
 }): Promise<UploadResult> {
-  const { prep, images, audio, token, diagnostics, onProgress } = params;
+  const { prep, images, audio, diagnostics, onProgress } = params;
 
   // 공통 업로드 실행기: 1차 업로드 후 실패한 파일만 1회 재시도한다.
   const runUploadStep = async (step: {
@@ -329,14 +273,13 @@ async function upload(params: {
     if (step.originFile.length === 0) {
       return {
         final: { ok: [], fail: [] },
-        usedAccessToken: token.currentToken,
       };
     }
 
     const firstAttempt = await uploadAllSettled({
       originFile: step.originFile,
       folderId: step.folderId,
-      accessToken: token.currentToken,
+
       concurrency: step.concurrency,
     });
 
@@ -344,26 +287,17 @@ async function upload(params: {
       ? await retryFailedOnce({
           failures: firstAttempt.fail,
           folderId: step.folderId,
-          accessToken: token.currentToken,
-          refreshAccessToken: token.refreshAccessToken,
         })
       : {
           ok: [],
           fail: [],
-          refreshedToken: false,
-          usedAccessToken: token.currentToken,
         };
-
-    if (retryAttempt.refreshedToken) {
-      token.currentToken = retryAttempt.usedAccessToken;
-    }
 
     return {
       final: {
         ok: [...firstAttempt.ok, ...retryAttempt.ok],
         fail: retryAttempt.fail,
       },
-      usedAccessToken: token.currentToken,
     };
   };
 
@@ -406,7 +340,6 @@ async function upload(params: {
 // 현재는 기존 동작 유지를 위해 공유 데이터와 썸네일 저장도 이 단계에서 함께 처리한다.
 async function commit(params: {
   prep: PreparedInvitationSave;
-  token: TokenState;
   uploadResult: UploadResult;
   bulkData: BulkJson;
   images: UploadTask[];
@@ -421,7 +354,7 @@ async function commit(params: {
 }): Promise<CommitResult> {
   const {
     prep,
-    token,
+
     uploadResult,
     bulkData,
     images,
@@ -435,6 +368,17 @@ async function commit(params: {
     onProgress,
   } = params;
   const { fileToId, uploadedAudioFileId } = uploadResult;
+  if (
+    uploadResult.imagesStep.final.fail.length ||
+    uploadResult.audioStep.final.fail.length
+  ) {
+    return {
+      dataStep: { final: { ok: [], fail: [] } },
+      thumbnailSaveFailed: false,
+      metaSaveFailed: false,
+      guestUrl: toClientGuestUrl('/guest/' + prep.dataJsonFileId),
+    };
+  }
 
   onProgress?.('collectingText');
   // uploadImages의 imageId -> File 매핑 (중복 이미지 처리용)
@@ -584,11 +528,7 @@ async function commit(params: {
   // data.json PATCH가 저장 완료의 핵심 단계다. 실패하면 401/5xx에 한해 1회 재시도한다.
   const dataFirstAttempt: BatchResult = await (async () => {
     try {
-      const result = await updateFileToDrive(
-        dataFile,
-        prep.dataJsonFileId,
-        token.currentToken
-      );
+      const result = await updateFileToDrive(dataFile, prep.dataJsonFileId);
       return {
         ok: [{ file: dataFile, ...result } satisfies UploadOk],
         fail: [],
@@ -601,20 +541,13 @@ async function commit(params: {
   const dataRetryAttempt = await retryPatchFailedOnce({
     failures: dataFirstAttempt.fail,
     fileId: prep.dataJsonFileId,
-    accessToken: token.currentToken,
-    refreshAccessToken: token.refreshAccessToken,
   });
-
-  if (dataRetryAttempt.refreshedToken) {
-    token.currentToken = dataRetryAttempt.usedAccessToken;
-  }
 
   const dataStep: StepResult = {
     final: {
       ok: [...dataFirstAttempt.ok, ...dataRetryAttempt.ok],
       fail: dataRetryAttempt.fail,
     },
-    usedAccessToken: token.currentToken,
   };
 
   onProgress?.('checkingPresentation');
@@ -693,26 +626,6 @@ async function commit(params: {
   };
 }
 
-async function getFreshPreparedAccessToken(
-  prepared: PreparedInvitationSave
-): Promise<PreparedInvitationSave> {
-  const r = await fetch('/api/drive/getToken', { method: 'POST' });
-  if (!r.ok) throw new Error(`refresh-token failed: ${r.status}`);
-  const j = await r.json();
-
-  return (
-    updatePreparedAccessToken({
-      invitationUuid: prepared.invitationUuid,
-      accessToken: j.accessToken as string,
-      expiresAt: j.expiresAt as string | number,
-    }) ?? {
-      ...prepared,
-      accessToken: j.accessToken as string,
-      expiresAt: normalizeExpiresAt(j.expiresAt as string | number),
-    }
-  );
-}
-
 async function prepareFallback(invitationUuid: string) {
   invalidatePreparedInvitation(invitationUuid);
   return runPrepareOnce({
@@ -789,18 +702,17 @@ async function runSaveInvitationFlow(
   params.onProgress?.('checkingContent');
   diagnostics.currentStage = 'prepare';
   let prep = await prepare(invitationUuid);
-  let token = createTokenState(prep);
   let uploadResult = await upload({
     prep,
     images: params.uploadImages ?? images,
     audio,
-    token,
+
     diagnostics,
     onProgress: params.onProgress,
   });
   let commitResult = await commit({
     prep,
-    token,
+
     uploadResult,
     bulkData,
     images,
@@ -825,18 +737,17 @@ async function runSaveInvitationFlow(
     params.onProgress?.('checkingContent');
     diagnostics.currentStage = 'prepare';
     prep = await prepareFallback(prep.invitationUuid);
-    token = createTokenState(prep);
     uploadResult = await upload({
       prep,
       images: params.uploadImages ?? images,
       audio,
-      token,
+
       diagnostics,
       onProgress: params.onProgress,
     });
     commitResult = await commit({
       prep,
-      token,
+
       uploadResult,
       bulkData,
       images,
@@ -869,11 +780,7 @@ async function runSaveInvitationFlow(
           ready: false,
         };
 
-  setPreparedInvitation({
-    ...prep,
-    accessToken: token.currentToken,
-    expiresAt: token.currentExpiresAt,
-  });
+  setPreparedInvitation(prep);
 
   // 저장 필수 단계 또는 초기 공개 권한 처리 실패가 있으면 success=false다.
   const totalFailed =
@@ -899,10 +806,6 @@ async function runSaveInvitationFlow(
       invitationFolderId: prep.invitationFolderId,
       imageFolderId: prep.imageFolderId,
       audioFolderId: prep.audioFolderId,
-    },
-    debug: {
-      refreshedToken: token.refreshedToken,
-      usedAccessToken: token.currentToken,
     },
     visibility,
   };
@@ -942,7 +845,6 @@ async function runSaveInvitationFlow(
       imageFailureCount: uploadResult.imagesStep.final.fail.length,
       audioFailureCount: uploadResult.audioStep.final.fail.length,
       dataFailureCount: commitResult.dataStep.final.fail.length,
-      tokenRefreshed: token.refreshedToken,
       usedPrepareFallback,
       visibilityStatus: visibility.status,
     });

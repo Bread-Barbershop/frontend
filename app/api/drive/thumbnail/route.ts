@@ -4,6 +4,10 @@ import { NextResponse } from 'next/server';
 
 import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
 import {
+  assertInvitationAccess,
+  assertSameOriginRequest,
+} from '@/app/api/drive/_lib/driveAccess';
+import {
   APP_IDENTIFIER,
   ensureThumbnailFile,
   THUMBNAIL_KIND,
@@ -22,6 +26,7 @@ import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
  */
 export async function POST(req: Request) {
   try {
+    assertSameOriginRequest(req);
     const { invitationFolderId, thumbnailData } = (await req.json()) as {
       invitationFolderId: string;
       thumbnailData: ThumbnailPayload;
@@ -42,21 +47,14 @@ export async function POST(req: Request) {
     }
 
     // 1) 기존 파일 확인
-    const { thumbnailFileId } = await ensureThumbnailFile(invitationFolderId);
+    await assertInvitationAccess(invitationFolderId);
+    // Keep the currently referenced thumbnail until data.json has committed.
 
-    // 2) 새 파일 생성 성공 후 기존 파일 삭제
+    // 2) 새 버전 생성
     const finalFileId = await createThumbnailFile(
       invitationFolderId,
       thumbnailData
     );
-    if (thumbnailFileId && finalFileId !== thumbnailFileId) {
-      try {
-        await deleteThumbnailFile(thumbnailFileId);
-      } catch (error) {
-        // 신규 파일 저장은 성공했으므로 이전 파일 정리 실패로 저장 결과를 무효화하지 않는다.
-        captureDriveError({ error, operation: 'drive_thumbnail_old_file_cleanup' });
-      }
-    }
 
     // // 3) 공개 권한 설정
     // await publishPermissionWithRetry(finalFileId);
@@ -106,6 +104,7 @@ export async function GET(req: Request) {
       );
     }
 
+    await assertInvitationAccess(invitationFolderId);
     const { thumbnailFileId } = await ensureThumbnailFile(invitationFolderId);
 
     if (!thumbnailFileId) {
@@ -173,7 +172,11 @@ function resolveNormalizedThumbnailFormat(thumbnailData: ThumbnailPayload): {
     thumbnailData.dataUrl
   );
   if (!match) {
-    throw new DriveHttpError('지원하지 않는 썸네일 데이터 형식입니다.', 400, {});
+    throw new DriveHttpError(
+      '지원하지 않는 썸네일 데이터 형식입니다.',
+      400,
+      {}
+    );
   }
 
   const imageBytes = Buffer.from(match[2], 'base64');
@@ -187,7 +190,11 @@ function resolveNormalizedThumbnailFormat(thumbnailData: ThumbnailPayload): {
 
   // 파일 이름이나 외부 MIME 값이 아닌 실제 이미지 서명과 data URL을 대조한다.
   if ((match[1] === 'webp' && !isWebp) || (match[1] === 'png' && !isPng)) {
-    throw new DriveHttpError('썸네일 이미지 데이터가 손상되었거나 형식이 다릅니다.', 400, {});
+    throw new DriveHttpError(
+      '썸네일 이미지 데이터가 손상되었거나 형식이 다릅니다.',
+      400,
+      {}
+    );
   }
 
   return {
@@ -201,7 +208,8 @@ async function createThumbnailFile(
   invitationFolderId: string,
   thumbnailData: ThumbnailPayload
 ): Promise<string> {
-  const { mimeType, fileName, imageBytes } = resolveNormalizedThumbnailFormat(thumbnailData);
+  const { mimeType, fileName, imageBytes } =
+    resolveNormalizedThumbnailFormat(thumbnailData);
 
   const metaRes = await googleFetch(
     'https://www.googleapis.com/drive/v3/files',

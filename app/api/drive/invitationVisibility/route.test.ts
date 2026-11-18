@@ -2,6 +2,13 @@
  * @jest-environment node
  */
 
+jest.mock('@/app/api/drive/_lib/driveAccess', () => ({
+  assertInvitationAccess: jest.fn(),
+  assertManagedFileAccess: jest.fn(),
+  assertDeletableFileAccess: jest.fn(),
+  assertSameOriginRequest: jest.fn(),
+}));
+
 jest.mock('next/cache', () => ({
   revalidatePath: jest.fn(),
   revalidateTag: jest.fn(),

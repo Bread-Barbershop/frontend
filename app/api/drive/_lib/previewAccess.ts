@@ -145,7 +145,7 @@ async function getWorkspaceFolderIdOrThrow(ownedOnly: boolean) {
 export async function assertInvitationFolderAccess(
   folderId: string,
   {
-    ownedOnly = false,
+    ownedOnly = true,
     allowAudience = true,
   }: {
     ownedOnly?: boolean;
@@ -304,7 +304,7 @@ export async function assertDriveFileUnderInvitation(
   await assertInvitationFolderAccess(invitationFolderId);
 
   const file = await getDriveFile(fileId);
-  if (!file || file.trashed) {
+  if (!file || file.trashed || file.ownedByMe !== true) {
     throw previewError(
       'ASSET_FORBIDDEN',
       403,
@@ -327,7 +327,7 @@ export async function assertDriveFileUnderInvitation(
     const parent = await getDriveFile(nextParentId);
     if (
       !parent ||
-      parent.trashed ||
+      parent.trashed || parent.ownedByMe !== true ||
       isInvitationAuxiliaryFolder(parent.appProperties?.kind)
     )
       break;

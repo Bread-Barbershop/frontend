@@ -20,11 +20,11 @@ export function getGuestAudienceSlug(to: string | string[] | undefined) {
   return to;
 }
 
-export type GuestInvitationResult =
+export type GuestInvitationResult = (
   | LoadGuestPayloadResult
   | { status: 'invalid-audience' }
   | { status: 'audience-unavailable' }
-  | { status: 'missing-short-code' };
+  | { status: 'missing-short-code' }) & { rootDataFileId?: string };
 
 export const loadGuestInvitation = cache(
   async (
@@ -34,7 +34,7 @@ export const loadGuestInvitation = cache(
     if (audienceSlug === null) return { status: 'invalid-audience' };
 
     const root = await loadGuestPayload(rootDataFileId);
-    if (audienceSlug === undefined) return root;
+    if (audienceSlug === undefined) return root.status === 'ok' ? {...root, rootDataFileId} : root;
     if (root.status === 'not-found') return { status: 'invalid-audience' };
     if (root.status !== 'ok') return root;
 
@@ -49,6 +49,6 @@ export const loadGuestInvitation = cache(
     const child = await loadGuestPayload(childDataFileId);
     return child.status === 'not-found'
       ? { status: 'invalid-audience' }
-      : child;
+      : child.status === 'ok' ? {...child,rootDataFileId} : child;
   }
 );

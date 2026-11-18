@@ -5,6 +5,11 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 
 import { useAuthGate } from '@/features/session/hooks/useAuthGate';
+import { clearAccountDrafts } from '@/features/invitation/draft/localDraftStore';
+
+jest.mock('@/features/invitation/draft/localDraftStore', () => ({
+  clearAccountDrafts: jest.fn(),
+}));
 
 const pushMock = jest.fn();
 const replaceMock = jest.fn();
@@ -41,51 +46,27 @@ describe('useAuthGate', () => {
     });
   });
 
-  it('opens privacy notice before login modal for unauthenticated runAfterAuth', async () => {
+  it('인증이 필요한 동작은 로그인 모달을 열고 Google 인증 전까지 실행하지 않는다', () => {
     const action = jest.fn();
-
     const { result } = renderHook(() =>
       useAuthGate({ initialIsLoggedIn: false })
     );
-
-    expect(result.current.isLoggedIn).toBe(false);
-    expect(result.current.isLoginOpen).toBe(false);
-    expect(result.current.isPrivacyNoticeOpen).toBe(false);
-
-    act(() => {
-      result.current.runAfterAuth(action);
-    });
-
-    expect(action).not.toHaveBeenCalled();
-    expect(result.current.isPrivacyNoticeOpen).toBe(true);
-    expect(result.current.isLoginOpen).toBe(false);
-
-    act(() => {
-      result.current.closePrivacyNotice();
-    });
-
-    expect(result.current.isPrivacyNoticeOpen).toBe(false);
+    act(() => result.current.runAfterAuth(action));
     expect(result.current.isLoginOpen).toBe(true);
+    expect(action).not.toHaveBeenCalled();
+    expect(window.open).not.toHaveBeenCalled();
   });
 
-  it('opens privacy notice before login modal when login is requested', async () => {
+  it('로그인 버튼은 안내 확인 단계를 거치지 않고 로그인 모달만 연다', () => {
     const { result } = renderHook(() =>
       useAuthGate({ initialIsLoggedIn: false })
     );
-
-    act(() => {
-      result.current.login();
-    });
-
-    expect(result.current.isPrivacyNoticeOpen).toBe(true);
-    expect(result.current.isLoginOpen).toBe(false);
-
-    act(() => {
-      result.current.closePrivacyNotice();
-    });
-
-    expect(result.current.isPrivacyNoticeOpen).toBe(false);
+    act(() => result.current.login());
     expect(result.current.isLoginOpen).toBe(true);
+    expect(window.open).not.toHaveBeenCalled();
+    act(() => result.current.closeLogin());
+    expect(result.current.isLoginOpen).toBe(false);
+    expect(window.open).not.toHaveBeenCalled();
   });
 
   it('opens an OAuth popup when loginWithGoogle is called', async () => {
@@ -153,10 +134,6 @@ describe('useAuthGate', () => {
     });
 
     act(() => {
-      result.current.closePrivacyNotice();
-    });
-
-    act(() => {
       result.current.loginWithGoogle();
     });
 
@@ -198,11 +175,10 @@ describe('useAuthGate', () => {
 
     expect(result.current.isLoginPending).toBe(false);
     expect(result.current.isLoginOpen).toBe(false);
-    expect(result.current.isPrivacyNoticeOpen).toBe(false);
     expect(refreshMock).toHaveBeenCalled();
   });
 
-  it('runs pending action on GOOGLE_OAUTH_SUCCESS after the pre-login notice flow', async () => {
+  it('runs pending action on GOOGLE_OAUTH_SUCCESS after Google login', async () => {
     const action = jest.fn();
 
     const { result } = renderHook(() =>
@@ -211,10 +187,6 @@ describe('useAuthGate', () => {
 
     act(() => {
       result.current.runAfterAuth(action);
-    });
-
-    act(() => {
-      result.current.closePrivacyNotice();
     });
 
     act(() => {
@@ -235,7 +207,6 @@ describe('useAuthGate', () => {
     });
 
     expect(action).toHaveBeenCalledTimes(1);
-    expect(result.current.isPrivacyNoticeOpen).toBe(false);
     expect(refreshMock).not.toHaveBeenCalled();
   });
 
@@ -248,10 +219,6 @@ describe('useAuthGate', () => {
 
     act(() => {
       result.current.runAfterAuth(action);
-    });
-
-    act(() => {
-      result.current.closePrivacyNotice();
     });
 
     act(() => {
@@ -358,6 +325,7 @@ describe('useAuthGate', () => {
     mockFetch.mockResolvedValue({
       ok: true,
       status: 200,
+      json: async () => ({ isLoggedIn: true, userId: 'account-a' }),
     });
 
     const { result } = renderHook(() =>
@@ -373,6 +341,7 @@ describe('useAuthGate', () => {
     expect(mockFetch).toHaveBeenCalledWith('/api/auth/logout', {
       method: 'POST',
     });
+    expect(clearAccountDrafts).toHaveBeenCalledWith('account-a');
     expect(result.current.isLoggedIn).toBe(false);
     expect(replaceMock).toHaveBeenCalledWith('/');
     expect(refreshMock).toHaveBeenCalled();

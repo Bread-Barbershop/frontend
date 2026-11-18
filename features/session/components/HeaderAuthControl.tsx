@@ -9,7 +9,6 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import DrivePermissionRequiredModal from './DrivePermissionRequiredModal';
 import HeaderSupportersButton from './HeaderSupportersButton';
 import LoginModal from './LoginModal';
-import PrivacyNoticeModal from './PrivacyNoticeModal';
 
 import type { MouseEvent } from 'react';
 
@@ -27,11 +26,11 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
     isBusy,
     isLoginOpen,
     isLoginPending,
-    isPrivacyNoticeOpen,
+
     isDrivePermissionRequiredOpen,
     login,
     closeLogin,
-    closePrivacyNotice,
+
     closeDrivePermissionRequired,
     loginWithGoogle,
     retryDrivePermission,
@@ -48,10 +47,6 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
         isLoading={isLoginPending}
         onClose={closeLogin}
         onGoogleLogin={loginWithGoogle}
-      />
-      <PrivacyNoticeModal
-        open={isPrivacyNoticeOpen}
-        onClose={closePrivacyNotice}
       />
       <DrivePermissionRequiredModal
         open={isDrivePermissionRequiredOpen}

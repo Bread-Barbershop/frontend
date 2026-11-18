@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 
 import { EditorBgmPlayerProvider } from '@/components/organisms/bgm/context/EditorBgmPlayerContext';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
+import LocalDraftRecovery from '@/features/invitation/draft/LocalDraftRecovery';
 import LoadingSpinner from '@/shared/assets/icons/loadingSpinner.svg';
 import { usePreventBack } from '@/shared/hooks/usePreventBack';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
@@ -71,6 +72,7 @@ function EditorUpdate({ folderId, uuid }: Props) {
   return (
     <FabricProvider initialData={savedData?.mainPoster}>
       <EditorBgmPlayerProvider>
+        <LocalDraftRecovery />
         <div className="w-full h-full bg-[#E7E9EB] flex flex-col gap-13 justify-center overflow-x-auto overflow-y-hidden">
           <div className="min-w-[1340px] flex justify-between items-center">
             <LeftPanel />

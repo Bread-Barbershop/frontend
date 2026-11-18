@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
+import { flushActiveDraft } from '@/features/invitation/draft/draftLifecycle';
 import {
   saveInvitationFlow,
   type SaveProgressStep,
@@ -292,6 +293,10 @@ export const useInvitationUpload = () => {
     if (isSaveLoadingRef.current || isCleaningUp) return null;
 
     try {
+      if (isSaveLoadingRef.current) return;
+      const stableUuid =
+        useEditorStore.getState().invitationUuid || crypto.randomUUID();
+      useEditorStore.getState().setInvitationUuid(stableUuid);
       isSaveLoadingRef.current = true;
       pendingProgressStepRef.current = null;
       clearProgressMessageTimer();
@@ -342,6 +347,7 @@ export const useInvitationUpload = () => {
       }
       queueProgressStep('collectingText');
 
+      await flushActiveDraft();
       const bgmData = {
         selectedBgmId: selectedBgmId ?? null,
         isLoop,
@@ -385,7 +391,7 @@ export const useInvitationUpload = () => {
         bgmData,
         mainPoster,
         invitationThumbnail,
-        invitationUuid,
+        invitationUuid: stableUuid,
         preserveVisibility,
         onProgress: queueProgressStep,
       });

@@ -2,6 +2,13 @@
  * @jest-environment node
  */
 
+jest.mock('@/app/api/drive/_lib/driveAccess', () => ({
+  assertInvitationAccess: jest.fn(),
+  assertManagedFileAccess: jest.fn(),
+  assertDeletableFileAccess: jest.fn(),
+  assertSameOriginRequest: jest.fn(),
+}));
+
 jest.mock('@/app/api/drive/_lib/captureDriveError', () => ({
   captureDriveError: jest.fn(),
 }));
@@ -59,7 +66,8 @@ describe('/api/drive/thumbnail route', () => {
           thumbnailData: {
             name: 'arbitrary-name.png', // 이름이 png여도 dataUrl이 webp이면 webp로 정규화
             mimeType: 'image/png',
-            dataUrl: 'data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAQAcJaACdLoB+AA/v24A',
+            dataUrl:
+              'data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAQAcJaACdLoB+AA/v24A',
             width: 860,
             height: 1200,
             createdAt: new Date().toISOString(),
@@ -109,7 +117,8 @@ describe('/api/drive/thumbnail route', () => {
           invitationFolderId: 'folder-123',
           thumbnailData: {
             name: 'some.webp', // 이름이 webp여도 dataUrl이 png이면 png로 정규화
-            dataUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+            dataUrl:
+              'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
             width: 860,
             height: 1200,
             createdAt: new Date().toISOString(),
@@ -133,7 +142,7 @@ describe('/api/drive/thumbnail route', () => {
       expect(patchCall[1].headers['Content-Type']).toBe('image/png');
     });
 
-    it('기존 파일이 존재할 경우 새 파일 생성 완료 후 기존 파일을 DELETE 한다', async () => {
+    it('기존 공개 초대장의 썸네일은 본문 저장 전 삭제하지 않는다', async () => {
       (ensureThumbnailFile as jest.Mock).mockResolvedValue({
         thumbnailFileId: 'old-thumbnail-id',
         reused: true,
@@ -151,12 +160,6 @@ describe('/api/drive/thumbnail route', () => {
         status: 200,
         json: async () => ({}),
       });
-      // 3) DELETE old file
-      (googleFetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        json: async () => ({}),
-      });
 
       const req = new Request('http://localhost/api/drive/thumbnail', {
         method: 'POST',
@@ -164,7 +167,8 @@ describe('/api/drive/thumbnail route', () => {
         body: JSON.stringify({
           invitationFolderId: 'folder-123',
           thumbnailData: {
-            dataUrl: 'data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAQAcJaACdLoB+AA/v24A',
+            dataUrl:
+              'data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAQAcJaACdLoB+AA/v24A',
             width: 860,
             height: 1200,
             createdAt: new Date().toISOString(),
@@ -178,14 +182,14 @@ describe('/api/drive/thumbnail route', () => {
       expect(res.status).toBe(200);
       expect(json.thumbnailFileId).toBe('new-thumbnail-id');
 
-      // 3번째 호출이 DELETE old-thumbnail-id 여야 함
-      expect(googleFetch as jest.Mock).toHaveBeenCalledTimes(3);
-      const deleteCall = (googleFetch as jest.Mock).mock.calls[2];
-      expect(deleteCall[0]).toContain('old-thumbnail-id');
-      expect(deleteCall[1].method).toBe('DELETE');
+      expect(googleFetch as jest.Mock).toHaveBeenCalledTimes(2);
+      expect(
+        (googleFetch as jest.Mock).mock.calls.some(
+          call => call[1]?.method === 'DELETE'
+        )
+      ).toBe(false);
     });
   });
-
 
   describe('데이터 포맷 검증 및 오류 복구', () => {
     it('data URL과 실제 이미지 서명이 불일치하면 400을 반환하고 업로드하지 않는다', async () => {
@@ -212,7 +216,7 @@ describe('/api/drive/thumbnail route', () => {
       expect(googleFetch).not.toHaveBeenCalled();
     });
 
-    it('새 파일 저장 뒤 이전 파일 삭제가 실패해도 새 썸네일 ID를 반환한다', async () => {
+    it('이전 썸네일을 유지하고 새 썸네일 ID를 반환한다', async () => {
       (ensureThumbnailFile as jest.Mock).mockResolvedValue({
         thumbnailFileId: 'old-png-file-id',
         reused: true,
@@ -227,11 +231,6 @@ describe('/api/drive/thumbnail route', () => {
           ok: true,
           status: 200,
           json: async () => ({}),
-        })
-        .mockResolvedValueOnce({
-          ok: false,
-          status: 503,
-          json: async () => ({ message: 'temporarily unavailable' }),
         });
 
       const req = new Request('http://localhost/api/drive/thumbnail', {
@@ -242,7 +241,8 @@ describe('/api/drive/thumbnail route', () => {
           thumbnailData: {
             name: THUMBNAIL_NAME_WEBP,
             mimeType: 'image/webp',
-            dataUrl: 'data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAQAcJaACdLoB+AA/v24A',
+            dataUrl:
+              'data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAQAcJaACdLoB+AA/v24A',
           },
         }),
       });
@@ -253,7 +253,7 @@ describe('/api/drive/thumbnail route', () => {
         ok: true,
         thumbnailFileId: 'new-webp-file-id',
       });
-      expect(googleFetch).toHaveBeenCalledTimes(3);
+      expect(googleFetch).toHaveBeenCalledTimes(2);
     });
   });
 

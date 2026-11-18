@@ -5,6 +5,11 @@ import { NextResponse } from 'next/server';
 import { AudienceLinkStoreUnavailableError } from '@/app/api/drive/_lib/audienceLinkStore';
 import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
 import {
+  assertInvitationAccess,
+  assertManagedFileAccess,
+  assertSameOriginRequest,
+} from '@/app/api/drive/_lib/driveAccess';
+import {
   loadInvitationMeta,
   ShareUrlPayload,
   upsertInvitationMeta,
@@ -186,6 +191,7 @@ async function protectKakaoShare(share: ShareUrlPayload, dataJsonFileId?: string
 
 export async function POST(req: Request) {
   try {
+    assertSameOriginRequest(req);
     const publicOrigin = getSharePublicOrigin(req);
     const { invitationFolderId, shareData, dataJsonFileId } =
       (await req.json()) as {
@@ -201,6 +207,11 @@ export async function POST(req: Request) {
       );
     }
 
+    await assertInvitationAccess(invitationFolderId);
+    if (dataJsonFileId)
+      await assertManagedFileAccess(dataJsonFileId, invitationFolderId);
+    if (shareData?.imageFileId)
+      await assertManagedFileAccess(shareData.imageFileId, invitationFolderId);
     const audience = await getOwnedAudienceLink(
       invitationFolderId,
       publicOrigin
@@ -289,6 +300,7 @@ export async function GET(req: Request) {
       );
     }
 
+    await assertInvitationAccess(invitationFolderId);
     const audience = await getOwnedAudienceLink(
       invitationFolderId,
       publicOrigin
