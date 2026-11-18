@@ -1174,6 +1174,12 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     sections: [
       { component: 'greeting' },
       {
+        component: 'picture',
+        title: '잔을 맞댈 자리',
+        image: '/images/showcase/birthday-evening.webp',
+        caption: '생일잔은 가볍고 잔 부딪치는 소리는 크게!',
+      },
+      {
         component: 'mealMenu',
         title: '첫 잔을 골라 주세요',
         subtitle: 'Birthday Drinks',
@@ -1187,7 +1193,32 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         ],
       },
       { component: 'calendar', title: '건배하는 시간' },
+      {
+        component: 'timeline',
+        title: '우리의 건배 순서',
+        items: [
+          { time: '15:00', title: '첫 잔 고르기' },
+          { time: '15:30', title: '스물일곱 초 불기' },
+          { time: '16:00', title: '앉은 자리에서 느긋한 식사' },
+        ],
+      },
       { component: 'place', title: '예약해 둔 테이블' },
+      {
+        component: 'faq',
+        title: '빈손으로 와도 될까?',
+        items: [
+          {
+            question: '케이크나 선물을 가져갈까?',
+            answer:
+              '케이크는 이미 예약했어. 그날 같이 웃었던 얘기 하나만 들려줘!',
+          },
+        ],
+      },
+      {
+        component: 'closingComment',
+        message:
+          '네가 골라 준 첫 건배사가 올해 내 생일 소원이 될 것 같아. 민혁',
+      },
     ],
   },
   {
