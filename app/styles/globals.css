@@ -3,6 +3,18 @@
 @import './_utilities.css';
 @import 'tailwindcss';
 
+:root {
+  --noto-kr: 'Noto Sans KR';
+}
+
+@font-face {
+  font-family: 'Noto Sans KR';
+  src: url('/font/NotoSansKR-Variable.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @font-face {
   font-family: 'NanumSquare';
   src: url('/font/NanumSquare/NanumSquare_acB.ttf') format('truetype');
