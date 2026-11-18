@@ -9,10 +9,11 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { MainPoster } from '@/widgets/mainPoster/components/MainPoster';
 
 function Edit() {
-  const { block, selectedId } = useEditorStore(
+  const { block, selectedId, isEmpty } = useEditorStore(
     useShallow(state => ({
       block: state.block.find(b => b.id === state.selectedId),
       selectedId: state.selectedId,
+      isEmpty: state.block.length === 0,
     }))
   );
   if (selectedId === 'mainPoster') return <MainPoster />;
@@ -21,7 +22,9 @@ function Edit() {
   if (!block || !selectedId)
     return (
       <div className="h-203 flex-center font-semibold text-sm">
-        페이지를 추가해주세요
+        {isEmpty && !selectedId
+          ? '가운데에서 포스터를 선택해 주세요'
+          : '페이지를 추가해주세요'}
       </div>
     );
 

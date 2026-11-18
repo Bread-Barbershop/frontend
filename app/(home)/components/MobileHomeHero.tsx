@@ -4,13 +4,13 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 
 import NoticeConfirmButton from '@/components/atoms/button/NoticeConfirmButton';
+import { useShowcasePreview } from '@/features/showcase/components/ShowcasePreviewProvider';
 import homeBackgroundImage from '@/shared/assets/images/home/home-background.png';
 import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 
 import { MobileShowcaseCardStack } from './MobileShowcaseCardStack';
 import { showcaseItems } from './showcaseItems';
-import { useShowcasePreview } from './ShowcasePreviewProvider';
 
 const MOBILE_HOME_QUERY = '(max-width: 1339px)';
 
