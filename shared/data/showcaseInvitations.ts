@@ -777,8 +777,26 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         story:
           '계절이 바뀌면 같은 나무를 보러 가요. 오래 곁에 서 있는 마음을 배우는 중입니다.',
       },
+      {
+        component: 'picture',
+        title: '숲에서 고른 한 장',
+        image:
+          '/samples/wedding_14/images/03_2eb9460b-b5ed-470c-beff-a088f65983f9.jpg',
+        caption: '나란히 걷다가 뒤를 돌아본 순간을 남겼습니다.',
+      },
       { component: 'calendar', title: '서약의 오후' },
       { component: 'place', title: '가든홀 입구' },
+      {
+        component: 'faq',
+        title: '숲길을 걸으실 때',
+        items: [
+          {
+            question: '유모차로도 들어갈 수 있나요?',
+            answer:
+              '정문 오른쪽의 포장된 길을 이용해 주세요. 같은 가든홀 입구까지 이어집니다.',
+          },
+        ],
+      },
       {
         component: 'mealMenu',
         title: '숲에서 나누는 식사',
@@ -788,6 +806,12 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
           { name: '따뜻한 접시', dishes: ['버섯 수프와 구운 빵'] },
           { name: '마지막 한 입', dishes: ['배와 꿀을 곁들인 타르트'] },
         ],
+      },
+      {
+        component: 'wreath',
+        title: '꽃 대신 건네실 인사',
+        declineMessage:
+          '가든홀 주변의 나무와 풀꽃을 그대로 두고 싶습니다. 화환은 정중히 사양합니다.',
       },
     ],
   },
