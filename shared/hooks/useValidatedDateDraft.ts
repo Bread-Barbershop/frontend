@@ -24,7 +24,7 @@ interface Options {
   separator?: DateSeparator;
   allowPast?: boolean;
   onCommit: (value: string) => void;
-  warning: (message: string) => void;
+  warning?: (message: string) => void;
 }
 
 const DEFAULT_MESSAGES = {
@@ -172,7 +172,7 @@ export function useValidatedDateDraft({
           warningActive: false,
         });
       } else if (result.kind === 'invalid') {
-        if (!currentState.warningActive) warning(getWarningMessage(result));
+        if (!currentState.warningActive) warning?.(getWarningMessage(result));
         setDraftState({
           ...currentState,
           draft: nextDraft,
@@ -186,7 +186,7 @@ export function useValidatedDateDraft({
   const handleBlur = useCallback(() => {
     const result = validateDraft(currentState.draft, separator, allowPast);
     if (result.kind === 'partial' || result.kind === 'invalid') {
-      if (!currentState.warningActive) warning(getWarningMessage(result));
+      if (!currentState.warningActive) warning?.(getWarningMessage(result));
       setDraftState({
         sourceValue: committedValue,
         draft: currentState.committed,

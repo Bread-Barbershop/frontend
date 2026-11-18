@@ -1,14 +1,16 @@
 'use client';
 
 import { ChevronDown } from 'lucide-react';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { KoreanDatePicker } from '@/components/molecules/date-picker/KoreanDatePicker';
 import {
   DEFAULT_INVITATION_PRIVACY,
   INVITATION_PRIVACY_FIELDS,
   type InvitationPrivacy,
 } from '@/features/invitation/privacy/settings';
+import { useValidatedDateDraft } from '@/shared/hooks/useValidatedDateDraft';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
@@ -30,10 +32,23 @@ function InvitationSettingsModal({
   const checkboxRef = useRef<HTMLInputElement>(null);
   const titleId = useId();
   const optionsId = useId();
+  const dateErrorId = useId();
   const [draftIsZoom, setDraftIsZoom] = useState(initialIsZoom);
   const [privacy, setPrivacy] = useState(initialPrivacy);
   const [expanded, setExpanded] = useState(false);
+  const setEventDate = useCallback((eventDate: string) => {
+    setPrivacy(previous => ({ ...previous, eventDate }));
+  }, []);
+  const {
+    draft: dateDraft,
+    handleChange,
+    handleBlur,
+  } = useValidatedDateDraft({
+    value: privacy.eventDate,
+    onCommit: setEventDate,
+  });
   const missingFields = privacy.enabled && !privacy.fields.length;
+  const invalidDate = privacy.enabled && !parseStrictDate(dateDraft);
   const optionsOpen = privacy.enabled && expanded;
 
   useEffect(() => {
@@ -64,11 +79,7 @@ function InvitationSettingsModal({
         className="flex flex-col gap-5 p-6"
         onSubmit={event => {
           event.preventDefault();
-          if (
-            privacy.enabled &&
-            (!parseStrictDate(privacy.eventDate) || missingFields)
-          )
-            return;
+          if (invalidDate || missingFields) return;
           // 두 설정을 한 번에 반영하고, 취소한 변경은 저장하지 않는다.
           useEditorStore.setState({
             isZoom: draftIsZoom,
@@ -147,18 +158,18 @@ function InvitationSettingsModal({
           >
             <div className="min-h-0 overflow-hidden">
               <div className="ml-1.5 mt-3 space-y-4 border-l border-black/10 pl-4">
-                <label className="flex flex-col items-start gap-1 text-sm">
-                  <span>일정이 끝나는 날</span>
-                  <input
-                    type="date"
-                    className="min-h-10 w-full rounded-md border border-black/15 px-2"
-                    value={privacy.eventDate}
-                    onChange={event => {
-                      const eventDate = event.target.value;
-                      setPrivacy(previous => ({ ...previous, eventDate }));
-                    }}
-                  />
-                </label>
+                <KoreanDatePicker
+                  key={String(optionsOpen)}
+                  label="일정이 끝나는 날"
+                  value={privacy.eventDate}
+                  input={{
+                    value: dateDraft,
+                    onChange: handleChange,
+                    onBlur: handleBlur,
+                  }}
+                  errorId={invalidDate ? dateErrorId : undefined}
+                  onChange={setEventDate}
+                />
                 <fieldset className="grid gap-2">
                   <legend className="mb-2 text-sm font-medium">
                     가릴 정보
@@ -203,9 +214,11 @@ function InvitationSettingsModal({
               </div>
             </div>
           </div>
-          {privacy.enabled && !parseStrictDate(privacy.eventDate) && (
-            <p className="mt-2 text-xs text-red-700">
-              일정이 끝나는 날을 입력해 주세요.
+          {invalidDate && (
+            <p id={dateErrorId} className="mt-2 text-xs text-red-700">
+              {dateDraft
+                ? '올바른 날짜를 입력해 주세요.'
+                : '일정이 끝나는 날을 입력해 주세요.'}
             </p>
           )}
           {missingFields && (
@@ -224,10 +237,7 @@ function InvitationSettingsModal({
           </button>
           <button
             type="submit"
-            disabled={
-              privacy.enabled &&
-              (!parseStrictDate(privacy.eventDate) || missingFields)
-            }
+            disabled={invalidDate || missingFields}
             className="h-10 rounded-lg bg-black px-4 text-sm font-semibold text-white transition-colors hover:bg-black/80 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-40"
           >
             적용
