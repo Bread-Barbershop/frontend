@@ -73,7 +73,7 @@ function PhonePreviewFrame({
                 payload={payload}
                 mode="dashboard-preview"
                 previewFolderId={folderId}
-                showVisualEffects={false}
+                showScreenEffects={false}
               />
             </div>
           )}
