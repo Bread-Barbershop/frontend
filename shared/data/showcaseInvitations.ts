@@ -1118,11 +1118,41 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         image: '/images/showcase/conference-speaker.webp',
       },
       {
+        component: 'mealMenu',
+        title: '대화 곁의 커피',
+        subtitle: 'Coffee Table',
+        style: 'tasting',
+        courses: [
+          { name: '첫 잔', dishes: ['핸드드립 커피', '보리차'] },
+          { name: '곁들임', dishes: ['아몬드 비스코티'] },
+        ],
+      },
+      {
         component: 'place',
         title: '대화를 나눌 공간',
         detail: '입구에서 커피를 받아 편한 자리에 앉아 주세요.',
       },
+      {
+        component: 'timeline',
+        title: '한 테이블의 오후',
+        items: [
+          { time: '14:45', title: '커피를 따르는 시간' },
+          { time: '15:00', title: '연사의 이야기' },
+          { time: '15:30', title: '서로의 한마디 나누기' },
+        ],
+      },
       { component: 'calendar', title: '오후의 만남' },
+      {
+        component: 'faq',
+        title: '테이블에 앉기 전에',
+        items: [
+          {
+            question: '꼭 돌아가며 발표해야 하나요?',
+            answer:
+              '편하게 듣기만 하셔도 좋습니다. 나누고 싶은 이야기가 생기면 그때 들려주세요.',
+          },
+        ],
+      },
       {
         component: 'closingComment',
         message: '조금 일찍 오셔도 좋아요. 따뜻한 잔을 준비해 두겠습니다.',
