@@ -39,7 +39,9 @@ import {
   getFallbackWeight,
 } from '@/shared/fonts/fontOptions';
 import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { cn } from '@/shared/utils/cn';
+import { isDarkInvitationBackground } from '@/shared/utils/invitationBackgroundColor';
 
 import { Selector } from '../selector';
 
@@ -230,6 +232,11 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
     const [, forceUpdate] = useReducer((count: number) => count + 1, 0);
 
     const bodyFontInfo = useBodyFontInfo();
+    const darkBackgroundColor = useEditorStore(state =>
+      isDarkInvitationBackground(state.backgroundColor)
+        ? state.backgroundColor
+        : undefined
+    );
     const fallbackStyle = useMemo(
       () => ({
         fontFamily: bodyFontInfo.resolvedFontFamily,
@@ -417,6 +424,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
 
     const editorContentStyle = useMemo<CSSProperties>(
       () => ({
+        backgroundColor: darkBackgroundColor,
         fontFamily: editorBaseStyles.fontFamily.style?.fontFamily,
         fontWeight: editorBaseStyles.fontWeight.value,
         fontSize:
@@ -427,7 +435,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
             ? undefined
             : (editorBaseStyles.textAlign.value as CSSProperties['textAlign']),
       }),
-      [editorBaseStyles]
+      [darkBackgroundColor, editorBaseStyles]
     );
 
     const editor = useEditor({
@@ -509,7 +517,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
             fontFamily: fallbackStyle.fontFamily,
             fontWeight: fallbackStyle.fontWeight,
             fontSize: fallbackStyle.fontSize,
-            color: fallbackStyle.color,
+            color: bodyFontInfo.isColorAutomatic ? null : fallbackStyle.color,
           });
           editor.view.dispatch(editor.state.tr.setStoredMarks([mark]));
         }
@@ -518,7 +526,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       syncToolbarState(editor);
       forceUpdate();
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [fallbackStyle, editor]);
+    }, [fallbackStyle, editor, bodyFontInfo.isColorAutomatic]);
 
     useEffect(() => {
       void loadEditorFont(

@@ -1,6 +1,7 @@
 import { DriveListResponse } from '@/app/api/drive/_lib/getSaveDataFetch';
 import type { ScrollAnimationSettings } from '@/components/molecules/scroll-fade-in/animationConfig';
 import type { InvitationPrivacy } from '@/features/invitation/privacy/settings';
+import type { BackgroundTextureSettings } from '@/shared/data/backgroundTextures';
 import type { SectionStyle } from '@/shared/data/sectionStyles';
 import {
   BulkData,
@@ -8,6 +9,7 @@ import {
   ShareUrlState,
 } from '@/shared/types/block';
 import type { BgmData } from '@/shared/types/invitationSave';
+import type { InvitationEffectsSettings } from '@/shared/utils/invitationEffects';
 
 export interface BgmFile {
   bgmInfo: BgmData | null;
@@ -22,11 +24,13 @@ export interface SavedData {
   bulkData: {
     sectionStyle?: SectionStyle;
     backgroundColor: string;
+    backgroundTexture?: BackgroundTextureSettings;
     titleData: BulkData;
     bodyData: BulkData;
     isZoom: boolean;
     invitationPrivacy?: InvitationPrivacy;
     scrollAnimation: ScrollAnimationSettings;
+    invitationEffects?: InvitationEffectsSettings;
   };
   blocks: PersistedEditorBlock[];
   mainPoster: string;
@@ -41,11 +45,13 @@ export interface JsonData {
   bulkData: {
     sectionStyle?: SectionStyle;
     backgroundColor: string;
+    backgroundTexture?: BackgroundTextureSettings;
     titleData: BulkData;
     bodyData: BulkData;
     isZoom: boolean;
     invitationPrivacy?: InvitationPrivacy;
     scrollAnimation: ScrollAnimationSettings;
+    invitationEffects?: InvitationEffectsSettings;
   };
   blocks: PersistedEditorBlock[]; // singular to match store
   shareUrl?: ShareUrlState;

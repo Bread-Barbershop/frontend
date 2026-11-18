@@ -24,12 +24,19 @@ function TitleEdit({
       setTitleData: state.setTitleData,
     }))
   );
-  const bulkTitleData = titleData.isDefault ? TITLE_BULK_DATA : titleData;
+  const bulkTitleData = titleData.isDefault
+    ? {
+        ...TITLE_BULK_DATA,
+        color: titleData.color,
+        colorMode: titleData.colorMode,
+      }
+    : titleData;
   const handleTitleChange = (next: typeof bulkTitleData) => {
     if (
       next.font === bulkTitleData.font &&
       next.fontSize === bulkTitleData.fontSize &&
       next.fontWeight === bulkTitleData.fontWeight &&
+      next.colorMode === bulkTitleData.colorMode &&
       next.color.toUpperCase() === bulkTitleData.color.toUpperCase()
     ) {
       return;
@@ -40,7 +47,7 @@ function TitleEdit({
   return (
     <div className="w-full">
       <div className="w-full">
-        <NavigationBar>제목 편집</NavigationBar>
+        <NavigationBar>제목 글꼴</NavigationBar>
         <TextEditorPreview
           value={bulkTitleData}
           onChange={handleTitleChange}

@@ -8,6 +8,7 @@ import { resolveFontFamily } from '@/shared/fonts/fontRegistry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { BulkData } from '@/shared/types/block';
 import { applyBulkBodyStyleToBlocks } from '@/shared/utils/applyBulkBodyStyle';
+import { usesAutomaticBulkColor } from '@/shared/utils/invitationBackgroundColor';
 import { toStyle } from '@/shared/utils/toStyle';
 
 type BodyEditProps = {
@@ -21,7 +22,13 @@ function BodyEdit({
 }: BodyEditProps) {
   const bodyData = useEditorStore(state => state.bodyData);
 
-  const bulkBodyData = bodyData.isDefault ? BODY_BULK_DATA : bodyData;
+  const bulkBodyData = bodyData.isDefault
+    ? {
+        ...BODY_BULK_DATA,
+        color: bodyData.color,
+        colorMode: bodyData.colorMode,
+      }
+    : bodyData;
 
   const handleBodyChange = (next: BulkData) => {
     useEditorStore.setState(state => {
@@ -32,7 +39,9 @@ function BodyEdit({
           fontSize: bodyData.fontSize,
           fontFamily: resolveFontFamily(bodyData.font),
           fontWeight: bodyData.fontWeight,
-          color: bodyData.color,
+          color: usesAutomaticBulkColor(bodyData, BODY_BULK_DATA.color)
+            ? null
+            : bodyData.color,
         }),
       };
     });
@@ -40,7 +49,7 @@ function BodyEdit({
 
   return (
     <div className="w-full">
-      <NavigationBar>본문 편집</NavigationBar>
+      <NavigationBar>본문 글꼴</NavigationBar>
       <TextEditorPreview
         value={bulkBodyData}
         onChange={handleBodyChange}

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { DEFAULT_SCROLL_ANIMATION } from '@/components/molecules/scroll-fade-in/animationConfig';
+import { DEFAULT_BACKGROUND_TEXTURE } from '@/shared/data/backgroundTextures';
 import {
   createInvitationTemplate,
   INVITATION_TEMPLATES,
@@ -310,10 +311,13 @@ export function useInvitationTemplate({
         useEditorStore.setState(state => ({
           block: prepared.blocks,
           backgroundColor: prepared.backgroundColor,
+          backgroundTexture: DEFAULT_BACKGROUND_TEXTURE,
           sectionStyle: prepared.sectionStyle,
           titleData: prepared.titleData,
           bodyData: prepared.bodyData,
           scrollAnimation: DEFAULT_SCROLL_ANIMATION,
+          invitationEffects: undefined,
+          invitationEffectsReplay: 0,
           images: state.images.filter(image => !removedImageIds.has(image.id)),
           selectedId: 'mainPoster',
           activeTab: null,

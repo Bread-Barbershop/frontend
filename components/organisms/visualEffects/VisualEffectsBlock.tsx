@@ -19,6 +19,7 @@ export function VisualEffectsBlock({
   id: string;
 }) {
   const updateBlock = useEditorStore(state => state.updateBlock);
+  const settings = useEditorStore(state => state.invitationEffects);
   const { effect, showEnvelopeIntro } = blockInfo.props;
   return (
     <LeftEditorWrapper ariaLabel="배경 및 오프닝 효과" className="gap-3">
@@ -34,7 +35,13 @@ export function VisualEffectsBlock({
             <option value="none">없음</option>
             <option value="petals">벚꽃 날림</option>
             <option value="snow">눈 내림</option>
-            <option value="confetti">축하 컨페티</option>
+            {settings?.confetti === undefined ? (
+              <option value="confetti">축하 컨페티</option>
+            ) : effect === 'confetti' ? (
+              <option value="confetti" disabled>
+                축하 컨페티 · 전체 스타일
+              </option>
+            ) : null}
             <option value="bokeh">빛망울</option>
           </select>
         </label>
@@ -83,16 +90,28 @@ export function VisualEffectsBlock({
             ))}
           </select>
         </label>
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={showEnvelopeIntro}
-            onChange={e =>
-              updateBlock(id, { showEnvelopeIntro: e.target.checked })
-            }
-          />
-          첫 방문 시 편지 봉투 오프닝 표시
-        </label>
+        {settings?.opening === undefined && (
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={showEnvelopeIntro}
+              onChange={e =>
+                updateBlock(id, { showEnvelopeIntro: e.target.checked })
+              }
+            />
+            첫 방문 시 편지 봉투 오프닝 표시
+          </label>
+        )}
+        {(settings?.opening !== undefined ||
+          settings?.confetti !== undefined) && (
+          <p className="text-xs text-text-secondary">
+            {settings.opening !== undefined && settings.confetti !== undefined
+              ? '오프닝과 축하 효과는 전체 스타일에서 변경할 수 있어요.'
+              : settings.opening !== undefined
+                ? '오프닝은 전체 스타일에서 변경할 수 있어요.'
+                : '축하 효과는 전체 스타일에서 변경할 수 있어요.'}
+          </p>
+        )}
         <p className="text-xs leading-relaxed text-text-secondary">
           재생 속도와 부드러움은 배경 효과와 봉투 오프닝에 함께 적용돼요. 움직임
           줄이기 설정이 켜져 있으면 애니메이션을 생략해요. 효과 블록은 초대장에

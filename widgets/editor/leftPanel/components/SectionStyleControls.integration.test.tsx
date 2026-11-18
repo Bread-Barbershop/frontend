@@ -65,12 +65,10 @@ describe('템플릿과 추가 블록의 공통 카드 디자인', () => {
         <SectionStyleControls selectedId="added-faq" />
       </>
     );
-    expect(screen.getByLabelText('초대장 기본 카드 스타일')).toHaveValue(
-      'paper'
-    );
+    expect(screen.getByLabelText('기본 카드 스타일')).toHaveValue('paper');
     expect(screen.getByLabelText('이 블록의 카드 스타일')).toHaveValue('');
 
-    fireEvent.change(screen.getByLabelText('초대장 기본 카드 스타일'), {
+    fireEvent.change(screen.getByLabelText('기본 카드 스타일'), {
       target: { value: 'rounded' },
     });
     const inherited = createPreviewSnapshot('data:image/png;base64,test');
@@ -151,6 +149,36 @@ describe('템플릿과 추가 블록의 공통 카드 디자인', () => {
       useEditorStore.getState().reset();
     });
     expect(useEditorStore.getState().sectionStyle).toBeUndefined();
+  });
+
+  it('저장된 어두운 배경과 자동 글자색을 공개 미리보기 카드에 반영한다', () => {
+    act(() => {
+      const editor = useEditorStore.getState();
+      editor.addBlock('wedding', 'greeting', 'dark-greeting');
+      editor.updateBlock('dark-greeting', { title: '어두운 배경 인사말' });
+      editor.setSectionStyle('outlined');
+      editor.selectBackgroundColor('#536780');
+    });
+
+    const preview = createPreviewSnapshot('data:image/png;base64,test');
+    const restored = parsePreviewSnapshot(
+      JSON.parse(JSON.stringify(preview.snapshot))
+    );
+    preview.dispose();
+    if (!restored) throw new Error('Preview snapshot was not restored');
+
+    render(<GuestRenderer {...restored.payload} />);
+
+    const title = screen.getByText('어두운 배경 인사말');
+    expect(title).toHaveStyle({ color: '#FFFAF2' });
+    expect(
+      title.closest('[data-section-style="outlined"]')
+    ).toBeInTheDocument();
+    expect(title.closest('[data-invitation-dark]')).toBeInTheDocument();
+    expect(restored.payload.bulkData).toMatchObject({
+      backgroundColor: '#536780',
+      bodyData: { color: '#E2E6ED', colorMode: 'automatic' },
+    });
   });
 
   it('기존 저장된 카드 모양을 읽고 명시적인 기본형 선택과 레이아웃 블록의 예외를 적용한다', () => {

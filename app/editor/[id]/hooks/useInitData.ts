@@ -10,6 +10,7 @@ import { preloadFontFamilyWeights } from '@/shared/fonts/fontLoader';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { extractFileGroups } from '@/shared/utils/extractFileGroups';
 import { getFileKey } from '@/shared/utils/fileUtils';
+import { normalizeInvitationEffects } from '@/shared/utils/invitationEffects';
 import { createDefaultShareUrlState } from '@/shared/utils/shareUrlDefaults';
 
 import { SavedData } from '../types/savedata';
@@ -55,10 +56,12 @@ export const useInitData = ({
     setBodyData,
     setTitleData,
     setBackgroundColor,
+    setBackgroundTexture,
     setSectionStyle,
     setIsZoom,
     setInvitationPrivacy,
     setScrollAnimation,
+    setInvitationEffects,
     setShareUrl,
     setHashFiles,
     clearHashFiles,
@@ -75,10 +78,12 @@ export const useInitData = ({
       setBodyData: state.setBodyData,
       setTitleData: state.setTitleData,
       setBackgroundColor: state.setBackgroundColor,
+      setBackgroundTexture: state.setBackgroundTexture,
       setSectionStyle: state.setSectionStyle,
       setIsZoom: state.setIsZoom,
       setInvitationPrivacy: state.setInvitationPrivacy,
       setScrollAnimation: state.setScrollAnimation,
+      setInvitationEffects: state.setInvitationEffects,
       setShareUrl: state.setShareUrl,
       setHashFiles: state.setHashFiles,
       clearHashFiles: state.clearHashFiles,
@@ -186,7 +191,9 @@ export const useInitData = ({
   }, [bgm, resetBgm, setUserFile, setIsLoop, setSelectedBgmId, setVolume]);
 
   const initBulkData = useCallback(() => {
+    setBackgroundTexture(bulkData?.backgroundTexture);
     setInvitationPrivacy(normalizeInvitationPrivacy(bulkData?.invitationPrivacy));
+    setInvitationEffects(normalizeInvitationEffects(bulkData?.invitationEffects));
     if (bulkData) {
       setBodyData(bulkData.bodyData);
       setTitleData(bulkData.titleData);
@@ -200,9 +207,11 @@ export const useInitData = ({
     setBodyData,
     setTitleData,
     setBackgroundColor,
+    setBackgroundTexture,
     setIsZoom,
     setInvitationPrivacy,
     setScrollAnimation,
+    setInvitationEffects,
     setSectionStyle,
   ]);
   return {

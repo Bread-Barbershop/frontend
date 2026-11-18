@@ -1,14 +1,16 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import { createRef } from 'react';
 
 import { normalizeGuestBlock } from '@/app/guest/[id]/validation/normalizeGuestBlock';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
+import { resolveInvitationEffects } from '@/shared/utils/invitationEffects';
 import type { BlockType } from '@/shared/types/editor';
 
 import { AfterPartyPreview } from './afterParty/AfterPartyPreview';
 import { FaqPreview } from './faq/FaqPreview';
 import { GuestbookPreview } from './guestbook/GuestbookPreview';
-import { VisualEffectsPreview } from './visualEffects/VisualEffectsPreview';
+import { InvitationVisualEffects } from './visualEffects/VisualEffectsPreview';
 
 function persisted<T extends BlockType>(
   component: T,
@@ -31,7 +33,15 @@ function persisted<T extends BlockType>(
 }
 
 describe('신규 블록의 추가·저장 데이터·공개 화면 연결', () => {
-  beforeEach(() => useEditorStore.getState().reset());
+  beforeEach(() => {
+    useEditorStore.getState().reset();
+    HTMLDialogElement.prototype.showModal = function () {
+      this.setAttribute('open', '');
+    };
+    HTMLDialogElement.prototype.close = function () {
+      this.removeAttribute('open');
+    };
+  });
   afterEach(() => useEditorStore.getState().reset());
 
   it('FAQ 답변을 저장하고 다시 열면 아코디언에서 읽을 수 있고 미작성 답변은 공개하지 않는다', () => {
@@ -113,23 +123,54 @@ describe('신규 블록의 추가·저장 데이터·공개 화면 연결', () =
 
   it('기본 배경 효과는 초대장을 가리지 않고 사용자가 선택한 경우에만 오프닝을 표시한다', () => {
     const block = persisted('visualEffects', {});
-    const view = render(<VisualEffectsPreview blockInfo={block} isGuestPage />);
+    const view = render(
+      <InvitationVisualEffects
+        effects={resolveInvitationEffects(undefined, [block])}
+      />
+    );
     expect(
       screen.queryByRole('dialog', { name: '초대장 열기' })
     ).not.toBeInTheDocument();
     view.rerender(
-      <VisualEffectsPreview
-        blockInfo={{
-          ...block,
-          props: { ...block.props, showEnvelopeIntro: true },
-        }}
-        isGuestPage
+      <InvitationVisualEffects
+        effects={resolveInvitationEffects(undefined, [
+          {
+            ...block,
+            props: { ...block.props, showEnvelopeIntro: true },
+          },
+        ])}
       />
     );
     const dialog = screen.getByRole('dialog', { name: '초대장 열기' });
     fireEvent.click(screen.getByRole('button', { name: '초대장 열기' }));
     fireEvent.animationEnd(dialog);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('화면에 삽입한 미리보기에서는 초대장 영역 내부에서만 봉투를 연다', () => {
+    const contentRef = createRef<HTMLDivElement>();
+    render(
+      <section aria-label="휴대폰 화면">
+        <div ref={contentRef}>초대장 내용</div>
+        <InvitationVisualEffects
+          effects={resolveInvitationEffects(
+            { opening: 'envelope', confetti: true },
+            []
+          )}
+          scope="frame"
+          contentRef={contentRef}
+        />
+      </section>
+    );
+
+    const frame = screen.getByRole('region', { name: '휴대폰 화면' });
+    const cover = within(frame).getByRole('dialog', { name: '초대장 열기' });
+    expect(contentRef.current).toHaveAttribute('inert');
+    fireEvent.click(within(frame).getByRole('button', { name: '초대장 열기' }));
+    fireEvent.animationEnd(cover);
+
+    expect(contentRef.current).not.toHaveAttribute('inert');
+    expect(frame.querySelector('.invia-effect-burst')).toBeInTheDocument();
   });
 
   it('저장한 배경 속도와 부드러움을 공개 효과와 오프닝에 함께 적용한다', () => {
@@ -139,7 +180,11 @@ describe('신규 블록의 추가·저장 데이터·공개 화면 연결', () =
       motionEasing: 'soft',
       showEnvelopeIntro: true,
     });
-    const view = render(<VisualEffectsPreview blockInfo={block} isGuestPage />);
+    const view = render(
+      <InvitationVisualEffects
+        effects={resolveInvitationEffects(undefined, [block])}
+      />
+    );
     const layer = document.querySelector('.invia-effect-layer') as HTMLElement;
     const particle = document.querySelector(
       '.invia-effect-particle'
@@ -155,9 +200,13 @@ describe('신규 블록의 추가·저장 데이터·공개 화면 연결', () =
       '--intro-duration': '2.4s',
     });
     view.rerender(
-      <VisualEffectsPreview
-        blockInfo={{ ...block, props: { ...block.props, effectSpeed: 2 } }}
-        isGuestPage
+      <InvitationVisualEffects
+        effects={resolveInvitationEffects(undefined, [
+          {
+            ...block,
+            props: { ...block.props, effectSpeed: 2 },
+          },
+        ])}
       />
     );
     expect(

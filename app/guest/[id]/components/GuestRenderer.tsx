@@ -10,10 +10,13 @@ import InvitationChapter, {
   getCollectionStyle,
   getBlockSectionStyle,
 } from '@/components/organisms/invitation-chapter/InvitationChapter';
+import { InvitationVisualEffects } from '@/components/organisms/visualEffects/VisualEffectsPreview';
 import { isBlockEnabled } from '@/shared/data/registry/blockAvailability';
 import { blockRegistry } from '@/shared/data/registry/registry';
 import { preloadFontFamilyWeights } from '@/shared/fonts/fontLoader';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { usesDarkInvitationCards } from '@/shared/utils/invitationBackgroundColor';
+import { resolveInvitationEffects } from '@/shared/utils/invitationEffects';
 
 import { resolveGuestFontFamiliesToPreload } from './guestFontPreload';
 import { GuestPrivacyNotice } from './GuestPrivacyNotice';
@@ -46,7 +49,6 @@ const GUEST_PAGE_PROP_COMPONENTS = new Set<GuestRendererBlock['component']>([
   'timeline',
   'transportation',
   'video',
-  'visualEffects',
 ]);
 
 function GuestRenderer({
@@ -55,6 +57,7 @@ function GuestRenderer({
   renderHints,
   activePrivacyFields,
   isGuestPage: isGuestPageOverride,
+  showVisualEffects = true,
   renderBlock,
 }: {
   blocks: NormalizedGuestPayload['blocks'];
@@ -62,13 +65,22 @@ function GuestRenderer({
   renderHints?: GuestRendererRenderHints;
   activePrivacyFields?: NormalizedGuestPayload['activePrivacyFields'];
   isGuestPage?: boolean;
+  showVisualEffects?: boolean;
   renderBlock?: (
     block: GuestRendererBlock,
     view: React.ReactNode
   ) => React.ReactNode;
 }) {
   const { titleData, bodyData } = bulkData;
+  const darkCards = usesDarkInvitationCards(
+    bulkData.backgroundColor,
+    titleData,
+    bodyData
+  );
   const scrollAnimation = resolveScrollAnimation(bulkData.scrollAnimation);
+  const effects = showVisualEffects
+    ? resolveInvitationEffects(bulkData.invitationEffects, blocks)
+    : null;
   const { setTitleData, setBodyData } = useEditorStore(
     useShallow(state => ({
       setTitleData: state.setTitleData,
@@ -132,9 +144,19 @@ function GuestRenderer({
     }
   }, [bulkData.isZoom]);
   return (
-    <div className="flex flex-col">
+    <div
+      className="flex flex-col"
+      data-invitation-dark={darkCards || undefined}
+    >
+      {effects && (
+        <InvitationVisualEffects
+          effects={effects}
+          backgroundColor={bulkData.backgroundColor}
+        />
+      )}
       {blocks.map(block => {
-        if (!isBlockEnabled(block.component)) return null;
+        if (block.component === 'visualEffects' || !isBlockEnabled(block.component))
+          return null;
         const registryItem =
           blockRegistry[block.component as keyof typeof blockRegistry];
 

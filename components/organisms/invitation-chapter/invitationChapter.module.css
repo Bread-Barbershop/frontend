@@ -19,6 +19,14 @@
   border: 1px solid rgb(89 71 51 / 16%);
 }
 
+[data-invitation-dark] .surface {
+  background: rgb(0 0 0 / 12%);
+}
+
+[data-invitation-dark] .surface[data-section-style='outlined'] {
+  border-color: rgb(255 255 255 / 28%);
+}
+
 /* Compatibility styles for invitations saved before shared card presets. */
 .chapter {
   position: relative;

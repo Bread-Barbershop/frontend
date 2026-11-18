@@ -5,9 +5,24 @@
   pointer-events: none;
   overflow: hidden;
 }
-.invia-effect-preview {
+.invia-effect-preview,
+.invia-effect-inline {
   position: absolute;
+}
+.invia-effect-inline {
   z-index: 0;
+}
+.invia-effect-burst {
+  animation: invia-burst-finish var(--burst-duration) linear forwards;
+}
+.invia-effect-burst .invia-effect-particle {
+  animation-iteration-count: 1;
+  animation-fill-mode: both;
+}
+@keyframes invia-burst-finish {
+  to {
+    opacity: 0;
+  }
 }
 .invia-effect-particle {
   position: absolute;
@@ -90,33 +105,116 @@
 .invia-intro {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 60;
+  width: 100%;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  background: #fbf7f2;
+  --intro-paper-color: var(--intro-paper, #f8f5ee);
+  background-color: white;
+  background-image:
+    radial-gradient(
+      ellipse at 24% 16%,
+      var(--intro-highlight, #fff8),
+      transparent 65%
+    ),
+    linear-gradient(var(--intro-paper-color), var(--intro-paper-color));
   padding: 24px;
+  color: #354435;
+}
+.invia-intro:not([open]):not(.invia-intro-preview) {
+  display: none;
+}
+.invia-intro[data-invia-intro-dark] {
+  --intro-highlight: #fff2;
+  color: #f8f5ee;
+}
+.invia-intro[data-invia-intro-dark] .invia-intro-button:focus-visible {
+  outline-color: #f8f5ee;
+}
+.invia-intro-preview {
+  position: absolute;
+  height: 100%;
+}
+.invia-intro-greeting {
+  font:
+    italic 28px/1.25 Georgia,
+    serif;
+}
+.invia-intro-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 99px;
+  padding: 10px 22px;
+  background: #354435;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+.invia-intro-button:focus-visible {
+  outline: 2px solid #354435;
+  outline-offset: 4px;
 }
 .invia-intro-card {
-  width: min(320px, 88vw);
-  height: 210px;
-  background: linear-gradient(155deg, #f8f0e6, #ece0d1);
-  border: 1px solid #e1d3c2;
   position: relative;
-  perspective: 900px;
-  box-shadow: 0 16px 50px #47332d12;
+  isolation: isolate;
+  width: min(300px, 84%);
+  aspect-ratio: 1.65;
+  border-radius: 4px;
+  margin: 26px 0 22px;
+  background: linear-gradient(140deg, #a3af94, #d8dfcd);
+  perspective: 600px;
+  filter: drop-shadow(0 8px 7px #55462724);
 }
 .invia-intro-card::before {
   content: '';
   position: absolute;
-  inset: 0 0 50%;
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  background: linear-gradient(#f7ecdd, #e8d9c6);
+  inset: 0;
+  clip-path: polygon(0 100%, 0 6%, 50% 60%, 100% 6%, 100% 100%);
+  background: conic-gradient(
+    from -122deg at 50% 59%,
+    #cdd6bd 0 69deg,
+    #b8c6a9 70deg 172deg,
+    #c9d4bc 173deg 242deg,
+    #d4ddc8 243deg
+  );
+}
+.invia-intro-flap {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0 0, 100% 0, 100% 4%, 50% 65%, 0 4%);
+  background: linear-gradient(155deg, #e0e7d6, #becbb0);
   transform-origin: top center;
   backface-visibility: hidden;
 }
-.invia-intro-opening .invia-intro-card::before {
+.invia-intro-seal {
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  transform: translate(-50%, -50%) rotate(-9deg);
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 48% 45% 48% 44%;
+  background: radial-gradient(at 28% 20%, #b27065, #803d37);
+  box-shadow:
+    inset 0 0 0 3px #a65e52,
+    inset 0 0 0 4px #bd7b6b,
+    1px 2px 3px #65382855;
+  color: #f4d1ba;
+  transition: opacity 160ms;
+}
+.invia-intro-opening .invia-intro-seal {
+  opacity: 0;
+}
+.invia-intro-opening .invia-intro-flap {
   animation: invia-envelope-flap calc(var(--intro-duration) * 0.72)
     var(--motion-easing) forwards;
 }
@@ -146,7 +244,7 @@
     opacity: 0.12;
   }
   .invia-intro-opening,
-  .invia-intro-opening .invia-intro-card::before {
+  .invia-intro-opening .invia-intro-flap {
     animation-duration: 0.01ms !important;
   }
 }

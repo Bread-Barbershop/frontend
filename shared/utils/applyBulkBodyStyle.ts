@@ -12,7 +12,7 @@ export type BulkTextStyle = {
   fontSize: string;
   fontFamily: string;
   fontWeight: string;
-  color: string;
+  color: string | null;
 };
 
 const RICH_TEXT_PAIRS: RichTextPair[] = [

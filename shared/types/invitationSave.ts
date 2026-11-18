@@ -1,10 +1,12 @@
 import type { ScrollAnimationSettings } from '@/components/molecules/scroll-fade-in/animationConfig';
 import type { InvitationPrivacy } from '@/features/invitation/privacy/settings';
+import type { BackgroundTextureSettings } from '@/shared/data/backgroundTextures';
 import type {
   BulkData,
   PersistedEditorBlock,
   ShareUrlState,
 } from '@/shared/types/block';
+import type { InvitationEffectsSettings } from '@/shared/utils/invitationEffects';
 
 import type { GuestRenderHints } from './renderHints';
 import type {
@@ -41,11 +43,13 @@ export type MainPosterData = {
 
 export type BulkJson = {
   backgroundColor: string;
+  backgroundTexture?: BackgroundTextureSettings;
   titleData: BulkData;
   bodyData: BulkData;
   isZoom: boolean;
   invitationPrivacy?: InvitationPrivacy;
   scrollAnimation: ScrollAnimationSettings;
+  invitationEffects?: InvitationEffectsSettings;
 };
 
 export type InvitationPayload = {

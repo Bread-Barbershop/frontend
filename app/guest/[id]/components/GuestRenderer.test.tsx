@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import GuestRenderer from './GuestRenderer';
@@ -37,6 +37,7 @@ jest.mock('@/shared/data/registry/registry', () => ({
       viewComponent: (props: Record<string, unknown>) => mockPictureView(props),
     },
     guestbook: { viewComponent: () => mockGuestbookView() },
+    visualEffects: { viewComponent: () => <div data-testid="effect-block" /> },
   },
 }));
 
@@ -123,6 +124,90 @@ describe('GuestRenderer', () => {
     expect(screen.queryByText('축하 메시지 작성하기')).not.toBeInTheDocument();
     expect(screen.getByTestId('picture-view')).toBeInTheDocument();
     expect(JSON.stringify(blocks)).toBe(before);
+  });
+
+  it('오래된 효과 블록이 중복되어도 한 봉투를 열고 컨페티를 한 번 재생한다', () => {
+    HTMLDialogElement.prototype.showModal = function () {
+      this.setAttribute('open', '');
+    };
+    HTMLDialogElement.prototype.close = function () {
+      this.removeAttribute('open');
+    };
+    const blocks: NormalizedGuestPayload['blocks'] = [
+      {
+        id: 'old-effect-1',
+        type: 'wedding',
+        component: 'visualEffects',
+        props: { effect: 'confetti', showEnvelopeIntro: true },
+      },
+      {
+        id: 'old-effect-2',
+        type: 'wedding',
+        component: 'visualEffects',
+        props: { effect: 'confetti', showEnvelopeIntro: true },
+      },
+      { id: 'picture', type: 'wedding', component: 'picture', props: {} },
+    ];
+    render(
+      <GuestRenderer
+        bulkData={{ ...bulkData, invitationEffects: { confetti: true } }}
+        blocks={blocks}
+      />
+    );
+
+    const cover = screen.getByRole('dialog', { name: '초대장 열기' });
+    expect(screen.getAllByTestId('scroll-animation')).toHaveLength(1);
+    expect(document.querySelector('.invia-effect-layer')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: '초대장 열기' }));
+    fireEvent.animationEnd(cover);
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    const bursts = document.querySelectorAll('.invia-effect-burst');
+    expect(bursts).toHaveLength(1);
+    fireEvent.animationEnd(bursts[0]);
+    expect(document.querySelector('.invia-effect-layer')).toBeNull();
+  });
+
+  it('바로 시작하고 축하 효과를 켜면 첫 화면에서 컨페티를 재생한다', () => {
+    render(
+      <GuestRenderer
+        bulkData={{ ...bulkData, invitationEffects: { opening: 'direct', confetti: true } }}
+        blocks={[]}
+      />
+    );
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(document.querySelectorAll('.invia-effect-burst')).toHaveLength(1);
+  });
+
+  it('전체 스타일에서 기존 봉투와 컨페티를 끄면 저장된 눈 내림은 유지한다', () => {
+    const blocks: NormalizedGuestPayload['blocks'] = [
+      {
+        id: 'old-effect',
+        type: 'wedding',
+        component: 'visualEffects',
+        props: { effect: 'confetti', showEnvelopeIntro: true },
+      },
+      {
+        id: 'old-snow',
+        type: 'wedding',
+        component: 'visualEffects',
+        props: { effect: 'snow', effectSpeed: 2, motionEasing: 'linear' },
+      },
+    ];
+    render(
+      <GuestRenderer
+        bulkData={{ ...bulkData, invitationEffects: { opening: 'direct', confetti: false } }}
+        blocks={blocks}
+      />
+    );
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(document.querySelector('.invia-effect-confetti')).toBeNull();
+    expect(document.querySelector('.invia-effect-snow')).toBeInTheDocument();
+    expect(document.querySelector('.invia-effect-layer')).toHaveStyle({
+      '--motion-easing': 'linear',
+    });
   });
 
   it('passes isGuestPage only to guest-aware preview components', async () => {
