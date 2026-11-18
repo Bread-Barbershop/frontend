@@ -708,7 +708,25 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         ],
       },
       { component: 'greeting' },
+      {
+        component: 'interview',
+        title: '민성과 아현에게 한 질문',
+        question: '입장할 때 꼭 하고 싶은 일이 있나요?',
+        answer:
+          '눈이 마주치는 친구에게 손을 흔들기로 했어요. 앞자리든 뒷자리든 우리를 보면 먼저 흔들어 주세요.',
+        image:
+          '/samples/wedding_14/images/06_b2cf8c86-2b11-4f18-b2de-bfc8fa5c08f4.jpg',
+      },
       { component: 'calendar', title: '우리가 결혼하는 날' },
+      {
+        component: 'timeline',
+        title: '오늘의 순서',
+        items: [
+          { time: '14:40', title: '로비에서 하이파이브' },
+          { time: '15:00', title: '커플 입장' },
+          { time: '15:40', title: '친구들과 단체 사진' },
+        ],
+      },
       { component: 'place', title: '함께 모일 홀' },
       {
         component: 'afterParty',
@@ -717,6 +735,24 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         dateTime: '오후 4시부터',
         description:
           '음악을 들으며 첫 잔을 나눠요. 무알코올 음료도 준비합니다.',
+      },
+      {
+        component: 'mealMenu',
+        title: '건배 옆에 놓을 핑거푸드',
+        subtitle: 'Street Bites',
+        style: 'bistro',
+        courses: [
+          { name: '짭짤하게', dishes: ['미니 버거와 감자튀김'] },
+          { name: '달콤하게', dishes: ['딸기 한입 타르트'] },
+        ],
+      },
+      {
+        component: 'notice',
+        title: '우리의 포토월',
+        heading: '빨간 글씨 앞에서 한 컷',
+        message:
+          '라운지 입구에 작은 포토월을 세워 둘게요. 두 사람 이름 옆에 서서 마음껏 찍어 주세요.',
+        preset: 'shooting',
       },
     ],
   },
