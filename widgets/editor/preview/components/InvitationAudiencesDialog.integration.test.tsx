@@ -6,12 +6,15 @@ import {
   waitFor,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Canvas, Rect } from 'fabric';
 
 import { useSavedData } from '@/app/editor/[id]/hooks/useSavedData';
 import { useEditorDirtyTracker } from '@/app/editor/hooks/useEditorDirtyTracker';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import type { AudienceGroup } from '@/features/invitation/audiences/model';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { MainPosterPreview } from '@/widgets/mainPoster/components/MainPosterPreview';
+import { FabricProvider } from '@/widgets/mainPoster/context/FabricContext';
 
 import {
   basicAudience,
@@ -28,6 +31,12 @@ const mockFetch = jest.fn();
 const save = jest.fn();
 const close = jest.fn();
 const openEditor = jest.fn();
+
+jest.mock('@/shared/assets/icons/loadingSpinner.svg', () => () => null);
+jest.mock('@/widgets/mainPoster/hooks/useTemplate', () => ({
+  ...jest.requireActual('@/widgets/mainPoster/hooks/useTemplate'),
+  preloadFonts: jest.fn().mockResolvedValue(undefined),
+}));
 
 function reply(payload: object, ok = true) {
   return { ok, json: async () => payload };
@@ -262,6 +271,41 @@ describe('하객별 구분', () => {
     ).toBeInTheDocument();
     expect(save).toHaveBeenCalledWith({ preserveVisibility: false });
     expect(openEditor).not.toHaveBeenCalled();
+  });
+
+  it('저장된 가족 포스터를 열고 기본을 선택하면 저장 확인 없이 바로 전환한다', async () => {
+    const user = userEvent.setup();
+    const restoreObjects = jest.spyOn(Canvas.prototype, 'add');
+    mockList([basicAudience, familyAudience], familyAudience.slug);
+    useEditorStore.setState({ invitationFolderId: familyAudience.folderId });
+    render(
+      <FabricProvider
+        initialData={JSON.stringify({
+          objects: [{ type: 'Rect', width: 10, height: 10 }],
+        })}
+      >
+        <MainPosterPreview />
+        <Dialog />
+      </FabricProvider>
+    );
+
+    expect(
+      screen.getByText('저장된 포스터를 불러오는 중...')
+    ).toBeInTheDocument();
+    await waitFor(() =>
+      expect(
+        screen.queryByText('저장된 포스터를 불러오는 중...')
+      ).not.toBeInTheDocument()
+    );
+    expect(restoreObjects).toHaveBeenCalledWith(expect.any(Rect));
+    await user.click(
+      await screen.findByRole('button', {
+        name: /^기본(?:\s|$)/,
+        pressed: false,
+      })
+    );
+    expect(save).not.toHaveBeenCalled();
+    expect(openEditor).toHaveBeenCalledWith(basicAudience);
   });
 
   it('BGM만 편집한 경우에도 저장 확인을 거치고 성공하기 전에는 전환하지 않는다', async () => {
