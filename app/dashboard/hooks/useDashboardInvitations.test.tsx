@@ -5,10 +5,16 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 
 import useDashboardInvitations from '@/app/dashboard/hooks/useDashboardInvitations';
+import type { InviteListItem } from '@/app/dashboard/types';
 import {
   DASHBOARD_PENDING_INVITATION_KEY,
   type DashboardPendingInvitation,
 } from '@/shared/constants/dashboardPendingInvitation';
+
+import {
+  clonedInvitation,
+  sourceInvitation,
+} from '../components/carousel/fixtures/dashboardCopyInvitations';
 
 const pushMock = jest.fn();
 const replaceMock = jest.fn();
@@ -121,6 +127,60 @@ describe('useDashboardInvitations', () => {
       'http://localhost/guest/data-json-file-id-1'
     );
     expect(result.current.getGuestUrl('folder-2')).toBeNull();
+  });
+
+  it('Drive 목록에서 확인되기 전까지 복사본을 보존하고 이후에는 최신 목록을 따른다', async () => {
+    function listResponse(invites: InviteListItem[]) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({ invites }),
+      };
+    }
+
+    const listWithoutClone = listResponse([sourceInvitation]);
+    let deliverStaleList!: () => void;
+    const staleList = new Promise(resolve => {
+      deliverStaleList = () => resolve(listWithoutClone);
+    });
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ success: true, invite: clonedInvitation }),
+      })
+      .mockResolvedValueOnce(listWithoutClone)
+      .mockReturnValueOnce(staleList)
+      .mockResolvedValueOnce(listResponse([clonedInvitation, sourceInvitation]))
+      .mockResolvedValueOnce(listWithoutClone);
+
+    const { result } = renderHook(() =>
+      useDashboardInvitations([sourceInvitation], { loadOnMount: false })
+    );
+    await act(async () => {
+      await result.current.handleClone(sourceInvitation.folderId, 'copy-request');
+    });
+    await act(() => result.current.loadInvitations());
+    expect(result.current.invites.map(invite => invite.folderId)).toContain(
+      clonedInvitation.folderId
+    );
+
+    let staleLoad!: Promise<void>;
+    act(() => {
+      staleLoad = result.current.loadInvitations();
+    });
+    await act(() => result.current.loadInvitations());
+    await act(async () => {
+      deliverStaleList();
+      await staleLoad;
+    });
+    expect(result.current.invites.map(invite => invite.folderId)).toContain(
+      clonedInvitation.folderId
+    );
+
+    await act(() => result.current.loadInvitations());
+    expect(result.current.invites.map(invite => invite.folderId)).toEqual([
+      sourceInvitation.folderId,
+    ]);
   });
 
   it('공개 토글 후 guestReadiness가 준비될 때까지 폴링한다', async () => {

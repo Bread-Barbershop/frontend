@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useEffect } from 'react';
+import { forwardRef, useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 import { cn } from '@/shared/utils/cn';
@@ -15,6 +15,7 @@ import { confirmPositionVariants, confirmVariants } from './Confirm.style';
 
 type ConfirmProps = {
   message: string;
+  description?: string;
   confirmText: string;
   cancelText: string;
   onConfirm: () => void;
@@ -23,12 +24,17 @@ type ConfirmProps = {
   variant?: 'white' | 'glass';
   xPosition?: 'left' | 'center' | 'right';
   yPosition?: 'top' | 'center' | 'bottom';
+  confirmTone?: 'danger' | 'neutral';
+  initialFocus?: 'dialog' | 'cancel';
+  isBusy?: boolean;
+  errorMessage?: string | null;
 };
 
 const Confirm = forwardRef<HTMLDivElement, ConfirmProps>(
   (
     {
       message,
+      description,
       confirmText = '예',
       cancelText = '아니오',
       onConfirm,
@@ -37,9 +43,23 @@ const Confirm = forwardRef<HTMLDivElement, ConfirmProps>(
       variant = 'glass',
       xPosition = 'center',
       yPosition = 'top',
+      confirmTone = 'danger',
+      initialFocus = 'dialog',
+      isBusy = false,
+      errorMessage,
     }: ConfirmProps,
     ref
   ) => {
+    const messageId = useId();
+    const descriptionId = useId();
+    const errorId = useId();
+    const confirmButtonRef = useRef<HTMLButtonElement>(null);
+    const cancelButtonRef = useRef<HTMLButtonElement>(null);
+
+    useEffect(() => {
+      if (errorMessage) confirmButtonRef.current?.focus();
+    }, [errorMessage]);
+
     useEffect(() => {
       const previouslyFocused =
         document.activeElement instanceof HTMLElement
@@ -50,8 +70,10 @@ const Confirm = forwardRef<HTMLDivElement, ConfirmProps>(
 
       // 포커스를 모달로 이동
       const timer = setTimeout(() => {
-        if (ref && 'current' in ref && ref.current) {
-          ref.current.focus();
+        if (initialFocus === 'cancel') {
+          cancelButtonRef.current?.focus();
+        } else if (ref && 'current' in ref) {
+          ref.current?.focus();
         }
       }, 0);
 
@@ -75,7 +97,7 @@ const Confirm = forwardRef<HTMLDivElement, ConfirmProps>(
         removeHiddenRoot();
         if (previouslyFocused?.isConnected) previouslyFocused.focus();
       };
-    }, [onClose, ref]);
+    }, [initialFocus, onClose, ref]);
 
     return createPortal(
       <div
@@ -86,31 +108,62 @@ const Confirm = forwardRef<HTMLDivElement, ConfirmProps>(
           ref={ref}
           role="dialog"
           aria-modal="true"
-          aria-labelledby="confirm-message"
+          aria-labelledby={messageId}
+          aria-describedby={
+            [description && descriptionId, errorMessage && errorId]
+              .filter(Boolean)
+              .join(' ') || undefined
+          }
           tabIndex={-1}
           onClick={e => e.stopPropagation()}
-          className={cn(confirmVariants({ variant }))}
+          className={cn(confirmVariants({ variant }), 'max-w-[calc(100%_-_2rem)]')}
         >
           <div>
             <p
-              id="confirm-message"
-              className="whitespace-pre text-center text-sm font-semibold text-text-primary font-pretendard"
+              id={messageId}
+              className="whitespace-pre-wrap break-words text-center text-sm font-semibold text-text-primary font-pretendard"
             >
               {message}
             </p>
+            {description && (
+              <p
+                id={descriptionId}
+                className="mt-2 text-center text-sm text-text-primary font-pretendard"
+              >
+                {description}
+              </p>
+            )}
           </div>
+          {errorMessage && (
+            <p
+              id={errorId}
+              role="alert"
+              className="text-center text-sm text-status-error font-pretendard"
+            >
+              {errorMessage}
+            </p>
+          )}
           <div className="flex items-center justify-center gap-5">
             <button
+              ref={confirmButtonRef}
               type="button"
-              className="text-[13px] text-status-error rounded-lg w-[66px] h-8 hover:bg-[#FFE8E8]/32 cursor-pointer"
-              onClick={onConfirm}
+              aria-disabled={isBusy || undefined}
+              className={cn(
+                'text-[13px] rounded-lg w-[66px] h-8 hover:bg-[#FFE8E8]/32 cursor-pointer aria-disabled:cursor-wait aria-disabled:opacity-60',
+                confirmTone === 'danger'
+                  ? 'text-status-error'
+                  : 'text-text-primary'
+              )}
+              onClick={isBusy ? undefined : onConfirm}
             >
               {confirmText}
             </button>
             <button
+              ref={cancelButtonRef}
               type="button"
-              className="text-[13px] text-text-primary rounded-lg w-[66px] h-8 hover:bg-[#FFE8E8]/32 cursor-pointer"
-              onClick={onCancel}
+              aria-disabled={isBusy || undefined}
+              className="text-[13px] text-text-primary rounded-lg w-[66px] h-8 hover:bg-[#FFE8E8]/32 cursor-pointer aria-disabled:cursor-wait aria-disabled:opacity-60"
+              onClick={isBusy ? undefined : onCancel}
             >
               {cancelText}
             </button>

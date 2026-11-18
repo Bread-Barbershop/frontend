@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useDashboardInvitationPreview } from '@/app/dashboard/hooks/useDashboardInvitationPreview';
 import useDashboardInvitations from '@/app/dashboard/hooks/useDashboardInvitations';
@@ -12,6 +12,7 @@ import DashboardInvitationPreviewModal from '../preview/DashboardInvitationPrevi
 import CarouselBase from './CarouselBase';
 import { dashboardCarouselLayout } from './carouselLayout';
 import { CarouselCardItem } from './carouselTypes';
+import CopyInvitationDialog from './CopyInvitationDialog';
 import DashboardCarouselSkeleton from './DashboardCarouselSkeleton';
 import EmptyInvitationCard from './EmptyInvitationCard';
 
@@ -118,6 +119,7 @@ function CarouselWrapper({
   const {
     invites,
     loading,
+    handleClone,
     handleDelete,
     handleUpdate,
     handleToggleVisibility,
@@ -137,6 +139,13 @@ function CarouselWrapper({
     string | null
   >(null);
   const backgroundPreloadedKeysRef = useRef<Set<string>>(new Set());
+
+  const [cloneTarget, setCloneTarget] = useState<InviteListItem | null>(null);
+  const [focusCardId, setFocusCardId] = useState<string | null>(null);
+  const closeCloneDialog = useCallback(() => {
+    setCloneTarget(null);
+  }, []);
+
   const items: CarouselCardItem[] = useMemo(
     () =>
       orderedInvites.map(invite => {
@@ -239,7 +248,7 @@ function CarouselWrapper({
     };
   }, [initialImagesReady, initialPreloadIds, items]);
 
-  if (loading || (items.length > 0 && !initialImagesReady)) {
+  if (loading || (items.length > 0 && readyInitialPreloadKey === null)) {
     return <DashboardCarouselSkeleton />;
   }
 
@@ -249,6 +258,18 @@ function CarouselWrapper({
 
   return (
     <>
+      {cloneTarget && (
+        <CopyInvitationDialog
+          key={cloneTarget.folderId}
+          invite={cloneTarget}
+          onClone={handleClone}
+          onCloned={folderId => {
+            closeCloneDialog();
+            setFocusCardId(folderId);
+          }}
+          onClose={closeCloneDialog}
+        />
+      )}
       <CarouselBase
         items={displayItems}
         startIndex={startIndex}
@@ -257,6 +278,8 @@ function CarouselWrapper({
         showHeader
         showSideActions
         showCenterActions
+        focusCardId={focusCardId}
+        onClone={setCloneTarget}
         onDelete={handleDelete}
         onPreview={preview.openPreview}
         onUpdate={handleUpdate}
