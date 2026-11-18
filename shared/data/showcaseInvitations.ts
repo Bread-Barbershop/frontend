@@ -312,11 +312,34 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '초록 언덕과 파란 하늘, 한 편의 여름 영화 같은 날.',
     palette: ['#EFF5F2', '#426A64', '#344D46'],
     eyebrow: 'OUR SUMMER, OUR FOREVER',
-    heading: '함께라서 빛나는 여름',
+    heading: '우리 여름의 다음 장면',
     message: [
-      '나란히 걷고, 같은 풍경을 바라보던 날들이 모여',
-      '우리만의 가장 아름다운 장면이 되었습니다.',
-      '오래도록 꺼내 볼 이 여름의 장면에 함께해 주세요.',
+      '들판에서 해가 질 때까지 걷던 여름을 기억합니다. 다음 장면에는 여러분도 함께였으면 좋겠습니다.',
+    ],
+    sectionStyle: 'plain',
+    sections: [
+      {
+        component: 'gallery',
+        title: '여름 필름, 세 컷',
+        template: 'galleryType7',
+        ratio: '3:4',
+        images: [
+          '/samples/wedding_14/images/03_2eb9460b-b5ed-470c-beff-a088f65983f9.jpg',
+          '/samples/wedding_14/images/04_779358cc-330b-4bb4-818b-6b1c2e91958c.jpg',
+          '/samples/wedding_14/images/06_b2cf8c86-2b11-4f18-b2de-bfc8fa5c08f4.jpg',
+        ],
+      },
+      { component: 'greeting' },
+      { component: 'calendar', title: '상영일처럼 기다린 날' },
+      { component: 'place', title: '예식이 열리는 곳' },
+      {
+        component: 'notice',
+        title: '예식 뒤 포토 타임',
+        heading: '사진에 함께해 주세요',
+        message:
+          '서약을 마친 뒤 홀 앞에서 한 장씩 찍을게요. 휴대폰 카메라도 환영합니다.',
+        preset: 'shooting',
+      },
     ],
     moments: ['여름의 인사', '우리의 웨딩 필름', '노을빛 리셉션'],
     note: '예식 후 포토 타임이 마련되어 있습니다. 우리와 함께 여러분의 여름도 사진으로 남겨 주세요.',
