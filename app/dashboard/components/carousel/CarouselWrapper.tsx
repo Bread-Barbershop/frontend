@@ -6,13 +6,13 @@ import { useDashboardInvitationPreview } from '@/app/dashboard/hooks/useDashboar
 import useDashboardInvitations from '@/app/dashboard/hooks/useDashboardInvitations';
 import { InviteListItem } from '@/app/dashboard/types';
 import { getInvitationShowcaseItem } from '@/app/dashboard/utils/getInvitationShowcaseItem';
-import Confirm from '@/components/molecules/confirm/Confirm';
 
 import DashboardInvitationPreviewModal from '../preview/DashboardInvitationPreviewModal';
 
 import CarouselBase from './CarouselBase';
 import { dashboardCarouselLayout } from './carouselLayout';
 import { CarouselCardItem } from './carouselTypes';
+import CopyInvitationDialog from './CopyInvitationDialog';
 import DashboardCarouselSkeleton from './DashboardCarouselSkeleton';
 import EmptyInvitationCard from './EmptyInvitationCard';
 
@@ -140,46 +140,11 @@ function CarouselWrapper({
   >(null);
   const backgroundPreloadedKeysRef = useRef<Set<string>>(new Set());
 
-  const cloneDialogRef = useRef<HTMLDivElement>(null);
-  const cloneRequestIdRef = useRef<string | null>(null);
-  const cloneInProgressRef = useRef(false);
   const [cloneTarget, setCloneTarget] = useState<InviteListItem | null>(null);
-  const [isCloning, setIsCloning] = useState(false);
-  const [cloneError, setCloneError] = useState<string | null>(null);
   const [focusCardId, setFocusCardId] = useState<string | null>(null);
-
-  const openCloneDialog = (invite: InviteListItem) => {
-    cloneRequestIdRef.current = null;
-    setCloneError(null);
-    setCloneTarget(invite);
-  };
-
   const closeCloneDialog = useCallback(() => {
-    if (cloneInProgressRef.current) return;
     setCloneTarget(null);
   }, []);
-
-  const confirmClone = async () => {
-    if (!cloneTarget || cloneInProgressRef.current) return;
-
-    cloneInProgressRef.current = true;
-    setIsCloning(true);
-    setCloneError(null);
-
-    try {
-      const requestId = (cloneRequestIdRef.current ??= crypto.randomUUID());
-      const folderId = await handleClone(cloneTarget.folderId, requestId);
-      setCloneTarget(null);
-      setFocusCardId(folderId);
-    } catch (err) {
-      setCloneError(
-        err instanceof Error ? err.message : '초대장 복사에 실패했습니다.'
-      );
-    } finally {
-      cloneInProgressRef.current = false;
-      setIsCloning(false);
-    }
-  };
 
   const items: CarouselCardItem[] = useMemo(
     () =>
@@ -294,21 +259,15 @@ function CarouselWrapper({
   return (
     <>
       {cloneTarget && (
-        <Confirm
-          ref={cloneDialogRef}
-          message={`“${cloneTarget.name}” 초대장을 복사하시겠습니까?`}
-          description="복사본은 비공개로 생성되며 따로 편집할 수 있어요."
-          confirmText={isCloning ? '복사 중…' : cloneError ? '다시 시도' : '복사'}
-          cancelText="취소"
-          confirmTone="neutral"
-          initialFocus="cancel"
-          isBusy={isCloning}
-          errorMessage={cloneError}
-          onConfirm={confirmClone}
-          onCancel={closeCloneDialog}
+        <CopyInvitationDialog
+          key={cloneTarget.folderId}
+          invite={cloneTarget}
+          onClone={handleClone}
+          onCloned={folderId => {
+            closeCloneDialog();
+            setFocusCardId(folderId);
+          }}
           onClose={closeCloneDialog}
-          variant="white"
-          yPosition="center"
         />
       )}
       <CarouselBase
@@ -320,7 +279,7 @@ function CarouselWrapper({
         showSideActions
         showCenterActions
         focusCardId={focusCardId}
-        onClone={openCloneDialog}
+        onClone={setCloneTarget}
         onDelete={handleDelete}
         onPreview={preview.openPreview}
         onUpdate={handleUpdate}
