@@ -1,7 +1,6 @@
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Metadata, Viewport } from 'next';
-import { Noto_Sans_KR } from 'next/font/google';
 import localFont from 'next/font/local';
 import Script from 'next/script';
 import { ReactNode } from 'react';
@@ -24,12 +23,6 @@ const inter = localFont({
   variable: '--inter',
   weight: '100 900',
   preload: false,
-});
-
-const notoSansKr = Noto_Sans_KR({
-  variable: '--noto-kr',
-  subsets: ['latin'],
-  weight: ['400', '500', '700'],
 });
 
 const lineSeedKr = localFont({
@@ -103,7 +96,7 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`${pretendard.variable} ${inter.variable} ${notoSansKr.variable} ${lineSeedKr.variable}`}
+      className={`${pretendard.variable} ${inter.variable} ${lineSeedKr.variable}`}
       suppressHydrationWarning
     >
       <body className="antialiased font-pretendard" suppressHydrationWarning>
