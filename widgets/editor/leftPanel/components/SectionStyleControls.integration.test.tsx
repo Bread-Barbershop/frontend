@@ -20,6 +20,9 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import BulkEdit from './BulkEdit';
 import { SectionStyleControls } from './SectionStyleControls';
 
+jest.mock('@/shared/data/invitationTemplates/originalPosterLoader', () => ({
+  loadOriginalPosterJson: async () => ({ version: '7.2.0', objects: [] }),
+}));
 jest.mock('next/navigation', () => ({ usePathname: () => '/guest/test' }));
 jest.mock('@/shared/fonts/fontLoader', () => ({
   preloadFontFamilyWeights: jest.fn().mockResolvedValue(undefined),
@@ -35,8 +38,8 @@ describe('템플릿과 추가 블록의 공통 카드 디자인', () => {
   beforeEach(() => useEditorStore.getState().reset());
   afterEach(() => act(() => useEditorStore.getState().reset()));
 
-  it('새 블록에 초대장 스타일을 적용하고 개별 변경과 상속 복원을 저장 전 미리보기에 반영한다', () => {
-    const prepared = createInvitationTemplate('showcase-21');
+  it('새 블록에 초대장 스타일을 적용하고 개별 변경과 상속 복원을 저장 전 미리보기에 반영한다', async () => {
+    const prepared = await createInvitationTemplate('showcase-21');
     act(() => {
       useEditorStore.setState({
         block: prepared.blocks.filter(block => block.component === 'greeting'),
@@ -107,7 +110,8 @@ describe('템플릿과 추가 블록의 공통 카드 디자인', () => {
     controls.unmount();
   });
 
-  it('기본 스타일은 모든 블록을 지운 뒤 추가해도 유지하고 저장 데이터 로딩과 초기화에서 복원한다', () => {
+  it('기본 스타일은 모든 블록을 지운 뒤 추가해도 유지하고 저장 데이터 로딩과 초기화에서 복원한다', async () => {
+    const prepared = await createInvitationTemplate('showcase-21');
     const { result, rerender } = renderHook(
       ({ bulkData }) =>
         useInitData({
@@ -118,7 +122,7 @@ describe('템플릿과 추가 블록의 공통 카드 디자인', () => {
       {
         initialProps: {
           bulkData: {
-            ...createInvitationTemplate('showcase-21'),
+            ...prepared,
             isZoom: false,
           },
         },
@@ -135,7 +139,7 @@ describe('템플릿과 추가 블록의 공통 카드 디자인', () => {
     preview.dispose();
     rerender({
       bulkData: {
-        ...createInvitationTemplate('showcase-21'),
+        ...prepared,
         sectionStyle: undefined,
         isZoom: false,
       },

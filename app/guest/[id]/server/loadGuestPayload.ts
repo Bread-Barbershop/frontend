@@ -2,6 +2,8 @@ import 'server-only';
 
 import { cache } from 'react';
 
+import { applyInvitationPrivacy } from '@/features/invitation/privacy/applyInvitationPrivacy';
+
 import { parseGuestPayload } from '../validation/parseGuestPayload';
 
 import { publicDataJsonUrl } from './guestDataUrl';
@@ -131,6 +133,10 @@ export const loadGuestPayload = cache(
     }
 
     // 이후 렌더러는 여기서 정규화된 payload만 받는다는 계약을 따른다.
-    return { status: 'ok', payload: parsed.payload, warnings: parsed.warnings };
+    return {
+      status: 'ok',
+      payload: applyInvitationPrivacy(parsed.payload),
+      warnings: parsed.warnings,
+    };
   }
 );

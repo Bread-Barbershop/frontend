@@ -19,12 +19,14 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'place'>;
   className: string;
   titleClassName?: string;
+  hideActions?: boolean;
 }
 
 export const PlacePreview = ({
   blockInfo,
   className,
   titleClassName,
+  hideActions,
   ...rest
 }: Props) => {
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
@@ -66,7 +68,7 @@ export const PlacePreview = ({
       </section>
       {checkedPlaceTel && Boolean(placeTel?.trim()) && (
         <p className="font-normal text-text-tertiary" style={{ fontFamily }}>
-          TEL. {formatPhoneNumber(placeTel)}
+          TEL. {hideActions ? placeTel : formatPhoneNumber(placeTel)}
         </p>
       )}
 

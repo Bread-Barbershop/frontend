@@ -131,3 +131,13 @@
   margin: 18px 12px 32px;
   border-radius: 25px;
 }
+.chapter[data-design='showcase-23'] {
+  margin: 20px 16px 36px;
+  border-left: 2px solid #65746570;
+  background: #f2f3ef70;
+}
+.chapter[data-design='showcase-24'] {
+  margin: 18px 16px 34px;
+  border-top: 1px solid #a65d4355;
+  background: #f5f1e960;
+}

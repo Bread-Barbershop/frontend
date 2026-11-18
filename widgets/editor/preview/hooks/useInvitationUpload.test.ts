@@ -13,6 +13,9 @@ jest.mock('@/features/invitation/save/saveInvitationFlow', () => ({
 jest.mock('@/shared/hooks/useToast', () => ({
   useToast: () => ({ success: jest.fn(), error: jest.fn(), info: jest.fn() }),
 }));
+jest.mock('@/shared/data/invitationTemplates/originalPosterLoader', () => ({
+  loadOriginalPosterJson: async () => ({ version: '7.2.0', objects: [] }),
+}));
 jest.mock('@/shared/utils/fileUtils', () => ({
   getFileKey: async (file: File, id: string) => `${id}:${file.name}`,
 }));
@@ -70,8 +73,8 @@ describe('템플릿 사진을 남겨 편집한 갤러리 저장', () => {
     );
   });
 
-  function setGallery(images: (File | string)[]) {
-    const template = createInvitationTemplate('showcase-18');
+  async function setGallery(images: (File | string)[]) {
+    const template = await createInvitationTemplate('showcase-18');
     const gallery = template.blocks.find(
       block => block.component === 'gallery'
     )!;
@@ -87,7 +90,7 @@ describe('템플릿 사진을 남겨 편집한 갤러리 저장', () => {
   it('샘플 URL과 새 파일이 섞인 상태에서 파일만 업로드하고 본문 URL을 유지한다', async () => {
     const file = new File(['photo'], 'my-photo.png', { type: 'image/png' });
     const sample = '/images/showcase/birthday-evening.webp';
-    const id = setGallery([file, sample]);
+    const id = await setGallery([file, sample]);
     const { result } = renderHook(() => useInvitationUpload());
     await act(async () => {
       await result.current.handleUpload();
@@ -105,7 +108,7 @@ describe('템플릿 사진을 남겨 편집한 갤러리 저장', () => {
 
   it('샘플 사진을 재정렬하거나 일부만 남겼다면 파일 업로드 없이 저장한다', async () => {
     const sample = '/images/showcase/birthday-table.webp';
-    setGallery([sample]);
+    await setGallery([sample]);
     const { result } = renderHook(() => useInvitationUpload());
     await act(async () => {
       await result.current.handleUpload();
@@ -126,7 +129,10 @@ describe('템플릿 사진을 남겨 편집한 갤러리 저장', () => {
       value: 'existing-drive-id',
       configurable: true,
     });
-    const id = setGallery(['/images/showcase/birthday-evening.webp', file]);
+    const id = await setGallery([
+      '/images/showcase/birthday-evening.webp',
+      file,
+    ]);
     useEditorStore.setState({
       hashFiles: [`${id}:${file.name}::existing-drive-id`],
     });

@@ -10,6 +10,7 @@ import {
   upsertInvitationMeta,
 } from '@/app/api/drive/_lib/ensureInvitationMetaFile';
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
+import { downloadFiles } from '@/app/api/drive/_lib/getSaveDataFetch';
 import { guestPath } from '@/app/api/drive/_lib/guestReadiness';
 import {
   getOwnedAudienceLink,
@@ -17,6 +18,11 @@ import {
 } from '@/app/api/drive/_lib/invitationAudiences';
 import { PreviewAccessError } from '@/app/api/drive/_lib/previewAccess';
 import { getOrCreateShortCode } from '@/app/api/short-url/_lib/shortUrlStore';
+import {
+  getActivePrivacyFields,
+  hideCustomShareText,
+  normalizeInvitationPrivacy,
+} from '@/features/invitation/privacy/settings';
 
 function getSharePublicOrigin(req: Request) {
   return (
@@ -159,6 +165,25 @@ function createReadableShareData(
   };
 }
 
+async function protectKakaoShare(share: ShareUrlPayload, dataJsonFileId?: string | null) {
+  if (!dataJsonFileId) return share;
+
+  // Read the same saved settings as the guest page. Share metadata is saved
+  // separately and can be older than the invitation itself.
+  const invitation = await downloadFiles(encodeURIComponent(dataJsonFileId));
+  const fields = getActivePrivacyFields(
+    normalizeInvitationPrivacy(invitation?.bulkData?.invitationPrivacy),
+    Date.now()
+  );
+  const unavailable = !invitation?.bulkData;
+  return {
+    ...share,
+    ...(unavailable || hideCustomShareText(fields) ? { title: '', description: '' } : {}),
+    ...(unavailable || fields.has('media') ? { imageFileId: undefined } : {}),
+    ...(unavailable || fields.has('location') ? { showLocationButton: false, locationInfo: undefined } : {}),
+  };
+}
+
 export async function POST(req: Request) {
   try {
     const publicOrigin = getSharePublicOrigin(req);
@@ -285,7 +310,7 @@ export async function GET(req: Request) {
         ok: true,
         metaFileId: meta.metaFileId,
         shareUrlFileId: meta.metaFileId,
-        data: shareData,
+        data: await protectKakaoShare(shareData, currentDataId),
         guestUrl: shareData.invitationUrl ?? meta.payload.guestUrl,
         dataJsonFileId: currentDataId,
       });

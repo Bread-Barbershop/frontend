@@ -6,6 +6,7 @@ import { useDashboardInvitationPreview } from '@/app/dashboard/hooks/useDashboar
 import useDashboardInvitations from '@/app/dashboard/hooks/useDashboardInvitations';
 import { InviteListItem } from '@/app/dashboard/types';
 import { getInvitationShowcaseItem } from '@/app/dashboard/utils/getInvitationShowcaseItem';
+import { LinkShareModal } from '@/components/molecules/link-share/LinkShareModal';
 
 import DashboardInvitationPreviewModal from '../preview/DashboardInvitationPreviewModal';
 
@@ -132,6 +133,10 @@ function CarouselWrapper({
     getVisibilityError,
   } = useDashboardInvitations(initialInvites, { loadOnMount });
   const preview = useDashboardInvitationPreview();
+  const [linkShare, setLinkShare] = useState<{
+    url: string;
+    notice?: string;
+  } | null>(null);
   const orderedInvites = useMemo(() => [...invites].reverse(), [invites]);
   const startIndex = Math.max(orderedInvites.length - 1, 0);
   const [resolvedImages, setResolvedImages] = useState<ResolvedImageMap>({});
@@ -284,7 +289,20 @@ function CarouselWrapper({
         onPreview={preview.openPreview}
         onUpdate={handleUpdate}
         onToggleVisibility={handleToggleVisibility}
-        onCopyUrl={handleCopyGuestUrl}
+        onCopyUrl={folderId => {
+          const invite = invites.find(item => item.folderId === folderId);
+          const url = invite?.guestUrl ?? getGuestUrl(folderId);
+          if (!url) return;
+
+          void handleCopyGuestUrl(folderId);
+          setLinkShare({
+            url,
+            notice:
+              invite?.published === false
+                ? '비공개 초대장이에요. 공개로 변경하면 링크와 QR로 접속할 수 있어요.'
+                : undefined,
+          });
+        }}
         onShare={handleShare}
         getGuestUrl={getGuestUrl}
         isDeleting={isDeleting}
@@ -292,6 +310,13 @@ function CarouselWrapper({
         isVisibilityUpdating={isVisibilityUpdating}
         getVisibilityError={getVisibilityError}
       />
+      {linkShare && (
+        <LinkShareModal
+          url={linkShare.url}
+          notice={linkShare.notice}
+          onClose={() => setLinkShare(null)}
+        />
+      )}
       <DashboardInvitationPreviewModal
         errorMessage={preview.errorMessage}
         folderId={preview.folderId}

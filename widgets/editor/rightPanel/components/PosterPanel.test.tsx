@@ -11,11 +11,29 @@ jest.mock('@/widgets/editor/preview/hooks/useInvitationTemplate', () => ({
 }));
 
 describe('카테고리별 실제 편집 가능한 표지 목록', () => {
-  it('23종을 제공하고 생일 분류에서는 해당 디자인만 보여주며 표지만 적용한다', () => {
+  it('25종을 제공하고 새 웨딩 표지와 생일 표지를 선택해 표지만 적용한다', () => {
     render(<PosterPanel />);
     expect(screen.getAllByRole('button', { name: /표지 적용$/ })).toHaveLength(
-      23
+      25
     );
+
+    fireEvent.click(
+      screen.getByRole('button', { name: '결혼식', exact: true })
+    );
+    expect(screen.getAllByRole('button', { name: /표지 적용$/ })).toHaveLength(
+      14
+    );
+    for (const [name, id] of [
+      ['알파인 프로미스', 'showcase-23'],
+      ['브릭 시티 웨딩', 'showcase-24'],
+    ]) {
+      fireEvent.click(
+        screen.getByRole('button', { name: `${name} 표지 적용` })
+      );
+      expect(mockApplyTemplate).toHaveBeenCalledWith(id, { posterOnly: true });
+      mockApplyTemplate.mockClear();
+    }
+
     fireEvent.click(screen.getByRole('button', { name: '생일', exact: true }));
     expect(screen.getAllByRole('button', { name: /표지 적용$/ })).toHaveLength(
       4

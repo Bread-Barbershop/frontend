@@ -1,6 +1,6 @@
 'use client';
 
-import AdditionalFeaturesButton from '../preview/components/AdditionalFeaturesButton';
+import InvitationSettingsButton from '../preview/components/AdditionalFeaturesButton';
 import AddPageButton from '../preview/components/AddPageButton';
 import InvitationAudiencesButton from '../preview/components/InvitationAudiencesButton';
 import InvitationPreviewButton from '../preview/components/InvitationPreviewButton';
@@ -17,7 +17,7 @@ function MenuPanel({ audienceName }: { audienceName?: string }) {
       <OrderPanel />
       <AddPageButton />
       <ShareUrlButton />
-      <AdditionalFeaturesButton />
+      <InvitationSettingsButton />
       <InvitationAudiencesButton upload={upload} audienceName={audienceName} />
       <InvitationPreviewButton />
       <UploadButton upload={upload} />

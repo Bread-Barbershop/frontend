@@ -1,5 +1,6 @@
 import { DriveListResponse } from '@/app/api/drive/_lib/getSaveDataFetch';
 import type { ScrollAnimationSettings } from '@/components/molecules/scroll-fade-in/animationConfig';
+import type { InvitationPrivacy } from '@/features/invitation/privacy/settings';
 import type { SectionStyle } from '@/shared/data/sectionStyles';
 import {
   BulkData,
@@ -24,6 +25,7 @@ export interface SavedData {
     titleData: BulkData;
     bodyData: BulkData;
     isZoom: boolean;
+    invitationPrivacy?: InvitationPrivacy;
     scrollAnimation: ScrollAnimationSettings;
   };
   blocks: PersistedEditorBlock[];
@@ -42,6 +44,7 @@ export interface JsonData {
     titleData: BulkData;
     bodyData: BulkData;
     isZoom: boolean;
+    invitationPrivacy?: InvitationPrivacy;
     scrollAnimation: ScrollAnimationSettings;
   };
   blocks: PersistedEditorBlock[]; // singular to match store
