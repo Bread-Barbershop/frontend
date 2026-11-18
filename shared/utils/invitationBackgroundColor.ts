@@ -42,9 +42,9 @@ export function parseInvitationBackgroundColor(
   return undefined;
 }
 
-function getLuminance(value: string) {
+function getLuminance(value: string, fallback = 1) {
   const color = parseInvitationBackgroundColor(value);
-  if (!color) return 1;
+  if (!color) return fallback;
 
   const { r, g, b, a } = color;
   const compositeOnWhite = (channel: number) => channel * a + 255 * (1 - a);
@@ -57,6 +57,12 @@ function getLuminance(value: string) {
 
 export function isDarkInvitationBackground(backgroundColor: string) {
   return getLuminance(backgroundColor) <= DARK_BACKGROUND_LUMINANCE;
+}
+
+export function getContrastingTextColor(backgroundColor = '') {
+  return getLuminance(backgroundColor, 0) <= DARK_BACKGROUND_LUMINANCE
+    ? '#FFFFFF'
+    : '#000000';
 }
 
 export function usesDarkInvitationCards(

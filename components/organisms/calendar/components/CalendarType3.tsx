@@ -1,4 +1,5 @@
 import { cn } from '@/shared/utils/cn';
+import { getContrastingTextColor } from '@/shared/utils/invitationBackgroundColor';
 
 import { CalendarTemplateProps } from '../types/calendar';
 
@@ -10,6 +11,11 @@ export function CalendarType3({
   monthText,
   accentColor,
 }: CalendarTemplateProps) {
+  const selectedDayStyle = {
+    backgroundColor: accentColor,
+    color: getContrastingTextColor(accentColor),
+  };
+
   return (
     <div className="w-full px-4 flex flex-col shadow-edit font-lineseed">
       <p className="flex items-center justify-end h-11.5 text-sm font-semibold text-[#1f2937] font-pretendard">
@@ -37,22 +43,17 @@ export function CalendarType3({
               key={idx}
               className={cn(
                 'relative flex flex-col items-center justify-start text-sm font-lineseed z-1 h-11.5 text-text-tertiary',
-                !dayObj.isCurrentMonth && 'opacity-30',
-                dayObj.isTargetDate && 'text-white'
+                !dayObj.isCurrentMonth && 'opacity-30'
               )}
-              style={
-                dayObj.isTargetDate
-                  ? { backgroundColor: accentColor }
-                  : undefined
-              }
+              style={dayObj.isTargetDate ? selectedDayStyle : undefined}
             >
               <span>{dayObj.num}</span>
               {dayObj.isTargetDate && (
                 <div className="bottom-1 w-full text-center flex flex-col items-center">
-                  <span className="text-[11px] font-sans text-white leading-[1.1] block">
+                  <span className="text-[11px] font-sans leading-[1.1] block">
                     {timeInfo.timeText}
                   </span>
-                  <span className="text-[11px] font-sans text-white leading-[1.1] block">
+                  <span className="text-[11px] font-sans leading-[1.1] block">
                     {timeInfo.ampm}
                   </span>
                 </div>
