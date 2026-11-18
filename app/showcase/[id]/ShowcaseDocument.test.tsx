@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 
 import { buildShowcaseInvitation } from '@/shared/data/buildShowcaseInvitation';
 import { SHOWCASE_INVITATIONS } from '@/shared/data/showcaseInvitations';
@@ -30,6 +30,43 @@ describe('디자인마다 바로 읽을 수 있는 초대장', () => {
       ).not.toBeInTheDocument();
     }
   );
+
+  it('모바일 미리보기에서는 포스터 전체를 맞추고 데스크톱 너비에서 원래 크기로 돌아간다', () => {
+    const frame = document.createElement('iframe');
+    frame.setAttribute('data-showcase-preview', '');
+    const frameElement = jest
+      .spyOn(window, 'frameElement', 'get')
+      .mockReturnValue(frame);
+    const query = Object.assign(new EventTarget(), { matches: true });
+    const matchMedia = Object.getOwnPropertyDescriptor(window, 'matchMedia');
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: () => query,
+    });
+    const design = SHOWCASE_INVITATIONS[0];
+
+    try {
+      render(
+        <ShowcaseDocument design={design} {...buildShowcaseInvitation(design)} />
+      );
+      const poster = screen.getByRole('img', {
+        name: `${design.name} 포스터 미리보기`,
+      });
+      expect(poster).toHaveClass('object-contain');
+      expect(poster.closest('header')).toHaveClass('h-screen');
+
+      act(() => {
+        query.matches = false;
+        query.dispatchEvent(new Event('change'));
+      });
+      expect(poster).toHaveClass('object-cover');
+      expect(poster.closest('header')).not.toHaveClass('h-screen');
+    } finally {
+      if (matchMedia) Object.defineProperty(window, 'matchMedia', matchMedia);
+      else Reflect.deleteProperty(window, 'matchMedia');
+      frameElement.mockRestore();
+    }
+  });
 
   it('사진 팝업에서 누른 Escape가 바깥 미리보기까지 닫지 않게 한다', () => {
     const design = SHOWCASE_INVITATIONS[0];
