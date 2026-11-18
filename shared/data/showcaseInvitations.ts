@@ -1448,6 +1448,12 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
           { time: '첫돌', title: '생일 노래에 맞춰 짝짜꿍해요' },
         ],
       },
+      {
+        component: 'picture',
+        title: '수첩에 붙일 첫돌 케이크',
+        image: '/images/showcase/first-cake.webp',
+        caption: '초 한 개를 꽂고 민준이의 첫 생일 노래를 연습했어요.',
+      },
       { component: 'greeting' },
       {
         component: 'myFamily',
@@ -1460,6 +1466,17 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
           '함께 지켜봐 주신 덕분에 첫해를 잘 보냈습니다. 돌상 앞에서 반갑게 인사드릴게요.',
       },
       {
+        component: 'faq',
+        title: '돌잡이를 함께해 주세요',
+        items: [
+          {
+            question: '돌잡이 때 가족들은 무엇을 하나요?',
+            answer:
+              '민준이가 손을 뻗기 전 어떤 물건을 집을지 골라 보세요. 잡은 뒤에 다 같이 박수를 쳐 주세요.',
+          },
+        ],
+      },
+      {
         component: 'calendar',
         title: '첫돌 잔칫날',
         template: 'calendarType3',
@@ -1468,6 +1485,21 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         component: 'place',
         title: '가족이 모이는 곳',
         detail: '유아 의자와 잠시 쉬어 갈 가족 휴식 공간이 있습니다.',
+      },
+      {
+        component: 'mealMenu',
+        title: '가족 식탁',
+        subtitle: 'Family Lunch',
+        style: 'classic',
+        courses: [
+          { name: '어른 식사', dishes: ['떡갈비와 계절 나물'] },
+          { name: '아이 식사', dishes: ['간을 약하게 한 채소죽'] },
+        ],
+      },
+      {
+        component: 'closingComment',
+        message:
+          '성장 수첩의 다음 장에는 오늘 모인 분들과 찍은 사진을 붙일게요. 민준이네 가족 드림',
       },
     ],
   },
