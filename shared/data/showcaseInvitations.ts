@@ -851,11 +851,42 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '오려 붙인 추억과 작은 고깔모자, 사랑으로 채운 첫 생일.',
     palette: ['#FAF5E9', '#8C6845', '#55483A'],
     eyebrow: 'OUR LITTLE ONE TURNS ONE',
-    heading: '작은 기적이 자란 365일',
+    heading: '민준이의 첫해를 펼쳐 봅니다',
     message: [
-      '처음 눈을 맞추던 날부터 환하게 웃어 주던 순간까지.',
-      '서툰 우리에게 매일 새로운 행복을 알려 준 아이가 첫 생일을 맞아요.',
-      '사랑을 보내 주신 여러분과 그 기쁨을 나누고 싶습니다.',
+      '첫 장을 열 때만 해도 품에 쏙 들어왔는데, 벌써 제 손으로 책장을 넘깁니다. 민준이의 첫 생일을 함께 축하해 주세요.',
+    ],
+    sectionStyle: 'paper',
+    sections: [
+      {
+        component: 'timeline',
+        title: '민준이의 성장 수첩',
+        items: [
+          { time: '첫날', title: '손가락을 꼭 쥐었어요' },
+          { time: '백일', title: '눈을 맞추고 소리 내어 웃었어요' },
+          { time: '첫돌', title: '생일 노래에 맞춰 짝짜꿍해요' },
+        ],
+      },
+      { component: 'greeting' },
+      {
+        component: 'myFamily',
+        title: '초대장을 보낸 우리 가족',
+        members: [
+          { relation: '엄마', name: '지수' },
+          { relation: '아빠', name: '준호' },
+        ],
+        message:
+          '함께 지켜봐 주신 덕분에 첫해를 잘 보냈습니다. 돌상 앞에서 반갑게 인사드릴게요.',
+      },
+      {
+        component: 'calendar',
+        title: '첫돌 잔칫날',
+        template: 'calendarType3',
+      },
+      {
+        component: 'place',
+        title: '가족이 모이는 곳',
+        detail: '유아 의자와 잠시 쉬어 갈 가족 휴식 공간이 있습니다.',
+      },
     ],
     moments: ['반가운 가족 인사', '두근두근 돌잡이', '첫 생일 축하와 식사'],
     note: '아이가 낯설어할 수 있어 잠시 적응할 시간을 주세요. 유아 의자와 가족 휴식 공간을 준비했습니다.',
