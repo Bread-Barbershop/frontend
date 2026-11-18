@@ -106,11 +106,26 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '흑백 사진과 담백한 여백으로 전하는 단단한 약속.',
     palette: ['#FFFFFF', '#222222', '#454545'],
     eyebrow: 'MIN SUNG & AH HYUN',
-    heading: '같은 보폭으로, 함께',
+    heading: '같은 보폭으로',
     message: [
-      '수많은 길 위에서 우연히 마주친 두 사람이',
-      '이제 서로의 가장 가까운 동행이 됩니다.',
-      '저희가 함께 걷는 첫걸음에 함께해 주세요.',
+      '신호가 바뀔 때마다 걸음을 맞추던 우리가 부부가 됩니다. 가까이에서 축하해 주시면 기쁘겠습니다.',
+    ],
+    sectionStyle: 'plain',
+    sections: [
+      {
+        component: 'picture',
+        title: '우리의 반지',
+        image: '/images/showcase/vow-rings.webp',
+        caption: '두 사람이 고른, 장식 없는 한 쌍.',
+      },
+      { component: 'greeting' },
+      { component: 'calendar', title: '3월의 예식' },
+      { component: 'place', title: '만나는 곳' },
+      {
+        component: 'closingComment',
+        message:
+          '사진 속 빈자리에는 그날의 여러분을 모시고 싶습니다. 민성 · 아현',
+      },
     ],
     moments: ['함께 모이는 시간', '우리의 약속', '사진과 식사'],
     note: '단정하고 편안한 차림으로 와 주세요. 예식 후 함께 사진을 남기고 싶습니다.',
