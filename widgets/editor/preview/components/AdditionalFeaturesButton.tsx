@@ -15,6 +15,8 @@ import type { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 import { parseStrictDate } from '@/shared/utils/dateValidation';
 
+import { PrivacyEndDatePicker } from './PrivacyEndDatePicker';
+
 const checkboxClassName =
   'size-4 shrink-0 accent-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary';
 
@@ -150,18 +152,12 @@ function InvitationSettingsModal({
           >
             <div className="min-h-0 overflow-hidden">
               <div className="ml-1.5 mt-3 space-y-4 border-l border-black/10 pl-4">
-                <label className="flex flex-col items-start gap-1 text-sm">
-                  <span>일정이 끝나는 날</span>
-                  <input
-                    type="date"
-                    className="min-h-10 w-full rounded-md border border-black/15 px-2"
-                    value={privacy.eventDate}
-                    onChange={event => {
-                      const eventDate = event.target.value;
-                      setPrivacy(previous => ({ ...previous, eventDate }));
-                    }}
-                  />
-                </label>
+                <PrivacyEndDatePicker
+                  value={privacy.eventDate}
+                  onChange={eventDate =>
+                    setPrivacy(previous => ({ ...previous, eventDate }))
+                  }
+                />
                 <fieldset className="grid gap-2">
                   <legend className="mb-2 text-sm font-medium">
                     가릴 정보

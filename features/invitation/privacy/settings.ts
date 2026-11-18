@@ -17,12 +17,12 @@ export const INVITATION_PRIVACY_FIELDS = [
   {
     key: 'name',
     label: '이름',
-    description: '신랑·신부·혼주·가족·아이·연사·예금주 이름 가리기',
+    description: '이름이 노출되지 않도록 가리기',
   },
   {
     key: 'birthday',
     label: '생년월일',
-    description: '아이 소개의 생년월일을 ****.**.**처럼 표시',
+    description: '생년월일을 ****.**.**처럼 표시',
   },
   {
     key: 'media',
