@@ -818,11 +818,28 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '커다란 숫자처럼 크게 웃고 싶은 스물일곱의 파티.',
     palette: ['#FFF5F7', '#9F4968', '#473A41'],
     eyebrow: 'INVITE YOU · TWENTY SEVEN',
-    heading: '스물일곱 번째 페이지',
+    heading: '스물일곱의 플레이리스트',
     message: [
-      '새로운 페이지의 첫 줄에 너희의 이름을 적고 싶어요.',
-      '함께 웃었던 이야기와 아직 하지 못한 이야기를 모아',
-      '스물일곱의 첫 파티에서 만나요.',
+      '올해는 축하 노래 뒤에 너희가 고른 곡을 듣고 싶어. 요즘 자주 듣는 한 곡의 제목을 기억해 와!',
+    ],
+    sectionStyle: 'plain',
+    sections: [
+      {
+        component: 'calendar',
+        title: '27번째 생일 파티',
+        template: 'calendarType4',
+      },
+      { component: 'greeting' },
+      { component: 'place', title: '오늘의 클럽하우스' },
+      {
+        component: 'timeline',
+        title: '오후의 플레이리스트',
+        items: [
+          { time: '15:00', title: '체크인과 신청곡 받기' },
+          { time: '15:30', title: '생일 노래와 촛불' },
+          { time: '16:00', title: '친구들이 고른 곡 듣기' },
+        ],
+      },
     ],
     moments: ['파티 체크인', '소원을 말해 봐', '플레이리스트 & 토크'],
     note: '함께 듣고 싶은 노래 한 곡을 골라 와 주세요. 우리의 플레이리스트를 함께 완성해요.',
