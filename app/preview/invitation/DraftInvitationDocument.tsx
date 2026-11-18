@@ -9,6 +9,7 @@ import {
   PREVIEW_MESSAGE,
   type PreviewSnapshot,
 } from '@/features/invitation/preview/previewSnapshot';
+import { applyInvitationPrivacy } from '@/features/invitation/privacy/applyInvitationPrivacy';
 
 export default function DraftInvitationDocument() {
   const [snapshot, setSnapshot] = useState<PreviewSnapshot | null>(null);
@@ -23,7 +24,7 @@ export default function DraftInvitationDocument() {
       )
         return;
       const next = parsePreviewSnapshot(event.data.snapshot);
-      if (next) setSnapshot(next);
+      if (next) setSnapshot({ ...next, payload: applyInvitationPrivacy(next.payload) });
     };
     const keyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;

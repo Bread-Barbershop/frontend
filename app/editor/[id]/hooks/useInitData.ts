@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
+import { normalizeInvitationPrivacy } from '@/features/invitation/privacy/settings';
 import { collectFontFamilies } from '@/features/invitation/save/createGuestRenderHints';
 import { resolveSectionStyle } from '@/shared/data/sectionStyles';
 import { preloadFontFamilyWeights } from '@/shared/fonts/fontLoader';
@@ -54,6 +55,7 @@ export const useInitData = ({
     setBackgroundColor,
     setSectionStyle,
     setIsZoom,
+    setInvitationPrivacy,
     setScrollAnimation,
     setShareUrl,
     setHashFiles,
@@ -73,6 +75,7 @@ export const useInitData = ({
       setBackgroundColor: state.setBackgroundColor,
       setSectionStyle: state.setSectionStyle,
       setIsZoom: state.setIsZoom,
+      setInvitationPrivacy: state.setInvitationPrivacy,
       setScrollAnimation: state.setScrollAnimation,
       setShareUrl: state.setShareUrl,
       setHashFiles: state.setHashFiles,
@@ -178,6 +181,7 @@ export const useInitData = ({
   }, [bgm, resetBgm, setUserFile, setIsLoop, setSelectedBgmId]);
 
   const initBulkData = useCallback(() => {
+    setInvitationPrivacy(normalizeInvitationPrivacy(bulkData?.invitationPrivacy));
     if (bulkData) {
       setBodyData(bulkData.bodyData);
       setTitleData(bulkData.titleData);
@@ -192,6 +196,7 @@ export const useInitData = ({
     setTitleData,
     setBackgroundColor,
     setIsZoom,
+    setInvitationPrivacy,
     setScrollAnimation,
     setSectionStyle,
   ]);

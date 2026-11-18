@@ -26,6 +26,7 @@ export const createBulkSlice: StateCreator<EditorState, [], [], BulkSlice> = (
   setTitleData: (data: BulkData) => set({ titleData: data }),
   setBodyData: (data: BulkData) => set({ bodyData: data }),
   setIsZoom: (isZoom: boolean) => set({ isZoom }),
+  setInvitationPrivacy: invitationPrivacy => set({ invitationPrivacy }),
   setScrollAnimation: settings =>
     set({ scrollAnimation: resolveScrollAnimation(settings) }),
   updateScrollAnimation: settings =>

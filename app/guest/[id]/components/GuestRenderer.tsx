@@ -16,6 +16,7 @@ import { preloadFontFamilyWeights } from '@/shared/fonts/fontLoader';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import { resolveGuestFontFamiliesToPreload } from './guestFontPreload';
+import { GuestPrivacyNotice } from './GuestPrivacyNotice';
 
 import type { NormalizedGuestPayload } from '../validation/parseGuestPayload';
 
@@ -52,12 +53,14 @@ function GuestRenderer({
   blocks,
   bulkData,
   renderHints,
+  activePrivacyFields,
   isGuestPage: isGuestPageOverride,
   renderBlock,
 }: {
   blocks: NormalizedGuestPayload['blocks'];
   bulkData: GuestRendererBulkData;
   renderHints?: GuestRendererRenderHints;
+  activePrivacyFields?: NormalizedGuestPayload['activePrivacyFields'];
   isGuestPage?: boolean;
   renderBlock?: (
     block: GuestRendererBlock,
@@ -141,16 +144,26 @@ function GuestRenderer({
           blockInfo: GuestRendererBlock;
           className?: string;
           isGuestPage?: boolean;
+          hideActions?: boolean;
         }>;
 
-        const view = (
-          <View
-            blockInfo={block}
-            className=""
-            {...(isGuestPage && GUEST_PAGE_PROP_COMPONENTS.has(block.component)
-              ? { isGuestPage: true }
-              : {})}
-          />
+        const hideActions = block.component === 'account'
+          ? activePrivacyFields?.includes('account')
+          : ['phone', 'place'].includes(block.component) && activePrivacyFields?.includes('phone');
+        const view = block.privacyPlaceholder ? (
+          <GuestPrivacyNotice kind={block.privacyPlaceholder} />
+        ) : (
+          <>
+            {block.privacyMediaHidden && <GuestPrivacyNotice kind="photo" />}
+            <View
+              blockInfo={block}
+              className=""
+              {...(hideActions ? { hideActions: true } : {})}
+              {...(isGuestPage && GUEST_PAGE_PROP_COMPONENTS.has(block.component)
+                ? { isGuestPage: true }
+                : {})}
+            />
+          </>
         );
         return (
           <ScrollFadeIn

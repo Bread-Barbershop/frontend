@@ -14,6 +14,7 @@ import { PhoneGroup } from '../utils/phone.types';
 
 interface Props {
   groups?: PhoneGroup[];
+  hideActions?: boolean;
 }
 
 const getPhoneHrefNumber = (number: string) => {
@@ -23,7 +24,7 @@ const getPhoneHrefNumber = (number: string) => {
   return trimmed.startsWith('+') ? `+${digits}` : digits;
 };
 
-function PhonePreviewPopup({ groups = [] }: Props) {
+function PhonePreviewPopup({ groups = [], hideActions = false }: Props) {
   const titleColor = useEditorStore(state => state.titleData.color);
   const { fontFamily, color } = useBodyFontInfo();
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -135,11 +136,11 @@ function PhonePreviewPopup({ groups = [] }: Props) {
                               {contact.label || `연락처 ${contactIndex + 1}`}
                             </p>
                             <p className="truncate text-xs font-normal leading-3 text-black">
-                              {formatPhoneNumber(contact.number)}
+                              {hideActions ? contact.number : formatPhoneNumber(contact.number)}
                             </p>
                           </div>
 
-                          <div className="flex shrink-0 items-center">
+                          {!hideActions && <div className="flex shrink-0 items-center">
                             <a
                               href={`sms:${getPhoneHrefNumber(contact.number)}`}
                               aria-label="문자 보내기"
@@ -154,7 +155,7 @@ function PhonePreviewPopup({ groups = [] }: Props) {
                             >
                               <PhoneActionIcon className="text-text-tertiary" />
                             </a>
-                          </div>
+                          </div>}
                         </li>
                       ))}
                     </ul>

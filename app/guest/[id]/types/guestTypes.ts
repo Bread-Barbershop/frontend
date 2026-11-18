@@ -1,4 +1,5 @@
 import type { ScrollAnimationSettings } from '@/components/molecules/scroll-fade-in/animationConfig';
+import type { InvitationPrivacy, InvitationPrivacyField } from '@/features/invitation/privacy/settings';
 import type { SectionStyle } from '@/shared/data/sectionStyles';
 import { BulkData } from '@/shared/types/block';
 import type { GuestRenderHints } from '@/shared/types/renderHints';
@@ -16,6 +17,8 @@ export type GuestBlock = {
   type: string;
   component: string;
   props: unknown;
+  privacyPlaceholder?: 'photo' | 'video' | 'location';
+  privacyMediaHidden?: boolean;
 };
 
 export type GuestBgm = {
@@ -47,6 +50,7 @@ export type GuestPayload = {
   bgm: GuestBgm;
   mainPoster: GuestMainPosterData;
   renderHints?: GuestRenderHints;
+  activePrivacyFields?: InvitationPrivacyField[];
 };
 
 export type BulkJson = {
@@ -55,6 +59,7 @@ export type BulkJson = {
   titleData: BulkData;
   bodyData: BulkData;
   isZoom: boolean;
+  invitationPrivacy?: InvitationPrivacy;
   scrollAnimation: ScrollAnimationSettings;
 };
 

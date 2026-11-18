@@ -5,6 +5,7 @@ import { DriveImageResolveModeProvider } from '@/shared/hooks/useDriveImageResol
 
 import GuestBgm from './GuestBgm';
 import { GuestMainPoster } from './GuestMainPoster';
+import { GuestPrivacyNotice } from './GuestPrivacyNotice';
 import GuestRenderer from './GuestRenderer';
 
 import type { NormalizedGuestPayload } from '../validation/parseGuestPayload';
@@ -59,15 +60,20 @@ function GuestInvitationView({
               localAudioSrc={localAudioSrc}
             />
           </div>
-          <GuestMainPoster
-            onReady={onMainPosterReady}
-            thumbnailFileId={payload.mainPoster.thumbnailFileId ?? ''}
-          />
+          {payload.activePrivacyFields?.includes('poster') ? (
+            <GuestPrivacyNotice kind="poster" />
+          ) : (
+            <GuestMainPoster
+              onReady={onMainPosterReady}
+              thumbnailFileId={payload.mainPoster.thumbnailFileId ?? ''}
+            />
+          )}
           <div className="mx-auto w-full">
             <GuestRenderer
               blocks={payload.blocks}
               bulkData={payload.bulkData}
               renderHints={payload.renderHints}
+              activePrivacyFields={payload.activePrivacyFields}
               isGuestPage
             />
           </div>
