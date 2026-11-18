@@ -13,7 +13,9 @@ import {
   DEFAULT_BACKGROUND_COLOR,
   TITLE_BULK_DATA,
 } from '@/shared/data/sample/bulkData';
+import { resolveFontFamily } from '@/shared/fonts/fontRegistry';
 import { BulkData, BulkSlice, EditorState } from '@/shared/types/block';
+import { restoreInheritedLegacyBodyColor } from '@/shared/utils/applyBulkBodyStyle';
 import { resolveInvitationTextColors } from '@/shared/utils/invitationBackgroundColor';
 
 export const createBulkSlice: StateCreator<EditorState, [], [], BulkSlice> = (
@@ -38,7 +40,9 @@ export const createBulkSlice: StateCreator<EditorState, [], [], BulkSlice> = (
   scrollAnimation: DEFAULT_SCROLL_ANIMATION,
   invitationEffectsReplay: 0,
   replayInvitationEffects: () =>
-    set(state => ({ invitationEffectsReplay: state.invitationEffectsReplay + 1 })),
+    set(state => ({
+      invitationEffectsReplay: state.invitationEffectsReplay + 1,
+    })),
   setInvitationEffects: invitationEffects =>
     set({ invitationEffects, invitationEffectsReplay: 0 }),
   updateInvitationEffects: settings =>
@@ -48,10 +52,30 @@ export const createBulkSlice: StateCreator<EditorState, [], [], BulkSlice> = (
     })),
   setBackgroundColor: (color: string) => set({ backgroundColor: color }),
   selectBackgroundColor: backgroundColor =>
-    set(({ titleData, bodyData }) => ({
-      backgroundColor,
-      ...resolveInvitationTextColors(backgroundColor, titleData, bodyData),
-    })),
+    set(({ titleData, bodyData, block }) => {
+      const textColors = resolveInvitationTextColors(
+        backgroundColor,
+        titleData,
+        bodyData
+      );
+      const usesNewLightInk =
+        bodyData.color.trim() === BODY_BULK_DATA.color &&
+        textColors.bodyData.colorMode === 'automatic' &&
+        textColors.bodyData.color !== BODY_BULK_DATA.color;
+
+      return {
+        backgroundColor,
+        ...textColors,
+        ...(usesNewLightInk && {
+          block: restoreInheritedLegacyBodyColor(block, {
+            color: BODY_BULK_DATA.color,
+            fontFamily: resolveFontFamily(bodyData.font),
+            fontSize: bodyData.fontSize,
+            fontWeight: bodyData.fontWeight,
+          }),
+        }),
+      };
+    }),
   setTitleData: (data: BulkData) => set({ titleData: data }),
   setBodyData: (data: BulkData) => set({ bodyData: data }),
   setIsZoom: (isZoom: boolean) => set({ isZoom }),
