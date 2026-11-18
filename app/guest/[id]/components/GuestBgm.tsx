@@ -17,6 +17,7 @@ interface GuestBgmProps {
 }
 
 const USER_BGM_ID = 'user-bgm';
+const PREVIEW_CONTROL_TOP = '!top-[var(--phone-frame-bgm-top,2rem)]';
 
 function driveAudioUrl(fileId: string) {
   return `https://drive.usercontent.google.com/download?id=${encodeURIComponent(fileId)}&export=download`;
@@ -222,14 +223,21 @@ function GuestBgm({
             <BgmPlaybackHint
               className={
                 isDashboardPreview
-                  ? '!right-[72px] !top-8 !bg-white/72 !text-text-plain'
+                  ? `${PREVIEW_CONTROL_TOP} !right-[calc(var(--phone-frame-bgm-right,2rem)+40px)] !bg-white/72 !text-text-plain
+                    in-[.phone-preview-frame]:h-auto! in-[.phone-preview-frame]:min-h-8
+                    in-[.phone-preview-frame]:max-w-[calc(100%-var(--phone-frame-bgm-right)-48px)]
+                    in-[.phone-preview-frame]:px-[min(0.75rem,3%)]! in-[.phone-preview-frame]:py-1`
                   : ''
               }
               isDismissed={isHintDismissed}
             />
           )}
           <BgmToggleButton
-            className={isDashboardPreview ? '!right-8 !top-8' : ''}
+            className={
+              isDashboardPreview
+                ? `${PREVIEW_CONTROL_TOP} !right-[var(--phone-frame-bgm-right,2rem)]`
+                : ''
+            }
             isOn={isOn}
             onToggle={handleToggle}
           />

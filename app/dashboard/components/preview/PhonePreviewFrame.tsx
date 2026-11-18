@@ -9,10 +9,26 @@ import { InvitationVisualEffects } from '@/components/organisms/visualEffects/Vi
 import PhoneFrameImage from '@/shared/assets/images/dashboard/invitation-preview-frame.png';
 import { resolveInvitationEffects } from '@/shared/utils/invitationEffects';
 
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 const FRAME_WIDTH = 433;
 const FRAME_HEIGHT = 872;
+const FRAME_SCREEN_TOP = 24;
+const FRAME_CAMERA_CLEARANCE = 80;
+const FRAME_DISPLAY_WIDTH = `min(${FRAME_WIDTH}px, calc(100vw - 48px), calc((100vh - 48px) * ${FRAME_WIDTH} / ${FRAME_HEIGHT}))`;
+// 프레임 이미지가 축소되면 카메라 영역도 같은 비율로 줄어든다.
+const FRAME_BGM_TOP = `max(2rem, calc(${FRAME_DISPLAY_WIDTH} * ${FRAME_CAMERA_CLEARANCE} / ${FRAME_WIDTH} - ${FRAME_SCREEN_TOP}px))`;
+
+const frameScreenStyle: CSSProperties & {
+  '--phone-frame-bgm-top': string;
+  '--phone-frame-bgm-right': string;
+} = {
+  // PNG 프레임의 실제 화면 구멍에 맞춘 값이다. 프레임 원본 크기는 유지한다.
+  inset: `${FRAME_SCREEN_TOP}px 27px 31px`,
+  borderRadius: '48px',
+  '--phone-frame-bgm-top': FRAME_BGM_TOP,
+  '--phone-frame-bgm-right': 'min(2rem, 9%)',
+};
 
 type PhonePreviewFrameProps = {
   children?: ReactNode;
@@ -35,16 +51,12 @@ function PhonePreviewFrame({
       className="relative shrink-0"
       style={{
         aspectRatio: `${FRAME_WIDTH} / ${FRAME_HEIGHT}`,
-        width: `min(${FRAME_WIDTH}px, calc(100vw - 48px), calc((100vh - 48px) * ${FRAME_WIDTH} / ${FRAME_HEIGHT}))`,
+        width: FRAME_DISPLAY_WIDTH,
       }}
     >
       <div
-        className="absolute isolate overflow-hidden bg-white"
-        style={{
-          // PNG 프레임의 실제 화면 구멍에 맞춘 값이다. 프레임 원본 크기는 유지한다.
-          inset: '24px 27px 31px',
-          borderRadius: '48px',
-        }}
+        className="phone-preview-frame absolute isolate overflow-hidden bg-white"
+        style={frameScreenStyle}
       >
         <div
           ref={screenContentRef}
