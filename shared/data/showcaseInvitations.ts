@@ -1246,8 +1246,47 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         template: 'galleryType5',
         ratio: '4:3',
       },
+      {
+        component: 'notice',
+        title: '사진 교환하는 법',
+        heading: '휴대폰 앨범에 한 장만 찜해 둬',
+        message:
+          '인화할 필요 없어. 차례가 오면 화면을 보여 주면서 사진을 찍은 날 얘기를 들려줘.',
+        preset: 'shooting',
+        image: '/samples/seminar_01/images/08_포토부스_1.png',
+      },
       { component: 'calendar', title: '사진 찍는 날' },
+      {
+        component: 'mealMenu',
+        title: '사진 보면서 먹을 것',
+        subtitle: 'Photo Table',
+        style: 'minimal',
+        courses: [
+          { name: '나눠 먹는 접시', dishes: ['치즈 샌드위치와 과일'] },
+          { name: '디저트', dishes: ['초콜릿 생일 케이크'] },
+        ],
+      },
       { component: 'place', title: '모일 곳' },
+      {
+        component: 'timeline',
+        title: '같이 남길 장면들',
+        items: [
+          { time: '15:00', title: '친구들 사진 구경' },
+          { time: '15:30', title: '촛불 앞에서 단체 사진' },
+          { time: '16:00', title: '사진 한 장씩 골라 주기' },
+        ],
+      },
+      {
+        component: 'faq',
+        title: '사진에 관해',
+        items: [
+          {
+            question: '우리 사진은 어디에 올려?',
+            answer:
+              '그날 온 친구들끼리 먼저 나눌게. 밖에 올릴 사진은 사진 속 친구에게 물어보고 고르자.',
+          },
+        ],
+      },
       {
         component: 'closingComment',
         message: '이번 사진에도 네 자리가 있었으면 좋겠어. 민혁이가',
