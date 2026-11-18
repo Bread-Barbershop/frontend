@@ -976,11 +976,33 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '붉은 벽돌 골목과 평범한 하루를 담은 도시의 웨딩 에디토리얼.',
     palette: ['#F5F1E9', '#A65D43', '#463C36'],
     eyebrow: 'OUR CITY, OUR STORY',
-    heading: '골목을 함께 걷는 일상',
+    heading: '우리 동네에 초대합니다',
     message: [
-      '익숙한 골목과 자주 걷던 거리가 우리만의 풍경이 되었습니다.',
-      '평범한 하루를 나누며 서로의 가장 가까운 사람이 되려 합니다.',
-      '도시의 한 모퉁이에서 시작될 저희의 약속에 함께해 주세요.',
+      '자주 걷던 골목에 둘이 마음에 둔 장소가 있습니다. 붉은 벽돌 건물에서 저희의 다음 이야기를 시작합니다.',
+    ],
+    sectionStyle: 'plain',
+    sections: [
+      {
+        component: 'place',
+        title: '벽돌 골목의 브릭 라운지',
+        detail: '붉은 벽돌 건물의 라운지 입구에서 맞이할게요.',
+      },
+      { component: 'greeting' },
+      {
+        component: 'coupleIntroduction',
+        title: '이 골목을 고른 이유',
+        story:
+          '처음 함께 밥을 먹은 곳도, 집에 가기 아쉬워 한 바퀴 더 돈 곳도 이 근처였어요.',
+      },
+      { component: 'calendar', title: '라운지에서 만나는 날' },
+      {
+        component: 'transportation',
+        title: '강남역에서 걸어오실 때',
+        subwayStation: '강남역',
+        subwayExit: '11번 출구',
+        subwayWalk:
+          '11번 출구에서 테헤란로1길을 따라오세요. 브릭 라운지 입구에서 식장으로 안내해 드립니다.',
+      },
     ],
     moments: ['반가운 인사와 산책', '우리다운 서약', '함께 나누는 식사'],
     note: '익숙한 골목도 함께 걸으면 새로운 풍경이 됩니다. 평범한 하루를 나누며 오래 사랑하겠습니다.',
