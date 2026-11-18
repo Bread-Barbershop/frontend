@@ -500,11 +500,36 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     description: '큰 질문과 선명한 인사이트를 담은 대담한 컨퍼런스.',
     palette: ['#F2F6FF', '#245BC6', '#253C5E'],
     eyebrow: 'ANNUAL BUSINESS CONFERENCE 2026',
-    heading: '다음 비즈니스를 함께 그리다',
+    heading: '올해의 비즈니스 컨퍼런스에 초대합니다',
     message: [
-      '변화의 속도가 빨라질수록, 함께 생각할 시간이 필요합니다.',
-      '실행하는 사람들의 경험과 새로운 관점을 나누는 자리.',
-      '2026 Annual Business Conference에 여러분을 초대합니다.',
+      'Andrew Jackson과 시장 변화에 대응한 팀들의 선택을 살펴봅니다. 오후 강연과 네트워킹에 함께해 주세요.',
+    ],
+    sectionStyle: 'plain',
+    sections: [
+      {
+        component: 'timeline',
+        title: '컨퍼런스 프로그램',
+        items: [
+          { time: '14:30', title: '등록 및 자료 수령' },
+          {
+            time: '15:00',
+            title: '기조 강연',
+            description: '시장이 바뀔 때 무엇을 먼저 바꿀까',
+          },
+          { time: '16:00', title: '네트워킹' },
+        ],
+      },
+      { component: 'greeting' },
+      { component: 'calendar', title: '컨퍼런스 일시' },
+      { component: 'place', title: '메인 오디토리움' },
+      {
+        component: 'sponsorshipInfomation',
+        title: '행사를 함께 준비한 파트너',
+        images: [
+          '/samples/seminar_01/images/01_chatgpt_image_2026년_8월_12일_오후_07_36_16_1_1.png',
+          '/samples/seminar_01/images/04_chatgpt_image_2026년_8월_12일_오후_07_36_17_4_1.png',
+        ],
+      },
     ],
     moments: [
       '비즈니스의 다음 장',
