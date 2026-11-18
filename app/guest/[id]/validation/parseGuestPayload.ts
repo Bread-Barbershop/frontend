@@ -1,3 +1,4 @@
+import { resolveSectionStyle } from '@/shared/data/sectionStyles';
 import type { BulkData } from '@/shared/types/block';
 import type { GuestRenderHints } from '@/shared/types/renderHints';
 
@@ -72,8 +73,11 @@ function normalizeBulkJson(x: unknown): BulkJson | null {
   if (!isBulkData(x.titleData)) return null;
   if (!isBulkData(x.bodyData)) return null;
 
+  const sectionStyle = resolveSectionStyle(x.sectionStyle);
+
   return {
     backgroundColor: x.backgroundColor,
+    ...(sectionStyle && { sectionStyle }),
     titleData: x.titleData,
     bodyData: x.bodyData,
     // 구형 data.json에는 isZoom이 없을 수 있으므로 안전한 기본값을 둔다.

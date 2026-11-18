@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import { collectFontFamilies } from '@/features/invitation/save/createGuestRenderHints';
+import { resolveSectionStyle } from '@/shared/data/sectionStyles';
 import { preloadFontFamilyWeights } from '@/shared/fonts/fontLoader';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { extractFileGroups } from '@/shared/utils/extractFileGroups';
@@ -50,6 +51,7 @@ export const useInitData = ({
     setBodyData,
     setTitleData,
     setBackgroundColor,
+    setSectionStyle,
     setIsZoom,
     setShareUrl,
     setHashFiles,
@@ -67,6 +69,7 @@ export const useInitData = ({
       setBodyData: state.setBodyData,
       setTitleData: state.setTitleData,
       setBackgroundColor: state.setBackgroundColor,
+      setSectionStyle: state.setSectionStyle,
       setIsZoom: state.setIsZoom,
       setShareUrl: state.setShareUrl,
       setHashFiles: state.setHashFiles,
@@ -176,9 +179,17 @@ export const useInitData = ({
       setBodyData(bulkData.bodyData);
       setTitleData(bulkData.titleData);
       setBackgroundColor(bulkData.backgroundColor);
+      setSectionStyle(resolveSectionStyle(bulkData.sectionStyle));
       setIsZoom(bulkData.isZoom);
     }
-  }, [bulkData, setBodyData, setTitleData, setBackgroundColor, setIsZoom]);
+  }, [
+    bulkData,
+    setBodyData,
+    setTitleData,
+    setBackgroundColor,
+    setIsZoom,
+    setSectionStyle,
+  ]);
   return {
     initEditStore,
     initBgmStore,
