@@ -32,7 +32,10 @@ jest.mock('next/cache', () => ({
 }));
 
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
-import { claimAudienceLink } from '@/app/api/drive/_lib/audienceLinkStore';
+import {
+  claimAudienceLink,
+  releaseAudienceLink,
+} from '@/app/api/drive/_lib/audienceLinkStore';
 import { Redis } from '@upstash/redis';
 import { waitUntilGuestReady } from '@/app/api/drive/_lib/guestReadiness';
 import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissionWithRetry';
@@ -119,7 +122,7 @@ const sourceData = {
   },
 };
 
-function mockDrive() {
+function mockDrive({ failFirstDataDownload = false } = {}) {
   const documents = new Map<string, Doc>();
   const copies = new Map<string, Doc>();
   const deleted: string[] = [];
@@ -242,6 +245,14 @@ function mockDrive() {
     const doc = fileId ? documents.get(fileId) : undefined;
     if (method === 'GET') {
       if (!doc) return Response.json({}, { status: 404 });
+      if (
+        failFirstDataDownload &&
+        fileId === DATA &&
+        url.searchParams.has('alt')
+      ) {
+        failFirstDataDownload = false;
+        return Response.json({}, { status: 503 });
+      }
       return Response.json(url.searchParams.has('alt') ? doc.body : doc);
     }
 
@@ -470,6 +481,33 @@ describe('초대장 복제 API', () => {
           )
       )
     ).toBe(false);
+  });
+
+  it('원본 다운로드 실패 시 하객 그룹 예약을 해제하고 새 요청으로 다시 생성한다', async () => {
+    mockDrive({ failFirstDataDownload: true });
+    jest.mocked(claimAudienceLink).mockResolvedValue({
+      status: 'claimed',
+      dataJsonFileId: null,
+    });
+    const createFamily = (requestId: string) =>
+      createAudience(
+        request('invitationAudiences', {
+          folderId: SOURCE,
+          sourceFolderId: SOURCE,
+          requestId,
+          name: '가족',
+          slug: 'family',
+        })
+      );
+
+    expect((await createFamily('first-attempt')).status).toBe(502);
+    const [, reservation] = jest.mocked(claimAudienceLink).mock.calls[0];
+    expect(releaseAudienceLink).toHaveBeenCalledWith(DATA, {
+      slug: 'family',
+      requestId: reservation.requestId,
+    });
+    expect((await createFamily('second-attempt')).status).toBe(200);
+    expect(releaseAudienceLink).toHaveBeenCalledTimes(1);
   });
 
   it('기본을 가족용으로 복제한 뒤 편집된 가족용 데이터와 에셋을 친구용으로 새로 복제한다', async () => {

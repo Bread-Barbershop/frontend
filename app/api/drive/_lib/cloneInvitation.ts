@@ -302,6 +302,44 @@ export async function cloneInvitation(input: {
   });
 }
 
+async function readCloneSource(sourceFolderId: string) {
+  const files = await listCloneFiles(sourceFolderId);
+  const sourceMetaFile = findSavedInvitationMetaFile(files);
+  const sourceMeta = sourceMetaFile
+    ? await loadInvitationMetaByFileId(sourceMetaFile.id)
+    : null;
+  const legacyKakao = files.find(
+    file =>
+      file.name === LEGACY_KAKAO_NAME &&
+      file.appProperties?.kind === LEGACY_KAKAO_KIND
+  );
+  const legacyKakaoData =
+    !sourceMeta?.kakaoShare && legacyKakao
+      ? await loadCloneJson(legacyKakao.id)
+      : null;
+  const sourceKakao =
+    sourceMeta?.kakaoShare ??
+    (isShareUrlPayload(legacyKakaoData) ? legacyKakaoData : null);
+  const sourceData = findSavedInvitationDataFile(
+    files,
+    sourceMeta?.dataJsonFileId
+  );
+  if (!sourceData) {
+    throw new InvitationCloneError(
+      '저장된 초대장 데이터를 찾을 수 없습니다.',
+      404
+    );
+  }
+  const data = await loadCloneJson(sourceData.id);
+  if (!isJsonRecord(data) || !parseGuestPayload(data).ok) {
+    throw new InvitationCloneError(
+      '저장된 초대장 데이터 형식을 확인해 주세요.',
+      422
+    );
+  }
+  return { files, sourceData, sourceMeta, sourceKakao, data };
+}
+
 /** Callers validate ownership of the source and destination before copying. */
 export async function cloneOwnedInvitation(input: {
   sourceFolderId: string;
@@ -351,42 +389,11 @@ export async function cloneOwnedInvitation(input: {
     }
 
     await input.beforeCopy?.();
-    const files = await listCloneFiles(sourceFolderId);
-    const sourceMetaFile = findSavedInvitationMetaFile(files);
-    const sourceMeta = sourceMetaFile
-      ? await loadInvitationMetaByFileId(sourceMetaFile.id)
-      : null;
-    const legacyKakao = files.find(
-      file =>
-        file.name === LEGACY_KAKAO_NAME &&
-        file.appProperties?.kind === LEGACY_KAKAO_KIND
-    );
-    const legacyKakaoData =
-      !sourceMeta?.kakaoShare && legacyKakao
-        ? await loadCloneJson(legacyKakao.id)
-        : null;
-    const sourceKakao =
-      sourceMeta?.kakaoShare ??
-      (isShareUrlPayload(legacyKakaoData) ? legacyKakaoData : null);
-    const sourceData = findSavedInvitationDataFile(
-      files,
-      sourceMeta?.dataJsonFileId
-    );
-    if (!sourceData) {
-      await input.onCleanFailure?.();
-      throw new InvitationCloneError(
-        '저장된 초대장 데이터를 찾을 수 없습니다.',
-        404
-      );
-    }
-    const data = await loadCloneJson(sourceData.id);
-    if (!isJsonRecord(data) || !parseGuestPayload(data).ok) {
-      await input.onCleanFailure?.();
-      throw new InvitationCloneError(
-        '저장된 초대장 데이터 형식을 확인해 주세요.',
-        422
-      );
-    }
+    const { files, sourceData, sourceMeta, sourceKakao, data } =
+      await readCloneSource(sourceFolderId).catch(async error => {
+        await input.onCleanFailure?.();
+        throw error;
+      });
 
     const created = await createCloneFile({
       name: input.folderName,
