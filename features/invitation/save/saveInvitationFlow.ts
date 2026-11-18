@@ -43,6 +43,7 @@ type SaveInvitationPrepareResponse = {
   workspaceFolderId: string;
   invitationFolderId: string;
   invitationUuid: string;
+  audienceSlug?: string;
   dataJsonFileId: string;
   imageFolderId: string;
   audioFolderId: string;
@@ -72,6 +73,7 @@ type SaveInvitationFlowParams = {
   shareUrl: ShareUrlState;
   bgmData: BgmData;
   invitationUuid?: string;
+  preserveVisibility?: boolean;
   mainPoster: MainPosterData;
   invitationThumbnail: InvitationThumbnail;
   uploadImages?: UploadTask[];
@@ -81,6 +83,7 @@ type SaveInvitationFlowParams = {
 type SaveInvitationFlowResult = {
   success: boolean;
   invitationUuid: string;
+  audienceSlug?: string;
   guestUrl: string;
   results: {
     images: BatchResult;
@@ -857,7 +860,7 @@ async function runSaveInvitationFlow(
   params.onProgress?.('finishingInvitation');
   diagnostics.currentStage = 'publish_visibility';
   const visibility =
-    saveFailedBeforeVisibility === 0
+    saveFailedBeforeVisibility === 0 && !params.preserveVisibility
       ? await requestInitialPublicVisibility(prep.invitationFolderId)
       : {
           attempted: false,
@@ -880,6 +883,7 @@ async function runSaveInvitationFlow(
   const result = {
     success: totalFailed === 0,
     invitationUuid: prep.invitationUuid,
+    audienceSlug: prep.audienceSlug,
     guestUrl: commitResult.guestUrl,
     results: {
       images: uploadResult.imagesStep.final,

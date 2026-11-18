@@ -25,19 +25,24 @@ const normalizePersistedBlocks = (blocks: unknown): PersistedEditorBlock[] => {
   );
 };
 
-const setAudioFile = async (
-  audioFile: { id: string; name: string; mimeType: string }[] | null,
+const loadSavedAudioFile = async (
+  audioFiles: { id: string; name: string; mimeType: string }[] | null,
+  savedFileId: string | null | undefined,
   signal: AbortSignal
 ) => {
-  if (audioFile && audioFile.length > 0) {
-    const audioFiles = await fetchAudioFiles(audioFile, signal);
-    return audioFiles.length > 0 ? audioFiles[0].file : null;
-  } else {
-    return null;
-  }
+  const selected = savedFileId
+    ? audioFiles?.find(file => file.id === savedFileId)
+    : audioFiles?.[0];
+  if (!selected) return null;
+
+  const downloaded = await fetchAudioFiles([selected], signal);
+  return downloaded.find(file => file.id === selected.id)?.file ?? null;
 };
 
-export const useSavedData = (folderId: string): UseSavedDataReturn => {
+export const useSavedData = (
+  folderId: string,
+  uuid: string
+): UseSavedDataReturn => {
   const [savedData, setSavedData] = useState<SavedData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +64,8 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
 
       try {
         // 1) 저장된 데이터 조회
-        const res = await fetch(`/api/drive/updateInvitation?id=${folderId}`, {
+        const params = new URLSearchParams({ id: folderId, uuid });
+        const res = await fetch(`/api/drive/updateInvitation?${params}`, {
           signal: controller.signal,
         });
 
@@ -120,17 +126,20 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
             }
           : createDefaultShareUrlState();
 
-        const audioFiles = await setAudioFile(
+        const audioFile = await loadSavedAudioFile(
           data.audios.files ?? null,
+          data.config.bgm.userBgmFileId,
           controller.signal
         );
         setSavedData({
+          audienceName:
+            typeof data.audienceName === 'string' ? data.audienceName : undefined,
           bulkData: updatedBulkData,
           blocks: updatedBlocksWithImages,
           mainPoster: data.config.mainPoster,
           bgm: {
             bgmInfo: data.config.bgm,
-            bgmFile: audioFiles,
+            bgmFile: audioFile,
           },
           shareUrl: updatedShareUrl,
           imageFolderId: data.imageFolderId,
@@ -152,7 +161,7 @@ export const useSavedData = (folderId: string): UseSavedDataReturn => {
     fetchSavedData();
 
     return () => controller.abort();
-  }, [folderId]);
+  }, [folderId, uuid]);
 
   return {
     savedData,

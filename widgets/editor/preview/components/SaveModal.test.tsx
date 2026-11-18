@@ -2,9 +2,12 @@
  * @jest-environment jsdom
  */
 
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
+import { DASHBOARD_PENDING_INVITATION_KEY } from '@/shared/constants/dashboardPendingInvitation';
+
+import { familyAudience, savedBasicInvitation } from './fixtures/invitationAudiences';
 import { SaveModal } from './SaveModal';
 
 jest.mock('next/navigation', () => ({
@@ -62,5 +65,24 @@ describe('SaveModal', () => {
     );
 
     expect(screen.getByText('성공적으로 저장되었습니다!')).toBeInTheDocument();
+  });
+
+  it('하객용 초대장을 저장한 뒤 나가도 대시보드 임시 카드를 만들지 않는다', () => {
+    sessionStorage.removeItem(DASHBOARD_PENDING_INVITATION_KEY);
+    render(
+      <SaveModal
+        {...commonProps}
+        skipDashboardHandoff
+        pendingInvitation={{
+          ...savedBasicInvitation,
+          invitationFolderId: familyAudience.folderId,
+          invitationUuid: familyAudience.invitationUuid,
+          guestUrl: '/i/abc123?to=family',
+        }}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: '여기서 나가기' }));
+    expect(sessionStorage.getItem(DASHBOARD_PENDING_INVITATION_KEY)).toBeNull();
   });
 });

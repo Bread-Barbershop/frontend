@@ -31,14 +31,16 @@ export const useInitData = ({
     invitationImage,
   } = savedData || {};
 
-  const { resetBgm, setSelectedBgmId, setIsLoop, setUserFile } = useBgmStore(
-    useShallow(state => ({
-      resetBgm: state.reset,
-      setSelectedBgmId: state.setSelectedBgmId,
-      setIsLoop: state.setIsLoop,
-      setUserFile: state.setUserFile,
-    }))
-  );
+  const { resetBgm, setSelectedBgmId, setIsLoop, setUserFile, setVolume } =
+    useBgmStore(
+      useShallow(state => ({
+        resetBgm: state.reset,
+        setSelectedBgmId: state.setSelectedBgmId,
+        setIsLoop: state.setIsLoop,
+        setUserFile: state.setUserFile,
+        setVolume: state.setVolume,
+      }))
+    );
 
   const {
     setBlock,
@@ -171,8 +173,11 @@ export const useInitData = ({
       }
       setIsLoop(bgm.bgmInfo?.isLoop || false);
       setSelectedBgmId(bgm.bgmInfo?.selectedBgmId || null);
+      if (typeof bgm.bgmInfo?.volume === 'number') {
+        setVolume(bgm.bgmInfo.volume);
+      }
     }
-  }, [bgm, resetBgm, setUserFile, setIsLoop, setSelectedBgmId]);
+  }, [bgm, resetBgm, setUserFile, setIsLoop, setSelectedBgmId, setVolume]);
 
   const initBulkData = useCallback(() => {
     if (bulkData) {

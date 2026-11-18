@@ -2,11 +2,15 @@ import React, { useRef, useState } from 'react';
 
 import { useConfirm } from '@/shared/hooks/useConfirm';
 
-import { useInvitationUpload } from '../hooks/useInvitationUpload';
-
 import { SaveModal } from './SaveModal';
 
-function UploadButton() {
+import type { useInvitationUpload } from '../hooks/useInvitationUpload';
+
+function UploadButton({
+  upload,
+}: {
+  upload: ReturnType<typeof useInvitationUpload>;
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const tabRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -17,7 +21,7 @@ function UploadButton() {
     isCleaningUp,
     pendingInvitation,
     loadingMessage,
-  } = useInvitationUpload();
+  } = upload;
   const { confirm } = useConfirm();
 
   const handleClose = () => {
@@ -43,7 +47,7 @@ function UploadButton() {
             return;
           }
 
-          handleUpload();
+          void handleUpload();
           setIsModalOpen(true);
         }}
       >
@@ -55,8 +59,9 @@ function UploadButton() {
           isLoading={isLoading}
           isFail={isFail}
           pendingInvitation={pendingInvitation}
+          skipDashboardHandoff={Boolean(pendingInvitation?.audienceSlug)}
           loadingMessage={loadingMessage}
-          retry={handleUpload}
+          retry={() => void handleUpload()}
           onClose={handleClose}
         />
       )}

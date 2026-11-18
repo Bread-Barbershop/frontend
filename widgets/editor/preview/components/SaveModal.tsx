@@ -14,6 +14,7 @@ interface Props {
   isLoading: boolean;
   isFail: boolean;
   pendingInvitation: DashboardPendingInvitation | null;
+  skipDashboardHandoff?: boolean;
   loadingMessage: string;
   loadingAnimation?: SaveLoadingMessageAnimation;
   retry: () => void;
@@ -251,6 +252,7 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
       isLoading,
       isFail,
       pendingInvitation,
+      skipDashboardHandoff,
       loadingMessage,
       loadingAnimation,
       retry,
@@ -261,7 +263,11 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
     const router = useRouter();
 
     const handleExit = () => {
-      if (typeof window !== 'undefined' && pendingInvitation) {
+      if (
+        typeof window !== 'undefined' &&
+        pendingInvitation &&
+        !skipDashboardHandoff
+      ) {
         sessionStorage.setItem(
           DASHBOARD_PENDING_INVITATION_KEY,
           JSON.stringify(pendingInvitation)

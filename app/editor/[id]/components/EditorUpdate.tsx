@@ -24,7 +24,7 @@ interface Props {
 }
 
 function EditorUpdate({ folderId, uuid }: Props) {
-  const { savedData, loading, error } = useSavedData(folderId);
+  const { savedData, loading, error } = useSavedData(folderId, uuid);
   const { initEditStore, initBgmStore, initBulkData } = useInitData({
     savedData,
     uuid,
@@ -78,7 +78,7 @@ function EditorUpdate({ folderId, uuid }: Props) {
               <div className="pl-[clamp(0px,calc(144*((100vw-1340px)/(1920-1340))),144px)]">
                 <Preview />
               </div>
-              <MenuPanel />
+              <MenuPanel audienceName={savedData.audienceName} />
             </div>
             <RightPanel />
           </div>
