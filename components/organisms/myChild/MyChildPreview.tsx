@@ -7,6 +7,8 @@ import type { EditorBlock } from '@/shared/types/block';
 
 import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
 
+import { getDefaultChildTitle } from './getDefaultChildTitle';
+
 interface Props {
   className: string;
   titleClassName?: string;
@@ -45,8 +47,8 @@ export const MyChildPreview = ({
       checkedSubTitle={checkedSubTitle}
       subTitle={subTitle}
       subTitleDefault="MY CHILD"
-      mainTitle={title}
-      mainTitleDefault={`${name}의 첫번째 생일`}
+      mainTitle={title?.trim()}
+      mainTitleDefault={getDefaultChildTitle(name)}
       titleClassName={titleClassName}
       childClassName="w-full flex flex-col gap-6"
       {...rest}

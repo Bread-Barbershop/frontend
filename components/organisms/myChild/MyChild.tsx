@@ -19,6 +19,8 @@ import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
+import { getDefaultChildTitle } from './getDefaultChildTitle';
+
 import type { JSONContent } from '@tiptap/react';
 
 interface Props {
@@ -109,7 +111,7 @@ export const MyChild = ({ blockInfo, id }: Props) => {
         <TextField
           label="제목"
           inputProps={{
-            placeholder: `${name || '아이'}의 첫번째 생일`,
+            placeholder: getDefaultChildTitle(name),
             value: blockInfo.props.title,
             onChange: e => handleStringChange('title', e),
           }}
