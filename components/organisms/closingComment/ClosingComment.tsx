@@ -77,7 +77,7 @@ function ClosingComment({ blockInfo, id }: Props) {
       />
       {isQuestionListOpen && (
         <ClosingQuestionPopup
-          invitationType={blockInfo.type}
+          blockInfo={blockInfo}
           onSelect={handleQuestionListSelect}
           onClose={() => setIsQuestionListOpen(false)}
           triggerRef={questionListTriggerRef}
