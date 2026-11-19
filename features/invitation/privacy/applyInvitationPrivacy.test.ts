@@ -344,6 +344,28 @@ describe('행사일 이후 공개 초대장', () => {
     });
   });
 
+  it('후원사 이름과 로고를 하객의 개인정보 설정에 따라 각각 가린다', () => {
+    const original = makeInvitation();
+    const sponsor = block('sponsorshipInfomation', {
+      images: ['private-sponsor-logo'],
+      sponsors: [{ id: 'a', name: '한빛재단', logoIndex: 0 }],
+    });
+    original.blocks = [sponsor];
+    original.bulkData.invitationPrivacy!.fields = ['media'];
+    const mediaHidden = applyInvitationPrivacy(original, cutoff);
+    expect(mediaHidden.blocks[0]).toMatchObject({
+      privacyMediaHidden: true,
+      props: { images: [], sponsors: [{ name: '한빛재단', logoIndex: null }] },
+    });
+    expect(JSON.stringify(mediaHidden)).not.toContain('private-sponsor-logo');
+    original.bulkData.invitationPrivacy!.fields = ['name'];
+    const nameHidden = applyInvitationPrivacy(original, cutoff);
+    expect(nameHidden.blocks[0].props).toMatchObject({
+      images: ['private-sponsor-logo'],
+      sponsors: [{ name: '한○○○', logoIndex: 0 }],
+    });
+  });
+
   it('공지사항의 업로드 사진만 가리고 안내 문구와 소유자의 원본을 유지한다', () => {
     const original = makeInvitation();
     const notice = block('notice', {
