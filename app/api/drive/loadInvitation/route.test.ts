@@ -65,19 +65,19 @@ describe('loadInvitation route', () => {
     (googleFetch as jest.Mock).mockImplementation((url: string) => {
       const decodedUrl = decodeURIComponent(url);
 
-      if (url.includes('orderBy=createdTime+desc') && url.includes('pageSize=100')) {
+      if (decodedUrl.includes("mimeType='application/vnd.google-apps.folder'")) {
         return Promise.resolve(
           mockJsonResponse({
             files: [
               {
                 id: 'folder-1',
-                name: 'Invitation 1',
+                name: '초대장 - 2026년 03월 21일 19시 00분',
                 createdTime: '2026-03-21T10:00:00.000Z',
                 appProperties: { inv_id: 'uuid-1' },
               },
               {
                 id: 'folder-2',
-                name: 'Invitation 2',
+                name: '초대장',
                 createdTime: '2026-03-20T10:00:00.000Z',
                 appProperties: { inv_id: 'uuid-2' },
               },
@@ -113,7 +113,7 @@ describe('loadInvitation route', () => {
             guestUrl: '/guest/data-json-file-id-1',
             dataJsonFileId: 'data-json-file-id-1',
             kakaoShare: {
-              title: 'Invitation 1',
+              title: '봄 디자인 세미나',
               description: 'Description 1',
               showLocationButton: false,
             },
@@ -126,7 +126,32 @@ describe('loadInvitation route', () => {
         const id = decodedUrl.includes('folder-1')
           ? 'public-thumbnail'
           : 'private-thumbnail';
-        return Promise.resolve(mockJsonResponse({ files: [{ id }] }));
+        return Promise.resolve(
+          mockJsonResponse({
+            files: [
+              { id, name: 'invitation-thumbnail.webp' },
+              {
+                id: decodedUrl.includes('folder-1')
+                  ? 'data-json-file-id-1'
+                  : 'legacy-data',
+                name: 'data.json',
+              },
+            ],
+          })
+        );
+      }
+
+      if (url.includes('legacy-data?alt=media')) {
+        return Promise.resolve(
+          mockJsonResponse({
+            blocks: [
+              {
+                component: 'coupleIntroduction',
+                props: { groom: '민서', bride: '지훈' },
+              },
+            ],
+          })
+        );
       }
 
       throw new Error(`Unexpected googleFetch url: ${url}`);
@@ -141,7 +166,8 @@ describe('loadInvitation route', () => {
       invites: [
         {
           folderId: 'folder-1',
-          name: 'Invitation 1',
+          name: '초대장 - 2026년 03월 21일 19시 00분',
+          displayTitle: '봄 디자인 세미나',
           createdTime: '2026-03-21T10:00:00.000Z',
           invitationUuid: 'uuid-1',
           dataJsonFileId: 'data-json-file-id-1',
@@ -153,7 +179,8 @@ describe('loadInvitation route', () => {
         },
         {
           folderId: 'folder-2',
-          name: 'Invitation 2',
+          name: '초대장',
+          displayTitle: '민서·지훈 결혼식',
           createdTime: '2026-03-20T10:00:00.000Z',
           invitationUuid: 'uuid-2',
           guestUrl: null,
@@ -166,7 +193,7 @@ describe('loadInvitation route', () => {
       ],
       nextPageToken: 'next-page-token-123',
     });
-    expect(googleFetch).toHaveBeenCalledTimes(6);
+    expect(googleFetch).toHaveBeenCalledTimes(7);
     expect(res.headers.get('Cache-Control')).toBe('no-store');
   });
 

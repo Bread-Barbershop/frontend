@@ -50,7 +50,7 @@ function CopyInvitationDialog({
   return (
     <Confirm
       ref={dialogRef}
-      message={`“${invite.name}” 초대장을 복사하시겠습니까?`}
+      message={`“${invite.displayTitle ?? invite.name}” 초대장을 복사하시겠습니까?`}
       description="복사본은 비공개로 생성되며 따로 편집할 수 있어요."
       confirmText={isCloning ? '복사 중…' : errorMessage ? '다시 시도' : '복사'}
       cancelText="취소"
