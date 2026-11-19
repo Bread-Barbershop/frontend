@@ -1,10 +1,13 @@
+import { rgbaToHsva } from '@uiw/color-convert';
 import { Canvas, FabricImage } from 'fabric';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   ColorPickerChange,
   ColorPickerValue,
 } from '@/components/molecules/color-picker/components/colorPicker.types';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { parseInvitationBackgroundColor } from '@/shared/utils/invitationBackgroundColor';
 
 import { FabricImageWithLock } from '../types/fabric';
 import { convertFabricColor } from '../utils/fabricUtils';
@@ -95,6 +98,20 @@ export const useFabricBackground = ({ canvas, saveHistory }: Props) => {
     a: 1,
   });
   const [backgroundImageOpacity, setBackgroundImageOpacity] = useState(1);
+  const lastCanvasColor = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!canvas) return;
+    const syncBackgroundColor = () => {
+      const value = canvas.backgroundColor;
+      if (typeof value !== 'string' || lastCanvasColor.current === value) return;
+      lastCanvasColor.current = value;
+      const rgba = parseInvitationBackgroundColor(value || 'transparent');
+      if (rgba) setBackgroundColor(rgbaToHsva(rgba));
+    };
+    syncBackgroundColor();
+    return canvas.on('after:render', syncBackgroundColor);
+  }, [canvas]);
 
   const updateBackgroundColor = (
     color: ColorPickerChange | ColorPickerValue
@@ -106,8 +123,13 @@ export const useFabricBackground = ({ canvas, saveHistory }: Props) => {
       canvas.remove(existingBg);
     }
 
+    const fill = convertFabricColor(color);
+    if (existingBg || canvas.backgroundColor !== fill) {
+      useEditorStore.getState().setIsDirty(true);
+    }
+    lastCanvasColor.current = fill;
     canvas.set({
-      backgroundColor: convertFabricColor(color),
+      backgroundColor: fill,
       backgroundImage: null,
     });
     const nextColor =

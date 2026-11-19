@@ -76,6 +76,10 @@ function ColorPickerBase({
     applyHsva({ ...hsva, ...nextColor });
   };
 
+  const selectColor = (color: PickerHsva) => {
+    applyHsva(preserveAlpha ? { ...color, a: hsva.a } : color);
+  };
+
   useEffect(() => {
     hsvaRef.current = hsva;
   }, [hsva]);
@@ -150,10 +154,7 @@ function ColorPickerBase({
         hex={hex}
         inputMode={inputMode}
         onInputModeChange={setInputMode}
-        onHexChange={nextHex => {
-          const color = hexToHsva(nextHex);
-          applyHsva(preserveAlpha ? { ...color, a: hsva.a } : color);
-        }}
+        onHexChange={nextHex => selectColor(hexToHsva(nextHex))}
         onRgbChange={nextColor => {
           applyHsva(nextColor);
         }}
@@ -163,9 +164,7 @@ function ColorPickerBase({
         colorHistory={colorHistory}
         columnCount={historyColumnCount}
         maxCount={maxHistoryCount}
-        onChange={nextColor => {
-          applyHsva(nextColor);
-        }}
+        onChange={selectColor}
       />
     </>
   );

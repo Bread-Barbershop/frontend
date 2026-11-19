@@ -228,7 +228,7 @@ describe('일괄 편집 즉시 반영', () => {
     expect(trigger).toHaveAttribute('aria-expanded', 'true');
     expect(input).toHaveFocus();
     expect(input).toHaveValue('#102030');
-    expect(within(dialog).getByText('50%')).toBeInTheDocument();
+    expect(within(dialog).getByText('투명도 50%')).toBeInTheDocument();
 
     fireEvent.change(input, { target: { value: '#223344' } });
     expect(useEditorStore.getState().backgroundColor).toBe(
