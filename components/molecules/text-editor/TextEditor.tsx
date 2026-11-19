@@ -551,7 +551,16 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
         },
         setText: (text: string) => {
           if (editor) {
-            editor.chain().focus().setContent(text).run();
+            editor
+              .chain()
+              .focus()
+              .setContent({
+                type: 'doc',
+                content: [
+                  { type: 'paragraph', content: text ? [{ type: 'text', text }] : [] },
+                ],
+              })
+              .run();
           }
         },
         getEditor: () => editor,

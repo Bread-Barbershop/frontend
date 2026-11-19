@@ -1,15 +1,15 @@
-export type ClosingCategory = '결혼식' | '돌잔치' | '세미나' | '생일' | 'etc';
+import type { InvitationType } from '@/shared/types/block';
 
-export const CLOSING_CATEGORIES: { label: string; value: ClosingCategory }[] = [
-  { label: '결혼식', value: '결혼식' },
-  { label: '돌잔치', value: '돌잔치' },
-  { label: '세미나', value: '세미나' },
-  { label: '생일', value: '생일' },
+export const CLOSING_CATEGORIES: { label: string; value: InvitationType }[] = [
+  { label: '결혼식', value: 'wedding' },
+  { label: '돌잔치', value: 'firstBirthday' },
+  { label: '세미나', value: 'seminar' },
+  { label: '생일', value: 'birthday' },
   { label: 'etc.', value: 'etc' },
 ];
 
-export const CLOSING_COMMENT_OPTIONS: Record<ClosingCategory, string[]> = {
-  결혼식: [
+const CLOSING_COMMENT_OPTIONS = {
+  wedding: [
     '(신랑) · (신부)의 새로운 시작을 함께 축복해 주세요.',
     '(신랑) · (신부)의 소중한 날에 함께해 주셔서 감사합니다.',
     '(신랑) · (신부)의 앞날에 따뜻한 마음을 더해 주세요.',
@@ -21,19 +21,7 @@ export const CLOSING_COMMENT_OPTIONS: Record<ClosingCategory, string[]> = {
     '(신랑) · (신부)의 약속에 따뜻한 축하를 보내주세요.',
     '(신랑) · (신부)의 특별한 순간을 함께해 주세요.',
   ],
-  돌잔치: [
-    '(아이)의 첫 번째 생일을 함께 축하해 주세요.',
-    '(아이)의 소중한 첫돌에 따뜻한 축복을 보내주세요.',
-    '(아이)의 첫 생일에 함께해 주셔서 감사합니다.',
-    '(아이)의 첫 시작을 함께 축복해 주세요.',
-    '(아이)의 특별한 하루를 따뜻하게 빛내 주세요.',
-    '(아이)가 맞이한 첫 생일을 함께 기뻐해 주세요.',
-    '(아이)의 첫돌을 소중한 마음으로 축하해 주세요.',
-    '(아이)의 웃음 가득한 날에 함께해 주세요.',
-    '(아이)의 첫 번째 순간을 함께 나누고 싶습니다.',
-    '(아이)의 건강한 성장을 따뜻하게 응원해 주세요.',
-  ],
-  세미나: [
+  seminar: [
     '(행사명)에 함께해 주셔서 감사합니다.',
     '(행사명)에서 새로운 인사이트를 함께 나눠요.',
     '(행사명)의 뜻깊은 시간에 함께해 주세요.',
@@ -45,7 +33,7 @@ export const CLOSING_COMMENT_OPTIONS: Record<ClosingCategory, string[]> = {
     '(행사명)에서 의미 있는 변화를 함께 만들어 주세요.',
     '(행사명)이 더 큰 가치로 이어지길 기대합니다.',
   ],
-  생일: [
+  birthday: [
     '(이름)의 생일을 함께 축하해 주세요.',
     '(이름)의 특별한 하루를 함께 빛내 주세요.',
     '(이름)의 소중한 날에 함께해 주셔서 감사합니다.',
@@ -70,3 +58,32 @@ export const CLOSING_COMMENT_OPTIONS: Record<ClosingCategory, string[]> = {
     '(행사명)이 더 특별해질 수 있도록 함께해 주세요.',
   ],
 };
+
+export function getClosingCommentOptions(
+  category: InvitationType,
+  name: string
+) {
+  if (category !== 'firstBirthday') return CLOSING_COMMENT_OPTIONS[category];
+
+  const childName = name.trim().normalize('NFC');
+  const endsInHangul = /[가-힣]$/.test(childName);
+  const lastCode = childName.charCodeAt(childName.length - 1);
+  const hasBatchim = endsInHangul && (lastCode - 0xac00) % 28 !== 0;
+  const familiarName = hasBatchim ? `${childName}이` : childName;
+  const possessive = familiarName ? `${familiarName}의 ` : '';
+  // 영문 등 발음을 알 수 없는 이름은 '의 첫 생일'로 표현한다.
+  const birthdayIntro = endsInHangul ? `${familiarName}가 맞이한 ` : possessive;
+
+  return [
+    `${possessive}첫 번째 생일을 함께 축하해 주세요.`,
+    `${possessive}소중한 첫돌에 따뜻한 축복을 보내주세요.`,
+    `${possessive}첫 생일에 함께해 주셔서 감사합니다.`,
+    `${possessive}첫 시작을 함께 축복해 주세요.`,
+    `${possessive}특별한 하루를 따뜻하게 빛내 주세요.`,
+    `${birthdayIntro}첫 생일을 함께 기뻐해 주세요.`,
+    `${possessive}첫돌을 소중한 마음으로 축하해 주세요.`,
+    `${possessive}웃음 가득한 날에 함께해 주세요.`,
+    `${possessive}첫 번째 순간을 함께 나누고 싶습니다.`,
+    `${possessive}건강한 성장을 따뜻하게 응원해 주세요.`,
+  ];
+}
