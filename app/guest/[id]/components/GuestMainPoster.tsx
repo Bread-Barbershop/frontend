@@ -15,9 +15,11 @@ import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 export const GuestMainPoster = ({
   thumbnailFileId,
   onReady,
+  fitToViewport = false,
 }: {
   onReady?: () => void;
   thumbnailFileId: string;
+  fitToViewport?: boolean;
 }) => {
   const resolvedSrc = useResolvedImageSource(thumbnailFileId);
   const onReadyRef = useRef(onReady);
@@ -40,6 +42,7 @@ export const GuestMainPoster = ({
       key={resolvedSrc}
       src={resolvedSrc}
       onReadyRef={onReadyRef}
+      fitToViewport={fitToViewport}
     />
   );
 };
@@ -47,9 +50,11 @@ export const GuestMainPoster = ({
 function GuestMainPosterImage({
   src,
   onReadyRef,
+  fitToViewport,
 }: {
   src: string;
   onReadyRef: MutableRefObject<(() => void) | undefined>;
+  fitToViewport: boolean;
 }) {
   const slowTimerRef = useRef<number | null>(null);
   const imageSettledRef = useRef(false);
@@ -112,7 +117,11 @@ function GuestMainPosterImage({
         sizes="(max-width: 430px) 100vw, 430px"
         unoptimized
         wrapperClassName="w-full flex justify-center"
-        className="w-full h-auto"
+        className={
+          fitToViewport
+            ? 'w-full h-auto max-h-screen object-contain'
+            : 'w-full h-auto'
+        }
         onLoad={handleImageLoad}
         onError={handleImageError}
       />

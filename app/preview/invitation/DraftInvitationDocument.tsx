@@ -66,6 +66,7 @@ export default function DraftInvitationDocument() {
           mode="dashboard-preview"
           previewFolderId={snapshot.previewFolderId}
           localAudioSrc={snapshot.localAudioSrc}
+          fitPosterToViewport
         />
       ) : (
         <main className="flex min-h-dvh flex-col items-center justify-center gap-3 bg-[#F5F4F0] px-6 text-center text-sm text-text-secondary">

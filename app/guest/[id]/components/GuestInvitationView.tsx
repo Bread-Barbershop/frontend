@@ -24,6 +24,7 @@ type GuestInvitationViewProps = {
   previewFolderId?: string;
   localAudioSrc?: string | null;
   showScreenEffects?: boolean;
+  fitPosterToViewport?: boolean;
 };
 
 function GuestInvitationView({
@@ -33,6 +34,7 @@ function GuestInvitationView({
   previewFolderId,
   localAudioSrc,
   showScreenEffects,
+  fitPosterToViewport,
 }: GuestInvitationViewProps) {
   const Root = mode === 'guest' ? 'main' : 'div';
   const rootClassName =
@@ -72,6 +74,7 @@ function GuestInvitationView({
               <GuestMainPoster
                 onReady={onMainPosterReady}
                 thumbnailFileId={payload.mainPoster.thumbnailFileId ?? ''}
+                fitToViewport={fitPosterToViewport}
               />
               <AmbientParticles
                 effects={resolveInvitationEffects(payload.bulkData.invitationEffects, payload.blocks)}
