@@ -4,34 +4,41 @@ import { useId, useState, type ChangeEvent, type RefObject } from 'react';
 
 import { Radio } from '@/components/atoms/radio';
 import { PopupText } from '@/components/molecules/popup-text';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import type { EditorBlock, InvitationType } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 
 import { Popup } from '../popup/Popup';
 
 import {
   CLOSING_CATEGORIES,
-  CLOSING_COMMENT_OPTIONS,
-  type ClosingCategory,
+  getClosingCommentOptions,
 } from './closingCommentOptions';
 
 interface ClosingQuestionPopupProps {
+  invitationType: InvitationType;
   onSelect?: (text: string) => void;
   onClose?: () => void;
   triggerRef?: RefObject<HTMLElement | null>;
 }
 
 function ClosingQuestionPopup({
+  invitationType,
   onSelect,
   onClose,
   triggerRef,
 }: ClosingQuestionPopupProps) {
   const autoName = useId();
   const radioName = `closing-${autoName}`;
-  const [activeCategory, setActiveCategory] =
-    useState<ClosingCategory>('결혼식');
+  const [activeCategory, setActiveCategory] = useState(invitationType);
   const [selectedText, setSelectedText] = useState('');
-
-  const options = CLOSING_COMMENT_OPTIONS[activeCategory];
+  const childName = useEditorStore(state => {
+    const children = state.block.filter(
+      (block): block is EditorBlock<'myChild'> => block.component === 'myChild'
+    );
+    return children.length === 1 ? (children[0].props.name ?? '') : '';
+  });
+  const options = getClosingCommentOptions(activeCategory, childName);
 
   const handleSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const nextText = e.target.value;
@@ -93,6 +100,7 @@ function ClosingQuestionPopup({
             <div className={cn('flex-center shrink-0 w-8 h-8')}>
               <Radio
                 name={radioName}
+                aria-label={text}
                 value={text}
                 checked={selectedText === text}
                 onChange={handleSelect}
