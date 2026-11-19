@@ -107,7 +107,7 @@ describe('GuestRenderer 카운트다운 공개 미리보기', () => {
       await renderCountdownAt(pathname);
 
       expect(
-        screen.queryByText('행사 날짜를 입력하면 카운트다운이 표시됩니다.')
+        screen.queryByText('행사 날짜와 시간을 입력하면 카운트다운이 표시됩니다.')
       ).not.toBeInTheDocument();
     }
   );
@@ -118,7 +118,7 @@ describe('GuestRenderer 카운트다운 공개 미리보기', () => {
       await renderCountdownAt(pathname);
 
       expect(
-        screen.getByText('행사 날짜를 입력하면 카운트다운이 표시됩니다.')
+        screen.getByText('행사 날짜와 시간을 입력하면 카운트다운이 표시됩니다.')
       ).toBeInTheDocument();
     }
   );

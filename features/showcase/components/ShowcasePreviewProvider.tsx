@@ -316,6 +316,7 @@ function PreviewFrame({
       )}
       <iframe
         ref={iframeRef}
+        data-showcase-preview=""
         title={`${name} 초대장 내용`}
         src={`/showcase/${id}`}
         onLoad={() => setIsLoaded(true)}

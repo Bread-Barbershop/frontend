@@ -9,7 +9,9 @@ import {
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import { escapeDriveQueryValue } from '@/app/api/drive/_lib/escapeQueryValue';
 import { findWorkspaceFolderId } from '@/app/api/drive/_lib/findWorkspaceFolderId';
+import { downloadFiles } from '@/app/api/drive/_lib/getSaveDataFetch';
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
+import { resolveDashboardTitle } from '@/app/dashboard/server/resolveDashboardTitle';
 import { InviteListItem, LoadInvitationResponse } from '@/app/dashboard/types';
 import {
   previewDriveFileUrl,
@@ -30,33 +32,25 @@ type DriveListResponse = {
   error?: unknown;
 };
 
-type DriveSearchResponse = {
-  files?: Array<{
-    id?: string;
-  }>;
-  error?: unknown;
-};
-
-async function loadThumbnailFileId(
-  invitationFolderId: string
-): Promise<string | null> {
+async function loadCardFiles(invitationFolderId: string) {
   try {
+    const thumbnailQuery = [
+      `appProperties has { key='app_id' and value='${APP_IDENTIFIER}' }`,
+      `appProperties has { key='kind' and value='${THUMBNAIL_KIND}' }`,
+      `(name='${THUMBNAIL_NAME_WEBP}' or name='${THUMBNAIL_NAME_PNG}')`,
+    ].join(' and ');
     const q = [
       `'${escapeDriveQueryValue(invitationFolderId)}' in parents`,
       `trashed=false`,
-      `appProperties has { key='app_id' and value='${escapeDriveQueryValue(
-        APP_IDENTIFIER
-      )}' }`,
-      `appProperties has { key='kind' and value='${THUMBNAIL_KIND}' }`,
-      `(name='${escapeDriveQueryValue(THUMBNAIL_NAME_WEBP)}' or name='${escapeDriveQueryValue(THUMBNAIL_NAME_PNG)}')`,
+      `((name='data.json' and mimeType='application/json') or (${thumbnailQuery}))`,
     ].join(' and ');
 
     const searchParams = new URLSearchParams({
       q,
       spaces: 'drive',
-      fields: 'files(id)',
+      fields: 'files(id,name)',
       orderBy: 'createdTime desc',
-      pageSize: '1',
+      pageSize: '100',
     });
 
     const searchRes = await googleFetch(
@@ -65,15 +59,10 @@ async function loadThumbnailFileId(
     );
     const searchData = (await searchRes
       .json()
-      .catch(() => ({}))) as DriveSearchResponse;
-
-    if (!searchRes.ok) {
-      return null;
-    }
-
-    return searchData.files?.[0]?.id || null;
+      .catch(() => ({}))) as DriveListResponse;
+    return searchRes.ok ? (searchData.files ?? []) : [];
   } catch {
-    return null;
+    return [];
   }
 }
 
@@ -142,13 +131,28 @@ export async function loadDashboardInvitations(): Promise<LoadInvitationResponse
 
   const invites = await Promise.all(
     invitationFolders.map(async invite => {
-      const [meta, thumbnailFileId] = await Promise.all([
+      const [meta, files] = await Promise.all([
         loadDashboardMeta(invite.folderId),
-        loadThumbnailFileId(invite.folderId),
+        loadCardFiles(invite.folderId),
       ]);
       const metaPayload = meta?.payload;
       const guestUrl = metaPayload?.guestUrl ?? null;
       const dataJsonFileId = metaPayload?.dataJsonFileId ?? undefined;
+      const thumbnailFileId = files.find(
+        file =>
+          file.name === THUMBNAIL_NAME_WEBP || file.name === THUMBNAIL_NAME_PNG
+      )?.id;
+      const displayTitle = await resolveDashboardTitle(
+        invite.name,
+        metaPayload?.kakaoShare?.title,
+        async () => {
+          const dataFiles = files.filter(file => file.name === 'data.json');
+          const dataFile =
+            dataFiles.find(file => file.id === dataJsonFileId) ??
+            dataFiles.at(-1);
+          return dataFile?.id ? downloadFiles(dataFile.id) : null;
+        }
+      );
       const published = metaPayload?.published ?? false;
       const thumbnailUrl = thumbnailFileId
         ? published
@@ -157,6 +161,7 @@ export async function loadDashboardInvitations(): Promise<LoadInvitationResponse
         : null;
       return {
         ...invite,
+        displayTitle,
         dataJsonFileId,
         guestUrl,
         published,

@@ -94,6 +94,21 @@ describe('대시보드 초대장 복사', () => {
     jest.restoreAllMocks();
   });
 
+  it('선택 전에도 각 카드에서 행사 제목을 읽고 같은 이름으로 카드를 선택할 수 있다', async () => {
+    const invites = [
+      { ...sourceInvitation, displayTitle: '민서·지훈 결혼식' },
+      { ...clonedInvitation, displayTitle: '하은 돌잔치' },
+    ];
+    render(<CarouselWrapper initialInvites={invites} loadOnMount={false} />);
+
+    for (const invite of invites) {
+      const card = await screen.findByRole('button', {
+        name: invite.displayTitle,
+      });
+      expect(within(card).getByText(invite.displayTitle)).toBeVisible();
+    }
+  });
+
   it('미리보기 위에 있는 복사 버튼을 키보드로 열고 취소하면 원래 버튼에 포커스가 돌아온다', async () => {
     const user = userEvent.setup();
     showDashboard();

@@ -6,6 +6,7 @@ import { Picture } from '@/components/molecules/picture/Picture';
 import { TextEditor } from '@/components/molecules/text-editor';
 import { cn } from '@/shared/utils/cn';
 
+import styles from './noticeBody.module.css';
 import { type NoticeListItem } from './noticeList';
 
 import type { JSONContent } from '@tiptap/react';
@@ -60,6 +61,7 @@ export const NoticeItem = ({
           value={notice.content.messageJson}
           defaultText="내용을 입력해 주세요"
           defaultAlign="center"
+          editorClassName={styles.noticeBody}
           onChange={onEditorChange}
         />
         <Picture

@@ -22,6 +22,10 @@ import { updateFileToDrive } from './updateFileToDrive';
 import { uploadFileToDrive } from './uploadFileToDrive';
 import * as Sentry from '@sentry/nextjs';
 import type { BulkJson } from '@/shared/types/invitationSave';
+import {
+  readSponsorEntries,
+  serializeSponsorEntries,
+} from '@/components/organisms/sponsorshipInfomation/sponsorEntries';
 
 const mockFetch = jest.fn();
 
@@ -243,6 +247,52 @@ describe('saveInvitationFlow', () => {
     reader.readAsText(dataFile);
     const payload = JSON.parse(await savedText);
     expect(payload.blocks[0].props.images).toEqual(files.map(file => `drive-${file.name}`));
+  });
+
+  it('후원사 로고를 Drive ID로 저장하고 이름만 있는 후원사와 구분해 다시 읽는다', async () => {
+    const logo = new File(['logo'], 'logo.png', { type: 'image/png' });
+    Object.defineProperty(logo, 'driveFileId', { value: 'saved-logo-id' });
+    const props = serializeSponsorEntries([
+      { id: 'hanbit', name: '한빛재단', logo: null },
+      { id: 'moa', name: '모아스튜디오', logo },
+    ]);
+    const result = await saveInvitationFlow({
+      bulkData,
+      bgmData,
+      shareUrl,
+      images: [{ id: 'sponsor-block', file: logo }],
+      uploadImages: [],
+      audio: null,
+      data: [
+        {
+          id: 'sponsor-block',
+          type: 'seminar',
+          component: 'sponsorshipInfomation',
+          props: { title: '후원사', ...props },
+        },
+      ],
+      mainPoster: { version: '7.1.0', objects: [] },
+      invitationThumbnail: {
+        name: '',
+        mimeType: 'image/png',
+        dataUrl: '',
+        width: 0,
+        height: 0,
+        createdAt: '',
+      },
+    });
+    expect(result.success).toBe(true);
+    const savedFile = jest.mocked(updateFileToDrive).mock.calls[0][0];
+    const content = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = () => reject(reader.error);
+      reader.readAsText(savedFile);
+    });
+    expect(readSponsorEntries(JSON.parse(content).blocks[0].props)).toEqual([
+      { id: 'hanbit', name: '한빛재단', logo: null },
+      { id: 'moa', name: '모아스튜디오', logo: 'saved-logo-id' },
+    ]);
   });
 
   it('하객 그룹을 저장하고 전환할 때 전용 링크와 그룹 정보를 보존한다', async () => {

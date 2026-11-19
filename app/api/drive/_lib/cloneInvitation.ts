@@ -2,6 +2,7 @@ import 'server-only';
 
 import { createHash } from 'node:crypto';
 
+import { resolveDashboardTitle } from '@/app/dashboard/server/resolveDashboardTitle';
 import type { InviteListItem } from '@/app/dashboard/types';
 import { parseGuestPayload } from '@/app/guest/[id]/validation/parseGuestPayload';
 import {
@@ -49,6 +50,7 @@ import {
 } from './ensureThumbnailFile';
 import { DriveHttpError } from './ensureWorkspace';
 import { generateUuid } from './generateUuid';
+import { downloadFiles } from './getSaveDataFetch';
 import { guestPath } from './guestReadiness';
 import {
   CLONE_STAGE_KIND,
@@ -201,14 +203,20 @@ async function copyRootAssets(
   return thumbnailId;
 }
 
-function toInvite(
+async function toInvite(
   folder: CloneDriveFile,
   meta: InvitationMetaPayload,
-  thumbnailId?: string
-): InviteListItem {
+  thumbnailId: string | undefined,
+  loadSavedData: () => Promise<unknown>
+): Promise<InviteListItem> {
   return {
     folderId: folder.id,
     name: folder.name,
+    displayTitle: await resolveDashboardTitle(
+      folder.name,
+      meta.kakaoShare?.title,
+      loadSavedData
+    ),
     createdTime: folder.createdTime,
     invitationUuid: folder.appProperties?.inv_id,
     dataJsonFileId: meta.dataJsonFileId ?? undefined,
@@ -236,8 +244,8 @@ async function resumeClone(
   const metaFile = findSavedInvitationMetaFile(files);
   if (!metaFile) throw cloneInProgress();
   const meta = await loadInvitationMetaByFileId(metaFile.id);
-  if (!findSavedInvitationDataFile(files, meta.dataJsonFileId))
-    throw cloneInProgress();
+  const dataFile = findSavedInvitationDataFile(files, meta.dataJsonFileId);
+  if (!dataFile) throw cloneInProgress();
   if (folder.appProperties?.kind !== destinationKind) {
     if (!meta.dataJsonFileId || !meta.guestUrl) throw cloneInProgress();
     await commitCloneFile(folder.id, {
@@ -246,7 +254,9 @@ async function resumeClone(
     });
   }
   const thumbnail = files.filter(isThumbnail).at(-1);
-  return toInvite(folder, meta, thumbnail?.id);
+  return toInvite(folder, meta, thumbnail?.id, () =>
+    downloadFiles(dataFile.id)
+  );
 }
 
 async function cleanupStage(folderId: string) {
@@ -471,7 +481,7 @@ export async function cloneOwnedInvitation(input: {
         ...created.appProperties,
         ...appProperties(destinationKind),
       });
-      return toInvite(created, payload, thumbnailId);
+      return toInvite(created, payload, thumbnailId, async () => copyData);
     } catch (error) {
       // 마지막 PATCH의 결과를 알 수 없는 경우 이미 표시된 복제본을 지우지 않는다.
       if (!commitStarted && (await cleanupStage(created.id))) {

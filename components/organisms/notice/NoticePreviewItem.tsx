@@ -5,6 +5,8 @@ import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 import { cn } from '@/shared/utils/cn';
 
+import styles from './noticeBody.module.css';
+
 import type { NoticeListItem } from './noticeList';
 import type { StaticImageData } from 'next/image';
 
@@ -44,7 +46,7 @@ export const NoticePreviewItem = ({
         >
           {notice.notice}
         </p>
-        <PreviewBody html={html} />
+        <PreviewBody html={html} className={styles.noticeBody} />
       </div>
     </div>
   );

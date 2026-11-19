@@ -61,7 +61,7 @@ export function CountdownPreview({
       {...rest}
     >
       {remaining.status === 'unset' ? (
-        !isGuestPage && <p className="text-xs text-text-tertiary">행사 날짜를 입력하면 카운트다운이 표시됩니다.</p>
+        !isGuestPage && <p className="text-xs text-text-tertiary">행사 날짜와 시간을 입력하면 카운트다운이 표시됩니다.</p>
       ) : remaining.status === 'before' ? (
         <div className="grid w-full grid-cols-4 gap-2 px-1" role="timer" aria-label="행사까지 남은 시간">
           {UNITS.map(unit => (
