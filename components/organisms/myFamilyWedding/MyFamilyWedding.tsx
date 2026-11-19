@@ -7,6 +7,7 @@ import { EditorBlock } from '@/shared/types/block';
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
 import { Group } from './Group';
+import { DEFAULT_FAMILY_SUFFIX } from './MyFamilyWedding.schema';
 
 interface Props {
   blockInfo: EditorBlock<'myFamilyWedding'>;
@@ -14,7 +15,8 @@ interface Props {
 }
 
 export const MyFamilyWedding = ({ blockInfo, id }: Props) => {
-  const { brideFamily, groomFamily } = blockInfo.props;
+  const { brideFamily, groomFamily, brideFamilySuffix, groomFamilySuffix } =
+    blockInfo.props;
   const updateBlock = useEditorStore(state => state.updateBlock);
   const [openMenuKey, setOpenMenuKey] = useState<string | null>(null);
 
@@ -107,6 +109,8 @@ export const MyFamilyWedding = ({ blockInfo, id }: Props) => {
       <Group
         family={groomFamily || []}
         type="groom"
+        suffix={groomFamilySuffix ?? DEFAULT_FAMILY_SUFFIX.groom}
+        onSuffixChange={value => updateBlock(id, { groomFamilySuffix: value })}
         onRelationChange={handleRelationChange}
         onNameChange={handleNameChange}
         onDelete={handleDeleteFamily}
@@ -118,6 +122,8 @@ export const MyFamilyWedding = ({ blockInfo, id }: Props) => {
       <Group
         family={brideFamily || []}
         type="bride"
+        suffix={brideFamilySuffix ?? DEFAULT_FAMILY_SUFFIX.bride}
+        onSuffixChange={value => updateBlock(id, { brideFamilySuffix: value })}
         onRelationChange={handleRelationChange}
         onNameChange={handleNameChange}
         onDelete={handleDeleteFamily}
