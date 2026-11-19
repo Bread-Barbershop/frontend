@@ -24,7 +24,8 @@ interface Options {
   separator?: DateSeparator;
   allowPast?: boolean;
   onCommit: (value: string) => void;
-  warning: (message: string) => void;
+  /** 생략하면 오류를 필드에 표시할 수 있도록 입력 중인 값을 유지한다. */
+  warning?: (message: string) => void;
 }
 
 const DEFAULT_MESSAGES = {
@@ -122,6 +123,18 @@ function getWarningMessage(result: ValidationResult) {
   return DEFAULT_MESSAGES.date;
 }
 
+function getInlineError(result: ValidationResult, showIncomplete: boolean) {
+  if (result.kind === 'invalid' && result.reason === 'date') {
+    return '존재하지 않는 날짜예요.';
+  }
+  if (
+    result.kind === 'invalid' ||
+    (result.kind === 'partial' && showIncomplete)
+  ) {
+    return getWarningMessage(result);
+  }
+}
+
 export function useValidatedDateDraft({
   value,
   separator = '-',
@@ -178,10 +191,10 @@ export function useValidatedDateDraft({
         setDraftState({
           ...currentState,
           draft: nextDraft,
-          warningActive: false,
+          warningActive: !warning && currentState.warningActive,
         });
       } else if (result.kind === 'invalid') {
-        if (!currentState.warningActive) warning(getWarningMessage(result));
+        if (!currentState.warningActive) warning?.(getWarningMessage(result));
         setDraftState({
           ...currentState,
           draft: nextDraft,
@@ -195,6 +208,10 @@ export function useValidatedDateDraft({
   const handleBlur = useCallback(() => {
     const result = validateDraft(currentState.draft, separator, allowPast);
     if (result.kind === 'partial' || result.kind === 'invalid') {
+      if (!warning) {
+        setDraftState({ ...currentState, warningActive: true });
+        return;
+      }
       if (!currentState.warningActive) warning(getWarningMessage(result));
       setDraftState({
         sourceValue: committedValue,
@@ -205,5 +222,12 @@ export function useValidatedDateDraft({
     }
   }, [allowPast, committedValue, currentState, separator, warning]);
 
-  return { draft: currentState.draft, handleChange, handleBlur };
+  const errorMessage = warning
+    ? undefined
+    : getInlineError(
+        validateDraft(currentState.draft, separator, allowPast),
+        currentState.warningActive
+      );
+
+  return { draft: currentState.draft, handleChange, handleBlur, errorMessage };
 }

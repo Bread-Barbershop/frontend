@@ -50,6 +50,7 @@ export const MyChild = ({ blockInfo, id }: Props) => {
   );
   const {
     draft: birthdayDraft,
+    errorMessage: birthdayError,
     handleChange: handleBirthdayChange,
     handleBlur: handleBirthdayBlur,
   } = useValidatedDateDraft({
@@ -57,8 +58,9 @@ export const MyChild = ({ blockInfo, id }: Props) => {
     separator: '.',
     allowPast: true,
     onCommit: commitBirthday,
-    warning,
   });
+  const birthdayId = `birthday-${id}`;
+  const birthdayErrorId = `${birthdayId}-error`;
   const handleStringChange = (
     type: 'title' | 'subTitle' | 'name' | 'nickname',
     e: ChangeEvent<HTMLInputElement>
@@ -145,15 +147,18 @@ export const MyChild = ({ blockInfo, id }: Props) => {
           }}
           className="w-full py-1.5 text-center"
         />
-        <div className="w-full flex items-center gap-1 py-1.5">
+        <div className="grid w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-1 py-1.5">
           <Label
-            htmlFor="birthday"
+            htmlFor={birthdayId}
             className="font-semibold shrink-0 text-center"
           >
             태어난 날
           </Label>
           <Input
-            id="birthday"
+            id={birthdayId}
+            aria-invalid={birthdayError ? true : undefined}
+            aria-describedby={birthdayError ? birthdayErrorId : undefined}
+            className="aria-invalid:border-red-600"
             placeholder="ex. 2024.12.12"
             value={birthdayDraft}
             onChange={handleBirthdayChange}
@@ -161,6 +166,15 @@ export const MyChild = ({ blockInfo, id }: Props) => {
             inputMode="numeric"
             autoComplete="bday"
           />
+          {birthdayError && (
+            <p
+              id={birthdayErrorId}
+              role="alert"
+              className="col-start-2 text-xs text-red-600"
+            >
+              {birthdayError}
+            </p>
+          )}
         </div>
       </section>
 
