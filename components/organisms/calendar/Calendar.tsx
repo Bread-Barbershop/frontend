@@ -24,6 +24,8 @@ import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
+import { getCalendarMessageHtml } from './calendarMessage';
+
 interface Props {
   blockInfo: EditorBlock<'calendar'>;
   id: string;
@@ -178,14 +180,11 @@ export function Calendar({ blockInfo, id }: Props) {
               <TextEditor
                 key={id}
                 ref={textEditorRef}
-                value={blockInfo.props.messageJson}
-                defaultText={
-                  blockInfo.type === 'wedding'
-                    ? '신랑과 신부의 특별한 약속이 이루어지기까지\n(D-Day)일이 남았습니다.'
-                    : '내용을 입력해주세요.'
+                value={
+                  blockInfo.props.messageJson ??
+                  getCalendarMessageHtml(blockInfo)
                 }
                 defaultAlign="center"
-                placeholderMode="overlay"
                 onChange={handleEditorChange}
               />
             </div>

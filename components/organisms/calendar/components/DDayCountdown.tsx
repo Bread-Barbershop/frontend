@@ -5,7 +5,7 @@ import { parseStrictDate } from '@/shared/utils/dateValidation';
 
 interface Props {
   date: string;
-  messageJson?: string;
+  messageHtml: string;
   time?: string;
 }
 
@@ -42,7 +42,7 @@ function getTargetDate(date: string, time?: string) {
   return target;
 }
 
-export function DDayCountdown({ date, time, messageJson }: Props) {
+export function DDayCountdown({ date, time, messageHtml }: Props) {
   const targetDate = useMemo(() => getTargetDate(date, time), [date, time]);
   const targetTime = targetDate?.getTime();
   const [clock, setClock] = useState<{ now: number; target: number }>();
@@ -103,12 +103,10 @@ export function DDayCountdown({ date, time, messageJson }: Props) {
               </div>
             ))}
           </div>
-          {messageJson ? (
+          {messageHtml && (
             <PreviewBody
-              html={messageJson.replace(/\(D-Day\)/g, String(dayDifference))}
+              html={messageHtml.replace(/\(D-Day\)/g, String(dayDifference))}
             />
-          ) : (
-            <p className={summaryClassName}>{days}일 남았습니다.</p>
           )}
         </>
       )}

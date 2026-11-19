@@ -23,7 +23,7 @@ describe('일정 카운트다운', () => {
       <DDayCountdown
         date="2028-02-29"
         time="오후 01:00"
-        messageJson="<p>(D-Day)일이 남았습니다.</p>"
+        messageHtml="<p>(D-Day)일이 남았습니다.</p>"
       />
     );
     advance();
@@ -43,11 +43,19 @@ describe('일정 카운트다운', () => {
   ])('%s 시간이 되는 순간 열린 화면에서도 종료 문구로 바뀐다', (time, hour) => {
     const target = new Date(2028, 1, 29, hour);
     jest.setSystemTime(target.getTime() - 500);
-    render(<DDayCountdown date="2028-02-29" time={time} />);
+    render(
+      <DDayCountdown
+        date="2028-02-29"
+        time={time}
+        messageHtml="<p>(D-Day)일 남았습니다.</p>"
+      />
+    );
     advance();
 
     expect(screen.getByText('DAYS')).toBeInTheDocument();
-    expect(screen.getByText('0일 남았습니다.')).toBeInTheDocument();
+    expect(
+      screen.getByText(`${hour === 0 ? 1 : 0}일 남았습니다.`)
+    ).toBeInTheDocument();
 
     advance(500);
 
@@ -62,7 +70,7 @@ describe('일정 카운트다운', () => {
       <DDayCountdown
         date="2028-02-29"
         time="09:00"
-        messageJson="<p>(D-Day)일이 남았습니다.</p>"
+        messageHtml="<p>(D-Day)일이 남았습니다.</p>"
       />
     );
     advance();

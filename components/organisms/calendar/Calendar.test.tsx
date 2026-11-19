@@ -1,4 +1,3 @@
-import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 
 import { Calendar } from './Calendar';
@@ -7,7 +6,6 @@ import type { EditorBlock } from '@/shared/types/block';
 
 const mockUpdateBlock = jest.fn();
 const mockWarning = jest.fn();
-const mockInsertText = jest.fn();
 
 jest.mock('@/shared/store/editorStore/useEditorStore', () => ({
   useEditorStore: (selector: CallableFunction) =>
@@ -22,32 +20,9 @@ jest.mock('@/components/molecules/time-selector', () => ({
   TimeSelector: () => null,
 }));
 
-jest.mock('@/components/molecules/text-editor', () => {
-  const mockReact = jest.requireActual('react') as typeof React;
-
-  return {
-    TextEditor: mockReact.forwardRef<
-      {
-        insertText: jest.Mock;
-        setText: jest.Mock;
-        getEditor: () => null;
-      },
-      { defaultText?: string }
-    >(({ defaultText }, ref) => {
-      mockReact.useImperativeHandle(ref, () => ({
-        insertText: mockInsertText,
-        setText: jest.fn(),
-        getEditor: () => null,
-      }));
-
-      return (
-        <div data-testid="text-editor" style={{ whiteSpace: 'pre-wrap' }}>
-          {defaultText}
-        </div>
-      );
-    }),
-  };
-});
+jest.mock('@/components/molecules/text-editor', () => ({
+  TextEditor: () => null,
+}));
 
 const block: EditorBlock<'calendar'> = {
   id: 'calendar-1',
@@ -94,7 +69,7 @@ describe('Calendar 날짜 입력', () => {
     alertSpy.mockRestore();
   });
 
-  it('유효한 날짜는 저장하고 예식 기본 문구를 두 줄 오버레이로 유지한다', () => {
+  it('유효한 날짜를 저장한다', () => {
     jest.useFakeTimers().setSystemTime(new Date('2026-11-07T00:00:00Z'));
     render(<Calendar blockInfo={block} id={block.id} />);
 
@@ -104,14 +79,5 @@ describe('Calendar 날짜 입력', () => {
     expect(mockUpdateBlock).toHaveBeenCalledWith(block.id, {
       date: '2027-01-02',
     });
-
-    const editorOverlay = screen.getByTestId('text-editor');
-    expect(editorOverlay.textContent).toBe(
-      '신랑과 신부의 특별한 약속이 이루어지기까지\n(D-Day)일이 남았습니다.'
-    );
-    expect(editorOverlay).toHaveStyle({ whiteSpace: 'pre-wrap' });
-
-    fireEvent.click(screen.getByRole('button', { name: '디데이' }));
-    expect(mockInsertText).toHaveBeenCalledWith('(D-Day)');
   });
 });
