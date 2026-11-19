@@ -5,13 +5,11 @@ import type { InvitationTemplate } from '@/shared/data/invitationTemplates';
 interface Props {
   template: InvitationTemplate;
   sizes?: string;
-  fit?: 'cover' | 'contain';
 }
 
 export default function InvitationTemplatePoster({
   template,
   sizes = '(max-width: 430px) 100vw, 430px',
-  fit = 'cover',
 }: Props) {
   return (
     <Image
@@ -20,7 +18,7 @@ export default function InvitationTemplatePoster({
       width={template.poster.width}
       height={template.poster.height}
       sizes={sizes}
-      className={`block h-full w-full ${fit === 'contain' ? 'object-contain' : 'object-cover'}`}
+      className="block h-full w-full object-cover"
     />
   );
 }
