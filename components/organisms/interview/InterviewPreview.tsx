@@ -6,6 +6,7 @@ import Carousel from '@/features/EmblaCarousel/Carousel/Carousel';
 import { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 
+import { getInterviewCard } from './interviewContent';
 import { getInterviewDefaultImage } from './interviewList';
 import { InterviewPreviewItem } from './InterviewPreviewItem';
 
@@ -21,20 +22,26 @@ export const InterviewPreview = ({
   titleClassName,
   ...rest
 }: Props) => {
-  const { title, questions, checkedSubTitle, subTitle } =
-    blockInfo.props;
-  const questionCount = questions?.length ?? 0;
-  const isMultiple = questionCount > 1;
+  const { title, questions, checkedSubTitle, subTitle } = blockInfo.props;
+  const cards = useMemo(
+    () =>
+      (questions ?? []).flatMap(question => {
+        const card = getInterviewCard(question);
+        return card ? [card] : [];
+      }),
+    [questions]
+  );
+  const isMultiple = cards.length > 1;
   const [openQuestionIds, setOpenQuestionIds] = useState<
     Record<string, boolean>
   >({});
 
   const displayItems = useMemo(() => {
-    if (questions && questions.length === 2) {
-      return [...questions, ...questions, ...questions, ...questions];
+    if (cards.length === 2) {
+      return [...cards, ...cards, ...cards, ...cards];
     }
-    return questions;
-  }, [questions]);
+    return cards;
+  }, [cards]);
 
   const carouselOptions: EmblaOptionsType = useMemo(
     () => ({
@@ -70,7 +77,7 @@ export const InterviewPreview = ({
           className="h-full w-full"
           loop={isMultiple}
         >
-          {displayItems?.map((question, index) => (
+          {displayItems.map((question, index) => (
             <div
               key={`${question.id}-${index}`}
               className={cn(
@@ -82,7 +89,7 @@ export const InterviewPreview = ({
             >
               <InterviewPreviewItem
                 question={question.question}
-                answerHtml={question.answer.messageHtml || ''}
+                answerHtml={question.answerHtml}
                 image={question.image}
                 defaultImage={getInterviewDefaultImage(question)}
                 isOpen={openQuestionIds[question.id] ?? false}

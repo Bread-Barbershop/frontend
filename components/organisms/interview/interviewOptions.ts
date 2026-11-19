@@ -1,7 +1,9 @@
 export const EMPTY_INTERVIEW_OPTION = '빈 항목 추가';
+export const COUPLE_ANSWER_EXAMPLE = '신랑·신부 답변 예시';
 
 export const INTERVIEW_QUESTION_OPTIONS = [
   EMPTY_INTERVIEW_OPTION,
+  COUPLE_ANSWER_EXAMPLE,
   '두 분은 처음 어떻게 만나게 되었나요?',
   '서로의 첫인상은 어땠나요?',
   '언제 처음 마음이 생겼나요?',

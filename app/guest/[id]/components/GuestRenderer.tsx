@@ -6,6 +6,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
+import { getInterviewCard } from '@/components/organisms/interview/interviewContent';
 import InvitationChapter, {
   getCollectionStyle,
   getBlockSectionStyle,
@@ -15,6 +16,7 @@ import { isBlockEnabled } from '@/shared/data/registry/blockAvailability';
 import { blockRegistry } from '@/shared/data/registry/registry';
 import { getFontFaces } from '@/shared/fonts/fontRegistry';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import type { EditorBlock } from '@/shared/types/block';
 import { usesDarkInvitationCards } from '@/shared/utils/invitationBackgroundColor';
 import { resolveInvitationEffects } from '@/shared/utils/invitationEffects';
 
@@ -155,6 +157,15 @@ function GuestRenderer({
       {blocks.map(block => {
         if (block.component === 'visualEffects' || !isBlockEnabled(block.component))
           return null;
+        if (
+          isGuestPage &&
+          block.component === 'interview' &&
+          !block.privacyPlaceholder &&
+          !block.privacyMediaHidden
+        ) {
+          const props = block.props as EditorBlock<'interview'>['props'];
+          if (!props.questions?.some(getInterviewCard)) return null;
+        }
         const registryItem =
           blockRegistry[block.component as keyof typeof blockRegistry];
 

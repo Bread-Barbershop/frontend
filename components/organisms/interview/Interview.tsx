@@ -76,10 +76,8 @@ export const Interview = ({ blockInfo, id }: Props) => {
     updateBlock(id, { questions: newQuestions });
   };
 
-  const handleQuestionListSelect = (content: string, _index?: number) => {
-    const nextQuestion = createInterviewQuestion(content, {
-      includeEmptyTemplate: true,
-    });
+  const handleQuestionListSelect = (content: string) => {
+    const nextQuestion = createInterviewQuestion(content);
 
     updateBlock(id, {
       questions: [...(questions || []), nextQuestion],
@@ -167,10 +165,10 @@ export const Interview = ({ blockInfo, id }: Props) => {
   };
 
   useEffect(() => {
-    if ((questions || []).length === 0) {
+    if (!questions?.length) {
       updateBlock(id, { questions: [createInterviewQuestion()] });
     }
-  }, [id]);
+  }, [id, questions?.length, updateBlock]);
 
   useEffect(() => {
     const pendingQuestionId = pendingScrollQuestionIdRef.current;
