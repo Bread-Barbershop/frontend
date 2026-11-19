@@ -223,6 +223,10 @@ export const SHOWCASE_ORIGINAL_TEMPLATES: Record<
     'DM Serif Display',
     '고운 바탕',
   ]),
+  'showcase-41': original('birthday_10', ['고운 바탕', 'SUIT']),
+  'showcase-42': original('birthday_11', ['고운 바탕', 'SUIT']),
+  'showcase-43': original('birthday_12', ['SUIT']),
+  'showcase-44': original('wedding_15', ['고운 바탕', 'SUIT']),
 };
 
 export function getShowcaseOriginalTemplate(id: string) {

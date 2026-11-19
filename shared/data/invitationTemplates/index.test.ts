@@ -67,9 +67,9 @@ describe('홈과 편집기가 공유하는 초대장 컬렉션', () => {
     expect(INVITATION_TEMPLATES.map(item => item.id)).toEqual(
       SHOWCASE_INVITATIONS.map(item => item.id)
     );
-    expect(getInvitationTemplates('wedding')).toHaveLength(14);
+    expect(getInvitationTemplates('wedding')).toHaveLength(15);
     expect(getInvitationTemplates('seminar')).toHaveLength(9);
-    expect(getInvitationTemplates('birthday')).toHaveLength(9);
+    expect(getInvitationTemplates('birthday')).toHaveLength(12);
     expect(getInvitationTemplates('firstBirthday')).toHaveLength(9);
     expect(Object.keys(SHOWCASE_ORIGINAL_TEMPLATES)).toEqual(
       SHOWCASE_INVITATIONS.map(item => item.id)
@@ -92,6 +92,21 @@ describe('홈과 편집기가 공유하는 초대장 컬렉션', () => {
       ).toBe(true);
     }
   });
+
+  it.each(getInvitationTemplates('all', true))(
+    '$name의 큰 글씨 크기가 실제 포스터와 적용된 본문에 반영된다',
+    async template => {
+      const applied = await createInvitationTemplate(template.id);
+      expect(applied.titleData.fontSize).toBe('32px');
+      expect(applied.bodyData.fontSize).toBe('24px');
+      const text = (
+        applied.posterJson.objects as { type: string; fontSize?: number }[]
+      ).filter(object => object.type === 'Textbox');
+      expect(text.length).toBeGreaterThan(0);
+      for (const object of text)
+        expect(object.fontSize).toBeGreaterThanOrEqual(26);
+    }
+  );
 
   it('원본 JSON 로드에 실패하면 문서 적용에 쓸 데이터를 만들지 않는다', async () => {
     const mockFetch = jest.mocked(global.fetch);

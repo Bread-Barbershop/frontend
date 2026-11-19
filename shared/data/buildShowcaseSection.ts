@@ -47,6 +47,7 @@ export function buildShowcaseSection(
       return block('greeting', {
         title: design.heading,
         subTitle: design.eyebrow,
+        ...(design.largePrint && { checkedSubTitle: false }),
         ...richText(...design.message),
       });
     case 'calendar': {

@@ -29,7 +29,7 @@ describe('InvitationTemplatePicker', () => {
       );
       expect(
         screen.getAllByRole('button', { name: /템플릿 선택$/ })
-      ).toHaveLength(9);
+      ).toHaveLength(getInvitationTemplates(type).length);
       fireEvent.click(
         screen.getByRole('button', { name: `${name} 템플릿 선택` })
       );
@@ -74,6 +74,34 @@ describe('InvitationTemplatePicker', () => {
     );
 
     expect(onSelect).toHaveBeenCalledWith(templates[1].id);
+  });
+
+  it('큰 글씨 필터를 켜면 숨겨진 일반 디자인은 적용할 수 없다', () => {
+    render(
+      <InvitationTemplatePicker
+        type="birthday"
+        selectedId="showcase-41"
+        isApplying={false}
+        onSelect={jest.fn()}
+        onTypeChange={jest.fn()}
+        onBack={jest.fn()}
+        onClose={jest.fn()}
+        onApply={jest.fn()}
+      />
+    );
+    fireEvent.click(screen.getByRole('checkbox', { name: '큰 글씨만 보기' }));
+    expect(
+      screen.getByRole('button', { name: '칠순 감사연 템플릿 선택' })
+    ).toBeVisible();
+    expect(
+      screen.getByRole('button', { name: '팔순 가족 잔치 템플릿 선택' })
+    ).toBeVisible();
+    expect(
+      screen.queryByRole('button', { name: '생신 꽃편지 템플릿 선택' })
+    ).toBeNull();
+    expect(
+      screen.getByRole('button', { name: '선택한 템플릿 적용' })
+    ).toBeDisabled();
   });
 
   it('분류 이동과 돌아가기, 적용 동작을 별도 버튼으로 제공한다', () => {

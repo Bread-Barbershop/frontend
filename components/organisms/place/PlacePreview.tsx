@@ -42,7 +42,11 @@ export const PlacePreview = ({
     mapLocked,
   } = blockInfo.props;
   const defaultTitle = getDefaultPlaceTitle(blockInfo.type);
-  const { fontFamily } = useBodyFontInfo();
+  const { fontFamily, fontSize } = useBodyFontInfo();
+  const detailStyle = {
+    fontFamily,
+    fontSize: `max(1rem, ${fontSize ?? '1rem'})`,
+  };
 
   return (
     <MiddlePreviewWrapper
@@ -59,15 +63,15 @@ export const PlacePreview = ({
       <NaverMapScript onReady={() => setIsScriptLoaded(true)} />
       <section
         className="flex flex-col justify-center items-center text-text-primary"
-        style={{ fontFamily }}
+        style={detailStyle}
       >
-        <p className="font-normal text-[16px]">{placeAddress}</p>
-        <p className="font-normal text-[16px]">
+        <p className="font-normal">{placeAddress}</p>
+        <p className="font-normal">
           {placeName} {placeDetail}
         </p>
       </section>
       {checkedPlaceTel && Boolean(placeTel?.trim()) && (
-        <p className="font-normal text-text-tertiary" style={{ fontFamily }}>
+        <p className="font-normal text-text-tertiary" style={detailStyle}>
           TEL. {hideActions ? placeTel : formatPhoneNumber(placeTel)}
         </p>
       )}

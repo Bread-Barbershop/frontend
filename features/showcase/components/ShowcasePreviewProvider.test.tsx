@@ -12,7 +12,7 @@ function SampleCard() {
       <button onClick={() => openPreview('showcase-22')}>
         민준이의 첫 초대 미리보기
       </button>
-      <button onClick={() => openPreview('showcase-40')}>
+      <button onClick={() => openPreview('showcase-44')}>
         마지막 초대장 미리보기
       </button>
     </>
@@ -61,7 +61,7 @@ describe('초대장 카드 미리보기', () => {
     await user.click(
       screen.getByRole('button', { name: '마지막 초대장 미리보기' })
     );
-    expectCurrentInvitation('커피 감각 연구소', 'showcase-40');
+    expectCurrentInvitation('정갈한 혼례 초대', 'showcase-44');
     await user.click(screen.getByRole('button', { name: '다음 초대장' }));
     expectCurrentInvitation('클래식 모먼트', 'showcase-0');
   });

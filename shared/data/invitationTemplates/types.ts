@@ -89,6 +89,7 @@ export type InvitationTemplate = {
   eyebrow: string;
   description: string;
   tags: string[];
+  largePrint: boolean;
   colors: {
     background: string;
     accent: string;

@@ -60,7 +60,7 @@ export function CalendarPreview({
   } = useCalendarData({ date, time, language, template, type: blockInfo.type });
 
   const isDateIncomplete = !date || date.length < 10;
-  const { fontFamily, color, isColorAutomatic } = useBodyFontInfo();
+  const { fontFamily, fontSize, color, isColorAutomatic } = useBodyFontInfo();
   const { mainStyle } = useTitleFontInfo();
   const automaticLightInk =
     isColorAutomatic && color && !isDarkInvitationBackground(color)
@@ -102,7 +102,10 @@ export function CalendarPreview({
           {showStringDate && (
             <div
               className="flex flex-col items-center tracking-[-0.01rem] leading-[1.2] text-base font-normal text-[color:var(--calendar-text,var(--color-text-primary))] min-h-[40px] justify-center"
-              style={{ fontFamily }}
+              style={{
+                fontFamily,
+                fontSize: `max(1rem, ${fontSize ?? '1rem'})`,
+              }}
             >
               <p>{stringDateFormatted}</p>
               <p>{formattedTime}</p>
