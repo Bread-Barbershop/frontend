@@ -1529,7 +1529,7 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
         component: 'myChild',
         title: '한 살 민준이의 요즘',
         name: '민준',
-        birthday: '2025. 08. 11',
+        birthday: '2025.08.11',
         message:
           '누가 손뼉을 치면 저도 두 손을 마주쳐요. 요즘 제일 신나는 놀이예요.',
         image: '/templates/thumbnails/firstBirthday_02.webp',

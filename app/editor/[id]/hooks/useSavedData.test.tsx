@@ -107,4 +107,33 @@ describe('다시 편집할 때 저장된 사용자 음원 복원', () => {
     );
     expect(mockFetchAudio).not.toHaveBeenCalled();
   });
+
+  it('저장된 아기 소개에서 실제로 존재하는 생일의 구분자 공백만 정리한다', async () => {
+    const data = savedAudioResponse(null);
+    const birthdays = ['2025. 08. 11', '2025.08.11', '2025. 02. 29', ''];
+    const blocks = birthdays.map((birthday, index) => ({
+      id: `child-${index}`,
+      type: 'firstBirthday',
+      component: 'myChild',
+      props: { birthday, name: '민준' },
+    }));
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        ...data,
+        config: { ...data.config, blocks },
+        audios: { files: [] },
+      }),
+    });
+    const { result } = renderHook(() => useSavedData('invitation', 'aud_family'));
+    await waitFor(() =>
+      expect(result.current.savedData?.blocks).toEqual(
+        blocks.map((block, index) =>
+          index === 0
+            ? { ...block, props: { ...block.props, birthday: '2025.08.11' } }
+            : block
+        )
+      )
+    );
+  });
 });

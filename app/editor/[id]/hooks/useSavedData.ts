@@ -6,8 +6,9 @@ import {
 } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { rememberSavedAudioFile } from '@/features/invitation/save/savedAudioFiles';
 import { BODY_BULK_DATA, TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
-import { PersistedEditorBlock } from '@/shared/types/block';
+import type { EditorBlock, PersistedEditorBlock } from '@/shared/types/block';
 import type { BgmData } from '@/shared/types/invitationSave';
+import { parseStrictDate } from '@/shared/utils/dateValidation';
 import { createDefaultShareUrlState } from '@/shared/utils/shareUrlDefaults';
 
 import { SavedData } from '../types/savedata';
@@ -22,13 +23,26 @@ interface UseSavedDataReturn {
 const normalizePersistedBlocks = (blocks: unknown): PersistedEditorBlock[] => {
   if (!Array.isArray(blocks)) return [];
 
-  return blocks.filter(
-    (block): block is PersistedEditorBlock =>
-      typeof block === 'object' &&
-      block !== null &&
-      'component' in block &&
-      (block as { component?: unknown }).component !== 'shareUrl'
-  );
+  return blocks
+    .filter(
+      (block): block is PersistedEditorBlock =>
+        typeof block === 'object' &&
+        block !== null &&
+        'component' in block &&
+        (block as { component?: unknown }).component !== 'shareUrl'
+    )
+    .map(block => {
+      if (block.component !== 'myChild') return block;
+
+      const props = block.props as EditorBlock<'myChild'>['props'] | undefined;
+      const birthday = props?.birthday;
+      if (typeof birthday !== 'string') return block;
+      const normalized = birthday.trim().replace(/\s*\.\s*/g, '.');
+      if (normalized === birthday || !parseStrictDate(normalized, '.'))
+        return block;
+
+      return { ...block, props: { ...block.props, birthday: normalized } };
+    });
 };
 
 const loadSavedAudioFile = async (

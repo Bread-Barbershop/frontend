@@ -3,6 +3,7 @@ import path from 'node:path';
 
 import { showcaseItems } from '@/app/(home)/components/showcaseItems';
 import { normalizeGuestBlock } from '@/app/guest/[id]/validation/normalizeGuestBlock';
+import { parseStrictDate } from '@/shared/utils/dateValidation';
 
 import { buildShowcaseInvitation } from './buildShowcaseInvitation';
 import {
@@ -38,6 +39,11 @@ describe('첫 화면 초대장 샘플', () => {
       for (const [index, block] of sample.blocks.entries()) {
         const result = normalizeGuestBlock(block, index);
         expect(result).toMatchObject({ ok: true });
+      }
+      for (const section of design.sections) {
+        if (section.component === 'myChild' && section.birthday) {
+          expect(parseStrictDate(section.birthday, '.')).not.toBeNull();
+        }
       }
       const calendar = sample.blocks.find(
         block => block.component === 'calendar'
