@@ -16,7 +16,12 @@ export const INVITATION_TEMPLATES: InvitationTemplate[] =
       name: design.name,
       eyebrow: design.eyebrow,
       description: design.description,
-      tags: [SHOWCASE_CATEGORY_LABELS[design.type], '사진·문구 편집 가능'],
+      largePrint: design.largePrint === true,
+      tags: [
+        SHOWCASE_CATEGORY_LABELS[design.type],
+        ...(design.largePrint ? ['큰 글씨'] : []),
+        '사진·문구 편집 가능',
+      ],
       colors: {
         background: design.palette[0],
         accent: design.palette[1],
@@ -29,3 +34,11 @@ export const INVITATION_TEMPLATES: InvitationTemplate[] =
       blockTypes: design.sections.map(section => section.component),
     };
   });
+
+export function getInvitationTemplates(type: string, largePrintOnly = false) {
+  return INVITATION_TEMPLATES.filter(
+    template =>
+      (type === 'all' || template.type === type) &&
+      (!largePrintOnly || template.largePrint)
+  );
+}

@@ -3,6 +3,9 @@ import citrusCover from '@/public/templates/thumbnails/birthday_06.webp';
 import cinemaCover from '@/public/templates/thumbnails/birthday_07.webp';
 import flowersCover from '@/public/templates/thumbnails/birthday_08.webp';
 import campCover from '@/public/templates/thumbnails/birthday_09.webp';
+import birthdayLetterCover from '@/public/templates/thumbnails/birthday_10.webp';
+import seventiethCover from '@/public/templates/thumbnails/birthday_11.webp';
+import eightiethCover from '@/public/templates/thumbnails/birthday_12.webp';
 import hanbokCover from '@/public/templates/thumbnails/firstBirthday_03.webp';
 import orchardCover from '@/public/templates/thumbnails/firstBirthday_04.webp';
 import seaCover from '@/public/templates/thumbnails/firstBirthday_05.webp';
@@ -14,6 +17,7 @@ import clayCover from '@/public/templates/thumbnails/seminar_06.webp';
 import prismCover from '@/public/templates/thumbnails/seminar_07.webp';
 import cityCover from '@/public/templates/thumbnails/seminar_08.webp';
 import coffeeCover from '@/public/templates/thumbnails/seminar_09.webp';
+import weddingLetterCover from '@/public/templates/thumbnails/wedding_15.webp';
 import showcase0 from '@/shared/assets/images/showcase/showcase-0.webp';
 import showcase1 from '@/shared/assets/images/showcase/showcase-1.webp';
 import showcase10 from '@/shared/assets/images/showcase/showcase-10.webp';
@@ -86,6 +90,10 @@ export const showcaseItems = [
   { id: 'showcase-38', image: prismCover },
   { id: 'showcase-39', image: cityCover },
   { id: 'showcase-40', image: coffeeCover },
+  { id: 'showcase-41', image: birthdayLetterCover },
+  { id: 'showcase-42', image: seventiethCover },
+  { id: 'showcase-43', image: eightiethCover },
+  { id: 'showcase-44', image: weddingLetterCover },
 ].map(item => {
   const invitation = getShowcaseInvitation(item.id)!;
   return {

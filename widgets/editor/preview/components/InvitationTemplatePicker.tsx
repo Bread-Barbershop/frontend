@@ -1,6 +1,8 @@
 import { ArrowLeft, Check } from 'lucide-react';
+import { useState } from 'react';
 
 import { UtilityButton } from '@/components/atoms/button';
+import { LargePrintFilter } from '@/features/showcase/components/LargePrintFilter';
 import { componentCls } from '@/shared/data/componentsInfo/componentInfo';
 import {
   getInvitationTemplates,
@@ -106,7 +108,8 @@ function InvitationTemplatePicker({
   onClose,
   onApply,
 }: Props) {
-  const templates = getInvitationTemplates(type);
+  const [largePrintOnly, setLargePrintOnly] = useState(false);
+  const templates = getInvitationTemplates(type, largePrintOnly);
   const selectedTemplate = templates.find(
     template => template.id === selectedId
   );
@@ -173,8 +176,21 @@ function InvitationTemplatePicker({
           );
         })}
       </nav>
+      <div className="mx-7 mt-1">
+        <LargePrintFilter
+          checked={largePrintOnly}
+          onChange={setLargePrintOnly}
+          disabled={isApplying}
+        />
+      </div>
 
       <div className="grid min-h-0 flex-1 grid-cols-3 gap-4 overflow-y-auto px-7 py-4">
+        {templates.length === 0 && (
+          <p className="col-span-full text-base text-neutral-700">
+            이 종류에는 아직 큰 글씨 디자인이 없어요. 위의 필터를 해제하면 전체
+            디자인을 볼 수 있어요.
+          </p>
+        )}
         {templates.map(template => {
           const isSelected = template.id === selectedId;
 

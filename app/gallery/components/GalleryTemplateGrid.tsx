@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import ShowcasePreviewProvider, {
   useShowcasePreview,
 } from '@/features/showcase/components/ShowcasePreviewProvider';
-import { INVITATION_TEMPLATES } from '@/shared/data/invitationTemplates/catalog';
+import { getInvitationTemplates } from '@/shared/data/invitationTemplates/catalog';
 import type { InvitationTemplate } from '@/shared/data/invitationTemplates/types';
 import InvitationTemplatePoster from '@/widgets/editor/preview/components/InvitationTemplatePoster';
 
@@ -21,25 +21,28 @@ const ACTION_STYLE = {
 export default function GalleryTemplateGrid() {
   const searchParams = useSearchParams();
   const category = searchParams.get('category') || 'all';
-  const templates =
-    category === 'all'
-      ? INVITATION_TEMPLATES
-      : INVITATION_TEMPLATES.filter(template => template.type === category);
+  const largePrintOnly = searchParams.get('largePrint') === '1';
+  const templates = getInvitationTemplates(category, largePrintOnly);
 
   return (
     <ShowcasePreviewProvider
-      key={category}
+      key={`${category}-${largePrintOnly}`}
       invitationIds={templates.map(({ id }) => id)}
     >
-      <GalleryTemplateCards templates={templates} />
+      <GalleryTemplateCards
+        templates={templates}
+        largePrintOnly={largePrintOnly}
+      />
     </ShowcasePreviewProvider>
   );
 }
 
 function GalleryTemplateCards({
   templates,
+  largePrintOnly,
 }: {
   templates: InvitationTemplate[];
+  largePrintOnly: boolean;
 }) {
   const openPreview = useShowcasePreview();
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -90,6 +93,11 @@ function GalleryTemplateCards({
               <span className="block h-full motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-[1.02]">
                 <InvitationTemplatePoster template={template} sizes="240px" />
               </span>
+              {template.largePrint && (
+                <span className="absolute left-2 top-2 rounded bg-white px-2 py-1 text-sm font-bold text-neutral-900 shadow-sm">
+                  큰 글씨
+                </span>
+              )}
             </button>
 
             {isSelected ? (
@@ -122,7 +130,9 @@ function GalleryTemplateCards({
 
       {templates.length === 0 && (
         <div className="col-span-full rounded-2xl bg-white/72 p-8 text-lg font-semibold text-text-secondary shadow-edit backdrop-blur-sm">
-          해당 카테고리에 등록된 디자인이 없습니다.
+          {largePrintOnly
+            ? '이 종류에는 아직 큰 글씨 디자인이 없어요. 위의 필터를 해제하면 전체 디자인을 볼 수 있어요.'
+            : '해당 카테고리에 등록된 디자인이 없습니다.'}
         </div>
       )}
     </section>

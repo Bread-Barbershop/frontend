@@ -1,6 +1,7 @@
 import type { InvitationType } from '@/shared/types/block';
 
 import { birthdayCollection } from './showcaseBirthdayCollection';
+import { familyCelebrationCollection } from './showcaseFamilyCelebrationCollection';
 import { firstBirthdayCollection } from './showcaseFirstBirthdayCollection';
 import { seminarCollection } from './showcaseSeminarCollection';
 
@@ -12,6 +13,7 @@ export type ShowcaseInvitation = {
   type: Exclude<InvitationType, 'etc'>;
   name: string;
   description: string;
+  largePrint?: boolean;
   palette: [background: string, accent: string, text: string];
   font: string;
   eyebrow: string;
@@ -1716,6 +1718,7 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
   ...firstBirthdayCollection,
   ...birthdayCollection,
   ...seminarCollection,
+  ...familyCelebrationCollection,
 ];
 
 export function getShowcaseInvitation(id: string) {

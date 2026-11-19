@@ -10,8 +10,9 @@ jest.mock('next/navigation', () => ({
   useSearchParams: jest.fn(),
 }));
 
-function renderGallery(category?: string) {
+function renderGallery(category?: string, largePrintOnly = false) {
   const searchParams = new URLSearchParams(category ? { category } : {});
+  if (largePrintOnly) searchParams.set('largePrint', '1');
   jest
     .mocked(useSearchParams)
     .mockReturnValue(searchParams as ReadonlyURLSearchParams);
@@ -68,6 +69,19 @@ describe('초대장 갤러리', () => {
     expect(screen.getByTitle('볼드 비즈니스 초대장 내용')).toHaveAttribute(
       'src',
       '/showcase/showcase-12'
+    );
+  });
+
+  it('큰 글씨 생일 디자인만 모아서 하객 미리보기 안에서도 같은 목록을 순환한다', async () => {
+    const user = userEvent.setup();
+    renderGallery('birthday', true);
+    expect(screen.queryByRole('button', { name: '생신 꽃편지' })).toBeNull();
+    await user.click(screen.getByRole('button', { name: '팔순 가족 잔치' }));
+    await user.click(screen.getByRole('button', { name: '디자인 미리보기' }));
+    await user.click(screen.getByRole('button', { name: '다음 초대장' }));
+    expect(screen.getByTitle('칠순 감사연 초대장 내용')).toHaveAttribute(
+      'src',
+      '/showcase/showcase-42'
     );
   });
 
