@@ -37,7 +37,9 @@ export const MyChild = ({ blockInfo, id }: Props) => {
   );
   const { warning } = useToast();
   const [loadingCount, setLoadingCount] = useState(0);
+  const [editingTitle, setEditingTitle] = useState(false);
   const {
+    title,
     checkedSubTitle,
     subTitle,
     name,
@@ -46,6 +48,7 @@ export const MyChild = ({ blockInfo, id }: Props) => {
     messageJson,
     image,
   } = blockInfo.props;
+  const automaticTitle = getDefaultChildTitle(name);
   const commitBirthday = useCallback(
     (value: string) => updateBlock(id, { birthday: value }),
     [id, updateBlock]
@@ -108,15 +111,24 @@ export const MyChild = ({ blockInfo, id }: Props) => {
     <LeftEditorWrapper ariaLabel="아기 소개">
       <NavigationBar>아기 소개 편집 페이지</NavigationBar>
       <section className="w-full flex flex-col gap-1 items-start">
-        <TextField
-          label="제목"
-          inputProps={{
-            placeholder: getDefaultChildTitle(name),
-            value: blockInfo.props.title,
-            onChange: e => handleStringChange('title', e),
-          }}
-          className="w-full py-1.5 text-center"
-        />
+        <div className="w-full py-1.5">
+          <TextField
+            label="제목"
+            inputProps={{
+              value: editingTitle ? (title ?? '') : title?.trim() || automaticTitle,
+              onChange: e => {
+                setEditingTitle(true);
+                handleStringChange('title', e);
+              },
+              onBlur: () => setEditingTitle(false),
+              'aria-describedby': `child-title-hint-${id}`,
+            }}
+            className="w-full text-center"
+          />
+          <p id={`child-title-hint-${id}`} className="mt-1 text-xs text-text-secondary">
+            제목을 비우면 아이 이름에 맞춰 자동으로 표시돼요.
+          </p>
+        </div>
         {checkedSubTitle && (
           <TextField
             label="영문제목"
