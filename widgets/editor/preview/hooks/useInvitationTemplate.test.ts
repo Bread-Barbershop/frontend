@@ -119,6 +119,7 @@ const makeOldBlock = () =>
 
 describe('useInvitationTemplate', () => {
   const originalShareUrl = useEditorStore.getState().shareUrl;
+  const savedTrack = new File(['audio'], 'opening.mp3', { type: 'audio/mpeg' });
 
   beforeEach(() => {
     mockCanvas.disposed = false;
@@ -167,7 +168,7 @@ describe('useInvitationTemplate', () => {
       selectedBgmId: 'saved-bgm-id',
       isLoop: true,
       volume: 0.73,
-      audioFileId: 'saved-audio-file-id',
+      userFile: savedTrack,
     });
   });
 
@@ -313,7 +314,7 @@ describe('useInvitationTemplate', () => {
       selectedBgmId: 'saved-bgm-id',
       isLoop: true,
       volume: 0.73,
-      audioFileId: 'saved-audio-file-id',
+      userFile: savedTrack,
     });
     expect(mockCanvas.toObject).toHaveBeenCalledWith(
       expect.arrayContaining([

@@ -3,6 +3,7 @@ import {
   type NormalizedGuestPayload,
 } from '@/app/guest/[id]/validation/parseGuestPayload';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
+import { getSavedAudioFileId } from '@/features/invitation/save/savedAudioFiles';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 export const INVITATION_PREVIEW_PATH = '/preview/invitation';
@@ -80,7 +81,7 @@ export function createPreviewSnapshot(posterDataUrl: string) {
         volume: bgm.volume,
         userBgmTitle: bgm.userFileName,
         userBgmDuration: bgm.userDuration,
-        userBgmFileId: bgm.audioFileId,
+        userBgmFileId: getSavedAudioFileId(bgm.userFile, editor.audioFolderId),
       },
     });
     if (!parsed.ok) throw new Error('Could not prepare invitation preview');
