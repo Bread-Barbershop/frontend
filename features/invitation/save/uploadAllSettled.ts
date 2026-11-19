@@ -36,8 +36,12 @@ export async function uploadAllSettled(params: {
   }
 
   await Promise.all(Array.from({ length: workerCount }, uploadPendingFiles));
-  return {
-    ok: results.filter(result => !('error' in result)),
-    fail: results.filter(result => 'error' in result),
-  };
+
+  const ok: UploadOk[] = [];
+  const fail: UploadFail[] = [];
+  for (const result of results) {
+    if ('error' in result) fail.push(result);
+    else ok.push(result);
+  }
+  return { ok, fail };
 }
