@@ -108,6 +108,21 @@ describe('홈과 편집기가 공유하는 초대장 컬렉션', () => {
     }
   );
 
+  it('클래식 모먼트의 예시 사진이 편집 가능한 표지 슬롯에 들어 있다', async () => {
+    const { posterJson } = await createInvitationTemplate('showcase-0');
+    const objects = posterJson.objects as Record<string, unknown>[];
+    const slotImage = objects.find(object => object.type === 'Image');
+    expect(slotImage).toMatchObject({
+      src: '/templates/artwork/wedding_10-photo.webp',
+      slot: { replaceable: true, filled: true },
+      slotFrameWidth: 334.8242,
+      slotFrameHeight: 562.4384,
+    });
+    expect(
+      existsSync(join(process.cwd(), 'public/templates/artwork/wedding_10-photo.webp'))
+    ).toBe(true);
+  });
+
   it('원본 JSON 로드에 실패하면 문서 적용에 쓸 데이터를 만들지 않는다', async () => {
     const mockFetch = jest.mocked(global.fetch);
     mockFetch.mockRejectedValueOnce(new Error('network failure'));
