@@ -1,8 +1,21 @@
+export const DEFAULT_FAMILY_SUFFIX = {
+  groom: '의 아들',
+  bride: '의 딸',
+} as const;
+
 export const myFamilyWeddingSchema = {
   type: null,
   fields: {
     title: {
       default: '',
+      required: false,
+    },
+    groomFamilySuffix: {
+      default: DEFAULT_FAMILY_SUFFIX.groom,
+      required: false,
+    },
+    brideFamilySuffix: {
+      default: DEFAULT_FAMILY_SUFFIX.bride,
       required: false,
     },
     brideFamily: {
