@@ -1,6 +1,4 @@
-import { uploadFileToDrive } from './uploadFileToDrive';
-
-import type { UploadFail, UploadOk } from './uploadAllSettled';
+import { uploadAllSettled, type UploadFail, type UploadOk } from './uploadAllSettled';
 
 // error에서 HTTP status(401, 500 등)를 뽑아내는 함수
 function getStatus(err: unknown): number | null {
@@ -31,6 +29,7 @@ export async function retryFailedOnce(params: {
   failures: UploadFail[];
   folderId: string;
   accessToken: string;
+  concurrency?: number;
   refreshAccessToken: () => Promise<string>;
 }): Promise<{
   ok: UploadOk[];
@@ -51,7 +50,12 @@ export async function retryFailedOnce(params: {
   }
 
   // 1 재시도할 가치가 있는 실패만 고르기 (401 또는 5xx)
-  const retryTargets = failures.filter(f => is401(f.error) || is5xx(f.error));
+  const retryTargets: UploadFail[] = [];
+  const nonRetryFails: UploadFail[] = [];
+  for (const failure of failures) {
+    if (is401(failure.error) || is5xx(failure.error)) retryTargets.push(failure);
+    else nonRetryFails.push(failure);
+  }
 
   // 재시도 대상이 없으면 그대로 반환
   if (retryTargets.length === 0) {
@@ -70,39 +74,16 @@ export async function retryFailedOnce(params: {
     : accessToken;
 
   // 3 재시도 실행
-  const tasks = retryTargets.map(async ({ file }) => {
-    const uploadTarget = file instanceof File ? file : file.file;
-    const taskId = file instanceof File ? undefined : file.id;
-    const { fileId, name } = await uploadFileToDrive(
-      uploadTarget,
-      folderId,
-      usedAccessToken
-    );
-    return { file: uploadTarget, fileId, name, id: taskId } satisfies UploadOk;
+  const { ok, fail } = await uploadAllSettled({
+    originFile: retryTargets.map(target => target.file),
+    folderId,
+    accessToken: usedAccessToken,
+    concurrency: params.concurrency,
   });
-
-  const settled = await Promise.allSettled(tasks);
-
-  // 4 결과 정리
-  const ok: UploadOk[] = [];
-  const retriedFail: UploadFail[] = [];
-
-  for (let i = 0; i < settled.length; i++) {
-    const item = settled[i];
-    const file = retryTargets[i]!.file;
-
-    if (item.status === 'fulfilled') ok.push(item.value);
-    else retriedFail.push({ file, error: item.reason });
-  }
-
-  // 5 처음부터 재시도 대상이 아니었던 실패는 그대로 유지
-  const nonRetryFails = failures.filter(
-    f => !retryTargets.some(t => t.file === f.file)
-  );
 
   return {
     ok,
-    fail: [...nonRetryFails, ...retriedFail],
+    fail: [...nonRetryFails, ...fail],
     refreshedToken: needRefresh,
     usedAccessToken,
   };
