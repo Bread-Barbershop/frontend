@@ -293,6 +293,13 @@ function ShowcasePreviewModal({
   );
 }
 
+function syncPreviewPosterLayout(frame: HTMLIFrameElement | null) {
+  frame?.contentDocument?.documentElement?.toggleAttribute(
+    'data-showcase-desktop-preview',
+    window.innerWidth >= 800
+  );
+}
+
 function PreviewFrame({
   id,
   name,
@@ -303,6 +310,13 @@ function PreviewFrame({
   iframeRef: RefObject<HTMLIFrameElement | null>;
 }) {
   const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => syncPreviewPosterLayout(iframeRef.current);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [iframeRef]);
+
   return (
     <>
       {!isLoaded && (
@@ -319,7 +333,10 @@ function PreviewFrame({
         data-showcase-preview=""
         title={`${name} 초대장 내용`}
         src={`/showcase/${id}`}
-        onLoad={() => setIsLoaded(true)}
+        onLoad={event => {
+          syncPreviewPosterLayout(event.currentTarget);
+          setIsLoaded(true);
+        }}
         className={`h-full w-full border-0 transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
       />
     </>

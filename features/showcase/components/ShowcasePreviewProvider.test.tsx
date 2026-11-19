@@ -130,6 +130,38 @@ describe('초대장 카드 미리보기', () => {
     }
   );
 
+  it('미리보기를 표시하기 전에 데스크톱 상태를 적용하고 창 너비 변경 시 갱신한다', async () => {
+    const viewport = jest.replaceProperty(window, 'innerWidth', 1440);
+    try {
+      const user = userEvent.setup();
+      render(
+        <ShowcasePreviewProvider>
+          <SampleCard />
+        </ShowcasePreviewProvider>
+      );
+      await user.click(
+        screen.getByRole('button', { name: '민준이의 첫 초대 미리보기' })
+      );
+      const iframe = screen.getByTitle(
+        '민준이의 첫 초대 초대장 내용'
+      ) as HTMLIFrameElement;
+      const frameDocument = iframe.contentDocument!;
+      const documentRoot =
+        frameDocument.documentElement ??
+        frameDocument.appendChild(frameDocument.createElement('html'));
+
+      fireEvent.load(iframe);
+      expect(documentRoot).toHaveAttribute('data-showcase-desktop-preview');
+      expect(iframe).toHaveClass('opacity-100');
+
+      viewport.replaceValue(388);
+      fireEvent(window, new Event('resize'));
+      expect(documentRoot).not.toHaveAttribute('data-showcase-desktop-preview');
+    } finally {
+      viewport.restore();
+    }
+  });
+
   it('초대장 iframe에서 온 Escape 메시지만 받아 미리보기를 닫는다', async () => {
     const user = userEvent.setup();
     render(
