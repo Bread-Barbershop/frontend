@@ -1,6 +1,5 @@
 'use client';
 
-import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { useTitleFontInfo } from '@/shared/hooks/useTitleFontInfo';
 import { EditorBlock } from '@/shared/types/block';
@@ -8,6 +7,7 @@ import { isDarkInvitationBackground } from '@/shared/utils/invitationBackgroundC
 
 import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
 
+import { getCalendarMessageHtml } from './calendarMessage';
 import styles from './calendarPreview.module.css';
 import { CalendarTemplates, DDayCountdown } from './components';
 import { useCalendarData } from './hooks/useCalendarData';
@@ -130,10 +130,7 @@ export function CalendarPreview({
             <DDayCountdown
               date={date}
               time={time}
-              messageJson={
-                blockInfo.props.messageHtml ??
-                tiptapJsonToHtmlUniversal(blockInfo.props.messageJson)
-              }
+              messageHtml={getCalendarMessageHtml(blockInfo)}
             />
           )}
         </>
