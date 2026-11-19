@@ -3,7 +3,6 @@ import React from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { Button } from '@/components/atoms/button';
-import Background from '@/shared/assets/icons/add-background.svg';
 import AddDrawing from '@/shared/assets/icons/add-drawing.svg';
 // import AddEraser from '@/shared/assets/icons/add-eraser.svg';
 import AddImage from '@/shared/assets/icons/add-image.svg';
@@ -28,7 +27,7 @@ function Toolbar() {
 
   if (!canvas) return null;
 
-  const selectNonDrawingTool = (tab: 'text' | 'image' | 'background') => {
+  const selectNonDrawingTool = (tab: 'text' | 'image') => {
     toggleDrawingMode(canvas, { enable: false });
     setActiveTab(tab);
   };
@@ -87,20 +86,6 @@ function Toolbar() {
       onClick: () => {
         setActiveTab('graphic');
         setDrawingType('pen');
-      },
-    },
-    {
-      id: 'background',
-      active: activeTab === 'background',
-      araiaLabel: '배경 변경',
-      icon: <Background width={22} height={22} />,
-      hoverIcon: (
-        <p className="w-24 font-semibold text-sm text-text-plain">
-          배경색 변경
-        </p>
-      ),
-      onClick: () => {
-        selectNonDrawingTool('background');
       },
     },
   ];
