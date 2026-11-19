@@ -316,7 +316,10 @@ const cloneTemplateJson = <T,>(templateJson: T): T => {
   return JSON.parse(JSON.stringify(templateJson)) as T;
 };
 
-export const preloadFonts = async (templateJson: any) => {
+export const preloadFonts = async (
+  templateJson: any,
+  { waitForDocumentFonts = true } = {}
+) => {
   const normalizedTemplateJson = normalizeTemplateJsonFonts(templateJson);
   const fontRequests = collectTemplateFonts(normalizedTemplateJson);
 
@@ -367,7 +370,7 @@ export const preloadFonts = async (templateJson: any) => {
   });
 
   await Promise.all(loadPromises);
-  await document.fonts.ready;
+  if (waitForDocumentFonts) await document.fonts.ready;
 };
 
 export const prepareTemplateAssets = async (jsonUrl: string) => {

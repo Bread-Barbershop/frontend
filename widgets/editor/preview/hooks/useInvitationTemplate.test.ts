@@ -4,6 +4,7 @@ import { DEFAULT_SCROLL_ANIMATION } from '@/components/molecules/scroll-fade-in/
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import { createInvitationTemplate } from '@/shared/data/invitationTemplates';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { preloadFonts } from '@/widgets/mainPoster/hooks/useTemplate';
 
 import {
   collectInvitationTemplateImageIds,
@@ -30,7 +31,7 @@ const mockRunHistoryTransaction = jest.fn(
 const mockConfirm = jest.fn<Promise<boolean>, [Record<string, unknown>]>();
 const mockSuccess = jest.fn();
 const mockError = jest.fn();
-const mockPreloadFonts = jest.fn(async () => undefined);
+const mockPreloadFonts = jest.mocked(preloadFonts);
 const mockStabilizeCanvasAfterLoad = jest.fn(async () => undefined);
 
 jest.mock('@/widgets/mainPoster/context/FabricContext', () => ({
@@ -49,7 +50,7 @@ jest.mock('@/shared/hooks/useToast', () => ({
 }));
 
 jest.mock('@/widgets/mainPoster/hooks/useTemplate', () => ({
-  preloadFonts: () => mockPreloadFonts(),
+  preloadFonts: jest.fn(),
   stabilizeCanvasAfterLoad: () => mockStabilizeCanvasAfterLoad(),
 }));
 
@@ -86,7 +87,15 @@ jest.mock('@/shared/data/invitationTemplates', () => ({
       width: 375,
       height: 812,
       background: '#FAF8F2',
-      objects: [{ type: 'rect', id: 'background-layer' }],
+      objects: [
+        { type: 'rect', id: 'background-layer' },
+        {
+          type: 'Textbox',
+          text: 'AB',
+          fontFamily: 'Georgia',
+          styles: [{ start: 1, end: 2, style: { fontFamily: 'Arial' } }],
+        },
+      ],
     },
   })),
 }));
@@ -203,6 +212,42 @@ describe('useInvitationTemplate', () => {
     expect(mockConfirm.mock.calls[0][0].message).toContain('현재 표지만 교체');
   });
 
+  it('표지의 기본·부분 글꼴이 준비되면 본문 글꼴이 로딩 중이어도 적용한다', async () => {
+    const pendingBodyFont = new Promise<FontFace[]>(() => {});
+    const load = jest.fn((font: string) =>
+      font.includes('SUIT') ? pendingBodyFont : Promise.resolve([])
+    );
+    const originalFonts = Object.getOwnPropertyDescriptor(document, 'fonts');
+    Object.defineProperty(document, 'fonts', {
+      configurable: true,
+      value: { load, ready: pendingBodyFont },
+    });
+    const realFonts = jest.requireActual<{ preloadFonts: typeof preloadFonts }>(
+      '@/widgets/mainPoster/hooks/useTemplate'
+    );
+    mockPreloadFonts.mockImplementationOnce(realFonts.preloadFonts);
+    jest.useFakeTimers();
+    try {
+      const { result } = renderHook(() => useInvitationTemplate());
+      await act(async () => {
+        const applied = result.current.applyTemplate('test-template', {
+          posterOnly: true,
+        });
+        await jest.advanceTimersByTimeAsync(6000);
+        expect(await applied).toBe(true);
+      });
+      expect(load.mock.calls.flat()).toEqual([
+        'normal 400 10px "Georgia"',
+        'normal 400 10px "Arial"',
+      ]);
+      expect(mockCanvas.loadFromJSON).toHaveBeenCalledTimes(1);
+    } finally {
+      jest.useRealTimers();
+      if (originalFonts) Object.defineProperty(document, 'fonts', originalFonts);
+      else Reflect.deleteProperty(document, 'fonts');
+    }
+  });
+
   it('확인 창이 열린 동안 중복 적용 요청을 막는다', async () => {
     mockConfirm.mockImplementation(
       () =>
@@ -234,6 +279,15 @@ describe('useInvitationTemplate', () => {
     });
 
     const state = useEditorStore.getState();
+    expect(mockPreloadFonts).toHaveBeenCalledWith(
+      {
+        objects: expect.arrayContaining([
+          expect.objectContaining({ fontFamily: 'Hahmlet', fontWeight: '500' }),
+          expect.objectContaining({ fontFamily: 'SUIT', fontWeight: '400' }),
+        ]),
+      },
+      { waitForDocumentFonts: true }
+    );
     expect(setStateSpy).toHaveBeenCalledTimes(1);
     expect(state.block[0].id).toBe('new-page');
     expect(state.backgroundColor).toBe('#FAF8F2');
