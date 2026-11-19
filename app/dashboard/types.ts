@@ -10,6 +10,7 @@ export type InvitationReadiness =
 export type InviteListItem = {
   folderId: string;
   name: string;
+  displayTitle?: string;
   createdTime?: string;
   invitationUuid?: string;
   dataJsonFileId?: string;

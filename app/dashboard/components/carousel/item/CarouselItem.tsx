@@ -82,6 +82,7 @@ function CarouselItem({
     : dashboardCarouselLayout.cardWidth;
   const [hasImageError, setHasImageError] = useState(false);
   const invite = item.invite;
+  const title = invite?.displayTitle ?? invite?.name ?? item.alt;
   const guestUrl = invite?.guestUrl ?? guestUrlProp;
   const isPublished = invite?.published ?? Boolean(guestUrlProp);
   const readiness = invite?.readiness ?? (guestUrl ? 'ready' : 'idle');
@@ -128,11 +129,7 @@ function CarouselItem({
       tabIndex={0}
       onClick={() => onSelect(index)}
       onKeyDown={handleKeyDown}
-      aria-label={
-        showPreviewLabel
-          ? `${item.alt} 미리보기`
-          : (item.invite?.name ?? item.alt)
-      }
+      aria-label={showPreviewLabel ? `${item.alt} 미리보기` : title}
       aria-haspopup={showPreviewLabel ? 'dialog' : undefined}
       aria-pressed={isSelected}
       className={`group relative shrink-0 overflow-visible cursor-pointer select-none text-left ${
@@ -292,6 +289,16 @@ function CarouselItem({
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/95 px-5 py-3 text-[13px] font-semibold text-[#252522] shadow-lg backdrop-blur-sm">
                   미리보기 <span aria-hidden="true">↗</span>
                 </span>
+              </div>
+            )}
+            {showHeader && invite && (
+              <div className="pointer-events-none absolute inset-x-0 top-0 z-10 bg-white/95 px-3 py-2 text-text-plain">
+                <p
+                  className="pointer-events-auto line-clamp-2 break-words font-pretendard text-[15px] font-semibold leading-5"
+                  title={title}
+                >
+                  {title}
+                </p>
               </div>
             )}
             {isPending && (
