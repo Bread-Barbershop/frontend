@@ -188,6 +188,28 @@ function redactBlock(block: GuestBlock, fields: Fields): GuestBlock {
   if (fields.has('location') && locationBlocks.has(component))
     return { ...block, props: {}, privacyPlaceholder: 'location' };
   if (
+    component === 'sponsorshipInfomation' &&
+    (fields.has('media') || fields.has('name'))
+  ) {
+    const sponsors = list(props.sponsors).map(record);
+    if (sponsors.some(sponsor => string(sponsor.name).trim())) {
+      const hideMedia = fields.has('media');
+      return {
+        ...block,
+        props: {
+          ...props,
+          ...(hideMedia ? { images: [] } : {}),
+          sponsors: sponsors.map(sponsor => ({
+            ...sponsor,
+            ...(fields.has('name') ? { name: maskName(sponsor.name) } : {}),
+            ...(hideMedia ? { logoIndex: null } : {}),
+          })),
+        },
+        privacyMediaHidden: hideMedia && list(props.images).some(Boolean),
+      };
+    }
+  }
+  if (
     fields.has('media') &&
     (photoBlocks.has(component) || component === 'video')
   )
