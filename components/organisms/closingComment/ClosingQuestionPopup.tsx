@@ -1,11 +1,12 @@
 'use client';
 
-import { useId, useState, type ChangeEvent, type RefObject } from 'react';
+import { useId, useState, type RefObject } from 'react';
 
 import { Radio } from '@/components/atoms/radio';
 import { PopupText } from '@/components/molecules/popup-text';
+import { TextField } from '@/components/molecules/text-field';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
-import type { EditorBlock, InvitationType } from '@/shared/types/block';
+import type { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 
 import { Popup } from '../popup/Popup';
@@ -16,40 +17,53 @@ import {
 } from './closingCommentOptions';
 
 interface ClosingQuestionPopupProps {
-  invitationType: InvitationType;
-  onSelect?: (text: string) => void;
+  blockInfo: EditorBlock<'closingComment'>;
+  onSelect: (text: string) => void;
   onClose?: () => void;
   triggerRef?: RefObject<HTMLElement | null>;
 }
 
+function getSingleBlockProps<
+  T extends 'myChild' | 'coupleIntroduction' | 'organizerInformation',
+>(blocks: EditorBlock[], component: T) {
+  const matches = blocks.filter(
+    (block): block is EditorBlock<T> => block.component === component
+  );
+  return matches.length === 1 ? matches[0].props : undefined;
+}
+
 function ClosingQuestionPopup({
-  invitationType,
+  blockInfo,
   onSelect,
   onClose,
   triggerRef,
 }: ClosingQuestionPopupProps) {
   const autoName = useId();
   const radioName = `closing-${autoName}`;
-  const [activeCategory, setActiveCategory] = useState(invitationType);
-  const [selectedText, setSelectedText] = useState('');
-  const childName = useEditorStore(state => {
-    const children = state.block.filter(
-      (block): block is EditorBlock<'myChild'> => block.component === 'myChild'
-    );
-    return children.length === 1 ? (children[0].props.name ?? '') : '';
+  const [activeCategory, setActiveCategory] = useState(blockInfo.type);
+  const blocks = useEditorStore(state => state.block);
+  const updateBlock = useEditorStore(state => state.updateBlock);
+  const { eventName, birthdayName, organizerName } = blockInfo.props;
+  const couple = getSingleBlockProps(blocks, 'coupleIntroduction');
+  const groom = couple?.groom?.trim();
+  const bride = couple?.bride?.trim();
+  const coupleNames =
+    groom && bride
+      ? (couple?.brideFirst ? [bride, groom] : [groom, bride]).join(' · ')
+      : undefined;
+  const organizer = getSingleBlockProps(
+    blocks,
+    'organizerInformation'
+  )?.organizer?.trim();
+  const options = getClosingCommentOptions(activeCategory, {
+    childName: getSingleBlockProps(blocks, 'myChild')?.name,
+    coupleNames,
+    eventName,
+    birthdayName,
+    organizerName: organizer || organizerName,
   });
-  const options = getClosingCommentOptions(activeCategory, childName);
-
-  const handleSelect = (e: ChangeEvent<HTMLInputElement>) => {
-    const nextText = e.target.value;
-    const nextIndex = options.findIndex(option => option === nextText);
-
-    setSelectedText(nextText);
-
-    if (nextIndex !== -1) {
-      onSelect?.(nextText);
-    }
-  };
+  const isEvent = activeCategory === 'seminar' || activeCategory === 'etc';
+  const nameField = isEvent ? 'eventName' : 'birthdayName';
 
   return (
     <Popup
@@ -65,10 +79,8 @@ function ClosingQuestionPopup({
         {CLOSING_CATEGORIES.map(category => (
           <button
             key={category.value}
-            onClick={() => {
-              setActiveCategory(category.value);
-              setSelectedText('');
-            }}
+            aria-pressed={activeCategory === category.value}
+            onClick={() => setActiveCategory(category.value)}
             className={cn(
               'flex-1 py-1.5 text-[13px] font-normal transition-colors',
               activeCategory === category.value
@@ -81,6 +93,36 @@ function ClosingQuestionPopup({
         ))}
       </div>
 
+      {(isEvent || activeCategory === 'birthday') && (
+        <TextField
+          className="px-2.5 pb-2"
+          label={isEvent ? '행사명' : '생일 주인공'}
+          inputProps={{
+            placeholder: '선택 입력',
+            className: 'min-w-0',
+            value: blockInfo.props[nameField] ?? '',
+            onChange: e =>
+              updateBlock<'closingComment'>(blockInfo.id, {
+                [nameField]: e.target.value,
+              }),
+          }}
+        />
+      )}
+      {activeCategory === 'etc' && !organizer && (
+        <TextField
+          className="px-2.5 pb-2"
+          label="주최자명"
+          inputProps={{
+            placeholder: '선택 입력',
+            className: 'min-w-0',
+            value: organizerName ?? '',
+            onChange: e =>
+              updateBlock<'closingComment'>(blockInfo.id, {
+                organizerName: e.target.value,
+              }),
+          }}
+        />
+      )}
       <ul
         className={cn(
           'flex-1 max-h-full space-y-3 overflow-y-auto scrollbar-hide px-3 pt-1'
@@ -102,8 +144,7 @@ function ClosingQuestionPopup({
                 name={radioName}
                 aria-label={text}
                 value={text}
-                checked={selectedText === text}
-                onChange={handleSelect}
+                onChange={() => onSelect(text)}
               />
             </div>
 
