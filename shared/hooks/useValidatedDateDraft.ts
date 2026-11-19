@@ -69,6 +69,23 @@ function getDraftDigits(
   return parts.join('');
 }
 
+export function formatDateDraft(
+  inputValue: string,
+  previousDraft: string,
+  separator: DateSeparator = '-'
+) {
+  const isTypingDigitAtEnd =
+    inputValue.length === previousDraft.length + 1 &&
+    inputValue.startsWith(previousDraft) &&
+    /^\d$/.test(inputValue.slice(-1));
+  const digits = getDraftDigits(inputValue, isTypingDigitAtEnd);
+  if (!digits || digits.length > 8) return inputValue;
+
+  const trailingSeparator =
+    /[./-]$/.test(inputValue) && (digits.length === 4 || digits.length === 6);
+  return formatPartialDate(digits, separator) + (trailingSeparator ? separator : '');
+}
+
 function validateDraft(
   value: string,
   separator: DateSeparator,
@@ -146,15 +163,7 @@ export function useValidatedDateDraft({
         return;
       }
 
-      const isTypingDigitAtEnd =
-        inputValue.length === currentState.draft.length + 1 &&
-        inputValue.startsWith(currentState.draft) &&
-        /^\d$/.test(inputValue.slice(-1));
-      const digits = getDraftDigits(inputValue, isTypingDigitAtEnd);
-      const nextDraft =
-        digits && digits.length <= 8
-          ? `${formatPartialDate(digits, separator)}${/[./-]$/.test(inputValue) && (digits.length === 4 || digits.length === 6) ? separator : ''}`
-          : inputValue;
+      const nextDraft = formatDateDraft(inputValue, currentState.draft, separator);
 
       const result = validateDraft(nextDraft, separator, allowPast);
       if (result.kind === 'valid') {
