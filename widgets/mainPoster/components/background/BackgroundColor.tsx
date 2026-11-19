@@ -7,6 +7,7 @@ export const BackgroundColor = () => {
   return (
     <LargeColorPicker
       value={backgroundColor}
+      preserveAlpha
       className="border-none pl-1 pr-0.5 pt-0"
       showHeader={false}
       onChange={e => {
