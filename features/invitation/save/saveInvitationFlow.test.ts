@@ -5,6 +5,7 @@
 jest.mock('./updateFileToDrive', () => ({
   updateFileToDrive: jest.fn(),
 }));
+jest.mock('./uploadFileToDrive');
 
 jest.mock('@sentry/nextjs', () => ({
   withScope: jest.fn((callback: CallableFunction) =>
@@ -18,6 +19,7 @@ jest.mock('@sentry/nextjs', () => ({
 
 import { saveInvitationFlow } from './saveInvitationFlow';
 import { updateFileToDrive } from './updateFileToDrive';
+import { uploadFileToDrive } from './uploadFileToDrive';
 import * as Sentry from '@sentry/nextjs';
 import type { BulkJson } from '@/shared/types/invitationSave';
 
@@ -177,6 +179,70 @@ describe('saveInvitationFlow', () => {
         method: 'POST',
       })
     );
+  });
+
+  it('사진이 끝나면 다음 사진을 전송하고 갤러리는 입력 순서대로 저장한다', async () => {
+    jest.useFakeTimers();
+    const uploads = jest.mocked(uploadFileToDrive);
+    const files = Array.from({ length: 10 }, (_, i) => new File([], `photo-${i + 1}.jpg`));
+    let active = 0;
+    let peak = 0;
+    uploads.mockImplementation(async file => {
+      active++;
+      peak = Math.max(peak, active);
+      const slow = file === files[0] || file === files[5];
+      await new Promise(resolve => setTimeout(resolve, slow ? 4000 : 1000));
+      active--;
+      return { fileId: `drive-${file.name}`, name: file.name };
+    });
+
+    try {
+      const saving = saveInvitationFlow({
+        bulkData,
+        shareUrl,
+        bgmData,
+        audio: null,
+        images: files.map(file => ({ id: 'gallery', file })),
+        data: [
+          {
+            id: 'gallery',
+            type: 'wedding',
+            component: 'gallery',
+            props: {
+              title: '갤러리',
+              images: files,
+              template: 'galleryType1',
+              ratio: '1:1',
+              isPopupViewer: false,
+              isSubTitle: true,
+            },
+          },
+        ],
+        mainPoster: { version: '7.1.0', objects: [] },
+        invitationThumbnail: {
+          name: '', mimeType: 'image/png', dataUrl: '', width: 0, height: 0, createdAt: '',
+        },
+      });
+      await jest.advanceTimersByTimeAsync(0);
+      expect(uploads).toHaveBeenCalledTimes(5);
+      await jest.advanceTimersByTimeAsync(1000);
+      expect(uploads.mock.calls.map(([file]) => file)).toEqual(files.slice(0, 9));
+      await jest.advanceTimersByTimeAsync(4000);
+      expect((await saving).success).toBe(true);
+      expect(peak).toBe(5);
+    } finally {
+      jest.useRealTimers();
+    }
+
+    const [dataFile] = jest.mocked(updateFileToDrive).mock.calls[0];
+    const reader = new FileReader();
+    const savedText = new Promise<string>((resolve, reject) => {
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = () => reject(reader.error);
+    });
+    reader.readAsText(dataFile);
+    const payload = JSON.parse(await savedText);
+    expect(payload.blocks[0].props.images).toEqual(files.map(file => `drive-${file.name}`));
   });
 
   it('하객 그룹을 저장하고 전환할 때 전용 링크와 그룹 정보를 보존한다', async () => {

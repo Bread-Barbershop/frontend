@@ -345,6 +345,7 @@ async function upload(params: {
           failures: firstAttempt.fail,
           folderId: step.folderId,
           accessToken: token.currentToken,
+          concurrency: step.concurrency,
           refreshAccessToken: token.refreshAccessToken,
         })
       : {
