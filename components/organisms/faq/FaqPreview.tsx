@@ -17,7 +17,7 @@ export function FaqPreview({ blockInfo, titleClassName, className = '', isGuestP
     item.question.trim() && (!isGuestPage || item.answer.trim())
   );
   return (
-    <MiddlePreviewWrapper className={className} titleClassName={titleClassName}
+    <MiddlePreviewWrapper matchBodyFontSize className={className} titleClassName={titleClassName}
       mainTitle={title} mainTitleDefault="자주 묻는 질문" {...rest}>
       <div className="flex w-full flex-col gap-2 text-left">
         {visible.map((item, i) => (

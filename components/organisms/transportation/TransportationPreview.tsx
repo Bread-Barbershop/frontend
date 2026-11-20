@@ -35,6 +35,7 @@ export function TransportationPreview({
 
   return (
     <MiddlePreviewWrapper
+      matchBodyFontSize
       className={className}
       titleClassName={titleClassName}
       mainTitle={props.title}
