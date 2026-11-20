@@ -22,6 +22,7 @@ export type ThumbnailPayload = {
 
 export type EnsureThumbnailFileResult = {
   thumbnailFileId: string | null;
+  sha256Checksum?: string;
   reused: boolean;
 };
 
@@ -49,18 +50,19 @@ export async function ensureThumbnailFile(
   const searchParams = new URLSearchParams({
     q,
     spaces: 'drive',
-    fields: 'files(id,name,createdTime,appProperties)',
+    fields: 'files(id,sha256Checksum)',
     // 정리 실패로 PNG/WebP 파일이 함께 남아도 최신 썸네일을 선택한다.
     orderBy: 'createdTime desc',
     pageSize: '10',
   });
 
   const searchRes = await googleFetch(
-    `https://www.googleapis.com/drive/v3/files?${searchParams.toString()}`
+    `https://www.googleapis.com/drive/v3/files?${searchParams.toString()}`,
+    { cache: 'no-store' }
   );
 
   const searchData = (await searchRes.json().catch(() => ({}))) as {
-    files?: Array<{ id: string }>;
+    files?: Array<{ id: string; sha256Checksum?: string }>;
     error?: unknown;
   };
 
@@ -74,7 +76,11 @@ export async function ensureThumbnailFile(
 
   const found = searchData.files ?? [];
   if (found.length > 0) {
-    return { thumbnailFileId: found[0].id, reused: true };
+    return {
+      thumbnailFileId: found[0].id,
+      sha256Checksum: found[0].sha256Checksum,
+      reused: true,
+    };
   }
 
   // 2) 파일이 없는 경우 null 반환

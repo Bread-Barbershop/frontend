@@ -2,6 +2,8 @@
  * @jest-environment node
  */
 
+import { createHash } from 'node:crypto';
+
 jest.mock('@/app/api/drive/_lib/captureDriveError', () => ({
   captureDriveError: jest.fn(),
 }));
@@ -32,6 +34,32 @@ describe('/api/drive/thumbnail route', () => {
   });
 
   describe('POST: 썸네일 업로드 및 정규화', () => {
+    it('기존 클라이언트가 같은 이미지를 다시 전송하면 Drive 파일 생성과 삭제를 건너뛴다', async () => {
+      const png =
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+      jest.mocked(ensureThumbnailFile).mockResolvedValue({
+        thumbnailFileId: 'saved-cover',
+        reused: true,
+        sha256Checksum: createHash('sha256')
+          .update(Buffer.from(png, 'base64'))
+          .digest('hex'),
+      });
+      const response = await POST(
+        new Request('http://localhost/api/drive/thumbnail', {
+          method: 'POST',
+          body: JSON.stringify({
+            invitationFolderId: 'folder-123',
+            thumbnailData: { dataUrl: `data:image/png;base64,${png}` },
+          }),
+        })
+      );
+      expect(response.status).toBe(200);
+      await expect(response.json()).resolves.toMatchObject({
+        thumbnailFileId: 'saved-cover',
+      });
+      expect(googleFetch).not.toHaveBeenCalled();
+    });
+
     it('WebP dataUrl을 전달하면 name, mimeType, PATCH Content-Type이 모두 image/webp 및 THUMBNAIL_NAME_WEBP로 정규화된다', async () => {
       (ensureThumbnailFile as jest.Mock).mockResolvedValue({
         thumbnailFileId: null,
@@ -258,6 +286,27 @@ describe('/api/drive/thumbnail route', () => {
   });
 
   describe('GET: 썸네일 조회', () => {
+    it('해당 폴더의 파일 ID와 체크섬만 조회하면 이미지 본문을 내려받지 않는다', async () => {
+      jest.mocked(ensureThumbnailFile).mockResolvedValue({
+        thumbnailFileId: 'family-cover',
+        sha256Checksum: 'saved-checksum',
+        reused: true,
+      });
+      const res = await GET(
+        new Request(
+          'http://localhost/api/drive/thumbnail?invitationFolderId=family&metadata=1'
+        )
+      );
+      expect(ensureThumbnailFile).toHaveBeenCalledWith('family');
+      await expect(res.json()).resolves.toEqual({
+        ok: true,
+        thumbnailFileId: 'family-cover',
+        sha256Checksum: 'saved-checksum',
+      });
+      expect(res.headers.get('Cache-Control')).toContain('no-store');
+      expect(googleFetch).not.toHaveBeenCalled();
+    });
+
     it('invitationFolderId로 조회 시 썸네일 파일 ID와 데이터를 반환한다', async () => {
       (ensureThumbnailFile as jest.Mock).mockResolvedValue({
         thumbnailFileId: 'existing-thumb-id',

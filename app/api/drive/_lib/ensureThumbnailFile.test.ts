@@ -29,7 +29,9 @@ describe('ensureThumbnailFile', () => {
       ok: true,
       status: 200,
       json: async () => ({
-        files: [{ id: 'thumbnail-file-id' }],
+        files: [
+          { id: 'thumbnail-file-id', sha256Checksum: 'current-checksum' },
+        ],
       }),
     });
 
@@ -37,12 +39,16 @@ describe('ensureThumbnailFile', () => {
 
     expect(result).toEqual({
       thumbnailFileId: 'thumbnail-file-id',
+      sha256Checksum: 'current-checksum',
       reused: true,
     });
 
     const calledUrl = (googleFetch as jest.Mock).mock.calls[0][0] as string;
     expect(calledUrl).toContain(THUMBNAIL_NAME_WEBP);
     expect(calledUrl).toContain(THUMBNAIL_NAME_PNG);
+    expect(new URL(calledUrl).searchParams.get('fields')).toContain(
+      'sha256Checksum'
+    );
     expect(new URL(calledUrl).searchParams.get('orderBy')).toBe(
       'createdTime desc'
     );

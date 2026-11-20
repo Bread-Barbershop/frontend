@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { createHash } from 'node:crypto';
+
 import { NextResponse } from 'next/server';
 
 import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
@@ -41,14 +43,17 @@ export async function POST(req: Request) {
       );
     }
 
-    // 1) 기존 파일 확인
-    const { thumbnailFileId } = await ensureThumbnailFile(invitationFolderId);
+    const image = resolveNormalizedThumbnailFormat(thumbnailData);
+    const { thumbnailFileId, sha256Checksum } =
+      await ensureThumbnailFile(invitationFolderId);
 
-    // 2) 새 파일 생성 성공 후 기존 파일 삭제
-    const finalFileId = await createThumbnailFile(
-      invitationFolderId,
-      thumbnailData
-    );
+    // 구버전 편집기나 사전 확인 실패로 이미지가 전송된 경우에도 같은 파일은 유지한다.
+    const finalFileId =
+      thumbnailFileId &&
+      sha256Checksum ===
+        createHash('sha256').update(image.imageBytes).digest('hex')
+        ? thumbnailFileId
+        : await createThumbnailFile(invitationFolderId, image);
     if (thumbnailFileId && finalFileId !== thumbnailFileId) {
       try {
         await deleteThumbnailFile(thumbnailFileId);
@@ -106,7 +111,14 @@ export async function GET(req: Request) {
       );
     }
 
-    const { thumbnailFileId } = await ensureThumbnailFile(invitationFolderId);
+    const { thumbnailFileId, sha256Checksum } =
+      await ensureThumbnailFile(invitationFolderId);
+    if (searchParams.get('metadata') === '1') {
+      return NextResponse.json(
+        { ok: true, thumbnailFileId, sha256Checksum: sha256Checksum ?? null },
+        { headers: { 'Cache-Control': 'private, no-store' } }
+      );
+    }
 
     if (!thumbnailFileId) {
       return NextResponse.json(
@@ -199,10 +211,12 @@ function resolveNormalizedThumbnailFormat(thumbnailData: ThumbnailPayload): {
 
 async function createThumbnailFile(
   invitationFolderId: string,
-  thumbnailData: ThumbnailPayload
+  {
+    mimeType,
+    fileName,
+    imageBytes,
+  }: ReturnType<typeof resolveNormalizedThumbnailFormat>
 ): Promise<string> {
-  const { mimeType, fileName, imageBytes } = resolveNormalizedThumbnailFormat(thumbnailData);
-
   const metaRes = await googleFetch(
     'https://www.googleapis.com/drive/v3/files',
     {
