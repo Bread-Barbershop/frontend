@@ -124,7 +124,7 @@ export const useFabricBackground = ({ canvas, saveHistory }: Props) => {
     }
 
     const fill = convertFabricColor(color);
-    if (existingBg || canvas.backgroundColor !== fill) {
+    if (existingBg || canvas.backgroundImage || canvas.backgroundColor !== fill) {
       useEditorStore.getState().setIsDirty(true);
     }
     lastCanvasColor.current = fill;

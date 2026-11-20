@@ -365,5 +365,16 @@
       "skewY": 0
     }
   ],
-  "background": "#ffffff"
+  "background": "#ffffff",
+  "backgroundImage": {
+    "type": "Rect",
+    "originX": "center",
+    "originY": "center",
+    "left": 187.2409,
+    "top": 401.6479,
+    "width": 335.4817,
+    "height": 595.7043,
+    "fill": "#486374",
+    "strokeWidth": 0
+  }
 }

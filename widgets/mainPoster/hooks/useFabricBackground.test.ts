@@ -63,4 +63,31 @@ describe('포스터 배경색 복원', () => {
     expect(useEditorStore.getState().isDirty).toBe(true);
     expect(saveHistory).toHaveBeenCalledTimes(1);
   });
+
+  it('템플릿 여백과 같은 흰색을 골라도 사진 칸 바탕을 지운 변경을 저장할 수 있다', () => {
+    const canvas = Object.assign(new Observable<{ 'after:render': unknown }>(), {
+      backgroundColor: '#ffffff',
+      backgroundImage: { type: 'Rect' },
+      getObjects: () => [],
+      set: jest.fn(),
+      requestRenderAll: jest.fn(),
+    });
+    useEditorStore.getState().setIsDirty(false);
+    const { result } = renderHook(() =>
+      useFabricBackground({
+        canvas: canvas as unknown as Canvas,
+        saveHistory: jest.fn(),
+      })
+    );
+
+    act(() => {
+      result.current.updateBackgroundColor({ h: 0, s: 0, v: 100, a: 1 });
+    });
+
+    expect(canvas.set).toHaveBeenCalledWith({
+      backgroundColor: '#ffffff',
+      backgroundImage: null,
+    });
+    expect(useEditorStore.getState().isDirty).toBe(true);
+  });
 });

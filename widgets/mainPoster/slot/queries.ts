@@ -1,4 +1,4 @@
-import { Canvas, FabricImage, FabricObject } from 'fabric';
+import { Canvas, FabricImage, Rect } from 'fabric';
 
 import { buildSlotEntityFromObject, getSlotMeta } from './objectFields';
 
@@ -17,10 +17,7 @@ export const isSlotImageObject = (
 };
 
 export const isSlotPlaceholderObject = (target: unknown) =>
-  target instanceof FabricObject &&
-  isSlotObject(target) &&
-  !(target instanceof FabricImage) &&
-  target.get('name') === 'slot-placeholder';
+  target instanceof Rect && isSlotObject(target);
 
 // Build a normalized slot entity from a Fabric object.
 export const getSlotEntityByTarget = (target: unknown): SlotEntity | null =>
