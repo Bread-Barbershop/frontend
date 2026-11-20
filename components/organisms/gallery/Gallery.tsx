@@ -75,12 +75,7 @@ function Gallery({ blockInfo, id }: Props) {
     }
   };
 
-  const handlePictureDelete = (files?: (File | string)[]) => {
-    if (!files) {
-      updateBlock(id, { images: [] });
-      updateImage(id, []);
-      return;
-    }
+  const updatePictures = (files: (File | string)[] = []) => {
     updateBlock(id, { images: files });
     updateImage(id, files);
   };
@@ -131,12 +126,9 @@ function Gallery({ blockInfo, id }: Props) {
           className="py-1 text-center"
           multiple={true}
           value={blockInfo.props.images}
-          onChange={file => handlePictureChange(file)}
-          onReorder={file => {
-            updateBlock(id, { images: file });
-            updateImage(id, file);
-          }}
-          onDelete={file => handlePictureDelete(file)}
+          onChange={handlePictureChange}
+          onUpdateFiles={updatePictures}
+          onDelete={updatePictures}
           loadingCount={loadingCount}
         />
         {blockInfo.props.images && blockInfo.props.images?.length > 0 && (
