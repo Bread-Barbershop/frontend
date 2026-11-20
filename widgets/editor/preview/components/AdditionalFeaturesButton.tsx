@@ -7,7 +7,6 @@ import { createPortal } from 'react-dom';
 import {
   DEFAULT_INVITATION_PRIVACY,
   INVITATION_PRIVACY_FIELDS,
-  type InvitationPrivacy,
 } from '@/features/invitation/privacy/settings';
 import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
@@ -20,15 +19,37 @@ import { PrivacyEndDatePicker } from './PrivacyEndDatePicker';
 const checkboxClassName =
   'size-4 shrink-0 accent-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary';
 
-function InvitationSettingsModal({
-  initialIsZoom,
-  initialPrivacy,
-  onClose,
-}: {
-  initialIsZoom: boolean;
-  initialPrivacy: InvitationPrivacy;
-  onClose: () => void;
-}) {
+function getInitialSettings() {
+  const {
+    isZoom,
+    invitationPrivacy: privacy,
+    block: blocks,
+  } = useEditorStore.getState();
+  if (privacy?.eventDate) return { isZoom, privacy };
+  const calendar = blocks.find(
+    (block): block is EditorBlock<'calendar'> => block.component === 'calendar'
+  );
+  const countdown = blocks.find(
+    (block): block is EditorBlock<'countdown'> =>
+      block.component === 'countdown'
+  );
+  const eventDate = [
+    calendar?.props.date,
+    countdown?.props.eventDateTime?.slice(0, 10),
+  ].find(
+    (date): date is string =>
+      typeof date === 'string' && Boolean(parseStrictDate(date))
+  );
+  return {
+    isZoom,
+    privacy: {
+      ...(privacy ?? DEFAULT_INVITATION_PRIVACY),
+      eventDate: eventDate ?? '',
+    },
+  };
+}
+
+function InvitationSettingsModal({ onClose }: { onClose: () => void }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const checkboxRef = useRef<HTMLInputElement>(null);
   const backdropDismiss = useBackdropDismiss<HTMLDialogElement>(
@@ -37,8 +58,9 @@ function InvitationSettingsModal({
   );
   const titleId = useId();
   const optionsId = useId();
-  const [draftIsZoom, setDraftIsZoom] = useState(initialIsZoom);
-  const [privacy, setPrivacy] = useState(initialPrivacy);
+  const [initial] = useState(getInitialSettings);
+  const [draftIsZoom, setDraftIsZoom] = useState(initial.isZoom);
+  const [privacy, setPrivacy] = useState(initial.privacy);
   const [expanded, setExpanded] = useState(false);
   const missingFields = privacy.enabled && !privacy.fields.length;
   const optionsOpen = privacy.enabled && expanded;
@@ -77,11 +99,21 @@ function InvitationSettingsModal({
             (!parseStrictDate(privacy.eventDate) || missingFields)
           )
             return;
-          // 두 설정을 한 번에 반영하고, 취소한 변경은 저장하지 않는다.
-          useEditorStore.setState({
-            isZoom: draftIsZoom,
-            invitationPrivacy: privacy,
-          });
+          const zoomChanged = draftIsZoom !== initial.isZoom;
+          const privacyChanged =
+            privacy.enabled !== initial.privacy.enabled ||
+            privacy.eventDate !== initial.privacy.eventDate ||
+            INVITATION_PRIVACY_FIELDS.some(
+              ({ key }) =>
+                privacy.fields.includes(key) !==
+                initial.privacy.fields.includes(key)
+            );
+          if (zoomChanged || privacyChanged) {
+            useEditorStore.setState({
+              ...(zoomChanged && { isZoom: draftIsZoom }),
+              ...(privacyChanged && { invitationPrivacy: privacy }),
+            });
+          }
           onClose();
         }}
       >
@@ -245,32 +277,6 @@ export default function InvitationSettingsButton() {
   const [isOpen, setIsOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const wasOpenRef = useRef(false);
-  const isZoom = useEditorStore(state => state.isZoom);
-  const privacy = useEditorStore(state => state.invitationPrivacy);
-
-  function getInitialPrivacy(): InvitationPrivacy {
-    if (privacy?.eventDate) return privacy;
-    const blocks = useEditorStore.getState().block;
-    const calendar = blocks.find(
-      (block): block is EditorBlock<'calendar'> =>
-        block.component === 'calendar'
-    );
-    const countdown = blocks.find(
-      (block): block is EditorBlock<'countdown'> =>
-        block.component === 'countdown'
-    );
-    const eventDate = [
-      calendar?.props.date,
-      countdown?.props.eventDateTime?.slice(0, 10),
-    ].find(
-      (date): date is string =>
-        typeof date === 'string' && Boolean(parseStrictDate(date))
-    );
-    return {
-      ...(privacy ?? DEFAULT_INVITATION_PRIVACY),
-      eventDate: eventDate ?? '',
-    };
-  }
 
   useEffect(() => {
     if (wasOpenRef.current && !isOpen) {
@@ -291,13 +297,7 @@ export default function InvitationSettingsButton() {
       >
         초대장 설정
       </button>
-      {isOpen && (
-        <InvitationSettingsModal
-          initialIsZoom={isZoom}
-          initialPrivacy={getInitialPrivacy()}
-          onClose={() => setIsOpen(false)}
-        />
-      )}
+      {isOpen && <InvitationSettingsModal onClose={() => setIsOpen(false)} />}
     </>
   );
 }

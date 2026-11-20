@@ -1,5 +1,6 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, renderHook, screen } from '@testing-library/react';
 
+import { useEditorDirtyTracker } from '@/app/editor/hooks/useEditorDirtyTracker';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import InvitationSettingsButton from './AdditionalFeaturesButton';
@@ -16,6 +17,46 @@ describe('초대장 설정', () => {
   });
 
   afterEach(() => jest.restoreAllMocks());
+
+  it('가릴 항목과 확대 설정을 원래대로 되돌리면 저장할 변경이 없다', () => {
+    useEditorStore.setState({
+      invitationPrivacy: {
+        enabled: true,
+        eventDate: '2027-05-15',
+        fields: ['phone', 'account'],
+      },
+    });
+    renderHook(() => useEditorDirtyTracker(true));
+    render(<InvitationSettingsButton />);
+    fireEvent.click(screen.getByRole('button', { name: '초대장 설정' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: '가릴 정보 옵션 펼치기' })
+    );
+    const phone = screen.getByRole('checkbox', { name: /전화번호/ });
+    fireEvent.click(phone);
+    fireEvent.click(phone);
+    const zoom = screen.getByRole('checkbox', { name: '초대장 확대 방지' });
+    fireEvent.click(zoom);
+    fireEvent.click(zoom);
+    fireEvent.click(screen.getByRole('button', { name: '적용' }));
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(useEditorStore.getState().isDirty).toBe(false);
+  });
+
+  it('확대 방지만 변경하면 개인정보 기본값을 함께 저장하지 않는다', () => {
+    renderHook(() => useEditorDirtyTracker(true));
+    render(<InvitationSettingsButton />);
+    fireEvent.click(screen.getByRole('button', { name: '초대장 설정' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: '초대장 확대 방지' }));
+    fireEvent.click(screen.getByRole('button', { name: '적용' }));
+
+    expect(useEditorStore.getState()).toMatchObject({
+      isZoom: true,
+      isDirty: true,
+      invitationPrivacy: undefined,
+    });
+  });
 
   it('가릴 정보 옵션을 접고 펼쳐도 기능과 항목 선택을 유지한다', () => {
     jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-11-19T12:00:00Z'));
