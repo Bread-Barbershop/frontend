@@ -1,6 +1,13 @@
 // 파일 hash 캐싱 (WeakMap으로 메모리 누수 방지)
 const fileHashCache = new WeakMap<File, Promise<string>>();
 
+export async function sha256Hex(buffer: ArrayBuffer): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', buffer);
+  return Array.from(new Uint8Array(digest), byte =>
+    byte.toString(16).padStart(2, '0')
+  ).join('');
+}
+
 /**
  * 파일의 실제 내용을 SHA-256으로 해시하여 고유한 식별 키를 생성합니다.
  * imageId를 포함하여 같은 파일을 여러 블록에서 사용할 수 있도록 합니다.
@@ -20,12 +27,7 @@ export async function getFileKey(file: File, imageId: string): Promise<string> {
   const hashPromise = (async () => {
     try {
       const buffer = await file.arrayBuffer();
-      const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = hashArray
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-      return hashHex;
+      return await sha256Hex(buffer);
     } catch (error) {
       // 폴백: 메타데이터 기반 키 (해시 계산 실패 시)
       console.warn('File hash calculation failed, using metadata fallback:', error);

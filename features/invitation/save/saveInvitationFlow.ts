@@ -33,6 +33,7 @@ import { retryFailedOnce } from './retryFailedOnce';
 import { retryPatchFailedOnce } from './retryPatchFailedOnce';
 import { getSavedAudioFileId, rememberSavedAudioFile } from './savedAudioFiles';
 import { shouldPrepareFallback } from './saveFallback';
+import { saveThumbnail } from './saveThumbnail';
 import { updateFileToDrive } from './updateFileToDrive';
 import {
   uploadAllSettled,
@@ -428,6 +429,7 @@ async function commit(params: {
   mainPoster: MainPosterData;
   invitationThumbnail: InvitationThumbnail;
   diagnostics: SaveDiagnostics;
+  checkExistingThumbnail: boolean;
   onProgress?: (step: SaveProgressStep) => void;
 }): Promise<CommitResult> {
   const {
@@ -541,22 +543,11 @@ async function commit(params: {
   if (invitationThumbnail && invitationThumbnail.dataUrl) {
     diagnostics.currentStage = 'save_thumbnail';
     try {
-      const thumbnailResponse = await fetch('/api/drive/thumbnail', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          invitationFolderId: prep.invitationFolderId,
-          thumbnailData: invitationThumbnail,
-        }),
-      });
-      if (!thumbnailResponse.ok) {
-        throw new Error(`thumbnail save failed: ${thumbnailResponse.status}`);
-      }
-      const thumbnailResult = await thumbnailResponse.json();
-      if (typeof thumbnailResult?.thumbnailFileId !== 'string') {
-        throw new Error('thumbnail save response missing thumbnailFileId');
-      }
-      thumbnailFileId = thumbnailResult.thumbnailFileId;
+      thumbnailFileId = await saveThumbnail(
+        prep.invitationFolderId,
+        invitationThumbnail,
+        params.checkExistingThumbnail
+      );
     } catch (error) {
       thumbnailSaveFailed = true;
       thumbnailSaveError = error;
@@ -811,6 +802,7 @@ async function runSaveInvitationFlow(
   });
   let commitResult = await commit({
     prep,
+    checkExistingThumbnail: Boolean(invitationUuid),
     token,
     uploadResult,
     bulkData,
@@ -847,6 +839,7 @@ async function runSaveInvitationFlow(
     });
     commitResult = await commit({
       prep,
+      checkExistingThumbnail: true,
       token,
       uploadResult,
       bulkData,
