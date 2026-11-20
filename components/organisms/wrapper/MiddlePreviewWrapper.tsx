@@ -1,7 +1,10 @@
-import { HTMLAttributes, ReactNode } from 'react';
+'use client';
 
 import { PreviewTitle } from '@/components/atoms/preview-title/PreviewTitle';
+import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { cn } from '@/shared/utils/cn';
+
+import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
@@ -16,6 +19,7 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
   mainTitle?: string;
   mainTitleDefault?: string;
   childClassName?: string;
+  matchBodyFontSize?: boolean;
 }
 
 export const MiddlePreviewWrapper = ({
@@ -30,9 +34,14 @@ export const MiddlePreviewWrapper = ({
   mainTitle,
   mainTitleDefault,
   childClassName,
+  matchBodyFontSize = false,
   isGuestPage: _isGuestPage,
   ...rest
 }: Props) => {
+  const bodyFontSize = useEditorStore(state =>
+    matchBodyFontSize ? state.bodyData?.fontSize : undefined
+  );
+
   return (
     <div
       className={cn('flex flex-col items-center py-8 px-5 gap-6', className)}
@@ -59,6 +68,14 @@ export const MiddlePreviewWrapper = ({
         />
       )}
       <div
+        style={
+          bodyFontSize
+            ? ({
+                '--text-xs': bodyFontSize,
+                '--text-sm': bodyFontSize,
+              } as CSSProperties)
+            : undefined
+        }
         className={cn(
           'w-full flex flex-col items-center justify-center text-center gap-3.5',
           childClassName

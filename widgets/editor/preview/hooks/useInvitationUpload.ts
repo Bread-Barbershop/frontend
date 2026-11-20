@@ -74,7 +74,6 @@ export const useInvitationUpload = () => {
     userFile,
     userFileName,
     userDuration,
-    audioFileId,
   } = useBgmStore(
     useShallow(state => ({
       selectedBgmId: state.selectedBgmId,
@@ -83,7 +82,6 @@ export const useInvitationUpload = () => {
       userFile: state.userFile,
       userFileName: state.userFileName,
       userDuration: state.userDuration,
-      audioFileId: state.audioFileId,
     }))
   );
 
@@ -348,7 +346,7 @@ export const useInvitationUpload = () => {
         volume,
         userBgmTitle: userFileName ?? null,
         userBgmDuration: userDuration ?? null,
-        userBgmFileId: audioFileId ?? null,
+        userBgmFileId: null,
       };
 
       const bulkData = {
@@ -392,7 +390,9 @@ export const useInvitationUpload = () => {
         onProgress: queueProgressStep,
       });
       const savedInvitation = await applySaveResult(saveResult, allTasks);
-      useEditorStore.getState().setIsDirty(false);
+      if (useBgmStore.getState().userFile === userFile) {
+        useEditorStore.getState().setIsDirty(false);
+      }
 
       if (invitationUuid) {
         // 저장 직후 복제하거나 편집기를 전환할 때는 파일 정리까지 마친다.

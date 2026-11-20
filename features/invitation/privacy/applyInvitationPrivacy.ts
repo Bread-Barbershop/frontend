@@ -4,6 +4,7 @@ import type {
 } from '@/app/guest/[id]/types/guestTypes';
 import { formatPhoneNumber } from '@/shared/utils/phoneNumber';
 
+import { createBirthdateRedactor } from './redactLabeledBirthdates';
 import {
   getActivePrivacyFields,
   hideCustomShareText,
@@ -140,9 +141,6 @@ function redactProfile(props: Data, component: string, fields: Fields) {
         ...(hideNames
           ? { name: maskName(props.name), nickname: maskName(props.nickname) }
           : {}),
-        ...(fields.has('birthday')
-          ? { birthday: string(props.birthday).replace(/\p{N}/gu, '*') }
-          : {}),
         ...(hideImages ? { image: [] } : {}),
       };
     case 'organizerInformation':
@@ -189,6 +187,28 @@ function redactBlock(block: GuestBlock, fields: Fields): GuestBlock {
   const props = record(block.props);
   if (fields.has('location') && locationBlocks.has(component))
     return { ...block, props: {}, privacyPlaceholder: 'location' };
+  if (
+    component === 'sponsorshipInfomation' &&
+    (fields.has('media') || fields.has('name'))
+  ) {
+    const sponsors = list(props.sponsors).map(record);
+    if (sponsors.some(sponsor => string(sponsor.name).trim())) {
+      const hideMedia = fields.has('media');
+      return {
+        ...block,
+        props: {
+          ...props,
+          ...(hideMedia ? { images: [] } : {}),
+          sponsors: sponsors.map(sponsor => ({
+            ...sponsor,
+            ...(fields.has('name') ? { name: maskName(sponsor.name) } : {}),
+            ...(hideMedia ? { logoIndex: null } : {}),
+          })),
+        },
+        privacyMediaHidden: hideMedia && list(props.images).some(Boolean),
+      };
+    }
+  }
   if (
     fields.has('media') &&
     (photoBlocks.has(component) || component === 'video')
@@ -259,6 +279,21 @@ export function applyInvitationPrivacy(
   const hideMedia = fields.has('media');
   const hidePoster = fields.has('poster');
   const hideLocation = fields.has('location');
+  const redactBirthdates = fields.has('birthday')
+    ? createBirthdateRedactor(
+        payload.blocks.map(block => block.props),
+        [
+          payload.bulkData.invitationPrivacy?.eventDate ?? '',
+          ...payload.blocks.flatMap(({ component, props }) => {
+            const data = record(props);
+            if (component === 'calendar') return [string(data.date)];
+            if (component === 'countdown')
+              return [string(data.eventDateTime).slice(0, 10)];
+            return [];
+          }),
+        ]
+      )
+    : undefined;
 
   const shareUrl = payload.shareUrl && {
     ...payload.shareUrl,
@@ -274,7 +309,12 @@ export function applyInvitationPrivacy(
 
   return {
     ...payload,
-    blocks: payload.blocks.map(block => redactBlock(block, fields)),
+    blocks: payload.blocks.map(block => {
+      const redacted = redactBlock(block, fields);
+      if (!redactBirthdates) return redacted;
+      const props = redactBirthdates(redacted.props);
+      return props === redacted.props ? redacted : { ...redacted, props };
+    }),
     mainPoster: hidePoster
       ? { version: payload.mainPoster.version, objects: [] }
       : payload.mainPoster,

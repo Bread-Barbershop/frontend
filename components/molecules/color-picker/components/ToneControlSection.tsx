@@ -30,8 +30,8 @@ export function ToneControlSection({
 }) {
   return (
     <div className="flex items-center gap-5" onPointerDown={onPointerDown}>
-      <div className="flex h-8 w-13.5 shrink-0 items-center justify-center rounded-md border border-gray-200 bg-[#f5f5f5] text-[14px] font-medium text-gray-700">
-        {transparencyPercent}%
+      <div className="flex h-8 min-w-23 shrink-0 items-center justify-center rounded-md border border-gray-200 bg-[#f5f5f5] px-2 text-[14px] font-medium tabular-nums text-gray-700">
+        투명도 {transparencyPercent}%
       </div>
       <div className="flex-1">
         <Alpha

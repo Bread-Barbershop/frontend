@@ -70,7 +70,7 @@ import {
 import { createTextEditorBarExtensions } from './utils/tiptapExtensions';
 
 interface TextEditorProps {
-  value?: JSONContent | null;
+  value?: JSONContent | string | null;
   defaultText?: string;
   defaultAlign?: TextAlignValue;
   onChange?: (json: JSONContent) => void;
@@ -496,7 +496,9 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       if (!editor) return;
 
       const isSameAsEditorContent =
-        JSON.stringify(value ?? null) === JSON.stringify(editor.getJSON());
+        typeof value === 'string'
+          ? value === editor.getHTML()
+          : JSON.stringify(value ?? null) === JSON.stringify(editor.getJSON());
       if (isSameAsEditorContent) return;
 
       editor.commands.setContent(value ?? null, { emitUpdate: false });
@@ -551,7 +553,16 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
         },
         setText: (text: string) => {
           if (editor) {
-            editor.chain().focus().setContent(text).run();
+            editor
+              .chain()
+              .focus()
+              .setContent({
+                type: 'doc',
+                content: [
+                  { type: 'paragraph', content: text ? [{ type: 'text', text }] : [] },
+                ],
+              })
+              .run();
           }
         },
         getEditor: () => editor,

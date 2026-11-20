@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 
 import { parseGuestPayload } from '@/app/guest/[id]/validation/parseGuestPayload';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
@@ -17,16 +17,22 @@ describe('일괄 스크롤 애니메이션 편집', () => {
           animationType: 'zoom-in',
           animationDurationMs: 2000,
         } as never);
-      useEditorStore
-        .getState()
-        .addBlock('wedding', 'gallery', 'second-block', {
-          animationType: 'fade',
-        } as never);
+      useEditorStore.getState().addBlock('wedding', 'gallery', 'second-block', {
+        animationType: 'fade',
+      } as never);
       useEditorStore.getState().selectedBlock('second-block');
     });
 
     render(<ScrollAnimationControls />);
     fireEvent.click(screen.getByRole('button', { name: '스크롤 애니메이션' }));
+    const trigger = screen.getByRole('combobox', { name: /스크롤 재생 조건/ });
+    expect(
+      within(trigger)
+        .getAllByRole('option')
+        .map(option => option.textContent)
+    ).toEqual(['처음 내릴 때만', '내릴 때마다', '올리거나 내릴 때마다']);
+    expect(trigger).toHaveValue('down-only');
+    fireEvent.change(trigger, { target: { value: 'down-repeat' } });
     fireEvent.change(screen.getByRole('slider', { name: '등장 시간' }), {
       target: { value: '1400' },
     });
@@ -35,15 +41,13 @@ describe('일괄 스크롤 애니메이션 편집', () => {
     });
 
     act(() => {
-      useEditorStore
-        .getState()
-        .addBlock('wedding', 'greeting', 'new-block');
+      useEditorStore.getState().addBlock('wedding', 'greeting', 'new-block');
     });
 
     const state = useEditorStore.getState();
     expect(state.scrollAnimation).toMatchObject({
       animationType: 'fade-up',
-      triggerMode: 'down-only',
+      triggerMode: 'down-repeat',
       animationDurationMs: 1400,
       animationEasing: 'soft',
     });
@@ -61,7 +65,7 @@ describe('일괄 스크롤 애니메이션 편집', () => {
     act(() =>
       useEditorStore.getState().updateScrollAnimation({
         animationType: 'zoom-in',
-        triggerMode: 'both',
+        triggerMode: 'down-repeat',
         animationDurationMs: 1400,
         animationEasing: 'soft',
       })
@@ -114,7 +118,7 @@ describe('일괄 스크롤 애니메이션 편집', () => {
 
     expect(parsed.payload.bulkData.scrollAnimation).toMatchObject({
       animationType: 'zoom-in',
-      triggerMode: 'both',
+      triggerMode: 'down-repeat',
       animationDurationMs: 1400,
       animationEasing: 'soft',
     });

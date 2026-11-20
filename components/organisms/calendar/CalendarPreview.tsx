@@ -1,6 +1,5 @@
 'use client';
 
-import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { useTitleFontInfo } from '@/shared/hooks/useTitleFontInfo';
 import { EditorBlock } from '@/shared/types/block';
@@ -8,6 +7,7 @@ import { isDarkInvitationBackground } from '@/shared/utils/invitationBackgroundC
 
 import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
 
+import { getCalendarMessageHtml } from './calendarMessage';
 import styles from './calendarPreview.module.css';
 import { CalendarTemplates, DDayCountdown } from './components';
 import { useCalendarData } from './hooks/useCalendarData';
@@ -60,7 +60,7 @@ export function CalendarPreview({
   } = useCalendarData({ date, time, language, template, type: blockInfo.type });
 
   const isDateIncomplete = !date || date.length < 10;
-  const { fontFamily, color, isColorAutomatic } = useBodyFontInfo();
+  const { fontFamily, fontSize, color, isColorAutomatic } = useBodyFontInfo();
   const { mainStyle } = useTitleFontInfo();
   const automaticLightInk =
     isColorAutomatic && color && !isDarkInvitationBackground(color)
@@ -102,7 +102,10 @@ export function CalendarPreview({
           {showStringDate && (
             <div
               className="flex flex-col items-center tracking-[-0.01rem] leading-[1.2] text-base font-normal text-[color:var(--calendar-text,var(--color-text-primary))] min-h-[40px] justify-center"
-              style={{ fontFamily }}
+              style={{
+                fontFamily,
+                fontSize: `max(1rem, ${fontSize ?? '1rem'})`,
+              }}
             >
               <p>{stringDateFormatted}</p>
               <p>{formattedTime}</p>
@@ -130,10 +133,7 @@ export function CalendarPreview({
             <DDayCountdown
               date={date}
               time={time}
-              messageJson={
-                blockInfo.props.messageHtml ??
-                tiptapJsonToHtmlUniversal(blockInfo.props.messageJson)
-              }
+              messageHtml={getCalendarMessageHtml(blockInfo)}
             />
           )}
         </>

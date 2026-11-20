@@ -3,6 +3,7 @@
 import { forwardRef, useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 import { cn } from '@/shared/utils/cn';
 import {
   trapFocus,
@@ -25,6 +26,7 @@ type ConfirmProps = {
   xPosition?: 'left' | 'center' | 'right';
   yPosition?: 'top' | 'center' | 'bottom';
   confirmTone?: 'danger' | 'neutral';
+  actionButtonClassName?: string;
   initialFocus?: 'dialog' | 'cancel';
   isBusy?: boolean;
   errorMessage?: string | null;
@@ -44,17 +46,25 @@ const Confirm = forwardRef<HTMLDivElement, ConfirmProps>(
       xPosition = 'center',
       yPosition = 'top',
       confirmTone = 'danger',
+      actionButtonClassName,
       initialFocus = 'dialog',
       isBusy = false,
       errorMessage,
     }: ConfirmProps,
     ref
   ) => {
+    const backdropDismiss = useBackdropDismiss<HTMLDivElement>(
+      isBusy ? undefined : onClose
+    );
     const messageId = useId();
     const descriptionId = useId();
     const errorId = useId();
     const confirmButtonRef = useRef<HTMLButtonElement>(null);
     const cancelButtonRef = useRef<HTMLButtonElement>(null);
+    const buttonClassName = cn(
+      'text-[13px] rounded-lg w-[66px] h-8 hover:bg-[#FFE8E8]/32 cursor-pointer aria-disabled:cursor-wait aria-disabled:opacity-60',
+      actionButtonClassName
+    );
 
     useEffect(() => {
       if (errorMessage) confirmButtonRef.current?.focus();
@@ -102,7 +112,7 @@ const Confirm = forwardRef<HTMLDivElement, ConfirmProps>(
     return createPortal(
       <div
         className={confirmPositionVariants({ xPosition, yPosition })}
-        onClick={onClose}
+        {...backdropDismiss}
       >
         <div
           ref={ref}
@@ -149,7 +159,7 @@ const Confirm = forwardRef<HTMLDivElement, ConfirmProps>(
               type="button"
               aria-disabled={isBusy || undefined}
               className={cn(
-                'text-[13px] rounded-lg w-[66px] h-8 hover:bg-[#FFE8E8]/32 cursor-pointer aria-disabled:cursor-wait aria-disabled:opacity-60',
+                buttonClassName,
                 confirmTone === 'danger'
                   ? 'text-status-error'
                   : 'text-text-primary'
@@ -162,7 +172,7 @@ const Confirm = forwardRef<HTMLDivElement, ConfirmProps>(
               ref={cancelButtonRef}
               type="button"
               aria-disabled={isBusy || undefined}
-              className="text-[13px] text-text-primary rounded-lg w-[66px] h-8 hover:bg-[#FFE8E8]/32 cursor-pointer aria-disabled:cursor-wait aria-disabled:opacity-60"
+              className={cn(buttonClassName, 'text-text-primary')}
               onClick={isBusy ? undefined : onCancel}
             >
               {cancelText}

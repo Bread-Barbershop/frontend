@@ -1,0 +1,372 @@
+{
+  "version": "7.2.0",
+  "objects": [
+    {
+      "type": "Rect",
+      "id": "firstBirthday_08-1",
+      "originX": "left",
+      "originY": "top",
+      "left": 0,
+      "top": 0,
+      "strokeWidth": 0,
+      "width": 375,
+      "height": 812,
+      "fill": "#E7EBC7"
+    },
+    {
+      "type": "Rect",
+      "id": "firstBirthday_08-2",
+      "originX": "left",
+      "originY": "top",
+      "left": 0,
+      "top": 0,
+      "strokeWidth": 0,
+      "width": 375,
+      "height": 210,
+      "fill": "#284635"
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_08-3",
+      "originX": "left",
+      "originY": "top",
+      "left": 23,
+      "top": 28,
+      "strokeWidth": 0,
+      "text": "LITTLE NATURAL HISTORY MUSEUM",
+      "width": 327,
+      "fontSize": 11,
+      "fontFamily": "SUIT",
+      "fontWeight": 700,
+      "textAlign": "left",
+      "fill": "#F0E9A8",
+      "lineHeight": 1.04,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": [],
+      "charSpacing": 115
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_08-4",
+      "originX": "left",
+      "originY": "top",
+      "left": 18,
+      "top": 45,
+      "strokeWidth": 0,
+      "text": "DINO",
+      "width": 274,
+      "fontSize": 90,
+      "fontFamily": "Anton",
+      "fontWeight": 400,
+      "textAlign": "left",
+      "fill": "#F5E6A5",
+      "lineHeight": 1.04,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": []
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_08-5",
+      "originX": "left",
+      "originY": "top",
+      "left": 24,
+      "top": 161,
+      "strokeWidth": 0,
+      "text": "꼬마 공룡 박물관",
+      "width": 321,
+      "fontSize": 21,
+      "fontFamily": "ONE Mobile POP",
+      "fontWeight": 400,
+      "textAlign": "left",
+      "fill": "#FFFFFF",
+      "lineHeight": 1.04,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": []
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_08-6",
+      "originX": "left",
+      "originY": "top",
+      "left": 243,
+      "top": 113,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          19
+        ],
+        [
+          "L",
+          11,
+          0
+        ],
+        [
+          "L",
+          22,
+          19
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#A8BE7D"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_08-7",
+      "originX": "left",
+      "originY": "top",
+      "left": 269,
+      "top": 103,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          19
+        ],
+        [
+          "L",
+          11,
+          0
+        ],
+        [
+          "L",
+          22,
+          19
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#A8BE7D"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_08-8",
+      "originX": "left",
+      "originY": "top",
+      "left": 295,
+      "top": 93,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          19
+        ],
+        [
+          "L",
+          11,
+          0
+        ],
+        [
+          "L",
+          22,
+          19
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#A8BE7D"
+    },
+    {
+      "type": "Path",
+      "id": "firstBirthday_08-9",
+      "originX": "left",
+      "originY": "top",
+      "left": 321,
+      "top": 83,
+      "strokeWidth": 0,
+      "path": [
+        [
+          "M",
+          0,
+          19
+        ],
+        [
+          "L",
+          11,
+          0
+        ],
+        [
+          "L",
+          22,
+          19
+        ],
+        [
+          "Z"
+        ]
+      ],
+      "fill": "#A8BE7D"
+    },
+    {
+      "type": "Image",
+      "id": "firstBirthday_08-10",
+      "originX": "center",
+      "originY": "center",
+      "left": 187.5,
+      "top": 369,
+      "strokeWidth": 0,
+      "width": 1000,
+      "height": 848,
+      "scaleX": 0.375,
+      "scaleY": 0.375,
+      "cropX": 0,
+      "cropY": 76,
+      "src": "/images/showcase/dino.webp",
+      "crossOrigin": "anonymous",
+      "slot": {
+        "key": "firstBirthday_08-photo",
+        "label": "표지 사진",
+        "replaceable": true,
+        "aspectMode": "cover",
+        "order": 1,
+        "required": false,
+        "filled": true
+      },
+      "slotFrameLeft": 187.5,
+      "slotFrameTop": 369,
+      "slotFrameWidth": 375,
+      "slotFrameHeight": 318,
+      "slotFrameAngle": 0,
+      "slotImageBaseScale": 0.375,
+      "slotZoomScale": 1,
+      "slotImageOffsetX": 0,
+      "slotImageOffsetY": 0
+    },
+    {
+      "type": "Rect",
+      "id": "firstBirthday_08-11",
+      "originX": "left",
+      "originY": "top",
+      "left": 19,
+      "top": 506,
+      "strokeWidth": 2,
+      "width": 337,
+      "height": 179,
+      "fill": "#FAF1D3",
+      "stroke": "#38523F"
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_08-12",
+      "originX": "left",
+      "originY": "top",
+      "left": 34,
+      "top": 531,
+      "strokeWidth": 0,
+      "text": "FAMILY EXHIBITION",
+      "width": 294,
+      "fontSize": 11,
+      "fontFamily": "SUIT",
+      "fontWeight": 700,
+      "textAlign": "left",
+      "fill": "#4D653E",
+      "lineHeight": 1.04,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": [],
+      "charSpacing": 115
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_08-13",
+      "originX": "left",
+      "originY": "top",
+      "left": 33,
+      "top": 553,
+      "strokeWidth": 0,
+      "text": "민준 관장님의\n첫 번째 전시",
+      "width": 297,
+      "fontSize": 29,
+      "fontFamily": "ONE Mobile POP",
+      "fontWeight": 400,
+      "textAlign": "left",
+      "fill": "#243B30",
+      "lineHeight": 1.04,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": []
+    },
+    {
+      "type": "Rect",
+      "id": "firstBirthday_08-14",
+      "originX": "left",
+      "originY": "top",
+      "left": 34,
+      "top": 637,
+      "strokeWidth": 0,
+      "width": 305,
+      "height": 1,
+      "fill": "#426143"
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_08-15",
+      "originX": "left",
+      "originY": "top",
+      "left": 34,
+      "top": 651,
+      "strokeWidth": 0,
+      "text": "초록 공룡과 함께하는 돌잔치",
+      "width": 304,
+      "fontSize": 14,
+      "fontFamily": "SUIT",
+      "fontWeight": 400,
+      "textAlign": "left",
+      "fill": "#426143",
+      "lineHeight": 1.04,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": []
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_08-16",
+      "originX": "left",
+      "originY": "top",
+      "left": 24,
+      "top": 713,
+      "strokeWidth": 0,
+      "text": "2027.04.17   ·   11:30",
+      "width": 327,
+      "fontSize": 18,
+      "fontFamily": "Barlow Condensed",
+      "fontWeight": 700,
+      "textAlign": "left",
+      "fill": "#243B30",
+      "lineHeight": 1.04,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": []
+    },
+    {
+      "type": "Textbox",
+      "id": "firstBirthday_08-17",
+      "originX": "left",
+      "originY": "top",
+      "left": 24,
+      "top": 748,
+      "strokeWidth": 0,
+      "text": "인비아 키즈룸 · 초록 전시실",
+      "width": 327,
+      "fontSize": 14,
+      "fontFamily": "SUIT",
+      "fontWeight": 400,
+      "textAlign": "left",
+      "fill": "#243B30",
+      "lineHeight": 1.04,
+      "editable": true,
+      "splitByGrapheme": true,
+      "styles": []
+    }
+  ],
+  "background": "#EFF2D8"
+}

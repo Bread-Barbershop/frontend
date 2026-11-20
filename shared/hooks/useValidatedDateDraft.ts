@@ -24,7 +24,8 @@ interface Options {
   separator?: DateSeparator;
   allowPast?: boolean;
   onCommit: (value: string) => void;
-  warning: (message: string) => void;
+  /** 생략하면 오류를 필드에 표시할 수 있도록 입력 중인 값을 유지한다. */
+  warning?: (message: string) => void;
 }
 
 const DEFAULT_MESSAGES = {
@@ -69,6 +70,23 @@ function getDraftDigits(
   return parts.join('');
 }
 
+export function formatDateDraft(
+  inputValue: string,
+  previousDraft: string,
+  separator: DateSeparator = '-'
+) {
+  const isTypingDigitAtEnd =
+    inputValue.length === previousDraft.length + 1 &&
+    inputValue.startsWith(previousDraft) &&
+    /^\d$/.test(inputValue.slice(-1));
+  const digits = getDraftDigits(inputValue, isTypingDigitAtEnd);
+  if (!digits || digits.length > 8) return inputValue;
+
+  const trailingSeparator =
+    /[./-]$/.test(inputValue) && (digits.length === 4 || digits.length === 6);
+  return formatPartialDate(digits, separator) + (trailingSeparator ? separator : '');
+}
+
 function validateDraft(
   value: string,
   separator: DateSeparator,
@@ -103,6 +121,18 @@ function getWarningMessage(result: ValidationResult) {
     return DEFAULT_MESSAGES.past;
   }
   return DEFAULT_MESSAGES.date;
+}
+
+function getInlineError(result: ValidationResult, showIncomplete: boolean) {
+  if (result.kind === 'invalid' && result.reason === 'date') {
+    return '존재하지 않는 날짜예요.';
+  }
+  if (
+    result.kind === 'invalid' ||
+    (result.kind === 'partial' && showIncomplete)
+  ) {
+    return getWarningMessage(result);
+  }
 }
 
 export function useValidatedDateDraft({
@@ -146,15 +176,7 @@ export function useValidatedDateDraft({
         return;
       }
 
-      const isTypingDigitAtEnd =
-        inputValue.length === currentState.draft.length + 1 &&
-        inputValue.startsWith(currentState.draft) &&
-        /^\d$/.test(inputValue.slice(-1));
-      const digits = getDraftDigits(inputValue, isTypingDigitAtEnd);
-      const nextDraft =
-        digits && digits.length <= 8
-          ? `${formatPartialDate(digits, separator)}${/[./-]$/.test(inputValue) && (digits.length === 4 || digits.length === 6) ? separator : ''}`
-          : inputValue;
+      const nextDraft = formatDateDraft(inputValue, currentState.draft, separator);
 
       const result = validateDraft(nextDraft, separator, allowPast);
       if (result.kind === 'valid') {
@@ -169,10 +191,10 @@ export function useValidatedDateDraft({
         setDraftState({
           ...currentState,
           draft: nextDraft,
-          warningActive: false,
+          warningActive: !warning && currentState.warningActive,
         });
       } else if (result.kind === 'invalid') {
-        if (!currentState.warningActive) warning(getWarningMessage(result));
+        if (!currentState.warningActive) warning?.(getWarningMessage(result));
         setDraftState({
           ...currentState,
           draft: nextDraft,
@@ -186,6 +208,10 @@ export function useValidatedDateDraft({
   const handleBlur = useCallback(() => {
     const result = validateDraft(currentState.draft, separator, allowPast);
     if (result.kind === 'partial' || result.kind === 'invalid') {
+      if (!warning) {
+        setDraftState({ ...currentState, warningActive: true });
+        return;
+      }
       if (!currentState.warningActive) warning(getWarningMessage(result));
       setDraftState({
         sourceValue: committedValue,
@@ -196,5 +222,12 @@ export function useValidatedDateDraft({
     }
   }, [allowPast, committedValue, currentState, separator, warning]);
 
-  return { draft: currentState.draft, handleChange, handleBlur };
+  const errorMessage = warning
+    ? undefined
+    : getInlineError(
+        validateDraft(currentState.draft, separator, allowPast),
+        currentState.warningActive
+      );
+
+  return { draft: currentState.draft, handleChange, handleBlur, errorMessage };
 }

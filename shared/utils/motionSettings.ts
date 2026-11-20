@@ -1,7 +1,7 @@
 export const MOTION_EASINGS = {
   linear: 'linear',
   natural: 'cubic-bezier(0.4, 0, 0.2, 1)',
-  soft: 'cubic-bezier(0.22, 1, 0.36, 1)',
+  soft: 'ease-in-out',
 } as const;
 
 export type MotionEasing = keyof typeof MOTION_EASINGS;

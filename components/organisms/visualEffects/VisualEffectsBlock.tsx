@@ -4,12 +4,20 @@ import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationB
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
 import {
+  AMBIENT_EFFECT_OPTIONS,
+  resolveBlockAmbientEffect,
+  resolveInvitationEffects,
+  type AmbientEffect,
+} from '@/shared/utils/invitationEffects';
+import {
   boundedMotionNumber,
   MOTION_EASING_OPTIONS,
   resolveMotionEasing,
 } from '@/shared/utils/motionSettings';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
+
+import { AmbientScopeSelect } from './AmbientScopeSelect';
 
 export function VisualEffectsBlock({
   blockInfo,
@@ -20,7 +28,13 @@ export function VisualEffectsBlock({
 }) {
   const updateBlock = useEditorStore(state => state.updateBlock);
   const settings = useEditorStore(state => state.invitationEffects);
+  const blocks = useEditorStore(state => state.block);
+  const updateInvitationEffects = useEditorStore(
+    state => state.updateInvitationEffects
+  );
+  const { ambientScope } = resolveInvitationEffects(settings, blocks);
   const { effect, showEnvelopeIntro } = blockInfo.props;
+  const selectedEffect = resolveBlockAmbientEffect(settings, effect);
   return (
     <LeftEditorWrapper ariaLabel="배경 및 오프닝 효과" className="gap-3">
       <NavigationBar>배경 · 오프닝 효과</NavigationBar>
@@ -29,22 +43,32 @@ export function VisualEffectsBlock({
           배경 효과
           <select
             className="h-10 rounded-md border border-border-divider px-3"
-            value={effect}
-            onChange={e => updateBlock(id, { effect: e.target.value })}
+            value={selectedEffect}
+            onChange={event => {
+              const nextEffect = event.target.value as AmbientEffect;
+              let selection = settings?.ambientEffect;
+              if (selection && selection !== 'blocks') selection = nextEffect;
+              if (!selection && nextEffect === 'confetti') selection = 'blocks';
+              updateBlock(id, { effect: nextEffect });
+              updateInvitationEffects({
+                ambientEffect: selection,
+                ambientScope,
+              });
+            }}
           >
-            <option value="none">없음</option>
-            <option value="petals">벚꽃 날림</option>
-            <option value="snow">눈 내림</option>
-            {settings?.confetti === undefined ? (
-              <option value="confetti">축하 컨페티</option>
-            ) : effect === 'confetti' ? (
-              <option value="confetti" disabled>
-                축하 컨페티 · 전체 스타일
+            {AMBIENT_EFFECT_OPTIONS.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
               </option>
-            ) : null}
-            <option value="bokeh">빛망울</option>
+            ))}
           </select>
         </label>
+        {selectedEffect !== 'none' && (
+          <AmbientScopeSelect
+            value={ambientScope}
+            onChange={ambientScope => updateInvitationEffects({ ambientScope })}
+          />
+        )}
         <label className="flex flex-col gap-2">
           <span className="flex justify-between">
             재생 속도{' '}

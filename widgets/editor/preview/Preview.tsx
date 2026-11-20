@@ -23,6 +23,7 @@ import { InvitationBackgroundTexture } from '@/components/molecules/invitation-b
 import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
 import { EditorBgmOverlay } from '@/components/organisms/bgm/components/EditorBgmOverlay';
 import InvitationChapter from '@/components/organisms/invitation-chapter/InvitationChapter';
+import { AmbientParticles } from '@/components/organisms/visualEffects/ParticleLayer';
 import { InvitationVisualEffects } from '@/components/organisms/visualEffects/VisualEffectsPreview';
 import CalloutIcon from '@/shared/assets/icons/callout.svg';
 import { componentCls } from '@/shared/data/componentsInfo/componentInfo';
@@ -96,6 +97,7 @@ function Preview() {
       moveBlock: state.moveBlock,
     }))
   );
+  const effects = resolveInvitationEffects(invitationEffects, block);
   const isPreviewCalloutOpen = useEditorCalloutStore(
     state => state.callouts['preview-panel']
   );
@@ -150,10 +152,16 @@ function Preview() {
       className={`w-93.75 h-[812px] flex flex-col relative shrink-0`}
     >
       <EditorBgmOverlay />
+      <AmbientParticles
+        key={`ambient-${invitationEffectsReplay}`}
+        effects={effects}
+        placement="screen"
+        contained
+      />
       {invitationEffectsReplay > 0 && (
         <InvitationVisualEffects
           key={invitationEffectsReplay}
-          effects={resolveInvitationEffects(invitationEffects, block)}
+          effects={effects}
           backgroundColor={backgroundColor}
           contentRef={previewScrollContainerRef}
           scope="editor"
@@ -168,15 +176,20 @@ function Preview() {
           className="overflow-y-auto h-full w-full box-border scrollbar-hide"
         >
           {block.length === 0 && !selectedId && (
-            <div className="absolute inset-0 z-50 bg-white flex-center flex-col font-pretendard text-base font-semibold pointer-events-none">
-              <div>
-                <span className="text-[#4285F4] font-bold">포스터</span>
-                <span>를 먼저 선택하신 후</span>
-              </div>
-              <div>
-                <span className="text-[#4285F4] font-bold">페이지 추가</span>
-                <span>를 통해 초대장을 꾸며보세요.</span>
-              </div>
+            <div className="absolute inset-0 z-50 flex-center flex-col gap-4 bg-white px-6 text-center font-pretendard">
+              <p className="text-base font-semibold">
+                포스터를 고른 뒤 페이지를 추가해 초대장을 꾸며보세요.
+              </p>
+              <button
+                type="button"
+                className="min-h-11 cursor-pointer rounded-lg bg-bg-plain px-5 text-sm font-semibold text-white hover:bg-[#202020] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                onClick={() => {
+                  selectedBlock('mainPoster');
+                  setIsEdit(false);
+                }}
+              >
+                포스터 선택하기
+              </button>
             </div>
           )}
           <div className="relative isolate flex min-h-full flex-col font-lineseed">
@@ -185,11 +198,17 @@ function Preview() {
               texture={backgroundTexture}
             />
             <div
+              className="relative"
               ref={el => {
                 blockRefs.current.mainPoster = el;
               }}
             >
               <MainPosterPreview />
+              <AmbientParticles
+                key={invitationEffectsReplay}
+                effects={effects}
+                placement="poster"
+              />
             </div>
             <DndContext
               sensors={sensors}

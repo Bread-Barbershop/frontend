@@ -6,12 +6,23 @@ import {
 
 type InvitationOpening = 'direct' | 'envelope';
 
+export const AMBIENT_EFFECT_OPTIONS = [
+  { value: 'none', label: '없음' },
+  { value: 'petals', label: '벚꽃 날림' },
+  { value: 'snow', label: '눈 내림' },
+  { value: 'confetti', label: '종이 컨페티' },
+  { value: 'bokeh', label: '빛망울' },
+] as const;
+
+export type AmbientEffect = (typeof AMBIENT_EFFECT_OPTIONS)[number]['value'];
+export type AmbientScope = 'poster' | 'screen';
+
 export type InvitationEffectsSettings = {
   opening?: InvitationOpening;
   confetti?: boolean;
+  ambientEffect?: AmbientEffect | 'blocks';
+  ambientScope?: AmbientScope;
 };
-
-const PARTICLE_EFFECTS = ['petals', 'snow', 'confetti', 'bokeh'] as const;
 
 type EffectMotion = {
   speed: number;
@@ -34,14 +45,37 @@ export function normalizeInvitationEffects(
   value: unknown
 ): InvitationEffectsSettings | undefined {
   if (typeof value !== 'object' || value === null) return undefined;
-  const { opening, confetti } = value as Record<string, unknown>;
+  const { opening, confetti, ambientEffect, ambientScope } = value as Record<
+    string,
+    unknown
+  >;
   const validOpening = opening === 'direct' || opening === 'envelope';
   const validConfetti = typeof confetti === 'boolean';
-  if (!validOpening && !validConfetti) return undefined;
+  const preset = AMBIENT_EFFECT_OPTIONS.find(
+    item => item.value === ambientEffect
+  );
+  const validScope = ambientScope === 'poster' || ambientScope === 'screen';
+  const selection = ambientEffect === 'blocks' ? 'blocks' : preset?.value;
+  if (!validOpening && !validConfetti && !selection && !validScope)
+    return undefined;
   return {
     ...(validOpening && { opening }),
     ...(validConfetti && { confetti }),
+    ...(selection && { ambientEffect: selection }),
+    ...(validScope && { ambientScope }),
   };
+}
+
+export function resolveBlockAmbientEffect(
+  settings: InvitationEffectsSettings | undefined,
+  effect: string
+) {
+  if (settings?.ambientEffect === 'blocks') return effect;
+  if (settings?.ambientEffect !== undefined) return settings.ambientEffect;
+  // Older invitations used the opening switch to override a confetti block.
+  return effect === 'confetti' && settings?.confetti !== undefined
+    ? 'none'
+    : effect;
 }
 
 function resolveEffectMotion(props?: LegacyEffects): EffectMotion {
@@ -63,23 +97,30 @@ export function resolveInvitationEffects(
   const legacyOpening = legacyBlocks.find(
     block => block.showEnvelopeIntro === true
   );
-  const legacyConfetti = legacyBlocks.find(
-    block => block.effect === 'confetti'
-  );
   const opening = settings?.opening ?? (legacyOpening ? 'envelope' : 'direct');
-  const confetti = settings?.confetti ?? Boolean(legacyConfetti);
-  const ambient = PARTICLE_EFFECTS.filter(
-    effect => effect !== 'confetti'
-  ).flatMap(effect => {
+  const preset = settings?.ambientEffect;
+  const useBlocks = preset === undefined || preset === 'blocks';
+  const ambient = AMBIENT_EFFECT_OPTIONS.flatMap(({ value: effect }) => {
+    if (effect === 'none') return [];
     const source = legacyBlocks.find(block => block.effect === effect);
-    return source ? [{ effect, ...resolveEffectMotion(source) }] : [];
+    const enabled = useBlocks
+      ? source && resolveBlockAmbientEffect(settings, effect) === effect
+      : preset === effect;
+    return enabled
+      ? [{ effect, ...resolveEffectMotion(source ?? legacyBlocks[0]) }]
+      : [];
   });
+  const ambientScope: AmbientScope =
+    settings?.ambientScope ??
+    (useBlocks && ambient.length ? 'screen' : 'poster');
   return {
     opening,
-    confetti,
+    confetti: settings?.confetti ?? false,
     openingMotion: resolveEffectMotion(legacyOpening ?? legacyBlocks[0]),
-    confettiMotion: resolveEffectMotion(legacyConfetti),
-    repeatConfetti: settings?.confetti === undefined && Boolean(legacyConfetti),
+    confettiMotion: resolveEffectMotion(
+      legacyBlocks.find(block => block.effect === 'confetti')
+    ),
+    ambientScope,
     ambient,
   };
 }

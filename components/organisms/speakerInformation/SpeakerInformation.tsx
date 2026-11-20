@@ -253,7 +253,7 @@ export const SpeakerInformation = ({ blockInfo, id }: Props) => {
         notices={[
           {
             id: 'speaker-animation',
-            text: '항목이 2개 이상일 경우, 애니메이션 효과가 적용됩니다.',
+            text: '연사가 2명이면 직접 넘겨 보고, 3명 이상이면 카드가 자동으로 이동합니다.',
           },
         ]}
       />

@@ -4,8 +4,11 @@ import {
   DEFAULT_SCROLL_ANIMATION,
   resolveScrollAnimation,
 } from '@/components/molecules/scroll-fade-in/animationConfig';
+import { rememberSavedAudioFile } from '@/features/invitation/save/savedAudioFiles';
 import { BODY_BULK_DATA, TITLE_BULK_DATA } from '@/shared/data/sample/bulkData';
-import { PersistedEditorBlock } from '@/shared/types/block';
+import type { EditorBlock, PersistedEditorBlock } from '@/shared/types/block';
+import type { BgmData } from '@/shared/types/invitationSave';
+import { parseStrictDate } from '@/shared/utils/dateValidation';
 import { createDefaultShareUrlState } from '@/shared/utils/shareUrlDefaults';
 
 import { SavedData } from '../types/savedata';
@@ -20,27 +23,49 @@ interface UseSavedDataReturn {
 const normalizePersistedBlocks = (blocks: unknown): PersistedEditorBlock[] => {
   if (!Array.isArray(blocks)) return [];
 
-  return blocks.filter(
-    (block): block is PersistedEditorBlock =>
-      typeof block === 'object' &&
-      block !== null &&
-      'component' in block &&
-      (block as { component?: unknown }).component !== 'shareUrl'
-  );
+  return blocks
+    .filter(
+      (block): block is PersistedEditorBlock =>
+        typeof block === 'object' &&
+        block !== null &&
+        'component' in block &&
+        (block as { component?: unknown }).component !== 'shareUrl'
+    )
+    .map(block => {
+      if (block.component !== 'myChild') return block;
+
+      const props = block.props as EditorBlock<'myChild'>['props'] | undefined;
+      const birthday = props?.birthday;
+      if (typeof birthday !== 'string') return block;
+      const normalized = birthday.trim().replace(/\s*\.\s*/g, '.');
+      if (normalized === birthday || !parseStrictDate(normalized, '.'))
+        return block;
+
+      return { ...block, props: { ...block.props, birthday: normalized } };
+    });
 };
 
 const loadSavedAudioFile = async (
   audioFiles: { id: string; name: string; mimeType: string }[] | null,
-  savedFileId: string | null | undefined,
+  bgm: Partial<BgmData>,
   signal: AbortSignal
 ) => {
-  const selected = savedFileId
-    ? audioFiles?.find(file => file.id === savedFileId)
+  // Older invitations may omit the ID. A cleared selection has explicit null metadata.
+  if (
+    bgm.userBgmFileId === null &&
+    bgm.userBgmTitle === null &&
+    bgm.userBgmDuration === null &&
+    bgm.selectedBgmId !== 'user-bgm'
+  ) {
+    return null;
+  }
+  const selected = bgm.userBgmFileId
+    ? audioFiles?.find(file => file.id === bgm.userBgmFileId)
     : audioFiles?.[0];
   if (!selected) return null;
 
   const downloaded = await fetchAudioFiles([selected], signal);
-  return downloaded.find(file => file.id === selected.id)?.file ?? null;
+  return downloaded.find(file => file.id === selected.id) ?? null;
 };
 
 export const useSavedData = (
@@ -134,11 +159,15 @@ export const useSavedData = (
             }
           : createDefaultShareUrlState();
 
-        const audioFile = await loadSavedAudioFile(
+        const audio = await loadSavedAudioFile(
           data.audios.files ?? null,
-          data.config.bgm.userBgmFileId,
+          data.config.bgm,
           controller.signal
         );
+        if (controller.signal.aborted) return;
+        if (audio && data.audioFolderId) {
+          rememberSavedAudioFile(audio.file, data.audioFolderId, audio.id);
+        }
         setSavedData({
           audienceName:
             typeof data.audienceName === 'string' ? data.audienceName : undefined,
@@ -147,7 +176,7 @@ export const useSavedData = (
           mainPoster: data.config.mainPoster,
           bgm: {
             bgmInfo: data.config.bgm,
-            bgmFile: audioFile,
+            bgmFile: audio?.file ?? null,
           },
           shareUrl: updatedShareUrl,
           imageFolderId: data.imageFolderId,

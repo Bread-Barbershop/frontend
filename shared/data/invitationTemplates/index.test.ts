@@ -60,15 +60,17 @@ afterAll(() => {
 });
 
 describe('홈과 편집기가 공유하는 초대장 컬렉션', () => {
-  it('홈의 25개 디자인을 실제 제작 가능한 카테고리별 템플릿으로 제공한다', () => {
-    expect(showcaseItems).toHaveLength(25);
+  it('홈의 모든 디자인을 실제 제작 가능한 카테고리별 템플릿으로 제공한다', () => {
+    expect(showcaseItems.map(item => item.id)).toEqual(
+      INVITATION_TEMPLATES.map(item => item.id)
+    );
     expect(INVITATION_TEMPLATES.map(item => item.id)).toEqual(
       SHOWCASE_INVITATIONS.map(item => item.id)
     );
-    expect(getInvitationTemplates('wedding')).toHaveLength(14);
-    expect(getInvitationTemplates('seminar')).toHaveLength(5);
-    expect(getInvitationTemplates('birthday')).toHaveLength(4);
-    expect(getInvitationTemplates('firstBirthday')).toHaveLength(2);
+    expect(getInvitationTemplates('wedding')).toHaveLength(15);
+    expect(getInvitationTemplates('seminar')).toHaveLength(9);
+    expect(getInvitationTemplates('birthday')).toHaveLength(12);
+    expect(getInvitationTemplates('firstBirthday')).toHaveLength(9);
     expect(Object.keys(SHOWCASE_ORIGINAL_TEMPLATES)).toEqual(
       SHOWCASE_INVITATIONS.map(item => item.id)
     );
@@ -89,6 +91,36 @@ describe('홈과 편집기가 공유하는 초대장 컬렉션', () => {
         )
       ).toBe(true);
     }
+  });
+
+  it.each(getInvitationTemplates('all', true))(
+    '$name의 큰 글씨 크기가 실제 포스터와 적용된 본문에 반영된다',
+    async template => {
+      const applied = await createInvitationTemplate(template.id);
+      expect(applied.titleData.fontSize).toBe('32px');
+      expect(applied.bodyData.fontSize).toBe('24px');
+      const text = (
+        applied.posterJson.objects as { type: string; fontSize?: number }[]
+      ).filter(object => object.type === 'Textbox');
+      expect(text.length).toBeGreaterThan(0);
+      for (const object of text)
+        expect(object.fontSize).toBeGreaterThanOrEqual(26);
+    }
+  );
+
+  it('클래식 모먼트의 예시 사진이 편집 가능한 표지 슬롯에 들어 있다', async () => {
+    const { posterJson } = await createInvitationTemplate('showcase-0');
+    const objects = posterJson.objects as Record<string, unknown>[];
+    const slotImage = objects.find(object => object.type === 'Image');
+    expect(slotImage).toMatchObject({
+      src: '/templates/artwork/wedding_10-photo.webp',
+      slot: { replaceable: true, filled: true },
+      slotFrameWidth: 334.8242,
+      slotFrameHeight: 562.4384,
+    });
+    expect(
+      existsSync(join(process.cwd(), 'public/templates/artwork/wedding_10-photo.webp'))
+    ).toBe(true);
   });
 
   it('원본 JSON 로드에 실패하면 문서 적용에 쓸 데이터를 만들지 않는다', async () => {
@@ -192,7 +224,7 @@ describe('홈과 편집기가 공유하는 초대장 컬렉션', () => {
           .filter(object => object.slot)
           .every(object => {
             const slot = object.slot as { filled?: boolean };
-            return slot.filled === false;
+            return slot.filled === (object.type === 'Image');
           })
       ).toBe(true);
       expect(objects.some(object => object.id === 'background-layer')).toBe(

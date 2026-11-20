@@ -26,11 +26,6 @@ export const InterviewPreviewItem = ({
   const customPreview = useResolvedImageSource(image?.[0]);
   const preview = customPreview ?? defaultImage;
   const { fontFamily } = useBodyFontInfo();
-  const hasAnswer =
-    answerHtml
-      .replace(/<[^>]*>/g, '')
-      .replace(/&nbsp;/g, '')
-      .trim().length > 0;
 
   return (
     <div
@@ -54,39 +49,41 @@ export const InterviewPreviewItem = ({
           />
         </div>
       )}
-      <p
-        className="text-sm text-center font-semibold select-text"
-        style={{ fontFamily }}
-      >
-        {question}
-      </p>
-      <div
-        className={cn(
-          'accordion-motion w-full',
-          isOpen ? 'accordion-motion-open' : 'accordion-motion-close'
-        )}
-      >
-        <div className="w-full overflow-hidden">
-          {hasAnswer ? (
-            <PreviewBody html={answerHtml} />
-          ) : (
-            <p className="text-sm text-center text-text-secondary select-text ">
-              인터뷰 내용이 비어있습니다.
-            </p>
-          )}
-        </div>
-      </div>
-      <button
-        type="button"
-        className="flex justify-center items-center py-2 px-10 rounded-lg border border-[#e5e5e8] bg-[#FFFFFF] hover:bg-gray-50 hover:border-gray-300 cursor-pointer select-none [-webkit-tap-highlight-color:transparent]"
-        draggable={false}
-        onDragStart={event => event.preventDefault()}
-        onClick={onToggle}
-      >
-        <p className="text-sm font-bold text-text-secondary select-none">
-          {isOpen ? '인터뷰 닫기' : '인터뷰 더 읽어보기'}
+      {question && (
+        <p
+          className="text-sm text-center font-semibold select-text"
+          style={{ fontFamily }}
+        >
+          {question}
         </p>
-      </button>
+      )}
+      {answerHtml && (
+        <>
+          <div
+            aria-hidden={!isOpen}
+            className={cn(
+              'accordion-motion w-full',
+              isOpen ? 'accordion-motion-open' : 'accordion-motion-close'
+            )}
+          >
+            <div className="w-full overflow-hidden">
+              <PreviewBody html={answerHtml} />
+            </div>
+          </div>
+          <button
+            type="button"
+            aria-expanded={isOpen}
+            className="flex justify-center items-center py-2 px-10 rounded-lg border border-[#e5e5e8] bg-[#FFFFFF] hover:bg-gray-50 hover:border-gray-300 cursor-pointer select-none [-webkit-tap-highlight-color:transparent]"
+            draggable={false}
+            onDragStart={event => event.preventDefault()}
+            onClick={onToggle}
+          >
+            <p className="text-sm font-bold text-text-secondary select-none">
+              {isOpen ? '인터뷰 닫기' : '인터뷰 더 읽어보기'}
+            </p>
+          </button>
+        </>
+      )}
     </div>
   );
 };

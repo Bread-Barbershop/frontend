@@ -2,6 +2,7 @@ import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/ut
 import interviewDefaultImage from '@/shared/assets/images/interview/interview-default.png';
 
 import {
+  COUPLE_ANSWER_EXAMPLE,
   EMPTY_INTERVIEW_OPTION,
   INTERVIEW_QUESTION_OPTIONS,
 } from './interviewOptions';
@@ -57,33 +58,6 @@ export const QUESTION_LIST = [...INTERVIEW_QUESTION_OPTIONS];
 
 export const DEFAULT_QUESTION_PRESET = QUESTION_PRESETS[0];
 export const DEFAULT_INTERVIEW_QUESTION = '제목을 입력해주세요';
-export const createDefaultInterviewAnswerJson = (): JSONContent => ({
-  type: 'doc',
-  content: [
-    {
-      type: 'paragraph',
-      content: [{ type: 'text', text: '신랑' }],
-    },
-    {
-      type: 'paragraph',
-      content: [{ type: 'text', text: '"내용을 입력해 주세요"' }],
-    },
-    {
-      type: 'paragraph',
-    },
-    {
-      type: 'paragraph',
-      content: [{ type: 'text', text: '신부' }],
-    },
-    {
-      type: 'paragraph',
-      content: [{ type: 'text', text: '"내용을 입력해 주세요"' }],
-    },
-  ],
-});
-export const DEFAULT_INTERVIEW_ANSWER_HTML = tiptapJsonToHtmlUniversal(
-  createDefaultInterviewAnswerJson()
-);
 
 export const getInterviewPresetByLabel = (label: string) =>
   QUESTION_PRESETS.find(preset => preset.label === label);
@@ -106,27 +80,34 @@ export const getInterviewDefaultImage = (
   return preset?.image ?? INTERVIEW_DEFAULT_IMAGE;
 };
 
+function createCoupleAnswerExample(): InterviewQuestion['answer'] {
+  const messageJson: JSONContent = {
+    type: 'doc',
+    content: [
+      '신랑',
+      '처음 만났는데도 오랜 친구처럼 대화가 편했어요.',
+      '신부',
+      '제 이야기를 끝까지 들어주던 모습이 기억나요.',
+    ].map(text => ({ type: 'paragraph', content: [{ type: 'text', text }] })),
+  };
+  return { messageJson, messageHtml: tiptapJsonToHtmlUniversal(messageJson) };
+}
+
 export const createInterviewQuestion = (
-  label = EMPTY_INTERVIEW_OPTION,
-  options: { includeEmptyTemplate?: boolean } = {}
+  label = EMPTY_INTERVIEW_OPTION
 ): InterviewQuestion => {
-  const isEmptyOption = label === EMPTY_INTERVIEW_OPTION;
-  const preset = isEmptyOption ? undefined : getInterviewPresetByLabel(label);
-  const defaultAnswerJson = isEmptyOption && options.includeEmptyTemplate
-    ? createDefaultInterviewAnswerJson()
-    : null;
+  const withSampleAnswer = label === COUPLE_ANSWER_EXAMPLE;
+  const preset = withSampleAnswer
+    ? DEFAULT_QUESTION_PRESET
+    : getInterviewPresetByLabel(label);
 
   return {
     id: crypto.randomUUID(),
     presetId: preset?.id,
-    question: isEmptyOption ? '' : (preset?.label ?? label),
-    answer: {
-      messageJson: defaultAnswerJson,
-      messageHtml:
-        isEmptyOption && options.includeEmptyTemplate
-          ? DEFAULT_INTERVIEW_ANSWER_HTML
-          : null,
-    },
+    question: label === EMPTY_INTERVIEW_OPTION ? '' : (preset?.label ?? label),
+    answer: withSampleAnswer
+      ? createCoupleAnswerExample()
+      : { messageJson: null, messageHtml: null },
     image: [],
   };
 };

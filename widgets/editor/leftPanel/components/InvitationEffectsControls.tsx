@@ -3,8 +3,18 @@
 import { ChevronDown, RotateCcw, Sparkles } from 'lucide-react';
 import { useShallow } from 'zustand/shallow';
 
+import {
+  navigationBarClassName,
+  navigationBarHeadingClassName,
+} from '@/components/molecules/navigation-bar/NavigationBar.style';
+import { AmbientScopeSelect } from '@/components/organisms/visualEffects/AmbientScopeSelect';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
-import { resolveInvitationEffects } from '@/shared/utils/invitationEffects';
+import { cn } from '@/shared/utils/cn';
+import {
+  AMBIENT_EFFECT_OPTIONS,
+  resolveInvitationEffects,
+  type AmbientEffect,
+} from '@/shared/utils/invitationEffects';
 
 import { ScrollAnimationControls } from './ScrollAnimationControls';
 
@@ -18,17 +28,27 @@ export function InvitationEffectsControls() {
         replayInvitationEffects: state.replayInvitationEffects,
       }))
     );
-  const { opening, confetti } = resolveInvitationEffects(settings, blocks);
+  const { opening, confetti, ambient, ambientScope } = resolveInvitationEffects(
+    settings,
+    blocks
+  );
+  const ambientValue =
+    ambient.length > 1 ? 'blocks' : (ambient[0]?.effect ?? 'none');
 
   return (
-    <details open className="group w-full border-y border-border-divider">
-      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 text-sm font-semibold [&::-webkit-details-marker]:hidden">
-        <Sparkles size={16} aria-hidden="true" />
-        <span className="flex-1">초대장 연출</span>
+    <details open className="group w-full border-b border-border-divider">
+      <summary
+        className={cn(
+          navigationBarClassName,
+          'cursor-pointer list-none [&::-webkit-details-marker]:hidden'
+        )}
+      >
+        <Sparkles size={16} aria-hidden="true" className="absolute left-0" />
+        <span className={navigationBarHeadingClassName}>초대장 연출</span>
         <ChevronDown
           size={16}
           aria-hidden="true"
-          className="group-open:rotate-180"
+          className="absolute right-0 group-open:rotate-180"
         />
       </summary>
       <div className="flex flex-col gap-4 pb-4">
@@ -59,17 +79,53 @@ export function InvitationEffectsControls() {
               className="relative h-[22px] w-9 cursor-pointer appearance-none rounded-full bg-neutral-400 after:absolute after:top-[3px] after:left-[3px] after:size-4 after:rounded-full after:bg-white after:transition-transform checked:bg-primary checked:after:translate-x-3.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:after:transition-none"
               checked={confetti}
               onChange={event =>
-                updateInvitationEffects({ confetti: event.target.checked })
+                updateInvitationEffects({
+                  confetti: event.target.checked,
+                  ...(settings?.ambientEffect === undefined &&
+                    ambient.some(({ effect }) => effect === 'confetti') && {
+                      ambientEffect: 'blocks',
+                    }),
+                })
               }
             />
           </label>
         </div>
+        <label className="flex flex-col gap-1.5 text-xs font-medium text-text-secondary">
+          배경 효과
+          <select
+            className="h-9 rounded-md border border-border-divider bg-white px-2 text-sm text-text-primary"
+            value={ambientValue}
+            onChange={event =>
+              updateInvitationEffects({
+                ambientEffect: event.target.value as AmbientEffect,
+                ambientScope,
+              })
+            }
+          >
+            {ambientValue === 'blocks' && (
+              <option value="blocks" disabled>
+                기존 효과 조합
+              </option>
+            )}
+            {AMBIENT_EFFECT_OPTIONS.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        {ambient.length > 0 && (
+          <AmbientScopeSelect
+            value={ambientScope}
+            onChange={ambientScope => updateInvitationEffects({ ambientScope })}
+          />
+        )}
         <ScrollAnimationControls embedded />
         <button
           type="button"
           className="inline-flex min-h-8 w-fit items-center gap-1.5 self-end rounded-md px-1 text-xs text-text-secondary enabled:hover:text-text-primary disabled:opacity-40"
           onClick={replayInvitationEffects}
-          disabled={opening === 'direct' && !confetti}
+          disabled={opening === 'direct' && !confetti && !ambient.length}
         >
           <RotateCcw size={14} aria-hidden="true" />
           처음부터 보기

@@ -1,9 +1,5 @@
-import { createInvitationTemplate } from './builders';
-import { INVITATION_TEMPLATES } from './catalog';
-
-import type { InvitationTemplateType } from './types';
-
-export { INVITATION_TEMPLATES, createInvitationTemplate };
+export { createInvitationTemplate } from './builders';
+export { getInvitationTemplates, INVITATION_TEMPLATES } from './catalog';
 export type {
   InvitationTemplate,
   InvitationTemplateType,
@@ -15,7 +11,3 @@ export type {
   PosterTextElement,
   PreparedInvitationTemplate,
 } from './types';
-
-export function getInvitationTemplates(type: InvitationTemplateType) {
-  return INVITATION_TEMPLATES.filter(template => template.type === type);
-}

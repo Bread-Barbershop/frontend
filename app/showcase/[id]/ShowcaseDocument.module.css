@@ -1,0 +1,10 @@
+@media not all and (min-width: 800px) {
+  :global(html:not([data-showcase-desktop-preview])) .poster {
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  :global(html:not([data-showcase-desktop-preview])) .poster img {
+    object-fit: contain;
+  }
+}

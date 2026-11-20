@@ -9,10 +9,13 @@ import {
   INVITATION_PRIVACY_FIELDS,
   type InvitationPrivacy,
 } from '@/features/invitation/privacy/settings';
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 import { parseStrictDate } from '@/shared/utils/dateValidation';
+
+import { PrivacyEndDatePicker } from './PrivacyEndDatePicker';
 
 const checkboxClassName =
   'size-4 shrink-0 accent-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary';
@@ -28,6 +31,10 @@ function InvitationSettingsModal({
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const checkboxRef = useRef<HTMLInputElement>(null);
+  const backdropDismiss = useBackdropDismiss<HTMLDialogElement>(
+    onClose,
+    'outside-dialog'
+  );
   const titleId = useId();
   const optionsId = useId();
   const [draftIsZoom, setDraftIsZoom] = useState(initialIsZoom);
@@ -55,10 +62,11 @@ function InvitationSettingsModal({
         event.preventDefault();
         onClose();
       }}
-      onClick={event => {
-        if (event.target === event.currentTarget) onClose();
-      }}
-      className="fixed inset-0 m-auto max-h-[calc(100dvh-32px)] w-[min(440px,calc(100vw-32px))] overflow-y-auto rounded-2xl bg-white p-0 text-text-primary shadow-edit backdrop:bg-black/50"
+      {...backdropDismiss}
+      className={cn(
+        'fixed inset-0 m-auto max-h-[calc(100dvh-32px)] w-[min(440px,calc(100vw-32px))] overflow-y-auto rounded-2xl bg-white p-0 text-text-primary shadow-edit backdrop:bg-black/50',
+        'motion-safe:animate-[fade-in_180ms_ease-out] motion-safe:backdrop:animate-[fade-in_180ms_ease-out]'
+      )}
     >
       <form
         className="flex flex-col gap-5 p-6"
@@ -105,10 +113,10 @@ function InvitationSettingsModal({
               />
               <span>
                 <span className="block font-medium">
-                  행사일이 지나면 개인정보 가리기
+                  일정이 끝나면 개인정보 가리기
                 </span>
                 <span className="block text-xs text-text-secondary">
-                  행사 다음 날 00:00부터 · 한국 시간 기준
+                  일정 다음 날 00:00부터 · 한국 시간 기준
                 </span>
               </span>
             </label>
@@ -147,18 +155,12 @@ function InvitationSettingsModal({
           >
             <div className="min-h-0 overflow-hidden">
               <div className="ml-1.5 mt-3 space-y-4 border-l border-black/10 pl-4">
-                <label className="flex flex-col items-start gap-1 text-sm">
-                  <span>행사일</span>
-                  <input
-                    type="date"
-                    className="min-h-10 w-full rounded-md border border-black/15 px-2"
-                    value={privacy.eventDate}
-                    onChange={event => {
-                      const eventDate = event.target.value;
-                      setPrivacy(previous => ({ ...previous, eventDate }));
-                    }}
-                  />
-                </label>
+                <PrivacyEndDatePicker
+                  value={privacy.eventDate}
+                  onChange={eventDate =>
+                    setPrivacy(previous => ({ ...previous, eventDate }))
+                  }
+                />
                 <fieldset className="grid gap-2">
                   <legend className="mb-2 text-sm font-medium">
                     가릴 정보
@@ -205,7 +207,7 @@ function InvitationSettingsModal({
           </div>
           {privacy.enabled && !parseStrictDate(privacy.eventDate) && (
             <p className="mt-2 text-xs text-red-700">
-              가리기를 시작할 기준 행사일을 입력해 주세요.
+              일정이 끝나는 날을 입력해 주세요.
             </p>
           )}
           {missingFields && (

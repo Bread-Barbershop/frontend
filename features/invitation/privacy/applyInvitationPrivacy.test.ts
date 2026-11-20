@@ -217,6 +217,155 @@ describe('행사일 이후 공개 초대장', () => {
     });
   });
 
+  it('생년월일을 선택하면 아이 소개 외의 답변과 편집 문구에서도 생년월일을 가린다', () => {
+    const original = makeInvitation();
+    original.bulkData.invitationPrivacy!.fields = ['birthday'];
+    original.blocks = [
+      block('faq', {
+        items: [
+          { question: '아이의 생년월일은 언제인가요?', answer: '2025. 08. 11' },
+          {
+            question: '생년월일은 언제인가요?',
+            answer: '초대장을 2026년 11월 1일에 보냈어요. 아이는 2025년 8월 11일에 태어났어요.',
+          },
+          { question: '일정은 언제인가요?', answer: '2026. 11. 21' },
+        ],
+      }),
+      block('greeting', {
+        messageHtml:
+          '<p><strong>태어난 날:</strong> 2025년 <em>8월</em> 11일. 일정: 2026년 11월 21일</p>',
+        messageJson: {
+          type: 'doc',
+          content: [
+            {
+              type: 'paragraph',
+              content: [
+                { type: 'text', text: '태어난 날:', marks: [{ type: 'bold' }] },
+                { type: 'text', text: ' 2025년 ' },
+                { type: 'text', text: '8월', marks: [{ type: 'italic' }] },
+                { type: 'text', text: ' 11일. 일정: 2026년 11월 21일' },
+              ],
+            },
+          ],
+        },
+      }),
+      block('calendar', { date: '2026-11-21' }),
+      block('countdown', { eventDateTime: '2026-11-21T13:00' }),
+    ];
+
+    const guest = applyInvitationPrivacy(original, cutoff);
+
+    expect(guest.blocks[0].props).toMatchObject({
+      items: [
+        { answer: '****. **. **' },
+        {
+          answer: '초대장을 2026년 11월 1일에 보냈어요. 아이는 ****년 *월 **일에 태어났어요.',
+        },
+        { answer: '2026. 11. 21' },
+      ],
+    });
+    expect(guest.blocks[1].props).toMatchObject({
+      messageHtml:
+        '<p><strong>태어난 날:</strong> ****년 <em>*월</em> **일. 일정: 2026년 11월 21일</p>',
+      messageJson: {
+        content: [
+          {
+            content: [
+              { text: '태어난 날:', marks: [{ type: 'bold' }] },
+              { text: ' ****년 ' },
+              { text: '*월', marks: [{ type: 'italic' }] },
+              { text: ' **일. 일정: 2026년 11월 21일' },
+            ],
+          },
+        ],
+      },
+    });
+    expect(guest.blocks.slice(2)).toEqual(original.blocks.slice(2));
+    expect(JSON.stringify(original)).toContain('2025. 08. 11');
+  });
+
+  it('중첩된 생년월일과 본문에 반복한 날짜를 가리고 일정과 이미지 경로는 유지한다', () => {
+    const original = makeInvitation();
+    original.bulkData.invitationPrivacy!.fields = ['birthday'];
+    original.blocks = [
+      block('speakerInformation', {
+        speakers: [{ name: '이서준', dateOfBirth: '1989-08-11' }],
+      }),
+      block('myChild', { birthday: '2025. 08. 11' }),
+      block('greeting', {
+        title: '2025년 8월 11일부터 함께한 우리',
+        messageHtml:
+          '<p>2025/08/11 첫 만남. 행사일: 2025/08/11. 2026/11/21에 봐요.</p>',
+        image: ['https://example.test/2025-08-11/image.png'],
+      }),
+    ];
+
+    const guest = applyInvitationPrivacy(original, cutoff);
+
+    expect(guest.blocks[0].props).toMatchObject({
+      speakers: [{ name: '이서준', dateOfBirth: '****-**-**' }],
+    });
+    expect(guest.blocks[1].props).toMatchObject({ birthday: '****. **. **' });
+    expect(guest.blocks[2].props).toMatchObject({
+      title: '****년 *월 **일부터 함께한 우리',
+      messageHtml:
+        '<p>****/**/** 첫 만남. 행사일: 2025/08/11. 2026/11/21에 봐요.</p>',
+      image: ['https://example.test/2025-08-11/image.png'],
+    });
+  });
+
+  it('이름을 포함한 생년월일 문답과 생일 표시를 가리고 생일 행사 날짜는 유지한다', () => {
+    const original = makeInvitation();
+    original.bulkData.invitationPrivacy!.fields = ['birthday'];
+    original.blocks = [
+      block('faq', {
+        items: [
+          { question: '민준이의 생년월일은 언제인가요?', answer: '2025.08.11' },
+          { question: '생일은 언제인가요?', answer: '2025.08.11' },
+          { question: '생일 파티는 언제인가요?', answer: '2026.11.21' },
+        ],
+      }),
+      block('greeting', {
+        messageHtml: '<p>생일: 2025.08.11 · 생일 행사: 2026.11.21</p>',
+      }),
+    ];
+
+    const guest = applyInvitationPrivacy(original, cutoff);
+
+    expect(guest.blocks[0].props).toMatchObject({
+      items: [
+        { answer: '****.**.**' },
+        { answer: '****.**.**' },
+        { answer: '2026.11.21' },
+      ],
+    });
+    expect(guest.blocks[1].props).toMatchObject({
+      messageHtml: '<p>생일: ****.**.** · 생일 행사: 2026.11.21</p>',
+    });
+  });
+
+  it('후원사 이름과 로고를 하객의 개인정보 설정에 따라 각각 가린다', () => {
+    const original = makeInvitation();
+    const sponsor = block('sponsorshipInfomation', {
+      images: ['private-sponsor-logo'],
+      sponsors: [{ id: 'a', name: '한빛재단', logoIndex: 0 }],
+    });
+    original.blocks = [sponsor];
+    original.bulkData.invitationPrivacy!.fields = ['media'];
+    const mediaHidden = applyInvitationPrivacy(original, cutoff);
+    expect(mediaHidden.blocks[0]).toMatchObject({
+      privacyMediaHidden: true,
+      props: { images: [], sponsors: [{ name: '한빛재단', logoIndex: null }] },
+    });
+    expect(JSON.stringify(mediaHidden)).not.toContain('private-sponsor-logo');
+    original.bulkData.invitationPrivacy!.fields = ['name'];
+    const nameHidden = applyInvitationPrivacy(original, cutoff);
+    expect(nameHidden.blocks[0].props).toMatchObject({
+      images: ['private-sponsor-logo'],
+      sponsors: [{ name: '한○○○', logoIndex: 0 }],
+    });
+  });
+
   it('공지사항의 업로드 사진만 가리고 안내 문구와 소유자의 원본을 유지한다', () => {
     const original = makeInvitation();
     const notice = block('notice', {

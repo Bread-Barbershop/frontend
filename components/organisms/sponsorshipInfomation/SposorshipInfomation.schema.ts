@@ -1,3 +1,9 @@
+export interface SponsorItem {
+  id: string;
+  name: string;
+  logoIndex: number | null;
+}
+
 export const sponsorshipInfomationSchema = {
   type: null,
   fields: {
@@ -16,6 +22,10 @@ export const sponsorshipInfomationSchema = {
     images: {
       default: [] as (File | string)[],
       required: true,
+    },
+    sponsors: {
+      default: [] as SponsorItem[],
+      required: false,
     },
   },
 } as const;

@@ -8,6 +8,8 @@ import { INVITATION_TEMPLATES } from '@/shared/data/invitationTemplates/catalog'
 import type { ShowcaseInvitation } from '@/shared/data/showcaseInvitations';
 import InvitationTemplatePoster from '@/widgets/editor/preview/components/InvitationTemplatePoster';
 
+import styles from './ShowcaseDocument.module.css';
+
 type Props = ReturnType<typeof buildShowcaseInvitation> & {
   design: ShowcaseInvitation;
 };
@@ -38,7 +40,7 @@ export default function ShowcaseDocument({ design, blocks, bulkData }: Props) {
       aria-label={`${design.name} 초대장`}
       style={{ backgroundColor: template.colors.background }}
     >
-      <header>
+      <header className={styles.poster}>
         <h1 className="sr-only">{design.name}</h1>
         <InvitationTemplatePoster template={template} />
       </header>

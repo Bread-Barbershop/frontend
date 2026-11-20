@@ -123,25 +123,26 @@ const collectBlockImageIds = (
 const cloneCanvasJson = (json: Record<string, unknown>) =>
   JSON.parse(JSON.stringify(json)) as Record<string, unknown>;
 
-const waitForFontPreparation = async (template: PreparedInvitationTemplate) => {
-  const posterObjects = Array.isArray(template.posterJson.objects)
-    ? template.posterJson.objects
+const waitForFontPreparation = async (
+  template: PreparedInvitationTemplate,
+  posterOnly = false
+) => {
+  const objects = Array.isArray(template.posterJson.objects)
+    ? [...template.posterJson.objects]
     : [];
-  const fontProbeObjects = [
-    {
-      type: 'textbox',
-      fontFamily: template.titleData.font,
-      fontWeight: template.titleData.fontWeight,
-    },
-    {
-      type: 'textbox',
-      fontFamily: template.bodyData.font,
-      fontWeight: template.bodyData.fontWeight,
-    },
-  ];
-  const fontWork = preloadFonts({
-    objects: [...posterObjects, ...fontProbeObjects],
-  });
+  if (!posterOnly) {
+    for (const style of [template.titleData, template.bodyData]) {
+      objects.push({
+        type: 'textbox',
+        fontFamily: style.font,
+        fontWeight: style.fontWeight,
+      });
+    }
+  }
+  const fontWork = preloadFonts(
+    { objects },
+    { waitForDocumentFonts: !posterOnly }
+  );
 
   await new Promise<void>((resolve, reject) => {
     const timer = setTimeout(
@@ -240,7 +241,7 @@ export function useInvitationTemplate({
         if (!canvas) throw new Error('The poster canvas is not ready.');
 
         const prepared = await createInvitationTemplate(templateId);
-        await waitForFontPreparation(prepared);
+        await waitForFontPreparation(prepared, options.posterOnly);
         if (!isCurrentRequest()) return false;
         if (!isCanvasUsable()) {
           throw new Error('The poster canvas is no longer available.');

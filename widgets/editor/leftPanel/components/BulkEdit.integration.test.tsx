@@ -31,6 +31,14 @@ jest.mock('@/components/molecules/text-editor/utils/tiptapJsonToHtml', () => {
   };
 });
 
+function expectFontPreviewBackground(backgroundColor: string) {
+  for (const sample of ['제목입니다', '본문입니다']) {
+    expect(screen.getByText(sample).closest('figure')).toHaveStyle({
+      backgroundColor,
+    });
+  }
+}
+
 describe('일괄 편집 즉시 반영', () => {
   beforeEach(() => useEditorStore.getState().reset());
 
@@ -72,14 +80,54 @@ describe('일괄 편집 즉시 반영', () => {
     preview.dispose();
   });
 
+  it('배경 효과와 범위를 미리보기에 저장하고 오프닝 컨페티를 독립적으로 끈다', () => {
+    render(<BulkEdit />);
+    const effect = screen.getByRole('combobox', { name: '배경 효과' });
+    expect(effect).toHaveValue('none');
+    expect(screen.queryByRole('combobox', { name: '표시 범위' })).toBeNull();
+
+    fireEvent.change(effect, { target: { value: 'confetti' } });
+    const scope = screen.getByRole('combobox', { name: '표시 범위' });
+    expect(scope).toHaveValue('poster');
+    fireEvent.change(scope, { target: { value: 'screen' } });
+    const openingConfetti = screen.getByRole('switch', {
+      name: '축하 효과 컨페티',
+    });
+    fireEvent.click(openingConfetti);
+    fireEvent.click(openingConfetti);
+
+    const preview = createPreviewSnapshot('data:image/png;base64,test');
+    expect(preview.snapshot.payload.bulkData.invitationEffects).toEqual({
+      ambientEffect: 'confetti',
+      ambientScope: 'screen',
+      confetti: false,
+    });
+    preview.dispose();
+  });
+
+  it('예전 컨페티 조합에서도 오프닝 스위치로 배경 효과가 사라지지 않는다', () => {
+    const store = useEditorStore.getState();
+    store.addBlock('wedding', 'visualEffects', 'old-confetti');
+    store.updateBlock('old-confetti', { effect: 'confetti' });
+    store.addBlock('wedding', 'visualEffects', 'old-petals');
+    store.updateBlock('old-petals', { effect: 'petals' });
+    render(<BulkEdit />);
+    fireEvent.click(screen.getByRole('switch', { name: '축하 효과 컨페티' }));
+    expect(screen.getByRole('combobox', { name: '배경 효과' })).toHaveValue(
+      'blocks'
+    );
+    expect(screen.getByRole('combobox', { name: '표시 범위' })).toHaveValue(
+      'screen'
+    );
+  });
+
   it('배경색을 지정된 순서대로 표시하고 선택한 색상을 반영한다', () => {
     render(<BulkEdit />);
 
     const white = screen.getByRole('button', { name: '화이트' });
     const palette = within(white.parentElement!);
-    expect(
-      palette.getAllByRole('button').map(button => button.textContent)
-    ).toEqual([
+    const buttons = palette.getAllByRole('button');
+    expect(buttons.map(button => button.textContent)).toEqual([
       '화이트',
       '아이보리',
       '로즈',
@@ -89,7 +137,7 @@ describe('일괄 편집 즉시 반영', () => {
       '피치',
       '버터',
       '블루',
-      '남색',
+      '네이비',
       '블랙',
       '직접 선택',
     ]);
@@ -101,12 +149,18 @@ describe('일괄 편집 즉시 반영', () => {
     expect(blue).toHaveAttribute('aria-pressed', 'true');
     expect(white).toHaveAttribute('aria-pressed', 'false');
     expect(useEditorStore.getState().backgroundColor).toBe('#D7E3F4');
+
+    for (const preset of buttons.slice(0, -1)) {
+      fireEvent.click(preset);
+      const swatch = preset.querySelector('span')!;
+      expectFontPreviewBackground(swatch.style.backgroundColor);
+    }
   });
 
   it('어두운 배경의 기본 글자색을 밝게 바꾸고 밝은 배경에서 원래 색을 복원한다', () => {
     render(<BulkEdit />);
 
-    fireEvent.click(screen.getByRole('button', { name: '남색' }));
+    fireEvent.click(screen.getByRole('button', { name: '네이비' }));
     expect(useEditorStore.getState()).toMatchObject({
       backgroundColor: '#536780',
       titleData: { color: '#FFFAF2' },
@@ -122,12 +176,13 @@ describe('일괄 편집 즉시 반영', () => {
       bodyData: { color: '#E2E6ED', fontSize: '15px' },
     });
 
-    fireEvent.click(screen.getByRole('button', { name: '아이보리' }));
+    fireEvent.click(screen.getByRole('button', { name: '버터' }));
     expect(useEditorStore.getState()).toMatchObject({
-      backgroundColor: '#F8F3EA',
+      backgroundColor: '#FFF1B8',
       titleData: { color: TITLE_BULK_DATA.color },
       bodyData: { color: BODY_BULK_DATA.color, fontSize: '15px' },
     });
+    expectFontPreviewBackground('rgb(255, 241, 184)');
   });
 
   it('제목과 본문 편집에서 직접 선택한 글자색을 어두운 배경에서도 유지한다', () => {
@@ -147,7 +202,7 @@ describe('일괄 편집 즉시 반영', () => {
     fireEvent.change(screen.getByRole('textbox', { name: 'Hex color value' }), {
       target: { value: '#660020' },
     });
-    fireEvent.click(screen.getByRole('button', { name: '남색' }));
+    fireEvent.click(screen.getByRole('button', { name: '네이비' }));
 
     expect(useEditorStore.getState()).toMatchObject({
       titleData: {
@@ -173,12 +228,13 @@ describe('일괄 편집 즉시 반영', () => {
     expect(trigger).toHaveAttribute('aria-expanded', 'true');
     expect(input).toHaveFocus();
     expect(input).toHaveValue('#102030');
-    expect(within(dialog).getByText('50%')).toBeInTheDocument();
+    expect(within(dialog).getByText('투명도 50%')).toBeInTheDocument();
 
     fireEvent.change(input, { target: { value: '#223344' } });
     expect(useEditorStore.getState().backgroundColor).toBe(
       'rgba(34, 51, 68, 0.5)'
     );
+    expectFontPreviewBackground('rgba(34, 51, 68, 0.5)');
     fireEvent.keyDown(input, { key: 'Escape' });
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();

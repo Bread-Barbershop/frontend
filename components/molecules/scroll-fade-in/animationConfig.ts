@@ -5,7 +5,11 @@ export const SCROLL_ANIMATION_TYPES = [
   'fade',
   'zoom-in',
 ] as const;
-export const SCROLL_TRIGGER_MODES = ['down-only', 'both', 'up-only'] as const;
+export const SCROLL_TRIGGER_MODES = [
+  'down-only',
+  'down-repeat',
+  'both',
+] as const;
 
 export type ScrollAnimationType = (typeof SCROLL_ANIMATION_TYPES)[number];
 export type ScrollTriggerMode = (typeof SCROLL_TRIGGER_MODES)[number];
@@ -32,8 +36,10 @@ export function resolveScrollAnimation(
       : {};
   const animationType =
     SCROLL_ANIMATION_TYPES.find(v => v === props.animationType) ?? 'fade-up';
+  const savedTrigger =
+    props.triggerMode === 'up-only' ? 'both' : props.triggerMode;
   const triggerMode =
-    SCROLL_TRIGGER_MODES.find(v => v === props.triggerMode) ?? 'down-only';
+    SCROLL_TRIGGER_MODES.find(v => v === savedTrigger) ?? 'down-only';
   return {
     animationType,
     triggerMode,

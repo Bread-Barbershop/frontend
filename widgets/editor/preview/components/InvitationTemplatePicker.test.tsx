@@ -7,6 +7,36 @@ import InvitationTemplatePicker from './InvitationTemplatePicker';
 describe('InvitationTemplatePicker', () => {
   const templates = getInvitationTemplates('wedding');
 
+  it.each([
+    ['firstBirthday', '첫돌 우체국', 'showcase-31'],
+    ['birthday', '별 아래 생일 캠프', 'showcase-36'],
+    ['seminar', '커피 감각 연구소', 'showcase-40'],
+  ] as const)(
+    '%s 탭에서 아홉 번째 템플릿을 선택할 수 있다',
+    (type, name, id) => {
+      const onSelect = jest.fn();
+      render(
+        <InvitationTemplatePicker
+          type={type}
+          selectedId={null}
+          isApplying={false}
+          onSelect={onSelect}
+          onTypeChange={jest.fn()}
+          onBack={jest.fn()}
+          onClose={jest.fn()}
+          onApply={jest.fn()}
+        />
+      );
+      expect(
+        screen.getAllByRole('button', { name: /템플릿 선택$/ })
+      ).toHaveLength(getInvitationTemplates(type).length);
+      fireEvent.click(
+        screen.getByRole('button', { name: `${name} 템플릿 선택` })
+      );
+      expect(onSelect).toHaveBeenCalledWith(id);
+    }
+  );
+
   it('포스터와 설명을 보여주고 카드 선택 상태를 접근성 속성으로 표시한다', () => {
     const onSelect = jest.fn();
 
@@ -44,6 +74,34 @@ describe('InvitationTemplatePicker', () => {
     );
 
     expect(onSelect).toHaveBeenCalledWith(templates[1].id);
+  });
+
+  it('큰 글씨 필터를 켜면 숨겨진 일반 디자인은 적용할 수 없다', () => {
+    render(
+      <InvitationTemplatePicker
+        type="birthday"
+        selectedId="showcase-41"
+        isApplying={false}
+        onSelect={jest.fn()}
+        onTypeChange={jest.fn()}
+        onBack={jest.fn()}
+        onClose={jest.fn()}
+        onApply={jest.fn()}
+      />
+    );
+    fireEvent.click(screen.getByRole('checkbox', { name: '큰 글씨만 보기' }));
+    expect(
+      screen.getByRole('button', { name: '칠순 감사연 템플릿 선택' })
+    ).toBeVisible();
+    expect(
+      screen.getByRole('button', { name: '팔순 가족 잔치 템플릿 선택' })
+    ).toBeVisible();
+    expect(
+      screen.queryByRole('button', { name: '생신 꽃편지 템플릿 선택' })
+    ).toBeNull();
+    expect(
+      screen.getByRole('button', { name: '선택한 템플릿 적용' })
+    ).toBeDisabled();
   });
 
   it('분류 이동과 돌아가기, 적용 동작을 별도 버튼으로 제공한다', () => {

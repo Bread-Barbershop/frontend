@@ -5,6 +5,8 @@ import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { useResolvedImageSource } from '@/shared/hooks/useResolvedImageSource';
 import { cn } from '@/shared/utils/cn';
 
+import styles from './noticeBody.module.css';
+
 import type { NoticeListItem } from './noticeList';
 import type { StaticImageData } from 'next/image';
 
@@ -22,7 +24,7 @@ export const NoticePreviewItem = ({
     tiptapJsonToHtmlUniversal(notice.content.messageJson);
   const customPreview = useResolvedImageSource(notice.image?.[0]);
   const preview = customPreview ?? defaultImage;
-  const { fontFamily } = useBodyFontInfo();
+  const { fontFamily, fontSize } = useBodyFontInfo();
 
   return (
     <div className={cn('flex flex-col gap-6 overflow-hidden', className)}>
@@ -40,11 +42,11 @@ export const NoticePreviewItem = ({
       <div className="flex flex-col gap-6">
         <p
           className="text-sm text-center font-semibold select-none"
-          style={{ fontFamily }}
+          style={{ fontFamily, fontSize }}
         >
           {notice.notice}
         </p>
-        <PreviewBody html={html} />
+        <PreviewBody html={html} className={styles.noticeBody} />
       </div>
     </div>
   );

@@ -10,8 +10,9 @@ export function extractFileGroups(
   const imageMap = new Map(imageList.map(item => [item.id, item]));
 
   const isFile = (v: unknown): v is File => v instanceof File;
-  const isFileArr = (v: unknown): v is File[] =>
-    Array.isArray(v) && v.length > 0 && v.every(isFile);
+  // Bundled logo URLs stay in block props. Only downloaded files need upload tracking.
+  const filesIn = (v: unknown): File[] =>
+    Array.isArray(v) ? v.filter(isFile) : isFile(v) ? [v] : [];
 
   function traverse(obj: any) {
     if (!obj || typeof obj !== 'object') return;
@@ -30,8 +31,9 @@ export function extractFileGroups(
       // 1. 같은 레벨에서 File 또는 File[] 찾기
       for (const [key, value] of Object.entries(obj)) {
         if (key === 'id') continue;
-        if (isFile(value) || isFileArr(value)) {
-          target.file = value;
+        const files = filesIn(value);
+        if (files.length) {
+          target.file = files;
           break;
         }
       }
@@ -39,8 +41,9 @@ export function extractFileGroups(
       // 2. EditorBlock의 경우 props 내부에서도 확인
       if (obj.props && typeof obj.props === 'object') {
         for (const [_, value] of Object.entries(obj.props)) {
-          if (isFile(value) || isFileArr(value)) {
-            target.file = value;
+          const files = filesIn(value);
+          if (files.length) {
+            target.file = files;
             break;
           }
         }

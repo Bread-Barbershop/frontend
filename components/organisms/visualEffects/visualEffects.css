@@ -3,6 +3,7 @@
   inset: 0;
   z-index: 40;
   pointer-events: none;
+  container-type: size;
   overflow: hidden;
 }
 .invia-effect-preview,
@@ -26,7 +27,7 @@
 }
 .invia-effect-particle {
   position: absolute;
-  top: -12%;
+  top: -24px;
   left: var(--x);
   width: var(--size);
   height: var(--size);
@@ -43,20 +44,53 @@
     alternate;
   animation-delay: var(--delay);
 }
-.invia-effect-petals > i {
-  border-radius: 75% 25% 65% 35%;
-  background: radial-gradient(ellipse at 30% 30%, #fff7f6, #e5b7bd 75%);
-  box-shadow: inset -1px -1px 2px #c4889920;
+.invia-effect-particle b {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
-.invia-effect-snow > i {
+.invia-effect-petals b {
+  position: relative;
+  height: 135%;
+  border-radius: 76% 55% 72% 30% / 68% 58% 90% 46%;
+  background:
+    radial-gradient(ellipse at 75% 16%, #fff5f1 2%, transparent 62%),
+    linear-gradient(135deg, #f3ced1 22%, #e7abb6 65%, #bc788b);
+  mask-image: radial-gradient(circle at 55% -3%, transparent 9%, black 11%);
+  box-shadow: inset 1px -1px 2px #ab657c38;
+  animation: invia-petal-turn var(--tumble-duration) var(--motion-easing)
+    var(--delay) infinite alternate;
+}
+.invia-effect-petals b::after {
+  content: '';
+  position: absolute;
+  inset: 24% 28% 6% 35%;
+  border-left: 1px solid #fff9;
   border-radius: 50%;
-  background: #d6e1e7;
-  box-shadow: 0 0 3px #fff9;
+  transform: rotate(25deg);
 }
-.invia-effect-confetti > i {
-  height: 180%;
-  border-radius: 1px;
-  background: var(--particle-color);
+.invia-effect-snow b {
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 38% 32%,
+    #fff 24%,
+    #e5edf4 62%,
+    #aabfce
+  );
+  box-shadow: 0 0 2px #a4bacb90;
+}
+.invia-effect-confetti b {
+  height: 175%;
+  border-radius: 1px 2px 1px 1px;
+  background:
+    linear-gradient(115deg, #fff7, transparent 42%, #5a40341a 70%, #fff4),
+    var(--particle-color);
+  animation: invia-paper-turn var(--tumble-duration) linear var(--delay)
+    infinite;
+}
+.invia-effect-confetti:nth-child(3n) b {
+  height: 105%;
+  border-radius: 50%;
 }
 .invia-effect-bokeh {
   top: var(--y);
@@ -64,10 +98,36 @@
   animation-delay: var(--delay);
 }
 .invia-effect-bokeh > i {
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--particle-color), transparent 72%);
-  filter: blur(5px);
   animation: none;
+}
+.invia-effect-bokeh b {
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 44% 40%,
+    #fff8,
+    var(--particle-color) 46%,
+    transparent 74%
+  );
+  filter: blur(2px);
+}
+@keyframes invia-petal-turn {
+  from {
+    transform: rotate(var(--tilt)) rotateY(-45deg) rotateX(15deg);
+  }
+  55% {
+    transform: rotate(calc(var(--tilt) + 34deg)) rotateY(18deg) rotateX(-8deg);
+  }
+  to {
+    transform: rotate(calc(var(--tilt) + 78deg)) rotateY(68deg) rotateX(30deg);
+  }
+}
+@keyframes invia-paper-turn {
+  from {
+    transform: rotate(var(--tilt)) rotateX(0deg);
+  }
+  to {
+    transform: rotate(calc(var(--tilt) + 180deg)) rotateX(360deg);
+  }
 }
 @keyframes invia-fall {
   0% {
@@ -80,16 +140,15 @@
   }
   100% {
     opacity: 0;
-    transform: translate3d(0, var(--travel), 0);
+    transform: translate3d(0, calc(100cqh + 48px), 0);
   }
 }
 @keyframes invia-sway {
   from {
-    transform: translate3d(calc(var(--sway) * -1), 0, 0) rotate(-25deg)
-      rotateY(0deg);
+    transform: translate3d(calc(var(--sway) * -1), 0, 0) rotate(-14deg);
   }
   to {
-    transform: translate3d(var(--sway), 0, 0) rotate(45deg) rotateY(110deg);
+    transform: translate3d(var(--sway), 3px, 0) rotate(19deg);
   }
 }
 @keyframes invia-bokeh {
@@ -238,10 +297,8 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .invia-effect-particle,
-  .invia-effect-particle > i {
-    animation: none !important;
-    opacity: 0.12;
+  .invia-effect-layer {
+    display: none;
   }
   .invia-intro-opening,
   .invia-intro-opening .invia-intro-flap {

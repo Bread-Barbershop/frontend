@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 
 import GuestRenderer from '@/app/guest/[id]/components/GuestRenderer';
@@ -108,6 +108,10 @@ function renderCalendarAt(pathname: string, date: string) {
 }
 
 describe('GuestRenderer 달력 공개 미리보기', () => {
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
   it.each(['/guest/test', '/i/test'])(
     '공개 경로 %s에서 날짜가 비어 있으면 달력 입력 안내를 숨긴다',
     pathname => {
@@ -147,6 +151,7 @@ describe('GuestRenderer 달력 공개 미리보기', () => {
   });
 
   it('어두운 카드의 카운트다운에 맞는 색을 적용하고 작성자가 지정한 본문색을 유지한다', () => {
+    jest.useFakeTimers({ now: new Date(2026, 2, 18) });
     mockPathname = '/guest/test';
     const block = calendarBlock('2026-03-19');
     render(
@@ -174,6 +179,9 @@ describe('GuestRenderer 달력 공개 미리보기', () => {
         }}
       />
     );
+    act(() => {
+      jest.advanceTimersByTime(0);
+    });
 
     const days = screen.getByText('DAYS');
     expect(days.closest('[data-invitation-dark]')).toBeInTheDocument();

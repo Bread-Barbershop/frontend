@@ -92,10 +92,8 @@ export const MainPosterPreview = () => {
   };
 
   useEffect(() => {
-    if (!canvas) {
-      isInitialLoadDoneRef.current = true;
-      return;
-    }
+    isInitialLoadDoneRef.current = false;
+    if (!canvas) return;
 
     if (!initialData) {
       isInitialLoadDoneRef.current = true;
@@ -103,6 +101,8 @@ export const MainPosterPreview = () => {
       return;
     }
 
+    const controller = new AbortController();
+    const { signal } = controller;
     const loadData = async () => {
       try {
         setIsCanvasLoading(true);
@@ -112,7 +112,9 @@ export const MainPosterPreview = () => {
             : initialData;
 
         await preloadFonts(jsonData);
-        await canvas.loadFromJSON(jsonData);
+        if (signal.aborted) return;
+        await canvas.loadFromJSON(jsonData, undefined, { signal });
+        if (signal.aborted) return;
 
         canvas.getObjects().forEach(obj => {
           if ((obj as FabricObjectWithLock).isLocked) {
@@ -147,16 +149,18 @@ export const MainPosterPreview = () => {
         });
 
         await stabilizeCanvasAfterLoad(canvas);
-        isInitialLoadDoneRef.current = true;
       } catch (error) {
-        console.error('Fabric load Error:', error);
-        isInitialLoadDoneRef.current = true;
+        if (!signal.aborted) console.error('Fabric load Error:', error);
       } finally {
-        setIsCanvasLoading(false);
+        if (!signal.aborted) {
+          isInitialLoadDoneRef.current = true;
+          setIsCanvasLoading(false);
+        }
       }
     };
 
-    loadData();
+    void loadData();
+    return () => controller.abort();
   }, [canvas, initialData]);
 
   useEffect(() => {

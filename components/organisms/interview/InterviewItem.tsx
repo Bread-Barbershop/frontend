@@ -1,16 +1,20 @@
-import { JSONContent } from '@tiptap/core';
-import { ChangeEvent } from 'react';
+import { generateJSON, type JSONContent } from '@tiptap/core';
+import { useMemo, type ChangeEvent } from 'react';
 
 import { ActionField } from '@/components/molecules/action-field';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { Picture } from '@/components/molecules/picture/Picture';
 import { TextEditor } from '@/components/molecules/text-editor';
+import { createTextEditorBarExtensions } from '@/components/molecules/text-editor/utils/tiptapExtensions';
 import { cn } from '@/shared/utils/cn';
 
 import {
-  DEFAULT_INTERVIEW_QUESTION,
-  type InterviewQuestion,
-} from './interviewList';
+  getInterviewAnswerHtml,
+  getInterviewTitle,
+  isLegacyInterviewAnswer,
+} from './interviewContent';
+
+import type { InterviewQuestion } from './interviewList';
 
 interface Props {
   id: string;
@@ -37,16 +41,21 @@ export const InterviewItem = ({
   onDelete,
   loadingCount = 0,
 }: Props) => {
+  const answer = useMemo(() => {
+    const json = question.answer?.messageJson;
+    if (json && !isLegacyInterviewAnswer(json)) return json;
+    const html = getInterviewAnswerHtml(question.answer);
+    return html && typeof window !== 'undefined'
+      ? generateJSON(html, createTextEditorBarExtensions())
+      : null;
+  }, [question.answer]);
   return (
     <div className="flex flex-col gap-1 relative group">
       <ActionField
         label="인터뷰"
         inputProps={{
           placeholder: '제목을 입력해 주세요',
-          value:
-            question.question === DEFAULT_INTERVIEW_QUESTION
-              ? ''
-              : question.question,
+          value: getInterviewTitle(question.question),
           onChange: onQuestionChange,
         }}
         className="w-full py-1.5 text-center"
@@ -62,8 +71,8 @@ export const InterviewItem = ({
         <NavigationBar className="min-h-auto h-8">내용</NavigationBar>
         <TextEditor
           key={`${id}-${question.id}-${editorResetKey}`}
-          value={question.answer.messageJson}
-          defaultText="내용을 입력해 주세요"
+          value={answer}
+          defaultText="답변을 입력해 주세요"
           defaultAlign="center"
           onChange={onEditorChange}
         />

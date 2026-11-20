@@ -50,9 +50,18 @@ describe('GuestMainPoster image loading and layout', () => {
     expect(props.wrapperClassName).toContain('justify-center');
     expect(props.className).toContain('w-full');
     expect(props.className).toContain('h-auto');
+    expect(props.className).not.toContain('max-h-screen');
 
     const renderedWrapper = getByTestId('mock-image');
     expect(renderedWrapper).toHaveClass('w-full');
+  });
+
+  it('미리보기에서는 포스터가 한 화면 높이를 넘지 않고 원본 비율로 보인다', () => {
+    render(<GuestMainPoster thumbnailFileId="poster-file-id" fitToViewport />);
+
+    const props = mockImage.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(props.className).toContain('max-h-screen');
+    expect(props.className).toContain('object-contain');
   });
 
   it('대표 이미지 로딩 실패 시 재시도 안내를 표시하고 미리보기 로딩을 해제한다', () => {

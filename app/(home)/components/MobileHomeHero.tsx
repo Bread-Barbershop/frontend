@@ -3,12 +3,14 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 
+import NoticeConfirmButton from '@/components/atoms/button/NoticeConfirmButton';
+import { useShowcasePreview } from '@/features/showcase/components/ShowcasePreviewProvider';
 import homeBackgroundImage from '@/shared/assets/images/home/home-background.png';
 import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 
 import { MobileShowcaseCardStack } from './MobileShowcaseCardStack';
 import { showcaseItems } from './showcaseItems';
-import { useShowcasePreview } from './ShowcasePreviewProvider';
 
 const MOBILE_HOME_QUERY = '(max-width: 1339px)';
 
@@ -103,6 +105,8 @@ function useMobileHomeViewport() {
 
 function MobileHomeHero() {
   const [isPcGuideOpen, setIsPcGuideOpen] = useState(false);
+  const closePcGuide = () => setIsPcGuideOpen(false);
+  const backdropDismiss = useBackdropDismiss<HTMLDivElement>(closePcGuide);
   const openPreview = useShowcasePreview();
   useMobileHomeViewport();
 
@@ -165,7 +169,7 @@ function MobileHomeHero() {
         {isPcGuideOpen && (
           <motion.div
             className="fixed inset-0 z-[50000] flex items-center justify-center overflow-y-auto bg-[rgb(0_0_0_/_16%)] px-5 py-5"
-            onClick={() => setIsPcGuideOpen(false)}
+            {...backdropDismiss}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -200,13 +204,12 @@ function MobileHomeHero() {
                   브라우저 창을 넓히거나 더 큰 화면에서 이용해 주세요.
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsPcGuideOpen(false)}
-                className="mt-1.5 inline-flex min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-full bg-bg-plain px-8 py-[13.5px] text-[14px] font-semibold leading-none text-white transition-colors hover:bg-[#202020] active:bg-[#0D0D0D]"
+              <NoticeConfirmButton
+                className="mt-1.5 min-h-11 leading-none"
+                onClick={closePcGuide}
               >
                 닫기
-              </button>
+              </NoticeConfirmButton>
             </motion.div>
           </motion.div>
         )}

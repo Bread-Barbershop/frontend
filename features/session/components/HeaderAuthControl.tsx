@@ -32,6 +32,7 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
     login,
     closeLogin,
     closePrivacyNotice,
+    confirmPrivacyNotice,
     closeDrivePermissionRequired,
     loginWithGoogle,
     retryDrivePermission,
@@ -52,6 +53,7 @@ function HeaderAuthControl({ initialIsLoggedIn }: HeaderAuthControlProps) {
       <PrivacyNoticeModal
         open={isPrivacyNoticeOpen}
         onClose={closePrivacyNotice}
+        onConfirm={confirmPrivacyNotice}
       />
       <DrivePermissionRequiredModal
         open={isDrivePermissionRequiredOpen}

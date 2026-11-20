@@ -113,6 +113,11 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
 
   const closePrivacyNotice = useCallback(() => {
     setIsPrivacyNoticeOpen(false);
+    clearLoginAttempt(true);
+  }, [clearLoginAttempt]);
+
+  const confirmPrivacyNotice = useCallback(() => {
+    setIsPrivacyNoticeOpen(false);
 
     if (openLoginAfterNoticeRef.current) {
       openLoginAfterNoticeRef.current = false;
@@ -304,6 +309,7 @@ export function useAuthGate(options: UseAuthGateOptions = {}) {
     login,
     closeLogin,
     closePrivacyNotice,
+    confirmPrivacyNotice,
     closeDrivePermissionRequired,
     loginWithGoogle,
     retryDrivePermission,

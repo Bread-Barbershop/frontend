@@ -2,12 +2,12 @@ import { ReactNode } from 'react';
 
 import { getAuthSession } from '@/app/api/auth/_lib/getAuthSession';
 import homeBackgroundImage from '@/shared/assets/images/home/home-background.png';
+import { cn } from '@/shared/utils/cn';
 
+import DashboardNavigation from './DashboardNavigation';
 import FooterPolicyLink from './FooterPolicyLink';
-import HeaderAuthControl from './HeaderAuthControl';
 import HeaderPrivacyNoticeButton from './HeaderPrivacyNoticeButton';
 import HomeButton from './HomeButton';
-import NavMenu from './NavMenu';
 
 export default async function DashboardShell({
   children,
@@ -20,6 +20,7 @@ export default async function DashboardShell({
 }>) {
   const session = await getAuthSession();
   const isEditor = variant === 'editor';
+  const hasResponsiveHeader = !isEditor && !minimumWidth;
 
   return (
     <div
@@ -38,15 +39,26 @@ export default async function DashboardShell({
         />
       )}
 
-      <header className="relative z-30 h-14 bg-transparent flex items-center justify-between px-10">
-        <div className="flex h-full items-center gap-8">
-          <HomeButton />
+      <header
+        className={cn(
+          'relative z-30 h-14 bg-transparent flex items-center justify-between px-10',
+          hasResponsiveHeader && 'max-lg:px-4'
+        )}
+      >
+        <div
+          className={cn(
+            'flex h-full items-center gap-8',
+            hasResponsiveHeader && 'max-lg:gap-2'
+          )}
+        >
+          <HomeButton
+            className={hasResponsiveHeader ? 'max-lg:px-0' : undefined}
+          />
 
-          <nav className="flex h-full items-center gap-6">
-            <NavMenu />
-
-            <HeaderAuthControl initialIsLoggedIn={session.isLoggedIn} />
-          </nav>
+          <DashboardNavigation
+            initialIsLoggedIn={session.isLoggedIn}
+            responsive={hasResponsiveHeader}
+          />
         </div>
 
         <HeaderPrivacyNoticeButton />

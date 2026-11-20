@@ -21,6 +21,7 @@ export function TimelinePreview({
   const items = normalizeTimelineItems(blockInfo.props.items);
   return (
     <MiddlePreviewWrapper
+      matchBodyFontSize
       className={className}
       titleClassName={titleClassName}
       mainTitle={blockInfo.props.title}

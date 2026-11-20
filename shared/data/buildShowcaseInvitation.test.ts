@@ -3,6 +3,7 @@ import path from 'node:path';
 
 import { showcaseItems } from '@/app/(home)/components/showcaseItems';
 import { normalizeGuestBlock } from '@/app/guest/[id]/validation/normalizeGuestBlock';
+import { parseStrictDate } from '@/shared/utils/dateValidation';
 
 import { buildShowcaseInvitation } from './buildShowcaseInvitation';
 import {
@@ -11,12 +12,14 @@ import {
 } from './showcaseInvitations';
 
 describe('첫 화면 초대장 샘플', () => {
-  it('25개 카드 모두 고유한 본문과 일대일로 연결된다', () => {
-    expect(showcaseItems).toHaveLength(25);
+  it('모든 카드가 고유한 본문과 일대일로 연결된다', () => {
+    expect(showcaseItems).toHaveLength(45);
     expect(SHOWCASE_INVITATIONS).toHaveLength(showcaseItems.length);
-    expect(new Set(SHOWCASE_INVITATIONS.map(item => item.id)).size).toBe(25);
+    expect(new Set(SHOWCASE_INVITATIONS.map(item => item.id)).size).toBe(
+      showcaseItems.length
+    );
     expect(new Set(SHOWCASE_INVITATIONS.map(item => item.heading)).size).toBe(
-      25
+      showcaseItems.length
     );
     for (const card of showcaseItems)
       expect(getShowcaseInvitation(card.id)).toBeDefined();
@@ -37,6 +40,11 @@ describe('첫 화면 초대장 샘플', () => {
         const result = normalizeGuestBlock(block, index);
         expect(result).toMatchObject({ ok: true });
       }
+      for (const section of design.sections) {
+        if (section.component === 'myChild' && section.birthday) {
+          expect(parseStrictDate(section.birthday, '.')).not.toBeNull();
+        }
+      }
       const calendar = sample.blocks.find(
         block => block.component === 'calendar'
       );
@@ -53,11 +61,12 @@ describe('첫 화면 초대장 샘플', () => {
 
   it.each(
     [
-      { previousCount: 4, ids: [2, 5, 6, 17, 20] },
+      { previousCount: 4, ids: [2, 5, 6, 17, 20, 42, 43, 44] },
       {
         previousCount: 5,
         ids: [
           0, 1, 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 21, 22, 23, 24,
+          41,
         ],
       },
       { previousCount: 6, ids: [3] },

@@ -1,10 +1,12 @@
 'use client';
 
 import { InvitationBackgroundTexture } from '@/components/molecules/invitation-background-texture/InvitationBackgroundTexture';
+import { AmbientParticles } from '@/components/organisms/visualEffects/ParticleLayer';
 import InviaLogo from '@/shared/assets/logo/invia-logo.svg';
 import { DriveImageResolveModeProvider } from '@/shared/hooks/useDriveImageResolveMode';
 import { cn } from '@/shared/utils/cn';
 import { isDarkInvitationBackground } from '@/shared/utils/invitationBackgroundColor';
+import { resolveInvitationEffects } from '@/shared/utils/invitationEffects';
 
 import GuestBgm from './GuestBgm';
 import { GuestMainPoster } from './GuestMainPoster';
@@ -21,7 +23,8 @@ type GuestInvitationViewProps = {
   mode?: GuestInvitationViewMode;
   previewFolderId?: string;
   localAudioSrc?: string | null;
-  showVisualEffects?: boolean;
+  showScreenEffects?: boolean;
+  fitPosterToViewport?: boolean;
 };
 
 function GuestInvitationView({
@@ -30,7 +33,8 @@ function GuestInvitationView({
   mode = 'guest',
   previewFolderId,
   localAudioSrc,
-  showVisualEffects,
+  showScreenEffects,
+  fitPosterToViewport,
 }: GuestInvitationViewProps) {
   const Root = mode === 'guest' ? 'main' : 'div';
   const rootClassName =
@@ -66,10 +70,17 @@ function GuestInvitationView({
           {payload.activePrivacyFields?.includes('poster') ? (
             <GuestPrivacyNotice kind="poster" />
           ) : (
-            <GuestMainPoster
-              onReady={onMainPosterReady}
-              thumbnailFileId={payload.mainPoster.thumbnailFileId ?? ''}
-            />
+            <div className="relative">
+              <GuestMainPoster
+                onReady={onMainPosterReady}
+                thumbnailFileId={payload.mainPoster.thumbnailFileId ?? ''}
+                fitToViewport={fitPosterToViewport}
+              />
+              <AmbientParticles
+                effects={resolveInvitationEffects(payload.bulkData.invitationEffects, payload.blocks)}
+                placement="poster"
+              />
+            </div>
           )}
           <div className="mx-auto w-full">
             <GuestRenderer
@@ -77,7 +88,7 @@ function GuestInvitationView({
               bulkData={payload.bulkData}
               renderHints={payload.renderHints}
               activePrivacyFields={payload.activePrivacyFields}
-              {...(showVisualEffects === false && { showVisualEffects: false })}
+              {...(showScreenEffects === false && { showVisualEffects: false })}
               isGuestPage
             />
           </div>

@@ -1,8 +1,9 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import DaumPostcode from 'react-daum-postcode';
 import { useShallow } from 'zustand/shallow';
 
+import { UtilityButton } from '@/components/atoms/button';
 import { Divider } from '@/components/atoms/divider';
 import { Input } from '@/components/atoms/input';
 import { Label } from '@/components/atoms/label';
@@ -33,8 +34,16 @@ interface Props {
 }
 
 export function Place({ blockInfo, id }: Props) {
-  const [openAddress, setOpenAddress] = useState(false);
+  const [addressQuery, setAddressQuery] = useState('');
+  const [submittedQuery, setSubmittedQuery] = useState<string | null>(null);
+  const geocodeRequest = useRef(0);
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      geocodeRequest.current += 1;
+    };
+  }, []);
 
   const { updateBlock } = useEditorStore(
     useShallow(state => ({
@@ -61,27 +70,33 @@ export function Place({ blockInfo, id }: Props) {
   const defaultTitle = getDefaultPlaceTitle(blockInfo.type);
   const fieldCopy = getPlaceFieldCopy(blockInfo.type);
 
+  const closeAddressSearch = () => {
+    geocodeRequest.current += 1;
+    setSubmittedQuery(null);
+  };
+
   const searchAddress = (query: string) => {
     if (!isScriptLoaded || !window.naver) {
       alert('지도를 불러오는 중입니다. 잠시후 다시 시도해주세요.');
       return;
     }
-    naver.maps.Service.geocode({ query }, function (status, response) {
-      if (status === naver.maps.Service.Status.ERROR) {
+    const request = ++geocodeRequest.current;
+    naver.maps.Service.geocode({ query }, (status, response) => {
+      if (request !== geocodeRequest.current) return;
+      const addr = response?.v2?.addresses[0];
+      if (status !== naver.maps.Service.Status.OK || !addr) {
         return alert('주소를 찾을 수 없습니다.');
       }
-      if (status === naver.maps.Service.Status.OK) {
-        const addr = response.v2.addresses[0];
-        const { x, y } = addr;
-        if (x === undefined || y === undefined) return;
+      const { x, y } = addr;
+      if (x === undefined || y === undefined) return;
 
-        updateBlock(id, {
-          placeAddress: addr.roadAddress || addr.jibunAddress,
-          lng: Number(x),
-          lat: Number(y),
-        });
-        setOpenAddress(false);
-      }
+      updateBlock(id, {
+        placeAddress: addr.roadAddress || addr.jibunAddress,
+        lng: Number(x),
+        lat: Number(y),
+      });
+      setAddressQuery('');
+      closeAddressSearch();
     });
   };
 
@@ -138,13 +153,41 @@ export function Place({ blockInfo, id }: Props) {
             onSelect={val => handleUpdateBlock('country', val.value)}
             selected={country ? { label: country, value: country } : null}
           />
-          {openAddress && (
+          <form
+            className="flex min-w-0 flex-1 items-center gap-1"
+            onSubmit={event => {
+              event.preventDefault();
+              setSubmittedQuery(addressQuery.trim());
+            }}
+          >
+            <Input
+              id="address"
+              placeholder="도로명 또는 건물명"
+              enterKeyHint="search"
+              value={addressQuery}
+              onChange={event => setAddressQuery(event.target.value)}
+              onKeyDown={event => {
+                if (
+                  event.key === 'Enter' &&
+                  (event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229)
+                ) {
+                  event.preventDefault();
+                }
+              }}
+              className="min-w-0 text-left"
+            />
+            <UtilityButton type="submit" className="shrink-0" aria-label="주소 검색">
+              검색
+            </UtilityButton>
+          </form>
+          {submittedQuery !== null && (
             <Popup
-              onClose={() => setOpenAddress(false)}
+              onClose={closeAddressSearch}
               popupTitle="주소 검색"
               wrapperClassName="max-w-[480px] h-[640px]"
             >
               <DaumPostcode
+                defaultQuery={submittedQuery}
                 onComplete={data => {
                   searchAddress(data.address);
                 }}
@@ -153,18 +196,12 @@ export function Place({ blockInfo, id }: Props) {
               />
             </Popup>
           )}
-          <Input
-            placeholder="주소 검색"
-            id="address"
-            onClick={e => {
-              e.preventDefault();
-              setOpenAddress(prev => !prev);
-            }}
-            value={placeAddress}
-            readOnly
-            className="cursor-pointer"
-          />
         </section>
+        {placeAddress && (
+          <p className="w-full break-words text-xs text-text-secondary">
+            선택한 주소 · {placeAddress}
+          </p>
+        )}
         <TextField
           label={fieldCopy.placeNameLabel}
           inputProps={{

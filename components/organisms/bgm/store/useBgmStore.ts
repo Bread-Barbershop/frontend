@@ -10,7 +10,6 @@ interface BgmState {
   userFileSrc: string | null;
   userFileName: string | null;
   userDuration: string | null;
-  audioFileId: string | null;
 }
 
 interface BgmActions {
@@ -32,7 +31,6 @@ const initialState: BgmState = {
   userFileSrc: null,
   userFileName: null,
   userDuration: null,
-  audioFileId: null,
 };
 
 export const useBgmStore = create<Store>(set => ({
@@ -60,6 +58,8 @@ export const useBgmStore = create<Store>(set => ({
 
       return {
         userFile: null,
+        selectedBgmId:
+          state.selectedBgmId === 'user-bgm' ? null : state.selectedBgmId,
         userFileSrc: null,
         userFileName: null,
         userDuration: null,

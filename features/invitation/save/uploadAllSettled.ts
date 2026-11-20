@@ -13,42 +13,35 @@ export type UploadFail = {
   error: unknown;
 };
 export async function uploadAllSettled(params: {
-  originFile: UploadTask[];
+  originFile: (UploadTask | File)[];
   folderId: string;
   accessToken: string;
-  concurrency?: number; // 동시 업로드 개수 옵션. 호출할 때 지정하면서 테스트.
+  concurrency?: number;
 }): Promise<{ ok: UploadOk[]; fail: UploadFail[] }> {
-  const { originFile, folderId, accessToken, concurrency } = params;
+  const { originFile, folderId, accessToken, concurrency = originFile.length } = params;
+  const workerCount = Math.min(originFile.length, Math.max(1, concurrency || 1));
+  const pending = originFile.entries();
+  const results: (UploadOk | UploadFail)[] = [];
 
-  // 파일이 없으면 바로 끝
-  if (originFile.length === 0) return { ok: [], fail: [] };
-
-  const limit = Math.max(1, concurrency ?? originFile.length);
-
-  const ok: UploadOk[] = [];
-  const fail: UploadFail[] = [];
-
-  for (let i = 0; i < originFile.length; i += limit) {
-    const chunk = originFile.slice(i, i + limit);
-
-    const tasks = chunk.map(async file => {
-      const result = await uploadFileToDrive(file.file, folderId, accessToken);
-      return { id: file.id, file: file.file, ...result };
-    });
-
-    const settled = await Promise.allSettled(tasks);
-
-    for (let j = 0; j < settled.length; j++) {
-      const item = settled[j];
-      const file = chunk[j]!;
-
-      if (item.status === 'fulfilled') {
-        ok.push(item.value); // 성공하면 성공 배열에 push
-      } else {
-        fail.push({ file, error: item.reason }); // 실패하면 실패 배열에 push
+  async function uploadPendingFiles() {
+    for (const [index, item] of pending) {
+      const { file, id } = 'file' in item ? item : { file: item, id: undefined };
+      try {
+        const result = await uploadFileToDrive(file, folderId, accessToken);
+        results[index] = { id, file, ...result };
+      } catch (error) {
+        results[index] = { file: item, error };
       }
     }
   }
 
-  return { ok, fail }; // 성공, 실패 여부 반환.
+  await Promise.all(Array.from({ length: workerCount }, uploadPendingFiles));
+
+  const ok: UploadOk[] = [];
+  const fail: UploadFail[] = [];
+  for (const result of results) {
+    if ('error' in result) fail.push(result);
+    else ok.push(result);
+  }
+  return { ok, fail };
 }

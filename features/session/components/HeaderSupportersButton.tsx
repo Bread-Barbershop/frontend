@@ -6,6 +6,7 @@ import { useId, useRef } from 'react';
 
 import naverLogo from '@/shared/assets/images/supporters/naver.png';
 import woowaBrothersLogo from '@/shared/assets/images/supporters/woowa-brothers.jpg';
+import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 
 import styles from './HeaderSupportersButton.module.css';
 
@@ -32,6 +33,10 @@ export default function HeaderSupportersButton({
   className: string;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const backdropDismiss = useBackdropDismiss<HTMLDialogElement>(
+    () => dialogRef.current?.close(),
+    'outside-dialog'
+  );
   const dialogId = useId();
   const titleId = `${dialogId}-title`;
 
@@ -49,6 +54,7 @@ export default function HeaderSupportersButton({
 
       <dialog
         ref={dialogRef}
+        {...backdropDismiss}
         id={dialogId}
         aria-labelledby={titleId}
         className="fixed inset-0 m-auto max-h-[calc(100dvh_-_2rem)] w-[calc(100%_-_2rem)] max-w-md overflow-y-auto rounded-2xl border-0 bg-white p-6 text-text-plain shadow-xl backdrop:bg-black/40"

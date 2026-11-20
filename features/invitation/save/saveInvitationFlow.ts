@@ -31,7 +31,9 @@ import {
 } from './prepareCache';
 import { retryFailedOnce } from './retryFailedOnce';
 import { retryPatchFailedOnce } from './retryPatchFailedOnce';
+import { getSavedAudioFileId, rememberSavedAudioFile } from './savedAudioFiles';
 import { shouldPrepareFallback } from './saveFallback';
+import { saveThumbnail } from './saveThumbnail';
 import { updateFileToDrive } from './updateFileToDrive';
 import {
   uploadAllSettled,
@@ -143,7 +145,7 @@ type UploadResult = {
   imagesStep: StepResult;
   audioStep: StepResult;
   fileToId: Map<File, string>;
-  uploadedAudioFileId: string | null;
+  audioFileId: string | null;
 };
 
 type CommitResult = {
@@ -345,6 +347,7 @@ async function upload(params: {
           failures: firstAttempt.fail,
           folderId: step.folderId,
           accessToken: token.currentToken,
+          concurrency: step.concurrency,
           refreshAccessToken: token.refreshAccessToken,
         })
       : {
@@ -389,16 +392,25 @@ async function upload(params: {
 
   onProgress?.('arrangingContent');
   diagnostics.currentStage = 'upload_audio';
+  const savedAudioFileId = getSavedAudioFileId(audio, prep.audioFolderId);
   const audioStep = await runUploadStep({
-    originFile: audio ? [{ id: 'bgm', file: audio }] : [],
+    originFile: audio && !savedAudioFileId ? [{ id: 'bgm', file: audio }] : [],
     folderId: prep.audioFolderId,
   });
+  const uploadedAudio = audioStep.final.ok[0];
+  if (uploadedAudio) {
+    rememberSavedAudioFile(
+      uploadedAudio.file,
+      prep.audioFolderId,
+      uploadedAudio.fileId
+    );
+  }
 
   return {
     imagesStep,
     audioStep,
     fileToId,
-    uploadedAudioFileId: audioStep.final.ok[0]?.fileId ?? null,
+    audioFileId: uploadedAudio?.fileId ?? savedAudioFileId,
   };
 }
 
@@ -417,6 +429,7 @@ async function commit(params: {
   mainPoster: MainPosterData;
   invitationThumbnail: InvitationThumbnail;
   diagnostics: SaveDiagnostics;
+  checkExistingThumbnail: boolean;
   onProgress?: (step: SaveProgressStep) => void;
 }): Promise<CommitResult> {
   const {
@@ -434,7 +447,7 @@ async function commit(params: {
     diagnostics,
     onProgress,
   } = params;
-  const { fileToId, uploadedAudioFileId } = uploadResult;
+  const { fileToId, audioFileId } = uploadResult;
 
   onProgress?.('collectingText');
   // uploadImages의 imageId -> File 매핑 (중복 이미지 처리용)
@@ -517,7 +530,7 @@ async function commit(params: {
   const finalBgm: BgmData = {
     ...bgmData,
     userBgmFileId: isUserBgmSelected
-      ? (uploadedAudioFileId ?? bgmData.userBgmFileId ?? null)
+      ? (audioFileId ?? bgmData.userBgmFileId ?? null)
       : null,
   };
 
@@ -530,22 +543,11 @@ async function commit(params: {
   if (invitationThumbnail && invitationThumbnail.dataUrl) {
     diagnostics.currentStage = 'save_thumbnail';
     try {
-      const thumbnailResponse = await fetch('/api/drive/thumbnail', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          invitationFolderId: prep.invitationFolderId,
-          thumbnailData: invitationThumbnail,
-        }),
-      });
-      if (!thumbnailResponse.ok) {
-        throw new Error(`thumbnail save failed: ${thumbnailResponse.status}`);
-      }
-      const thumbnailResult = await thumbnailResponse.json();
-      if (typeof thumbnailResult?.thumbnailFileId !== 'string') {
-        throw new Error('thumbnail save response missing thumbnailFileId');
-      }
-      thumbnailFileId = thumbnailResult.thumbnailFileId;
+      thumbnailFileId = await saveThumbnail(
+        prep.invitationFolderId,
+        invitationThumbnail,
+        params.checkExistingThumbnail
+      );
     } catch (error) {
       thumbnailSaveFailed = true;
       thumbnailSaveError = error;
@@ -800,6 +802,7 @@ async function runSaveInvitationFlow(
   });
   let commitResult = await commit({
     prep,
+    checkExistingThumbnail: Boolean(invitationUuid),
     token,
     uploadResult,
     bulkData,
@@ -836,6 +839,7 @@ async function runSaveInvitationFlow(
     });
     commitResult = await commit({
       prep,
+      checkExistingThumbnail: true,
       token,
       uploadResult,
       bulkData,

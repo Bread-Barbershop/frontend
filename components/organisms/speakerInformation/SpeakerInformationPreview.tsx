@@ -1,12 +1,21 @@
-import { EmblaOptionsType } from 'embla-carousel';
-import { useMemo, type HTMLAttributes } from 'react';
-
 import { MiddlePreviewWrapper } from '@/components/organisms/wrapper/MiddlePreviewWrapper';
 import Carousel from '@/features/EmblaCarousel/Carousel/Carousel';
-import { EditorBlock } from '@/shared/types/block';
+import type { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 
 import { InformationPreview } from './InformationPreview';
+import { SpeakerPairCarousel } from './SpeakerPairCarousel';
+
+import type { EmblaOptionsType } from 'embla-carousel';
+import type { HTMLAttributes } from 'react';
+
+const carouselOptions: EmblaOptionsType = { align: 'center', containScroll: false };
+const autoscrollOptions = {
+  speed: 1,
+  stopOnInteraction: false,
+  stopOnMouseEnter: false,
+  stopOnFocusIn: false,
+};
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   blockInfo: EditorBlock<'speakerInformation'>;
@@ -22,36 +31,24 @@ export const SpeakerInformationPreview = ({
   isGuestPage = false,
   ...rest
 }: Props) => {
-  const { title, speakers, checkedSubTitle, subTitle } =
-    blockInfo.props;
+  const { title, speakers, checkedSubTitle, subTitle } = blockInfo.props;
+  const speakerCount = speakers?.length ?? 0;
+  const isSpeakerPair = speakerCount === 2;
+  const autoScroll = speakerCount > 2;
 
-  const displayItems = useMemo(() => {
-    if (speakers && speakers.length === 2) {
-      return [...speakers, ...speakers, ...speakers, ...speakers];
-    }
-    return speakers;
-  }, [speakers]);
-
-  const isCarouselActive = (speakers?.length ?? 0) > 1;
-
-  const carouselOptions: EmblaOptionsType = useMemo(
-    () => ({
-      align: 'center',
-      containScroll: false,
-      loop: isCarouselActive,
-    }),
-    [isCarouselActive]
-  );
-
-  const autoscrollOptions = useMemo(
-    () => ({
-      speed: 1,
-      stopOnInteraction: false,
-      stopOnMouseEnter: false,
-      stopOnFocusIn: false,
-    }),
-    []
-  );
+  const cards = speakers?.map((speaker, index) => (
+    <div
+      key={`${speaker.id}-${index}`}
+      className={cn(
+        'w-full',
+        isSpeakerPair && 'min-w-0 shrink-0 snap-start overflow-clip',
+        autoScroll && index === 0 && 'ml-3',
+        speakerCount === 1 && 'flex-center'
+      )}
+    >
+      <InformationPreview speaker={speaker} isGuestPage={isGuestPage} />
+    </div>
+  ));
 
   return (
     <MiddlePreviewWrapper
@@ -65,7 +62,7 @@ export const SpeakerInformationPreview = ({
       {...rest}
     >
       <div className="w-full flex justify-center relative overflow-hidden px-px">
-        {isCarouselActive ? (
+        {autoScroll ? (
           <Carousel
             options={carouselOptions}
             isButtonShow={false}
@@ -75,24 +72,12 @@ export const SpeakerInformationPreview = ({
             autoscrollOptions={autoscrollOptions}
             loop
           >
-            {displayItems?.map((speaker, index) => (
-              <div
-                key={`${speaker.id}-${index}`}
-                className={cn('w-full', index === 0 ? 'ml-3' : '')}
-              >
-                <InformationPreview
-                  speaker={speaker}
-                  isGuestPage={isGuestPage}
-                />
-              </div>
-            ))}
+            {cards}
           </Carousel>
+        ) : isSpeakerPair ? (
+          <SpeakerPairCarousel>{cards}</SpeakerPairCarousel>
         ) : (
-          speakers?.map(speaker => (
-            <div key={speaker.id} className="w-full flex-center">
-              <InformationPreview speaker={speaker} isGuestPage={isGuestPage} />
-            </div>
-          ))
+          cards
         )}
       </div>
     </MiddlePreviewWrapper>

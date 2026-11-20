@@ -1,0 +1,9 @@
+.noticeBody p + p {
+  margin-block-start: 8px;
+}
+
+/* Match the preview's text-sm line height at the selected body font size. */
+.noticeBody :global(.ProseMirror) {
+  font-size: inherit;
+  line-height: var(--text-sm--line-height);
+}

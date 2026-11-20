@@ -19,6 +19,8 @@ import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
 import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
+import { getDefaultChildTitle } from './getDefaultChildTitle';
+
 import type { JSONContent } from '@tiptap/react';
 
 interface Props {
@@ -35,7 +37,9 @@ export const MyChild = ({ blockInfo, id }: Props) => {
   );
   const { warning } = useToast();
   const [loadingCount, setLoadingCount] = useState(0);
+  const [editingTitle, setEditingTitle] = useState(false);
   const {
+    title,
     checkedSubTitle,
     subTitle,
     name,
@@ -44,12 +48,14 @@ export const MyChild = ({ blockInfo, id }: Props) => {
     messageJson,
     image,
   } = blockInfo.props;
+  const automaticTitle = getDefaultChildTitle(name);
   const commitBirthday = useCallback(
     (value: string) => updateBlock(id, { birthday: value }),
     [id, updateBlock]
   );
   const {
     draft: birthdayDraft,
+    errorMessage: birthdayError,
     handleChange: handleBirthdayChange,
     handleBlur: handleBirthdayBlur,
   } = useValidatedDateDraft({
@@ -57,8 +63,9 @@ export const MyChild = ({ blockInfo, id }: Props) => {
     separator: '.',
     allowPast: true,
     onCommit: commitBirthday,
-    warning,
   });
+  const birthdayId = `birthday-${id}`;
+  const birthdayErrorId = `${birthdayId}-error`;
   const handleStringChange = (
     type: 'title' | 'subTitle' | 'name' | 'nickname',
     e: ChangeEvent<HTMLInputElement>
@@ -106,15 +113,24 @@ export const MyChild = ({ blockInfo, id }: Props) => {
     <LeftEditorWrapper ariaLabel="아기 소개">
       <NavigationBar>아기 소개 편집 페이지</NavigationBar>
       <section className="w-full flex flex-col gap-1 items-start">
-        <TextField
-          label="제목"
-          inputProps={{
-            placeholder: `${name || '아이'}의 첫번째 생일`,
-            value: blockInfo.props.title,
-            onChange: e => handleStringChange('title', e),
-          }}
-          className="w-full py-1.5 text-center"
-        />
+        <div className="w-full py-1.5">
+          <TextField
+            label="제목"
+            inputProps={{
+              value: editingTitle ? (title ?? '') : title?.trim() || automaticTitle,
+              onChange: e => {
+                setEditingTitle(true);
+                handleStringChange('title', e);
+              },
+              onBlur: () => setEditingTitle(false),
+              'aria-describedby': `child-title-hint-${id}`,
+            }}
+            className="w-full text-center"
+          />
+          <p id={`child-title-hint-${id}`} className="mt-1 text-xs text-text-secondary">
+            제목을 비우면 아이 이름에 맞춰 자동으로 표시돼요.
+          </p>
+        </div>
         {checkedSubTitle && (
           <TextField
             label="영문제목"
@@ -145,15 +161,18 @@ export const MyChild = ({ blockInfo, id }: Props) => {
           }}
           className="w-full py-1.5 text-center"
         />
-        <div className="w-full flex items-center gap-1 py-1.5">
+        <div className="grid w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-1 py-1.5">
           <Label
-            htmlFor="birthday"
+            htmlFor={birthdayId}
             className="font-semibold shrink-0 text-center"
           >
             태어난 날
           </Label>
           <Input
-            id="birthday"
+            id={birthdayId}
+            aria-invalid={birthdayError ? true : undefined}
+            aria-describedby={birthdayError ? birthdayErrorId : undefined}
+            className="aria-invalid:border-red-600"
             placeholder="ex. 2024.12.12"
             value={birthdayDraft}
             onChange={handleBirthdayChange}
@@ -161,6 +180,15 @@ export const MyChild = ({ blockInfo, id }: Props) => {
             inputMode="numeric"
             autoComplete="bday"
           />
+          {birthdayError && (
+            <p
+              id={birthdayErrorId}
+              role="alert"
+              className="col-start-2 text-xs text-red-600"
+            >
+              {birthdayError}
+            </p>
+          )}
         </div>
       </section>
 

@@ -17,14 +17,14 @@ export function buildShowcaseInvitation(design: ShowcaseInvitation) {
       backgroundColor,
       titleData: {
         font: design.font,
-        fontSize: '22px',
+        fontSize: design.largePrint ? '32px' : '22px',
         fontWeight: design.type === 'seminar' ? '700' : '500',
         color: accent,
         isDefault: false,
       },
       bodyData: {
         font: 'SUIT',
-        fontSize: '14px',
+        fontSize: design.largePrint ? '24px' : '14px',
         fontWeight: '400',
         color: text,
         isDefault: false,

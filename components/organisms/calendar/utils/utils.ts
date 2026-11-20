@@ -60,6 +60,12 @@ export const addHyphenToDate = (value: string) => {
   return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)}`;
 };
 
+export const createCalendarDate = (year: number, month: number, day: number) => {
+  const date = new Date(2000, 0, 1);
+  date.setFullYear(year, month, day);
+  return date;
+};
+
 /**
  * 특정 달의 6주 그리드 데이터 생성
  */
@@ -69,10 +75,10 @@ export const generateCalendarGrid = (
   targetDay: number,
   startDayOfWeek = 0 // 0: Sun, 1: Mon...
 ): CalendarDayInfo[] => {
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
+  const firstDay = createCalendarDate(year, month, 1);
+  const lastDay = createCalendarDate(year, month + 1, 0);
 
-  const prevLastDay = new Date(year, month, 0);
+  const prevLastDay = createCalendarDate(year, month, 0);
   const daysInMonth = lastDay.getDate();
   const prevDaysInMonth = prevLastDay.getDate();
 
@@ -88,7 +94,7 @@ export const generateCalendarGrid = (
       num: d,
       isCurrentMonth: false,
       isTargetDate: false,
-      originalDate: new Date(year, month - 1, d),
+      originalDate: createCalendarDate(year, month - 1, d),
     });
   }
 
@@ -98,7 +104,7 @@ export const generateCalendarGrid = (
       num: i,
       isCurrentMonth: true,
       isTargetDate: i === targetDay,
-      originalDate: new Date(year, month, i),
+      originalDate: createCalendarDate(year, month, i),
     });
   }
 
@@ -109,7 +115,7 @@ export const generateCalendarGrid = (
       num: i,
       isCurrentMonth: false,
       isTargetDate: false,
-      originalDate: new Date(year, month + 1, i),
+      originalDate: createCalendarDate(year, month + 1, i),
     });
   }
 
