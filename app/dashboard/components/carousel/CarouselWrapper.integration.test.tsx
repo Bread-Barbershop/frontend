@@ -7,9 +7,10 @@ import {
 } from '@/features/invitation/preview/previewSnapshot';
 
 import CarouselWrapper from './CarouselWrapper';
+import { sourceInvitation } from './fixtures/dashboardCopyInvitations';
 import { privateInvite, savedPayload } from './fixtures/invitationPreview';
 
-const mockRouter = { replace: jest.fn(), refresh: jest.fn() };
+const mockRouter = { push: jest.fn(), replace: jest.fn(), refresh: jest.fn() };
 jest.mock('next/navigation', () => ({ useRouter: () => mockRouter }));
 jest.mock('@/shared/assets/icons/edit.svg', () => () => null);
 jest.mock('@/shared/assets/icons/kakao2.svg', () => () => null);
@@ -45,11 +46,12 @@ function frameMessage(source: Window, type: string) {
   );
 }
 
-describe('대시보드 초대장 미리보기', () => {
+describe('대시보드 초대장', () => {
   const originalFetch = global.fetch;
   const mockFetch = jest.fn();
 
   beforeEach(() => {
+    mockRouter.push.mockClear();
     mockFetch.mockReset();
     global.fetch = mockFetch;
     jest.spyOn(window, 'Image').mockImplementation(() => {
@@ -77,6 +79,115 @@ describe('대시보드 초대장 미리보기', () => {
     );
     return screen.findByRole('button', { name: '초대장 미리보기' });
   }
+
+  async function renderEditButton() {
+    render(
+      <CarouselWrapper
+        initialInvites={[
+          { ...sourceInvitation, displayTitle: '민서·지훈 결혼식' },
+        ]}
+        loadOnMount={false}
+      />
+    );
+    return screen.findByRole('button', { name: '재편집하기' });
+  }
+
+  it('기본 초대장 하나면 선택창 없이 바로 편집한다', async () => {
+    const user = userEvent.setup();
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ audiences: [] }),
+    });
+    await user.click(await renderEditButton());
+    expect(mockFetch).toHaveBeenCalledWith(
+      '/api/drive/invitationAudiences?folderId=source-folder&view=editor-options',
+      expect.objectContaining({ cache: 'no-store' })
+    );
+    expect(mockRouter.push).toHaveBeenCalledWith(
+      '/editor/source-folder?uuid=source-uuid'
+    );
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ['기본 초대장', '/editor/source-folder?uuid=source-uuid'],
+    ['직장용', '/editor/work-folder?uuid=aud_work'],
+  ])('대표 카드 한 장에서 %s 편집기를 선택한다', async (name, href) => {
+    const user = userEvent.setup();
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        audiences: [
+          {
+            name: '가족용',
+            slug: 'family',
+            folderId: 'family-folder',
+            invitationUuid: 'aud_family',
+          },
+          {
+            name: '직장용',
+            slug: 'work',
+            folderId: 'work-folder',
+            invitationUuid: 'aud_work',
+          },
+        ],
+      }),
+    });
+    const trigger = await renderEditButton();
+    expect(
+      screen.queryByRole('button', { name: '직장용' })
+    ).not.toBeInTheDocument();
+    await user.click(trigger);
+    const dialog = await screen.findByRole('dialog', {
+      name: '어떤 초대장을 편집할까요?',
+    });
+    expect(dialog).toHaveAccessibleDescription('민서·지훈 결혼식');
+    expect(screen.getByRole('button', { name: '가족용' })).toBeVisible();
+    expect(mockRouter.push).not.toHaveBeenCalled();
+    fireEvent(dialog, new Event('cancel', { cancelable: true }));
+    expect(trigger).toHaveFocus();
+    await user.keyboard('{Enter}');
+    await user.click(await screen.findByRole('button', { name, exact: true }));
+    expect(mockRouter.push).toHaveBeenCalledWith(href);
+  });
+
+  it('편집 버튼을 두 번 눌러도 한 번만 조회하고 다른 작업으로 옮기면 늦은 응답을 무시한다', async () => {
+    const user = userEvent.setup();
+    let finish!: () => void;
+    mockFetch.mockImplementationOnce(
+      () =>
+        new Promise(resolve => {
+          finish = () =>
+            resolve({ ok: true, json: async () => ({ audiences: [] }) });
+        })
+    );
+    const trigger = await renderEditButton();
+    await user.dblClick(trigger);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(trigger).toHaveAccessibleName('그룹 확인 중…');
+    await user.tab();
+    expect(mockFetch.mock.calls[0][1].signal.aborted).toBe(true);
+    await act(async () => finish());
+    expect(mockRouter.push).not.toHaveBeenCalled();
+    expect(trigger).toHaveAccessibleName('재편집하기');
+  });
+
+  it('그룹 조회에 실패하면 기본으로 이동하지 않고 다시 시도할 수 있다', async () => {
+    const user = userEvent.setup();
+    mockFetch
+      .mockRejectedValueOnce(new Error('offline'))
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ audiences: [] }),
+      });
+    const trigger = await renderEditButton();
+    await user.click(trigger);
+    expect(mockRouter.push).not.toHaveBeenCalled();
+    await user.click(trigger);
+    expect(mockRouter.push).toHaveBeenCalledWith(
+      '/editor/source-folder?uuid=source-uuid'
+    );
+  });
 
   it('키보드로 비공개 초대장을 열어 저장된 데이터를 공용 미리보기로 전달하고 닫으면 포커스를 복원한다', async () => {
     const user = userEvent.setup();
