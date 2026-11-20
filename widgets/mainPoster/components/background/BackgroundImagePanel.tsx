@@ -2,8 +2,7 @@
 import { FabricImage } from 'fabric';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
-import { Label } from '@/components/atoms/label/Label';
-import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
+import { Button } from '@/components/atoms/button';
 import EditorNoticeList from '@/components/molecules/editor-notice/EditorNoticeList';
 import { RangeControl } from '@/components/molecules/range-control/RangeControl';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
@@ -11,7 +10,6 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 import { getPreviewExportMultiplier } from '@/widgets/mainPoster/utils/previewExport';
 
-import { AspectRatioSelector } from '../image/AspectRatioSelector';
 import { ImagePreview } from '../image/ImagePreview';
 
 const POSITION_MIN = -50;
@@ -34,6 +32,7 @@ export const BackgroundImagePanel = () => {
   const {
     canvas,
     compressImage,
+    startCrop,
     setBackgroundImage,
     removeBackgroundImage,
     getBackgroundImageTransform,
@@ -210,7 +209,17 @@ export const BackgroundImagePanel = () => {
         onUploadClick={handleImageUpload}
         onInputChange={handleChangeImage}
       />
-      <AspectRatioSelector disabled startCrop={() => {}} />
+      <Button
+        disabled={!hasImage}
+        onClick={() => {
+          const image = canvas
+            ?.getObjects()
+            .find(obj => obj.get('id') === 'background-layer');
+          if (image instanceof FabricImage) startCrop(image);
+        }}
+      >
+        배경 사진 자르기
+      </Button>
       <RangeControl
         label="X축"
         min={POSITION_MIN}
@@ -276,36 +285,26 @@ export const BackgroundImagePanel = () => {
           handleScaleCommit(offsetToScale(value));
         }}
       />
-      <div className="w-full flex items-center gap-3">
-        <Label className="font-semibold">추가기능</Label>
-        <Checkbox
-          checked={hasImage}
-          disabled={!hasImage}
-          onChange={async event => {
-            if (event.target.checked) return;
-            await runHistoryTransaction(
-              () => {
-                removeBackgroundImage({ saveHistory: false });
-              },
-              { save: true }
-            );
-            setActiveTab('background');
-          }}
-        >
-          <span className="text-[13px]">해당 이미지를 배경으로 적용하기</span>
-        </Checkbox>
-      </div>
+      <Button
+        disabled={!hasImage}
+        onClick={async () => {
+          await runHistoryTransaction(
+            () => {
+              removeBackgroundImage({ saveHistory: false });
+            },
+            { save: true }
+          );
+          setActiveTab('background');
+        }}
+      >
+        배경 사진 제거
+      </Button>
       <EditorNoticeList
         className="pl-1"
         notices={[
           {
-            id: 'image-crop',
-            text: '자르기 실행 후 원하는 형태로 자르기 하신 뒤 아무곳이나 클릭 하시면 적용됩니다.',
-            colorClass: 'text-[#1F72EF]',
-          },
-          {
             id: 'image-position',
-            text: 'X축, Y축 조정을 통해 이미지가 보이는 위치를 변경할 수 있습니 다.',
+            text: 'X축, Y축 조정을 통해 이미지가 보이는 위치를 변경할 수 있습니다.',
           },
         ]}
       />

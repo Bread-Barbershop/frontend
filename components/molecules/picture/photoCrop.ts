@@ -1,4 +1,8 @@
-import { centerCrop, makeAspectCrop } from 'react-image-crop';
+import {
+  centerCrop,
+  convertToPixelCrop,
+  makeAspectCrop,
+} from 'react-image-crop';
 
 import type { PercentCrop, PixelCrop } from 'react-image-crop';
 
@@ -16,11 +20,27 @@ export function centeredPhotoCrop(
   );
 }
 
-export async function croppedPhotoFile(
-  image: HTMLImageElement,
-  rect: PixelCrop,
-  name: string
-) {
+// Both the background preview and the exported background use this source rectangle.
+export function photoCropPixels(
+  crop: PercentCrop,
+  width: number,
+  height: number,
+  coverAspect?: number
+): PixelCrop {
+  const rect = convertToPixelCrop(crop, width, height);
+  if (!coverAspect) return rect;
+  const coveredWidth = Math.min(rect.width, rect.height * coverAspect);
+  const coveredHeight = Math.min(rect.height, rect.width / coverAspect);
+  return {
+    unit: 'px',
+    x: rect.x + (rect.width - coveredWidth) / 2,
+    y: rect.y + (rect.height - coveredHeight) / 2,
+    width: coveredWidth,
+    height: coveredHeight,
+  };
+}
+
+export function drawPhotoCrop(image: HTMLImageElement, rect: PixelCrop) {
   const canvas = document.createElement('canvas');
   const scale = Math.min(1, 2000 / Math.max(rect.width, rect.height));
   canvas.width = Math.max(1, Math.round(rect.width * scale));
@@ -38,6 +58,15 @@ export async function croppedPhotoFile(
     canvas.width,
     canvas.height
   );
+  return canvas;
+}
+
+export async function croppedPhotoFile(
+  image: HTMLImageElement,
+  rect: PixelCrop,
+  name: string
+) {
+  const canvas = drawPhotoCrop(image, rect);
   const blob = await new Promise<Blob | null>(resolve =>
     canvas.toBlob(resolve, 'image/webp', 0.92)
   );

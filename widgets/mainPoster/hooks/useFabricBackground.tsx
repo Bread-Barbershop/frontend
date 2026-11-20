@@ -144,23 +144,38 @@ export const useFabricBackground = ({ canvas, saveHistory }: Props) => {
     base64: string,
     options?: {
       saveHistory?: boolean;
+      crop?: { x: number; y: number; width: number; height: number };
+      opacity?: number;
     }
   ) => {
     if (!canvas) return null;
 
     try {
       const existingBg = getBackgroundObject(canvas);
-      const nextImage = existingBg || (await FabricImage.fromURL(base64));
+      const crop = options?.crop;
+      const reuseBackground = crop ? null : existingBg;
+      const nextImage =
+        reuseBackground ??
+        (await FabricImage.fromURL(base64, { crossOrigin: 'anonymous' }));
 
-      if (existingBg) {
-        await existingBg.setSrc(base64);
+      if (reuseBackground) {
+        await reuseBackground.setSrc(base64);
+        reuseBackground.set({ cropX: 0, cropY: 0 });
+      }
+      if (crop) {
+        nextImage.set({
+          cropX: crop.x,
+          cropY: crop.y,
+          width: crop.width,
+          height: crop.height,
+        });
       }
 
       const baseScale = getCoverScale(canvas, nextImage);
 
       nextImage.set({
         id: 'background-layer',
-        opacity: existingBg?.opacity ?? backgroundImageOpacity,
+        opacity: options?.opacity ?? existingBg?.opacity ?? backgroundImageOpacity,
         imageBaseScale: baseScale,
         imageSliderX: 0,
         imageSliderY: 0,
@@ -173,8 +188,9 @@ export const useFabricBackground = ({ canvas, saveHistory }: Props) => {
         scale: BACKGROUND_SCALE_MIN,
       });
 
-      if (!existingBg) {
+      if (!reuseBackground) {
         canvas.insertAt(0, nextImage);
+        if (existingBg) canvas.remove(existingBg);
       }
 
       canvas.setActiveObject(nextImage);

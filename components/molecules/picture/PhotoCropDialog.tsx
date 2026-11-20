@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
-import ReactCrop, { convertToPixelCrop } from 'react-image-crop';
+import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
-import { centeredPhotoCrop } from './photoCrop';
+import { centeredPhotoCrop, photoCropPixels } from './photoCrop';
 
 import type { PercentCrop, PixelCrop } from 'react-image-crop';
 
@@ -15,8 +15,10 @@ type ApplyCrop = (
 
 interface Props {
   src: string;
-  onApply: ApplyCrop;
+  initialCrop?: PercentCrop;
+  onApply?: ApplyCrop;
   onClose: () => void;
+  poster?: { aspect: number; onApplyBackground: ApplyCrop };
 }
 
 const ratios = [
@@ -30,21 +32,58 @@ const ratios = [
 const button =
   'rounded-md border border-border-divider px-3 py-2 text-sm font-medium disabled:opacity-50';
 
-export function PhotoCropDialog({ src, onApply, onClose }: Props) {
+export function PhotoCropDialog({
+  src,
+  initialCrop,
+  onApply,
+  onClose,
+  poster,
+}: Props) {
   const titleId = useId();
   const dialog = useRef<HTMLDialogElement>(null);
   const image = useRef<HTMLImageElement>(null);
+  const preview = useRef<HTMLCanvasElement>(null);
   const submitting = useRef(false);
-  const [aspect, setAspect] = useState<number>();
+  const [aspect, setAspect] = useState(
+    initialCrop ? undefined : poster?.aspect
+  );
   const [crop, setCrop] = useState<PercentCrop>();
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const posterAspect = poster?.aspect;
 
   useEffect(() => {
     const element = dialog.current!;
     element.showModal();
     return () => element.close();
   }, []);
+
+  useEffect(() => {
+    const img = image.current;
+    const canvas = preview.current;
+    if (!canvas || !img || !crop || !posterAspect) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (!crop.width || !crop.height) return;
+    const rect = photoCropPixels(
+      crop,
+      img.naturalWidth,
+      img.naturalHeight,
+      posterAspect
+    );
+    ctx.drawImage(
+      img,
+      rect.x,
+      rect.y,
+      rect.width,
+      rect.height,
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+  }, [crop, posterAspect]);
 
   function selectRatio(value?: number) {
     const img = image.current;
@@ -54,19 +93,22 @@ export function PhotoCropDialog({ src, onApply, onClose }: Props) {
       setCrop(centeredPhotoCrop(img.naturalWidth, img.naturalHeight, value));
   }
 
-  async function apply() {
+  async function apply(background: boolean) {
     const img = image.current;
-    if (!img || !crop?.width || !crop.height || submitting.current) return;
+    const submit = background ? poster?.onApplyBackground : onApply;
+    if (!img || !submit || !crop?.width || !crop.height || submitting.current)
+      return;
     submitting.current = true;
     setBusy(true);
     setError('');
     try {
-      const rect = convertToPixelCrop(
+      const rect = photoCropPixels(
         crop,
         img.naturalWidth,
-        img.naturalHeight
+        img.naturalHeight,
+        background ? posterAspect : undefined
       );
-      await onApply(img, rect);
+      await submit(img, rect);
       onClose();
     } catch {
       setError('사진을 적용하지 못했어요. 다시 시도해 주세요.');
@@ -80,6 +122,7 @@ export function PhotoCropDialog({ src, onApply, onClose }: Props) {
     <dialog
       ref={dialog}
       aria-labelledby={titleId}
+      data-crop-controls="true"
       className="fixed inset-0 m-auto max-h-[90dvh] w-[min(92vw,640px)] overflow-auto rounded-xl bg-white p-4 text-left text-text-primary shadow-xl backdrop:bg-black/50 sm:p-6"
       onClick={e => e.stopPropagation()}
       onKeyDown={e => e.stopPropagation()}
@@ -96,7 +139,10 @@ export function PhotoCropDialog({ src, onApply, onClose }: Props) {
         role="group"
         aria-label="자르기 비율"
       >
-        {ratios.map(option => (
+        {(poster
+          ? [{ label: '포스터 비율', value: poster.aspect }, ...ratios]
+          : ratios
+        ).map(option => (
           <button
             key={option.label}
             type="button"
@@ -111,46 +157,65 @@ export function PhotoCropDialog({ src, onApply, onClose }: Props) {
           </button>
         ))}
       </div>
-      <div className="flex justify-center rounded-lg bg-bg-sub p-2">
-        <ReactCrop
-          className="max-h-[45dvh]"
-          crop={crop}
-          aspect={aspect}
-          onChange={(_, percent) => setCrop(percent)}
-          disabled={busy}
-          keepSelection
-          ariaLabels={{
-            cropArea: '자를 영역',
-            nwDragHandle: '왼쪽 위',
-            nDragHandle: '위',
-            neDragHandle: '오른쪽 위',
-            eDragHandle: '오른쪽',
-            seDragHandle: '오른쪽 아래',
-            sDragHandle: '아래',
-            swDragHandle: '왼쪽 아래',
-            wDragHandle: '왼쪽',
-          }}
-        >
-          {/* The crop coordinates refer to this exact decoded image. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            ref={image}
-            src={src}
-            alt="자를 사진"
-            crossOrigin="anonymous"
-            draggable={false}
-            className="block max-h-[45dvh] max-w-full"
-            onLoad={e => {
-              const img = e.currentTarget;
-              setCrop(
-                centeredPhotoCrop(img.naturalWidth, img.naturalHeight, aspect)
-              );
+      <div className="flex flex-wrap items-center justify-center gap-3 rounded-lg bg-bg-sub p-2">
+        <div className="flex min-w-0 flex-1 justify-center">
+          <ReactCrop
+            className="max-h-[45dvh]"
+            crop={crop}
+            aspect={aspect}
+            onChange={(_, percent) => setCrop(percent)}
+            disabled={busy}
+            keepSelection
+            ariaLabels={{
+              cropArea: '자를 영역',
+              nwDragHandle: '왼쪽 위',
+              nDragHandle: '위',
+              neDragHandle: '오른쪽 위',
+              eDragHandle: '오른쪽',
+              seDragHandle: '오른쪽 아래',
+              sDragHandle: '아래',
+              swDragHandle: '왼쪽 아래',
+              wDragHandle: '왼쪽',
             }}
-            onError={() =>
-              setError('사진을 불러오지 못했어요. 파일을 다시 선택해 주세요.')
-            }
-          />
-        </ReactCrop>
+          >
+            {/* The crop coordinates refer to this exact decoded image. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              ref={image}
+              src={src}
+              alt="자를 사진"
+              crossOrigin="anonymous"
+              draggable={false}
+              className="block max-h-[45dvh] max-w-full"
+              onLoad={e => {
+                const img = e.currentTarget;
+                setCrop(
+                  initialCrop ??
+                    centeredPhotoCrop(
+                      img.naturalWidth,
+                      img.naturalHeight,
+                      aspect
+                    )
+                );
+              }}
+              onError={() =>
+                setError('사진을 불러오지 못했어요. 파일을 다시 선택해 주세요.')
+              }
+            />
+          </ReactCrop>
+        </div>
+        {poster && (
+          <figure className="flex w-20 shrink-0 flex-col items-center gap-1">
+            <canvas
+              ref={preview}
+              width={160}
+              height={Math.round(160 / poster.aspect)}
+              className="w-full"
+              aria-label="포스터에 적용될 배경 영역"
+            />
+            <figcaption className="text-xs">배경 미리보기</figcaption>
+          </figure>
+        )}
       </div>
       {error && (
         <p role="alert" className="mt-2 text-sm text-red-700">
@@ -166,14 +231,26 @@ export function PhotoCropDialog({ src, onApply, onClose }: Props) {
         >
           취소
         </button>
-        <button
-          type="button"
-          className={button + ' bg-text-primary text-white'}
-          disabled={!crop?.width || !crop.height || busy}
-          onClick={() => void apply()}
-        >
-          자르기 적용
-        </button>
+        {onApply && (
+          <button
+            type="button"
+            className={button + (poster ? '' : ' bg-text-primary text-white')}
+            disabled={!crop?.width || !crop.height || busy}
+            onClick={() => void apply(false)}
+          >
+            {poster ? '자르기만 적용' : '자르기 적용'}
+          </button>
+        )}
+        {poster && (
+          <button
+            type="button"
+            className={button + ' bg-text-primary text-white'}
+            disabled={!crop?.width || !crop.height || busy}
+            onClick={() => void apply(true)}
+          >
+            배경으로 적용
+          </button>
+        )}
       </div>
     </dialog>
   );

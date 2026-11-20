@@ -581,16 +581,19 @@ export const useFabric = () => {
   );
 
   const runHistoryTransaction = useCallback(
-    async (task: () => Promise<void> | void, options?: { save?: boolean }) => {
+    async (
+      task: () => Promise<void> | void,
+      options?: { save?: boolean; editInPlace?: boolean }
+    ) => {
       if (!canvas) return;
 
       isUpdating.current = true;
       isRestoringCanvasState.current = true;
-      canvas.discardActiveObject();
+      if (!options?.editInPlace) canvas.discardActiveObject();
 
       try {
         await task();
-        finalizeLoadedCanvas(canvas);
+        if (!options?.editInPlace) finalizeLoadedCanvas(canvas);
       } finally {
         isRestoringCanvasState.current = false;
         isUpdating.current = false;
