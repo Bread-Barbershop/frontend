@@ -13,6 +13,7 @@ import {
 
 type LinkShareModalProps = {
   url: string;
+  recipient?: string;
   notice?: string;
   onClose: () => void;
 };
@@ -23,7 +24,12 @@ type QrResult = {
   dataUrl: string | null;
 };
 
-export function LinkShareModal({ url, notice, onClose }: LinkShareModalProps) {
+export function LinkShareModal({
+  url,
+  recipient,
+  notice,
+  onClose,
+}: LinkShareModalProps) {
   const titleId = useId();
   const backdropDismiss = useBackdropDismiss<HTMLDivElement>(onClose);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -118,8 +124,8 @@ export function LinkShareModal({ url, notice, onClose }: LinkShareModalProps) {
           <h2 id={titleId} className="text-base font-semibold text-[#202020]">
             링크와 QR로 공유하기
           </h2>
-          <p className="mt-2 text-sm text-gray-500">
-            링크를 보내거나 QR을 스캔해 초대장을 열 수 있어요.
+          <p className="mt-2 break-words text-sm text-gray-600">
+            {recipient ?? '링크를 보내거나 QR을 스캔해 초대장을 열 수 있어요.'}
           </p>
         </div>
         {notice && (

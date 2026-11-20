@@ -135,8 +135,10 @@ function CarouselWrapper({
   const preview = useDashboardInvitationPreview();
   const [linkShare, setLinkShare] = useState<{
     url: string;
+    recipient: string;
     notice?: string;
   } | null>(null);
+  const closeLinkShare = useCallback(() => setLinkShare(null), []);
   const orderedInvites = useMemo(() => [...invites].reverse(), [invites]);
   const startIndex = Math.max(orderedInvites.length - 1, 0);
   const [resolvedImages, setResolvedImages] = useState<ResolvedImageMap>({});
@@ -289,14 +291,14 @@ function CarouselWrapper({
         onPreview={preview.openPreview}
         onUpdate={handleUpdate}
         onToggleVisibility={handleToggleVisibility}
-        onCopyUrl={folderId => {
+        onCopyUrl={(folderId, url, audienceName) => {
           const invite = invites.find(item => item.folderId === folderId);
-          const url = invite?.guestUrl ?? getGuestUrl(folderId);
-          if (!url) return;
+          if (!invite) return;
 
-          void handleCopyGuestUrl(folderId);
+          void handleCopyGuestUrl(folderId, url);
           setLinkShare({
             url,
+            recipient: `${invite.displayTitle ?? invite.name} · ${audienceName}`,
             notice:
               invite?.published === false
                 ? '비공개 초대장이에요. 공개로 변경하면 링크와 QR로 접속할 수 있어요.'
@@ -313,8 +315,9 @@ function CarouselWrapper({
       {linkShare && (
         <LinkShareModal
           url={linkShare.url}
+          recipient={linkShare.recipient}
           notice={linkShare.notice}
-          onClose={() => setLinkShare(null)}
+          onClose={closeLinkShare}
         />
       )}
       <DashboardInvitationPreviewModal
