@@ -63,7 +63,10 @@ function InvitationSettingsModal({
         onClose();
       }}
       {...backdropDismiss}
-      className="fixed inset-0 m-auto max-h-[calc(100dvh-32px)] w-[min(440px,calc(100vw-32px))] overflow-y-auto rounded-2xl bg-white p-0 text-text-primary shadow-edit backdrop:bg-black/50"
+      className={cn(
+        'fixed inset-0 m-auto max-h-[calc(100dvh-32px)] w-[min(440px,calc(100vw-32px))] overflow-y-auto rounded-2xl bg-white p-0 text-text-primary shadow-edit backdrop:bg-black/50',
+        'motion-safe:animate-[fade-in_180ms_ease-out] motion-safe:backdrop:animate-[fade-in_180ms_ease-out]'
+      )}
     >
       <form
         className="flex flex-col gap-5 p-6"
