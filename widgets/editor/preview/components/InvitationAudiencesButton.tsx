@@ -1,6 +1,5 @@
 'use client';
 
-import { UsersRound } from 'lucide-react';
 import { type ComponentProps, useEffect, useRef, useState } from 'react';
 
 import type { AudienceGroup } from '@/features/invitation/audiences/model';
@@ -42,9 +41,8 @@ export default function InvitationAudiencesButton({
         aria-expanded={isOpen}
         disabled={upload.isLoading || upload.isCleaningUp}
         onClick={() => setIsOpen(true)}
-        className="flex h-11 w-full items-center justify-center gap-1.5 rounded-lg bg-white text-sm font-semibold shadow-edit transition-colors hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50"
+        className="flex h-11 w-full items-center justify-center rounded-lg bg-white text-sm font-semibold shadow-edit transition-colors hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50"
       >
-        <UsersRound size={15} aria-hidden="true" />
         하객별 구분
       </button>
       {audienceName && (
