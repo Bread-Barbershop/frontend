@@ -67,6 +67,17 @@ export type SaveProgressStep =
   | 'checkingPresentation'
   | 'finishingInvitation';
 
+export type PhotoUploadProgress = {
+  completed: number;
+  total: number;
+  retrying: boolean;
+};
+
+type OnSaveProgress = (
+  step: SaveProgressStep,
+  photos?: PhotoUploadProgress
+) => void;
+
 type SaveInvitationFlowParams = {
   bulkData: BulkJson;
   images: UploadTask[];
@@ -79,7 +90,7 @@ type SaveInvitationFlowParams = {
   mainPoster: MainPosterData;
   invitationThumbnail: InvitationThumbnail;
   uploadImages?: UploadTask[];
-  onProgress?: (step: SaveProgressStep) => void;
+  onProgress?: OnSaveProgress;
 };
 
 type SaveInvitationFlowResult = {
@@ -311,22 +322,24 @@ function createTokenState(prep: PreparedInvitationSave): TokenState {
 }
 
 // upload: 현재 저장에 필요한 이미지와 오디오 파일을 Drive에 업로드한다.
-// 아직 기존 fileId 재사용 판단은 하지 않고, 전달받은 파일 업로드와 재시도만 담당한다.
 async function upload(params: {
   prep: PreparedInvitationSave;
   images: UploadTask[];
   audio: File | null;
   token: TokenState;
   diagnostics: SaveDiagnostics;
-  onProgress?: (step: SaveProgressStep) => void;
+  onProgress?: OnSaveProgress;
+  retryingPhotos?: boolean;
+  previousImagesInFolder?: BatchResult;
 }): Promise<UploadResult> {
   const { prep, images, audio, token, diagnostics, onProgress } = params;
 
   // 공통 업로드 실행기: 1차 업로드 후 실패한 파일만 1회 재시도한다.
   const runUploadStep = async (step: {
     folderId: string;
-    originFile: UploadTask[];
+    originFile: (UploadTask | File)[];
     concurrency?: number;
+    onFileUploaded?: () => void;
   }): Promise<StepResult> => {
     if (step.originFile.length === 0) {
       return {
@@ -340,6 +353,7 @@ async function upload(params: {
       folderId: step.folderId,
       accessToken: token.currentToken,
       concurrency: step.concurrency,
+      onFileUploaded: step.onFileUploaded,
     });
 
     const retryAttempt = firstAttempt.fail.length
@@ -348,6 +362,7 @@ async function upload(params: {
           folderId: step.folderId,
           accessToken: token.currentToken,
           concurrency: step.concurrency,
+          onFileUploaded: step.onFileUploaded,
           refreshAccessToken: token.refreshAccessToken,
         })
       : {
@@ -370,14 +385,32 @@ async function upload(params: {
     };
   };
 
-  onProgress?.('loadingPhotos');
+  const previousImages = params.previousImagesInFolder;
+  const pendingImages = previousImages
+    ? previousImages.fail.map(failure => failure.file)
+    : images;
+  let completedPhotos = previousImages?.ok.length ?? 0;
+  const reportPhotos = () =>
+    onProgress?.('loadingPhotos', {
+      completed: completedPhotos,
+      total: images.length,
+      retrying: params.retryingPhotos ?? false,
+    });
+  if (pendingImages.length > 0) reportPhotos();
   diagnostics.currentStage = 'upload_images';
   const imagesStep = await runUploadStep({
-    originFile: images,
+    originFile: pendingImages,
     folderId: prep.imageFolderId,
     concurrency: 5,
+    onFileUploaded: () => {
+      completedPhotos += 1;
+      reportPhotos();
+    },
   });
 
+  if (previousImages) {
+    imagesStep.final.ok = [...previousImages.ok, ...imagesStep.final.ok];
+  }
   const fileToId = new Map<File, string>();
   imagesStep.final.ok.forEach(ok => {
     fileToId.set(ok.file, ok.fileId);
@@ -430,7 +463,7 @@ async function commit(params: {
   invitationThumbnail: InvitationThumbnail;
   diagnostics: SaveDiagnostics;
   checkExistingThumbnail: boolean;
-  onProgress?: (step: SaveProgressStep) => void;
+  onProgress?: OnSaveProgress;
 }): Promise<CommitResult> {
   const {
     prep,
@@ -774,17 +807,7 @@ async function runSaveInvitationFlow(
   params: SaveInvitationFlowParams,
   diagnostics: SaveDiagnostics
 ): Promise<SaveInvitationFlowResult> {
-  const {
-    bulkData,
-    images,
-    audio,
-    data,
-    shareUrl,
-    bgmData,
-    invitationUuid,
-    mainPoster,
-    invitationThumbnail,
-  } = params;
+  const { images, audio, invitationUuid } = params;
 
   let usedPrepareFallback = false;
 
@@ -800,37 +823,36 @@ async function runSaveInvitationFlow(
     diagnostics,
     onProgress: params.onProgress,
   });
-  let commitResult = await commit({
-    prep,
-    checkExistingThumbnail: Boolean(invitationUuid),
-    token,
-    uploadResult,
-    bulkData,
-    images,
-    uploadImages: params.uploadImages,
-    data,
-    shareUrl,
-    bgmData,
-    mainPoster,
-    invitationThumbnail,
-    diagnostics,
-    onProgress: params.onProgress,
-  });
-
+  // 폴더 오류로 파일 ID를 받지 못했다면 초대장 데이터를 만들기 전에 재전송한다.
+  let commitResult: CommitResult | undefined;
   if (
-    shouldPrepareFallback({
-      imageFailures: uploadResult.imagesStep.final.fail,
-      audioFailures: uploadResult.audioStep.final.fail,
-      dataFailures: commitResult.dataStep.final.fail,
-    })
+    !shouldPrepareFallback(uploadResult.imagesStep.final.fail) &&
+    !shouldPrepareFallback(uploadResult.audioStep.final.fail)
   ) {
+    commitResult = await commit({
+      ...params,
+      prep,
+      checkExistingThumbnail: Boolean(invitationUuid),
+      token,
+      uploadResult,
+      diagnostics,
+    });
+  }
+
+  if (!commitResult || shouldPrepareFallback(commitResult.dataStep.final.fail)) {
     usedPrepareFallback = true;
     params.onProgress?.('checkingContent');
     diagnostics.currentStage = 'prepare';
+    const previousImageFolderId = prep.imageFolderId;
     prep = await prepareFallback(prep.invitationUuid);
     token = createTokenState(prep);
     uploadResult = await upload({
       prep,
+      retryingPhotos: true,
+      previousImagesInFolder:
+        prep.imageFolderId === previousImageFolderId
+          ? uploadResult.imagesStep.final
+          : undefined,
       images: params.uploadImages ?? images,
       audio,
       token,
@@ -838,20 +860,12 @@ async function runSaveInvitationFlow(
       onProgress: params.onProgress,
     });
     commitResult = await commit({
+      ...params,
       prep,
       checkExistingThumbnail: true,
       token,
       uploadResult,
-      bulkData,
-      images,
-      uploadImages: params.uploadImages,
-      data,
-      shareUrl,
-      bgmData,
-      mainPoster,
-      invitationThumbnail,
       diagnostics,
-      onProgress: params.onProgress,
     });
   }
 
