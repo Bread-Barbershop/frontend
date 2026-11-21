@@ -326,6 +326,84 @@ describe('대시보드 초대장', () => {
     expect(trigger).toHaveAccessibleName('재편집하기');
   });
 
+  describe('행사 전체 비공개 전환', () => {
+    async function openVisibilityConfirm() {
+      const user = userEvent.setup();
+      render(
+        <div id="app-root">
+          <CarouselWrapper
+            initialInvites={[
+              { ...sourceInvitation, displayTitle: '민서·지훈 결혼식' },
+            ]}
+            loadOnMount={false}
+          />
+        </div>
+      );
+      const toggle = await screen.findByRole('button', { name: '공개' });
+      await user.click(toggle);
+      const dialog = screen.getByRole('dialog', {
+        name: '‘민서·지훈 결혼식’ 전체를 비공개로 전환할까요?',
+      });
+      expect(dialog).toHaveAccessibleDescription(
+        /기본 초대장과 모든 하객 그룹.*이미 보낸 링크/
+      );
+      expect(mockFetch).not.toHaveBeenCalled();
+      return { user, toggle };
+    }
+
+    it.each(['{Enter}', '{Escape}'])(
+      '%s로 취소하면 공개 상태를 유지하고 스위치로 돌아온다',
+      async key => {
+        const { user, toggle } = await openVisibilityConfirm();
+        expect(screen.getByRole('button', { name: '취소' })).toHaveFocus();
+        await user.keyboard(key);
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        expect(toggle).toHaveAttribute('aria-pressed', 'true');
+        expect(toggle).toHaveFocus();
+        expect(mockFetch).not.toHaveBeenCalled();
+      }
+    );
+
+    it('확인해야 해당 행사를 비공개로 전환하고 다시 공개할 때는 바로 전환한다', async () => {
+      mockFetch.mockImplementation(async (_url, init) => ({
+        ok: true,
+        json: async () => ({
+          ok: true,
+          published: JSON.parse(init.body).visible,
+          ready: true,
+        }),
+      }));
+      const { user } = await openVisibilityConfirm();
+      await user.click(
+        screen.getByRole('button', { name: '전체 비공개로 전환' })
+      );
+      const request = (visible: boolean) =>
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({
+            invitationFolderId: sourceInvitation.folderId,
+            visible,
+          }),
+        });
+      expect(mockFetch).toHaveBeenNthCalledWith(
+        1,
+        '/api/drive/invitationVisibility',
+        request(false)
+      );
+      await user.click(await screen.findByRole('button', { name: '비공개' }));
+      expect(
+        await screen.findByRole('button', { name: '공개' })
+      ).toHaveAttribute('aria-pressed', 'true');
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(mockFetch).toHaveBeenNthCalledWith(
+        2,
+        '/api/drive/invitationVisibility',
+        request(true)
+      );
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    });
+  });
+
   it('그룹 조회에 실패하면 기본으로 이동하지 않고 다시 시도할 수 있다', async () => {
     const user = userEvent.setup();
     mockFetch
