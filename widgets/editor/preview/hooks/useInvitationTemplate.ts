@@ -141,7 +141,7 @@ const waitForFontPreparation = async (
   }
   const fontWork = preloadFonts(
     { objects },
-    { waitForDocumentFonts: !posterOnly }
+    { waitForDocumentFonts: false }
   );
 
   await new Promise<void>((resolve, reject) => {
