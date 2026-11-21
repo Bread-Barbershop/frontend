@@ -10,9 +10,16 @@ interface Props {
   alt?: string;
   className?: string;
   onDelete: (src: string) => void;
+  onCrop?: () => void;
 }
 
-export const PicturePreview = ({ src, alt, className, onDelete }: Props) => {
+export const PicturePreview = ({
+  src,
+  alt,
+  className,
+  onDelete,
+  onCrop,
+}: Props) => {
   return (
     <div className={cn(picturePreviewVariants(), className)}>
       <button
@@ -33,6 +40,20 @@ export const PicturePreview = ({ src, alt, className, onDelete }: Props) => {
         fill
         className="object-cover"
       />
+      {onCrop && (
+        <button
+          type="button"
+          className="absolute inset-x-0 bottom-0 z-1 bg-black/70 py-0.5 text-xs font-medium text-white"
+          onPointerDown={e => e.stopPropagation()}
+          onKeyDown={e => e.stopPropagation()}
+          onClick={e => {
+            e.stopPropagation();
+            onCrop();
+          }}
+        >
+          자르기
+        </button>
+      )}
     </div>
   );
 };

@@ -8,8 +8,12 @@ import { PictureLoadingSkeleton } from '@/components/atoms/picture/PictureLoadin
 import { PicturePreview } from '@/components/atoms/picture/PicturePreview';
 import SortableItem from '@/features/DndKit/Sort/SortableItem';
 import SortableWrapper from '@/features/DndKit/Sort/SortableWrapper';
+import { useDriveImageResolveContext } from '@/shared/hooks/useDriveImageResolveMode';
 import { cn } from '@/shared/utils/cn';
+import { resolveDriveImageSource } from '@/shared/utils/media/driveImageUtils';
 
+import { croppedPhotoFile } from './photoCrop';
+import { PhotoCropDialog } from './PhotoCropDialog';
 import { pictureVariants } from './Picture.style';
 
 interface PictureProps {
@@ -18,7 +22,7 @@ interface PictureProps {
   labelClassName?: string;
   multiple?: boolean;
   onChange?: (files: (File | string)[]) => void;
-  onReorder?: (files: (File | string)[]) => void;
+  onUpdateFiles?: (files: (File | string)[]) => void;
   onDelete?: (files?: (File | string)[]) => void;
   className?: string;
   previewClassName?: string;
@@ -33,7 +37,7 @@ export const Picture = ({
   labelClassName,
   multiple,
   onChange,
-  onReorder,
+  onUpdateFiles,
   onDelete,
   className,
   previewClassName,
@@ -45,58 +49,31 @@ export const Picture = ({
   >([]);
 
   const previewRef = useRef(preview);
+  const nextId = useRef(0);
+  const [cropId, setCropId] = useState<string | null>(null);
+  const cropTarget = preview.find(item => item.id === cropId);
+  const updateFiles = onUpdateFiles ?? onChange;
+  const { folderId, mode } = useDriveImageResolveContext();
 
-  // 매 렌더링마다 ref 동기화
   useEffect(() => {
-    previewRef.current = preview;
-  }, [preview]);
-
-  useEffect(() => {
-    const prev = previewRef.current;
-
-    // 1. 새로운 상태 계산 (기존 아이템 재사용)
-    // 같은 파일이 여러 번 추가될 때 각각 고유한 id를 생성하기 위해
-    // 파일 참조 + 인덱스 조합으로 id를 생성
-    const newPreview = (value ?? []).map((file, index) => {
-      const existing = prev.find(p => p.file === file);
-
-      // 이미 존재하는 파일이면 기존 데이터 재사용하되,
-      // 인덱스를 포함한 고유한 id 생성 (중복 방지)
-      if (existing) {
-        return {
-          id: `${file.toString()}-${index}`,
-          src: existing.src,
-          file,
-        };
-      }
-
-      if (typeof file === 'string') {
-        return {
-          id: `${file}-${index}`,
-          src: file,
-          file,
-        };
-      }
-
-      return {
-        id: `${(file as File).name}-${(file as File).size}-${(file as File).lastModified}-${index}`,
-        src: URL.createObjectURL(file), // 새 파일이면 URL 생성
-        file,
-      };
+    const remaining = [...previewRef.current];
+    const newPreview = (value ?? []).map(file => {
+      const index = remaining.findIndex(item => item.file === file);
+      const existing = index < 0 ? undefined : remaining.splice(index, 1)[0];
+      const src =
+        typeof file === 'string'
+          ? resolveDriveImageSource(file, { folderId, mode })
+          : (existing?.src ?? URL.createObjectURL(file));
+      return { id: existing?.id ?? String(++nextId.current), file, src };
     });
 
-    // 2. 삭제된 파일의 URL 해제 (메모리 누수 방지)
-    const newValueSet = new Set(value ?? []);
-    prev.forEach(item => {
-      if (!newValueSet.has(item.file)) {
-        if (typeof item.file !== 'string') {
-          URL.revokeObjectURL(item.src);
-        }
-      }
+    remaining.forEach(item => {
+      if (typeof item.file !== 'string') URL.revokeObjectURL(item.src);
     });
 
+    previewRef.current = newPreview;
     setPreview(newPreview);
-  }, [value]);
+  }, [value, folderId, mode]);
 
   // 컴포넌트 언마운트 시 모든 URL 해제
   useEffect(() => {
@@ -106,6 +83,7 @@ export const Picture = ({
           URL.revokeObjectURL(item.src);
         }
       });
+      previewRef.current = [];
     };
   }, []);
 
@@ -124,21 +102,17 @@ export const Picture = ({
   const handleMove = (
     items: { id: string; src: string; file: File | string }[]
   ) => {
+    previewRef.current = items;
     setPreview(items);
     const files = items.map(item => item.file);
-    if (onReorder) {
-      onReorder(files);
-    } else if (onChange) {
-      onChange(files);
-    }
+    updateFiles?.(files);
   };
 
-  const handleRemove = (src: string) => {
+  const handleRemove = (id: string) => {
     if (!value || !onDelete) return;
-    const target = preview.find(p => p.src === src);
-    if (!target) return;
-
-    const updatedFiles = value.filter(file => file !== target.file);
+    const updatedFiles = preview
+      .filter(item => item.id !== id)
+      .map(item => item.file);
     onDelete(updatedFiles);
   };
   return (
@@ -177,11 +151,34 @@ export const Picture = ({
             <PicturePreview
               src={item.src}
               className={previewClassName}
-              onDelete={handleRemove}
+              onDelete={() => handleRemove(item.id)}
+              onCrop={
+                loadingCount === 0 && updateFiles
+                  ? () => setCropId(item.id)
+                  : undefined
+              }
             />
           </SortableItem>
         )}
       </SortableWrapper>
+      {cropTarget && (
+        <PhotoCropDialog
+          key={cropTarget.id}
+          src={cropTarget.src}
+          onClose={() => setCropId(null)}
+          onApply={async (image, rect) => {
+            const name =
+              cropTarget.file instanceof File ? cropTarget.file.name : 'photo';
+            const file = await croppedPhotoFile(image, rect, name);
+            const current = previewRef.current;
+            if (!current.some(item => item.id === cropTarget.id)) return;
+            const files = current.map(item =>
+              item.id === cropTarget.id ? file : item.file
+            );
+            await updateFiles?.(files);
+          }}
+        />
+      )}
     </div>
   );
 };
