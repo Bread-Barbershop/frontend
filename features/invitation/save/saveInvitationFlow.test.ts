@@ -155,7 +155,9 @@ describe('saveInvitationFlow', () => {
   });
 
   it('shareUrl API가 돌려준 짧은 URL을 최종 guestUrl로 사용한다', async () => {
+    const onProgress = jest.fn();
     const result = await saveInvitationFlow({
+      onProgress,
       bulkData,
       images: [],
       audio: null,
@@ -178,6 +180,7 @@ describe('saveInvitationFlow', () => {
 
     expect(result.success).toBe(true);
     expect(result.guestUrl).toBe('http://localhost/i/aB7kQ2x');
+    expect(onProgress.mock.calls.map(([step]) => step)).not.toContain('loadingPhotos');
     expect(mockFetch).toHaveBeenCalledWith(
       '/api/drive/shareUrl',
       expect.objectContaining({
@@ -306,6 +309,7 @@ describe('saveInvitationFlow', () => {
     jest.useFakeTimers();
     const uploads = jest.mocked(uploadFileToDrive);
     const files = Array.from({ length: 10 }, (_, i) => new File([], `photo-${i + 1}.jpg`));
+    const completedCounts: number[] = [];
     let active = 0;
     let peak = 0;
     uploads.mockImplementation(async file => {
@@ -319,6 +323,9 @@ describe('saveInvitationFlow', () => {
 
     try {
       const saving = saveInvitationFlow({
+        onProgress: (_, photos) => {
+          if (photos) completedCounts.push(photos.completed);
+        },
         bulkData,
         shareUrl,
         bgmData,
@@ -351,6 +358,7 @@ describe('saveInvitationFlow', () => {
       await jest.advanceTimersByTimeAsync(4000);
       expect((await saving).success).toBe(true);
       expect(peak).toBe(5);
+      expect(completedCounts).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     } finally {
       jest.useRealTimers();
     }
@@ -364,6 +372,44 @@ describe('saveInvitationFlow', () => {
     reader.readAsText(dataFile);
     const payload = JSON.parse(await savedText);
     expect(payload.blocks[0].props.images).toEqual(files.map(file => `drive-${file.name}`));
+  });
+
+  it('저장 폴더를 다시 준비하면 재전송하는 사진의 완료 수를 0에서 시작한다', async () => {
+    const first = new File([], 'first.jpg');
+    const second = new File([], 'second.jpg');
+    jest
+      .mocked(uploadFileToDrive)
+      .mockRejectedValueOnce(new Error('Drive upload failed: 404'))
+      .mockImplementation(async file => ({ name: file.name, fileId: file.name }));
+    const firstAttempt: number[] = [];
+    const retryAttempt: number[] = [];
+    const result = await saveInvitationFlow({
+      bulkData,
+      shareUrl,
+      bgmData,
+      audio: null,
+      data: [],
+      images: [first, second].map(file => ({ id: 'gallery', file })),
+      mainPoster: { version: '7.1.0', objects: [] },
+      invitationThumbnail: {
+        name: '',
+        mimeType: 'image/png',
+        dataUrl: '',
+        width: 0,
+        height: 0,
+        createdAt: '',
+      },
+      onProgress: (_, photos) => {
+        if (!photos) return;
+        expect(photos.total).toBe(2);
+        const counts = photos.retrying ? retryAttempt : firstAttempt;
+        counts.push(photos.completed);
+      },
+    });
+    expect(result.success).toBe(true);
+    expect(updateFileToDrive).toHaveBeenCalledTimes(1);
+    expect(firstAttempt).toEqual([0, 1]);
+    expect(retryAttempt).toEqual([0, 1, 2]);
   });
 
   it('후원사 로고를 Drive ID로 저장하고 이름만 있는 후원사와 구분해 다시 읽는다', async () => {

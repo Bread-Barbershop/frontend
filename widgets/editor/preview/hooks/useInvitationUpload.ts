@@ -4,6 +4,7 @@ import { useShallow } from 'zustand/shallow';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import {
   saveInvitationFlow,
+  type PhotoUploadProgress,
   type SaveProgressStep,
 } from '@/features/invitation/save/saveInvitationFlow';
 import type { DashboardPendingInvitation } from '@/shared/constants/dashboardPendingInvitation';
@@ -86,9 +87,10 @@ export const useInvitationUpload = () => {
   );
 
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState(
-    SAVE_PROGRESS_MESSAGES.checkingContent
-  );
+  const [progress, setProgress] = useState<{
+    step: SaveProgressStep;
+    photos?: PhotoUploadProgress;
+  }>({ step: 'checkingContent' });
   const currentProgressStepRef = useRef<SaveProgressStep>('checkingContent');
   const pendingProgressStepRef = useRef<SaveProgressStep | null>(null);
   const progressMessageShownAtRef = useRef(0);
@@ -108,11 +110,14 @@ export const useInvitationUpload = () => {
     progressMessageTimerRef.current = null;
   }, []);
 
-  const showProgressStep = useCallback((step: SaveProgressStep) => {
-    currentProgressStepRef.current = step;
-    progressMessageShownAtRef.current = Date.now();
-    setLoadingMessage(SAVE_PROGRESS_MESSAGES[step]);
-  }, []);
+  const showProgressStep = useCallback(
+    (step: SaveProgressStep, photos?: PhotoUploadProgress) => {
+      currentProgressStepRef.current = step;
+      progressMessageShownAtRef.current = Date.now();
+      setProgress({ step, photos });
+    },
+    []
+  );
 
   const flushPendingProgressStep = useCallback(() => {
     progressMessageTimerRef.current = null;
@@ -133,29 +138,25 @@ export const useInvitationUpload = () => {
   }, [showProgressStep]);
 
   const queueProgressStep = useCallback(
-    (step: SaveProgressStep) => {
+    (step: SaveProgressStep, photos?: PhotoUploadProgress) => {
+      const currentStep = currentProgressStepRef.current;
       if (
-        SAVE_PROGRESS_ORDER[step] <
-        SAVE_PROGRESS_ORDER[currentProgressStepRef.current]
+        !photos && SAVE_PROGRESS_ORDER[step] <= SAVE_PROGRESS_ORDER[currentStep]
       ) {
-        return;
-      }
-
-      if (!isSaveLoadingRef.current) {
-        showProgressStep(step);
-        return;
-      }
-
-      if (step === currentProgressStepRef.current) {
         return;
       }
 
       const elapsed = Date.now() - progressMessageShownAtRef.current;
 
-      if (elapsed >= MIN_SAVE_PROGRESS_MESSAGE_MS) {
+      if (
+        photos ||
+        currentStep === 'loadingPhotos' ||
+        !isSaveLoadingRef.current ||
+        elapsed >= MIN_SAVE_PROGRESS_MESSAGE_MS
+      ) {
         pendingProgressStepRef.current = null;
         clearProgressMessageTimer();
-        showProgressStep(step);
+        showProgressStep(step, photos);
         return;
       }
 
@@ -430,6 +431,9 @@ export const useInvitationUpload = () => {
     isFail,
     isCleaningUp,
     pendingInvitation,
-    loadingMessage,
+    photoProgress: progress.photos,
+    loadingMessage: progress.photos
+      ? `${progress.photos.retrying ? '사진 다시 업로드 중' : '사진 업로드 중'} · ${progress.photos.total}장 중 ${progress.photos.completed}장 완료`
+      : SAVE_PROGRESS_MESSAGES[progress.step],
   };
 };

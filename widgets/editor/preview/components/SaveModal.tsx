@@ -4,6 +4,7 @@ import React, { forwardRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { LinkShareModal } from '@/components/molecules/link-share/LinkShareModal';
+import type { PhotoUploadProgress } from '@/features/invitation/save/saveInvitationFlow';
 import {
   DASHBOARD_PENDING_INVITATION_KEY,
   type DashboardPendingInvitation,
@@ -18,6 +19,7 @@ interface Props {
   pendingInvitation: DashboardPendingInvitation | null;
   skipDashboardHandoff?: boolean;
   loadingMessage: string;
+  photoProgress?: PhotoUploadProgress;
   loadingAnimation?: SaveLoadingMessageAnimation;
   retry: () => void;
   onClose: () => void;
@@ -156,10 +158,12 @@ const ModalFrame = forwardRef<
     children: React.ReactNode;
     isLoading?: boolean;
     loadingMessage?: string;
+    photoProgress?: PhotoUploadProgress;
     loadingAnimation?: SaveLoadingMessageAnimation;
     onClose: () => void;
   }
->(({ children, isLoading, loadingMessage, loadingAnimation, onClose }, ref) => {
+>((props, ref) => {
+  const { children, isLoading, loadingMessage, photoProgress, loadingAnimation, onClose } = props;
   const backdropDismiss = useBackdropDismiss<HTMLDivElement>(
     isLoading ? undefined : onClose
   );
@@ -174,17 +178,35 @@ const ModalFrame = forwardRef<
         ref={ref}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="save-modal-title"
+        aria-label={isLoading ? '초대장 저장' : undefined}
+        aria-labelledby={isLoading ? undefined : 'save-modal-title'}
         tabIndex={-1}
         className={`fixed top-1/2 left-1/2 z-[101] flex min-h-[249px] max-h-[calc(100dvh-32px)] w-[335px] max-w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-6 overflow-y-auto rounded-xl bg-white p-5 shadow-[0_24px_60px_-20px_rgb(0_0_0_/_12%),0_8px_24px_-8px_rgb(0_0_0_/_18%)] ${isLoading ? 'justify-center' : ''}`}
       >
         {isLoading ? (
           <div className="-mt-2 flex flex-col items-center gap-3 text-center">
             <SaveLottie variant="loading" loop />
-            <SaveLoadingMessage
-              message={loadingMessage}
-              animation={loadingAnimation}
-            />
+            {photoProgress ? (
+              <div className="-mt-8 grid justify-items-center gap-2">
+                <p
+                  role="status"
+                  className="text-base font-semibold tabular-nums text-[#202020]"
+                >
+                  {loadingMessage}
+                </p>
+                <progress
+                  aria-label="사진 업로드"
+                  value={photoProgress.completed}
+                  max={photoProgress.total}
+                  className="h-2 w-full accent-[#476247]"
+                />
+              </div>
+            ) : (
+              <SaveLoadingMessage
+                message={loadingMessage}
+                animation={loadingAnimation}
+              />
+            )}
           </div>
         ) : (
           children
@@ -274,6 +296,7 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
       pendingInvitation,
       skipDashboardHandoff,
       loadingMessage,
+      photoProgress,
       loadingAnimation,
       retry,
       onClose,
@@ -318,6 +341,7 @@ export const SaveModal = forwardRef<HTMLDivElement, Props>(
         ref={ref}
         isLoading={isLoading}
         loadingMessage={loadingMessage}
+        photoProgress={photoProgress}
         loadingAnimation={loadingAnimation}
         onClose={onClose}
       >

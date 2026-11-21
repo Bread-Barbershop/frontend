@@ -67,6 +67,17 @@ export type SaveProgressStep =
   | 'checkingPresentation'
   | 'finishingInvitation';
 
+export type PhotoUploadProgress = {
+  completed: number;
+  total: number;
+  retrying: boolean;
+};
+
+type OnSaveProgress = (
+  step: SaveProgressStep,
+  photos?: PhotoUploadProgress
+) => void;
+
 type SaveInvitationFlowParams = {
   bulkData: BulkJson;
   images: UploadTask[];
@@ -79,7 +90,7 @@ type SaveInvitationFlowParams = {
   mainPoster: MainPosterData;
   invitationThumbnail: InvitationThumbnail;
   uploadImages?: UploadTask[];
-  onProgress?: (step: SaveProgressStep) => void;
+  onProgress?: OnSaveProgress;
 };
 
 type SaveInvitationFlowResult = {
@@ -318,7 +329,8 @@ async function upload(params: {
   audio: File | null;
   token: TokenState;
   diagnostics: SaveDiagnostics;
-  onProgress?: (step: SaveProgressStep) => void;
+  onProgress?: OnSaveProgress;
+  retryingPhotos?: boolean;
 }): Promise<UploadResult> {
   const { prep, images, audio, token, diagnostics, onProgress } = params;
 
@@ -327,6 +339,7 @@ async function upload(params: {
     folderId: string;
     originFile: UploadTask[];
     concurrency?: number;
+    onFileUploaded?: () => void;
   }): Promise<StepResult> => {
     if (step.originFile.length === 0) {
       return {
@@ -340,6 +353,7 @@ async function upload(params: {
       folderId: step.folderId,
       accessToken: token.currentToken,
       concurrency: step.concurrency,
+      onFileUploaded: step.onFileUploaded,
     });
 
     const retryAttempt = firstAttempt.fail.length
@@ -348,6 +362,7 @@ async function upload(params: {
           folderId: step.folderId,
           accessToken: token.currentToken,
           concurrency: step.concurrency,
+          onFileUploaded: step.onFileUploaded,
           refreshAccessToken: token.refreshAccessToken,
         })
       : {
@@ -370,12 +385,23 @@ async function upload(params: {
     };
   };
 
-  onProgress?.('loadingPhotos');
+  let completedPhotos = 0;
+  const reportPhotos = () =>
+    onProgress?.('loadingPhotos', {
+      completed: completedPhotos,
+      total: images.length,
+      retrying: params.retryingPhotos ?? false,
+    });
+  if (images.length > 0) reportPhotos();
   diagnostics.currentStage = 'upload_images';
   const imagesStep = await runUploadStep({
     originFile: images,
     folderId: prep.imageFolderId,
     concurrency: 5,
+    onFileUploaded: () => {
+      completedPhotos += 1;
+      reportPhotos();
+    },
   });
 
   const fileToId = new Map<File, string>();
@@ -430,7 +456,7 @@ async function commit(params: {
   invitationThumbnail: InvitationThumbnail;
   diagnostics: SaveDiagnostics;
   checkExistingThumbnail: boolean;
-  onProgress?: (step: SaveProgressStep) => void;
+  onProgress?: OnSaveProgress;
 }): Promise<CommitResult> {
   const {
     prep,
@@ -774,17 +800,7 @@ async function runSaveInvitationFlow(
   params: SaveInvitationFlowParams,
   diagnostics: SaveDiagnostics
 ): Promise<SaveInvitationFlowResult> {
-  const {
-    bulkData,
-    images,
-    audio,
-    data,
-    shareUrl,
-    bgmData,
-    invitationUuid,
-    mainPoster,
-    invitationThumbnail,
-  } = params;
+  const { images, audio, invitationUuid } = params;
 
   let usedPrepareFallback = false;
 
@@ -800,30 +816,23 @@ async function runSaveInvitationFlow(
     diagnostics,
     onProgress: params.onProgress,
   });
-  let commitResult = await commit({
-    prep,
-    checkExistingThumbnail: Boolean(invitationUuid),
-    token,
-    uploadResult,
-    bulkData,
-    images,
-    uploadImages: params.uploadImages,
-    data,
-    shareUrl,
-    bgmData,
-    mainPoster,
-    invitationThumbnail,
-    diagnostics,
-    onProgress: params.onProgress,
-  });
-
+  // 폴더 오류로 파일 ID를 받지 못했다면 초대장 데이터를 만들기 전에 재전송한다.
+  let commitResult: CommitResult | undefined;
   if (
-    shouldPrepareFallback({
-      imageFailures: uploadResult.imagesStep.final.fail,
-      audioFailures: uploadResult.audioStep.final.fail,
-      dataFailures: commitResult.dataStep.final.fail,
-    })
+    !shouldPrepareFallback(uploadResult.imagesStep.final.fail) &&
+    !shouldPrepareFallback(uploadResult.audioStep.final.fail)
   ) {
+    commitResult = await commit({
+      ...params,
+      prep,
+      checkExistingThumbnail: Boolean(invitationUuid),
+      token,
+      uploadResult,
+      diagnostics,
+    });
+  }
+
+  if (!commitResult || shouldPrepareFallback(commitResult.dataStep.final.fail)) {
     usedPrepareFallback = true;
     params.onProgress?.('checkingContent');
     diagnostics.currentStage = 'prepare';
@@ -831,6 +840,7 @@ async function runSaveInvitationFlow(
     token = createTokenState(prep);
     uploadResult = await upload({
       prep,
+      retryingPhotos: true,
       images: params.uploadImages ?? images,
       audio,
       token,
@@ -838,20 +848,12 @@ async function runSaveInvitationFlow(
       onProgress: params.onProgress,
     });
     commitResult = await commit({
+      ...params,
       prep,
       checkExistingThumbnail: true,
       token,
       uploadResult,
-      bulkData,
-      images,
-      uploadImages: params.uploadImages,
-      data,
-      shareUrl,
-      bgmData,
-      mainPoster,
-      invitationThumbnail,
       diagnostics,
-      onProgress: params.onProgress,
     });
   }
 

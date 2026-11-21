@@ -30,6 +30,7 @@ export async function retryFailedOnce(params: {
   folderId: string;
   accessToken: string;
   concurrency?: number;
+  onFileUploaded?: () => void;
   refreshAccessToken: () => Promise<string>;
 }): Promise<{
   ok: UploadOk[];
@@ -79,6 +80,7 @@ export async function retryFailedOnce(params: {
     folderId,
     accessToken: usedAccessToken,
     concurrency: params.concurrency,
+    onFileUploaded: params.onFileUploaded,
   });
 
   return {
