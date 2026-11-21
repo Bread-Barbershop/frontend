@@ -14,6 +14,42 @@ jest.mock('@/shared/assets/icons/cancel.svg', () => () => null);
 jest.mock('@/shared/assets/icons/loadingSpinner.svg', () => () => null);
 
 describe('일반 사진 자르기', () => {
+  it.each([
+    ['1:1', '오른쪽 위', 0, 0, 900, 900],
+    ['자유', '오른쪽', 180, 120, 720, 960],
+  ] as const)(
+    '%s에서 %s 위치를 고르면 그 좌표의 사진을 저장한다',
+    async (ratio, position, x, y, width, height) => {
+      const drawImage = mockCropBrowser();
+      const onChange = jest.fn();
+      render(
+        <Picture label="사진" value={['/photo.jpg']} onChange={onChange} />
+      );
+      fireEvent.click(screen.getByRole('button', { name: '자르기' }));
+      const image = screen.getByAltText('자를 사진');
+      Object.defineProperties(image, {
+        naturalWidth: { value: 900 },
+        naturalHeight: { value: 1200 },
+      });
+      fireEvent.load(image);
+      fireEvent.click(screen.getByRole('button', { name: ratio }));
+      fireEvent.click(screen.getByRole('button', { name: position }));
+      fireEvent.click(screen.getByRole('button', { name: '자르기 적용' }));
+      await waitFor(() => expect(onChange).toHaveBeenCalledTimes(1));
+      expect(drawImage).toHaveBeenCalledWith(
+        image,
+        expect.closeTo(x),
+        expect.closeTo(y),
+        expect.closeTo(width),
+        expect.closeTo(height),
+        0,
+        0,
+        width,
+        height
+      );
+    }
+  );
+
   afterEach(() => {
     jest.restoreAllMocks();
   });
