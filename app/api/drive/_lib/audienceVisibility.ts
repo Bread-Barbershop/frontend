@@ -61,24 +61,27 @@ async function legacyMediaTargets(
   dataId: string,
   basePublic: boolean
 ) {
-  const untagged = files.filter(
-    file =>
-      file.ownedByMe && !file.appProperties?.kind && !file.appProperties?.app_id
-  );
-  const folders = untagged.filter(
+  const isOwnedLegacyFile = (file: CloneDriveFile) =>
+    file.ownedByMe && !file.appProperties?.kind && !file.appProperties?.app_id;
+  const untagged = files.filter(isOwnedLegacyFile);
+  let folders = untagged.filter(
     file =>
       file.mimeType === DRIVE_FOLDER_MIME &&
       ['image', 'images', 'audio', 'audios'].includes(file.name.toLowerCase())
   );
-  const children = await inCloneBatches(folders, folder =>
-    listCloneFiles(folder.id)
-  );
-  const media = [...untagged, ...children.flat()].filter(
-    file =>
-      file.ownedByMe &&
-      !file.appProperties?.kind &&
-      !file.appProperties?.app_id &&
-      /^(image|audio|video)\//.test(file.mimeType)
+  while (folders.length > 0) {
+    const children = await inCloneBatches(folders, folder =>
+      listCloneFiles(folder.id)
+    );
+    folders = [];
+    for (const file of children.flat()) {
+      if (!isOwnedLegacyFile(file)) continue;
+      if (file.mimeType === DRIVE_FOLDER_MIME) folders.push(file);
+      else untagged.push(file);
+    }
+  }
+  const media = untagged.filter(file =>
+    /^(image|audio|video)\//.test(file.mimeType)
   );
   if (!media.length) return [];
   const references = new Set<string>();

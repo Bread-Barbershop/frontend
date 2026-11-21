@@ -112,6 +112,19 @@ describe.each(routes)(
     });
 
     it.each([
+      { published: true, publicSlugs: ['family'], pending: false },
+      { published: false, publicSlugs: [''], pending: false },
+      { published: true, publicSlugs: [''], pending: true },
+    ])('기본 링크에도 저장된 공개 범위 %j를 반영한다', async scope => {
+      mockReadAudienceVisibility.mockResolvedValue(scope);
+      const html = renderToStaticMarkup(await page({}));
+      expect(html).toContain('비공개 초대장이에요');
+      expect(html).not.toContain('root-poster');
+      expect(await metadata({})).not.toHaveProperty('openGraph');
+      expect(mockResolveAudienceLink).not.toHaveBeenCalled();
+    });
+
+    it.each([
       [''],
       ['Family'],
       [' family '],

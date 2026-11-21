@@ -38,8 +38,8 @@ export const loadGuestInvitation = cache(
     if (audienceSlug === null) return { status: 'invalid-audience' };
 
     const root = await loadGuestPayload(rootDataFileId);
-    if (audienceSlug === undefined) return root;
-    if (root.status === 'not-found') return { status: 'invalid-audience' };
+    if (root.status === 'not-found' && audienceSlug !== undefined)
+      return { status: 'invalid-audience' };
 
     let childDataFileId: string | null;
     try {
@@ -51,10 +51,11 @@ export const loadGuestInvitation = cache(
         scope &&
         (!scope.published ||
           scope.pending ||
-          !scope.publicSlugs.includes(audienceSlug))
+          !scope.publicSlugs.includes(audienceSlug ?? ''))
       ) {
         return { status: 'private' };
       }
+      if (audienceSlug === undefined) return root;
       // A child can be public independently when the owner turned off the base link.
       if (
         root.status === 'private' &&

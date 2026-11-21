@@ -135,9 +135,12 @@ beforeEach(() => {
     },
   });
   const legacy = file('legacy-cover', 'cover.jpg', 'image/jpeg', {});
-  jest
-    .mocked(listCloneFiles)
-    .mockImplementation(async id => (id === 'root' ? files : [legacy]));
+  const children: Record<string, CloneDriveFile[]> = {
+    root: files,
+    'old-folder': [file('posters', 'posters', DRIVE_FOLDER_MIME)],
+    posters: [legacy, file('unused-cover', 'unused.jpg', 'image/jpeg')],
+  };
+  jest.mocked(listCloneFiles).mockImplementation(async id => children[id] ?? []);
   jest
     .mocked(loadCloneJson)
     .mockResolvedValue({

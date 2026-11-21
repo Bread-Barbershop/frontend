@@ -18,7 +18,12 @@ jest.mock('next/navigation', () => ({
 const resolveShortCodeMock = jest.fn();
 
 jest.mock('@/app/api/short-url/_lib/shortUrlStore', () => ({
+  isShortUrlStoreConfigured: () => true,
   resolveShortCode: (code: string) => resolveShortCodeMock(code),
+}));
+
+jest.mock('@/app/api/drive/_lib/audienceLinkStore', () => ({
+  readAudienceVisibility: async () => null,
 }));
 
 const loadGuestPayloadMock = jest.fn();
