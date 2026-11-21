@@ -12,7 +12,11 @@ import { INVITATION_TEMPLATES } from '@/shared/data/invitationTemplates/catalog'
 import InvitationTemplatePoster from '@/widgets/editor/preview/components/InvitationTemplatePoster';
 
 import { dashboardCarouselLayout } from '../carouselLayout';
-import { CarouselCardItem, type ShareAudienceLink } from '../carouselTypes';
+import {
+  CarouselCardItem,
+  type ShareAudienceLink,
+  type ShareAudienceWithKakao,
+} from '../carouselTypes';
 
 import DashboardActionButton from './actions/DashboardActionButton';
 import DeleteButton from './actions/DeleteButton';
@@ -44,7 +48,7 @@ type CarouselItemProps = {
     nextVisible: boolean
   ) => void | Promise<void>;
   onCopyUrl?: ShareAudienceLink;
-  onShare?: (folderId: string) => Promise<void>;
+  onShare?: ShareAudienceWithKakao;
   guestUrl: string | null;
   isDeleting: boolean;
   isSharing: boolean;
@@ -93,13 +97,14 @@ function CarouselItem({
     Boolean(invite?.isPending) ||
     readiness === 'pending' ||
     readiness === 'checking';
-  const canUseGuestUrl = Boolean(!isPending && guestUrl);
-  const audienceShare = useAudienceShare(
+  const audienceShare = useAudienceShare({
     invite,
-    isSelected && showCenterActions && canUseGuestUrl ? guestUrl : null,
-    onCopyUrl
-  );
-  const canAttemptShare = Boolean(invite?.hasKakaoShareData && !isPending);
+    guestUrl,
+    active: isSelected && showCenterActions && !isPending,
+    onCopyUrl,
+    onKakao: onShare,
+    isSharing,
+  });
   const canToggleVisibility = Boolean(
     invite && !isPending && !isVisibilityUpdating
   );
@@ -325,22 +330,17 @@ function CarouselItem({
                 <DashboardActionButton
                   icon={KakaoIcon}
                   variant="kakao"
-                  disabled={isSharing || !canAttemptShare}
-                  onClick={event => {
-                    handleActionClick(event);
-                    if (!canAttemptShare) return;
-                    void onShare?.(invite.folderId);
-                  }}
+                  {...audienceShare.kakaoButtonProps}
                 >
-                  카카오톡 공유하기
+                  {audienceShare.kakaoLabel}
                 </DashboardActionButton>
                 {audienceShare.picker}
                 <DashboardActionButton
                   icon={LinkIcon}
                   variant="url"
-                  {...audienceShare.buttonProps}
+                  {...audienceShare.linkButtonProps}
                 >
-                  {audienceShare.label}
+                  {audienceShare.linkLabel}
                 </DashboardActionButton>
                 <InvitationAudienceButton
                   invite={invite}

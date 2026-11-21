@@ -15,3 +15,9 @@ export type ShareAudienceLink = (
   url: string,
   audienceName: string
 ) => void;
+
+export type ShareAudienceWithKakao = (
+  rootFolderId: string,
+  audienceFolderId: string,
+  signal: AbortSignal
+) => Promise<void>;
