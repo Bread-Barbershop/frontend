@@ -3,7 +3,10 @@ import { useEffect, RefObject } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
-import { shouldIgnoreEditorShortcut } from '@/shared/utils/editorShortcutGuard';
+import {
+  isEditorEditableTarget,
+  shouldIgnoreEditorShortcut,
+} from '@/shared/utils/editorShortcutGuard';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
 export const useKeyboardEvents = (
@@ -35,14 +38,7 @@ export const useKeyboardEvents = (
     if (!canvas) return;
 
     const handleKeyboard = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      const isEditableTarget =
-        target instanceof Element &&
-        target.closest(
-          'input, textarea, select, [role="textbox"], [contenteditable]:not([contenteditable="false"])'
-        ) !== null;
-
-      if (isEditableTarget) return;
+      if (isEditorEditableTarget(e.target)) return;
 
       const hasActiveObj = canvas.getActiveObjects().length > 0;
       if (!isMouseInCanvasRef.current && !hasActiveObj) return;

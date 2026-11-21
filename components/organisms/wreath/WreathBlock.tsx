@@ -1,6 +1,7 @@
 'use client';
 
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
+import { FormSelector } from '@/components/molecules/selector/FormSelector';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
 
@@ -13,6 +14,11 @@ const FIELDS = [
   ['groomName', '신랑 이름'],
   ['brideName', '신부 이름'],
   ['partnerCode', '제휴 코드 (선택)'],
+] as const;
+
+const MODE_OPTIONS = [
+  { value: 'decline', label: '정중히 사양' },
+  { value: 'order', label: '화환 주문 안내' },
 ] as const;
 
 export function WreathBlock({ blockInfo, id }: { blockInfo: EditorBlock<'wreath'>; id: string }) {
@@ -39,13 +45,13 @@ export function WreathBlock({ blockInfo, id }: { blockInfo: EditorBlock<'wreath'
           <input className="h-10 rounded-md border border-border-divider px-3" maxLength={60}
             value={props.title} onChange={e => updateBlock(id, { title: e.target.value })} />
         </label>
-        <label className="flex flex-col gap-1 text-sm">안내 방식
-          <select className="h-10 rounded-md border border-border-divider px-3"
-            value={props.mode} onChange={e => updateBlock(id, { mode: e.target.value })}>
-            <option value="decline">정중히 사양</option>
-            <option value="order">화환 주문 안내</option>
-          </select>
-        </label>
+        <FormSelector
+          label="안내 방식"
+          className="flex flex-col gap-1 text-sm"
+          options={MODE_OPTIONS}
+          value={props.mode ?? 'decline'}
+          onChange={mode => updateBlock(id, { mode })}
+        />
         <label className="flex flex-col gap-1 text-sm">{props.mode === 'order' ? '주문 안내 문구' : '사양 안내 문구'}
           <textarea className="min-h-24 rounded-md border border-border-divider p-3 text-sm" maxLength={500}
             value={props.mode === 'order' ? props.orderMessage : props.declineMessage}

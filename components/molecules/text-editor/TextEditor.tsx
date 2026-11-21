@@ -717,38 +717,35 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
     return (
       <div className="w-full space-y-1">
         <div className="flex flex-col gap-1">
-          <div className="flex h-8 gap-[13px] items-center justify-between">
+          <div className="flex min-h-9 gap-[13px] items-center justify-between">
             <Selector<FontFamilyOption>
               options={FONT_FAMILY_OPTIONS}
               selected={fontFamilySelected}
               onSelect={handleFontFamilySelect}
-              placeholder="Font"
+              placeholder="글꼴"
               variant="fontFamily"
               onOptionVisible={loadFontPreview}
-              showCheckbox={false}
             />
 
             <Selector<FontWeightOption>
               options={fontWeightOptions}
               selected={fontWeightSelected}
               onSelect={handleFontWeightSelect}
-              placeholder="Weight"
+              placeholder="글자 굵기"
               variant="fontWeight"
-              showCheckbox={false}
             />
             {additionalSlot}
           </div>
 
-          <div className="flex h-8 items-center justify-between">
+          <div className="flex min-h-9 items-center justify-between">
             <Selector<FontSizeOption>
               options={FONT_SIZE_OPTIONS}
               selected={fontSizeSelected}
               onSelect={handleFontSizeSelect}
               onInputChange={handleFontSizeInputChange}
               onInputBlur={handleFontSizeInputBlur}
-              placeholder="Size"
+              placeholder="글자 크기"
               variant="fontSize"
-              showCheckbox={false}
             />
 
             <div className="relative" ref={colorPickerContainerRef}>

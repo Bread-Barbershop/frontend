@@ -62,6 +62,7 @@ export function TextEditorPreview({
   activeColorPickerId,
   onActiveColorPickerChange,
 }: TextEditorPreviewProps) {
+  const textLabel = colorPickerId === 'title' ? '제목' : '본문';
   const colorPickerOpen = activeColorPickerId === colorPickerId;
   const backgroundColor = useEditorStore(state => state.backgroundColor);
   const [customFontSizeInput, setCustomFontSizeInput] = useState<string | null>(
@@ -182,10 +183,10 @@ export function TextEditorPreview({
             options={FONT_FAMILY_OPTIONS}
             selected={fontFamilySelected}
             onSelect={handleFontFamilySelect}
-            placeholder="Font"
+            ariaLabel={`${textLabel} 글꼴`}
+            placeholder="글꼴"
             variant="fontFamily"
             onOptionVisible={loadFontPreview}
-            showCheckbox={false}
             className="w-full"
             stepControls={{
               onUp: () => stepFontFamily(-1),
@@ -197,14 +198,14 @@ export function TextEditorPreview({
             }}
           />
         </div>
-        <div className="flex h-8 gap-3 items-center justify-between">
+        <div className="flex min-h-9 gap-3 items-center justify-between">
           <Selector<FontWeightOption>
             options={fontWeightOptions}
             selected={fontWeightSelected}
             onSelect={handleFontWeightSelect}
-            placeholder="Weight"
+            ariaLabel={`${textLabel} 글자 굵기`}
+            placeholder="글자 굵기"
             variant="fontWeight"
-            showCheckbox={false}
             className="w-full"
             stepControls={{
               onUp: () => stepFontWeight(1),
@@ -221,9 +222,9 @@ export function TextEditorPreview({
             onSelect={handleFontSizeSelectWithCustom}
             onInputChange={handleFontSizeInputChange}
             onInputBlur={handleFontSizeInputBlur}
-            placeholder="Size"
+            ariaLabel={`${textLabel} 글자 크기`}
+            placeholder="글자 크기"
             variant="fontSize"
-            showCheckbox={false}
             className="w-full"
             stepControls={{
               onUp: () => stepFontSize(1),

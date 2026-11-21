@@ -1,5 +1,4 @@
 import { ChevronDown } from 'lucide-react';
-// import { useSearchParams } from 'next/navigation';
 import {
   Fragment,
   useState,
@@ -18,10 +17,10 @@ import CheckIcon from '@/shared/assets/icons/check.svg';
 import { cn } from '@/shared/utils/cn';
 
 import {
-  selectorVariants,
-  selectorStyles,
-  SelectorVariantType,
-  popoverVariants,
+  selectorListClass,
+  selectorOptionClass,
+  selectorTriggerClass,
+  selectorWidths,
 } from './Selector.style';
 
 interface Option {
@@ -29,28 +28,24 @@ interface Option {
   value: string;
   group?: string;
   style?: CSSProperties;
+  disabled?: boolean;
 }
 
 interface SelectorProps<T extends Option> {
-  type?: 'normal' | 'editor';
-  variant?: SelectorVariantType;
-  options: T[];
+  variant?: keyof typeof selectorWidths;
+  options: readonly T[];
+  triggerId?: string;
+  labelledBy?: string;
+  ariaLabel?: string;
+  invalid?: boolean;
+  describedBy?: string;
   onOptionVisible?: (value: string) => void;
   placeholder?: string;
   className?: string;
-  triggerClassName?: string;
-  openTriggerClassName?: string;
-  triggerButtonClassName?: string;
-  labelClassName?: string;
-  optionContainerClassName?: string;
-  optionLabelClassName?: string;
-  customInputClassName?: string;
   onInputChange?: (value: string) => void;
   onInputBlur?: () => void;
   onSelect: (option: T) => void;
   selected: T | null;
-  showCheckbox?: boolean;
-  addPopWidth?: number;
   searchable?: boolean;
   disabled?: boolean;
   stepControls?: {
@@ -62,30 +57,27 @@ interface SelectorProps<T extends Option> {
 }
 
 const VIEWPORT_GAP = 12;
+const MAX_LIST_HEIGHT = 288;
+const CUSTOM_INPUT_LIST_MIN_WIDTH = 96;
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), Math.max(min, max));
 
 export const Selector = <T extends Option>({
-  type = 'editor',
   variant,
   options,
+  triggerId,
+  labelledBy,
+  ariaLabel,
+  invalid,
+  describedBy,
   onOptionVisible,
   placeholder = '선택',
   className,
-  triggerClassName,
-  openTriggerClassName,
-  triggerButtonClassName,
-  labelClassName,
-  optionContainerClassName,
-  optionLabelClassName,
-  customInputClassName,
   onSelect,
   onInputChange,
   onInputBlur,
   selected,
-  showCheckbox = true,
-  addPopWidth = 0,
   searchable = false,
   disabled = false,
   stepControls,
@@ -93,73 +85,97 @@ export const Selector = <T extends Option>({
   const [isOpen, setIsOpen] = useState(false);
   const [isCustomInput, setIsCustomInput] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0, width: 0 });
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const scrollToActive = useRef(true);
+  const [popoverPos, setPopoverPos] = useState({
+    offset: 0,
+    left: 0,
+    width: 0,
+    maxHeight: MAX_LIST_HEIGHT,
+    above: false,
+  });
   const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const popoverRef = useRef<HTMLUListElement>(null);
   const baseId = useId();
   const popoverId = `popover-${baseId}`;
-  // const searchParams = useSearchParams();
-  // const isAdmin = searchParams.get('type') === 'admin';
+  const buttonId = triggerId ?? `selector-${baseId}`;
+  const accessibleLabel = ariaLabel ?? (labelledBy ? undefined : placeholder);
 
   // 실제 값이 있는지 확인 (객체 내부의 value나 label 체크)
   const hasValue = !!(selected?.value || selected?.label);
 
   const updatePopoverPosition = useCallback(() => {
     const container = containerRef.current;
-    if (!container || typeof window === 'undefined') return;
+    const list = popoverRef.current;
+    if (!container || !list) return;
 
     const rect = container.getBoundingClientRect();
-    const width = rect.width + addPopWidth;
-    const popoverHeight = popoverRef.current?.offsetHeight ?? 0;
+    const width = Math.min(
+      Math.max(rect.width, onInputChange ? CUSTOM_INPUT_LIST_MIN_WIDTH : 0),
+      window.innerWidth - 2 * VIEWPORT_GAP
+    );
     const maxLeft = window.innerWidth - width - VIEWPORT_GAP;
     const left = clamp(rect.left, VIEWPORT_GAP, maxLeft);
-    const belowTop = rect.bottom;
-    const aboveTop = rect.top - popoverHeight;
-    const maxTop = window.innerHeight - popoverHeight - VIEWPORT_GAP;
-    const preferredTop =
-      popoverHeight > 0 &&
-      belowTop + popoverHeight > window.innerHeight - VIEWPORT_GAP &&
-      aboveTop >= VIEWPORT_GAP
-        ? aboveTop
-        : belowTop;
+    const roomBelow = window.innerHeight - rect.bottom - VIEWPORT_GAP;
+    const roomAbove = rect.top - VIEWPORT_GAP;
+    const listHeight = Math.min(list.scrollHeight + 1, MAX_LIST_HEIGHT);
+    const above = roomBelow < listHeight && roomAbove > roomBelow;
 
     setPopoverPos({
-      top: clamp(preferredTop, VIEWPORT_GAP, maxTop),
+      offset: above ? window.innerHeight - rect.top : rect.bottom,
       left,
-      width: rect.width,
+      width,
+      maxHeight: clamp(above ? roomAbove : roomBelow, 0, MAX_LIST_HEIGHT),
+      above,
     });
-  }, [addPopWidth]);
+  }, [onInputChange]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     onInputChange?.(e.target.value);
   };
 
+  const closePopover = () => {
+    setIsOpen(false);
+    setActiveIndex(-1);
+    popoverRef.current?.hidePopover?.();
+  };
+
+  const openPopover = () => {
+    scrollToActive.current = true;
+    setIsOpen(true);
+    popoverRef.current?.showPopover?.();
+    updatePopoverPosition();
+  };
+
   const handleSelect = (option: T) => {
-    if (disabled) return;
+    if (disabled || option.disabled) return;
 
     setIsCustomInput(false);
+    closePopover();
+    triggerRef.current?.focus({ preventScroll: true });
     onSelect(option);
-    popoverRef.current?.hidePopover();
   };
 
   const handleToggle = () => {
     if (disabled) return;
 
-    if (isOpen) {
-      setIsOpen(false);
-      popoverRef.current?.hidePopover();
-    } else {
-      setIsOpen(true);
-      updatePopoverPosition();
-      popoverRef.current?.showPopover();
-      window.requestAnimationFrame(updatePopoverPosition);
+    if (isOpen) closePopover();
+    else {
+      setActiveIndex(
+        options.findIndex(
+          option => !option.disabled && option.value === selected?.value
+        )
+      );
+      openPopover();
     }
   };
 
   const handleCustomMenuItemClick = () => {
+    if (disabled) return;
     setIsCustomInput(true);
-    popoverRef.current?.hidePopover();
+    closePopover();
     onSelect({ label: '', value: '' } as T);
   };
 
@@ -180,6 +196,8 @@ export const Selector = <T extends Option>({
       if (isOpening) {
         updatePopoverPosition();
         setSearchTerm('');
+      } else {
+        setActiveIndex(-1);
       }
     };
 
@@ -199,20 +217,21 @@ export const Selector = <T extends Option>({
     window.addEventListener('resize', updatePopoverPosition);
     window.addEventListener('scroll', updatePopoverPosition, true);
 
-    const resizeObserver = new ResizeObserver(updatePopoverPosition);
-    if (containerRef.current) resizeObserver.observe(containerRef.current);
-    if (popoverRef.current) resizeObserver.observe(popoverRef.current);
+    const resizeObserver =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(updatePopoverPosition);
+    if (containerRef.current) resizeObserver?.observe(containerRef.current);
+    if (popoverRef.current) resizeObserver?.observe(popoverRef.current);
 
     return () => {
       window.cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', updatePopoverPosition);
       window.removeEventListener('scroll', updatePopoverPosition, true);
-      resizeObserver.disconnect();
+      resizeObserver?.disconnect();
     };
   }, [isOpen, updatePopoverPosition]);
 
-  // const filteredOptions =
-  //   searchable || isAdmin
   const filteredOptions = searchable
     ? options.filter(opt => {
         const labelStr =
@@ -220,6 +239,17 @@ export const Selector = <T extends Option>({
         return labelStr.toLowerCase().includes(searchTerm.toLowerCase());
       })
     : options;
+
+  const activeOptionId =
+    isOpen && activeIndex !== -1 ? `${popoverId}-${activeIndex}` : undefined;
+
+  useEffect(() => {
+    if (activeOptionId && scrollToActive.current) {
+      document
+        .getElementById(activeOptionId)
+        ?.scrollIntoView?.({ block: 'nearest' });
+    }
+  }, [activeOptionId]);
 
   useEffect(() => {
     const popover = popoverRef.current;
@@ -244,8 +274,6 @@ export const Selector = <T extends Option>({
     return () => observer.disconnect();
   }, [isOpen, onOptionVisible, options, searchTerm]);
 
-  const variantStyles = variant ? selectorStyles[variant] : null;
-
   const handleStepKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     if (!stepControls || (event.key !== 'ArrowUp' && event.key !== 'ArrowDown'))
       return;
@@ -260,36 +288,92 @@ export const Selector = <T extends Option>({
     (isUp ? stepControls.onUp : stepControls.onDown)();
   };
 
+  const handleTriggerKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    const { key } = event;
+    if (disabled || event.nativeEvent.isComposing) return;
+    if (!isOpen && stepControls && (key === 'ArrowUp' || key === 'ArrowDown')) {
+      handleStepKeyDown(event);
+      return;
+    }
+
+    if (isOpen && (key === 'Escape' || key === 'Tab')) {
+      if (key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      closePopover();
+      return;
+    }
+
+    if (isOpen && (key === 'Enter' || key === ' ')) {
+      event.preventDefault();
+      const option = filteredOptions[activeIndex];
+      if (onInputChange && activeIndex === filteredOptions.length)
+        handleCustomMenuItemClick();
+      else if (option) handleSelect(option);
+      else closePopover();
+      return;
+    }
+
+    const arrow = key === 'ArrowUp' || key === 'ArrowDown';
+    const endpoint = key === 'Home' || key === 'End';
+    if (!arrow && !(isOpen && endpoint)) return;
+
+    event.preventDefault();
+    const indices = filteredOptions.flatMap((option, index) =>
+      option.disabled ? [] : [index]
+    );
+    if (onInputChange) indices.push(filteredOptions.length);
+    if (!indices.length) return;
+    const selectedIndex = filteredOptions.findIndex(
+      option => option.value === selected?.value
+    );
+    const currentIndex = indices.indexOf(
+      activeIndex < 0 ? selectedIndex : activeIndex
+    );
+    const lastIndex = indices.length - 1;
+    scrollToActive.current = true;
+    let nextIndex = currentIndex;
+    if (key === 'Home') nextIndex = 0;
+    if (key === 'End') nextIndex = lastIndex;
+    if (key === 'ArrowDown' && isOpen) nextIndex += 1;
+    if (key === 'ArrowUp' && isOpen) nextIndex -= 1;
+    if (currentIndex === -1 && key === 'ArrowUp') nextIndex = lastIndex;
+    setActiveIndex(indices[clamp(nextIndex, 0, lastIndex)]);
+    if (!isOpen) openPopover();
+  };
+
+  const pointAtOption = (index: number) => {
+    scrollToActive.current = false;
+    setActiveIndex(index);
+  };
+
   return (
     <div
       ref={containerRef}
       className={cn(
         'relative text-center',
-        variantStyles?.container,
+        variant && selectorWidths[variant],
         className
       )}
     >
       <div
         className={cn(
-          selectorVariants({ type, isOpen, hasValue }),
-          variantStyles?.trigger,
-          triggerClassName,
-          disabled && 'pointer-events-none opacity-60',
-          isOpen &&
-            (variantStyles && 'openTrigger' in variantStyles
-              ? variantStyles.openTrigger
-              : openTriggerClassName),
-          isOpen && 'border-b-bg-base'
+          selectorTriggerClass,
+          isOpen && (popoverPos.above ? 'rounded-t-none' : 'rounded-b-none'),
+          disabled && 'opacity-60'
         )}
       >
         {isCustomInput ? (
           <input
             ref={inputRef}
             type="text"
-            className={cn(
-              'w-full h-8 px-2 bg-transparent outline-none text-text-primary text-sm',
-              customInputClassName
-            )}
+            aria-label={accessibleLabel}
+            aria-labelledby={labelledBy}
+            aria-invalid={invalid}
+            aria-describedby={describedBy}
+            disabled={disabled}
+            className="h-full w-full bg-transparent px-2 text-left text-sm text-text-primary outline-none"
             value={typeof selected?.label === 'string' ? selected.label : ''}
             onChange={handleInputChange}
             onBlur={() => {
@@ -306,24 +390,28 @@ export const Selector = <T extends Option>({
           />
         ) : (
           <button
+            id={buttonId}
+            ref={triggerRef}
+            type="button"
+            role="combobox"
+            aria-label={accessibleLabel}
+            aria-labelledby={labelledBy}
+            aria-invalid={invalid}
+            aria-describedby={describedBy}
             onClick={handleToggle}
             className={cn(
-              'flex items-center justify-between w-full py-1 pl-2 text-left cursor-pointer',
-              variantStyles?.triggerButton,
-              triggerButtonClassName,
+              'flex h-full w-full cursor-pointer items-center justify-between px-2 text-left outline-none',
               disabled && 'cursor-not-allowed'
             )}
             aria-haspopup="listbox"
             aria-expanded={isOpen}
+            aria-controls={popoverId}
+            aria-activedescendant={activeOptionId}
             disabled={disabled}
-            onKeyDown={handleStepKeyDown}
+            onKeyDown={handleTriggerKeyDown}
           >
             <span
-              className={cn(
-                'h-6 text-text-primary truncate flex-1 min-w-0 flex items-center justify-center',
-                variantStyles?.label,
-                labelClassName
-              )}
+              className="block min-w-0 flex-1 truncate text-left font-normal leading-6 text-text-primary"
               style={selected?.style}
             >
               {hasValue ? selected?.label : placeholder}
@@ -331,7 +419,7 @@ export const Selector = <T extends Option>({
 
             <div
               className={cn(
-                'flex-center size-6 transition-transform duration-200 shrink-0',
+                'flex-center h-6 w-4 shrink-0 transition-transform duration-200',
                 isOpen && 'rotate-180'
               )}
             >
@@ -345,26 +433,34 @@ export const Selector = <T extends Option>({
         id={popoverId}
         ref={popoverRef}
         popover="auto"
+        role="listbox"
+        aria-label={accessibleLabel}
+        aria-labelledby={labelledBy}
+        aria-hidden={!isOpen}
         className={cn(
-          popoverVariants({ type }),
-          selected ? 'bg-bg-base' : 'bg-border-neutral',
-          optionContainerClassName
+          selectorListClass,
+          popoverPos.above
+            ? 'rounded-b-none border-b-0'
+            : 'rounded-t-none border-t-0'
         )}
         style={{
-          top: `${popoverPos.top}px`,
+          top: popoverPos.above ? undefined : popoverPos.offset,
+          bottom: popoverPos.above ? popoverPos.offset : undefined,
+          maxHeight: popoverPos.maxHeight,
           left: `${popoverPos.left}px`,
-          width: `${popoverPos.width + addPopWidth}px`,
-          inset: 'auto', // popover 기본값 오버라이드
+          width: `${popoverPos.width}px`,
         }}
       >
-        {/* {(searchable || isAdmin) && ( */}
         {searchable && (
           <div className="sticky top-0 z-10 p-1 bg-bg-base border-b border-border-neutral rounded-md">
             <Input
               type="text"
               placeholder="검색"
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={e => {
+                setSearchTerm(e.target.value);
+                setActiveIndex(-1);
+              }}
               className="w-full h-8 px-2 text-xs bg-transparent border border-border-neutral rounded-md outline-none focus:border-primary text-text-primary placeholder:text-text-disabled"
               onClick={e => e.stopPropagation()}
             />
@@ -382,49 +478,32 @@ export const Selector = <T extends Option>({
                 </li>
               )}
             <li
+              id={`${popoverId}-${index}`}
               data-option-value={onOptionVisible ? option.value : undefined}
-              tabIndex={option.group ? 0 : undefined}
               onClick={() => handleSelect(option)}
-              onFocus={
-                onOptionVisible
-                  ? () => onOptionVisible(option.value)
-                  : undefined
-              }
-              onKeyDown={
-                option.group
-                  ? event => {
-                      if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        handleSelect(option);
-                      }
-                    }
-                  : undefined
+              onPointerMove={
+                option.disabled ? undefined : () => pointAtOption(index)
               }
               className={cn(
-                'flex w-full items-center min-h-8 gap-1 text-sm text-text-primary cursor-pointer hover:bg-bg-sub transition-colors select-none',
-                showCheckbox ? 'pr-1' : 'px-3'
+                selectorOptionClass,
+                activeIndex === index && 'bg-bg-sub',
+                option.disabled &&
+                  'cursor-not-allowed text-text-secondary opacity-60 hover:bg-transparent'
               )}
               role="option"
               aria-selected={selected?.value === option.value}
+              aria-disabled={option.disabled}
             >
-              {showCheckbox && (
-                <div
-                  className={cn(
-                    'flex-center w-6 pl-2 shrink-0 text-primary',
-                    selected?.value !== option.value && 'invisible'
-                  )}
-                >
-                  <CheckIcon width={12} height={12} />
-                </div>
-              )}
               <span
+                aria-hidden="true"
                 className={cn(
-                  'h-7 leading-7 truncate min-w-0 flex-center',
-                  variantStyles?.optionLabel,
-                  optionLabelClassName
+                  'flex-center w-6 shrink-0 pl-2',
+                  selected?.value !== option.value && 'invisible'
                 )}
-                style={option.style}
               >
+                <CheckIcon width={12} height={12} />
+              </span>
+              <span className="min-w-0 truncate leading-7" style={option.style}>
                 {option.label}
               </span>
             </li>
@@ -433,8 +512,16 @@ export const Selector = <T extends Option>({
 
         {onInputChange && (
           <li
+            id={`${popoverId}-${filteredOptions.length}`}
+            role="option"
+            aria-selected={false}
             onClick={handleCustomMenuItemClick}
-            className="h-7 leading-7 px-1 py-0.5 text-[13px] hover:bg-bg-sub cursor-pointer select-none"
+            onPointerMove={() => pointAtOption(filteredOptions.length)}
+            className={cn(
+              selectorOptionClass,
+              'pl-7',
+              activeIndex === filteredOptions.length && 'bg-bg-sub'
+            )}
           >
             직접입력
           </li>

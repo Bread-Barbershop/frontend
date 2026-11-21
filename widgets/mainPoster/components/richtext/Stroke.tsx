@@ -81,6 +81,7 @@ function Stroke({
             selectedColor={pickerColor}
           />
           <Selector
+            ariaLabel="테두리 두께"
             placeholder="0.5"
             options={strokeSize}
             className="absolute -right-18 w-20"

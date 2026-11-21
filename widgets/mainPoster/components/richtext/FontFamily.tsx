@@ -179,7 +179,6 @@ function FontFamily() {
           );
         }}
         selected={selectedFont}
-        showCheckbox={false}
         searchable={false}
       />
 
@@ -207,7 +206,6 @@ function FontFamily() {
           applyRichStyle({ fontWeight: nextWeight }, canvas);
         }}
         selected={selectedWeight}
-        showCheckbox={false}
         searchable={false}
       />
     </div>

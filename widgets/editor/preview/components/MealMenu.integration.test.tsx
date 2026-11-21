@@ -99,9 +99,8 @@ describe('식사 메뉴 블록', () => {
       screen.getByRole('button', { name: '코스 1 요리 2 위로 이동' })
     );
     fireEvent.click(screen.getByRole('button', { name: '코스 2 위로 이동' }));
-    fireEvent.change(screen.getByLabelText('디자인'), {
-      target: { value: 'garden' },
-    });
+    fireEvent.click(screen.getByRole('combobox', { name: '디자인' }));
+    fireEvent.click(screen.getByRole('option', { name: '잉크 가든' }));
 
     const expectedOrder = [
       '안심 스테이크',
@@ -168,9 +167,15 @@ describe('식사 메뉴 블록', () => {
     expect(screen.getAllByRole('listitem')).toHaveLength(3);
   });
 
-  it.each(['classic', 'garden', 'ivy', 'ribbon', 'artDeco'])(
+  it.each([
+    ['classic', '클래식'],
+    ['garden', '잉크 가든'],
+    ['ivy', '앤틱 아이비'],
+    ['ribbon', '리본과 별'],
+    ['artDeco', '아르데코'],
+  ])(
     '장식이 꺼져 있어도 %s 디자인을 선택하면 테두리 장식이 켜진다',
-    menuStyle => {
+    (menuStyle, designName) => {
       useEditorStore.getState().addBlock('etc', 'mealMenu', 'menu', {
         menuStyle: 'ribbon',
         showCornerArt: false,
@@ -179,10 +184,11 @@ describe('식사 메뉴 블록', () => {
       const design = screen.getByRole('combobox', { name: '디자인' });
       const artwork = screen.getByRole('checkbox', { name: '테두리 장식' });
       const preview = screen.getByRole('article', { name: '식사 메뉴' });
-      expect(design).toHaveDisplayValue('리본과 별 (장식 없음)');
+      expect(design).toHaveTextContent('리본과 별 (장식 없음)');
       expect(artwork).not.toBeChecked();
 
-      fireEvent.change(design, { target: { value: menuStyle } });
+      fireEvent.click(design);
+      fireEvent.click(screen.getByRole('option', { name: designName }));
       expect(artwork).toBeChecked();
       expect(preview).toHaveAttribute('data-menu-style', menuStyle);
       expect(preview).toHaveAttribute('data-corner-art', 'true');
@@ -190,7 +196,8 @@ describe('식사 메뉴 블록', () => {
       fireEvent.click(artwork);
       expect(preview).toHaveAttribute('data-corner-art', 'false');
       expect(preview).toHaveAttribute('data-menu-style', menuStyle);
-      fireEvent.change(design, { target: { value: 'minimal' } });
+      fireEvent.click(design);
+      fireEvent.click(screen.getByRole('option', { name: '미니멀' }));
       expect(
         screen.queryByRole('checkbox', { name: '테두리 장식' })
       ).not.toBeInTheDocument();

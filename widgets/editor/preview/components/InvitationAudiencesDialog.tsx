@@ -4,6 +4,7 @@ import { Check, Copy, Plus, X } from 'lucide-react';
 import { type FormEvent, useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { FormSelector } from '@/components/molecules/selector/FormSelector';
 import {
   type AudienceGroup,
   type AudienceGroupList,
@@ -475,20 +476,17 @@ export default function InvitationAudiencesDialog({
                 className="grid min-w-0 gap-3"
               >
                 {groupOptions.length > 1 && (
-                  <label className="grid gap-1.5 text-xs font-semibold">
-                    복제할 초대장
-                    <select
-                      value={source?.folderId ?? ''}
-                      onChange={event => setSourceFolderId(event.target.value)}
-                      className={FIELD_CLASS}
-                    >
-                      {groupOptions.map(group => (
-                        <option key={group.folderId} value={group.folderId}>
-                          {group.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                  <FormSelector
+                    label="복제할 초대장"
+                    className="grid gap-1.5 text-xs font-semibold"
+                    options={groupOptions.map(group => ({
+                      value: group.folderId,
+                      label: group.name,
+                    }))}
+                    value={source?.folderId ?? ''}
+                    onChange={setSourceFolderId}
+                    disabled={busy || Boolean(pendingAction)}
+                  />
                 )}
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <label className="grid gap-1.5 text-xs font-semibold">

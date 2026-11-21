@@ -70,6 +70,7 @@ function FontSize() {
   return (
     <Selector
       variant="fontSize"
+      ariaLabel="글자 크기"
       placeholder="16px"
       options={fontSize}
       onSelect={option => {
@@ -92,11 +93,7 @@ function FontSize() {
           debouncedApplyStyle({ fontSize: safeSize }, canvas);
         }
       }}
-      customInputClassName={
-        'w-[60px] h-8 bg-transparent border border-border-neutral outline-none focus:border-primary rounded-lg text-center'
-      }
       selected={selectedFontSize}
-      showCheckbox={false}
     />
   );
 }

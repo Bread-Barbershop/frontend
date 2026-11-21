@@ -177,7 +177,19 @@ describe('하객별 구분', () => {
     const source = await screen.findByRole('combobox', {
       name: '복제할 초대장',
     });
-    await user.selectOptions(source, familyAudience.folderId);
+    expect(source).toHaveTextContent('기본');
+    await user.click(source);
+    expect(screen.getByRole('option', { name: '기본' })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    );
+    await user.keyboard('{ArrowDown}{Escape}');
+    expect(source).toHaveAttribute('aria-expanded', 'false');
+    expect(source).toHaveTextContent('기본');
+    await user.keyboard('{ArrowDown}{ArrowDown}{Enter}');
+    expect(source).toHaveTextContent('가족');
+    expect(source).toHaveFocus();
+    expect(mockFetch).toHaveBeenCalledTimes(1);
     expect(screen.getByRole('button', { name: '가족' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: '가족 링크 복사' }));
     expect(writeText).toHaveBeenCalledWith(

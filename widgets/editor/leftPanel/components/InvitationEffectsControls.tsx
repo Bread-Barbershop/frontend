@@ -7,16 +7,25 @@ import {
   navigationBarClassName,
   navigationBarHeadingClassName,
 } from '@/components/molecules/navigation-bar/NavigationBar.style';
+import { FormSelector } from '@/components/molecules/selector/FormSelector';
 import { AmbientScopeSelect } from '@/components/organisms/visualEffects/AmbientScopeSelect';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { cn } from '@/shared/utils/cn';
 import {
   AMBIENT_EFFECT_OPTIONS,
   resolveInvitationEffects,
-  type AmbientEffect,
 } from '@/shared/utils/invitationEffects';
 
 import { ScrollAnimationControls } from './ScrollAnimationControls';
+
+const OPENING_OPTIONS = [
+  { value: 'direct', label: '바로 시작' },
+  { value: 'envelope', label: '편지봉투 열기' },
+] as const;
+const LEGACY_AMBIENT_OPTIONS = [
+  { value: 'blocks', label: '기존 효과 조합', disabled: true },
+  ...AMBIENT_EFFECT_OPTIONS,
+] as const;
 
 export function InvitationEffectsControls() {
   const { blocks, settings, updateInvitationEffects, replayInvitationEffects } =
@@ -52,22 +61,13 @@ export function InvitationEffectsControls() {
         />
       </summary>
       <div className="flex flex-col gap-4 pb-4">
-        <label className="flex flex-col gap-1.5 text-xs font-medium text-text-secondary">
-          오프닝
-          <select
-            className="h-9 rounded-md border border-border-divider bg-white px-2 text-sm text-text-primary"
-            value={opening}
-            onChange={event =>
-              updateInvitationEffects({
-                opening:
-                  event.target.value === 'envelope' ? 'envelope' : 'direct',
-              })
-            }
-          >
-            <option value="direct">바로 시작</option>
-            <option value="envelope">편지봉투 열기</option>
-          </select>
-        </label>
+        <FormSelector
+          label="오프닝"
+          className="flex flex-col gap-1.5 text-xs font-medium text-text-secondary"
+          options={OPENING_OPTIONS}
+          value={opening}
+          onChange={opening => updateInvitationEffects({ opening })}
+        />
         <div className="flex flex-col gap-1 text-xs font-medium text-text-secondary">
           <span>축하 효과</span>
           <label className="flex min-h-8 cursor-pointer items-center justify-between text-sm text-text-primary">
@@ -90,30 +90,19 @@ export function InvitationEffectsControls() {
             />
           </label>
         </div>
-        <label className="flex flex-col gap-1.5 text-xs font-medium text-text-secondary">
-          배경 효과
-          <select
-            className="h-9 rounded-md border border-border-divider bg-white px-2 text-sm text-text-primary"
-            value={ambientValue}
-            onChange={event =>
-              updateInvitationEffects({
-                ambientEffect: event.target.value as AmbientEffect,
-                ambientScope,
-              })
-            }
-          >
-            {ambientValue === 'blocks' && (
-              <option value="blocks" disabled>
-                기존 효과 조합
-              </option>
-            )}
-            {AMBIENT_EFFECT_OPTIONS.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <FormSelector
+          label="배경 효과"
+          className="flex flex-col gap-1.5 text-xs font-medium text-text-secondary"
+          options={
+            ambientValue === 'blocks'
+              ? LEGACY_AMBIENT_OPTIONS
+              : AMBIENT_EFFECT_OPTIONS
+          }
+          value={ambientValue}
+          onChange={ambientEffect =>
+            updateInvitationEffects({ ambientEffect, ambientScope })
+          }
+        />
         {ambient.length > 0 && (
           <AmbientScopeSelect
             value={ambientScope}

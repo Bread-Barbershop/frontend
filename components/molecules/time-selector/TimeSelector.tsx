@@ -66,7 +66,7 @@ export const TimeSelector = ({ value, onChange }: TimeSelectorProps) => {
     <div className="flex gap-2 w-full">
       <div className="min-w-0 flex-1">
         <Selector
-          type="normal"
+          ariaLabel="오전/오후"
           options={AMPM_OPTIONS}
           selected={value ? selectedAmPm : null}
           onSelect={handleAmPmChange}
@@ -74,7 +74,7 @@ export const TimeSelector = ({ value, onChange }: TimeSelectorProps) => {
       </div>
       <div className="min-w-0 flex-1">
         <Selector
-          type="normal"
+          ariaLabel="시"
           options={hourOptions}
           selected={value ? selectedHour : null}
           onSelect={handleHourChange}
@@ -82,7 +82,7 @@ export const TimeSelector = ({ value, onChange }: TimeSelectorProps) => {
       </div>
       <div className="min-w-0 flex-1">
         <Selector
-          type="normal"
+          ariaLabel="분"
           options={minuteOptions}
           selected={value ? selectedMinute : null}
           onSelect={handleMinuteChange}
