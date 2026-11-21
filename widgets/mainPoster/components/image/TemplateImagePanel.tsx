@@ -1,14 +1,13 @@
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
-import { Label } from '@/components/atoms/label/Label';
-import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
+import { Button } from '@/components/atoms/button';
 import { EditorNoticeList } from '@/components/molecules/editor-notice';
 import { RangeControl } from '@/components/molecules/range-control/RangeControl';
 import { LeftEditorWrapper } from '@/components/organisms/wrapper/LeftEditorWrapper';
-import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
 
-import { AspectRatioSelector } from './AspectRatioSelector';
+import { isFilledSlotImage } from '../../utils/imageSlot';
+
 import { ImagePreview } from './ImagePreview';
 
 const POSITION_MIN = -50;
@@ -32,17 +31,14 @@ export const TemplateImagePanel = () => {
     activeInfo,
     compressImage,
     replaceSlotImageBySlot,
-    restoreSlotPlaceholderBySlot,
     getSlotImagePositionBySlot,
     updateSlotImagePositionBySlot,
     getSlotImageScaleBySlot,
     updateSlotImageScaleBySlot,
     exportSlotImagePreviewBySlot,
-    setBackgroundImage,
-    runHistoryTransaction,
+    startCrop,
     getActiveSlotEntity,
   } = useFabricContext();
-  const setActiveTab = useEditorStore(state => state.setActiveTab);
   const inputRef = useRef<HTMLInputElement>(null);
   const [imageSrc, setImageSrc] = useState('');
   const [displayValue, setDisplayValue] = useState({
@@ -54,25 +50,13 @@ export const TemplateImagePanel = () => {
   const activeSlotKey = activeSlotEntity?.slotId ?? null;
   const hasActiveSlot = Boolean(activeSlotKey);
   const position = activeSlotKey
-    ? getSlotImagePositionBySlot(activeSlotKey) ?? { x: 0, y: 0 }
+    ? (getSlotImagePositionBySlot(activeSlotKey) ?? { x: 0, y: 0 })
     : { x: 0, y: 0 };
   const scale = activeSlotKey
-    ? getSlotImageScaleBySlot(activeSlotKey) ?? SCALE_MIN
+    ? (getSlotImageScaleBySlot(activeSlotKey) ?? SCALE_MIN)
     : SCALE_MIN;
 
-  const syncBackgroundSelection = () => {
-    if (!canvas) return;
-
-    const backgroundObject = canvas
-      .getObjects()
-      .find(obj => obj.get('id') === 'background-layer');
-
-    if (!backgroundObject) return;
-
-    backgroundObject.set({ selectable: true, evented: true });
-    canvas.setActiveObject(backgroundObject);
-    canvas.requestRenderAll();
-  };
+  const selectedImage = canvas?.getActiveObject();
 
   useEffect(() => {
     setDisplayValue({
@@ -166,23 +150,6 @@ export const TemplateImagePanel = () => {
     }
   };
 
-  const handleSetAsBackground = async (checked: boolean) => {
-    if (!checked || !canvas || !activeSlotKey) return;
-
-    const previewDataUrl = exportSlotImagePreviewBySlot(activeSlotKey);
-    if (!previewDataUrl) return;
-
-    await runHistoryTransaction(
-      async () => {
-        await setBackgroundImage(previewDataUrl, { saveHistory: false });
-        restoreSlotPlaceholderBySlot(activeSlotKey, { saveHistory: false });
-      },
-      { save: true }
-    );
-    syncBackgroundSelection();
-    setActiveTab('image');
-  };
-
   return (
     <LeftEditorWrapper
       ariaLabel="프레임 이미지 편집"
@@ -202,7 +169,14 @@ export const TemplateImagePanel = () => {
           </p>
         }
       />
-      <AspectRatioSelector disabled startCrop={() => {}} />
+      <Button
+        disabled={!isFilledSlotImage(selectedImage)}
+        onClick={() => {
+          if (isFilledSlotImage(selectedImage)) startCrop(selectedImage);
+        }}
+      >
+        사진 자르기 · 배경으로 적용
+      </Button>
       <RangeControl
         label="X축"
         min={POSITION_MIN}
@@ -268,29 +242,12 @@ export const TemplateImagePanel = () => {
           handleSlotScaleCommit(SCALE_MIN + clampScaleOffset(value));
         }}
       />
-      <div className="w-full flex items-center gap-3">
-        <Label className="font-semibold">추가기능</Label>
-        <Checkbox
-          checked={false}
-          disabled={!hasActiveSlot}
-          onChange={async event => {
-            await handleSetAsBackground(event.target.checked);
-          }}
-        >
-          <span className="text-[13px]">해당 이미지를 배경으로 적용하기</span>
-        </Checkbox>
-      </div>
       <EditorNoticeList
         className="pl-1"
         notices={[
           {
-            id: 'image-crop',
-            text: '자르기 실행 후 원하는 형태로 자르기 하신 뒤 아무곳이나 클릭 하시면 적용됩니다.',
-            colorClass: 'text-[#1F72EF]',
-          },
-          {
             id: 'image-position',
-            text: 'X축, Y축 조정을 통해 이미지가 보이는 위치를 변경할 수 있습니 다.',
+            text: 'X축, Y축 조정을 통해 이미지가 보이는 위치를 변경할 수 있습니다.',
           },
         ]}
       />

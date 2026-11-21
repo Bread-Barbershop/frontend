@@ -23,11 +23,3 @@ export const FILTER_CONFIG: {
   { key: 'grain', label: '노이즈 (Grain)', min: 0, max: 100, default: 0 },
   { key: 'bw', label: '흑백 강도 (B&W)', min: 0, max: 100, default: 0 },
 ] as const;
-
-export const ASPECT_RATIO_OPTIONS = [
-  { label: '자유', value: 'free' },
-  { label: '1:1', value: (1 / 1).toFixed(2) },
-  { label: '4:3', value: (4 / 3).toFixed(2) },
-  { label: '3:4', value: (3 / 4).toFixed(2) },
-  { label: '9:16', value: (9 / 16).toFixed(2) },
-] as const;
