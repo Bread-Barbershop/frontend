@@ -156,11 +156,6 @@ function CarouselItem({
         marginInlineEnd: showPreviewLabel
           ? dashboardCarouselLayout.trackGap
           : undefined,
-        // Match Embla's centered first snap before its measurements are available.
-        marginInlineStart:
-          showPreviewLabel && index === 0
-            ? `calc(50% - ${cardWidth} / 2)`
-            : undefined,
       }}
     >
       <div

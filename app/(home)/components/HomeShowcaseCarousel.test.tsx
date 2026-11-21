@@ -53,8 +53,12 @@ it('쇼케이스는 선택된 카드 없이 흐르고, 카드에서 포인터를
   expect(mockScroll.play).toHaveBeenCalledTimes(2);
 });
 
-it('마지막 카드 뒤에도 순환에 필요한 간격을 남긴다', () => {
+it('마지막 카드 뒤에만 간격을 두고 첫 카드 앞에는 여백을 더하지 않는다', () => {
   const lastCard = renderShowcase();
+  const firstCard = screen.getAllByRole('button', {
+    name: /초대장 미리보기$/,
+  })[0];
+  expect(firstCard.style.marginInlineStart).toBe('');
   expect(lastCard).toHaveStyle({
     marginInlineEnd: dashboardCarouselLayout.trackGap,
   });

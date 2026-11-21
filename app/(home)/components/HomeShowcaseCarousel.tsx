@@ -38,6 +38,7 @@ export default function HomeShowcaseCarousel({
   ]);
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
+      align: 'start',
       loop: true,
       dragFree: true,
       watchDrag: (_, event) => isCarouselControl(event.target),
