@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  useCallback,
-  useMemo,
-  useState,
-  type ChangeEvent,
-} from 'react';
+import { useCallback, useMemo, useState, type ChangeEvent } from 'react';
 
 import {
   getTodayKstDateString,
@@ -75,6 +70,27 @@ export function formatDateDraft(
   previousDraft: string,
   separator: DateSeparator = '-'
 ) {
+  // A separator finishes the preceding part, including a one-digit month.
+  const compact = inputValue.replace(/\s*([./-])\s*/g, '$1');
+  const parts = /^(\d{4})([./-])(\d{1,2})([./-])(\d{0,2})$/.exec(compact);
+  if (
+    parts &&
+    (parts[2] === parts[4] || compact === previousDraft + parts[4])
+  ) {
+    const day = parts[5];
+    const pastedDay =
+      day.length === 1 &&
+      inputValue !== previousDraft + day &&
+      !previousDraft.startsWith(inputValue);
+    return (
+      parts[1] +
+      separator +
+      parts[3].padStart(2, '0') +
+      separator +
+      (pastedDay ? day.padStart(2, '0') : day)
+    );
+  }
+  inputValue = compact;
   const isTypingDigitAtEnd =
     inputValue.length === previousDraft.length + 1 &&
     inputValue.startsWith(previousDraft) &&
@@ -84,7 +100,9 @@ export function formatDateDraft(
 
   const trailingSeparator =
     /[./-]$/.test(inputValue) && (digits.length === 4 || digits.length === 6);
-  return formatPartialDate(digits, separator) + (trailingSeparator ? separator : '');
+  return (
+    formatPartialDate(digits, separator) + (trailingSeparator ? separator : '')
+  );
 }
 
 function validateDraft(
@@ -94,7 +112,8 @@ function validateDraft(
 ): ValidationResult {
   if (!value) return { kind: 'empty' };
   const digits = getDraftDigits(value);
-  if (!digits?.length || digits.length > 8) return { kind: 'invalid', reason: 'format' };
+  if (!digits?.length || digits.length > 8)
+    return { kind: 'invalid', reason: 'format' };
   if (digits.length < 8) return { kind: 'partial' };
 
   const parts = {
@@ -176,7 +195,11 @@ export function useValidatedDateDraft({
         return;
       }
 
-      const nextDraft = formatDateDraft(inputValue, currentState.draft, separator);
+      const nextDraft = formatDateDraft(
+        inputValue,
+        currentState.draft,
+        separator
+      );
 
       const result = validateDraft(nextDraft, separator, allowPast);
       if (result.kind === 'valid') {
@@ -206,6 +229,24 @@ export function useValidatedDateDraft({
   );
 
   const handleBlur = useCallback(() => {
+    const shortDay = /^(\d{4}[.-]\d{2}[.-])(\d)$/.exec(currentState.draft);
+    if (shortDay) {
+      const completed = validateDraft(
+        shortDay[1] + '0' + shortDay[2],
+        separator,
+        allowPast
+      );
+      if (completed.kind === 'valid') {
+        setDraftState({
+          sourceValue: committedValue,
+          draft: completed.formatted,
+          committed: completed.formatted,
+          warningActive: false,
+        });
+        onCommit(completed.formatted);
+        return;
+      }
+    }
     const result = validateDraft(currentState.draft, separator, allowPast);
     if (result.kind === 'partial' || result.kind === 'invalid') {
       if (!warning) {
@@ -220,7 +261,7 @@ export function useValidatedDateDraft({
         warningActive: false,
       });
     }
-  }, [allowPast, committedValue, currentState, separator, warning]);
+  }, [allowPast, committedValue, currentState, onCommit, separator, warning]);
 
   const errorMessage = warning
     ? undefined
