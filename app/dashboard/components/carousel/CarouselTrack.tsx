@@ -98,7 +98,7 @@ function CarouselTrack({
       <div
         className="relative flex h-full w-full min-w-full"
         style={{
-          gap: dashboardCarouselLayout.trackGap,
+          gap: showPreviewLabel ? undefined : dashboardCarouselLayout.trackGap,
           top: 'calc(var(--carousel-base-offset) - var(--carousel-safe-top))',
         }}
       >
