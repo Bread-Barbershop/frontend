@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
-import { Button } from '@/components/atoms/button';
 import { Label } from '@/components/atoms/label';
+import { ButtonSelector } from '@/components/molecules/button-selector/ButtonSelector';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { EditorNoticeList } from '@/components/molecules/editor-notice';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
@@ -11,7 +11,6 @@ import { TextField } from '@/components/molecules/text-field';
 import { useToast } from '@/shared/hooks/useToast';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { EditorBlock } from '@/shared/types/block';
-import { cn } from '@/shared/utils/cn';
 import { compressImages } from '@/shared/utils/imageCompression';
 import { sanitizeEnglishTitleInput } from '@/shared/utils/stringUtils';
 
@@ -22,7 +21,10 @@ interface Props {
   id: string;
 }
 
-const ratioOptions = ['1:1', '3:4', '4:3', '9:16', '16:9'];
+const ratioOptions = ['1:1', '3:4', '4:3', '9:16', '16:9'].map(value => ({
+  value,
+  label: value,
+}));
 
 export const Video = ({ blockInfo, id }: Props) => {
   const { title, videoUrl, checkThumbnail, checkedSubTitle, subTitle } =
@@ -93,25 +95,13 @@ export const Video = ({ blockInfo, id }: Props) => {
         }}
         className="w-full py-1.5 text-center"
       />
-      <section className="flex gap-2 w-full py-1.5">
-        <Label className="text-center font-semibold">비율</Label>
-        <div className="flex w-full justify-between">
-          {ratioOptions.map(ratio => (
-            <Button
-              key={ratio}
-              variant="bordered"
-              type="button"
-              className={cn(
-                ratio === blockInfo.props.ratio && 'border-primary',
-                'w-12'
-              )}
-              onClick={() => handleUpdateBlock('ratio', ratio)}
-            >
-              {ratio}
-            </Button>
-          ))}
-        </div>
-      </section>
+      <ButtonSelector
+        className="w-full py-1.5 text-center"
+        label="비율"
+        selectorOption={ratioOptions}
+        selectedValue={blockInfo.props.ratio}
+        onChange={ratio => handleUpdateBlock('ratio', ratio)}
+      />
       <section className="flex gap-2 w-full py-1.5">
         <Label className="text-center font-semibold">추가기능</Label>
         <Checkbox

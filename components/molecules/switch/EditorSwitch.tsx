@@ -3,21 +3,23 @@ import { useId, type Ref } from 'react';
 import { TOGGLE_TRACK } from '@/components/atoms/toggle-track/ToggleTrack.style';
 import { cn } from '@/shared/utils/cn';
 
-type InvitationSettingsSwitchProps = {
+type EditorSwitchProps = {
   label: string;
+  ariaLabel?: string;
   description?: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
   inputRef?: Ref<HTMLInputElement>;
 };
 
-export function InvitationSettingsSwitch({
+export function EditorSwitch({
   label,
+  ariaLabel,
   description,
   checked,
   onChange,
   inputRef,
-}: InvitationSettingsSwitchProps) {
+}: EditorSwitchProps) {
   const labelId = useId();
   const descriptionId = useId();
   const { width, height, knobSize, knobTravel, knobShadow, on, off } =
@@ -45,7 +47,8 @@ export function InvitationSettingsSwitch({
         role="switch"
         checked={checked}
         onChange={event => onChange(event.currentTarget.checked)}
-        aria-labelledby={labelId}
+        aria-label={ariaLabel}
+        aria-labelledby={ariaLabel ? undefined : labelId}
         aria-describedby={description ? descriptionId : undefined}
         className="peer absolute inset-0 m-0 size-full cursor-pointer opacity-0"
       />

@@ -1,4 +1,4 @@
-import { ChangeEvent, PointerEvent, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { Label } from '@/components/atoms/label';
@@ -90,10 +90,6 @@ function Gallery({ blockInfo, id }: Props) {
     updateBlock(id, { isSubTitle: e.target.checked });
   };
 
-  const handleAspectRatioChange = (e: PointerEvent<HTMLButtonElement>) => {
-    updateBlock(id, { ratio: e.currentTarget.value });
-  };
-
   return (
     <LeftEditorWrapper ariaLabel="갤러리">
       <NavigationBar>갤러리 편집 페이지</NavigationBar>
@@ -136,7 +132,7 @@ function Gallery({ blockInfo, id }: Props) {
             className="gap-2 text-center"
             label="비율"
             selectorOption={ASPECT_RATIO_OPTIONS}
-            onPointerDown={handleAspectRatioChange}
+            onChange={ratio => updateBlock(id, { ratio })}
             selectedValue={ratio}
           />
         )}

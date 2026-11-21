@@ -1,4 +1,3 @@
-import { arrayMove } from '@dnd-kit/sortable';
 import { useState, type ChangeEvent } from 'react';
 
 import { UtilityButton } from '@/components/atoms/button';
@@ -138,35 +137,28 @@ function SponsorshipInfomation({ blockInfo, id }: Props) {
       )}
       <div className="w-full">
         <SortableWrapper
+          vertical
           items={entries}
           className="flex-col gap-0"
           onChange={next => changeEntries(() => next)}
         >
-          {entry => {
-            const index = entries.indexOf(entry);
-            return (
-              <SponsorRow
-                key={entry.id}
-                sponsor={entry}
-                focusName={entry.id === newSponsorId}
-                position={index + 1}
-                onNameChange={name => editSponsor(entry.id, { name })}
-                onPick={files => void pickLogos(entry.id, files)}
-                onClear={() => editSponsor(entry.id, { logo: null })}
-                onRemove={() =>
-                  changeEntries(current =>
-                    current.filter(item => item.id !== entry.id)
-                  )
-                }
-                onMove={offset => {
-                  if (index + offset >= 0 && index + offset < entries.length)
-                    changeEntries(current =>
-                      arrayMove(current, index, index + offset)
-                    );
-                }}
-              />
-            );
-          }}
+          {(entry, index, moveBy) => (
+            <SponsorRow
+              key={entry.id}
+              sponsor={entry}
+              focusName={entry.id === newSponsorId}
+              position={index + 1}
+              onNameChange={name => editSponsor(entry.id, { name })}
+              onPick={files => void pickLogos(entry.id, files)}
+              onClear={() => editSponsor(entry.id, { logo: null })}
+              onRemove={() =>
+                changeEntries(current =>
+                  current.filter(item => item.id !== entry.id)
+                )
+              }
+              onMove={moveBy}
+            />
+          )}
         </SortableWrapper>
         <UtilityButton
           className="mt-3 bg-text-primary px-3 text-bg-base enabled:hover:bg-text-secondary"
