@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { dashboardCarouselLayout } from '@/app/dashboard/components/carousel/carouselLayout';
 import ShowcasePreviewProvider from '@/features/showcase/components/ShowcasePreviewProvider';
 
 import HomeShowcaseCarousel from './HomeShowcaseCarousel';
@@ -50,6 +51,13 @@ it('쇼케이스는 선택된 카드 없이 흐르고, 카드에서 포인터를
   expect(mockScroll.stop).toHaveBeenCalledTimes(1);
   fireEvent.pointerOut(card, { relatedTarget: document.body });
   expect(mockScroll.play).toHaveBeenCalledTimes(2);
+});
+
+it('마지막 카드 뒤에도 순환에 필요한 간격을 남긴다', () => {
+  const lastCard = renderShowcase();
+  expect(lastCard).toHaveStyle({
+    marginInlineEnd: dashboardCarouselLayout.trackGap,
+  });
 });
 
 it.each(['클릭', 'Enter'])(

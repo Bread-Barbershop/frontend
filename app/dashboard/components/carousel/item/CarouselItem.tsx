@@ -152,6 +152,10 @@ function CarouselItem({
       style={{
         width: cardWidth,
         height: dashboardCarouselLayout.cardHeight,
+        // Embla includes the final slide's margin when measuring a full loop.
+        marginInlineEnd: showPreviewLabel
+          ? dashboardCarouselLayout.trackGap
+          : undefined,
         // Match Embla's centered first snap before its measurements are available.
         marginInlineStart:
           showPreviewLabel && index === 0
