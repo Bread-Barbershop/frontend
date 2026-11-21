@@ -32,6 +32,32 @@ const ratios = [
 const button =
   'rounded-md border border-border-divider px-3 py-2 text-sm font-medium disabled:opacity-50';
 
+const positions = [
+  ['왼쪽 위', '↖', 0, 0],
+  ['위', '↑', 0.5, 0],
+  ['오른쪽 위', '↗', 1, 0],
+  ['왼쪽', '←', 0, 0.5],
+  ['가운데', '·', 0.5, 0.5],
+  ['오른쪽', '→', 1, 0.5],
+  ['왼쪽 아래', '↙', 0, 1],
+  ['아래', '↓', 0.5, 1],
+  ['오른쪽 아래', '↘', 1, 1],
+] as const;
+
+function alignCrop(crop: PercentCrop, x: number, y: number) {
+  // Leave room to move when the original image fills the entire selection.
+  const full = crop.width >= 99.999 && crop.height >= 99.999;
+  const width = full ? 80 : crop.width;
+  const height = full ? 80 : crop.height;
+  return {
+    ...crop,
+    width,
+    height,
+    x: (100 - width) * x,
+    y: (100 - height) * y,
+  };
+}
+
 export function PhotoCropDialog({
   src,
   initialCrop,
@@ -168,14 +194,14 @@ export function PhotoCropDialog({
             keepSelection
             ariaLabels={{
               cropArea: '자를 영역',
-              nwDragHandle: '왼쪽 위',
-              nDragHandle: '위',
-              neDragHandle: '오른쪽 위',
-              eDragHandle: '오른쪽',
-              seDragHandle: '오른쪽 아래',
-              sDragHandle: '아래',
-              swDragHandle: '왼쪽 아래',
-              wDragHandle: '왼쪽',
+              nwDragHandle: '왼쪽 위 모서리 크기 조절',
+              nDragHandle: '위쪽 가장자리 크기 조절',
+              neDragHandle: '오른쪽 위 모서리 크기 조절',
+              eDragHandle: '오른쪽 가장자리 크기 조절',
+              seDragHandle: '오른쪽 아래 모서리 크기 조절',
+              sDragHandle: '아래쪽 가장자리 크기 조절',
+              swDragHandle: '왼쪽 아래 모서리 크기 조절',
+              wDragHandle: '왼쪽 가장자리 크기 조절',
             }}
           >
             {/* The crop coordinates refer to this exact decoded image. */}
@@ -217,6 +243,39 @@ export function PhotoCropDialog({
           </figure>
         )}
       </div>
+      <fieldset className="mt-3 flex items-center gap-3">
+        <legend className="text-sm font-semibold">자를 영역 위치</legend>
+        <div className="grid grid-cols-3 gap-1">
+          {positions.map(([label, arrow, x, y]) => {
+            const next = crop && alignCrop(crop, x, y);
+            const same =
+              next &&
+              crop &&
+              Math.abs(next.x - crop.x) < 0.001 &&
+              Math.abs(next.y - crop.y) < 0.001 &&
+              next.width === crop.width &&
+              next.height === crop.height;
+            return (
+              <button
+                key={label}
+                type="button"
+                aria-label={label}
+                title={label}
+                className="size-9 rounded border border-border-divider disabled:opacity-40"
+                disabled={!next || !crop?.width || !crop.height || busy || same}
+                onClick={() => next && setCrop(next)}
+              >
+                {arrow}
+              </button>
+            );
+          })}
+        </div>
+        <p className="text-xs text-text-secondary">
+          {crop && crop.width >= 99.999 && crop.height >= 99.999
+            ? '위치를 고르면 사진 가로와 세로의 80%를 선택해요. 가장자리를 끌어 크기를 바꿀 수 있어요.'
+            : '영역 안을 끌어 이동하거나 가장자리를 끌어 크기를 조절하세요.'}
+        </p>
+      </fieldset>
       {error && (
         <p role="alert" className="mt-2 text-sm text-red-700">
           {error}
