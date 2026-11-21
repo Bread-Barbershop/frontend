@@ -797,8 +797,9 @@ function useDashboardInvitations(
   );
 
   const handleCopyGuestUrl = useCallback(
-    async (folderId: string) => {
-      const finalUrl = resolveGuestUrl(invitationResults[folderId] ?? null);
+    async (folderId: string, audienceUrl?: string) => {
+      const finalUrl =
+        audienceUrl ?? resolveGuestUrl(invitationResults[folderId] ?? null);
       if (!finalUrl) return;
 
       try {

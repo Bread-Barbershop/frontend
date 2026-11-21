@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { toDataURL } from 'qrcode';
 
 import {
   parsePreviewSnapshot,
@@ -9,6 +10,15 @@ import {
 import CarouselWrapper from './CarouselWrapper';
 import { sourceInvitation } from './fixtures/dashboardCopyInvitations';
 import { privateInvite, savedPayload } from './fixtures/invitationPreview';
+import {
+  baseGroup,
+  familyGroup,
+  shareAudienceResponse,
+  shareInvite,
+  workGroup,
+} from './fixtures/shareAudiences';
+
+jest.mock('qrcode', () => ({ toDataURL: jest.fn() }));
 
 const mockRouter = { push: jest.fn(), replace: jest.fn(), refresh: jest.fn() };
 jest.mock('next/navigation', () => ({ useRouter: () => mockRouter }));
@@ -267,6 +277,90 @@ describe('대시보드 초대장', () => {
     expect(screen.getByRole('dialog')).toBe(dialog);
     expect(mockFetch).toHaveBeenLastCalledWith(previewUrl, expect.anything());
     expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+
+  describe('하객별 링크와 QR 공유', () => {
+    beforeEach(() => {
+      (toDataURL as jest.Mock)
+        .mockReset()
+        .mockResolvedValue('data:image/png;base64,cXI=');
+    });
+
+    function showCard() {
+      return render(
+        <CarouselWrapper initialInvites={[shareInvite]} loadOnMount={false} />
+      );
+    }
+
+    it.each([
+      ['기본 초대장', 'http://localhost/i/wedding'],
+      ['직장용', 'http://localhost/i/wedding?to=work'],
+    ])(
+      '%s을 선택한 뒤에만 같은 주소를 복사하고 QR을 만든다',
+      async (name, url) => {
+        const user = userEvent.setup();
+        const copy = jest.spyOn(navigator.clipboard, 'writeText');
+        mockFetch.mockResolvedValue(
+          shareAudienceResponse([baseGroup, familyGroup, workGroup])
+        );
+        showCard();
+        const trigger = await screen.findByRole('button', {
+          name: 'URL 링크 공유하기',
+        });
+        await user.click(trigger);
+        const picker = screen.getByRole('dialog', {
+          name: '누구에게 보낼 초대장인가요?',
+        });
+        expect(picker).toHaveAccessibleDescription('민서·지훈 결혼식');
+        expect(screen.getByRole('button', { name: '가족용' })).toBeVisible();
+        fireEvent(picker, new Event('cancel', { cancelable: true }));
+        expect(trigger).toHaveFocus();
+        expect(copy).not.toHaveBeenCalled();
+        expect(toDataURL).not.toHaveBeenCalled();
+        await user.keyboard('{Enter}');
+        await user.click(screen.getByRole('button', { name, exact: true }));
+        expect(copy).toHaveBeenCalledTimes(1);
+        expect(copy).toHaveBeenCalledWith(url);
+        expect(screen.getByText(`민서·지훈 결혼식 · ${name}`)).toBeVisible();
+        expect(
+          screen.getByRole('textbox', { name: '초대장 링크' })
+        ).toHaveValue(url);
+        expect(screen.getByText(/비공개 초대장이에요/)).toBeVisible();
+        expect(
+          await screen.findByRole('img', { name: '초대장 공유 QR 코드' })
+        ).toBeVisible();
+        expect(toDataURL).toHaveBeenCalledWith(url, expect.any(Object));
+        await user.click(screen.getByRole('button', { name: '닫기' }));
+        expect(trigger).toHaveFocus();
+      }
+    );
+
+    it('목록을 다시 불러온 뒤 기본 초대장만 있으면 한 번의 공유 클릭으로 복사한다', async () => {
+      const user = userEvent.setup();
+      const copy = jest.spyOn(navigator.clipboard, 'writeText');
+      mockFetch
+        .mockRejectedValueOnce(new Error('offline'))
+        .mockResolvedValueOnce(shareAudienceResponse([baseGroup]));
+      showCard();
+      await user.click(
+        await screen.findByRole('button', { name: '공유 다시 준비하기' })
+      );
+      expect(copy).not.toHaveBeenCalled();
+      await user.click(
+        await screen.findByRole('button', { name: 'URL 링크 공유하기' })
+      );
+      expect(copy).toHaveBeenCalledWith('http://localhost/i/wedding');
+      expect(
+        screen.queryByRole('dialog', { name: '누구에게 보낼 초대장인가요?' })
+      ).not.toBeInTheDocument();
+      expect(
+        await screen.findByRole('img', { name: '초대장 공유 QR 코드' })
+      ).toBeVisible();
+      expect(toDataURL).toHaveBeenCalledWith(
+        'http://localhost/i/wedding',
+        expect.any(Object)
+      );
+    });
   });
 
   it('로딩 중 닫으면 요청을 취소하고 뒤늦게 도착한 응답을 무시한다', async () => {

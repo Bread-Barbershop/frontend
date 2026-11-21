@@ -4,7 +4,7 @@ import {
   dashboardCarouselLayout,
   dashboardCarouselVars,
 } from './carouselLayout';
-import { CarouselCardItem } from './carouselTypes';
+import { CarouselCardItem, type ShareAudienceLink } from './carouselTypes';
 import CarouselItem from './item/CarouselItem';
 
 type CarouselTrackProps = {
@@ -27,7 +27,7 @@ type CarouselTrackProps = {
     folderId: string,
     nextVisible: boolean
   ) => void | Promise<void>;
-  onCopyUrl?: (folderId: string) => void;
+  onCopyUrl?: ShareAudienceLink;
   onShare?: (folderId: string) => Promise<void>;
   getGuestUrl?: (folderId: string) => string | null;
   isDeleting?: (folderId: string) => boolean;

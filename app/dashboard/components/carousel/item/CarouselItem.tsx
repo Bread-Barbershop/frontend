@@ -9,12 +9,13 @@ import { INVITATION_TEMPLATES } from '@/shared/data/invitationTemplates/catalog'
 import InvitationTemplatePoster from '@/widgets/editor/preview/components/InvitationTemplatePoster';
 
 import { dashboardCarouselLayout } from '../carouselLayout';
-import { CarouselCardItem } from '../carouselTypes';
+import { CarouselCardItem, type ShareAudienceLink } from '../carouselTypes';
 
 import DashboardActionButton from './actions/DashboardActionButton';
 import DeleteButton from './actions/DeleteButton';
 import EditInvitationButton from './actions/EditInvitationButton';
 import PreviewButton from './actions/PreviewButton';
+import { useAudienceShare } from './actions/useAudienceShare';
 import ItemHeader from './ItemHeader';
 
 function getImageKey(image: CarouselCardItem['image']) {
@@ -40,7 +41,7 @@ type CarouselItemProps = {
     folderId: string,
     nextVisible: boolean
   ) => void | Promise<void>;
-  onCopyUrl?: (folderId: string) => void;
+  onCopyUrl?: ShareAudienceLink;
   onShare?: (folderId: string) => Promise<void>;
   guestUrl: string | null;
   isDeleting: boolean;
@@ -91,6 +92,11 @@ function CarouselItem({
     readiness === 'pending' ||
     readiness === 'checking';
   const canUseGuestUrl = Boolean(!isPending && guestUrl);
+  const audienceShare = useAudienceShare(
+    invite,
+    isSelected && showCenterActions && canUseGuestUrl ? guestUrl : null,
+    onCopyUrl
+  );
   const canAttemptShare = Boolean(invite?.hasKakaoShareData && !isPending);
   const canToggleVisibility = Boolean(
     invite && !isPending && !isVisibilityUpdating
@@ -330,17 +336,13 @@ function CarouselItem({
                 >
                   카카오톡 공유하기
                 </DashboardActionButton>
+                {audienceShare.picker}
                 <DashboardActionButton
                   icon={LinkIcon}
                   variant="url"
-                  disabled={!canUseGuestUrl}
-                  onClick={event => {
-                    handleActionClick(event);
-                    if (!canUseGuestUrl) return;
-                    onCopyUrl?.(invite.folderId);
-                  }}
+                  {...audienceShare.buttonProps}
                 >
-                  URL 링크 공유하기
+                  {audienceShare.label}
                 </DashboardActionButton>
                 <EditInvitationButton invite={invite} onEdit={onUpdate} />
               </div>

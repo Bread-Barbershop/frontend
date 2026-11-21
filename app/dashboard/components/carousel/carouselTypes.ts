@@ -9,3 +9,9 @@ export type CarouselCardItem = {
   alt: string;
   invite?: InviteListItem;
 };
+
+export type ShareAudienceLink = (
+  folderId: string,
+  url: string,
+  audienceName: string
+) => void;
