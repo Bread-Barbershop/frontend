@@ -3,7 +3,6 @@ import Image from 'next/image';
 import { KeyboardEvent, MouseEvent, useEffect, useState } from 'react';
 
 import type { InviteListItem } from '@/app/dashboard/types';
-import EditIcon from '@/shared/assets/icons/edit.svg';
 import KakaoIcon from '@/shared/assets/icons/kakao2.svg';
 import LinkIcon from '@/shared/assets/icons/link.svg';
 import { INVITATION_TEMPLATES } from '@/shared/data/invitationTemplates/catalog';
@@ -14,6 +13,7 @@ import { CarouselCardItem } from '../carouselTypes';
 
 import DashboardActionButton from './actions/DashboardActionButton';
 import DeleteButton from './actions/DeleteButton';
+import EditInvitationButton from './actions/EditInvitationButton';
 import PreviewButton from './actions/PreviewButton';
 import ItemHeader from './ItemHeader';
 
@@ -342,16 +342,7 @@ function CarouselItem({
                 >
                   URL 링크 공유하기
                 </DashboardActionButton>
-                <DashboardActionButton
-                  icon={EditIcon}
-                  variant="outline"
-                  onClick={event => {
-                    handleActionClick(event);
-                    onUpdate?.(invite.folderId, invite.invitationUuid);
-                  }}
-                >
-                  재편집하기
-                </DashboardActionButton>
+                <EditInvitationButton invite={invite} onEdit={onUpdate} />
               </div>
             )}
           </div>

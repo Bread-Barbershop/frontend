@@ -138,10 +138,10 @@ function driveFixture() {
   return fixture;
 }
 
-function load(folderId = ROOT) {
+function load(folderId = ROOT, view = '') {
   return GET(
     new Request(
-      `${BASE_URL}/api/drive/invitationAudiences?folderId=${folderId}`
+      `${BASE_URL}/api/drive/invitationAudiences?folderId=${folderId}&view=${view}`
     )
   );
 }
@@ -180,6 +180,27 @@ describe('하객 그룹 API', () => {
       published: false,
       readiness: 'idle',
     });
+  });
+
+  it('마이페이지에서는 공유 링크를 조회하거나 복구하지 않고 소유한 하객 그룹을 반환한다', async () => {
+    const fixture = driveFixture();
+    fixture.hasGroup = true;
+    expect(await (await load(ROOT, 'editor-options')).json()).toEqual({
+      audiences: [EXAMPLE],
+    });
+    fixture.group.ownedByMe = false;
+    expect(await (await load(ROOT, 'editor-options')).json()).toEqual({
+      audiences: [],
+    });
+    fixture.group.ownedByMe = true;
+    fixture.group.appProperties.kind = 'invitation_audience_staging';
+    expect(await (await load(ROOT, 'editor-options')).json()).toEqual({
+      audiences: [],
+    });
+    fixture.root.ownedByMe = false;
+    expect((await load(ROOT, 'editor-options')).status).toBe(404);
+    expect(resolveAudienceLink).not.toHaveBeenCalled();
+    expect(claimAudienceLink).not.toHaveBeenCalled();
   });
 
   afterAll(() => {

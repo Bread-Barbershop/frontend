@@ -118,6 +118,22 @@ async function loadRootInvitation(rootFolderId: string, publicOrigin: string) {
   };
 }
 
+export async function getAudienceEditorOptions(rootFolderId: string) {
+  await assertInvitationFolderAccess(rootFolderId, {
+    ownedOnly: true,
+    allowAudience: false,
+  });
+  const files = await listCloneFiles(rootFolderId, [
+    `appProperties has { key='kind' and value='${AUDIENCE_KIND}' }`,
+  ]);
+  return files.flatMap(file => {
+    const audience = readAudienceFolder(file);
+    return file.ownedByMe && audience?.rootFolderId === rootFolderId
+      ? [audience.group]
+      : [];
+  });
+}
+
 export async function getInvitationAudiences(
   folderId: string,
   publicOrigin: string
