@@ -14,10 +14,8 @@ import type { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 import { parseStrictDate } from '@/shared/utils/dateValidation';
 
+import { InvitationSettingsSwitch } from './InvitationSettingsSwitch';
 import { PrivacyEndDatePicker } from './PrivacyEndDatePicker';
-
-const checkboxClassName =
-  'size-4 shrink-0 accent-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary';
 
 function getInitialSettings() {
   const {
@@ -51,7 +49,7 @@ function getInitialSettings() {
 
 function InvitationSettingsModal({ onClose }: { onClose: () => void }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const checkboxRef = useRef<HTMLInputElement>(null);
+  const zoomSwitchRef = useRef<HTMLInputElement>(null);
   const backdropDismiss = useBackdropDismiss<HTMLDialogElement>(
     onClose,
     'outside-dialog'
@@ -70,7 +68,7 @@ function InvitationSettingsModal({ onClose }: { onClose: () => void }) {
     if (!dialog) return;
 
     dialog.showModal();
-    checkboxRef.current?.focus();
+    zoomSwitchRef.current?.focus();
     return () => {
       if (dialog.open) dialog.close();
     };
@@ -120,38 +118,23 @@ function InvitationSettingsModal({ onClose }: { onClose: () => void }) {
         <h2 id={titleId} className="text-base font-semibold">
           초대장 설정
         </h2>
-        <label className="flex cursor-pointer items-center gap-3 text-sm">
-          <input
-            ref={checkboxRef}
-            type="checkbox"
-            checked={draftIsZoom}
-            onChange={event => setDraftIsZoom(event.target.checked)}
-            className={checkboxClassName}
-          />
-          <span>초대장 확대 방지</span>
-        </label>
+        <InvitationSettingsSwitch
+          inputRef={zoomSwitchRef}
+          label="초대장 확대 방지"
+          checked={draftIsZoom}
+          onChange={setDraftIsZoom}
+        />
         <div className="border-t border-black/10 pt-4">
           <div className="flex items-center gap-2">
-            <label className="flex min-h-11 flex-1 cursor-pointer items-start gap-3 py-1.5 text-sm">
-              <input
-                type="checkbox"
-                className={cn(checkboxClassName, 'mt-0.5')}
-                checked={privacy.enabled}
-                onChange={event => {
-                  const enabled = event.target.checked;
-                  setPrivacy(previous => ({ ...previous, enabled }));
-                  if (enabled) setExpanded(true);
-                }}
-              />
-              <span>
-                <span className="block font-medium">
-                  일정이 끝나면 개인정보 가리기
-                </span>
-                <span className="block text-xs text-text-secondary">
-                  일정 다음 날 00:00부터 · 한국 시간 기준
-                </span>
-              </span>
-            </label>
+            <InvitationSettingsSwitch
+              label="일정이 끝나면 개인정보 가리기"
+              description="일정 다음 날 00:00부터 · 한국 시간 기준"
+              checked={privacy.enabled}
+              onChange={enabled => {
+                setPrivacy(previous => ({ ...previous, enabled }));
+                if (enabled) setExpanded(true);
+              }}
+            />
             {privacy.enabled && (
               <button
                 type="button"
@@ -193,39 +176,26 @@ function InvitationSettingsModal({ onClose }: { onClose: () => void }) {
                     setPrivacy(previous => ({ ...previous, eventDate }))
                   }
                 />
-                <fieldset className="grid gap-2">
+                <fieldset className="grid min-w-0 gap-2">
                   <legend className="mb-2 text-sm font-medium">
                     가릴 정보
                   </legend>
                   {INVITATION_PRIVACY_FIELDS.map(
                     ({ key, label, description }) => (
-                      <label
+                      <InvitationSettingsSwitch
                         key={key}
-                        className="flex min-h-11 cursor-pointer gap-2.5 text-sm"
-                      >
-                        <input
-                          type="checkbox"
-                          className={cn(checkboxClassName, 'mt-0.5')}
-                          checked={privacy.fields.includes(key)}
-                          onChange={event => {
-                            const checked = event.target.checked;
-                            setPrivacy(previous => ({
-                              ...previous,
-                              fields: checked
-                                ? [...previous.fields, key]
-                                : previous.fields.filter(
-                                    field => field !== key
-                                  ),
-                            }));
-                          }}
-                        />
-                        <span>
-                          <span className="block">{label}</span>
-                          <span className="block text-xs text-text-secondary">
-                            {description}
-                          </span>
-                        </span>
-                      </label>
+                        label={label}
+                        description={description}
+                        checked={privacy.fields.includes(key)}
+                        onChange={checked => {
+                          setPrivacy(previous => ({
+                            ...previous,
+                            fields: checked
+                              ? [...previous.fields, key]
+                              : previous.fields.filter(field => field !== key),
+                          }));
+                        }}
+                      />
                     )
                   )}
                 </fieldset>
