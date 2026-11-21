@@ -11,7 +11,6 @@ import {
   LoadInvitationResponse,
 } from '@/app/dashboard/types';
 import type { DashboardPendingInvitation } from '@/shared/constants/dashboardPendingInvitation';
-import { useConfirm } from '@/shared/hooks/useConfirm';
 import { useToast } from '@/shared/hooks/useToast';
 import {
   resolveShareDescription,
@@ -143,7 +142,6 @@ function useDashboardInvitations(
   options: UseDashboardInvitationsOptions = {}
 ) {
   const router = useRouter();
-  const { confirm } = useConfirm();
   const {
     success: successToast,
     error: errorToast,
@@ -726,15 +724,6 @@ function useDashboardInvitations(
     async (folderId: string) => {
       if (!folderId) return;
 
-      const isConfirm = await confirm({
-        message: '초대장을 삭제하시겠습니까?',
-        variant: 'white',
-        xPosition: 'center',
-        yPosition: 'center',
-      });
-
-      if (!isConfirm) return;
-
       let isDeleted = false;
       setDeleteErrors(prev => ({ ...prev, [folderId]: null }));
       setDeleteBusy(prev => ({ ...prev, [folderId]: true }));
@@ -781,7 +770,13 @@ function useDashboardInvitations(
         });
       }
     },
-    [clearInvitationTransientState]
+    [
+      clearInvitationTransientState,
+      errorToast,
+      setDeleteBusy,
+      setDeleteErrors,
+      successToast,
+    ]
   );
 
   const handleUpdate = useCallback(
