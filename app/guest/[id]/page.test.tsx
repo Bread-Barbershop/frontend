@@ -15,6 +15,10 @@ jest.mock('next/navigation', () => ({
   notFound: () => notFoundMock(),
 }));
 
+jest.mock('@/app/api/drive/_lib/audienceLinkStore', () => ({
+  readAudienceVisibility: async () => null,
+}));
+
 jest.mock('@/app/guest/[id]/server/loadGuestPayload', () => ({
   loadGuestPayload: (id: string) => loadGuestPayloadMock(id),
 }));

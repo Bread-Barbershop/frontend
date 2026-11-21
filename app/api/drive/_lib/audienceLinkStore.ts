@@ -6,6 +6,7 @@ import { Redis } from '@upstash/redis';
 
 import { isShortUrlStoreConfigured } from '@/app/api/short-url/_lib/shortUrlStore';
 import { normalizeAudienceNameForComparison } from '@/features/invitation/audiences/model';
+import type { AudienceVisibility } from '@/features/invitation/audiences/visibility';
 
 type ClaimIdentity = { slug: string; requestId: string };
 type ClaimInput = ClaimIdentity & { name: string };
@@ -219,4 +220,19 @@ export async function resolveAudienceLink(
 
 export async function deleteAudienceLinks(rootDataFileId: string) {
   await withAudienceRedis(redis => redis.del(...audienceKeys(rootDataFileId)));
+}
+
+export async function readAudienceVisibility(rootDataFileId: string) {
+  const [key] = audienceKeys(rootDataFileId);
+  return withAudienceRedis(redis =>
+    redis.hget<AudienceVisibility>(key, 'visibility')
+  );
+}
+
+export async function writeAudienceVisibility(
+  rootDataFileId: string,
+  visibility: AudienceVisibility
+) {
+  const [key] = audienceKeys(rootDataFileId);
+  await withAudienceRedis(redis => redis.hset(key, { visibility }));
 }

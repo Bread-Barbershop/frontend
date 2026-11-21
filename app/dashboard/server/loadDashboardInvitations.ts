@@ -11,8 +11,14 @@ import { escapeDriveQueryValue } from '@/app/api/drive/_lib/escapeQueryValue';
 import { findWorkspaceFolderId } from '@/app/api/drive/_lib/findWorkspaceFolderId';
 import { downloadFiles } from '@/app/api/drive/_lib/getSaveDataFetch';
 import { googleFetch } from '@/app/api/drive/_lib/googleFetch';
+import {
+  AUDIENCE_KIND,
+  readAudienceFolder,
+  type InvitationDriveFolder,
+} from '@/app/api/drive/_lib/invitationAudienceFolders';
 import { resolveDashboardTitle } from '@/app/dashboard/server/resolveDashboardTitle';
 import { InviteListItem, LoadInvitationResponse } from '@/app/dashboard/types';
+import type { AudienceVisibilityStatus } from '@/features/invitation/audiences/visibility';
 import {
   previewDriveFileUrl,
   publicDriveFileUrl,
@@ -22,12 +28,14 @@ const APP_IDENTIFIER = 'Bread-Barbershop';
 const INVITATION_KIND = 'invitation';
 
 type DriveListResponse = {
-  files?: Array<{
-    id?: string;
-    name?: string;
-    createdTime?: string;
-    appProperties?: Record<string, string>;
-  }>;
+  files?: Array<
+    InvitationDriveFolder & {
+      id?: string;
+      name?: string;
+      createdTime?: string;
+      appProperties?: Record<string, string>;
+    }
+  >;
   nextPageToken?: string;
   error?: unknown;
 };
@@ -42,27 +50,36 @@ async function loadCardFiles(invitationFolderId: string) {
     const q = [
       `'${escapeDriveQueryValue(invitationFolderId)}' in parents`,
       `trashed=false`,
-      `((name='data.json' and mimeType='application/json') or (${thumbnailQuery}))`,
+      `((name='data.json' and mimeType='application/json') or (${thumbnailQuery}) or appProperties has { key='kind' and value='${AUDIENCE_KIND}' })`,
     ].join(' and ');
 
     const searchParams = new URLSearchParams({
       q,
       spaces: 'drive',
-      fields: 'files(id,name)',
+      fields:
+        'nextPageToken,files(id,name,mimeType,parents,ownedByMe,appProperties)',
       orderBy: 'createdTime desc',
       pageSize: '100',
     });
 
-    const searchRes = await googleFetch(
-      `https://www.googleapis.com/drive/v3/files?${searchParams.toString()}`,
-      { cache: 'no-store' }
-    );
-    const searchData = (await searchRes
-      .json()
-      .catch(() => ({}))) as DriveListResponse;
-    return searchRes.ok ? (searchData.files ?? []) : [];
+    const files: NonNullable<DriveListResponse['files']> = [];
+    let nextPageToken: string | undefined;
+    do {
+      if (nextPageToken) searchParams.set('pageToken', nextPageToken);
+      const searchRes = await googleFetch(
+        `https://www.googleapis.com/drive/v3/files?${searchParams.toString()}`,
+        { cache: 'no-store' }
+      );
+      const searchData = (await searchRes
+        .json()
+        .catch(() => ({}))) as DriveListResponse;
+      if (!searchRes.ok) return null;
+      files.push(...(searchData.files ?? []));
+      nextPageToken = searchData.nextPageToken;
+    } while (nextPageToken);
+    return files;
   } catch {
-    return [];
+    return null;
   }
 }
 
@@ -128,13 +145,17 @@ export async function loadDashboardInvitations(): Promise<LoadInvitationResponse
       readiness: 'idle' as const,
     }))
     .filter(x => Boolean(x.invitationUuid));
+  const rootProperties = new Map(
+    listData.files?.map(file => [file.id, file.appProperties])
+  );
 
   const invites = await Promise.all(
     invitationFolders.map(async invite => {
-      const [meta, files] = await Promise.all([
+      const [meta, cardFiles] = await Promise.all([
         loadDashboardMeta(invite.folderId),
         loadCardFiles(invite.folderId),
       ]);
+      const files = cardFiles ?? [];
       const metaPayload = meta?.payload;
       const guestUrl = metaPayload?.guestUrl ?? null;
       const dataJsonFileId = metaPayload?.dataJsonFileId ?? undefined;
@@ -153,14 +174,36 @@ export async function loadDashboardInvitations(): Promise<LoadInvitationResponse
           return dataFile?.id ? downloadFiles(dataFile.id) : null;
         }
       );
-      const published = metaPayload?.published ?? false;
+      const props = rootProperties.get(invite.folderId);
+      const managed = props?.audience_visibility;
+      const groupCount = files.filter(
+        file =>
+          file.ownedByMe &&
+          readAudienceFolder(file)?.rootFolderId === invite.folderId
+      ).length;
+      const scopeStatus: AudienceVisibilityStatus | undefined =
+        managed === 'public' &&
+        Number(props?.audience_public_count) < groupCount + 1
+          ? 'partial'
+          : managed === 'public' ||
+              managed === 'partial' ||
+              managed === 'private' ||
+              managed === 'pending'
+            ? managed
+            : undefined;
+      const published = scopeStatus
+        ? scopeStatus === 'public' || scopeStatus === 'partial'
+        : (metaPayload?.published ?? false);
       const thumbnailUrl = thumbnailFileId
-        ? published
+        ? published && (!managed || props?.audience_base_public === 'true')
           ? publicDriveFileUrl(thumbnailFileId)
           : previewDriveFileUrl(thumbnailFileId, { folderId: invite.folderId })
         : null;
       return {
         ...invite,
+        ...(groupCount || managed || cardFiles === null
+          ? { hasAudienceGroups: true, audienceVisibility: scopeStatus }
+          : {}),
         displayTitle,
         dataJsonFileId,
         guestUrl,

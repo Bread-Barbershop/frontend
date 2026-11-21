@@ -1,9 +1,13 @@
+import { ChevronDown } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 
 import { TOGGLE_TRACK } from '@/components/atoms/toggle-track/ToggleTrack.style';
 import Confirm from '@/components/molecules/confirm/Confirm';
+import type { AudienceVisibilityStatus } from '@/features/invitation/audiences/visibility';
 
 type VisibilityToggleProps = {
+  hasAudienceGroups?: boolean;
+  audienceVisibility?: AudienceVisibilityStatus;
   invitationTitle: string;
   isPublished: boolean;
   disabled?: boolean;
@@ -13,6 +17,8 @@ type VisibilityToggleProps = {
 };
 
 function VisibilityToggle({
+  hasAudienceGroups,
+  audienceVisibility,
   invitationTitle,
   isPublished,
   disabled = false,
@@ -20,13 +26,39 @@ function VisibilityToggle({
   hasError = false,
   onToggle,
 }: VisibilityToggleProps) {
-  const label = isPublished ? '공개' : '비공개';
+  const label =
+    audienceVisibility === 'pending'
+      ? '설정 확인'
+      : audienceVisibility === 'partial'
+        ? '일부 공개'
+        : isPublished
+          ? '공개'
+          : '비공개';
   const { width, height, knobSize, knobTravel, knobShadow, on, off } =
     TOGGLE_TRACK;
   const colors = isPublished ? on : off;
   const [confirmOpen, setConfirmOpen] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeConfirm = useCallback(() => setConfirmOpen(false), []);
+
+  if (hasAudienceGroups)
+    return (
+      <button
+        type="button"
+        aria-label={`공개 범위 설정 · ${label}`}
+        aria-haspopup="dialog"
+        disabled={disabled}
+        onClick={event => {
+          event.stopPropagation();
+          event.currentTarget.focus();
+          onToggle?.();
+        }}
+        className="inline-flex min-h-8 items-center gap-1 rounded-full border border-neutral-200 bg-white px-3 text-xs font-semibold text-text-plain disabled:opacity-60"
+      >
+        {label}
+        <ChevronDown size={14} aria-hidden="true" />
+      </button>
+    );
 
   return (
     <>

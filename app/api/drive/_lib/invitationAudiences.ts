@@ -14,6 +14,7 @@ import {
   refreshAudienceLink,
   releaseAudienceLink,
   resolveAudienceLink,
+  readAudienceVisibility,
 } from './audienceLinkStore';
 import { captureDriveError } from './captureDriveError';
 import {
@@ -76,7 +77,7 @@ async function resolveRootGuestUrl(
   return fallback;
 }
 
-async function readRootInvitationFiles(rootFolderId: string) {
+export async function readRootInvitationFiles(rootFolderId: string) {
   const files = await listCloneFiles(rootFolderId);
   const metaFile = findSavedInvitationMetaFile(files);
   const meta = metaFile ? await loadInvitationMetaByFileId(metaFile.id) : null;
@@ -368,17 +369,26 @@ export async function getOwnedAudienceLink(
   if (!audience || !folder.ownedByMe) {
     throw new InvitationCloneError('하객 그룹을 찾을 수 없습니다.', 404);
   }
-  await assertInvitationFolderAccess(audience.rootFolderId, {
+  const rootFolder = await assertInvitationFolderAccess(audience.rootFolderId, {
     ownedOnly: true,
     allowAudience: false,
   });
   const root = await loadRootInvitation(audience.rootFolderId, publicOrigin);
+  let published = root.published;
+  if (rootFolder.appProperties?.audience_visibility) {
+    const scope = await readAudienceVisibility(root.dataJsonFileId);
+    published = Boolean(
+      scope?.published &&
+      !scope.pending &&
+      scope.publicSlugs.includes(audience.group.slug)
+    );
+  }
   return {
     ...audience,
     requestId: folder.appProperties?.clone_request,
     rootDataJsonFileId: root.dataJsonFileId,
     guestUrl: buildAudienceGuestUrl(root.rootGuestUrl, audience.group.slug),
-    published: root.published,
+    published,
   };
 }
 

@@ -27,9 +27,10 @@ export function cloneInProgress() {
 
 export async function withCloneLock<T>(
   requestKey: string,
-  run: (attempt: CloneAttempt) => Promise<T>
+  run: (attempt: CloneAttempt) => Promise<T>,
+  busyError = cloneInProgress
 ): Promise<T> {
-  if (inFlight.has(requestKey)) throw cloneInProgress();
+  if (inFlight.has(requestKey)) throw busyError();
   inFlight.add(requestKey);
 
   const lockKey = `drive:clone:${requestKey}:lock`;
@@ -45,7 +46,7 @@ export async function withCloneLock<T>(
       acquired =
         (await redis.set(lockKey, owner, { nx: true, ex: LOCK_SECONDS })) ===
         'OK';
-      if (!acquired) throw cloneInProgress();
+      if (!acquired) throw busyError();
     }
 
     return await run({
