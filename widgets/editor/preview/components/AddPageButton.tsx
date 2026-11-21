@@ -8,7 +8,7 @@ import ComponentsPopup from './ComponentsPopup';
 
 function AddPageButton() {
   const [isTab, setIsTab] = useState(false);
-  const buttonContainerRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const isCalloutOpen = useEditorCalloutStore(
     state => state.callouts['add-page-button']
   );
@@ -29,10 +29,17 @@ function AddPageButton() {
     setIsTab(false);
   };
   return (
-    <div ref={buttonContainerRef} className="w-full">
-      <ComponentsPopup open={isTab} onPopClose={handlePopClose} />
+    <div className="w-full">
+      <ComponentsPopup
+        open={isTab}
+        anchorRef={buttonRef}
+        onPopClose={handlePopClose}
+      />
 
       <button
+        ref={buttonRef}
+        aria-haspopup="dialog"
+        aria-expanded={isTab}
         type="button"
         className="w-full h-11 bg-white rounded-lg shadow-edit flex-center gap-2 font-semibold text-sm"
         onClick={() => setIsTab(props => !props)}
@@ -40,7 +47,7 @@ function AddPageButton() {
         +페이지 추가
       </button>
       <EditorCallout
-        targetRef={buttonContainerRef}
+        targetRef={buttonRef}
         open={isCalloutOpen}
         arrowSide="left"
         targetAnchor={{ x: 1, y: 0.5 }}
