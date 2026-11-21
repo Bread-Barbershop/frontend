@@ -1,8 +1,11 @@
 'use client';
+import { autoUpdate } from '@floating-ui/dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
+  type RefObject,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   useSyncExternalStore,
@@ -19,6 +22,7 @@ import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useConfirmStore } from '@/shared/store/useConfirmStore';
 import type { InvitationType } from '@/shared/types/block';
+import { clampFloatingValue } from '@/shared/utils/floatingPosition';
 import { trapFocus } from '@/shared/utils/focusTrap';
 import { useInvitationTemplate } from '@/widgets/editor/preview/hooks/useInvitationTemplate';
 
@@ -29,12 +33,13 @@ import TabArea from './TabArea';
 
 interface Props {
   open?: boolean;
+  anchorRef: RefObject<HTMLButtonElement | null>;
   onPopClose: () => void;
 }
 
 const emptySubscribe = () => () => {};
 
-function ComponentsPopup({ open = true, onPopClose }: Props) {
+function ComponentsPopup({ open = true, anchorRef, onPopClose }: Props) {
   const mounted = useSyncExternalStore(
     emptySubscribe,
     () => true,
@@ -50,7 +55,8 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
     null
   );
   const { applyTemplate, isApplying } = useInvitationTemplate();
-  const isPickerOpen = templatePickerType !== null || mealMenuPickerType !== null;
+  const isPickerOpen =
+    templatePickerType !== null || mealMenuPickerType !== null;
   const dialogLabel = mealMenuPickerType
     ? '식사 메뉴 디자인 선택'
     : templatePickerType
@@ -59,6 +65,10 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
 
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const dialogRef = useRef<HTMLDivElement>(null);
+  const [menuPosition, setMenuPosition] = useState<{
+    top: number;
+    left: number;
+  }>();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isManualScrolling = useRef(false);
   const manualScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
@@ -72,6 +82,23 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
     setMealMenuPickerType(null);
     onPopClose();
   }, [isApplying, onPopClose]);
+
+  useLayoutEffect(() => {
+    const button = anchorRef.current;
+    const dialog = dialogRef.current;
+    if (!open || isPickerOpen || !button || !dialog) return;
+
+    return autoUpdate(button, dialog, () => {
+      const { bottom, right } = button.getBoundingClientRect();
+      const width = dialog.offsetWidth;
+      const left = clampFloatingValue(
+        right - width,
+        12,
+        window.innerWidth - width - 12
+      );
+      setMenuPosition({ top: bottom + 8, left });
+    });
+  }, [open, mounted, isPickerOpen, anchorRef]);
 
   useEffect(() => {
     if (!open) return;
@@ -233,7 +260,8 @@ function ComponentsPopup({ open = true, onPopClose }: Props) {
             aria-modal="true"
             aria-label={dialogLabel}
             ref={dialogRef}
-            className={`absolute flex flex-col gap-3 overflow-hidden bg-white shadow-edit pointer-events-auto ${isPickerOpen ? 'left-1/2 top-1/2 h-[min(820px,calc(100dvh-64px))] min-h-[min(580px,calc(100dvh-64px))] w-[min(1040px,calc(100vw-48px))] -translate-x-1/2 -translate-y-1/2 rounded-2xl' : 'bottom-12 left-1/2 h-99.5 w-164 -translate-x-1/2 rounded-md'}`}
+            style={isPickerOpen ? undefined : menuPosition}
+            className={`absolute flex flex-col gap-3 overflow-hidden bg-white shadow-edit pointer-events-auto ${isPickerOpen ? 'left-1/2 top-1/2 h-[min(820px,calc(100dvh-64px))] min-h-[min(580px,calc(100dvh-64px))] w-[min(1040px,calc(100vw-48px))] -translate-x-1/2 -translate-y-1/2 rounded-2xl' : 'bottom-3 max-h-99.5 w-164 rounded-md'}`}
           >
             {mealMenuPickerType ? (
               <MealMenuTemplatePicker

@@ -60,6 +60,8 @@ export function CalendarPreview({
   } = useCalendarData({ date, time, language, template, type: blockInfo.type });
 
   const isDateIncomplete = !date || date.length < 10;
+  const hasSavedMessage =
+    blockInfo.props.messageHtml != null || blockInfo.props.messageJson != null;
   const { fontFamily, fontSize, color, isColorAutomatic } = useBodyFontInfo();
   const { mainStyle } = useTitleFontInfo();
   const automaticLightInk =
@@ -128,11 +130,12 @@ export function CalendarPreview({
             />
           )}
 
-          {/* D-Day Countdown Display */}
-          {showDday && (
+          {(showDday || hasSavedMessage) && (
             <DDayCountdown
               date={date}
               time={time}
+              showCountdown={showDday}
+              isDefaultMessage={!hasSavedMessage}
               messageHtml={getCalendarMessageHtml(blockInfo)}
             />
           )}

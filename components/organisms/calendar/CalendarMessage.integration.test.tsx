@@ -111,6 +111,38 @@ describe('행사 일시 D-Day 문구', () => {
     expect(await screen.findByText('1일 남았습니다.')).toBeInTheDocument();
   });
 
+  it.each([
+    { date: '2028-01-31', showDday: false, days: 30, timer: null },
+    { date: '2028-01-31', showDday: true, days: 30, timer: 'DAYS' },
+    { date: '2027-12-31', showDday: false, days: 0, timer: null },
+    { date: '2027-12-31', showDday: true, days: 0, timer: '종료된 일정이에요' },
+  ])(
+    '행사일 $date, 카운트다운 $showDday에서도 직접 쓴 문구를 한 번 표시한다',
+    async ({ date, showDday, days, timer }) => {
+      useEditorStore
+        .getState()
+        .updateBlock<'calendar'>('test-calendar', { date, showDday });
+      const { editor, unmount } = await openEditor();
+      act(() => {
+        editor.commands.setContent(
+          '<p><strong>함께해 주세요</strong> · (D-Day)일</p>'
+        );
+      });
+      unmount();
+      openGuestPreview();
+      const message = await screen.findByText('함께해 주세요');
+      expect(message.tagName).toBe('STRONG');
+      expect(message.parentElement).toHaveTextContent(
+        `함께해 주세요 · ${days}일`
+      );
+      if (timer) expect(screen.getByText(timer)).toBeInTheDocument();
+      else {
+        expect(screen.queryByText('DAYS')).not.toBeInTheDocument();
+        expect(screen.queryByText('종료된 일정이에요')).not.toBeInTheDocument();
+      }
+    }
+  );
+
   it('HTML만 저장된 문구를 서식과 함께 열고 디데이 버튼으로 토큰을 추가한다', async () => {
     useEditorStore.getState().updateBlock<'calendar'>('test-calendar', {
       messageHtml: '<p><strong>다시 만날 날</strong> (D-Day) / </p>',
