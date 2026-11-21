@@ -118,11 +118,15 @@ async function loadRootInvitation(rootFolderId: string, publicOrigin: string) {
   };
 }
 
-export async function getAudienceEditorOptions(rootFolderId: string) {
-  await assertInvitationFolderAccess(rootFolderId, {
-    ownedOnly: true,
+export async function getAudienceOptions(
+  rootFolderId: string,
+  view: 'editor-options' | 'preview-options'
+) {
+  const root = await assertInvitationFolderAccess(rootFolderId, {
+    ownedOnly: view === 'editor-options',
     allowAudience: false,
   });
+  if (!root.ownedByMe) return [];
   const files = await listCloneFiles(rootFolderId, [
     `appProperties has { key='kind' and value='${AUDIENCE_KIND}' }`,
   ]);

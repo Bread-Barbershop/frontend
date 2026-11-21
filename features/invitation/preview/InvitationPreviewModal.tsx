@@ -20,6 +20,7 @@ type PreviewLoadError = {
 type InvitationPreviewModalProps = {
   snapshot: PreviewSnapshot | null;
   source: 'draft' | 'saved';
+  audienceContext?: { eventTitle: string; audienceName: string };
   loadError?: PreviewLoadError;
   onClose: () => void;
 };
@@ -27,11 +28,13 @@ type InvitationPreviewModalProps = {
 export default function InvitationPreviewModal({
   snapshot,
   source,
+  audienceContext,
   loadError,
   onClose,
 }: InvitationPreviewModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleId = useId();
+  const contextId = useId();
   const backdropDismiss = useBackdropDismiss<HTMLDialogElement>(onClose);
   const [session, setSession] = useState(0);
 
@@ -58,6 +61,7 @@ export default function InvitationPreviewModal({
     <dialog
       ref={dialogRef}
       aria-labelledby={titleId}
+      aria-describedby={audienceContext ? contextId : undefined}
       onCancel={event => {
         event.preventDefault();
         onClose();
@@ -66,21 +70,40 @@ export default function InvitationPreviewModal({
       className="fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none bg-transparent p-0 text-[#252522] backdrop:bg-black/50 backdrop:backdrop-blur-sm open:flex open:items-center open:justify-center sm:p-6"
     >
       <section className="flex h-full w-full max-w-[1040px] flex-col overflow-hidden bg-[#F5F4F0] sm:max-h-[940px] sm:rounded-[24px] sm:shadow-2xl">
-        <header className="flex shrink-0 items-center justify-between border-b border-black/8 px-6 py-4">
-          <div className="flex items-center gap-3">
+        <header className="flex shrink-0 items-center justify-between gap-3 border-b border-black/8 px-6 py-4">
+          <div className="flex min-w-0 items-center gap-3">
             <span className="text-[17px] font-black tracking-[-0.06em]">
               invia
             </span>
             <span className="h-4 w-px bg-black/15" aria-hidden="true" />
-            <h2 id={titleId} className="text-sm text-black/60">
-              초대장 미리보기
-            </h2>
+            <div className="min-w-0">
+              <h2 id={titleId} className="text-sm text-black/60">
+                초대장 미리보기
+              </h2>
+              {audienceContext && (
+                <p
+                  id={contextId}
+                  className="flex items-baseline gap-1 text-sm font-semibold"
+                >
+                  <span className="truncate" title={audienceContext.eventTitle}>
+                    {audienceContext.eventTitle}
+                  </span>
+                  <span>{' · '}</span>
+                  <span
+                    className="max-w-[60%] shrink-0 truncate"
+                    title={audienceContext.audienceName}
+                  >
+                    {audienceContext.audienceName}
+                  </span>
+                </p>
+              )}
+            </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="미리보기 닫기"
-            className="flex size-10 cursor-pointer items-center justify-center rounded-full bg-black/5 transition-colors hover:bg-black/10 focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-black/5 transition-colors hover:bg-black/10 focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             <X size={20} strokeWidth={1.5} />
           </button>

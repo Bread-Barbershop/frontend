@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import type { InvitationPreviewTarget } from '@/app/dashboard/types';
 import type { NormalizedGuestPayload } from '@/app/guest/[id]/validation/parseGuestPayload';
 
 type PreviewStatus = 'idle' | 'loading' | 'success' | 'error';
 
 type PreviewState = {
   errorMessage: string | null;
-  folderId: string | null;
+  target: InvitationPreviewTarget | null;
   isOpen: boolean;
   payload: NormalizedGuestPayload | null;
   requestId: number;
@@ -28,7 +29,7 @@ type PreviewInvitationResponse =
 
 const initialState: PreviewState = {
   errorMessage: null,
-  folderId: null,
+  target: null,
   isOpen: false,
   payload: null,
   requestId: 0,
@@ -63,8 +64,8 @@ export function useDashboardInvitationPreview() {
     }));
   }, []);
 
-  const openPreview = useCallback(async (folderId: string) => {
-    if (!folderId) return;
+  const openPreview = useCallback(async (target: InvitationPreviewTarget) => {
+    if (!target.folderId) return;
 
     // 이전 요청이 늦게 도착해도 최신 미리보기 상태를 덮지 못하도록 요청 번호를 올린다.
     const requestId = requestIdRef.current + 1;
@@ -76,7 +77,7 @@ export function useDashboardInvitationPreview() {
 
     setState({
       errorMessage: null,
-      folderId,
+      target,
       isOpen: true,
       payload: null,
       requestId,
@@ -86,7 +87,7 @@ export function useDashboardInvitationPreview() {
     try {
       const res = await fetch(
         `/api/drive/previewInvitation?folderId=${encodeURIComponent(
-          folderId
+          target.folderId
         )}`,
         {
           cache: 'no-store',
@@ -102,7 +103,7 @@ export function useDashboardInvitationPreview() {
       if (!res.ok || !payload?.ok) {
         setState({
           errorMessage: resolvePreviewErrorMessage(payload),
-          folderId,
+          target,
           isOpen: true,
           payload: null,
           requestId,
@@ -113,7 +114,7 @@ export function useDashboardInvitationPreview() {
 
       setState({
         errorMessage: null,
-        folderId,
+        target,
         isOpen: true,
         payload: payload.payload,
         requestId,
@@ -129,7 +130,7 @@ export function useDashboardInvitationPreview() {
           err instanceof Error
             ? err.message
             : '미리보기를 불러오는 중 오류가 발생했습니다.',
-        folderId,
+        target,
         isOpen: true,
         payload: null,
         requestId,

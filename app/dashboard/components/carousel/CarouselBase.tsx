@@ -3,7 +3,10 @@
 import useEmblaCarousel from 'embla-carousel-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { InviteListItem } from '@/app/dashboard/types';
+import type {
+  InvitationPreviewTarget,
+  InviteListItem,
+} from '@/app/dashboard/types';
 import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 
 import { dashboardCarouselLayout } from './carouselLayout';
@@ -24,7 +27,7 @@ type CarouselBaseProps = {
   onCardActivate?: (id: string) => void;
   onClone?: (invite: InviteListItem) => void;
   onDelete?: (folderId: string) => void | Promise<void>;
-  onPreview?: (folderId: string) => void;
+  onPreview?: (target: InvitationPreviewTarget) => void;
   onUpdate?: (folderId: string, uuid?: string) => void;
   onToggleVisibility?: (
     folderId: string,

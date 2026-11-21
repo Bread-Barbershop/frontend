@@ -2,7 +2,10 @@ import { Copy } from 'lucide-react';
 import Image from 'next/image';
 import { KeyboardEvent, MouseEvent, useEffect, useState } from 'react';
 
-import type { InviteListItem } from '@/app/dashboard/types';
+import type {
+  InvitationPreviewTarget,
+  InviteListItem,
+} from '@/app/dashboard/types';
 import KakaoIcon from '@/shared/assets/icons/kakao2.svg';
 import LinkIcon from '@/shared/assets/icons/link.svg';
 import { INVITATION_TEMPLATES } from '@/shared/data/invitationTemplates/catalog';
@@ -13,8 +16,7 @@ import { CarouselCardItem, type ShareAudienceLink } from '../carouselTypes';
 
 import DashboardActionButton from './actions/DashboardActionButton';
 import DeleteButton from './actions/DeleteButton';
-import EditInvitationButton from './actions/EditInvitationButton';
-import PreviewButton from './actions/PreviewButton';
+import InvitationAudienceButton from './actions/InvitationAudienceButton';
 import { useAudienceShare } from './actions/useAudienceShare';
 import ItemHeader from './ItemHeader';
 
@@ -35,7 +37,7 @@ type CarouselItemProps = {
   onSelect: (index: number) => void;
   onClone?: (invite: InviteListItem) => void;
   onDelete?: (folderId: string) => void | Promise<void>;
-  onPreview?: (folderId: string) => void;
+  onPreview?: (target: InvitationPreviewTarget) => void;
   onUpdate?: (folderId: string, uuid?: string) => void;
   onToggleVisibility?: (
     folderId: string,
@@ -197,18 +199,11 @@ function CarouselItem({
                 />
               </button>
             )}
-            <button
-              type="button"
-              onClick={event => {
-                handleActionClick(event);
-                onPreview?.(invite.folderId);
-              }}
-              className="cursor-pointer"
-              aria-label="초대장 미리보기"
-              aria-haspopup="dialog"
-            >
-              <PreviewButton />
-            </button>
+            <InvitationAudienceButton
+              invite={invite}
+              action="preview"
+              onSelect={onPreview}
+            />
             <button
               type="button"
               disabled={isDeleting}
@@ -344,7 +339,11 @@ function CarouselItem({
                 >
                   {audienceShare.label}
                 </DashboardActionButton>
-                <EditInvitationButton invite={invite} onEdit={onUpdate} />
+                <InvitationAudienceButton
+                  invite={invite}
+                  action="edit"
+                  onSelect={onUpdate}
+                />
               </div>
             )}
           </div>

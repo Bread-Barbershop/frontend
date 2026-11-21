@@ -322,7 +322,7 @@ function CarouselWrapper({
       )}
       <DashboardInvitationPreviewModal
         errorMessage={preview.errorMessage}
-        folderId={preview.folderId}
+        target={preview.target}
         isOpen={preview.isOpen}
         onClose={preview.closePreview}
         onRetry={preview.openPreview}
