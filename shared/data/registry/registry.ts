@@ -19,6 +19,7 @@ import { myFamilyWeddingDefinition } from '@/components/organisms/myFamilyWeddin
 import { noticeDefinition } from '@/components/organisms/notice/Notice.definition';
 import { organizerInformationDefinition } from '@/components/organisms/organizerInfo/OrganizerInformation.definition';
 import { phoneDefinition } from '@/components/organisms/phone/Phone.definition';
+import { photoStoryDefinition } from '@/components/organisms/photoStory/PhotoStory.definition';
 import { pictureDefinition } from '@/components/organisms/picture/Picture.definition';
 import { placeDefinition } from '@/components/organisms/place/Place.definition';
 import { rsvpDefinition } from '@/components/organisms/rsvp/Rsvp.definition';
@@ -36,6 +37,7 @@ import { blockSchema } from './block.schema';
 export const blockRegistry = {
   faq: { ...blockSchema.faq, ...faqDefinition },
   gallery: { ...blockSchema.gallery, ...galleryDefinition },
+  photoStory: { ...blockSchema.photoStory, ...photoStoryDefinition },
   divider: { ...blockSchema.divider, ...dividerDefinition },
   bgm: { ...blockSchema.bgm, ...bgmDefinition },
   guestbook: { ...blockSchema.guestbook, ...guestbookDefinition },

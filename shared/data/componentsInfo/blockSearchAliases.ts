@@ -1,4 +1,5 @@
 export const BLOCK_SEARCH_ALIASES: Partial<Record<string, string[]>> = {
+  photoStory: ['사진 이야기', '그림일기', '사진일기', '성장일기', '포토 스토리', 'photo story'],
   afterParty: ['피로연', '뒤풀이', '2차', '연회', '애프터파티', 'reception', 'afterparty'],
   faq: ['질문', '답변', '문의', '자주묻는질문', 'faq', 'qna'],
   guestbook: ['방명록', '축하글', '축하메시지', '덕담', 'guestbook', 'message'],

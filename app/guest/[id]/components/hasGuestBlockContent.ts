@@ -1,5 +1,9 @@
 import { tiptapJsonToHtmlUniversal } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { getInterviewCard } from '@/components/organisms/interview/interviewContent';
+import {
+  hasPhotoStoryPageContent,
+  readPhotoStoryPages,
+} from '@/components/organisms/photoStory/PhotoStory.schema';
 import type { EditorBlock } from '@/shared/types/block';
 
 import type { GuestBlock } from '../types/guestTypes';
@@ -19,6 +23,10 @@ function hasProfileContent(profile: Profile) {
 export function hasGuestBlockContent(block: GuestBlock) {
   if (block.privacyPlaceholder || block.privacyMediaHidden) return true;
   switch (block.component) {
+    case 'photoStory': {
+      const props = block.props as EditorBlock<'photoStory'>['props'];
+      return readPhotoStoryPages(props?.pages).some(hasPhotoStoryPageContent);
+    }
     case 'organizerInformation': {
       const props = block.props as EditorBlock<'organizerInformation'>['props'];
       return Boolean(props.organizer?.trim() || hasProfileContent(props));

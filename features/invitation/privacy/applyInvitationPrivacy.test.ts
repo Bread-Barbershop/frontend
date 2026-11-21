@@ -94,6 +94,7 @@ function makeInvitation(): GuestPayload {
       }),
       block('video', { videoUrl: 'original-video' }),
       block('gallery', { images: ['gallery-file-id'] }),
+      block('photoStory', { pages: [{ id: 'first', image: ['story-file-id'] }] }),
       block('place', {
         placeName: 'private-place',
         placeAddress: 'private-address',
@@ -166,6 +167,7 @@ describe('행사일 이후 공개 초대장', () => {
     for (const confidential of [
       'poster-file-id',
       'gallery-file-id',
+      'story-file-id',
       'baby-file-id',
       'groom-file-id',
       'speaker-file-id',

@@ -18,6 +18,7 @@ describe('블록 검색 별칭과 복합 검색', () => {
     'place',
     'gallery',
     'picture',
+    'photoStory',
     'phone',
     'bgm',
     'account',
@@ -176,6 +177,14 @@ describe('블록 검색 별칭과 복합 검색', () => {
 
   it('검색어가 비어 있으면 기존 카테고리를 그대로 유지한다', () => {
     expect(filterComponentCategories(componentCls, '  ')).toBe(componentCls);
+  });
+
+  it('모든 행사에서 그림일기로 한 장 이야기 블록을 찾을 수 있다', () => {
+    expect(findComponents('그림일기')).toEqual(
+      ['wedding', 'firstBirthday', 'birthday', 'seminar', 'etc'].map(
+        category => ({ category, type: 'photoStory' })
+      )
+    );
   });
 
   it('사진·지도·축의금 등 별칭으로 기존 블록을 검색한다', () => {

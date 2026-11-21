@@ -1446,19 +1446,28 @@ export const SHOWCASE_INVITATIONS: ShowcaseInvitation[] = [
     sectionStyle: 'paper',
     sections: [
       {
-        component: 'timeline',
-        title: '민준이의 성장 수첩',
-        items: [
-          { time: '첫날', title: '손가락을 꼭 쥐었어요' },
-          { time: '백일', title: '눈을 맞추고 소리 내어 웃었어요' },
-          { time: '첫돌', title: '생일 노래에 맞춰 짝짜꿍해요' },
+        component: 'photoStory',
+        title: '민준이의 그림일기',
+        pages: [
+          {
+            image: '/images/showcase/story-first-hand.webp',
+            date: '2025-08-11',
+            heading: '처음 잡은 손',
+            caption: '네가 손가락을 꼭 쥐자, 긴장했던 내 어깨도 스르르 내려갔다.',
+          },
+          {
+            image: '/images/showcase/story-first-grass.webp',
+            date: '2026-04-17',
+            heading: '발바닥에 닿은 봄',
+            caption: '풀잎이 발가락 사이를 간질이자 네가 먼저 웃었다. 양말은 한참 뒤에 신겼다.',
+          },
+          {
+            image: '/images/showcase/story-first-candle.webp',
+            date: '2026-08-10',
+            heading: '초 하나를 꽂고',
+            caption: '네가 잠든 사이 작은 케이크에 초를 꽂아 보았다. 내일은 네 앞에서 불을 켤게.',
+          },
         ],
-      },
-      {
-        component: 'picture',
-        title: '수첩에 붙일 첫돌 케이크',
-        image: '/images/showcase/first-cake.webp',
-        caption: '초 한 개를 꽂고 민준이의 첫 생일 노래를 연습했어요.',
       },
       { component: 'greeting' },
       {

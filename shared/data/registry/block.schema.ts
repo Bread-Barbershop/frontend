@@ -19,6 +19,7 @@ import { myFamilyWeddingSchema } from '@/components/organisms/myFamilyWedding/My
 import { noticeSchema } from '@/components/organisms/notice/Notice.schema';
 import { organizerInformationSchema } from '@/components/organisms/organizerInfo/OrganizerInformation.schema';
 import { phoneSchema } from '@/components/organisms/phone/Phone.schema';
+import { photoStorySchema } from '@/components/organisms/photoStory/PhotoStory.schema';
 import { pictureSchema } from '@/components/organisms/picture/Picture.schema';
 import { placeSchema } from '@/components/organisms/place/Place.schema';
 import { rsvpSchema } from '@/components/organisms/rsvp/Rsvp.schema';
@@ -34,6 +35,7 @@ import { wreathSchema } from '@/components/organisms/wreath/Wreath.schema';
 export const blockSchema = {
   faq: faqSchema,
   gallery: gallerySchema,
+  photoStory: photoStorySchema,
   divider: dividerSchema,
   bgm: bgmSchema,
   guestbook: guestbookSchema,

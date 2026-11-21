@@ -1,7 +1,8 @@
 import { StateCreator } from 'zustand';
 
+import { readPhotoStoryPages } from '@/components/organisms/photoStory/PhotoStory.schema';
 import { componentCls } from '@/shared/data/componentsInfo/componentInfo';
-import { BlockSlice, EditorState } from '@/shared/types/block';
+import type { BlockSlice, EditorBlock, EditorState } from '@/shared/types/block';
 import { createDefaultProps } from '@/shared/utils/createDefaultProps';
 
 export const createBlockSlice: StateCreator<EditorState, [], [], BlockSlice> = (
@@ -44,9 +45,21 @@ export const createBlockSlice: StateCreator<EditorState, [], [], BlockSlice> = (
       ),
     })),
   deleteBlock: (id: string) =>
-    set(state => ({
-      block: state.block.filter(items => items.id !== id),
-    })),
+    set(state => {
+      const block = state.block.filter(item => item.id !== id);
+      const story = state.block.find(
+        (item): item is EditorBlock<'photoStory'> =>
+          item.id === id && item.component === 'photoStory'
+      );
+      if (!story) return { block };
+      const pageIds = new Set(
+        readPhotoStoryPages(story.props.pages).map(page => page.id)
+      );
+      return {
+        block,
+        images: state.images.filter(image => !pageIds.has(image.id)),
+      };
+    }),
   moveBlock: (from, to) =>
     set(state => {
       const next = [...state.block];

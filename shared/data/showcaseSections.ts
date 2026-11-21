@@ -19,6 +19,11 @@ export type ShowcaseSection =
   | { component: 'coupleIntroduction'; title: string; story: string }
   | { component: 'picture'; title: string; image: string; caption?: string }
   | {
+      component: 'photoStory';
+      title: string;
+      pages: { image: string; date: string; heading: string; caption: string }[];
+    }
+  | {
       component: 'gallery';
       title: string;
       images: string[];

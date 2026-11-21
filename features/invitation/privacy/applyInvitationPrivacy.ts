@@ -15,7 +15,7 @@ type Fields = ReadonlySet<InvitationPrivacyField>;
 type Data = Record<string, unknown>;
 
 const locationBlocks = new Set(['place', 'afterParty', 'transportation']);
-const photoBlocks = new Set(['gallery', 'picture', 'sponsorshipInfomation']);
+const photoBlocks = new Set(['gallery', 'picture', 'photoStory', 'sponsorshipInfomation']);
 const profileBlocks = new Set([
   'coupleIntroduction',
   'myChild',

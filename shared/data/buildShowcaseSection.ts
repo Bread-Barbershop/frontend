@@ -96,6 +96,15 @@ export function buildShowcaseSection(
         contentsHtml: caption ? caption.messageHtml : null,
       });
     }
+    case 'photoStory':
+      return block('photoStory', {
+        title: section.title,
+        pages: section.pages.map((page, i) => ({
+          ...page,
+          id: `${id}-page-${i}`,
+          image: [page.image],
+        })),
+      });
     case 'gallery':
       return block('gallery', {
         title: section.title,
