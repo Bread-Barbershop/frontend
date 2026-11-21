@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import useEmblaCarousel from 'embla-carousel-react';
 
 import { dashboardCarouselLayout } from '@/app/dashboard/components/carousel/carouselLayout';
 import ShowcasePreviewProvider from '@/features/showcase/components/ShowcasePreviewProvider';
@@ -16,7 +17,7 @@ const mockApi = {
 };
 jest.mock('embla-carousel-react', () => ({
   __esModule: true,
-  default: () => [undefined, mockApi],
+  default: jest.fn(() => [undefined, mockApi]),
 }));
 
 function renderShowcase() {
@@ -53,15 +54,22 @@ it('쇼케이스는 선택된 카드 없이 흐르고, 카드에서 포인터를
   expect(mockScroll.play).toHaveBeenCalledTimes(2);
 });
 
-it('마지막 카드 뒤에만 간격을 두고 첫 카드 앞에는 여백을 더하지 않는다', () => {
-  const lastCard = renderShowcase();
-  const firstCard = screen.getAllByRole('button', {
+it('첫 카드의 중앙 정렬용 여백 없이 모든 카드 뒤에 같은 순환 간격을 둔다', () => {
+  renderShowcase();
+  const [options] = jest.mocked(useEmblaCarousel).mock.calls[0];
+  expect(options?.loop).toBe(true);
+  expect(options?.align ?? 'center').toBe('center');
+  const cards = screen.getAllByRole('button', {
     name: /초대장 미리보기$/,
-  })[0];
-  expect(firstCard.style.marginInlineStart).toBe('');
-  expect(lastCard).toHaveStyle({
-    marginInlineEnd: dashboardCarouselLayout.trackGap,
   });
+  expect(cards).toHaveLength(2);
+  for (const card of cards) {
+    expect(card.style.marginInlineStart).toBe('');
+    expect(card).toHaveStyle({
+      marginInlineEnd: dashboardCarouselLayout.trackGap,
+    });
+  }
+  expect(cards[0].parentElement?.style.gap).toBe('');
 });
 
 it.each(['클릭', 'Enter'])(
