@@ -4,7 +4,10 @@ import { usePathname } from 'next/navigation';
 import React, { useEffect, useMemo } from 'react';
 import { useShallow } from 'zustand/shallow';
 
-import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/animationConfig';
+import {
+  getBlockEntrance,
+  resolveScrollAnimation,
+} from '@/components/molecules/scroll-fade-in/animationConfig';
 import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
 import InvitationChapter, {
   getCollectionStyle,
@@ -192,6 +195,10 @@ function GuestRenderer({
             key={block.id}
             className="w-full"
             {...scrollAnimation}
+            animationType={
+              getBlockEntrance(block.component, block.props) ??
+              scrollAnimation.animationType
+            }
           >
             {renderBlock ? (
               renderBlock(block, view)

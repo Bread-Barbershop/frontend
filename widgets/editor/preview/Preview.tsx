@@ -20,6 +20,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { EditorCallout } from '@/components/molecules/editor-callout';
 import { InvitationBackgroundTexture } from '@/components/molecules/invitation-background-texture/InvitationBackgroundTexture';
+import { getBlockEntrance } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { ScrollFadeIn } from '@/components/molecules/scroll-fade-in/ScrollFadeIn';
 import { EditorBgmOverlay } from '@/components/organisms/bgm/components/EditorBgmOverlay';
 import InvitationChapter from '@/components/organisms/invitation-chapter/InvitationChapter';
@@ -242,7 +243,9 @@ function Preview() {
               >
                 {visibleBlocks.map(comp => {
                   const registryItem = blockRegistry[comp.component];
-                  const animation = scrollAnimation;
+                  const animationType =
+                    getBlockEntrance(comp.component, comp.props) ??
+                    scrollAnimation.animationType;
 
                   if (!registryItem.viewComponent) return null;
 
@@ -268,14 +271,10 @@ function Preview() {
                       }}
                     >
                       <ScrollFadeIn
-                        key={`${animation.animationDurationMs}-${animation.animationEasing}-${animation.animationType}-${animation.triggerMode}`}
-                        {...animation}
-                        {...(activeDragId
-                          ? {
-                              animationType: 'none',
-                              className: 'transition-none',
-                            }
-                          : {})}
+                        key={`${scrollAnimation.animationDurationMs}-${scrollAnimation.animationEasing}-${animationType}-${scrollAnimation.triggerMode}`}
+                        {...scrollAnimation}
+                        animationType={activeDragId ? 'none' : animationType}
+                        className={activeDragId ? 'transition-none' : undefined}
                       >
                         <InvitationChapter
                           component={comp.component}

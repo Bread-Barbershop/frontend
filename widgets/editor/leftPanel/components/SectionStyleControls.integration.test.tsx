@@ -24,6 +24,8 @@ import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import BulkEdit from './BulkEdit';
 import { SectionStyleControls } from './SectionStyleControls';
 
+jest.mock('@/shared/assets/icons/sectionArrow.svg', () => () => null);
+
 jest.mock('@/shared/data/invitationTemplates/originalPosterLoader', () => ({
   loadOriginalPosterJson: async () => ({ version: '7.2.0', objects: [] }),
 }));
@@ -80,6 +82,9 @@ describe('템플릿과 추가 블록의 공통 카드 디자인', () => {
       </>
     );
     expect(screen.getByLabelText('기본 카드 스타일')).toHaveValue('paper');
+    fireEvent.click(
+      screen.getByRole('button', { name: '카드 디자인 · 등장 효과', expanded: false })
+    );
     expect(screen.getByLabelText('이 블록의 카드 스타일')).toHaveValue('');
 
     fireEvent.change(screen.getByLabelText('기본 카드 스타일'), {

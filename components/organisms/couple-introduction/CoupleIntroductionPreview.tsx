@@ -115,9 +115,10 @@ function CoupleIntroductionPreview({
       {...rest}
     >
       <div className="flex w-full flex-row gap-4.5">
-        {profileItems.map(profile => (
+        {profileItems.map((profile, index) => (
           <div
             key={profile.key}
+            data-entrance-side={index === 0 ? 'left' : 'right'}
             className="flex min-w-0 flex-1 flex-col items-center justify-center gap-4"
           >
             {profile.imageSrc ? (

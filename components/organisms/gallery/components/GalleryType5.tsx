@@ -89,6 +89,7 @@ function GalleryType5({
               <div
                 data-rotate-target
                 role="button"
+                data-entrance-side={i % 2 === 0 ? 'left' : 'right'}
                 tabIndex={i < preview.length ? 0 : -1}
                 aria-hidden={i >= preview.length ? true : undefined}
                 style={{ margin: '0 -4px' }}

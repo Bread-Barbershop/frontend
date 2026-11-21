@@ -3,7 +3,11 @@
 import { useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
-import { resolveScrollAnimation } from '@/components/molecules/scroll-fade-in/animationConfig';
+import {
+  getBlockEntrance,
+  resolveScrollAnimation,
+  SCROLL_ANIMATION_OPTIONS,
+} from '@/components/molecules/scroll-fade-in/animationConfig';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import {
   MOTION_EASING_OPTIONS,
@@ -19,6 +23,13 @@ export function ScrollAnimationControls({ embedded = false } = {}) {
     }))
   );
   const animation = resolveScrollAnimation(scrollAnimation);
+  const hasBlockEffect = useEditorStore(state =>
+    state.block.some(block => {
+      const effect = getBlockEntrance(block.component, block.props);
+      return effect !== undefined && effect !== 'none';
+    })
+  );
+  const hasEffect = animation.animationType !== 'none' || hasBlockEffect;
   const toggle = (
     <button
       type="button"
@@ -57,15 +68,15 @@ export function ScrollAnimationControls({ embedded = false } = {}) {
                 })
               }
             >
-              <option value="none">효과 없음</option>
-              <option value="fade-up">아래에서 위로</option>
-              <option value="fade-down">위에서 아래로</option>
-              <option value="fade">페이드</option>
-              <option value="zoom-in">확대</option>
+              {SCROLL_ANIMATION_OPTIONS.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </label>
-          {embedded && toggle}
-          {expanded && animation.animationType !== 'none' && (
+          {embedded && hasEffect && toggle}
+          {expanded && hasEffect && (
             <>
               <label className="flex flex-col gap-2 text-xs">
                 <span className="flex justify-between">
@@ -115,7 +126,7 @@ export function ScrollAnimationControls({ embedded = false } = {}) {
               </p>
             </>
           )}
-          {expanded && (
+          {expanded && hasEffect && (
             <label className="flex flex-col gap-1 text-xs">
               스크롤 재생 조건
               <select

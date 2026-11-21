@@ -1,8 +1,10 @@
 import { PickerHsva } from '@/components/molecules/color-picker/components/colorPicker.types';
-import type { ScrollAnimationSettings } from '@/components/molecules/scroll-fade-in/animationConfig';
+import type {
+  BlockEntrance,
+  ScrollAnimationSettings,
+} from '@/components/molecules/scroll-fade-in/animationConfig';
 import type { InvitationPrivacy } from '@/features/invitation/privacy/settings';
 import type { BackgroundTextureSettings } from '@/shared/data/backgroundTextures';
-import { blockRegistry } from '@/shared/data/registry/registry';
 import type { SectionStyle } from '@/shared/data/sectionStyles';
 
 import { blockSchema } from '../data/registry/block.schema';
@@ -26,6 +28,7 @@ export type EditorBlock<T extends BlockType = BlockType> = {
     /** Bundled collection styling, persisted with native editable block props. */
     collectionStyle?: string;
     sectionStyle?: SectionStyle;
+    entranceEffect?: BlockEntrance;
   };
 };
 
@@ -60,7 +63,7 @@ export interface BlockSlice {
   ) => void;
   updateBlock: <T extends BlockType>(
     id: string,
-    props: Partial<PropsFromFields<(typeof blockRegistry)[T]['fields']>>
+    props: Partial<EditorBlock<T>['props']>
   ) => void;
   updateBlockSectionStyle: (
     id: string,
@@ -150,7 +153,9 @@ export interface BulkSlice {
   invitationPrivacy?: InvitationPrivacy;
   scrollAnimation: ScrollAnimationSettings;
   invitationEffects?: InvitationEffectsSettings;
-  setInvitationEffects: (settings: InvitationEffectsSettings | undefined) => void;
+  setInvitationEffects: (
+    settings: InvitationEffectsSettings | undefined
+  ) => void;
   updateInvitationEffects: (settings: InvitationEffectsSettings) => void;
   invitationEffectsReplay: number;
   replayInvitationEffects: () => void;

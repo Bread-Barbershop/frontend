@@ -37,6 +37,7 @@ export const InterviewPreviewItem = ({
       {preview && (
         <div
           className="relative h-25 w-full overflow-hidden rounded-3xl select-none"
+          data-entrance-side="left"
           draggable={false}
           onDragStart={event => event.preventDefault()}
         >
@@ -52,6 +53,7 @@ export const InterviewPreviewItem = ({
       {question && (
         <p
           className="text-sm text-center font-semibold select-text"
+          data-entrance-side="right"
           style={{ fontFamily }}
         >
           {question}

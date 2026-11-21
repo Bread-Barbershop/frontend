@@ -19,6 +19,7 @@ export function DressCodeBlockPreview({
   ...rest
 }: Props) {
   const colors = normalizeDressCodeColors(blockInfo.props.colors);
+  const middle = (colors.length - 1) / 2;
   const guidelines = normalizeDressCodeGuidelines(blockInfo.props.guidelines).filter(Boolean);
   const title = blockInfo.props.title || '드레스 코드';
 
@@ -37,6 +38,7 @@ export function DressCodeBlockPreview({
               <div
                 key={index}
                 title={color}
+                data-entrance-side={index === middle ? undefined : index < middle ? 'left' : 'right'}
                 aria-label={`추천 색상 ${index + 1}: ${color}`}
                 className="size-9 rounded-full border border-black/5 shadow-sm"
                 style={{ backgroundColor: color }}

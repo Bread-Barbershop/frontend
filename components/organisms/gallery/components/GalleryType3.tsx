@@ -188,6 +188,7 @@ function GalleryType3({
                 <div
                   data-card
                   role="button"
+                  data-entrance-side={i % 2 === 0 ? 'left' : 'right'}
                   tabIndex={i < preview.length ? 0 : -1}
                   aria-hidden={i >= preview.length ? true : undefined}
                   onPointerDown={handlePointerDown}
