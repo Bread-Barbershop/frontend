@@ -172,7 +172,7 @@ export function Calendar({ blockInfo, id }: Props) {
           }
           direction="right"
         >
-          디데이&카운트다운
+          {blockInfo.type === 'wedding' ? '예식 안내 문구' : '행사 안내 문구'}
         </NavigationBar>
         <div className="flex flex-col gap-2">
           <div className="flex flex-col items-center gap-2 w-full ">
@@ -220,7 +220,7 @@ export function Calendar({ blockInfo, id }: Props) {
         notices={[
           {
             id: 'calendar-dday',
-            text: '디데이 버튼 클릭 시 (D-Day)가 추가되며, (D-Day)에 남은 일수가 표시됩니다.',
+            text: '작성한 문구는 카운트다운을 꺼도 표시됩니다. 디데이 버튼을 누르면 문구에 남은 일수를 넣을 수 있어요.',
             colorClass: 'text-[#1F72EF]',
           },
         ]}

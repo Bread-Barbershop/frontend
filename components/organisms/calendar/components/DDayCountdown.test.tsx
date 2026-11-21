@@ -23,6 +23,8 @@ describe('일정 카운트다운', () => {
       <DDayCountdown
         date="2028-02-29"
         time="오후 01:00"
+        showCountdown
+        isDefaultMessage
         messageHtml="<p>(D-Day)일이 남았습니다.</p>"
       />
     );
@@ -47,6 +49,8 @@ describe('일정 카운트다운', () => {
       <DDayCountdown
         date="2028-02-29"
         time={time}
+        showCountdown
+        isDefaultMessage
         messageHtml="<p>(D-Day)일 남았습니다.</p>"
       />
     );
@@ -70,6 +74,8 @@ describe('일정 카운트다운', () => {
       <DDayCountdown
         date="2028-02-29"
         time="09:00"
+        showCountdown
+        isDefaultMessage
         messageHtml="<p>(D-Day)일이 남았습니다.</p>"
       />
     );
