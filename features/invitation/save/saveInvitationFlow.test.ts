@@ -374,43 +374,97 @@ describe('saveInvitationFlow', () => {
     expect(payload.blocks[0].props.images).toEqual(files.map(file => `drive-${file.name}`));
   });
 
-  it('저장 폴더를 다시 준비하면 재전송하는 사진의 완료 수를 0에서 시작한다', async () => {
-    const first = new File([], 'first.jpg');
-    const second = new File([], 'second.jpg');
-    jest
-      .mocked(uploadFileToDrive)
-      .mockRejectedValueOnce(new Error('Drive upload failed: 404'))
-      .mockImplementation(async file => ({ name: file.name, fileId: file.name }));
-    const firstAttempt: number[] = [];
-    const retryAttempt: number[] = [];
-    const result = await saveInvitationFlow({
-      bulkData,
-      shareUrl,
-      bgmData,
-      audio: null,
-      data: [],
-      images: [first, second].map(file => ({ id: 'gallery', file })),
-      mainPoster: { version: '7.1.0', objects: [] },
-      invitationThumbnail: {
-        name: '',
-        mimeType: 'image/png',
-        dataUrl: '',
-        width: 0,
-        height: 0,
-        createdAt: '',
-      },
-      onProgress: (_, photos) => {
-        if (!photos) return;
-        expect(photos.total).toBe(2);
-        const counts = photos.retrying ? retryAttempt : firstAttempt;
-        counts.push(photos.completed);
-      },
-    });
-    expect(result.success).toBe(true);
-    expect(updateFileToDrive).toHaveBeenCalledTimes(1);
-    expect(firstAttempt).toEqual([0, 1]);
-    expect(retryAttempt).toEqual([0, 1, 2]);
-  });
+  it.each([
+    { folder: 'image-folder-id', expectedRetry: [1, 2], secondId: 'drive-1' },
+    {
+      folder: 'new-image-folder',
+      expectedRetry: [0, 1, 2],
+      secondId: 'drive-3',
+    },
+  ])(
+    '폴더 복구 후 $folder 안에 저장된 사진만 재사용한다',
+    async ({ folder, expectedRetry, secondId }) => {
+      const first = new File([], 'first.jpg');
+      const second = new File([], 'second.jpg');
+      const normalFetch = mockFetch.getMockImplementation()!;
+      mockFetch.mockImplementation(async (input, init) => {
+        const response = await normalFetch(input, init);
+        if (
+          input === '/api/drive/saveInvitation' &&
+          JSON.parse(init.body).invitationUuid
+        ) {
+          return jsonResponse({
+            ...(await response.json()),
+            imageFolderId: folder,
+          });
+        }
+        return response;
+      });
+      let created = 0;
+      const upload = jest
+        .mocked(uploadFileToDrive)
+        .mockRejectedValueOnce(new Error('Drive upload failed: 403'))
+        .mockImplementation(async file => ({
+          name: file.name,
+          fileId: `drive-${++created}`,
+        }));
+      const firstAttempt: number[] = [];
+      const retryAttempt: number[] = [];
+      const result = await saveInvitationFlow({
+        bulkData,
+        shareUrl,
+        bgmData,
+        audio: null,
+        data: [],
+        images: [first, second].map(file => ({ id: 'gallery', file })),
+        mainPoster: { version: '7.1.0', objects: [] },
+        invitationThumbnail: {
+          name: '',
+          mimeType: 'image/png',
+          dataUrl: '',
+          width: 0,
+          height: 0,
+          createdAt: '',
+        },
+        onProgress: (_, photos) => {
+          if (!photos) return;
+          expect(photos.total).toBe(2);
+          const counts = photos.retrying ? retryAttempt : firstAttempt;
+          counts.push(photos.completed);
+        },
+      });
+      expect(result.success).toBe(true);
+      const sameFolder = folder === 'image-folder-id';
+      expect(created).toBe(sameFolder ? 2 : 3);
+      expect(
+        upload.mock.calls.slice(2).map(([file, id]) => [file.name, id])
+      ).toEqual(
+        sameFolder
+          ? [[first.name, folder]]
+          : [
+              [first.name, folder],
+              [second.name, folder],
+            ]
+      );
+      expect(
+        result.results.images.ok.map(image => image.fileId).sort()
+      ).toEqual(['drive-2', secondId].sort());
+      expect(updateFileToDrive).toHaveBeenCalledTimes(1);
+      const [jsonFile] = jest.mocked(updateFileToDrive).mock.calls[0];
+      const saved = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(reader.error);
+        reader.readAsText(jsonFile);
+      });
+      expect(JSON.parse(saved).invitationImage).toEqual([
+        { id: 'gallery', file: 'drive-2' },
+        { id: 'gallery', file: secondId },
+      ]);
+      expect(firstAttempt).toEqual([0, 1]);
+      expect(retryAttempt).toEqual(expectedRetry);
+    }
+  );
 
   it('후원사 로고를 Drive ID로 저장하고 이름만 있는 후원사와 구분해 다시 읽는다', async () => {
     const logo = new File(['logo'], 'logo.png', { type: 'image/png' });
