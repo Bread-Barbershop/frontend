@@ -17,33 +17,46 @@ export default function InvitationPreviewButton() {
   const { canvas } = useFabricViewContext();
   const { exportCanvasPreview } = useFabricActionsContext();
   const bgmPlayer = useEditorBgmPlayer();
-  const [snapshot, setSnapshot] = useState<PreviewSnapshot | null>(null);
-  const [error, setError] = useState(false);
+  const [preview, setPreview] = useState<
+    'closed' | 'preparing' | 'error' | PreviewSnapshot
+  >('closed');
+  const frameRef = useRef<number | null>(null);
   const resourceRef = useRef<ReturnType<typeof createPreviewSnapshot> | null>(
     null
   );
-  const close = useCallback(() => {
-    setSnapshot(null);
+  const release = useCallback(() => {
+    if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
+    frameRef.current = null;
     resourceRef.current?.dispose();
     resourceRef.current = null;
   }, []);
-  useEffect(() => () => resourceRef.current?.dispose(), []);
+  useEffect(() => release, [release]);
+  const close = useCallback(() => {
+    release();
+    setPreview('closed');
+  }, [release]);
 
   const open = () => {
-    if (resourceRef.current) return;
-    setError(false);
-    try {
-      const poster = exportCanvasPreview();
-      if (!poster) throw new Error('Poster is not ready');
-      const resource = createPreviewSnapshot(poster.dataUrl);
-      resourceRef.current = resource;
-      if (bgmPlayer.isPlaying) bgmPlayer.togglePlay();
-      setSnapshot(resource.snapshot);
-    } catch {
-      resourceRef.current?.dispose();
-      resourceRef.current = null;
-      setError(true);
-    }
+    if (frameRef.current !== null || resourceRef.current) return;
+    setPreview('preparing');
+
+    // 첫 프레임에 준비 화면을 그리고 다음 프레임에서 동기 이미지 변환을 시작한다.
+    frameRef.current = requestAnimationFrame(() => {
+      frameRef.current = requestAnimationFrame(() => {
+        frameRef.current = null;
+        try {
+          const poster = exportCanvasPreview();
+          if (!poster) throw new Error('Poster is not ready');
+          const resource = createPreviewSnapshot(poster.dataUrl);
+          resourceRef.current = resource;
+          if (bgmPlayer.isPlaying) bgmPlayer.togglePlay();
+          setPreview(resource.snapshot);
+        } catch {
+          release();
+          setPreview('error');
+        }
+      });
+    });
   };
 
   return (
@@ -57,18 +70,15 @@ export default function InvitationPreviewButton() {
       >
         미리보기
       </button>
-      {error && (
-        <p
-          role="alert"
-          className="text-center text-xs leading-relaxed text-text-secondary"
-        >
-          미리보기를 준비하지 못했어요. 잠시 후 다시 눌러주세요.
-        </p>
-      )}
-      {snapshot && (
+      {preview !== 'closed' && (
         <InvitationPreviewModal
-          snapshot={snapshot}
+          snapshot={typeof preview === 'object' ? preview : null}
           source="draft"
+          loadError={
+            preview === 'error'
+              ? { message: '미리보기를 준비하지 못했어요.', onRetry: open }
+              : undefined
+          }
           onClose={close}
         />
       )}
