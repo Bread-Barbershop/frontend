@@ -4,6 +4,7 @@ import { ChevronDown } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { EditorSwitch } from '@/components/molecules/switch/EditorSwitch';
 import {
   DEFAULT_INVITATION_PRIVACY,
   INVITATION_PRIVACY_FIELDS,
@@ -14,7 +15,6 @@ import type { EditorBlock } from '@/shared/types/block';
 import { cn } from '@/shared/utils/cn';
 import { parseStrictDate } from '@/shared/utils/dateValidation';
 
-import { InvitationSettingsSwitch } from './InvitationSettingsSwitch';
 import { PrivacyEndDatePicker } from './PrivacyEndDatePicker';
 
 function getInitialSettings() {
@@ -118,7 +118,7 @@ function InvitationSettingsModal({ onClose }: { onClose: () => void }) {
         <h2 id={titleId} className="text-base font-semibold">
           초대장 설정
         </h2>
-        <InvitationSettingsSwitch
+        <EditorSwitch
           inputRef={zoomSwitchRef}
           label="초대장 확대 방지"
           checked={draftIsZoom}
@@ -126,7 +126,7 @@ function InvitationSettingsModal({ onClose }: { onClose: () => void }) {
         />
         <div className="border-t border-black/10 pt-4">
           <div className="flex items-center gap-2">
-            <InvitationSettingsSwitch
+            <EditorSwitch
               label="일정이 끝나면 개인정보 가리기"
               description="일정 다음 날 00:00부터 · 한국 시간 기준"
               checked={privacy.enabled}
@@ -182,7 +182,7 @@ function InvitationSettingsModal({ onClose }: { onClose: () => void }) {
                   </legend>
                   {INVITATION_PRIVACY_FIELDS.map(
                     ({ key, label, description }) => (
-                      <InvitationSettingsSwitch
+                      <EditorSwitch
                         key={key}
                         label={label}
                         description={description}

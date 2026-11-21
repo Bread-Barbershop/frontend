@@ -1,10 +1,9 @@
 'use client';
 
-import { arrayMove } from '@dnd-kit/sortable';
-import { ArrowDown, ArrowUp, Trash2 } from 'lucide-react';
-
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { FormSelector } from '@/components/molecules/selector/FormSelector';
+import { SortableEditorRow } from '@/features/DndKit/Sort/SortableEditorRow';
+import SortableWrapper from '@/features/DndKit/Sort/SortableWrapper';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
 
@@ -28,57 +27,10 @@ const inputClass =
   'w-full rounded-md border border-border-divider bg-white px-2.5 py-2 text-sm text-text-primary focus:border-primary';
 const addClass =
   'w-full rounded-md border border-border-divider px-3 py-2 text-sm text-primary hover:bg-neutral-50 disabled:opacity-40';
-const iconClass =
-  'grid size-8 place-items-center rounded text-text-secondary hover:bg-neutral-100 disabled:opacity-30';
 const STYLE_OPTIONS = MEAL_MENU_STYLES.map(({ id, name }) => ({
   value: id,
   label: name,
 }));
-
-function OrderControls({
-  label,
-  index,
-  count,
-  onMove,
-  onRemove,
-}: {
-  label: string;
-  index: number;
-  count: number;
-  onMove: (destination: number) => void;
-  onRemove: () => void;
-}) {
-  return (
-    <div className="flex gap-1">
-      <button
-        type="button"
-        className={iconClass}
-        aria-label={`${label} 위로 이동`}
-        disabled={index === 0}
-        onClick={() => onMove(index - 1)}
-      >
-        <ArrowUp size={15} aria-hidden="true" />
-      </button>
-      <button
-        type="button"
-        className={iconClass}
-        aria-label={`${label} 아래로 이동`}
-        disabled={index === count - 1}
-        onClick={() => onMove(index + 1)}
-      >
-        <ArrowDown size={15} aria-hidden="true" />
-      </button>
-      <button
-        type="button"
-        className={iconClass}
-        aria-label={`${label} 삭제`}
-        onClick={onRemove}
-      >
-        <Trash2 size={15} aria-hidden="true" />
-      </button>
-    </div>
-  );
-}
 
 export function MealMenuBlock({
   blockInfo,
@@ -153,121 +105,121 @@ export function MealMenuBlock({
           </label>
         ))}
 
-        {courses.map((course, courseIndex) => {
-          const courseLabel = `코스 ${courseIndex + 1}`;
-          return (
-            <section
-              key={course.id}
-              className="flex flex-col gap-3 rounded-lg border border-border-divider p-3"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <h4 className="text-sm font-semibold text-text-primary">
-                  {courseLabel}
-                </h4>
-                <OrderControls
-                  label={courseLabel}
-                  index={courseIndex}
-                  count={courses.length}
-                  onMove={destination =>
-                    update({
-                      courses: arrayMove(courses, courseIndex, destination),
-                    })
-                  }
-                  onRemove={() =>
-                    update({
-                      courses: courses.filter(
-                        (_, index) => index !== courseIndex
-                      ),
-                    })
-                  }
-                />
-              </div>
-              <label className={fieldClass}>
-                코스 이름 (선택)
-                <input
-                  className={inputClass}
-                  value={course.name}
-                  maxLength={MENU_TEXT_LIMITS.course}
-                  onChange={event =>
-                    replaceCourse(courseIndex, { name: event.target.value })
-                  }
-                />
-              </label>
-              {course.dishes.map((dish, dishIndex) => (
-                <div
-                  key={dish.id}
-                  className="flex flex-col gap-2 border-t border-border-divider pt-2"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-semibold text-text-secondary">
-                      요리 {dishIndex + 1}
-                    </span>
-                    <OrderControls
-                      label={`${courseLabel} 요리 ${dishIndex + 1}`}
-                      index={dishIndex}
-                      count={course.dishes.length}
-                      onMove={destination =>
-                        replaceCourse(courseIndex, {
-                          dishes: arrayMove(
-                            course.dishes,
-                            dishIndex,
-                            destination
-                          ),
-                        })
-                      }
-                      onRemove={() =>
-                        replaceCourse(courseIndex, {
-                          dishes: course.dishes.filter(
-                            (_, index) => index !== dishIndex
-                          ),
-                        })
-                      }
-                    />
-                  </div>
-                  <label className={fieldClass}>
-                    요리 이름
-                    <input
-                      className={inputClass}
-                      value={dish.name}
-                      maxLength={MENU_TEXT_LIMITS.dish}
-                      onChange={event =>
-                        replaceDish(courseIndex, dishIndex, {
-                          name: event.target.value,
-                        })
-                      }
-                    />
-                  </label>
-                  <label className={fieldClass}>
-                    요리 설명 (선택)
-                    <textarea
-                      className={inputClass}
-                      value={dish.description}
-                      rows={2}
-                      maxLength={MENU_TEXT_LIMITS.description}
-                      onChange={event =>
-                        replaceDish(courseIndex, dishIndex, {
-                          description: event.target.value,
-                        })
-                      }
-                    />
-                  </label>
-                </div>
-              ))}
-              <button
-                type="button"
-                className={addClass}
-                disabled={course.dishes.length >= MAX_COURSE_DISHES}
-                onClick={() =>
-                  replaceCourse(courseIndex, {
-                    dishes: [...course.dishes, createMenuDish()],
+        <SortableWrapper
+          vertical
+          items={courses}
+          className="flex-col gap-4"
+          onChange={courses => update({ courses })}
+        >
+          {(course, courseIndex, moveCourse) => {
+            const courseLabel = `코스 ${courseIndex + 1}`;
+            return (
+              <SortableEditorRow
+                key={course.id}
+                id={course.id}
+                label={courseLabel}
+                removeLabel={`${courseLabel} 삭제`}
+                heading={
+                  <h4 className="text-sm font-semibold text-text-primary">
+                    {courseLabel}
+                  </h4>
+                }
+                className="flex flex-col gap-3 rounded-lg border border-border-divider p-3"
+                onMove={moveCourse}
+                onRemove={() =>
+                  update({
+                    courses: courses.filter(item => item.id !== course.id),
                   })
                 }
               >
-                + 요리 추가
-              </button>
-            </section>
-          );
-        })}
+                <label className={fieldClass}>
+                  코스 이름 (선택)
+                  <input
+                    className={inputClass}
+                    value={course.name}
+                    maxLength={MENU_TEXT_LIMITS.course}
+                    onChange={event =>
+                      replaceCourse(courseIndex, { name: event.target.value })
+                    }
+                  />
+                </label>
+                <SortableWrapper
+                  vertical
+                  items={course.dishes}
+                  className="flex-col gap-3"
+                  onChange={dishes => replaceCourse(courseIndex, { dishes })}
+                >
+                  {(dish, dishIndex, moveDish) => {
+                    const dishLabel = `요리 ${dishIndex + 1}`;
+                    const fullLabel = `${courseLabel} ${dishLabel}`;
+                    return (
+                      <SortableEditorRow
+                        key={dish.id}
+                        id={dish.id}
+                        label={fullLabel}
+                        removeLabel={`${fullLabel} 삭제`}
+                        heading={
+                          <span className="text-xs font-semibold text-text-secondary">
+                            {dishLabel}
+                          </span>
+                        }
+                        className="flex flex-col gap-2 border-t border-border-divider pt-2"
+                        onMove={moveDish}
+                        onRemove={() =>
+                          replaceCourse(courseIndex, {
+                            dishes: course.dishes.filter(
+                              item => item.id !== dish.id
+                            ),
+                          })
+                        }
+                      >
+                        <label className={fieldClass}>
+                          요리 이름
+                          <input
+                            className={inputClass}
+                            value={dish.name}
+                            maxLength={MENU_TEXT_LIMITS.dish}
+                            onChange={event =>
+                              replaceDish(courseIndex, dishIndex, {
+                                name: event.target.value,
+                              })
+                            }
+                          />
+                        </label>
+                        <label className={fieldClass}>
+                          요리 설명 (선택)
+                          <textarea
+                            className={inputClass}
+                            value={dish.description}
+                            rows={2}
+                            maxLength={MENU_TEXT_LIMITS.description}
+                            onChange={event =>
+                              replaceDish(courseIndex, dishIndex, {
+                                description: event.target.value,
+                              })
+                            }
+                          />
+                        </label>
+                      </SortableEditorRow>
+                    );
+                  }}
+                </SortableWrapper>
+                <button
+                  type="button"
+                  className={addClass}
+                  disabled={course.dishes.length >= MAX_COURSE_DISHES}
+                  onClick={() =>
+                    replaceCourse(courseIndex, {
+                      dishes: [...course.dishes, createMenuDish()],
+                    })
+                  }
+                >
+                  + 요리 추가
+                </button>
+              </SortableEditorRow>
+            );
+          }}
+        </SortableWrapper>
         <button
           type="button"
           className={addClass}

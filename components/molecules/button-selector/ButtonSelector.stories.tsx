@@ -10,7 +10,7 @@ const meta = {
   },
   argTypes: {
     label: { control: 'text' },
-    onPointerDown: { action: 'pointerDown' },
+    onChange: { action: 'change' },
   },
 } satisfies Meta<typeof ButtonSelector>;
 
@@ -29,7 +29,7 @@ export const Default: Story = {
   args: {
     label: '선택항목',
     selectorOption: MOCK_OPTIONS,
-    onPointerDown: () => {},
+    onChange: () => {},
   },
   render: args => (
     <div className="w-[400px] border p-4 rounded-lg bg-white">
@@ -47,7 +47,7 @@ export const ManyOptions: Story = {
       { value: 'option7', label: '옵션 7' },
       { value: 'option8', label: '옵션 8' },
     ],
-    onPointerDown: () => {},
+    onChange: () => {},
   },
   render: args => (
     <div className="w-[400px] border p-4 rounded-lg bg-white">
@@ -60,7 +60,7 @@ export const Disabled: Story = {
     label: '비활성화',
     selectorOption: MOCK_OPTIONS,
     disabled: true,
-    onPointerDown: () => {},
+    onChange: () => {},
   },
   render: args => (
     <div className="w-[400px] border p-4 rounded-lg bg-white">

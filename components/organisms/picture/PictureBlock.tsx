@@ -4,6 +4,7 @@ import React, { ChangeEvent, useEffect, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { Label } from '@/components/atoms/label';
+import { ButtonSelector } from '@/components/molecules/button-selector/ButtonSelector';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { Picture } from '@/components/molecules/picture';
@@ -21,9 +22,9 @@ import { LeftEditorWrapper } from '../wrapper/LeftEditorWrapper';
 
 const DEFAULT_SUB_TITLE = 'PICTURE';
 const RATIO_OPTIONS = [
-  ['1/1', '1:1'],
-  ['4/3', '4:3'],
-  ['16/9', '16:9'],
+  { value: '1/1', label: '1:1' },
+  { value: '4/3', label: '4:3' },
+  { value: '16/9', label: '16:9' },
 ] as const;
 const FILTER_OPTIONS = [
   { value: 'none', label: '원본' },
@@ -121,14 +122,11 @@ function PictureBlock({ blockInfo, id }: Props) {
         {(blockInfo.props.image?.length ?? 0) > 0 && (
           <section className="mt-2 flex w-full flex-col gap-3 rounded-lg border border-border-divider p-3 text-sm">
             <h3 className="font-semibold">사진 보정 · 자르기</h3>
-            <div className="flex flex-wrap gap-2">
-              {RATIO_OPTIONS.map(([ratio, label]) => (
-                <button type="button" key={ratio}
-                  aria-pressed={(blockInfo.props.imageRatio ?? '1/1') === ratio}
-                  className="rounded-md border border-border-divider px-3 py-2 aria-pressed:bg-[#EDF4FF]"
-                  onClick={() => updateBlock(id, { imageRatio: ratio })}>{label}</button>
-              ))}
-            </div>
+            <ButtonSelector
+              selectorOption={RATIO_OPTIONS}
+              selectedValue={blockInfo.props.imageRatio ?? '1/1'}
+              onChange={imageRatio => updateBlock(id, { imageRatio })}
+            />
             <div className="flex items-center gap-2">
               <button type="button" className="rounded-md border border-border-divider px-3 py-2"
                 onClick={() => updateBlock(id, { imageRotation: ((blockInfo.props.imageRotation ?? 0) - 90) % 360 })}>

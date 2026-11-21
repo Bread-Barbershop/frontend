@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import GuestRenderer from '@/app/guest/[id]/components/GuestRenderer';
 import { normalizeGuestBlock } from '@/app/guest/[id]/validation/normalizeGuestBlock';
@@ -95,10 +96,19 @@ describe('식사 메뉴 블록', () => {
     fireEvent.change(screen.getAllByLabelText('요리 이름')[1], {
       target: { value: '한입 요리' },
     });
-    fireEvent.click(
-      screen.getByRole('button', { name: '코스 1 요리 2 위로 이동' })
-    );
-    fireEvent.click(screen.getByRole('button', { name: '코스 2 위로 이동' }));
+    const user = userEvent.setup();
+    const dishHandle = screen.getByRole('button', {
+      name: '코스 1 요리 2 순서 변경',
+    });
+    dishHandle.focus();
+    await user.keyboard('{ArrowUp}{ArrowUp}');
+    expect(dishHandle).toHaveFocus();
+    const courseHandle = screen.getByRole('button', {
+      name: '코스 2 순서 변경',
+    });
+    courseHandle.focus();
+    await user.keyboard('{ArrowUp}');
+    expect(courseHandle).toHaveFocus();
     fireEvent.click(screen.getByRole('combobox', { name: '디자인' }));
     fireEvent.click(screen.getByRole('option', { name: '잉크 가든' }));
 
@@ -109,7 +119,9 @@ describe('식사 메뉴 블록', () => {
       '바닐라 판나코타',
     ];
     expect(
-      screen.getAllByRole('listitem').map(item => item.firstChild?.textContent)
+      within(screen.getByRole('article', { name: '식사 메뉴' }))
+        .getAllByRole('listitem')
+        .map(item => item.firstChild?.textContent)
     ).toEqual(expectedOrder);
 
     unmount();
@@ -120,8 +132,7 @@ describe('식사 메뉴 블록', () => {
       isZoom,
       backgroundColor,
       scrollAnimation,
-    } =
-      useEditorStore.getState();
+    } = useEditorStore.getState();
     const guestBlock = normalizeGuestBlock(
       JSON.parse(JSON.stringify(block[0])),
       0
@@ -148,7 +159,9 @@ describe('식사 메뉴 블록', () => {
       'garden'
     );
     expect(
-      screen.getAllByRole('listitem').map(item => item.firstChild?.textContent)
+      within(screen.getByRole('article', { name: '식사 메뉴' }))
+        .getAllByRole('listitem')
+        .map(item => item.firstChild?.textContent)
     ).toEqual(expectedOrder);
   });
 
@@ -164,6 +177,6 @@ describe('식사 메뉴 블록', () => {
     fireEvent.click(ornament);
 
     expect(preview).toHaveAttribute('data-corner-art', 'false');
-    expect(screen.getAllByRole('listitem')).toHaveLength(3);
+    expect(within(preview).getAllByRole('listitem')).toHaveLength(3);
   });
 });

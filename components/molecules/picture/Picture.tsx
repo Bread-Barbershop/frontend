@@ -137,6 +137,7 @@ export const Picture = ({
             {(multiple || preview.length === 0) && loadingCount === 0 && (
               <li>
                 <PictureInput
+                  aria-label={`${label} 추가`}
                   multiple={multiple}
                   className={inputClassName}
                   onChange={handleChange}

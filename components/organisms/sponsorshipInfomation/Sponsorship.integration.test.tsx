@@ -9,6 +9,7 @@ import { compressImages } from '@/shared/utils/imageCompression';
 import Editor from './SposorshipInfomation';
 import Preview from './SposorshipInfomationPreview';
 
+jest.mock('@/shared/assets/icons/add.svg', () => () => null);
 jest.mock('@/shared/assets/icons/loadingSpinner.svg', () => () => null);
 jest.mock('@/shared/utils/imageCompression', () => ({
   compressImages: jest.fn(

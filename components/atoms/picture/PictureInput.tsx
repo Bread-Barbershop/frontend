@@ -11,24 +11,36 @@ interface Props
     InputHTMLAttributes<HTMLInputElement>,
     VariantProps<typeof pictureInputVariants> {}
 
-export const PictureInput = ({ multiple, className, ...rest }: Props) => {
+export const PictureInput = ({
+  id,
+  children,
+  className,
+  'aria-label': ariaLabel = '사진 추가',
+  ...rest
+}: Props) => {
   const generatedId = useId();
+  const inputId = id ?? generatedId;
 
   return (
     <>
       <input
         type="file"
         accept="image/*"
-        id={generatedId}
-        multiple={multiple}
-        className="hidden"
+        id={inputId}
+        aria-label={ariaLabel}
+        className="peer sr-only"
         {...rest}
       />
       <label
-        htmlFor={generatedId}
-        className={cn(pictureInputVariants(), className)}
+        htmlFor={inputId}
+        title={ariaLabel}
+        className={cn(
+          pictureInputVariants(),
+          'peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary',
+          className
+        )}
       >
-        <Add className="w-4 h-4" />
+        {children ?? <Add aria-hidden="true" className="size-4" />}
       </label>
     </>
   );

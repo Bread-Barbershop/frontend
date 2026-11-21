@@ -8,6 +8,7 @@ import {
   navigationBarHeadingClassName,
 } from '@/components/molecules/navigation-bar/NavigationBar.style';
 import { FormSelector } from '@/components/molecules/selector/FormSelector';
+import { EditorSwitch } from '@/components/molecules/switch/EditorSwitch';
 import { AmbientScopeSelect } from '@/components/organisms/visualEffects/AmbientScopeSelect';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { cn } from '@/shared/utils/cn';
@@ -68,27 +69,22 @@ export function InvitationEffectsControls() {
           value={opening}
           onChange={opening => updateInvitationEffects({ opening })}
         />
-        <div className="flex flex-col gap-1 text-xs font-medium text-text-secondary">
-          <span>축하 효과</span>
-          <label className="flex min-h-8 cursor-pointer items-center justify-between text-sm text-text-primary">
-            컨페티
-            <input
-              type="checkbox"
-              role="switch"
-              aria-label="축하 효과 컨페티"
-              className="relative h-[22px] w-9 cursor-pointer appearance-none rounded-full bg-neutral-400 after:absolute after:top-[3px] after:left-[3px] after:size-4 after:rounded-full after:bg-white after:transition-transform checked:bg-primary checked:after:translate-x-3.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:after:transition-none"
-              checked={confetti}
-              onChange={event =>
-                updateInvitationEffects({
-                  confetti: event.target.checked,
-                  ...(settings?.ambientEffect === undefined &&
-                    ambient.some(({ effect }) => effect === 'confetti') && {
-                      ambientEffect: 'blocks',
-                    }),
-                })
-              }
-            />
-          </label>
+        <div className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-text-secondary">축하 효과</span>
+          <EditorSwitch
+            label="컨페티"
+            ariaLabel="축하 효과 컨페티"
+            checked={confetti}
+            onChange={checked =>
+              updateInvitationEffects({
+                confetti: checked,
+                ...(settings?.ambientEffect === undefined &&
+                  ambient.some(({ effect }) => effect === 'confetti') && {
+                    ambientEffect: 'blocks',
+                  }),
+              })
+            }
+          />
         </div>
         <FormSelector
           label="배경 효과"
