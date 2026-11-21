@@ -54,6 +54,24 @@ describe('템플릿과 추가 블록의 공통 카드 디자인', () => {
   beforeEach(() => useEditorStore.getState().reset());
   afterEach(() => act(() => useEditorStore.getState().reset()));
 
+  it('카드 설정을 접으면 입력을 막고 다시 열면 같은 설정을 사용할 수 있다', () => {
+    useEditorStore.getState().addBlock('wedding', 'gallery', 'photos');
+    render(<SectionStyleControls selectedId="photos" />);
+    const toggle = screen.getByRole('button', { name: '카드 디자인 · 등장 효과' });
+    const panel = document.getElementById(toggle.getAttribute('aria-controls')!);
+
+    fireEvent.click(toggle);
+    const effect = screen.getByRole('combobox', { name: '이 블록의 등장 효과' });
+    fireEvent.click(toggle);
+    expect(panel).toContainElement(effect);
+    expect(panel).toHaveAttribute('inert');
+    expect(screen.queryByRole('combobox', { name: '이 블록의 등장 효과' })).toBeNull();
+
+    fireEvent.click(toggle);
+    expect(panel).not.toHaveAttribute('inert');
+    expect(screen.getByRole('combobox', { name: '이 블록의 등장 효과' })).toBe(effect);
+  });
+
   it('새 블록에 초대장 스타일을 적용하고 개별 변경과 상속 복원을 저장 전 미리보기에 반영한다', async () => {
     const prepared = await createInvitationTemplate('showcase-21');
     act(() => {
