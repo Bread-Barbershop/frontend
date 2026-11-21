@@ -20,6 +20,7 @@ jest.mock('@/shared/hooks/useConfirm', () => ({
   useConfirm: () => ({ confirm: async () => true }),
 }));
 jest.mock('@/widgets/mainPoster/context/FabricContext', () => ({
+  useFabricViewContext: () => ({ canvas: { getObjects: () => [] } }),
   useFabricContext: () => ({
     exportIntersectedJSON: () => null,
     exportCanvasPreview: () => null,
