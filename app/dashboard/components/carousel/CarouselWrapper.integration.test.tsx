@@ -1,7 +1,14 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { toDataURL } from 'qrcode';
 
+import type { InviteListItem } from '@/app/dashboard/types';
 import {
   parsePreviewSnapshot,
   PREVIEW_MESSAGE,
@@ -89,6 +96,129 @@ describe('대시보드 초대장', () => {
     );
     return screen.findByRole('button', { name: '초대장 미리보기' });
   }
+
+  describe('행사 카드 삭제', () => {
+    const weddingInvite = {
+      ...privateInvite,
+      displayTitle: '민서·지훈 결혼식',
+    };
+    const optionsUrl = `/api/drive/invitationAudiences?folderId=${weddingInvite.folderId}&view=editor-options`;
+
+    async function openDeleteDialog(invite: InviteListItem = weddingInvite) {
+      const user = userEvent.setup();
+      render(
+        <div id="app-root">
+          <CarouselWrapper
+            initialInvites={[sourceInvitation, invite]}
+            loadOnMount={false}
+          />
+        </div>
+      );
+      const card = await screen.findByRole('button', {
+        name: invite.displayTitle ?? invite.name,
+      });
+      await user.click(card);
+      const trigger = await screen.findByRole('button', {
+        name: '초대장 삭제',
+      });
+      await user.click(trigger);
+      return { user, trigger, dialog: screen.getByRole('dialog') };
+    }
+
+    it('행사 제목과 함께 삭제될 그룹 이름·개수와 링크 영향을 표시하고 원본 폴더만 삭제한다', async () => {
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ audiences: [familyGroup, workGroup] }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true }),
+        });
+      const { user, dialog } = await openDeleteDialog();
+      expect(dialog).toHaveAccessibleName(
+        '‘민서·지훈 결혼식’ 전체를 삭제할까요?'
+      );
+      expect(dialog).toHaveAccessibleDescription(
+        '기본 초대장과 하객 그룹 2개(가족용·직장용)가 함께 삭제돼요. 이미 보낸 링크로도 초대장을 열 수 없어요.'
+      );
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: '취소' })).toHaveFocus()
+      );
+      expect(mockFetch.mock.calls.map(([url]) => url)).toEqual([optionsUrl]);
+      await user.click(
+        screen.getByRole('button', { name: '초대장 전체 삭제' })
+      );
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+      expect(mockFetch).toHaveBeenLastCalledWith(
+        '/api/drive/deleteInvitation',
+        expect.objectContaining({
+          method: 'DELETE',
+          body: JSON.stringify({ folderId: weddingInvite.folderId }),
+        })
+      );
+      expect(
+        screen.queryByRole('button', { name: weddingInvite.displayTitle })
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: sourceInvitation.name })
+      ).toBeVisible();
+    });
+
+    it('기본 초대장 하나면 간결하게 표시하고 취소하면 휴지통으로 포커스를 돌려준다', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => ({ audiences: [] }),
+      });
+      const { user, trigger, dialog } = await openDeleteDialog({
+        ...privateInvite,
+        name: '하은 돌잔치',
+      });
+      expect(dialog).toHaveAccessibleName('‘하은 돌잔치’ 초대장을 삭제할까요?');
+      expect(dialog).toHaveAccessibleDescription(
+        '이미 보낸 링크로도 초대장을 열 수 없어요.'
+      );
+      expect(screen.getByRole('button', { name: '초대장 삭제' })).toBeEnabled();
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: '취소' })).toHaveFocus()
+      );
+      await user.keyboard('{Enter}');
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(trigger).toHaveFocus();
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('그룹을 확인하는 동안 삭제할 수 없고 취소한 조회의 응답은 다음 확인창에 반영되지 않는다', async () => {
+      let finish!: () => void;
+      mockFetch
+        .mockImplementationOnce(
+          () =>
+            new Promise(resolve => {
+              finish = () =>
+                resolve({ ok: true, json: async () => ({ audiences: [] }) });
+            })
+        )
+        .mockRejectedValueOnce(new Error('offline'));
+      const { user, trigger } = await openDeleteDialog();
+      expect(screen.getByRole('button', { name: '확인 중…' })).toBeDisabled();
+      const signal = mockFetch.mock.calls[0][1].signal;
+      await user.keyboard('{Escape}');
+      expect(signal.aborted).toBe(true);
+      await user.click(trigger);
+      await act(async () => finish());
+      const reopened = screen.getByRole('dialog');
+      expect(reopened).toHaveAccessibleDescription(
+        /하객 그룹 목록을 불러오지 못했어요.*모든 하객 그룹이 함께 삭제돼요/
+      );
+      expect(
+        screen.getByRole('button', { name: '초대장 전체 삭제' })
+      ).toBeEnabled();
+      expect(mockFetch.mock.calls.map(([url]) => url)).toEqual([
+        optionsUrl,
+        optionsUrl,
+      ]);
+    });
+  });
 
   async function renderEditButton() {
     render(
