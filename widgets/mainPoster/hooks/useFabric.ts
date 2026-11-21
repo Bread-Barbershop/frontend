@@ -6,6 +6,8 @@ import { useConfirm } from '@/shared/hooks/useConfirm';
 
 import { ActiveObject } from '../types/fabric';
 import { containsFrameTarget, isFrameTarget } from '../utils/imageSlot';
+import { POSTER_BACKGROUND_VERSION } from '../utils/legacyPosterBackground';
+import { exportPosterImage } from '../utils/previewExport';
 export const useFabric = () => {
   const [canvas, setCanvas] = useState<Canvas | null>(null);
   const [activeInfo, setActiveInfo] = useState<ActiveObject>({
@@ -713,7 +715,7 @@ export const useFabric = () => {
     ];
     const json = canvas.toObject(propertiesToInclude);
     json.objects = filteredData.map(obj => obj.toObject(propertiesToInclude));
-    return json;
+    return { ...json, posterBackgroundVersion: POSTER_BACKGROUND_VERSION };
   }, [canvas]);
 
   const exportCanvasPreview = useCallback(() => {
@@ -733,21 +735,13 @@ export const useFabric = () => {
 
       canvas.requestRenderAll();
 
-      let previewDataUrl = canvas.toDataURL({
-        format: 'webp',
-        quality: 0.85,
-        multiplier: 2,
-      });
+      let previewDataUrl = exportPosterImage(canvas, 'webp');
 
       let name = 'invitation-thumbnail.webp';
       let mimeType = 'image/webp';
 
       if (!previewDataUrl || !previewDataUrl.startsWith('data:image/webp')) {
-        previewDataUrl = canvas.toDataURL({
-          format: 'png',
-          quality: 1,
-          multiplier: 2,
-        });
+        previewDataUrl = exportPosterImage(canvas, 'png');
         name = 'invitation-thumbnail.png';
         mimeType = 'image/png';
       }
