@@ -1,5 +1,6 @@
 import { useId, useState } from 'react';
 
+import { FormSelector } from '@/components/molecules/selector/FormSelector';
 import { formatDateDraft } from '@/shared/hooks/useValidatedDateDraft';
 import {
   isValidDateTimeLocal,
@@ -23,6 +24,17 @@ const TIME_FIELDS = [
   { key: 'hour', label: '시', options: HOURS },
   { key: 'minute', label: '분', options: MINUTES },
 ] as const;
+const timeSelectors = TIME_FIELDS.map(({ key, label, options }) => ({
+  key,
+  label,
+  options: [
+    { value: '', label },
+    ...options.map(value => ({
+      value,
+      label: key === 'period' ? value : value + label,
+    })),
+  ],
+}));
 const inputClassName =
   'h-10 w-full min-w-0 rounded-md border border-border-divider bg-bg-base px-2 text-sm text-text-primary focus:border-primary';
 
@@ -114,28 +126,18 @@ export function CountdownDateTimeFields({ value, draft, onChange }: Props) {
           행사 시간 (한국 시간)
         </legend>
         <div className="grid grid-cols-3 gap-2">
-          {TIME_FIELDS.map(({ key, label, options }) => (
-            <select
+          {timeSelectors.map(({ key, label, options }) => (
+            <FormSelector
               key={key}
-              aria-label={label}
+              label={<span className="sr-only">{label}</span>}
+              options={options}
               value={fields[key]}
-              onChange={event =>
-                update({ ...fields, [key]: event.target.value })
-              }
-              aria-invalid={showTimeError && !fields[key]}
-              aria-describedby={
+              onChange={value => update({ ...fields, [key]: value })}
+              invalid={showTimeError && !fields[key]}
+              describedBy={
                 showTimeError && !fields[key] ? `${id}-time-error` : undefined
               }
-              className={inputClassName}
-            >
-              <option value="">{label}</option>
-              {options.map(option => (
-                <option key={option} value={option}>
-                  {option}
-                  {key === 'period' ? '' : label}
-                </option>
-              ))}
-            </select>
+            />
           ))}
         </div>
         {showTimeError && (

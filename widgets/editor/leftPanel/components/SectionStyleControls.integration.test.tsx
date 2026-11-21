@@ -81,15 +81,20 @@ describe('템플릿과 추가 블록의 공통 카드 디자인', () => {
         <SectionStyleControls selectedId="added-faq" />
       </>
     );
-    expect(screen.getByLabelText('기본 카드 스타일')).toHaveValue('paper');
+    const defaultStyle = screen.getByRole('combobox', {
+      name: '기본 카드 스타일',
+    });
     fireEvent.click(
       screen.getByRole('button', { name: '카드 디자인 · 등장 효과', expanded: false })
     );
-    expect(screen.getByLabelText('이 블록의 카드 스타일')).toHaveValue('');
-
-    fireEvent.change(screen.getByLabelText('기본 카드 스타일'), {
-      target: { value: 'rounded' },
+    const blockStyle = screen.getByRole('combobox', {
+      name: '이 블록의 카드 스타일',
     });
+    expect(defaultStyle).toHaveTextContent('종이 카드');
+    expect(blockStyle).toHaveTextContent('초대장 스타일 따르기');
+
+    fireEvent.click(defaultStyle);
+    fireEvent.click(screen.getByRole('option', { name: '라운드 카드' }));
     const inherited = createPreviewSnapshot('data:image/png;base64,test');
     const guest = render(<GuestRenderer {...inherited.snapshot.payload} />);
     expect(
@@ -99,9 +104,8 @@ describe('템플릿과 추가 블록의 공통 카드 디자인', () => {
       screen.getByText('네, 같은 편집기를 사용합니다.')
     ).toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText('이 블록의 카드 스타일'), {
-      target: { value: 'outlined' },
-    });
+    fireEvent.click(blockStyle);
+    fireEvent.click(screen.getByRole('option', { name: '테두리 카드' }));
     const custom = createPreviewSnapshot('data:image/png;base64,test');
     const restored = parsePreviewSnapshot(
       JSON.parse(JSON.stringify(custom.snapshot))
@@ -113,9 +117,8 @@ describe('템플릿과 추가 블록의 공통 카드 디자인', () => {
     ).toHaveAttribute('data-section-style', 'outlined');
     expect(restored!.payload.bulkData.sectionStyle).toBe('rounded');
 
-    fireEvent.change(screen.getByLabelText('이 블록의 카드 스타일'), {
-      target: { value: '' },
-    });
+    fireEvent.click(blockStyle);
+    fireEvent.click(screen.getByRole('option', { name: '초대장 스타일 따르기' }));
     const reset = createPreviewSnapshot('data:image/png;base64,test');
     guest.rerender(<GuestRenderer {...reset.snapshot.payload} />);
     expect(

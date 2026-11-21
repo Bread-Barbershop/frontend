@@ -1,9 +1,16 @@
 import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 
 const EDITABLE_TARGET_SELECTOR =
-  'input, textarea, select, [role="textbox"], [contenteditable]:not([contenteditable="false"])';
+  'input, textarea, select, [role="combobox"], [role="textbox"], [contenteditable]:not([contenteditable="false"])';
 const ACTIVE_POPUP_SELECTOR =
   'dialog[open], [role="dialog"], [aria-modal="true"], [role="menu"], [data-editor-popup="true"]';
+
+export function isEditorEditableTarget(target: EventTarget | null) {
+  return (
+    target instanceof Element &&
+    target.closest(EDITABLE_TARGET_SELECTOR) !== null
+  );
+}
 
 export function shouldIgnoreEditorShortcut(event: KeyboardEvent) {
   if (
@@ -21,13 +28,7 @@ export function shouldIgnoreEditorShortcut(event: KeyboardEvent) {
     return true;
   }
 
-  const target = event.target;
-  if (
-    target instanceof Element &&
-    target.closest(EDITABLE_TARGET_SELECTOR)
-  ) {
-    return true;
-  }
+  if (isEditorEditableTarget(event.target)) return true;
 
   return document.querySelector(ACTIVE_POPUP_SELECTOR) !== null;
 }

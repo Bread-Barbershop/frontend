@@ -8,11 +8,15 @@ import {
   resolveScrollAnimation,
   SCROLL_ANIMATION_OPTIONS,
 } from '@/components/molecules/scroll-fade-in/animationConfig';
+import { FormSelector } from '@/components/molecules/selector/FormSelector';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
-import {
-  MOTION_EASING_OPTIONS,
-  resolveMotionEasing,
-} from '@/shared/utils/motionSettings';
+import { MOTION_EASING_OPTIONS } from '@/shared/utils/motionSettings';
+
+const TRIGGER_OPTIONS = [
+  { value: 'down-only', label: '처음 내릴 때만' },
+  { value: 'down-repeat', label: '내릴 때마다' },
+  { value: 'both', label: '올리거나 내릴 때마다' },
+] as const;
 
 export function ScrollAnimationControls({ embedded = false } = {}) {
   const [expanded, setExpanded] = useState(false);
@@ -56,25 +60,13 @@ export function ScrollAnimationControls({ embedded = false } = {}) {
             embedded ? 'flex flex-col gap-2' : 'mt-3 flex flex-col gap-3'
           }
         >
-          <label className="flex flex-col gap-1.5 text-xs font-medium text-text-secondary">
-            {embedded ? '스크롤 애니메이션' : '효과'}
-            <select
-              className="h-9 rounded-md border border-border-divider px-2 text-sm"
-              value={animation.animationType}
-              onChange={e =>
-                updateScrollAnimation({
-                  animationType: e.target
-                    .value as typeof animation.animationType,
-                })
-              }
-            >
-              {SCROLL_ANIMATION_OPTIONS.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <FormSelector
+            label={embedded ? '스크롤 애니메이션' : '효과'}
+            className="flex flex-col gap-1.5 text-xs font-medium text-text-secondary"
+            options={SCROLL_ANIMATION_OPTIONS}
+            value={animation.animationType}
+            onChange={animationType => updateScrollAnimation({ animationType })}
+          />
           {embedded && hasEffect && toggle}
           {expanded && hasEffect && (
             <>
@@ -103,46 +95,28 @@ export function ScrollAnimationControls({ embedded = false } = {}) {
                   <span>느리게</span>
                 </span>
               </label>
-              <label className="flex flex-col gap-1 text-xs">
-                부드러움
-                <select
-                  className="h-9 rounded-md border border-border-divider px-2 text-sm"
-                  value={animation.animationEasing}
-                  onChange={event =>
-                    updateScrollAnimation({
-                      animationEasing: resolveMotionEasing(event.target.value),
-                    })
-                  }
-                >
-                  {MOTION_EASING_OPTIONS.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <FormSelector
+                label="부드러움"
+                className="flex flex-col gap-1 text-xs"
+                options={MOTION_EASING_OPTIONS}
+                value={animation.animationEasing}
+                onChange={animationEasing =>
+                  updateScrollAnimation({ animationEasing })
+                }
+              />
               <p className="text-xs leading-relaxed text-text-tertiary">
                 설정을 바꾸면 미리보기에서 다시 재생돼요.
               </p>
             </>
           )}
           {expanded && hasEffect && (
-            <label className="flex flex-col gap-1 text-xs">
-              스크롤 재생 조건
-              <select
-                className="h-9 rounded-md border border-border-divider px-2 text-sm"
-                value={animation.triggerMode}
-                onChange={e =>
-                  updateScrollAnimation({
-                    triggerMode: e.target.value as typeof animation.triggerMode,
-                  })
-                }
-              >
-                <option value="down-only">처음 내릴 때만</option>
-                <option value="down-repeat">내릴 때마다</option>
-                <option value="both">올리거나 내릴 때마다</option>
-              </select>
-            </label>
+            <FormSelector
+              label="스크롤 재생 조건"
+              className="flex flex-col gap-1 text-xs"
+              options={TRIGGER_OPTIONS}
+              value={animation.triggerMode}
+              onChange={triggerMode => updateScrollAnimation({ triggerMode })}
+            />
           )}
         </div>
       )}

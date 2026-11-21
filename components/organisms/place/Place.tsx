@@ -142,9 +142,8 @@ export function Place({ blockInfo, id }: Props) {
             주소
           </Label>
           <Selector
-            type="normal"
-            className="w-[63px]"
-            optionContainerClassName="scrollbar-hide"
+            className="w-[72px]"
+            ariaLabel="국내·국외 주소"
             placeholder="국내"
             options={[
               { value: '국내', label: '국내' },

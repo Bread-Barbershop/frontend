@@ -1,10 +1,11 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, fireEvent, renderHook } from '@testing-library/react';
 import { Canvas } from 'fabric';
 
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { useKeyboardEvents } from './useKeyboardEvents';
 
 const mockHandleDeleteShape = jest.fn();
+const mockUndo = jest.fn();
 const mockNoop = jest.fn();
 
 jest.mock('@/widgets/mainPoster/context/FabricContext', () => ({
@@ -17,7 +18,7 @@ jest.mock('@/widgets/mainPoster/context/FabricContext', () => ({
     moveDown: mockNoop,
     moveTop: mockNoop,
     moveBottom: mockNoop,
-    undo: mockNoop,
+    undo: mockUndo,
     redo: mockNoop,
     handleDeleteShape: mockHandleDeleteShape,
     toggleDrawingMode: mockNoop,
@@ -83,5 +84,22 @@ describe('캔버스 키보드 단축키', () => {
       canvas,
       expect.objectContaining({ key: 'Delete' })
     );
+  });
+
+  it('드롭다운에 포커스가 있으면 포스터 실행 취소 단축키를 무시한다', () => {
+    const canvas = {
+      getActiveObjects: () => [],
+      getActiveObject: () => null,
+    } as unknown as Canvas;
+    const trigger = document.createElement('button');
+    trigger.setAttribute('role', 'combobox');
+    document.body.append(trigger);
+    trigger.focus();
+    renderHook(() => useKeyboardEvents(canvas, { current: true }));
+
+    fireEvent.keyDown(trigger, { key: 'z', code: 'KeyZ', ctrlKey: true });
+    trigger.remove();
+
+    expect(mockUndo).not.toHaveBeenCalled();
   });
 });
