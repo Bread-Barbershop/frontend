@@ -23,6 +23,7 @@ import {
   rootGuestUrl,
   savedBasicInvitation,
 } from './fixtures/invitationAudiences';
+import InvitationSettingsButton from './AdditionalFeaturesButton';
 import InvitationAudiencesButton from './InvitationAudiencesButton';
 import InvitationAudiencesDialog from './InvitationAudiencesDialog';
 
@@ -46,8 +47,9 @@ function mockList(groups: AudienceGroup[], activeSlug = '') {
   mockFetch.mockResolvedValueOnce(reply({ rootGuestUrl, groups, activeSlug }));
 }
 
-function Dialog() {
+function Dialog({ showSettings = false }: { showSettings?: boolean }) {
   useEditorDirtyTracker(true);
+  if (showSettings) return <InvitationSettingsButton />;
   return (
     <InvitationAudiencesDialog
       upload={{
@@ -323,6 +325,39 @@ describe('하객별 구분', () => {
     );
     expect(save).not.toHaveBeenCalled();
     expect(openEditor).toHaveBeenCalledWith(basicAudience);
+  });
+
+  it.each([
+    ['다른 수정이 없으면 바로 전환한다', false],
+    ['이전에 편집한 내용이 있으면 저장 확인을 표시한다', true],
+  ] as const)('설정을 확인만 한 후 그룹을 열 때 %s', async (_, editBgm) => {
+    const user = userEvent.setup();
+    mockList([basicAudience, familyAudience]);
+    useEditorStore.getState().addBlock('wedding', 'calendar', 'date', {
+      date: '2027-05-15',
+    });
+    const view = render(<Dialog showSettings />);
+    if (editBgm) act(() => useBgmStore.getState().setVolume(0.35));
+    await user.click(screen.getByRole('button', { name: '초대장 설정' }));
+    await user.click(screen.getByRole('button', { name: '적용' }));
+    expect(useEditorStore.getState().invitationPrivacy).toBeUndefined();
+
+    view.rerender(<Dialog />);
+    await user.click(
+      await screen.findByRole('button', {
+        name: familyAudience.name,
+        exact: true,
+      })
+    );
+    if (editBgm) {
+      expect(
+        screen.getByRole('button', { name: '저장 후 계속' })
+      ).toBeVisible();
+      expect(openEditor).not.toHaveBeenCalled();
+    } else {
+      expect(openEditor).toHaveBeenCalledWith(familyAudience);
+    }
+    expect(save).not.toHaveBeenCalled();
   });
 
   it('BGM만 편집한 경우에도 저장 확인을 거치고 성공하기 전에는 전환하지 않는다', async () => {
