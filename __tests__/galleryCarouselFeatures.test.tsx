@@ -166,23 +166,23 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
   });
 
   describe('Gallery 편집기 (추가기능)', () => {
-    it('추가기능에 필름 효과 체크박스가 표시되고 클릭 시 updateBlock이 호출되어야 함', () => {
-      const mockBlock: EditorBlock<'gallery'> = {
-        id: 'gallery-test-1',
-        type: 'wedding',
-        component: 'gallery',
-        props: {
-          title: '갤러리',
-          subTitle: 'GALLERY',
-          images: [],
-          template: 'galleryType1',
-          ratio: '1:1',
-          isPopupViewer: false,
-          isSubTitle: true,
-          isAutoPlay: false,
-        },
-      };
+    const mockBlock: EditorBlock<'gallery'> = {
+      id: 'gallery-test-1',
+      type: 'wedding',
+      component: 'gallery',
+      props: {
+        title: '갤러리',
+        subTitle: 'GALLERY',
+        images: [],
+        template: 'galleryType1',
+        ratio: '1:1',
+        isPopupViewer: false,
+        isSubTitle: true,
+        isAutoPlay: false,
+      },
+    };
 
+    it('추가기능에 필름 효과 체크박스가 표시되고 클릭 시 updateBlock이 호출되어야 함', () => {
       (useEditorStore as unknown as jest.Mock).mockReturnValue({
         block: [mockBlock],
         images: [{ id: 'gallery-test-1', file: [] }],
@@ -192,9 +192,7 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
 
       render(<Gallery blockInfo={mockBlock} id="gallery-test-1" />);
 
-      const checkbox = screen.getByLabelText(
-        '필름 효과 (천천히 무한 반복 재생)'
-      );
+      const checkbox = screen.getByRole('checkbox', { name: /필름 효과/ });
       expect(checkbox).toBeInTheDocument();
       expect(checkbox).not.toBeChecked();
 
@@ -204,6 +202,30 @@ describe('갤러리 캐러셀 기능 및 필름 효과 테스트', () => {
         isAutoPlay: true,
       });
     });
+
+    it.each(['galleryType6', 'galleryType7'])(
+      '%s 그리드는 필름 효과를 숨기고 캐러셀로 돌아가면 저장된 설정을 표시한다',
+      template => {
+        const enabled = {
+          ...mockBlock,
+          props: { ...mockBlock.props, isAutoPlay: true },
+        };
+        const grid = { ...enabled, props: { ...enabled.props, template } };
+        const { rerender } = render(<Gallery blockInfo={grid} id={grid.id} />);
+        expect(
+          screen.queryByRole('checkbox', { name: /필름 효과/ })
+        ).not.toBeInTheDocument();
+        expect(
+          screen.getByRole('checkbox', { name: /팝업뷰어/ })
+        ).toBeInTheDocument();
+
+        rerender(<Gallery blockInfo={enabled} id={enabled.id} />);
+        expect(
+          screen.getByRole('checkbox', { name: /필름 효과/ })
+        ).toBeChecked();
+        expect(mockUpdateBlock).not.toHaveBeenCalled();
+      }
+    );
   });
 
   describe('실제 포인터 드래그와 클릭 구분', () => {

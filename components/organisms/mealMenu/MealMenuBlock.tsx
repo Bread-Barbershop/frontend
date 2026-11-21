@@ -85,7 +85,8 @@ export function MealMenuBlock({
   const updateBlock = useEditorStore(state => state.updateBlock);
   const { props } = blockInfo;
   const courses = normalizeMenuCourses(props.courses);
-  const { id: menuStyle, hasArtwork } = resolveMealMenuStyle(props.menuStyle);
+  const menuStyle = resolveMealMenuStyle(props.menuStyle);
+  const artworkHidden = menuStyle.hasArtwork && props.showCornerArt === false;
   const update = (patch: Partial<EditorBlock<'mealMenu'>['props']>) =>
     updateBlock<'mealMenu'>(id, patch);
   const replaceCourse = (
@@ -116,11 +117,17 @@ export function MealMenuBlock({
           디자인
           <select
             className={inputClass}
-            value={menuStyle}
-            onChange={event =>
-              update({ menuStyle: resolveMealMenuStyle(event.target.value).id })
-            }
+            value={artworkHidden ? '' : menuStyle.id}
+            onChange={event => {
+              const style = resolveMealMenuStyle(event.target.value);
+              update({ menuStyle: style.id, showCornerArt: style.hasArtwork });
+            }}
           >
+            {artworkHidden && (
+              <option value="" hidden disabled>
+                {menuStyle.name} (장식 없음)
+              </option>
+            )}
             {MEAL_MENU_STYLES.map(style => (
               <option key={style.id} value={style.id}>
                 {style.name}
@@ -128,7 +135,7 @@ export function MealMenuBlock({
             ))}
           </select>
         </label>
-        {hasArtwork && (
+        {menuStyle.hasArtwork && (
           <label className="flex items-center gap-2 text-sm text-text-secondary">
             <input
               type="checkbox"

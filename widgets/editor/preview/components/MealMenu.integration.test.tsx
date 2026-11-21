@@ -167,4 +167,34 @@ describe('식사 메뉴 블록', () => {
     expect(preview).toHaveAttribute('data-corner-art', 'false');
     expect(screen.getAllByRole('listitem')).toHaveLength(3);
   });
+
+  it.each(['classic', 'garden', 'ivy', 'ribbon', 'artDeco'])(
+    '장식이 꺼져 있어도 %s 디자인을 선택하면 테두리 장식이 켜진다',
+    menuStyle => {
+      useEditorStore.getState().addBlock('etc', 'mealMenu', 'menu', {
+        menuStyle: 'ribbon',
+        showCornerArt: false,
+      });
+      render(<MenuEditor />);
+      const design = screen.getByRole('combobox', { name: '디자인' });
+      const artwork = screen.getByRole('checkbox', { name: '테두리 장식' });
+      const preview = screen.getByRole('article', { name: '식사 메뉴' });
+      expect(design).toHaveDisplayValue('리본과 별 (장식 없음)');
+      expect(artwork).not.toBeChecked();
+
+      fireEvent.change(design, { target: { value: menuStyle } });
+      expect(artwork).toBeChecked();
+      expect(preview).toHaveAttribute('data-menu-style', menuStyle);
+      expect(preview).toHaveAttribute('data-corner-art', 'true');
+
+      fireEvent.click(artwork);
+      expect(preview).toHaveAttribute('data-corner-art', 'false');
+      expect(preview).toHaveAttribute('data-menu-style', menuStyle);
+      fireEvent.change(design, { target: { value: 'minimal' } });
+      expect(
+        screen.queryByRole('checkbox', { name: '테두리 장식' })
+      ).not.toBeInTheDocument();
+      expect(preview).toHaveAttribute('data-corner-art', 'false');
+    }
+  );
 });
