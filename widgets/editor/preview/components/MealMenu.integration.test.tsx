@@ -99,9 +99,8 @@ describe('식사 메뉴 블록', () => {
       screen.getByRole('button', { name: '코스 1 요리 2 위로 이동' })
     );
     fireEvent.click(screen.getByRole('button', { name: '코스 2 위로 이동' }));
-    fireEvent.change(screen.getByLabelText('디자인'), {
-      target: { value: 'garden' },
-    });
+    fireEvent.click(screen.getByRole('combobox', { name: '디자인' }));
+    fireEvent.click(screen.getByRole('option', { name: '잉크 가든' }));
 
     const expectedOrder = [
       '안심 스테이크',

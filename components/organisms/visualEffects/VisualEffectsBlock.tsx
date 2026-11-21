@@ -1,13 +1,13 @@
 'use client';
 
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
+import { FormSelector } from '@/components/molecules/selector/FormSelector';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
 import {
   AMBIENT_EFFECT_OPTIONS,
   resolveBlockAmbientEffect,
   resolveInvitationEffects,
-  type AmbientEffect,
 } from '@/shared/utils/invitationEffects';
 import {
   boundedMotionNumber,
@@ -39,30 +39,22 @@ export function VisualEffectsBlock({
     <LeftEditorWrapper ariaLabel="배경 및 오프닝 효과" className="gap-3">
       <NavigationBar>배경 · 오프닝 효과</NavigationBar>
       <div className="flex flex-col gap-4 py-2 text-sm">
-        <label className="flex flex-col gap-1">
-          배경 효과
-          <select
-            className="h-10 rounded-md border border-border-divider px-3"
-            value={selectedEffect}
-            onChange={event => {
-              const nextEffect = event.target.value as AmbientEffect;
-              let selection = settings?.ambientEffect;
-              if (selection && selection !== 'blocks') selection = nextEffect;
-              if (!selection && nextEffect === 'confetti') selection = 'blocks';
-              updateBlock(id, { effect: nextEffect });
-              updateInvitationEffects({
-                ambientEffect: selection,
-                ambientScope,
-              });
-            }}
-          >
-            {AMBIENT_EFFECT_OPTIONS.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <FormSelector
+          label="배경 효과"
+          className="flex flex-col gap-1"
+          options={AMBIENT_EFFECT_OPTIONS}
+          value={selectedEffect}
+          onChange={nextEffect => {
+            let selection = settings?.ambientEffect;
+            if (selection && selection !== 'blocks') selection = nextEffect;
+            if (!selection && nextEffect === 'confetti') selection = 'blocks';
+            updateBlock(id, { effect: nextEffect });
+            updateInvitationEffects({
+              ambientEffect: selection,
+              ambientScope,
+            });
+          }}
+        />
         {selectedEffect !== 'none' && (
           <AmbientScopeSelect
             value={ambientScope}
@@ -98,22 +90,13 @@ export function VisualEffectsBlock({
             <span>빠르게</span>
           </span>
         </label>
-        <label className="flex flex-col gap-1">
-          부드러움
-          <select
-            className="h-10 rounded-md border border-border-divider px-3"
-            value={resolveMotionEasing(blockInfo.props.motionEasing)}
-            onChange={event =>
-              updateBlock(id, { motionEasing: event.target.value })
-            }
-          >
-            {MOTION_EASING_OPTIONS.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <FormSelector
+          label="부드러움"
+          className="flex flex-col gap-1"
+          options={MOTION_EASING_OPTIONS}
+          value={resolveMotionEasing(blockInfo.props.motionEasing)}
+          onChange={motionEasing => updateBlock(id, { motionEasing })}
+        />
         {settings?.opening === undefined && (
           <label className="flex items-center gap-2">
             <input

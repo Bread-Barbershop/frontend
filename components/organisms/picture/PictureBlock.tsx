@@ -7,6 +7,7 @@ import { Label } from '@/components/atoms/label';
 import { Checkbox } from '@/components/molecules/checkbox/Checkbox';
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
 import { Picture } from '@/components/molecules/picture';
+import { FormSelector } from '@/components/molecules/selector/FormSelector';
 import { TextEditor } from '@/components/molecules/text-editor';
 import { tiptapJsonToHtmlInBrowser } from '@/components/molecules/text-editor/utils/tiptapJsonToHtml';
 import { TextField } from '@/components/molecules/text-field';
@@ -25,11 +26,11 @@ const RATIO_OPTIONS = [
   ['16/9', '16:9'],
 ] as const;
 const FILTER_OPTIONS = [
-  ['none', '원본'],
-  ['grayscale', '흑백'],
-  ['sepia', '빈티지'],
-  ['contrast', '선명하게'],
-  ['vignette', '비네팅'],
+  { value: 'none', label: '원본' },
+  { value: 'grayscale', label: '흑백' },
+  { value: 'sepia', label: '빈티지' },
+  { value: 'contrast', label: '선명하게' },
+  { value: 'vignette', label: '비네팅' },
 ] as const;
 
 interface Props {
@@ -152,13 +153,13 @@ function PictureBlock({ blockInfo, id }: Props) {
                   onChange={e => updateBlock(id, { [key]: Number(e.target.value) })} />
               </label>
             ))}
-            <label className="flex flex-col gap-1">필터
-              <select className="h-10 rounded-md border border-border-divider px-3"
-                value={blockInfo.props.imageFilter ?? 'none'}
-                onChange={e => updateBlock(id, { imageFilter: e.target.value })}>
-                {FILTER_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-              </select>
-            </label>
+            <FormSelector
+              label="필터"
+              className="flex flex-col gap-1"
+              options={FILTER_OPTIONS}
+              value={blockInfo.props.imageFilter ?? 'none'}
+              onChange={imageFilter => updateBlock(id, { imageFilter })}
+            />
             <button type="button" className="self-end text-xs text-primary"
               onClick={() => updateBlock(id, {
                 imageRotation: 0, imageScale: 1, imageRatio: '1/1',

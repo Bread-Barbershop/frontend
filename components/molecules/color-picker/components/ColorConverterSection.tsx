@@ -28,7 +28,7 @@ export function ColorConverterSection({
   onRgbChange: (nextColor: PickerHsva) => void;
 }) {
   return (
-    <div className="flex items-start gap-2.5">
+    <div className="flex items-center gap-2.5">
       <InputModeSelector value={inputMode} onChange={onInputModeChange} />
 
       <div className="flex-1">

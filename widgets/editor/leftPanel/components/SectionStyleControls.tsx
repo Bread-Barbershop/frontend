@@ -9,6 +9,7 @@ import {
   supportsPairedEntrance,
 } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { SectionStyleSelect } from '@/components/molecules/section-style-select/SectionStyleSelect';
+import { FormSelector } from '@/components/molecules/selector/FormSelector';
 import { isBlockEnabled } from '@/shared/data/registry/blockAvailability';
 import {
   resolveSectionStyle,
@@ -47,26 +48,26 @@ export function SectionStyleControls({ selectedId }: { selectedId: string }) {
           inheritLabel="초대장 스타일 따르기"
           onChange={sectionStyle => updateAppearance(selectedId, { sectionStyle })}
         />
-        <label className="flex flex-col gap-2 text-xs font-medium">
-          이 블록의 등장 효과
-          <select
-            className="h-9 w-full rounded-md border border-border-divider bg-white px-2 text-sm font-normal"
-            value={getBlockEntrance(block.component, block.props) ?? ''}
-            onChange={event => updateAppearance(selectedId, {
-              entranceEffect: getBlockEntrance(block.component, { entranceEffect: event.target.value }),
-            })}
-          >
-            <option value="">
-              전체 설정 따르기 ({SCROLL_ANIMATION_OPTIONS.find(option => option.value === commonEffect)?.label})
-            </option>
-            {SCROLL_ANIMATION_OPTIONS.map(option => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-            {supportsPairedEntrance(block.component) && (
-              <option value={PAIRED_ENTRANCE.value}>{PAIRED_ENTRANCE.label}</option>
-            )}
-          </select>
-        </label>
+        <FormSelector
+          label="이 블록의 등장 효과"
+          className="flex flex-col gap-1.5 text-xs font-medium text-text-secondary"
+          options={[
+            {
+              value: 'inherit' as const,
+              label: `전체 설정 따르기 (${SCROLL_ANIMATION_OPTIONS.find(option => option.value === commonEffect)?.label})`,
+            },
+            ...SCROLL_ANIMATION_OPTIONS,
+            ...(supportsPairedEntrance(block.component)
+              ? [PAIRED_ENTRANCE]
+              : []),
+          ]}
+          value={getBlockEntrance(block.component, block.props) ?? 'inherit'}
+          onChange={value =>
+            updateAppearance(selectedId, {
+              entranceEffect: value === 'inherit' ? undefined : value,
+            })
+          }
+        />
       </div>
     </StylePanelSection>
   );

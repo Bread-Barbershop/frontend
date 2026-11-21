@@ -4,6 +4,7 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { ArrowDown, ArrowUp, Trash2 } from 'lucide-react';
 
 import { NavigationBar } from '@/components/molecules/navigation-bar/NavigationBar';
+import { FormSelector } from '@/components/molecules/selector/FormSelector';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
 
@@ -29,6 +30,10 @@ const addClass =
   'w-full rounded-md border border-border-divider px-3 py-2 text-sm text-primary hover:bg-neutral-50 disabled:opacity-40';
 const iconClass =
   'grid size-8 place-items-center rounded text-text-secondary hover:bg-neutral-100 disabled:opacity-30';
+const STYLE_OPTIONS = MEAL_MENU_STYLES.map(({ id, name }) => ({
+  value: id,
+  label: name,
+}));
 
 function OrderControls({
   label,
@@ -112,22 +117,13 @@ export function MealMenuBlock({
     <LeftEditorWrapper ariaLabel="식사 메뉴 편집" className="gap-3">
       <NavigationBar>식사 메뉴 편집</NavigationBar>
       <div className="flex w-full flex-col gap-4 pb-4">
-        <label className={fieldClass}>
-          디자인
-          <select
-            className={inputClass}
-            value={menuStyle}
-            onChange={event =>
-              update({ menuStyle: resolveMealMenuStyle(event.target.value).id })
-            }
-          >
-            {MEAL_MENU_STYLES.map(style => (
-              <option key={style.id} value={style.id}>
-                {style.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        <FormSelector
+          label="디자인"
+          className={fieldClass}
+          options={STYLE_OPTIONS}
+          value={menuStyle}
+          onChange={menuStyle => update({ menuStyle })}
+        />
         {hasArtwork && (
           <label className="flex items-center gap-2 text-sm text-text-secondary">
             <input

@@ -2,9 +2,18 @@
 
 import { useMemo, useState } from 'react';
 
+import { FormSelector } from '@/components/molecules/selector/FormSelector';
 import { BGM_LIST } from '@/components/organisms/bgm/data/bgmList';
 
 import type { ReactNode } from 'react';
+
+const BGM_OPTIONS = [
+  { value: '', label: '음악 없음' },
+  ...BGM_LIST.map(bgm => ({
+    value: bgm.id,
+    label: `${bgm.title} · ${bgm.duration}`,
+  })),
+];
 
 type AssetSlot = {
   id: string;
@@ -463,20 +472,13 @@ function GallerySampleConverter() {
             label="data.json"
             onChange={readJsonFile}
           />
-          <Field label="샘플 배경음악">
-            <select
-              className="h-11 rounded-lg border border-black/10 bg-white px-3"
-              value={selectedBgmId ?? ''}
-              onChange={event => setSelectedBgmId(event.target.value || null)}
-            >
-              <option value="">음악 없음</option>
-              {BGM_LIST.map(bgm => (
-                <option key={bgm.id} value={bgm.id}>
-                  {bgm.title} · {bgm.duration}
-                </option>
-              ))}
-            </select>
-          </Field>
+          <FormSelector
+            label="샘플 배경음악"
+            className="flex flex-col gap-2 text-sm font-semibold text-text-plain"
+            options={BGM_OPTIONS}
+            value={selectedBgmId ?? ''}
+            onChange={value => setSelectedBgmId(value || null)}
+          />
           {jsonError && <p className="text-sm text-red-500">{jsonError}</p>}
           <div className="rounded-2xl bg-white p-4 text-sm text-text-secondary shadow-edit">
             <p className="font-semibold text-text-plain">사용 방법</p>

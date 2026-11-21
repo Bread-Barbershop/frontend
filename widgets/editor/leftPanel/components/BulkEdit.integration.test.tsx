@@ -60,15 +60,14 @@ describe('일괄 편집 즉시 반영', () => {
     expect(effectsHeading.closest('details')).toContainElement(opening);
     expect(effectsHeading.closest('details')).toContainElement(celebration);
     expect(effectsHeading.closest('details')).toContainElement(scroll);
-    expect(opening).toHaveValue('direct');
+    expect(opening).toHaveTextContent('바로 시작');
     expect(celebration).not.toBeChecked();
   });
 
   it('별도 블록을 추가하지 않고 오프닝과 축하 효과를 하객 미리보기에 전달한다', () => {
     render(<BulkEdit />);
-    fireEvent.change(screen.getByRole('combobox', { name: '오프닝' }), {
-      target: { value: 'envelope' },
-    });
+    fireEvent.click(screen.getByRole('combobox', { name: '오프닝' }));
+    fireEvent.click(screen.getByRole('option', { name: '편지봉투 열기' }));
     fireEvent.click(screen.getByRole('switch', { name: '축하 효과 컨페티' }));
 
     const preview = createPreviewSnapshot('data:image/png;base64,test');
@@ -83,13 +82,15 @@ describe('일괄 편집 즉시 반영', () => {
   it('배경 효과와 범위를 미리보기에 저장하고 오프닝 컨페티를 독립적으로 끈다', () => {
     render(<BulkEdit />);
     const effect = screen.getByRole('combobox', { name: '배경 효과' });
-    expect(effect).toHaveValue('none');
+    expect(effect).toHaveTextContent('없음');
     expect(screen.queryByRole('combobox', { name: '표시 범위' })).toBeNull();
 
-    fireEvent.change(effect, { target: { value: 'confetti' } });
+    fireEvent.click(effect);
+    fireEvent.click(screen.getByRole('option', { name: '종이 컨페티' }));
     const scope = screen.getByRole('combobox', { name: '표시 범위' });
-    expect(scope).toHaveValue('poster');
-    fireEvent.change(scope, { target: { value: 'screen' } });
+    expect(scope).toHaveTextContent('메인 포스터에만');
+    fireEvent.click(scope);
+    fireEvent.click(screen.getByRole('option', { name: '화면 전체에' }));
     const openingConfetti = screen.getByRole('switch', {
       name: '축하 효과 컨페티',
     });
@@ -113,12 +114,15 @@ describe('일괄 편집 즉시 반영', () => {
     store.updateBlock('old-petals', { effect: 'petals' });
     render(<BulkEdit />);
     fireEvent.click(screen.getByRole('switch', { name: '축하 효과 컨페티' }));
-    expect(screen.getByRole('combobox', { name: '배경 효과' })).toHaveValue(
-      'blocks'
-    );
-    expect(screen.getByRole('combobox', { name: '표시 범위' })).toHaveValue(
-      'screen'
-    );
+    const effect = screen.getByRole('combobox', { name: '배경 효과' });
+    expect(effect).toHaveTextContent('기존 효과 조합');
+    fireEvent.click(effect);
+    expect(
+      screen.getByRole('option', { name: '기존 효과 조합' })
+    ).toHaveAttribute('aria-disabled', 'true');
+    expect(
+      screen.getByRole('combobox', { name: '표시 범위' })
+    ).toHaveTextContent('화면 전체에');
   });
 
   it('배경색을 지정된 순서대로 표시하고 선택한 색상을 반영한다', () => {
@@ -166,9 +170,12 @@ describe('일괄 편집 즉시 반영', () => {
       titleData: { color: '#FFFAF2' },
       bodyData: { color: '#E2E6ED' },
     });
-    fireEvent.keyDown(screen.getByRole('button', { name: '14' }), {
-      key: 'ArrowUp',
-    });
+    fireEvent.keyDown(
+      screen.getByRole('combobox', { name: '본문 글자 크기' }),
+      {
+        key: 'ArrowUp',
+      }
+    );
     fireEvent.click(screen.getByRole('button', { name: '블랙' }));
     expect(useEditorStore.getState()).toMatchObject({
       backgroundColor: '#54565C',
@@ -269,9 +276,12 @@ describe('일괄 편집 즉시 반영', () => {
       />
     );
 
-    fireEvent.keyDown(screen.getByRole('button', { name: '14' }), {
-      key: 'ArrowUp',
-    });
+    fireEvent.keyDown(
+      screen.getByRole('combobox', { name: '본문 글자 크기' }),
+      {
+        key: 'ArrowUp',
+      }
+    );
 
     const state = useEditorStore.getState();
     expect(state.bodyData.fontSize).toBe('15px');
@@ -331,14 +341,8 @@ describe('일괄 편집 즉시 반영', () => {
       />
     );
 
-    const sizeOption = screen.getByRole('option', { name: '14' });
-    const popover = sizeOption.closest('ul');
-    if (!popover) throw new Error('Size selector popover was not found');
-    Object.defineProperty(popover, 'hidePopover', {
-      configurable: true,
-      value: jest.fn(),
-    });
-    fireEvent.click(sizeOption);
+    fireEvent.click(screen.getByRole('combobox', { name: '본문 글자 크기' }));
+    fireEvent.click(screen.getByRole('option', { name: '14' }));
 
     const updatedProps = useEditorStore.getState().block[0].props as {
       messageJson: {
@@ -360,9 +364,12 @@ describe('일괄 편집 즉시 반영', () => {
       />
     );
 
-    fireEvent.keyDown(screen.getByRole('button', { name: '20' }), {
-      key: 'ArrowUp',
-    });
+    fireEvent.keyDown(
+      screen.getByRole('combobox', { name: '제목 글자 크기' }),
+      {
+        key: 'ArrowUp',
+      }
+    );
 
     expect(useEditorStore.getState().titleData.fontSize).toBe('21px');
   });

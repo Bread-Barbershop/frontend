@@ -11,6 +11,7 @@ import {
   navigationBarClassName,
   navigationBarHeadingClassName,
 } from '../navigation-bar/NavigationBar.style';
+import { FormSelector } from '../selector/FormSelector';
 
 export function SectionStyleSelect({
   label,
@@ -25,29 +26,29 @@ export function SectionStyleSelect({
   inheritLabel?: string;
   sectionHeading?: boolean;
 }) {
+  const options =
+    inheritLabel || value === undefined
+      ? [
+          { value: '', label: inheritLabel ?? '현재 스타일' },
+          ...SECTION_STYLE_OPTIONS,
+        ]
+      : SECTION_STYLE_OPTIONS;
+
   return (
-    <label className="flex w-full flex-col gap-2 text-xs font-medium">
-      {sectionHeading ? (
-        <span className={cn(navigationBarClassName, 'leading-normal')}>
-          <span className={navigationBarHeadingClassName}>{label}</span>
-        </span>
-      ) : (
-        label
-      )}
-      <select
-        className="h-9 w-full rounded-md border border-border-divider bg-white px-2 text-sm font-normal"
-        value={value ?? ''}
-        onChange={event => onChange(resolveSectionStyle(event.target.value))}
-      >
-        {(inheritLabel || value === undefined) && (
-          <option value="">{inheritLabel ?? '현재 스타일'}</option>
-        )}
-        {SECTION_STYLE_OPTIONS.map(option => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </label>
+    <FormSelector
+      label={
+        sectionHeading ? (
+          <span className={cn(navigationBarClassName, 'leading-normal')}>
+            <span className={navigationBarHeadingClassName}>{label}</span>
+          </span>
+        ) : (
+          label
+        )
+      }
+      className="flex w-full flex-col gap-2 text-xs font-medium"
+      options={options}
+      value={value ?? ''}
+      onChange={value => onChange(resolveSectionStyle(value))}
+    />
   );
 }

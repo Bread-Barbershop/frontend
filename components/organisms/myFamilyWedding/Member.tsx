@@ -52,9 +52,7 @@ export const Member = ({
     <div className="flex flex-col gap-2">
       <div className="flex flex-row gap-2">
         <Selector
-          type="normal"
           className="w-21.5"
-          customInputClassName="text-center"
           placeholder="관계"
           options={[
             { value: '부', label: '부' },

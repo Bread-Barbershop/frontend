@@ -42,6 +42,15 @@ function savedBlock(): EditorBlock<'countdown'> {
   return JSON.parse(JSON.stringify(upload.block[0]));
 }
 
+async function chooseTime(
+  user: ReturnType<typeof userEvent.setup>,
+  field: string,
+  option: string
+) {
+  await user.click(screen.getByRole('combobox', { name: field }));
+  await user.click(screen.getByRole('option', { name: option, exact: true }));
+}
+
 describe('D-Day 행사 일시 편집', () => {
   afterEach(() => jest.restoreAllMocks());
 
@@ -58,9 +67,9 @@ describe('D-Day 행사 일시 편집', () => {
     editor.unmount();
     const reopened = openEditor(draft);
     expect(screen.getByLabelText('행사 날짜')).toHaveValue('2026-12-15');
-    await user.selectOptions(screen.getByLabelText('오전/오후'), '오후');
-    await user.selectOptions(screen.getByLabelText('시'), '6');
-    await user.selectOptions(screen.getByLabelText('분'), '35');
+    await chooseTime(user, '오전/오후', '오후');
+    await chooseTime(user, '시', '6시');
+    await chooseTime(user, '분', '35분');
     expect(screen.queryByText('시간을 선택해 주세요.')).toBeNull();
     const saved = savedBlock();
     expect(saved.props.eventDateTime).toBe('2026-12-15T18:35');
@@ -78,9 +87,9 @@ describe('D-Day 행사 일시 편집', () => {
   it('시간을 먼저 고른 뒤 미완성 날짜나 존재하지 않는 날짜를 수정할 수 있다', async () => {
     const user = userEvent.setup();
     openEditor();
-    await user.selectOptions(screen.getByLabelText('분'), '00');
-    await user.selectOptions(screen.getByLabelText('시'), '12');
-    await user.selectOptions(screen.getByLabelText('오전/오후'), '오전');
+    await chooseTime(user, '분', '00분');
+    await chooseTime(user, '시', '12시');
+    await chooseTime(user, '오전/오후', '오전');
     expect(screen.getByText('행사 날짜를 입력해 주세요.')).toBeVisible();
     const date = screen.getByLabelText('행사 날짜');
     await user.type(date, '190002');
@@ -109,14 +118,19 @@ describe('D-Day 행사 일시 편집', () => {
         ...block,
         props: { ...block.props, eventDateTime: `2027-01-01T${time}` },
       });
-      expect(screen.getByLabelText('오전/오후')).toHaveValue(period);
-      expect(screen.getByLabelText('시')).toHaveValue(hour);
-      const minutes = screen.getByLabelText('분');
-      expect(minutes).toHaveValue(minute);
-      await user.selectOptions(minutes, '');
+      expect(
+        screen.getByRole('combobox', { name: '오전/오후' })
+      ).toHaveTextContent(period);
+      expect(screen.getByRole('combobox', { name: '시' })).toHaveTextContent(
+        `${hour}시`
+      );
+      const minutes = screen.getByRole('combobox', { name: '분' });
+      expect(minutes).toHaveTextContent(`${minute}분`);
+      await chooseTime(user, '분', '분');
+      expect(minutes).toHaveAccessibleDescription('시간을 선택해 주세요.');
       expect(screen.getByLabelText('행사 날짜')).toHaveValue('2027-01-01');
       expect(savedBlock().props.eventDateTime).toBe('');
-      await user.selectOptions(minutes, minute);
+      await chooseTime(user, '분', `${minute}분`);
       expect(savedBlock().props.eventDateTime).toBe(`2027-01-01T${time}`);
     }
   );
