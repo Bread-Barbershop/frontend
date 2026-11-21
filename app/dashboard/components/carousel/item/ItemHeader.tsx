@@ -3,6 +3,7 @@ import { dashboardCarouselLayout } from '../carouselLayout';
 import VisibilityToggle from './VisibilityToggle';
 
 type ItemHeaderProps = {
+  invitationTitle: string;
   createdTime?: string;
   isPublished: boolean;
   disabled?: boolean;
@@ -24,6 +25,7 @@ function formatCreatedDate(createdTime?: string) {
 }
 
 function ItemHeader({
+  invitationTitle,
   createdTime,
   isPublished,
   disabled = false,
@@ -43,6 +45,7 @@ function ItemHeader({
         {formatCreatedDate(createdTime)}
       </p>
       <VisibilityToggle
+        invitationTitle={invitationTitle}
         isPublished={isPublished}
         disabled={disabled}
         isBusy={isBusy}
