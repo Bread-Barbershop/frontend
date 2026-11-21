@@ -1,4 +1,10 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { toDataURL } from 'qrcode';
 
@@ -16,10 +22,12 @@ import {
 } from './fixtures/invitationPreview';
 import {
   baseGroup,
+  baseKakaoCard,
   familyGroup,
   shareAudienceResponse,
   shareInvite,
   workGroup,
+  workKakaoCard,
 } from './fixtures/shareAudiences';
 
 jest.mock('qrcode', () => ({ toDataURL: jest.fn() }));
@@ -445,6 +453,195 @@ describe('대시보드 초대장', () => {
         'http://localhost/i/wedding',
         expect.any(Object)
       );
+    });
+  });
+
+  describe('하객 그룹별 카카오톡 공유', () => {
+    const sendDefault = jest.fn();
+    const originalKey = process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
+    const originalKakao = window.Kakao;
+
+    beforeEach(() => {
+      sendDefault.mockClear();
+      process.env.NEXT_PUBLIC_KAKAO_JS_KEY = 'test-key';
+      window.Kakao = { isInitialized: () => true, Share: { sendDefault } };
+    });
+
+    afterEach(() => {
+      if (originalKey === undefined)
+        delete process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
+      else process.env.NEXT_PUBLIC_KAKAO_JS_KEY = originalKey;
+      window.Kakao = originalKakao;
+    });
+
+    function showKakaoCard(
+      hasKakaoShareData: boolean,
+      guestUrl: string | null = shareInvite.guestUrl
+    ) {
+      return render(
+        <CarouselWrapper
+          initialInvites={[{ ...shareInvite, guestUrl, hasKakaoShareData }]}
+          loadOnMount={false}
+        />
+      );
+    }
+
+    async function readyKakaoButton() {
+      const button = await screen.findByRole('button', {
+        name: '카카오톡 공유하기',
+      });
+      await waitFor(() => expect(button).toBeEnabled());
+      return button;
+    }
+
+    it('기본 공유 문구가 없어도 직장용을 고르면 직장용 카드와 주소를 카카오에 전달한다', async () => {
+      const user = userEvent.setup();
+      const copy = jest.spyOn(navigator.clipboard, 'writeText');
+      mockFetch
+        .mockResolvedValueOnce(
+          shareAudienceResponse([baseGroup, familyGroup, workGroup])
+        )
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ ok: true, data: workKakaoCard }),
+        });
+      showKakaoCard(false);
+      const trigger = await readyKakaoButton();
+      await user.click(trigger);
+      expect(
+        screen.getByRole('button', { name: '기본 초대장' })
+      ).toBeDisabled();
+      await user.click(screen.getByRole('button', { name: '닫기' }));
+      expect(trigger).toHaveFocus();
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+      expect(sendDefault).not.toHaveBeenCalled();
+      await user.keyboard('{Enter}');
+      await user.click(screen.getByRole('button', { name: '직장용' }));
+      expect(mockFetch).toHaveBeenLastCalledWith(
+        '/api/drive/shareUrl?invitationFolderId=work-folder',
+        expect.anything()
+      );
+      const link = {
+        webUrl: workKakaoCard.invitationUrl,
+        mobileWebUrl: workKakaoCard.invitationUrl,
+      };
+      expect(sendDefault).toHaveBeenCalledTimes(1);
+      expect(sendDefault).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: expect.objectContaining({
+            title: workKakaoCard.title,
+            description: workKakaoCard.description,
+            imageUrl: 'https://lh3.googleusercontent.com/d/work-photo',
+            link,
+          }),
+          buttons: [{ title: '보러가기', link }],
+        })
+      );
+      expect(copy).not.toHaveBeenCalled();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('기본 그룹뿐이면 카드의 기존 링크가 없어도 한 번에 기본 카카오톡 카드를 연다', async () => {
+      const user = userEvent.setup();
+      mockFetch
+        .mockResolvedValueOnce(shareAudienceResponse([baseGroup]))
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ ok: true, data: baseKakaoCard }),
+        });
+      showKakaoCard(true, null);
+      await user.click(await readyKakaoButton());
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(mockFetch).toHaveBeenLastCalledWith(
+        '/api/drive/shareUrl?invitationFolderId=private-folder',
+        expect.anything()
+      );
+      expect(sendDefault).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: expect.objectContaining({
+            title: baseKakaoCard.title,
+            link: {
+              webUrl: baseKakaoCard.invitationUrl,
+              mobileWebUrl: baseKakaoCard.invitationUrl,
+            },
+          }),
+        })
+      );
+    });
+
+    it('그룹의 공유 정보가 없으면 다른 카드를 보내지 않고 다른 그룹을 고를 수 있다', async () => {
+      const user = userEvent.setup();
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+      mockFetch
+        .mockResolvedValueOnce(shareAudienceResponse([baseGroup, workGroup]))
+        .mockResolvedValueOnce({
+          ok: false,
+          json: async () => ({
+            ok: false,
+            error: 'share data not found in meta.json',
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ ok: true, data: baseKakaoCard }),
+        });
+      showKakaoCard(true);
+      await user.click(await readyKakaoButton());
+      await user.click(screen.getByRole('button', { name: '직장용' }));
+      expect(sendDefault).not.toHaveBeenCalled();
+      await user.click(await readyKakaoButton());
+      await user.click(screen.getByRole('button', { name: '기본 초대장' }));
+      expect(sendDefault).toHaveBeenCalledTimes(1);
+      expect(mockFetch).toHaveBeenLastCalledWith(
+        '/api/drive/shareUrl?invitationFolderId=private-folder',
+        expect.anything()
+      );
+    });
+
+    it('카카오톡 선택을 취소하고 링크 공유로 바꾸면 같은 그룹의 주소만 복사한다', async () => {
+      const user = userEvent.setup();
+      const copy = jest.spyOn(navigator.clipboard, 'writeText');
+      mockFetch.mockResolvedValueOnce(
+        shareAudienceResponse([baseGroup, workGroup])
+      );
+      showKakaoCard(false);
+      await user.click(await readyKakaoButton());
+      await user.click(screen.getByRole('button', { name: '닫기' }));
+      await user.click(
+        screen.getByRole('button', { name: 'URL 링크 공유하기' })
+      );
+      expect(screen.getByRole('button', { name: '기본 초대장' })).toBeEnabled();
+      await user.click(screen.getByRole('button', { name: '직장용' }));
+      expect(copy).toHaveBeenCalledWith('http://localhost/i/wedding?to=work');
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+      expect(sendDefault).not.toHaveBeenCalled();
+    });
+
+    it('카드가 사라지면 준비 중인 전송을 취소하고 늦은 응답을 무시한다', async () => {
+      const user = userEvent.setup();
+      let finish!: () => void;
+      mockFetch
+        .mockResolvedValueOnce(shareAudienceResponse([baseGroup]))
+        .mockImplementationOnce(
+          () =>
+            new Promise(resolve => {
+              finish = () =>
+                resolve({
+                  ok: true,
+                  json: async () => ({ ok: true, data: baseKakaoCard }),
+                });
+            })
+        );
+      const view = showKakaoCard(true);
+      await user.dblClick(await readyKakaoButton());
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+      expect(
+        screen.getByRole('button', { name: '카카오톡 여는 중…' })
+      ).toBeDisabled();
+      view.unmount();
+      expect(mockFetch.mock.calls[1][1].signal.aborted).toBe(true);
+      await act(async () => finish());
+      expect(sendDefault).not.toHaveBeenCalled();
     });
   });
 

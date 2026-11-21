@@ -11,7 +11,11 @@ import { DESKTOP_CONTENT_MIN_WIDTH } from '@/shared/config/layout';
 
 import { dashboardCarouselLayout } from './carouselLayout';
 import CarouselTrack from './CarouselTrack';
-import { CarouselCardItem, type ShareAudienceLink } from './carouselTypes';
+import {
+  CarouselCardItem,
+  type ShareAudienceLink,
+  type ShareAudienceWithKakao,
+} from './carouselTypes';
 import CarouselController from './controller/CarouselController';
 
 type CarouselBaseProps = {
@@ -34,7 +38,7 @@ type CarouselBaseProps = {
     nextVisible: boolean
   ) => void | Promise<void>;
   onCopyUrl?: ShareAudienceLink;
-  onShare?: (folderId: string) => Promise<void>;
+  onShare?: ShareAudienceWithKakao;
   getGuestUrl?: (folderId: string) => string | null;
   isDeleting?: (folderId: string) => boolean;
   isSharing?: (folderId: string) => boolean;
