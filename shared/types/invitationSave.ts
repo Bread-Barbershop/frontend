@@ -38,6 +38,7 @@ export type MainPosterData = {
     | SerializedObjectProps
   )[];
   background?: string;
+  posterBackgroundVersion?: number;
   thumbnailFileId?: string;
 };
 

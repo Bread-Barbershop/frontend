@@ -36,6 +36,7 @@ import {
   isReplaceableSlotTarget,
   SlotTargetObject,
 } from '../utils/imageSlot';
+import { restoreLegacyPosterBackground } from '../utils/legacyPosterBackground';
 
 import { ContextMenu } from './context-menu/ContextMenu';
 import Toolbar from './Toolbar';
@@ -106,10 +107,11 @@ export const MainPosterPreview = () => {
     const loadData = async () => {
       try {
         setIsCanvasLoading(true);
-        const jsonData =
+        const savedPoster =
           typeof initialData === 'string'
             ? JSON.parse(initialData)
             : initialData;
+        const jsonData = restoreLegacyPosterBackground(savedPoster);
 
         await preloadFonts(jsonData);
         if (signal.aborted) return;

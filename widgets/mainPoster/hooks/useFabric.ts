@@ -6,6 +6,7 @@ import { useConfirm } from '@/shared/hooks/useConfirm';
 
 import { ActiveObject } from '../types/fabric';
 import { containsFrameTarget, isFrameTarget } from '../utils/imageSlot';
+import { POSTER_BACKGROUND_VERSION } from '../utils/legacyPosterBackground';
 import { exportPosterImage } from '../utils/previewExport';
 export const useFabric = () => {
   const [canvas, setCanvas] = useState<Canvas | null>(null);
@@ -711,7 +712,7 @@ export const useFabric = () => {
     ];
     const json = canvas.toObject(propertiesToInclude);
     json.objects = filteredData.map(obj => obj.toObject(propertiesToInclude));
-    return json;
+    return { ...json, posterBackgroundVersion: POSTER_BACKGROUND_VERSION };
   }, [canvas]);
 
   const exportCanvasPreview = useCallback(() => {
