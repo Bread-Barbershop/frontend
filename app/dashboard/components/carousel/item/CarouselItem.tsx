@@ -215,12 +215,15 @@ function CarouselItem({
               onClick={event => {
                 handleActionClick(event);
                 if (isDeleting) return;
+                event.currentTarget.focus();
                 void onDelete?.(invite.folderId);
               }}
               className={
                 isDeleting ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
               }
               aria-disabled={isDeleting}
+              aria-label="초대장 삭제"
+              aria-haspopup="dialog"
             >
               <DeleteButton />
             </button>
@@ -244,6 +247,7 @@ function CarouselItem({
           {isSelected && showHeader && (
             <div className="absolute top-0 left-0 z-10">
               <ItemHeader
+                invitationTitle={title}
                 createdTime={invite?.createdTime}
                 isPublished={isPublished}
                 disabled={!canToggleVisibility}

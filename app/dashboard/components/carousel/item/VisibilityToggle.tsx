@@ -1,6 +1,10 @@
+import { useCallback, useRef, useState } from 'react';
+
 import { TOGGLE_TRACK } from '@/components/atoms/toggle-track/ToggleTrack.style';
+import Confirm from '@/components/molecules/confirm/Confirm';
 
 type VisibilityToggleProps = {
+  invitationTitle: string;
   isPublished: boolean;
   disabled?: boolean;
   isBusy?: boolean;
@@ -9,6 +13,7 @@ type VisibilityToggleProps = {
 };
 
 function VisibilityToggle({
+  invitationTitle,
   isPublished,
   disabled = false,
   isBusy = false,
@@ -19,6 +24,9 @@ function VisibilityToggle({
   const { width, height, knobSize, knobTravel, knobShadow, on, off } =
     TOGGLE_TRACK;
   const colors = isPublished ? on : off;
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeConfirm = useCallback(() => setConfirmOpen(false), []);
 
   return (
     <>
@@ -27,10 +35,16 @@ function VisibilityToggle({
         disabled={disabled}
         aria-label={label}
         aria-pressed={isPublished}
+        aria-haspopup={isPublished ? 'dialog' : undefined}
         onClick={event => {
           event.stopPropagation();
           if (disabled) return;
-          onToggle?.();
+          if (isPublished) {
+            event.currentTarget.focus();
+            setConfirmOpen(true);
+          } else {
+            onToggle?.();
+          }
         }}
         className={`dashboard-visibility-toggle relative overflow-hidden rounded-full disabled:cursor-not-allowed ${
           hasError ? 'dashboard-visibility-toggle--error' : ''
@@ -108,6 +122,26 @@ function VisibilityToggle({
 
         <span className="sr-only">{label}</span>
       </button>
+
+      {confirmOpen && (
+        <Confirm
+          ref={dialogRef}
+          message={`‘${invitationTitle}’ 전체를 비공개로 전환할까요?`}
+          description="기본 초대장과 모든 하객 그룹이 함께 비공개로 바뀌어요. 다시 공개할 때까지 이미 보낸 링크로도 초대장을 볼 수 없어요."
+          confirmText="전체 비공개로 전환"
+          cancelText="취소"
+          initialFocus="cancel"
+          variant="white"
+          yPosition="center"
+          actionButtonClassName="w-auto min-w-[66px] whitespace-nowrap px-3"
+          onClose={closeConfirm}
+          onCancel={closeConfirm}
+          onConfirm={() => {
+            closeConfirm();
+            if (isPublished && !disabled) onToggle?.();
+          }}
+        />
+      )}
 
       <style>{`
         @keyframes dashboard-visibility-toggle-shake {

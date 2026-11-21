@@ -8,6 +8,7 @@ import {
 import userEvent from '@testing-library/user-event';
 import { toDataURL } from 'qrcode';
 
+import type { InviteListItem } from '@/app/dashboard/types';
 import {
   parsePreviewSnapshot,
   PREVIEW_MESSAGE,
@@ -110,6 +111,129 @@ describe('대시보드 초대장', () => {
     return screen.findByRole('button', { name: '초대장 미리보기' });
   }
 
+  describe('행사 카드 삭제', () => {
+    const weddingInvite = {
+      ...privateInvite,
+      displayTitle: '민서·지훈 결혼식',
+    };
+    const optionsUrl = `/api/drive/invitationAudiences?folderId=${weddingInvite.folderId}&view=editor-options`;
+
+    async function openDeleteDialog(invite: InviteListItem = weddingInvite) {
+      const user = userEvent.setup();
+      render(
+        <div id="app-root">
+          <CarouselWrapper
+            initialInvites={[sourceInvitation, invite]}
+            loadOnMount={false}
+          />
+        </div>
+      );
+      const card = await screen.findByRole('button', {
+        name: invite.displayTitle ?? invite.name,
+      });
+      await user.click(card);
+      const trigger = await screen.findByRole('button', {
+        name: '초대장 삭제',
+      });
+      await user.click(trigger);
+      return { user, trigger, dialog: screen.getByRole('dialog') };
+    }
+
+    it('행사 제목과 함께 삭제될 그룹 이름·개수와 링크 영향을 표시하고 원본 폴더만 삭제한다', async () => {
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ audiences: [familyGroup, workGroup] }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true }),
+        });
+      const { user, dialog } = await openDeleteDialog();
+      expect(dialog).toHaveAccessibleName(
+        '‘민서·지훈 결혼식’ 전체를 삭제할까요?'
+      );
+      expect(dialog).toHaveAccessibleDescription(
+        '기본 초대장과 하객 그룹 2개(가족용·직장용)가 함께 삭제돼요. 이미 보낸 링크로도 초대장을 열 수 없어요.'
+      );
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: '취소' })).toHaveFocus()
+      );
+      expect(mockFetch.mock.calls.map(([url]) => url)).toEqual([optionsUrl]);
+      await user.click(
+        screen.getByRole('button', { name: '초대장 전체 삭제' })
+      );
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+      expect(mockFetch).toHaveBeenLastCalledWith(
+        '/api/drive/deleteInvitation',
+        expect.objectContaining({
+          method: 'DELETE',
+          body: JSON.stringify({ folderId: weddingInvite.folderId }),
+        })
+      );
+      expect(
+        screen.queryByRole('button', { name: weddingInvite.displayTitle })
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: sourceInvitation.name })
+      ).toBeVisible();
+    });
+
+    it('기본 초대장 하나면 간결하게 표시하고 취소하면 휴지통으로 포커스를 돌려준다', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => ({ audiences: [] }),
+      });
+      const { user, trigger, dialog } = await openDeleteDialog({
+        ...privateInvite,
+        name: '하은 돌잔치',
+      });
+      expect(dialog).toHaveAccessibleName('‘하은 돌잔치’ 초대장을 삭제할까요?');
+      expect(dialog).toHaveAccessibleDescription(
+        '이미 보낸 링크로도 초대장을 열 수 없어요.'
+      );
+      expect(screen.getByRole('button', { name: '초대장 삭제' })).toBeEnabled();
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: '취소' })).toHaveFocus()
+      );
+      await user.keyboard('{Enter}');
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(trigger).toHaveFocus();
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('그룹을 확인하는 동안 삭제할 수 없고 취소한 조회의 응답은 다음 확인창에 반영되지 않는다', async () => {
+      let finish!: () => void;
+      mockFetch
+        .mockImplementationOnce(
+          () =>
+            new Promise(resolve => {
+              finish = () =>
+                resolve({ ok: true, json: async () => ({ audiences: [] }) });
+            })
+        )
+        .mockRejectedValueOnce(new Error('offline'));
+      const { user, trigger } = await openDeleteDialog();
+      expect(screen.getByRole('button', { name: '확인 중…' })).toBeDisabled();
+      const signal = mockFetch.mock.calls[0][1].signal;
+      await user.keyboard('{Escape}');
+      expect(signal.aborted).toBe(true);
+      await user.click(trigger);
+      await act(async () => finish());
+      const reopened = screen.getByRole('dialog');
+      expect(reopened).toHaveAccessibleDescription(
+        /하객 그룹 목록을 불러오지 못했어요.*모든 하객 그룹이 함께 삭제돼요/
+      );
+      expect(
+        screen.getByRole('button', { name: '초대장 전체 삭제' })
+      ).toBeEnabled();
+      expect(mockFetch.mock.calls.map(([url]) => url)).toEqual([
+        optionsUrl,
+        optionsUrl,
+      ]);
+    });
+  });
+
   async function renderEditButton() {
     render(
       <CarouselWrapper
@@ -200,6 +324,84 @@ describe('대시보드 초대장', () => {
     await act(async () => finish());
     expect(mockRouter.push).not.toHaveBeenCalled();
     expect(trigger).toHaveAccessibleName('재편집하기');
+  });
+
+  describe('행사 전체 비공개 전환', () => {
+    async function openVisibilityConfirm() {
+      const user = userEvent.setup();
+      render(
+        <div id="app-root">
+          <CarouselWrapper
+            initialInvites={[
+              { ...sourceInvitation, displayTitle: '민서·지훈 결혼식' },
+            ]}
+            loadOnMount={false}
+          />
+        </div>
+      );
+      const toggle = await screen.findByRole('button', { name: '공개' });
+      await user.click(toggle);
+      const dialog = screen.getByRole('dialog', {
+        name: '‘민서·지훈 결혼식’ 전체를 비공개로 전환할까요?',
+      });
+      expect(dialog).toHaveAccessibleDescription(
+        /기본 초대장과 모든 하객 그룹.*이미 보낸 링크/
+      );
+      expect(mockFetch).not.toHaveBeenCalled();
+      return { user, toggle };
+    }
+
+    it.each(['{Enter}', '{Escape}'])(
+      '%s로 취소하면 공개 상태를 유지하고 스위치로 돌아온다',
+      async key => {
+        const { user, toggle } = await openVisibilityConfirm();
+        expect(screen.getByRole('button', { name: '취소' })).toHaveFocus();
+        await user.keyboard(key);
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        expect(toggle).toHaveAttribute('aria-pressed', 'true');
+        expect(toggle).toHaveFocus();
+        expect(mockFetch).not.toHaveBeenCalled();
+      }
+    );
+
+    it('확인해야 해당 행사를 비공개로 전환하고 다시 공개할 때는 바로 전환한다', async () => {
+      mockFetch.mockImplementation(async (_url, init) => ({
+        ok: true,
+        json: async () => ({
+          ok: true,
+          published: JSON.parse(init.body).visible,
+          ready: true,
+        }),
+      }));
+      const { user } = await openVisibilityConfirm();
+      await user.click(
+        screen.getByRole('button', { name: '전체 비공개로 전환' })
+      );
+      const request = (visible: boolean) =>
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({
+            invitationFolderId: sourceInvitation.folderId,
+            visible,
+          }),
+        });
+      expect(mockFetch).toHaveBeenNthCalledWith(
+        1,
+        '/api/drive/invitationVisibility',
+        request(false)
+      );
+      await user.click(await screen.findByRole('button', { name: '비공개' }));
+      expect(
+        await screen.findByRole('button', { name: '공개' })
+      ).toHaveAttribute('aria-pressed', 'true');
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(mockFetch).toHaveBeenNthCalledWith(
+        2,
+        '/api/drive/invitationVisibility',
+        request(true)
+      );
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    });
   });
 
   it('그룹 조회에 실패하면 기본으로 이동하지 않고 다시 시도할 수 있다', async () => {
