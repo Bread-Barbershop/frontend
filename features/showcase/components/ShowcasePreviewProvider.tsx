@@ -22,6 +22,7 @@ import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 import type { ReactNode, RefObject } from 'react';
 
 const ShowcasePreviewContext = createContext<(id: string) => void>(() => {});
+export const ShowcasePreviewOpenContext = createContext(false);
 
 export function useShowcasePreview() {
   return useContext(ShowcasePreviewContext);
@@ -47,7 +48,9 @@ export default function ShowcasePreviewProvider({
 
   return (
     <ShowcasePreviewContext.Provider value={setSelectedId}>
-      {children}
+      <ShowcasePreviewOpenContext.Provider value={index >= 0}>
+        {children}
+      </ShowcasePreviewOpenContext.Provider>
       {index >= 0 && (
         <ShowcasePreviewModal
           invitations={invitations}

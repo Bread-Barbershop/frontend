@@ -26,9 +26,7 @@ type CarouselBaseProps = {
   showCenterActions?: boolean;
   stageHeight?: string;
   selectedLift?: string;
-  preloadItemCount?: number;
   focusCardId?: string | null;
-  onCardActivate?: (id: string) => void;
   onClone?: (invite: InviteListItem) => void;
   onDelete?: (folderId: string) => void | Promise<void>;
   onPreview?: (target: InvitationPreviewTarget) => void;
@@ -54,9 +52,7 @@ function CarouselBase({
   showCenterActions = false,
   stageHeight = dashboardCarouselLayout.stageHeight,
   selectedLift,
-  preloadItemCount = 0,
   focusCardId,
-  onCardActivate,
   onClone,
   onDelete,
   onPreview,
@@ -136,9 +132,8 @@ function CarouselBase({
   const handleSelect = useCallback(
     (index: number) => {
       emblaApi?.scrollTo(index);
-      if (items[index]) onCardActivate?.(items[index].id);
     },
-    [emblaApi, items, onCardActivate]
+    [emblaApi]
   );
 
   const handleMove = useCallback(
@@ -171,8 +166,6 @@ function CarouselBase({
         showSideActions={showSideActions}
         showCenterActions={showCenterActions}
         selectedLift={selectedLift}
-        preloadItemCount={preloadItemCount}
-        showPreviewLabel={Boolean(onCardActivate)}
         onSelect={handleSelect}
         onClone={onClone}
         onDelete={onDelete}

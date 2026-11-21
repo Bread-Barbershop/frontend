@@ -144,7 +144,7 @@ function CarouselItem({
       onKeyDown={handleKeyDown}
       aria-label={showPreviewLabel ? `${item.alt} 미리보기` : title}
       aria-haspopup={showPreviewLabel ? 'dialog' : undefined}
-      aria-pressed={isSelected}
+      aria-pressed={showPreviewLabel ? undefined : isSelected}
       className={`group relative shrink-0 overflow-visible cursor-pointer select-none text-left ${
         isSelected ? 'z-10' : 'hover:z-10'
       }`}
@@ -164,7 +164,7 @@ function CarouselItem({
           isSelected
             ? '[transform:translateY(calc(-1*var(--carousel-selected-lift)))]'
             : 'group-hover:[transform:translateY(calc(-1*var(--carousel-hover-lift)))]'
-        }`}
+        } ${showPreviewLabel ? 'group-focus-visible:[transform:translateY(calc(-1*var(--carousel-hover-lift)))] motion-reduce:transition-none' : ''}`}
         style={{
           transitionDuration: `${dashboardCarouselLayout.cardLiftDurationMs}ms`,
           ['--carousel-hover-lift' as string]: hoverLift,
