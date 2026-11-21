@@ -219,7 +219,7 @@ describe('updateInvitation Route Handler 테스트', () => {
           bodyData: expect.any(Object),
           isZoom: false,
           scrollAnimation: {
-            animationType: 'fade-up',
+            animationType: 'none',
             triggerMode: 'down-only',
             animationDurationMs: 700,
             animationEasing: 'natural',
@@ -283,7 +283,7 @@ describe('updateInvitation Route Handler 테스트', () => {
           bodyData: expect.any(Object),
           isZoom: false,
           scrollAnimation: {
-            animationType: 'fade-up',
+            animationType: 'none',
             triggerMode: 'down-only',
             animationDurationMs: 700,
             animationEasing: 'natural',

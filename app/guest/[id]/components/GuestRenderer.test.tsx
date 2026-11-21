@@ -354,7 +354,7 @@ describe('GuestRenderer', () => {
     expect(container.firstElementChild).not.toHaveStyle({ opacity: '0' });
   });
 
-  it('블록별 legacy 설정을 무시하고 모든 블록에 공통 설정을 적용한다', () => {
+  it('개별 등장 효과가 전체 효과를 덮어쓰고 구형 블록은 전체 효과를 따른다', () => {
     const sharedAnimation = {
       animationType: 'fade-down',
       triggerMode: 'down-repeat',
@@ -380,17 +380,21 @@ describe('GuestRenderer', () => {
     } as NormalizedGuestPayload['blocks'][number];
     render(
       <GuestRenderer
-        blocks={[block, newBlock]}
+        blocks={[
+          block,
+          newBlock,
+          { ...newBlock, id: 'custom', props: { entranceEffect: 'focus-in' } },
+        ]}
         bulkData={{ ...bulkData, scrollAnimation: sharedAnimation }}
       />
     );
     const chapter = screen.getAllByTestId('picture-view')[0].closest('section');
     expect(chapter).toHaveAttribute('data-design', 'showcase-11');
-    expect(screen.getAllByTestId('picture-view')).toHaveLength(2);
+    expect(screen.getAllByTestId('picture-view')).toHaveLength(3);
     const wrappers = screen.getAllByTestId('scroll-animation');
-    expect(wrappers).toHaveLength(2);
+    expect(wrappers.map(wrapper => wrapper.getAttribute('data-animation-type')))
+      .toEqual(['fade-down', 'fade-down', 'focus-in']);
     wrappers.forEach(wrapper => {
-      expect(wrapper).toHaveAttribute('data-animation-type', 'fade-down');
       expect(wrapper).toHaveAttribute('data-trigger-mode', 'down-repeat');
       expect(wrapper).toHaveAttribute('data-duration-ms', '1300');
       expect(wrapper).toHaveAttribute('data-easing', 'soft');

@@ -1,9 +1,9 @@
-import { resolveScrollAnimation } from './animationConfig';
+import { getBlockEntrance, resolveScrollAnimation } from './animationConfig';
 
 describe('resolveScrollAnimation', () => {
-  it('defaults to the current animation for legacy data', () => {
+  it('설정되지 않은 효과는 없음으로 표시한다', () => {
     expect(resolveScrollAnimation({})).toEqual({
-      animationType: 'fade-up',
+      animationType: 'none',
       triggerMode: 'down-only',
       animationDurationMs: 700,
       animationEasing: 'natural',
@@ -18,7 +18,7 @@ describe('resolveScrollAnimation', () => {
         animationType: 'alert(1)',
         triggerMode: 'invalid',
       })
-    ).toMatchObject({ animationType: 'fade-up', triggerMode: 'down-only' });
+    ).toMatchObject({ animationType: 'none', triggerMode: 'down-only' });
   });
   it('기존 상향 전용 설정은 양방향 반복으로 복원한다', () => {
     expect(resolveScrollAnimation({ triggerMode: 'up-only' }).triggerMode).toBe(
@@ -45,5 +45,26 @@ describe('resolveScrollAnimation', () => {
         animationEasing: 'url(evil)',
       })
     ).toMatchObject({ animationDurationMs: 700, animationEasing: 'natural' });
+  });
+});
+
+describe('getBlockEntrance', () => {
+  it('지원하는 블록에서만 양옆에서 모이기를 복원한다', () => {
+    expect(getBlockEntrance('gallery', { entranceEffect: 'paired' })).toBe(
+      'paired'
+    );
+    expect(
+      getBlockEntrance('calendar', { entranceEffect: 'paired' })
+    ).toBeUndefined();
+  });
+
+  it('효과 없음을 보존하고 잘못된 값은 전체 설정을 따르게 한다', () => {
+    expect(getBlockEntrance('interview', { entranceEffect: 'none' })).toBe(
+      'none'
+    );
+    expect(
+      getBlockEntrance('interview', { entranceEffect: 'unknown' })
+    ).toBeUndefined();
+    expect(getBlockEntrance('interview', null)).toBeUndefined();
   });
 });

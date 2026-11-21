@@ -17,14 +17,31 @@ import {
   type MotionEasing,
 } from '@/shared/utils/motionSettings';
 
-import type { ScrollAnimationType, ScrollTriggerMode } from './animationConfig';
+import {
+  DEFAULT_SCROLL_ANIMATION,
+  type BlockEntrance,
+  type ScrollTriggerMode,
+} from './animationConfig';
+import styles from './scrollFadeIn.module.css';
+
+const hiddenEffect: Record<BlockEntrance, string> = {
+  none: '',
+  fade: '',
+  'fade-up': 'translate-y-6',
+  'fade-down': '-translate-y-6',
+  'zoom-in': 'scale-95',
+  'from-left': '-translate-x-6',
+  'from-right': 'translate-x-6',
+  'focus-in': 'blur-sm',
+  paired: '',
+};
 
 export interface ScrollFadeInProps extends HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   threshold?: number;
   rootMargin?: string;
   delayMs?: number;
-  animationType?: ScrollAnimationType;
+  animationType?: BlockEntrance;
   triggerMode?: ScrollTriggerMode;
   animationDurationMs?: number;
   animationEasing?: MotionEasing;
@@ -42,7 +59,7 @@ export function ScrollFadeIn({
   threshold = 0,
   rootMargin = '0px 0px -40px 0px',
   delayMs = 0,
-  animationType = 'fade-up',
+  animationType = DEFAULT_SCROLL_ANIMATION.animationType,
   triggerMode = 'down-only',
   animationDurationMs = 700,
   animationEasing = 'natural',
@@ -88,7 +105,9 @@ export function ScrollFadeIn({
       lastY = nextY;
     };
     if (triggerMode !== 'both') {
-      scrollTarget.addEventListener('scroll', trackDirection, { passive: true });
+      scrollTarget.addEventListener('scroll', trackDirection, {
+        passive: true,
+      });
     }
     const observer = new IntersectionObserver(
       entries => {
@@ -126,10 +145,27 @@ export function ScrollFadeIn({
 
   const isVisible = shouldBypassAnimation || phase !== 'hidden';
   const isEntering = !shouldBypassAnimation && phase === 'entering';
+  const duration = isEntering
+    ? `${boundedMotionNumber(animationDurationMs, 200, 2000, 700)}ms`
+    : '0ms';
+  const easing = MOTION_EASINGS[resolveMotionEasing(animationEasing)];
+  const horizontal =
+    animationType === 'from-left' ||
+    animationType === 'from-right' ||
+    animationType === 'paired';
 
   return (
     // Observe a stationary box so the reveal transform cannot trigger another entry.
-    <div ref={ref} className="w-full">
+    <div
+      ref={ref}
+      className={cn(
+        'w-full',
+        horizontal &&
+          !shouldBypassAnimation &&
+          phase !== 'visible' &&
+          'overflow-x-clip'
+      )}
+    >
       <div
         onTransitionEnd={event => {
           // 자식 요소의 transition 버블링 방지 및 opacity/transform 전환 완료 시 will-change 해제
@@ -150,22 +186,19 @@ export function ScrollFadeIn({
             !shouldBypassAnimation &&
             'will-change-[opacity,transform]',
           isVisible
-            ? 'opacity-100 translate-y-0 scale-100'
-            : animationType === 'fade-down'
-              ? 'opacity-0 -translate-y-6'
-              : animationType === 'fade'
-                ? 'opacity-0'
-                : animationType === 'zoom-in'
-                  ? 'opacity-0 scale-95'
-                  : 'opacity-0 translate-y-6',
+            ? 'opacity-100'
+            : ['opacity-0', hiddenEffect[animationType]],
+          animationType === 'paired' && isEntering && styles.paired,
           className
         )}
         style={{
-          transitionDuration: isEntering
-            ? `${boundedMotionNumber(animationDurationMs, 200, 2000, 700)}ms`
-            : '0ms',
-          transitionTimingFunction:
-            MOTION_EASINGS[resolveMotionEasing(animationEasing)],
+          transitionDuration: duration,
+          transitionTimingFunction: easing,
+          ...(animationType === 'paired' && {
+            '--entrance-duration': duration,
+            '--entrance-easing': easing,
+            '--entrance-delay': `${delayMs}ms`,
+          }),
           ...style,
           ...(delayMs > 0 && isEntering
             ? { transitionDelay: `${delayMs}ms` }
@@ -178,6 +211,9 @@ export function ScrollFadeIn({
           .scroll-fade-in-item {
             opacity: 1 !important;
             transform: none !important;
+            translate: none !important;
+            scale: none !important;
+            filter: none !important;
           }
         `}</style>
         </noscript>

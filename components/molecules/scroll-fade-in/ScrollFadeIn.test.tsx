@@ -40,14 +40,16 @@ describe('ScrollFadeIn 컴포넌트', () => {
     jest.restoreAllMocks();
   });
 
-  it('자식 요소를 정상적으로 렌더링한다', () => {
+  it('기본값이면 내용을 즉시 표시하고 스크롤을 관찰하지 않는다', () => {
     render(
-      <ScrollFadeIn>
+      <ScrollFadeIn data-testid="static-block">
         <div>테스트 컴포넌트</div>
       </ScrollFadeIn>
     );
 
     expect(screen.getByText('테스트 컴포넌트')).toBeInTheDocument();
+    expect(screen.getByTestId('static-block')).toHaveClass('opacity-100');
+    expect(observeMock).not.toHaveBeenCalled();
   });
 
   it('선택한 전환 시간과 부드러움을 실제 렌더링에 적용한다', () => {
@@ -55,6 +57,7 @@ describe('ScrollFadeIn 컴포넌트', () => {
       <ScrollFadeIn
         data-testid="block"
         animationDurationMs={1400}
+        animationType="fade"
         animationEasing="soft"
       >
         <p>초대합니다</p>
@@ -69,7 +72,7 @@ describe('ScrollFadeIn 컴포넌트', () => {
 
   it('초기에는 비가시화 상태 클래스(opacity-0, translate-y-6)를 갖는다', () => {
     render(
-      <ScrollFadeIn data-testid="block">
+      <ScrollFadeIn data-testid="block" animationType="fade-up">
         <div>테스트 컴포넌트</div>
       </ScrollFadeIn>
     );
@@ -79,9 +82,9 @@ describe('ScrollFadeIn 컴포넌트', () => {
     expect(wrapper).toHaveClass('translate-y-6');
   });
 
-  it('IntersectionObserver를 통해 뷰포트에 진입하면 가시화 상태 클래스(opacity-100, translate-y-0)로 변경된다', () => {
+  it('뷰포트에 진입하면 내용이 원래 위치에 표시된다', () => {
     const { container } = render(
-      <ScrollFadeIn data-testid="block">
+      <ScrollFadeIn data-testid="block" animationType="fade-up">
         <div>테스트 컴포넌트</div>
       </ScrollFadeIn>
     );
@@ -94,7 +97,7 @@ describe('ScrollFadeIn 컴포넌트', () => {
     });
 
     expect(wrapper).toHaveClass('opacity-100');
-    expect(wrapper).toHaveClass('translate-y-0');
+    expect(wrapper).not.toHaveClass('translate-y-6');
     expect(unobserveMock).toHaveBeenCalledWith(container.firstElementChild);
   });
 
@@ -103,7 +106,11 @@ describe('ScrollFadeIn 컴포넌트', () => {
     triggerMode => {
       render(
         <div style={{ overflowY: 'auto' }} data-testid="preview-panel">
-          <ScrollFadeIn data-testid="block" triggerMode={triggerMode}>
+          <ScrollFadeIn
+            data-testid="block"
+            animationType="fade"
+            triggerMode={triggerMode}
+          >
             초대합니다
           </ScrollFadeIn>
         </div>
@@ -138,7 +145,11 @@ describe('ScrollFadeIn 컴포넌트', () => {
     '%s 모드는 설정된 방향으로 재진입할 때마다 재생한다',
     (triggerMode, upwardDuration) => {
       render(
-        <ScrollFadeIn data-testid="block" triggerMode={triggerMode}>
+        <ScrollFadeIn
+          data-testid="block"
+          animationType="fade"
+          triggerMode={triggerMode}
+        >
           초대합니다
         </ScrollFadeIn>
       );
@@ -168,14 +179,14 @@ describe('ScrollFadeIn 컴포넌트', () => {
     delete window.IntersectionObserver;
 
     render(
-      <ScrollFadeIn data-testid="block">
+      <ScrollFadeIn data-testid="block" animationType="from-right">
         <div>테스트 컴포넌트</div>
       </ScrollFadeIn>
     );
 
     const wrapper = screen.getByTestId('block');
     expect(wrapper).toHaveClass('opacity-100');
-    expect(wrapper).toHaveClass('translate-y-0');
+    expect(wrapper).not.toHaveClass('translate-x-6');
   });
 
   it('prefers-reduced-motion이 활성화된 경우 즉시 가시화된다', () => {
@@ -191,19 +202,19 @@ describe('ScrollFadeIn 컴포넌트', () => {
     }));
 
     render(
-      <ScrollFadeIn data-testid="block">
+      <ScrollFadeIn data-testid="block" animationType="paired">
         <div>테스트 컴포넌트</div>
       </ScrollFadeIn>
     );
 
     const wrapper = screen.getByTestId('block');
     expect(wrapper).toHaveClass('opacity-100');
-    expect(wrapper).toHaveClass('translate-y-0');
+    expect(observeMock).not.toHaveBeenCalled();
   });
 
   it('애니메이션 완료(transitionEnd) 시 will-change 속성을 해제하며, 자식 이벤트 버블링은 무시한다', () => {
     render(
-      <ScrollFadeIn data-testid="block">
+      <ScrollFadeIn data-testid="block" animationType="fade-up">
         <button type="button">자식 버튼</button>
       </ScrollFadeIn>
     );

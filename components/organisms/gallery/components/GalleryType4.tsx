@@ -66,6 +66,7 @@ function GalleryType4({
             <div key={i} className="flex-[0_0_50%] shrink-0">
               <div
                 role="button"
+                data-entrance-side={i % 2 === 0 ? 'left' : 'right'}
                 tabIndex={i < preview.length ? 0 : -1}
                 aria-hidden={i >= preview.length ? true : undefined}
                 className={cn(

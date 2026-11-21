@@ -2,12 +2,12 @@
 
 import { useShallow } from 'zustand/shallow';
 
-import SectionArrow from '@/shared/assets/icons/sectionArrow.svg';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import BulkEdit from './components/BulkEdit';
 import Edit from './components/Edit';
 import { SectionStyleControls } from './components/SectionStyleControls';
+import { StylePanelSection } from './components/StylePanelSection';
 
 function LeftPanel() {
   const { isEdit, setIsEdit, selectedId } = useEditorStore(
@@ -26,30 +26,17 @@ function LeftPanel() {
       className="w-93.75 max-h-[810px] ml-5 min-[1540px]:ml-15 flex flex-col gap-4"
       data-editor-left-panel
     >
-      <div className="w-full">
-        <button
-          type="button"
-          className={`flex-center relative bg-white rounded-lg ${isEdit ? 'rounded-b-none border-b-0' : 'shadow-edit'} border border-black/5 w-full h-11 transition-default`}
-          aria-expanded={isEdit}
-          onClick={() => setIsEdit(!isEdit)}
-        >
-          <p className="font-semibold text-sm">전체 스타일</p>
-          <div
-            className={`absolute right-6 ${isEdit ? 'rotate-180' : ''} transition-default`}
-          >
-            <SectionArrow className="w-[14px] h-[7px]" />
-          </div>
-        </button>
-
-        <div
-          key={`bulk-edit-${isEdit}`}
-          className={isEdit ? 'max-h-158 overflow-hidden mt-0' : 'hidden'}
-        >
+      <StylePanelSection
+        title="전체 스타일"
+        expanded={isEdit}
+        onToggle={() => setIsEdit(!isEdit)}
+      >
+        <div key={`bulk-edit-${isEdit}`} className="max-h-158 overflow-hidden">
           <div className="overflow-hidden rounded-b-lg">
             <BulkEdit />
           </div>
         </div>
-      </div>
+      </StylePanelSection>
 
       {isComponentSelected && !isEdit && (
         <SectionStyleControls key={selectedId} selectedId={selectedId!} />

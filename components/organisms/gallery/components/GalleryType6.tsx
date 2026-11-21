@@ -74,6 +74,7 @@ function GalleryType6({ imageClick, preview, ratio }: GalleryTemplateProps) {
         {preview.map((file, index) => (
           <div
             role="button"
+            data-entrance-side={index % 2 === 0 ? 'left' : 'right'}
             tabIndex={0}
             key={index}
             className={cn(

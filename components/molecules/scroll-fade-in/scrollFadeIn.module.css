@@ -1,0 +1,21 @@
+.paired [data-entrance-side] {
+  animation: meet var(--entrance-duration) var(--entrance-easing)
+    var(--entrance-delay) backwards;
+}
+
+.paired [data-entrance-side='left'] {
+  --entrance-offset: -24px;
+}
+
+.paired [data-entrance-side='right'] {
+  --entrance-offset: 24px;
+}
+
+@keyframes meet {
+  from {
+    translate: var(--entrance-offset) 0;
+  }
+  to {
+    translate: 0 0;
+  }
+}

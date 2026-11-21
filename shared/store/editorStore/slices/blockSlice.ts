@@ -35,11 +35,11 @@ export const createBlockSlice: StateCreator<EditorState, [], [], BlockSlice> = (
           : block
       ),
     })),
-  updateBlockSectionStyle: (id, sectionStyle) =>
+  updateBlockAppearance: (id, appearance) =>
     set(state => ({
       block: state.block.map(block =>
         block.id === id
-          ? { ...block, props: { ...block.props, sectionStyle } }
+          ? { ...block, props: { ...block.props, ...appearance } }
           : block
       ),
     })),
