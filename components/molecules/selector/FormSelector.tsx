@@ -18,6 +18,7 @@ export function FormSelector<T extends FormOption>({
   label,
   options,
   value,
+  placeholder,
   onChange,
   className,
   disabled,
@@ -26,7 +27,8 @@ export function FormSelector<T extends FormOption>({
 }: {
   label: ReactNode;
   options: readonly T[];
-  value: string;
+  value: string | null;
+  placeholder?: string;
   onChange: (value: T['value']) => void;
   className?: string;
   disabled?: boolean;
@@ -35,9 +37,11 @@ export function FormSelector<T extends FormOption>({
 }) {
   const id = useId();
   const selected =
-    options.find(option => option.value === value) ??
-    options.find(option => !option.disabled) ??
-    null;
+    value === null
+      ? null
+      : (options.find(option => option.value === value) ??
+        options.find(option => !option.disabled) ??
+        null);
 
   return (
     <div className={cn('min-w-0', className)}>
@@ -49,6 +53,7 @@ export function FormSelector<T extends FormOption>({
         labelledBy={`${id}-label`}
         options={options}
         selected={selected}
+        placeholder={placeholder}
         onSelect={option => onChange(option.value)}
         disabled={disabled}
         invalid={invalid}

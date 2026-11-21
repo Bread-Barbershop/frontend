@@ -27,7 +27,10 @@ function Gallery({ blockInfo, id }: Props) {
     isPopupViewer = false,
     isAutoPlay = false,
     ratio,
+    template,
   } = blockInfo.props;
+  const supportsFilmEffect =
+    template !== 'galleryType6' && template !== 'galleryType7';
   const { block, images, updateBlock, updateImage } = useEditorStore(
     useShallow(state => ({
       block: state.block,
@@ -155,11 +158,16 @@ function Gallery({ blockInfo, id }: Props) {
                 팝업뷰어(사진을 터치하여 크게 볼 수 있어요.)
               </span>
             </Checkbox>
-            <Checkbox onChange={handleAutoPlayChange} checked={Boolean(isAutoPlay)}>
-              <span className="text-[13px]">
-                필름 효과 (천천히 무한 반복 재생)
-              </span>
-            </Checkbox>
+            {supportsFilmEffect && (
+              <Checkbox
+                onChange={handleAutoPlayChange}
+                checked={Boolean(isAutoPlay)}
+              >
+                <span className="text-[13px]">
+                  필름 효과 (사진 2장부터 천천히 반복 재생)
+                </span>
+              </Checkbox>
+            )}
           </div>
         </div>
       </div>

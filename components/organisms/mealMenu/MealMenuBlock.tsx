@@ -42,7 +42,8 @@ export function MealMenuBlock({
   const updateBlock = useEditorStore(state => state.updateBlock);
   const { props } = blockInfo;
   const courses = normalizeMenuCourses(props.courses);
-  const { id: menuStyle, hasArtwork } = resolveMealMenuStyle(props.menuStyle);
+  const menuStyle = resolveMealMenuStyle(props.menuStyle);
+  const artworkHidden = menuStyle.hasArtwork && props.showCornerArt === false;
   const update = (patch: Partial<EditorBlock<'mealMenu'>['props']>) =>
     updateBlock<'mealMenu'>(id, patch);
   const replaceCourse = (
@@ -73,10 +74,14 @@ export function MealMenuBlock({
           label="디자인"
           className={fieldClass}
           options={STYLE_OPTIONS}
-          value={menuStyle}
-          onChange={menuStyle => update({ menuStyle })}
+          value={artworkHidden ? null : menuStyle.id}
+          placeholder={`${menuStyle.name} (장식 없음)`}
+          onChange={value => {
+            const style = resolveMealMenuStyle(value);
+            update({ menuStyle: style.id, showCornerArt: style.hasArtwork });
+          }}
         />
-        {hasArtwork && (
+        {menuStyle.hasArtwork && (
           <label className="flex items-center gap-2 text-sm text-text-secondary">
             <input
               type="checkbox"
