@@ -10,6 +10,7 @@ import { LinkShareModal } from '@/components/molecules/link-share/LinkShareModal
 
 import DashboardInvitationPreviewModal from '../preview/DashboardInvitationPreviewModal';
 
+import AudienceVisibilityDialog from './AudienceVisibilityDialog';
 import CarouselBase from './CarouselBase';
 import { dashboardCarouselLayout } from './carouselLayout';
 import { CarouselCardItem } from './carouselTypes';
@@ -124,6 +125,7 @@ function CarouselWrapper({
     handleDelete,
     handleUpdate,
     handleToggleVisibility,
+    loadInvitations,
     handleCopyGuestUrl,
     handleShare,
     getGuestUrl,
@@ -148,6 +150,9 @@ function CarouselWrapper({
   const backgroundPreloadedKeysRef = useRef<Set<string>>(new Set());
 
   const [cloneTarget, setCloneTarget] = useState<InviteListItem | null>(null);
+  const [visibilityTarget, setVisibilityTarget] =
+    useState<InviteListItem | null>(null);
+  const closeVisibility = useCallback(() => setVisibilityTarget(null), []);
   const [focusCardId, setFocusCardId] = useState<string | null>(null);
   const closeCloneDialog = useCallback(() => {
     setCloneTarget(null);
@@ -265,6 +270,16 @@ function CarouselWrapper({
 
   return (
     <>
+      {visibilityTarget && (
+        <AudienceVisibilityDialog
+          invite={visibilityTarget}
+          onClose={closeVisibility}
+          onSaved={() => {
+            closeVisibility();
+            void loadInvitations();
+          }}
+        />
+      )}
       {cloneTarget && (
         <CopyInvitationDialog
           key={cloneTarget.folderId}
@@ -290,7 +305,11 @@ function CarouselWrapper({
         onDelete={handleDelete}
         onPreview={preview.openPreview}
         onUpdate={handleUpdate}
-        onToggleVisibility={handleToggleVisibility}
+        onToggleVisibility={(folderId, nextVisible) => {
+          const invite = invites.find(item => item.folderId === folderId);
+          if (invite?.hasAudienceGroups) setVisibilityTarget(invite);
+          else void handleToggleVisibility(folderId, nextVisible);
+        }}
         onCopyUrl={(folderId, url, audienceName) => {
           const invite = invites.find(item => item.folderId === folderId);
           if (!invite) return;

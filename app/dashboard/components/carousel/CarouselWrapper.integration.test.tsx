@@ -272,6 +272,86 @@ describe('대시보드 초대장', () => {
     });
   });
 
+  it('공개 스위치는 기존 선택을 복원하고 적용을 눌렀을 때만 카드와 링크 상태를 바꾼다', async () => {
+    const user = userEvent.setup();
+    const invite = {
+      ...sourceInvitation,
+      guestUrl: null,
+      hasAudienceGroups: true,
+      audienceVisibility: 'partial' as const,
+    };
+    const groups = [
+      { slug: '', name: '기본 초대장' },
+      { slug: 'family', name: '가족용' },
+      { slug: 'work', name: '직장용' },
+    ];
+    const endpoint = '/api/drive/audienceVisibility';
+    const writes: unknown[] = [];
+    mockFetch.mockImplementation(async (url, init) => {
+      let result;
+      if (url === endpoint && init.method === 'PUT') {
+        writes.push(JSON.parse(init.body));
+        result = {};
+      } else if (url === endpoint + '?folderId=source-folder') {
+        result = {
+          groups,
+          visibility: {
+            published: true,
+            publicSlugs: ['family'],
+            revision: 'v1',
+            pending: false,
+          },
+        };
+      } else if (url === '/api/drive/loadInvitation') {
+        result = { invites: [{ ...invite, audienceVisibility: 'public' }] };
+      } else throw new Error(`Unexpected fetch ${url}`);
+      return { ok: true, json: async () => result };
+    });
+    render(<CarouselWrapper initialInvites={[invite]} loadOnMount={false} />);
+    const trigger = await screen.findByRole('button', {
+      name: '공개 범위 설정 · 일부 공개',
+    });
+    await user.click(trigger);
+    const master = await screen.findByRole('switch', {
+      name: '행사 전체 공개',
+    });
+    const groupSwitch = (name: string) =>
+      screen.getByRole('switch', { name: name + ' 공개' });
+    expect(master).toBeChecked();
+    expect(groupSwitch('가족용')).toBeChecked();
+    expect(groupSwitch('기본 초대장')).not.toBeChecked();
+    expect(groupSwitch('직장용')).not.toBeChecked();
+    await user.click(master);
+    for (const group of groups) {
+      expect(groupSwitch(group.name)).not.toBeChecked();
+      expect(groupSwitch(group.name)).toBeDisabled();
+    }
+    await user.click(master);
+    expect(groupSwitch('가족용')).toBeChecked();
+    expect(groupSwitch('직장용')).not.toBeChecked();
+    await user.click(groupSwitch('직장용'));
+    await user.click(screen.getByRole('button', { name: '취소' }));
+    expect(writes).toEqual([]);
+    expect(trigger).toHaveFocus();
+    await user.click(trigger);
+    await screen.findByRole('switch', { name: '가족용 공개' });
+    expect(groupSwitch('직장용')).not.toBeChecked();
+    await user.click(groupSwitch('직장용'));
+    await user.click(groupSwitch('기본 초대장'));
+    await user.click(screen.getByRole('button', { name: '적용' }));
+    expect(writes).toEqual([
+      {
+        folderId: 'source-folder',
+        published: true,
+        publicSlugs: ['family', 'work', ''],
+        revision: 'v1',
+      },
+    ]);
+    expect(
+      await screen.findByRole('button', { name: '공개 범위 설정 · 공개' })
+    ).toBeVisible();
+  });
+
   it('그룹 조회에 실패하면 기본으로 이동하지 않고 다시 시도할 수 있다', async () => {
     const user = userEvent.setup();
     mockFetch

@@ -1,8 +1,12 @@
+import type { InviteListItem } from '@/app/dashboard/types';
+
 import { dashboardCarouselLayout } from '../carouselLayout';
 
 import VisibilityToggle from './VisibilityToggle';
 
 type ItemHeaderProps = {
+  hasAudienceGroups?: boolean;
+  audienceVisibility?: InviteListItem['audienceVisibility'];
   invitationTitle: string;
   createdTime?: string;
   isPublished: boolean;
@@ -25,6 +29,8 @@ function formatCreatedDate(createdTime?: string) {
 }
 
 function ItemHeader({
+  hasAudienceGroups,
+  audienceVisibility,
   invitationTitle,
   createdTime,
   isPublished,
@@ -45,6 +51,8 @@ function ItemHeader({
         {formatCreatedDate(createdTime)}
       </p>
       <VisibilityToggle
+        hasAudienceGroups={hasAudienceGroups}
+        audienceVisibility={audienceVisibility}
         invitationTitle={invitationTitle}
         isPublished={isPublished}
         disabled={disabled}

@@ -65,7 +65,9 @@ describe('loadInvitation route', () => {
     (googleFetch as jest.Mock).mockImplementation((url: string) => {
       const decodedUrl = decodeURIComponent(url);
 
-      if (decodedUrl.includes("mimeType='application/vnd.google-apps.folder'")) {
+      if (
+        decodedUrl.includes("mimeType='application/vnd.google-apps.folder'")
+      ) {
         return Promise.resolve(
           mockJsonResponse({
             files: [
@@ -196,6 +198,59 @@ describe('loadInvitation route', () => {
     expect(googleFetch).toHaveBeenCalledTimes(7);
     expect(res.headers.get('Cache-Control')).toBe('no-store');
   });
+
+  it.each([
+    ['public', '2', 'public', true],
+    ['public', '1', 'partial', true],
+    ['partial', '1', 'partial', true],
+    ['private', '1', 'private', false],
+    ['pending', '1', 'pending', false],
+  ])(
+    '그룹 설정 %s와 공개 수 %s를 현재 카드 상태로 표시한다',
+    async (managed, count, expected, published) => {
+      jest.mocked(findWorkspaceFolderId).mockResolvedValue('space');
+      (googleFetch as jest.Mock).mockImplementation(async (raw: string) => {
+        const query = new URL(raw).searchParams.get('q') ?? '';
+        if (query.includes("'space' in parents"))
+          return mockJsonResponse({
+            files: [
+              {
+                id: 'root',
+                name: '행사',
+                appProperties: {
+                  inv_id: 'uuid',
+                  audience_visibility: managed,
+                  audience_public_count: count,
+                },
+              },
+            ],
+          });
+        if (query.includes('invitation_audience'))
+          return mockJsonResponse({
+            files: [
+              {
+                id: 'family',
+                mimeType: 'application/vnd.google-apps.folder',
+                ownedByMe: true,
+                parents: ['root'],
+                appProperties: {
+                  app_id: 'Bread-Barbershop',
+                  kind: 'invitation_audience',
+                  inv_id: 'aud_f',
+                  audience_root: 'root',
+                  audience_slug: 'family',
+                  audience_name: '가족용',
+                },
+              },
+            ],
+          });
+        return mockJsonResponse({ files: [] });
+      });
+      expect((await (await GET()).json()).invites).toMatchObject([
+        { hasAudienceGroups: true, audienceVisibility: expected, published },
+      ]);
+    }
+  );
 
   it('초대장 목록 조회 실패 시 DriveHttpError 응답을 반환한다', async () => {
     (findWorkspaceFolderId as jest.Mock).mockResolvedValue(

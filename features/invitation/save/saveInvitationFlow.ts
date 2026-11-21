@@ -733,6 +733,7 @@ async function requestInitialPublicVisibility(
       body: JSON.stringify({
         invitationFolderId,
         visible: true,
+        preserveAudienceScope: true,
       }),
     });
     const payload = (await res

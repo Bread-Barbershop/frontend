@@ -6,6 +6,10 @@ jest.mock('next/cache', () => ({
   revalidatePath: jest.fn(),
   revalidateTag: jest.fn(),
 }));
+jest.mock('@/app/api/drive/_lib/previewAccess', () => ({
+  ...jest.requireActual('@/app/api/drive/_lib/previewAccess'),
+  getDriveFile: jest.fn(),
+}));
 
 jest.mock('@/app/api/drive/_lib/ensureDataJsonFile', () => ({
   ensureDataJsonFile: jest.fn(),

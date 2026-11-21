@@ -13,10 +13,13 @@ import GuestPage, { generateMetadata as guestMetadata } from './page';
 
 const mockLoadGuestPayload = jest.fn();
 const mockResolveAudienceLink = jest.fn();
+const mockReadAudienceVisibility = jest.fn();
 const mockResolveShortCode = jest.fn();
 const mockIsShortUrlStoreConfigured = jest.fn();
 
 jest.mock('@/app/api/drive/_lib/audienceLinkStore', () => ({
+  readAudienceVisibility: (...args: unknown[]) =>
+    mockReadAudienceVisibility(...args),
   resolveAudienceLink: (...args: unknown[]) => mockResolveAudienceLink(...args),
 }));
 
@@ -162,6 +165,50 @@ describe.each(routes)(
       expect(html).toContain('비공개 초대장이에요');
       expect(html).not.toContain('root-poster');
       expect(await metadata({ to: 'family' })).not.toHaveProperty('openGraph');
+    });
+
+    it('기본 링크가 닫혀 있어도 명시적으로 공개한 가족용 링크만 열린다', async () => {
+      mockLoadGuestPayload.mockImplementation((id: string) =>
+        Promise.resolve(
+          id === 'root-data' ? { status: 'private' } : familyInvitation
+        )
+      );
+      mockReadAudienceVisibility.mockResolvedValue({
+        published: true,
+        publicSlugs: ['family'],
+        pending: false,
+      });
+      expect(renderToStaticMarkup(await page({ to: 'family' }))).toContain(
+        'family-poster'
+      );
+      expect(renderToStaticMarkup(await page({ to: 'work' }))).toContain(
+        '비공개 초대장이에요'
+      );
+      expect(await metadata({ to: 'work' })).not.toHaveProperty('openGraph');
+      expect(renderToStaticMarkup(await page({}))).toContain(
+        '비공개 초대장이에요'
+      );
+      mockReadAudienceVisibility.mockResolvedValue({
+        published: false,
+        publicSlugs: ['family'],
+        pending: false,
+      });
+      expect(renderToStaticMarkup(await page({ to: 'family' }))).toContain(
+        '비공개 초대장이에요'
+      );
+    });
+
+    it('Drive가 아직 공개 응답을 줘도 꺼진 그룹의 본문과 공유 미리보기는 닫힌다', async () => {
+      mockReadAudienceVisibility.mockResolvedValue({
+        published: true,
+        publicSlugs: ['', 'family'],
+        pending: false,
+      });
+      expect(renderToStaticMarkup(await page({ to: 'work' }))).toContain(
+        '비공개 초대장이에요'
+      );
+      expect(await metadata({ to: 'work' })).not.toHaveProperty('openGraph');
+      expect(mockResolveAudienceLink).not.toHaveBeenCalled();
     });
 
     it('하객별 링크 저장소가 일시 중단되면 하객 구분을 유지해 재시도한다', async () => {

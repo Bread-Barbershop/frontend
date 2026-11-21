@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 
 import { NextResponse } from 'next/server';
 
+import { syncNewBaseFiles } from '@/app/api/drive/_lib/audienceVisibility';
 import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
 import {
   APP_IDENTIFIER,
@@ -62,9 +63,6 @@ export async function POST(req: Request) {
         captureDriveError({ error, operation: 'drive_thumbnail_old_file_cleanup' });
       }
     }
-
-    // // 3) 공개 권한 설정
-    // await publishPermissionWithRetry(finalFileId);
 
     const publicUrl = `https://drive.google.com/uc?export=download&id=${finalFileId}`;
 
@@ -245,6 +243,7 @@ async function createThumbnailFile(
 
   try {
     await updateThumbnailFile(created.id, imageBytes, mimeType);
+    await syncNewBaseFiles(invitationFolderId, [created.id]);
     return created.id;
   } catch (error) {
     await deleteThumbnailFile(created.id);

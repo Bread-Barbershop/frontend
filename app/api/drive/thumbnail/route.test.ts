@@ -3,7 +3,11 @@
  */
 
 import { createHash } from 'node:crypto';
+import { syncNewBaseFiles } from '@/app/api/drive/_lib/audienceVisibility';
 
+jest.mock('@/app/api/drive/_lib/audienceVisibility', () => ({
+  syncNewBaseFiles: jest.fn(),
+}));
 jest.mock('@/app/api/drive/_lib/captureDriveError', () => ({
   captureDriveError: jest.fn(),
 }));
@@ -87,7 +91,8 @@ describe('/api/drive/thumbnail route', () => {
           thumbnailData: {
             name: 'arbitrary-name.png', // 이름이 png여도 dataUrl이 webp이면 webp로 정규화
             mimeType: 'image/png',
-            dataUrl: 'data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAQAcJaACdLoB+AA/v24A',
+            dataUrl:
+              'data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAQAcJaACdLoB+AA/v24A',
             width: 860,
             height: 1200,
             createdAt: new Date().toISOString(),
@@ -137,7 +142,8 @@ describe('/api/drive/thumbnail route', () => {
           invitationFolderId: 'folder-123',
           thumbnailData: {
             name: 'some.webp', // 이름이 webp여도 dataUrl이 png이면 png로 정규화
-            dataUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+            dataUrl:
+              'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
             width: 860,
             height: 1200,
             createdAt: new Date().toISOString(),
@@ -192,7 +198,8 @@ describe('/api/drive/thumbnail route', () => {
         body: JSON.stringify({
           invitationFolderId: 'folder-123',
           thumbnailData: {
-            dataUrl: 'data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAQAcJaACdLoB+AA/v24A',
+            dataUrl:
+              'data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAQAcJaACdLoB+AA/v24A',
             width: 860,
             height: 1200,
             createdAt: new Date().toISOString(),
@@ -214,8 +221,41 @@ describe('/api/drive/thumbnail route', () => {
     });
   });
 
-
   describe('데이터 포맷 검증 및 오류 복구', () => {
+    it('새 썸네일 공개 권한 적용이 실패하면 새 파일만 정리하고 이전 링크를 보존한다', async () => {
+      jest
+        .mocked(ensureThumbnailFile)
+        .mockResolvedValue({ thumbnailFileId: 'old', reused: true });
+      jest
+        .mocked(googleFetch)
+        .mockResolvedValue({
+          ok: true,
+          json: async () => ({ id: 'new' }),
+        } as Response);
+      jest
+        .mocked(syncNewBaseFiles)
+        .mockRejectedValueOnce(new Error('permission update failed'));
+      const response = await POST(
+        new Request('http://localhost/api/drive/thumbnail', {
+          method: 'POST',
+          body: JSON.stringify({
+            invitationFolderId: 'root',
+            thumbnailData: {
+              dataUrl: 'data:image/png;base64,iVBORw0KGgo=',
+            },
+          }),
+        })
+      );
+      expect(response.status).toBe(500);
+      expect(googleFetch).toHaveBeenCalledWith(
+        expect.stringMatching(/files\/new$/),
+        { method: 'DELETE' }
+      );
+      expect(googleFetch).not.toHaveBeenCalledWith(
+        expect.stringMatching(/files\/old$/),
+        { method: 'DELETE' }
+      );
+    });
     it('data URL과 실제 이미지 서명이 불일치하면 400을 반환하고 업로드하지 않는다', async () => {
       (ensureThumbnailFile as jest.Mock).mockResolvedValue({
         thumbnailFileId: null,
@@ -270,7 +310,8 @@ describe('/api/drive/thumbnail route', () => {
           thumbnailData: {
             name: THUMBNAIL_NAME_WEBP,
             mimeType: 'image/webp',
-            dataUrl: 'data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAQAcJaACdLoB+AA/v24A',
+            dataUrl:
+              'data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAQAcJaACdLoB+AA/v24A',
           },
         }),
       });
