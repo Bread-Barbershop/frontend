@@ -19,6 +19,7 @@ jest.mock('@/components/organisms/bgm/context/EditorBgmPlayerContext', () => ({
 
 describe('편집 화면 전체 초대장 미리보기', () => {
   beforeEach(() => {
+    mockExport.mockClear();
     useEditorStore.getState().reset();
     mockExport.mockReturnValue({
       dataUrl: 'data:image/webp;base64,current-poster',
@@ -51,7 +52,9 @@ describe('편집 화면 전체 초대장 미리보기', () => {
     expect(
       screen.getByRole('dialog', { name: '초대장 미리보기' })
     ).toBeVisible();
-    const frame = screen.getByTitle('초대장 미리보기') as HTMLIFrameElement;
+    const frame = (await screen.findByTitle(
+      '초대장 미리보기'
+    )) as HTMLIFrameElement;
     expect(frame).toHaveAttribute('src', '/preview/invitation');
     const send = jest.spyOn(frame.contentWindow!, 'postMessage');
     fireEvent(
@@ -97,7 +100,9 @@ describe('편집 화면 전체 초대장 미리보기', () => {
     const user = userEvent.setup();
     render(<InvitationPreviewButton />);
     await user.click(screen.getByRole('button', { name: '미리보기' }));
-    const frame = screen.getByTitle('초대장 미리보기') as HTMLIFrameElement;
+    const frame = (await screen.findByTitle(
+      '초대장 미리보기'
+    )) as HTMLIFrameElement;
     fireEvent(
       window,
       new MessageEvent('message', {
@@ -126,18 +131,47 @@ describe('편집 화면 전체 초대장 미리보기', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('포스터 준비에 실패해도 편집 내용을 보존하고 다시 미리볼 수 있다', async () => {
+  it('표지 변환 전에 준비 안내를 보여주고 준비 중 닫으면 변환을 취소한다', () => {
+    jest.useFakeTimers();
+    try {
+      render(<InvitationPreviewButton />);
+      const open = screen.getByRole('button', { name: '미리보기' });
+      fireEvent.click(open);
+      expect(screen.getByRole('dialog')).toBeVisible();
+      expect(screen.getByRole('status')).toHaveTextContent(
+        '초대장을 준비하고 있어요.'
+      );
+      act(() => jest.advanceTimersToNextFrame());
+      expect(mockExport).not.toHaveBeenCalled();
+      fireEvent.click(screen.getByRole('button', { name: '미리보기 닫기' }));
+      act(() => jest.advanceTimersToNextFrame());
+      expect(mockExport).not.toHaveBeenCalled();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+      fireEvent.click(open);
+      act(() => jest.advanceTimersToNextFrame());
+      act(() => jest.advanceTimersToNextFrame());
+      expect(mockExport).toHaveBeenCalledTimes(1);
+      expect(screen.getByTitle('초대장 미리보기')).toBeInTheDocument();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('포스터 준비에 실패하면 열린 미리보기 안에서 다시 시도한다', async () => {
     const user = userEvent.setup();
     mockExport.mockImplementationOnce(() => {
       throw new Error('Poster is loading');
     });
     render(<InvitationPreviewButton />);
     await user.click(screen.getByRole('button', { name: '미리보기' }));
-    expect(screen.getByRole('alert')).toHaveTextContent(
+    expect(await screen.findByRole('alert')).toHaveTextContent(
       '미리보기를 준비하지 못했어요.'
     );
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: '미리보기' }));
-    expect(screen.getByRole('dialog')).toBeVisible();
+    const dialog = screen.getByRole('dialog');
+    await user.click(screen.getByRole('button', { name: '다시 불러오기' }));
+    expect(await screen.findByTitle('초대장 미리보기')).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toBe(dialog);
+    expect(mockExport).toHaveBeenCalledTimes(2);
   });
 });
