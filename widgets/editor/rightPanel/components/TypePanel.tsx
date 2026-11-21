@@ -4,6 +4,10 @@ import React from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { Image } from '@/components/atoms/image';
+import {
+  calendarCardNames,
+  isCalendarCardType,
+} from '@/shared/data/template/componentTemplate';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { cn } from '@/shared/utils/cn';
 
@@ -37,6 +41,9 @@ function TypePanel({ typeArray, selectedId }: Props) {
     <div className="min-h-0 flex-1 flex flex-wrap gap-3.5 content-start w-full overflow-y-auto scrollbar-hide relative">
       {typeArray.map(item => {
         const isSelected = selectedTemplate === item;
+        const name = isCalendarCardType(item)
+          ? calendarCardNames[item]
+          : undefined;
 
         return (
           <button
@@ -53,10 +60,20 @@ function TypePanel({ typeArray, selectedId }: Props) {
           >
             <Image
               src={`/images/${item}.png`}
-              alt={`${item} 이미지`}
+              alt={name ? '' : `${item} 이미지`}
               fill
+              wrapperClassName={
+                name
+                  ? 'absolute inset-x-1 top-1 bottom-7 h-auto w-auto'
+                  : undefined
+              }
               className="object-contain"
             />
+            {name && (
+              <span className="absolute inset-x-1 bottom-1.5 text-xs font-medium text-text-primary">
+                {name}
+              </span>
+            )}
           </button>
         );
       })}

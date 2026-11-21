@@ -12,6 +12,12 @@ export type StrictDateTimeParts = StrictDateParts & {
 export type DateSeparator = '-' | '.';
 
 const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+export const DAY_MS = 24 * 60 * 60 * 1000;
+
+export function startOfSeoulDay(timestamp: number) {
+  const day = Math.floor((timestamp + KST_OFFSET_MS) / DAY_MS);
+  return day * DAY_MS - KST_OFFSET_MS;
+}
 
 export function isValidDateParts({ year, month, day }: StrictDateParts) {
   if (!Number.isInteger(year) || year < 1 || year > 9999) return false;

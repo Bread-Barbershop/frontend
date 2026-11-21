@@ -54,6 +54,7 @@ export function useCalendarData({
     const getCalendarDays = () => {
       switch (template) {
         case 'calendarType2': // 1주일 뷰 (Sun-Sat)
+        case 'calendarType8':
           return generateDateRange(targetDate, -targetDate.getDay(), 7, dms);
         case 'calendarType4': // +-7일 뷰 (총 14일)
           return generateDateRange(targetDate, -7, 14, dms);

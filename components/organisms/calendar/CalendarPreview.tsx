@@ -1,5 +1,6 @@
 'use client';
 
+import { isCalendarCardType } from '@/shared/data/template/componentTemplate';
 import { useBodyFontInfo } from '@/shared/hooks/useBodyFontInfo';
 import { useTitleFontInfo } from '@/shared/hooks/useTitleFontInfo';
 import { EditorBlock } from '@/shared/types/block';
@@ -10,6 +11,7 @@ import { MiddlePreviewWrapper } from '../wrapper/MiddlePreviewWrapper';
 import { getCalendarMessageHtml } from './calendarMessage';
 import styles from './calendarPreview.module.css';
 import { CalendarTemplates, DDayCountdown } from './components';
+import { CalendarCard } from './components/CalendarCard';
 import { useCalendarData } from './hooks/useCalendarData';
 
 import type { CSSProperties } from 'react';
@@ -17,7 +19,7 @@ import type { CSSProperties } from 'react';
 interface Props {
   blockInfo: EditorBlock<'calendar'>;
   className: string;
-  language: 'ko' | 'en';
+  language?: 'ko' | 'en';
   titleClassName?: string;
   isGuestPage?: boolean;
   onClick: () => void;
@@ -26,7 +28,7 @@ interface Props {
 export function CalendarPreview({
   blockInfo,
   className,
-  language,
+  language: requestedLanguage,
   titleClassName,
   isGuestPage = false,
   ...rest
@@ -42,6 +44,8 @@ export function CalendarPreview({
     showDday,
     isSubTitle,
   } = blockInfo.props;
+  const cardType = isCalendarCardType(template) ? template : undefined;
+  const language = requestedLanguage ?? (cardType ? 'ko' : 'en');
   const defaultTitle = blockInfo.type === 'wedding' ? '예식 일시' : '행사일시';
   const defaultSubTitle =
     blockInfo.type === 'wedding' ? 'THE WEDDING CEREMONY' : 'Date & Time';
@@ -73,7 +77,6 @@ export function CalendarPreview({
 
   const TemplateComponent =
     CalendarTemplates[template as string] || CalendarTemplates['calendarType1'];
-
   return (
     <MiddlePreviewWrapper
       className={`${className} relative ${styles.preview}`}
@@ -101,7 +104,7 @@ export function CalendarPreview({
       ) : (
         <>
           {/* String Date Display */}
-          {showStringDate && (
+          {showStringDate && !(showCalendar && cardType) && (
             <div
               className="flex flex-col items-center tracking-[-0.01rem] leading-[1.2] text-base font-normal text-[color:var(--calendar-text,var(--color-text-primary))] min-h-[40px] justify-center"
               style={{
@@ -114,27 +117,41 @@ export function CalendarPreview({
             </div>
           )}
 
-          {showCalendar && (
-            <TemplateComponent
-              currentYear={currentYear}
-              currentMonth={currentMonth}
-              calendarDays={calendarDays}
-              headerDays={headerDays}
-              time={time}
-              timeInfo={timeInfo}
-              language={language}
-              monthText={monthText}
-              targetLabel={targetLabel}
-              timeLabel={timeLabel}
-              accentColor={mainStyle.color}
-            />
-          )}
+          {showCalendar &&
+            (cardType ? (
+              <CalendarCard
+                template={cardType}
+                calendarDays={calendarDays}
+                headerDays={headerDays}
+                date={date}
+                time={time}
+                language={language}
+                isWedding={blockInfo.type === 'wedding'}
+                showStringDate={showStringDate}
+                showDday={showDday}
+              />
+            ) : (
+              <TemplateComponent
+                currentYear={currentYear}
+                currentMonth={currentMonth}
+                calendarDays={calendarDays}
+                headerDays={headerDays}
+                time={time}
+                timeInfo={timeInfo}
+                language={language}
+                monthText={monthText}
+                targetLabel={targetLabel}
+                timeLabel={timeLabel}
+                accentColor={mainStyle.color}
+              />
+            ))}
 
           {(showDday || hasSavedMessage) && (
             <DDayCountdown
               date={date}
               time={time}
               showCountdown={showDday}
+              seoulTime={Boolean(cardType)}
               isDefaultMessage={!hasSavedMessage}
               messageHtml={getCalendarMessageHtml(blockInfo)}
             />

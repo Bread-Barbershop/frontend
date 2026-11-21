@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
+import { calendarTemplate } from '@/shared/data/template/componentTemplate';
 
 import TypePanel from './TypePanel';
 
@@ -68,5 +69,18 @@ describe('TypePanel', () => {
     expect(updateBlock).toHaveBeenCalledWith('selected-block', {
       template: 'galleryType1',
     });
+  });
+
+  it.each([
+    ['영문 서명 월력', 'calendarType6'],
+    ['한지 책력', 'calendarType7'],
+    ['주간 티켓', 'calendarType8'],
+    ['큰글씨 월력', 'calendarType9'],
+  ])('%s 이름으로 달력 디자인을 선택한다', (name, template) => {
+    render(
+      <TypePanel typeArray={calendarTemplate} selectedId="selected-block" />
+    );
+    fireEvent.click(screen.getByRole('button', { name }));
+    expect(updateBlock).toHaveBeenCalledWith('selected-block', { template });
   });
 });

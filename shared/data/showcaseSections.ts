@@ -5,13 +5,14 @@ import type {
 } from '@/components/organisms/gallery/types/galleryType';
 import type { MealMenuStyle } from '@/components/organisms/mealMenu/mealMenuContent';
 import type { NoticePresetId } from '@/components/organisms/notice/noticeList';
+import type { CalendarCardType } from '@/shared/data/template/componentTemplate';
 
 export type ShowcaseSection =
   | { component: 'greeting' }
   | {
       component: 'calendar';
       title: string;
-      template?: `calendarType${1 | 2 | 3 | 4 | 5}`;
+      template?: `calendarType${1 | 2 | 3 | 4 | 5}` | CalendarCardType;
     }
   | { component: 'place'; title: string; detail?: string }
   | { component: 'closingComment'; message: string }

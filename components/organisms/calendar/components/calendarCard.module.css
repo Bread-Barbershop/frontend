@@ -1,0 +1,309 @@
+@font-face {
+  font-family: 'Calendar Allura';
+  src: url('/font/Allura-Regular.ttf') format('truetype');
+  font-display: swap;
+}
+
+.card {
+  --ink: #1a2a3e;
+  --paper: #fff;
+  --line: color-mix(in srgb, var(--ink) 28%, transparent);
+  --serif: Georgia, 'Times New Roman', Batang, AppleMyungjo, serif;
+  --sans: system-ui, 'Malgun Gothic', sans-serif;
+  position: relative;
+  container-type: inline-size;
+  width: min(100%, 422px);
+  border: 1px solid color-mix(in srgb, var(--ink) 15%, transparent);
+  background-color: var(--paper);
+  color: var(--ink);
+  font: 400 1rem/1.45 var(--serif);
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+.card h3,
+.card p {
+  margin: 0;
+  font: inherit;
+}
+.card footer {
+  color: inherit;
+}
+.card header,
+.bookTitle,
+.calendarType7 footer,
+.calendarType8 footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.monthGrid {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  text-align: center;
+}
+.monthGrid th {
+  height: 36px;
+  font: 500 12px/1.2 var(--sans);
+}
+.monthGrid td {
+  height: 33px;
+  font-size: 15px;
+}
+.monthGrid td > span {
+  display: inline-grid;
+  place-items: center;
+  width: min(100%, 27px);
+  height: 27px;
+}
+.selected {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.calendarType6 {
+  padding: 30px 0;
+  text-align: center;
+}
+.rule {
+  border-bottom: 1px solid;
+  padding: 0 6% 12px;
+  font: 500 13px/1.3 var(--sans);
+  letter-spacing: 0.095em;
+}
+.dateLines {
+  padding: 26px 4% 0;
+  font-size: clamp(16px, 4.2cqi, 20px);
+}
+.dateLines p + p {
+  margin-top: 5px;
+  font-size: 13px;
+}
+.card .signature {
+  margin: 28px 0 14px;
+  font:
+    400 clamp(38px, 11cqi, 48px)/1.1 'Calendar Allura',
+    cursive;
+}
+.calendarType6 .monthGrid {
+  width: 82%;
+  margin: auto;
+}
+.calendarType6 .selected {
+  border-radius: 50%;
+}
+.calendarType6 footer {
+  margin-top: 22px;
+  font-size: 19px;
+  letter-spacing: 0.055em;
+}
+.calendarType6 footer > span[aria-hidden] {
+  font-size: 13px;
+}
+
+.calendarType7 {
+  --paper: #f8f1e2;
+  --ink: #443b2f;
+  --seal: #944637;
+  padding: 24px 5% 20px 8%;
+  background-image: repeating-linear-gradient(
+    93deg,
+    transparent 0 5px,
+    color-mix(in srgb, var(--ink) 3%, transparent) 5px 6px
+  );
+}
+.calendarType7::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 2%;
+  width: 5px;
+  border-inline: 1px solid var(--line);
+}
+.bookHeader {
+  border-bottom: 3px double;
+  padding-bottom: 12px;
+  letter-spacing: 0.15em;
+}
+.bookHeader span:last-child {
+  font-size: 14px;
+  letter-spacing: 0;
+}
+.bookTitle {
+  align-items: center;
+  margin: 24px 0 13px;
+}
+.bookTitle h3 {
+  font-size: clamp(32px, 10cqi, 44px);
+  letter-spacing: -0.06em;
+}
+.seal {
+  writing-mode: vertical-rl;
+  border: 1.5px solid;
+  border-radius: 4px 3px 5px 2px;
+  padding: 5px 4px;
+  color: var(--seal);
+  font-size: 15px;
+  letter-spacing: 0.2em;
+  transform: rotate(3deg);
+}
+.calendarType7 thead {
+  border-block: 1px solid var(--line);
+}
+.calendarType7 .selected {
+  background: transparent;
+  color: var(--seal);
+  border: 1.5px solid;
+  border-radius: 4px 5px 3px 5px;
+}
+.calendarType7 footer,
+.calendarType8 footer {
+  flex-wrap: wrap;
+  border-top: 1px solid var(--line);
+  margin-top: 16px;
+  padding-top: 12px;
+  font-size: 14px;
+}
+.calendarType7 footer > span:last-child:not(:first-child) {
+  color: var(--seal);
+}
+
+.calendarType8 {
+  --paper: #eff3ed;
+  --ink: #284336;
+  padding: 22px 0 18px;
+  border-radius: 4px;
+}
+.ticketHeader,
+.ticketTop,
+.calendarType8 footer {
+  margin-inline: 6%;
+}
+.ticketHeader {
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  font: 500 11px/1.4 var(--sans);
+}
+.ticketTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 22px;
+}
+.ticketTop h3 {
+  font-size: clamp(36px, 13cqi, 57px);
+  line-height: 1.04;
+  letter-spacing: -0.05em;
+}
+.ticketTop h3 small {
+  display: block;
+  font-size: 0.48em;
+  letter-spacing: 0.03em;
+  margin-top: 4px;
+}
+.stub {
+  display: grid;
+  gap: 3px;
+  border-left: 1px solid var(--line);
+  padding-left: 14px;
+}
+.stub small {
+  font: 500 11px/1.2 var(--sans);
+}
+.stub strong {
+  font-size: clamp(23px, 6.5cqi, 30px);
+  font-weight: 400;
+}
+.stub span {
+  font-size: 13px;
+}
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+  margin-top: 22px;
+  padding: 15px 4% 0;
+  border-top: 1px dashed var(--line);
+  text-align: center;
+  list-style: none;
+}
+.week li {
+  display: grid;
+  gap: 6px;
+  padding: 8px 0;
+  font-size: 18px;
+}
+.week small {
+  font: 400 12px/1.2 var(--sans);
+}
+.week .selected {
+  border-radius: 24px;
+}
+
+.calendarType9 {
+  --paper: #faf9f6;
+  --ink: #202a35;
+  padding: 26px 6%;
+  font-family: var(--sans);
+}
+.card .largeHeader {
+  display: block;
+  border-left: 4px solid;
+  padding-left: 13px;
+}
+.largeHeader small {
+  font-size: 16px;
+}
+.largeHeader h3 {
+  margin: 3px 0;
+  font-size: clamp(30px, 9cqi, 40px);
+  font-weight: 700;
+}
+.largeHeader p {
+  font-size: 22px;
+  font-weight: 500;
+}
+.calendarType9 .monthGrid {
+  margin-top: 17px;
+}
+.calendarType9 th {
+  border-block: 1px solid var(--line);
+  font-size: 16px;
+}
+.calendarType9 td {
+  height: 41px;
+  font-size: 21px;
+}
+.calendarType9 td > span {
+  width: min(100%, 36px);
+  height: 35px;
+}
+.calendarType9 .selected {
+  border-radius: 6px;
+  font-weight: 700;
+}
+.calendarType9 footer {
+  border-top: 1px solid var(--line);
+  margin-top: 16px;
+  padding-top: 13px;
+  font-size: 18px;
+}
+
+:global([data-invitation-dark]) .calendarType6 {
+  --paper: #1c2633;
+  --ink: #e5e8ee;
+}
+:global([data-invitation-dark]) .calendarType7 {
+  --paper: #322e26;
+  --ink: #f1e6d6;
+  --seal: #f1b7a0;
+}
+:global([data-invitation-dark]) .calendarType8 {
+  --paper: #253a32;
+  --ink: #e0ebdf;
+}
+:global([data-invitation-dark]) .calendarType9 {
+  --paper: #202a35;
+  --ink: #faf9f6;
+}

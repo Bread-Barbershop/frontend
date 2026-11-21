@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import type { ReactNode } from 'react';
 
 import GuestRenderer from '@/app/guest/[id]/components/GuestRenderer';
@@ -110,6 +110,76 @@ function renderCalendarAt(pathname: string, date: string) {
 describe('GuestRenderer 달력 공개 미리보기', () => {
   afterEach(() => {
     jest.useRealTimers();
+  });
+
+  it.each([
+    ['calendarType6', '영문 서명 월력', 'February'],
+    ['calendarType7', '한지 책력', '이월'],
+    ['calendarType9', '큰글씨 월력', '2월 29일'],
+  ])(
+    '%s로 저장한 윤년 월력과 안내 문구를 카운트다운 없이 표시한다',
+    (template, name, heading) => {
+      const block = calendarBlock('2028-02-29');
+      render(
+        <GuestRenderer
+          blocks={[
+            {
+              ...block,
+              props: {
+                ...block.props,
+                template,
+                messageHtml: '<p>함께해 주세요</p>',
+              },
+            },
+          ]}
+          bulkData={bulkData}
+        />
+      );
+      const card = within(screen.getByRole('article', { name }));
+      expect(card.getByRole('heading', { name: heading })).toBeInTheDocument();
+      expect(card.getByRole('cell', { name: '29 예식일' })).toHaveProperty(
+        'cellIndex',
+        2
+      );
+      expect(card.queryByRole('cell', { name: '30' })).not.toBeInTheDocument();
+      expect(screen.getByText('함께해 주세요')).toBeInTheDocument();
+      expect(screen.queryByText('DAYS')).not.toBeInTheDocument();
+    }
+  );
+
+  it('주간 티켓은 해가 바뀌는 주의 7일을 표시하고 서울 자정에 디데이를 갱신한다', () => {
+    jest.useFakeTimers({ now: new Date('2027-12-31T14:59:59Z') });
+    const block = calendarBlock('2028-01-01');
+    render(
+      <GuestRenderer
+        blocks={[
+          {
+            ...block,
+            props: {
+              ...block.props,
+              template: 'calendarType8',
+              time: '오전 12:00',
+              showDday: true,
+              messageHtml: '<p>새해에 만나요</p>',
+            },
+          },
+        ]}
+        bulkData={bulkData}
+      />
+    );
+    act(() => jest.advanceTimersByTime(0));
+    const card = within(screen.getByRole('article', { name: '주간 티켓' }));
+    expect(card.getByText('12월 26일 – 1월 1일')).toBeInTheDocument();
+    expect(card.getAllByRole('listitem')).toHaveLength(7);
+    expect(card.getByText('AM')).toBeInTheDocument();
+    expect(card.getByText('D−1')).toBeInTheDocument();
+    expect(screen.getByText('DAYS')).toBeInTheDocument();
+    act(() => jest.advanceTimersByTime(1000));
+    expect(card.getByText('D-Day')).toBeInTheDocument();
+    expect(screen.getByText('종료된 일정이에요')).toBeInTheDocument();
+    act(() => jest.advanceTimersByTime(86_400_000));
+    expect(card.getByText('D+1')).toBeInTheDocument();
+    expect(screen.getByText('새해에 만나요')).toBeInTheDocument();
   });
 
   it.each(['/guest/test', '/i/test'])(

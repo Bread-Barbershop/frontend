@@ -50,6 +50,22 @@ export const parseTimeInfo = (timeStr?: string) => {
   return { ampm, timeText };
 };
 
+/** Saved invitations can contain either a 24-hour time or a Korean/English period. */
+export function parseCalendarClock(time?: string) {
+  const match = time?.trim().match(
+    /^(?:(오전|오후|am|pm)\s*)?(\d{1,2}):(\d{2})(?:\s*(오전|오후|am|pm))?$/i
+  );
+  if (!match) return null;
+  const [, prefix, rawHour, rawMinute, suffix] = match;
+  const period = (prefix || suffix)?.toLowerCase();
+  const hour = Number(rawHour);
+  const minute = Number(rawMinute);
+  const validHour = period ? hour >= 1 && hour <= 12 : hour <= 23;
+  if ((prefix && suffix) || !validHour || minute > 59) return null;
+  const isPM = period === '오후' || period === 'pm';
+  return { hour: period ? (hour % 12) + (isPM ? 12 : 0) : hour, minute };
+}
+
 /**
  * 하이픈 추가 (20250309 -> 2025-03-09)
  */
