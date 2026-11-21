@@ -1,36 +1,65 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { FabricImage } from 'fabric';
 
 import { mockCropBrowser } from '@/components/molecules/picture/test-utils/cropControls';
 import { useFabricContext } from '@/widgets/mainPoster/context/FabricContext';
+import { useFabricSlot } from '@/widgets/mainPoster/hooks/useFabricSlot';
+import { findPrimarySlotTargetBySlotId } from '@/widgets/mainPoster/slot/queries';
 
 import { PosterPhotoCropDialog } from './PosterPhotoCropDialog';
 
-import type { Canvas } from 'fabric';
+import type { Canvas, FabricObject } from 'fabric';
 
 jest.mock('@/widgets/mainPoster/context/FabricContext', () => ({
   useFabricContext: jest.fn(),
 }));
 
-function openCrop() {
+function openCrop(slotId?: string) {
   const drawImage = mockCropBrowser();
   jest.mocked(HTMLCanvasElement.prototype.getContext).mockReturnValue({
     drawImage,
     clearRect: jest.fn(),
+    fillRect: jest.fn(),
   } as unknown as CanvasRenderingContext2D);
   const photo = new Image(1200, 800);
   photo.src = '/photo.jpg';
   const target = new FabricImage(photo, { left: 80, top: 50 });
+  if (slotId) {
+    target.set('slot', { key: slotId, replaceable: true, filled: true });
+  }
   const background = new FabricImage(photo);
+  const objects: FabricObject[] = [target];
   const canvas = {
     width: 300,
     height: 600,
-    contains: () => true,
+    contains: (object: FabricObject) => objects.includes(object),
+    getObjects: () => objects,
+    insertAt: (index: number, object: FabricObject) =>
+      objects.splice(index, 0, object),
     setActiveObject: jest.fn(),
     requestRenderAll: jest.fn(),
-    remove: jest.fn(),
+    remove: jest.fn((object: FabricObject) => {
+      const index = objects.indexOf(object);
+      if (index >= 0) objects.splice(index, 1);
+    }),
+    on: jest.fn(),
+    off: jest.fn(),
   };
+  const saveSlotHistory = jest.fn();
+  const { result: slotActions } = renderHook(() =>
+    useFabricSlot({
+      canvas: canvas as unknown as Canvas,
+      saveHistory: saveSlotHistory,
+    })
+  );
   const actions = {
+    ...slotActions.current,
     setCropTarget: jest.fn(),
     setBackgroundImage: jest.fn().mockResolvedValue(background),
     runHistoryTransaction: jest.fn(async (change: () => Promise<void>) =>
@@ -53,7 +82,7 @@ function openCrop() {
   });
   fireEvent.load(image);
   fireEvent.click(screen.getByRole('button', { name: '1:1' }));
-  return { drawImage, image, target, canvas, actions, background };
+  return { drawImage, image, target, canvas, actions, background, saveSlotHistory };
 }
 
 describe('포스터 사진 자르기', () => {
@@ -100,6 +129,39 @@ describe('포스터 사진 자르기', () => {
     expect(target.cropX).toBeCloseTo(200);
     expect(target.getCenterPoint()).toEqual(center);
     expect(actions.setBackgroundImage).not.toHaveBeenCalled();
+  });
+
+  it('프레임 사진을 배경으로 적용하면 같은 프레임에 새 사진을 넣을 수 있다', async () => {
+    const slotId = 'portrait-slot';
+    const { actions, target, canvas, background, saveSlotHistory } =
+      openCrop(slotId);
+    const originalSlot = actions.getSlotEntity(target);
+    const findSlot = () =>
+      findPrimarySlotTargetBySlotId(canvas as unknown as Canvas, slotId);
+
+    fireEvent.click(screen.getByRole('button', { name: '배경으로 적용' }));
+    await waitFor(() =>
+      expect(actions.setCropTarget).toHaveBeenCalledWith(null)
+    );
+
+    const placeholder = findSlot();
+    expect(placeholder?.get('name')).toBe('slot-placeholder');
+    expect(actions.getSlotEntity(placeholder)).toMatchObject({
+      slotId,
+      frame: originalSlot?.frame,
+      meta: { filled: false, replaceable: true },
+    });
+    expect(canvas.contains(target)).toBe(false);
+    expect(canvas.setActiveObject).toHaveBeenLastCalledWith(background);
+    expect(actions.runHistoryTransaction).toHaveBeenCalledTimes(1);
+    expect(saveSlotHistory).not.toHaveBeenCalled();
+
+    const replacement = new FabricImage(new Image(600, 800));
+    jest.spyOn(FabricImage, 'fromURL').mockResolvedValue(replacement);
+    await expect(
+      actions.replaceSlotImageBySlot(slotId, '/next-photo.jpg')
+    ).resolves.toBe(replacement);
+    expect(findSlot()).toBe(replacement);
   });
 
   it('배경 적용 실패 후 취소하면 원본 사진을 유지한다', async () => {

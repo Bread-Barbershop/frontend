@@ -21,6 +21,7 @@ export function PosterPhotoCropDialog({
     setCropTarget,
     runHistoryTransaction,
     replaceSlotImage,
+    restoreSlotPlaceholder,
     setBackgroundImage,
   } = useFabricContext();
   const slotId = getSlotId(target);
@@ -93,7 +94,13 @@ export function PosterPhotoCropDialog({
         opacity: isBackground ? target.opacity : 1,
       });
       if (!background) throw new Error('배경을 변경할 수 없습니다.');
-      if (!isBackground) canvas.remove(target);
+      if (!isBackground) {
+        if (slotId) {
+          restoreSlotPlaceholder(target);
+        } else {
+          canvas.remove(target);
+        }
+      }
       return background;
     });
 
