@@ -23,8 +23,7 @@ export function SectionStyleControls({ selectedId }: { selectedId: string }) {
   const block = useEditorStore(state =>
     state.block.find(item => item.id === selectedId)
   );
-  const updateStyle = useEditorStore(state => state.updateBlockSectionStyle);
-  const updateBlock = useEditorStore(state => state.updateBlock);
+  const updateAppearance = useEditorStore(state => state.updateBlockAppearance);
   const commonEffect = useEditorStore(
     state => state.scrollAnimation.animationType
   );
@@ -46,14 +45,14 @@ export function SectionStyleControls({ selectedId }: { selectedId: string }) {
           label="이 블록의 카드 스타일"
           value={resolveSectionStyle(block.props.sectionStyle)}
           inheritLabel="초대장 스타일 따르기"
-          onChange={style => updateStyle(selectedId, style)}
+          onChange={sectionStyle => updateAppearance(selectedId, { sectionStyle })}
         />
         <label className="flex flex-col gap-2 text-xs font-medium">
           이 블록의 등장 효과
           <select
             className="h-9 w-full rounded-md border border-border-divider bg-white px-2 text-sm font-normal"
             value={getBlockEntrance(block.component, block.props) ?? ''}
-            onChange={event => updateBlock(selectedId, {
+            onChange={event => updateAppearance(selectedId, {
               entranceEffect: getBlockEntrance(block.component, { entranceEffect: event.target.value }),
             })}
           >

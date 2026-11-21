@@ -5,6 +5,7 @@ import type {
 } from '@/components/molecules/scroll-fade-in/animationConfig';
 import type { InvitationPrivacy } from '@/features/invitation/privacy/settings';
 import type { BackgroundTextureSettings } from '@/shared/data/backgroundTextures';
+import type { blockRegistry } from '@/shared/data/registry/registry';
 import type { SectionStyle } from '@/shared/data/sectionStyles';
 
 import { blockSchema } from '../data/registry/block.schema';
@@ -63,11 +64,11 @@ export interface BlockSlice {
   ) => void;
   updateBlock: <T extends BlockType>(
     id: string,
-    props: Partial<EditorBlock<T>['props']>
+    props: Partial<PropsFromFields<(typeof blockRegistry)[T]['fields']>>
   ) => void;
-  updateBlockSectionStyle: (
+  updateBlockAppearance: (
     id: string,
-    style: SectionStyle | undefined
+    appearance: Pick<EditorBlock['props'], 'sectionStyle' | 'entranceEffect'>
   ) => void;
   deleteBlock: (id: string) => void;
   moveBlock: (from: number, to: number) => void;
