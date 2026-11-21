@@ -101,7 +101,7 @@ function driveFixture() {
       fixture.hasGroup = false;
       return new Response(null, { status: 204 });
     }
-    if (q.includes("'me' in owners")) {
+    if (q.startsWith("name='모바일 초대장 invia'")) {
       return Response.json({ files: [{ id: 'workspace-folder' }] });
     }
     if (q.startsWith(`'${ROOT}' in parents`)) {
@@ -206,6 +206,26 @@ describe('하객 그룹 API', () => {
   afterAll(() => {
     if (originalOrigin === undefined) delete process.env.NEXT_PUBLIC_APP_URL;
     else process.env.NEXT_PUBLIC_APP_URL = originalOrigin;
+  });
+
+  it('미리보기는 본인 그룹만 나열하고 읽기 가능한 공유 초대장은 기본 본문만 열 수 있다', async () => {
+    const fixture = driveFixture();
+    fixture.hasGroup = true;
+    expect(await (await load(ROOT, 'preview-options')).json()).toEqual({
+      audiences: [EXAMPLE],
+    });
+    fixture.group.ownedByMe = false;
+    expect(await (await load(ROOT, 'preview-options')).json()).toEqual({
+      audiences: [],
+    });
+    fixture.group.ownedByMe = true;
+    fixture.root.ownedByMe = false;
+    expect(await (await load(ROOT, 'preview-options')).json()).toEqual({
+      audiences: [],
+    });
+    fixture.root.parents = ['different-workspace'];
+    expect((await load(ROOT, 'preview-options')).status).toBe(404);
+    expect(resolveAudienceLink).not.toHaveBeenCalled();
   });
 
   it('메타파일 없는 기존 초대장에 기본 대상과 대표 링크를 반환한다', async () => {

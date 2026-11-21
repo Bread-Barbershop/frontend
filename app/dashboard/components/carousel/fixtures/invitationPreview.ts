@@ -41,3 +41,23 @@ export const savedPayload: NormalizedGuestPayload = {
     userBgmFileId: 'private-audio',
   },
 };
+
+export const workPayload: NormalizedGuestPayload = {
+  ...savedPayload,
+  blocks: [
+    {
+      id: 'intro',
+      type: 'wedding',
+      component: 'greeting',
+      props: { title: '동료 여러분을 초대합니다' },
+    },
+    {
+      id: 'photos',
+      type: 'wedding',
+      component: 'gallery',
+      props: { images: ['work-photo'] },
+    },
+  ],
+  mainPoster: { ...savedPayload.mainPoster, thumbnailFileId: 'work-poster' },
+  bgm: { ...savedPayload.bgm, userBgmFileId: 'work-audio' },
+};

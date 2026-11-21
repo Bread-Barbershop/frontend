@@ -9,7 +9,11 @@ import {
 
 import CarouselWrapper from './CarouselWrapper';
 import { sourceInvitation } from './fixtures/dashboardCopyInvitations';
-import { privateInvite, savedPayload } from './fixtures/invitationPreview';
+import {
+  privateInvite,
+  savedPayload,
+  workPayload,
+} from './fixtures/invitationPreview';
 import {
   baseGroup,
   familyGroup,
@@ -40,6 +44,9 @@ jest.mock('embla-carousel-react', () => ({
 }));
 
 const previewUrl = '/api/drive/previewInvitation?folderId=private-folder';
+const previewOptionsUrl =
+  '/api/drive/invitationAudiences?folderId=private-folder&view=preview-options';
+const baseOnlyResponse = { ok: true, json: async () => ({ audiences: [] }) };
 const previewResponse = {
   ok: true,
   json: async () => ({ ok: true, payload: savedPayload }),
@@ -85,7 +92,12 @@ describe('대시보드 초대장', () => {
 
   async function renderDashboard() {
     render(
-      <CarouselWrapper initialInvites={[privateInvite]} loadOnMount={false} />
+      <CarouselWrapper
+        initialInvites={[
+          { ...privateInvite, displayTitle: '민서·지훈 결혼식' },
+        ]}
+        loadOnMount={false}
+      />
     );
     return screen.findByRole('button', { name: '초대장 미리보기' });
   }
@@ -199,9 +211,78 @@ describe('대시보드 초대장', () => {
     );
   });
 
+  it('그룹 선택을 취소하면 내용을 조회하지 않고 직장용을 선택하면 해당 폴더의 본문과 미디어를 전달한다', async () => {
+    const user = userEvent.setup();
+    const groupResponse = {
+      ok: true,
+      json: async () => ({ audiences: [familyGroup, workGroup] }),
+    };
+    mockFetch
+      .mockResolvedValueOnce(groupResponse)
+      .mockResolvedValueOnce(groupResponse)
+      .mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ ok: false, message: '다시 시도해 주세요.' }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ ok: true, payload: workPayload }),
+      });
+    const trigger = await renderDashboard();
+    await user.click(trigger);
+    const picker = await screen.findByRole('dialog', {
+      name: '어떤 초대장을 미리 볼까요?',
+    });
+    expect(picker).toHaveAccessibleDescription('민서·지훈 결혼식');
+    expect(screen.getByRole('button', { name: '기본 초대장' })).toBeVisible();
+    fireEvent(picker, new Event('cancel', { cancelable: true }));
+    expect(trigger).toHaveFocus();
+    expect(mockFetch.mock.calls.map(([url]) => url)).toEqual([
+      previewOptionsUrl,
+    ]);
+
+    await user.keyboard('{Enter}');
+    await user.click(await screen.findByRole('button', { name: '직장용' }));
+    const dialog = await screen.findByRole('dialog', {
+      name: '초대장 미리보기',
+    });
+    expect(dialog).toHaveAccessibleDescription('민서·지훈 결혼식 · 직장용');
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      '다시 시도해 주세요.'
+    );
+    await user.click(screen.getByRole('button', { name: '다시 불러오기' }));
+    const frame = (await screen.findByTitle(
+      '초대장 미리보기'
+    )) as HTMLIFrameElement;
+    const postMessage = jest.spyOn(frame.contentWindow!, 'postMessage');
+    frameMessage(frame.contentWindow!, PREVIEW_MESSAGE.ready);
+    expect(postMessage).toHaveBeenCalledWith(
+      {
+        type: PREVIEW_MESSAGE.snapshot,
+        snapshot: {
+          previewFolderId: workGroup.folderId,
+          payload: workPayload,
+          localAudioSrc: null,
+        },
+      },
+      window.location.origin
+    );
+    const workUrl = '/api/drive/previewInvitation?folderId=work-folder';
+    expect(mockFetch.mock.calls.map(([url]) => url)).toEqual([
+      previewOptionsUrl,
+      previewOptionsUrl,
+      workUrl,
+      workUrl,
+    ]);
+    await user.click(screen.getByRole('button', { name: '미리보기 닫기' }));
+    expect(trigger).toHaveFocus();
+  });
+
   it('키보드로 비공개 초대장을 열어 저장된 데이터를 공용 미리보기로 전달하고 닫으면 포커스를 복원한다', async () => {
     const user = userEvent.setup();
-    mockFetch.mockResolvedValue(previewResponse);
+    mockFetch
+      .mockResolvedValueOnce(baseOnlyResponse)
+      .mockResolvedValueOnce(previewResponse);
     const trigger = await renderDashboard();
 
     trigger.focus();
@@ -209,6 +290,9 @@ describe('대시보드 초대장', () => {
 
     const dialog = screen.getByRole('dialog', { name: '초대장 미리보기' });
     expect(dialog).toHaveTextContent('저장된 초대장의 하객 화면이에요.');
+    expect(dialog).toHaveAccessibleDescription(
+      '민서·지훈 결혼식 · 기본 초대장'
+    );
     expect(mockFetch).toHaveBeenCalledWith(previewUrl, {
       cache: 'no-store',
       signal: expect.any(AbortSignal),
@@ -243,7 +327,7 @@ describe('대시보드 초대장', () => {
 
     await user.click(screen.getByRole('button', { name: '처음부터 보기' }));
     expect(screen.getByTitle('초대장 미리보기')).not.toBe(frame);
-    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(mockFetch).toHaveBeenCalledTimes(2);
     frameMessage(frameWindow, PREVIEW_MESSAGE.rendered);
     expect(screen.getByRole('status')).toBeVisible();
 
@@ -255,6 +339,7 @@ describe('대시보드 초대장', () => {
   it('저장된 데이터를 읽지 못하면 같은 모달에서 다시 불러올 수 있다', async () => {
     const user = userEvent.setup();
     mockFetch
+      .mockResolvedValueOnce(baseOnlyResponse)
       .mockResolvedValueOnce({
         ok: false,
         json: async () => ({
@@ -276,7 +361,7 @@ describe('대시보드 초대장', () => {
     expect(await screen.findByTitle('초대장 미리보기')).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toBe(dialog);
     expect(mockFetch).toHaveBeenLastCalledWith(previewUrl, expect.anything());
-    expect(mockFetch).toHaveBeenCalledTimes(2);
+    expect(mockFetch).toHaveBeenCalledTimes(3);
   });
 
   describe('하객별 링크와 QR 공유', () => {
@@ -367,12 +452,14 @@ describe('대시보드 초대장', () => {
     const user = userEvent.setup();
     let finishPrevious!: () => void;
     mockFetch
+      .mockResolvedValueOnce(baseOnlyResponse)
       .mockImplementationOnce(
         () =>
           new Promise(resolve => {
             finishPrevious = () => resolve(previewResponse);
           })
       )
+      .mockResolvedValueOnce(baseOnlyResponse)
       .mockImplementationOnce(() => new Promise(() => {}));
     const trigger = await renderDashboard();
 
@@ -381,7 +468,7 @@ describe('대시보드 초대장', () => {
       '초대장을 준비하고 있어요.'
     );
     expect(screen.queryByTitle('초대장 미리보기')).not.toBeInTheDocument();
-    const previousSignal = mockFetch.mock.calls[0][1].signal as AbortSignal;
+    const previousSignal = mockFetch.mock.calls[1][1].signal as AbortSignal;
     await user.click(screen.getByRole('button', { name: '미리보기 닫기' }));
     expect(previousSignal.aborted).toBe(true);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();

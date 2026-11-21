@@ -1,5 +1,11 @@
 export type InvitationVisibility = 'private' | 'public';
 
+export type InvitationPreviewTarget = {
+  folderId: string;
+  eventTitle: string;
+  audienceName: string;
+};
+
 export type InvitationReadiness =
   | 'idle'
   | 'pending'

@@ -9,7 +9,7 @@ import { isJsonRecord } from '@/app/api/drive/_lib/cloneInvitationData';
 import { DriveHttpError } from '@/app/api/drive/_lib/ensureWorkspace';
 import {
   createInvitationAudience,
-  getAudienceEditorOptions,
+  getAudienceOptions,
   getInvitationAudiences,
   getInvitationPublicOrigin,
 } from '@/app/api/drive/_lib/invitationAudiences';
@@ -69,9 +69,10 @@ export async function GET(req: Request) {
   if (!isValidId(folderId)) return failure('초대장 정보를 확인해 주세요.', 400);
 
   try {
-    if (params.get('view') === 'editor-options') {
+    const view = params.get('view');
+    if (view === 'editor-options' || view === 'preview-options') {
       return NextResponse.json(
-        { audiences: await getAudienceEditorOptions(folderId) },
+        { audiences: await getAudienceOptions(folderId, view) },
         { headers: HEADERS }
       );
     }
