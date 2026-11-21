@@ -17,9 +17,14 @@ interface Props {
 }
 
 function TypePanel({ typeArray, selectedId }: Props) {
-  const { updateBlock, selectedTemplate } = useEditorStore(
+  const { updateBlock, isCalendar, selectedTemplate } = useEditorStore(
     useShallow(state => {
       const selectedBlock = state.block.find(block => block.id === selectedId);
+      const isCalendar = selectedBlock?.component === 'calendar';
+      const showTemplate =
+        !isCalendar ||
+        ('showCalendar' in selectedBlock.props &&
+          selectedBlock.props.showCalendar);
       const template =
         selectedBlock?.props && 'template' in selectedBlock.props
           ? selectedBlock.props.template
@@ -27,14 +32,18 @@ function TypePanel({ typeArray, selectedId }: Props) {
 
       return {
         updateBlock: state.updateBlock,
-        selectedTemplate: typeof template === 'string' ? template : undefined,
+        isCalendar,
+        selectedTemplate: showTemplate ? template : undefined,
       };
     })
   );
 
   const handleSelectType = (type: string) => {
     if (!selectedId) return;
-    updateBlock(selectedId, { template: type });
+    updateBlock(
+      selectedId,
+      isCalendar ? { template: type, showCalendar: true } : { template: type }
+    );
   };
 
   return (
