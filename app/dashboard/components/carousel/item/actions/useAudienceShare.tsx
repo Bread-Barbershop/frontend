@@ -15,9 +15,13 @@ import {
 } from '@/features/invitation/audiences/model';
 import { useBackdropDismiss } from '@/shared/hooks/useBackdropDismiss';
 
-import type { ShareAudienceLink } from '../../carouselTypes';
+import type {
+  ShareAudienceLink,
+  ShareAudienceWithKakao,
+} from '../../carouselTypes';
 
-type ShareOption = { name: string; url: string };
+type ShareOption = { folderId: string; name: string; url: string };
+type ShareChannel = 'link' | 'kakao';
 const LOAD_ERROR = '공유할 하객 그룹을 불러오지 못했어요.';
 
 async function loadShareOptions(
@@ -40,6 +44,7 @@ async function loadShareOptions(
     throw new Error(LOAD_ERROR);
   }
   return groups.map(group => ({
+    folderId: group.folderId,
     name: group.slug ? group.name : '기본 초대장',
     url: new URL(
       buildAudienceGuestUrl(rootGuestUrl, group.slug),
@@ -48,16 +53,26 @@ async function loadShareOptions(
   }));
 }
 
-export function useAudienceShare(
-  invite: InviteListItem | undefined,
-  guestUrl: string | null,
-  onShare?: ShareAudienceLink
-) {
+export function useAudienceShare({
+  invite,
+  guestUrl,
+  active,
+  onCopyUrl,
+  onKakao,
+  isSharing,
+}: {
+  invite?: InviteListItem;
+  guestUrl: string | null;
+  active: boolean;
+  onCopyUrl?: ShareAudienceLink;
+  onKakao?: ShareAudienceWithKakao;
+  isSharing: boolean;
+}) {
   const [attempt, setAttempt] = useState(0);
   const folderId = invite?.folderId;
   const request = useMemo(
-    () => ({ folderId, guestUrl, attempt }),
-    [folderId, guestUrl, attempt]
+    () => ({ folderId, guestUrl, active, attempt }),
+    [folderId, guestUrl, active, attempt]
   );
   const [result, setResult] = useState<{
     request: typeof request;
@@ -67,10 +82,21 @@ export function useAudienceShare(
   const options = result?.request === request ? result.options : undefined;
   const error = result?.request === request ? result.error : undefined;
   const dialog = useRef<HTMLDialogElement>(null);
+  const [channel, setChannel] = useState<ShareChannel>('link');
+  const pendingKakao = useRef<AbortController | null>(null);
   const trigger = useRef<HTMLButtonElement | null>(null);
   const titleId = useId();
   const eventId = useId();
-  const enabled = Boolean(guestUrl && onShare);
+  const linkEnabled = Boolean(active && guestUrl && onCopyUrl);
+  const canLookUpKakao = Boolean(
+    active &&
+    onKakao &&
+    (guestUrl || invite?.hasKakaoShareData || invite?.dataJsonFileId)
+  );
+  const enabled = linkEnabled || canLookUpKakao;
+  const kakaoEnabled =
+    canLookUpKakao &&
+    Boolean(error || invite?.hasKakaoShareData || (options?.length ?? 0) > 1);
 
   // 선택된 카드에서 목록을 미리 준비해야 복사가 사용자 클릭 안에서 실행된다.
   useEffect(() => {
@@ -88,7 +114,11 @@ export function useAudienceShare(
           });
       }
     );
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+      pendingKakao.current?.abort();
+      pendingKakao.current = null;
+    };
   }, [enabled, request]);
 
   function closePicker() {
@@ -101,10 +131,26 @@ export function useAudienceShare(
   );
   const loading = enabled && !error && !options;
 
-  return {
-    buttonProps: {
-      disabled: !enabled || loading,
-      'aria-busy': loading,
+  function share(option: ShareOption, via: ShareChannel) {
+    if (!invite) return;
+    if (via === 'link') {
+      onCopyUrl?.(invite.folderId, option.url, option.name);
+      return;
+    }
+    if (!onKakao || pendingKakao.current) return;
+    const controller = new AbortController();
+    pendingKakao.current = controller;
+    void onKakao(invite.folderId, option.folderId, controller.signal).finally(
+      () => {
+        if (pendingKakao.current === controller) pendingKakao.current = null;
+      }
+    );
+  }
+
+  function buttonProps(via: ShareChannel, available: boolean) {
+    return {
+      disabled: !available || loading || isSharing,
+      'aria-busy': loading || (via === 'kakao' && isSharing),
       'aria-haspopup':
         options && options.length > 1 ? ('dialog' as const) : undefined,
       title: error,
@@ -117,17 +163,29 @@ export function useAudienceShare(
         trigger.current = event.currentTarget;
         trigger.current.focus();
         if (options.length === 1) {
-          onShare?.(invite.folderId, options[0].url, options[0].name);
+          share(options[0], via);
         } else {
+          setChannel(via);
           dialog.current?.showModal();
         }
       },
-    },
-    label: error
-      ? '공유 다시 준비하기'
-      : loading
-        ? '공유 준비 중…'
-        : 'URL 링크 공유하기',
+    };
+  }
+  return {
+    linkButtonProps: buttonProps('link', linkEnabled),
+    kakaoButtonProps: buttonProps('kakao', kakaoEnabled),
+    kakaoLabel:
+      error && canLookUpKakao
+        ? '카카오톡 공유 다시 준비하기'
+        : isSharing
+          ? '카카오톡 여는 중…'
+          : '카카오톡 공유하기',
+    linkLabel:
+      error && linkEnabled
+        ? '공유 다시 준비하기'
+        : loading
+          ? '공유 준비 중…'
+          : 'URL 링크 공유하기',
     picker: invite && options && options.length > 1 && (
       <dialog
         ref={dialog}
@@ -158,10 +216,15 @@ export function useAudienceShare(
             <li key={option.url}>
               <button
                 type="button"
-                className="flex min-h-12 w-full items-center justify-between gap-3 rounded-lg border border-neutral-200 px-4 py-3 text-left text-sm font-semibold hover:bg-neutral-50 focus-visible:outline-2"
+                disabled={
+                  channel === 'kakao' &&
+                  option.folderId === folderId &&
+                  !invite.hasKakaoShareData
+                }
+                className="flex min-h-12 w-full items-center justify-between gap-3 rounded-lg border border-neutral-200 px-4 py-3 text-left text-sm font-semibold hover:bg-neutral-50 focus-visible:outline-2 disabled:opacity-50"
                 onClick={() => {
                   closePicker();
-                  onShare?.(invite.folderId, option.url, option.name);
+                  share(option, channel);
                 }}
               >
                 <span className="min-w-0 break-words">{option.name}</span>

@@ -63,7 +63,7 @@ function shareInvitationWithKakao(shareData: KakaoShareData) {
     throw new Error('NEXT_PUBLIC_KAKAO_JS_KEY가 설정되지 않았습니다.');
   }
 
-  const safeLinkUrl = shareData.invitationUrl || window.location.href;
+  const safeLinkUrl = shareData.invitationUrl;
   if (!safeLinkUrl) {
     throw new Error('공유할 초대장 링크가 없습니다.');
   }
@@ -817,28 +817,35 @@ function useDashboardInvitations(
     [invitationResults, invites, successToast, errorToast, infoToast]
   );
 
-  const loadShareData = useCallback(async (folderId: string) => {
-    const res = await fetch(
-      `/api/drive/shareUrl?invitationFolderId=${encodeURIComponent(folderId)}`,
-      {
-        method: 'GET',
-        cache: 'no-store',
+  const loadShareData = useCallback(
+    async (folderId: string, signal?: AbortSignal) => {
+      const res = await fetch(
+        `/api/drive/shareUrl?invitationFolderId=${encodeURIComponent(folderId)}`,
+        {
+          method: 'GET',
+          cache: 'no-store',
+          signal,
+        }
+      );
+
+      const payload = (await res
+        .json()
+        .catch(() => null)) as ShareUrlResponse | null;
+
+      if (!res.ok || payload?.ok === false || !payload?.data) {
+        if (payload?.error === 'share data not found in meta.json') {
+          throw new Error('이 초대장에 저장된 카카오톡 공유 정보가 없어요.');
+        }
+        throw new Error(payload?.error ?? '공유 데이터를 불러오지 못했습니다.');
       }
-    );
 
-    const payload = (await res
-      .json()
-      .catch(() => null)) as ShareUrlResponse | null;
-
-    if (!res.ok || payload?.ok === false || !payload?.data) {
-      throw new Error(payload?.error ?? '공유 데이터를 불러오지 못했습니다.');
-    }
-
-    return payload.data;
-  }, []);
+      return payload.data;
+    },
+    []
+  );
 
   const handleShare = useCallback(
-    async (folderId: string) => {
+    async (folderId: string, audienceFolderId: string, signal: AbortSignal) => {
       if (!folderId) return;
       if (shareBusy[folderId]) return;
 
@@ -849,9 +856,10 @@ function useDashboardInvitations(
 
       setShareBusy(prev => ({ ...prev, [folderId]: true }));
       try {
-        const shareData = await loadShareData(folderId);
-        shareInvitationWithKakao(shareData);
+        const shareData = await loadShareData(audienceFolderId, signal);
+        if (!signal.aborted) shareInvitationWithKakao(shareData);
       } catch (err) {
+        if (signal.aborted) return;
         console.error(err);
         errorToast(
           err instanceof Error
@@ -862,7 +870,7 @@ function useDashboardInvitations(
         setShareBusy(prev => ({ ...prev, [folderId]: false }));
       }
     },
-    [invites, loadShareData, shareBusy, errorToast, infoToast]
+    [invites, loadShareData, shareBusy, setShareBusy, errorToast, infoToast]
   );
 
   const getGuestUrl = useCallback(
