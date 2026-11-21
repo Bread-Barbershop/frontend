@@ -152,6 +152,11 @@ function CarouselItem({
       style={{
         width: cardWidth,
         height: dashboardCarouselLayout.cardHeight,
+        // Match Embla's centered first snap before its measurements are available.
+        marginInlineStart:
+          showPreviewLabel && index === 0
+            ? `calc(50% - ${cardWidth} / 2)`
+            : undefined,
       }}
     >
       <div
@@ -271,7 +276,10 @@ function CarouselItem({
             }}
           >
             {collectionTemplate ? (
-              <InvitationTemplatePoster template={collectionTemplate} />
+              <InvitationTemplatePoster
+                template={collectionTemplate}
+                sizes={cardWidth}
+              />
             ) : (
               <Image
                 src={displayImage}
