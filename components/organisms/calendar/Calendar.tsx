@@ -1,7 +1,7 @@
 'use client';
 
 import { JSONContent } from '@tiptap/core';
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useId, useRef } from 'react';
 
 import { UtilityButton } from '@/components/atoms/button';
 import { Divider } from '@/components/atoms/divider';
@@ -33,11 +33,15 @@ interface Props {
 
 export function Calendar({ blockInfo, id }: Props) {
   const updateBlock = useEditorStore(state => state.updateBlock);
-  const { warning } = useToast();
+  const { warning, hideToast } = useToast();
+  const dateWarningId = useId();
   const textEditorRef = useRef<TextEditorRef>(null);
   const commitDate = useCallback(
-    (date: string) => updateBlock(id, { date }),
-    [id, updateBlock]
+    (date: string) => {
+      hideToast(dateWarningId);
+      updateBlock(id, { date });
+    },
+    [dateWarningId, hideToast, id, updateBlock]
   );
   const {
     draft: dateDraft,
@@ -48,7 +52,7 @@ export function Calendar({ blockInfo, id }: Props) {
     separator: '-',
     allowPast: false,
     onCommit: commitDate,
-    warning,
+    warning: message => warning(message, { id: dateWarningId }),
   });
 
   const handleInsertDday = useCallback(() => {
@@ -150,7 +154,6 @@ export function Calendar({ blockInfo, id }: Props) {
             onBlur: handleDateBlur,
             inputMode: 'numeric',
             autoComplete: 'off',
-            maxLength: 10,
           }}
         />
         <section className="flex flex-row gap-2 items-center w-full py-1.5">
