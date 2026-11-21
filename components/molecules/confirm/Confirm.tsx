@@ -18,6 +18,7 @@ type ConfirmProps = {
   message: string;
   description?: string;
   confirmText: string;
+  confirmDisabled?: boolean;
   cancelText: string;
   onConfirm: () => void;
   onCancel: () => void;
@@ -38,6 +39,7 @@ const Confirm = forwardRef<HTMLDivElement, ConfirmProps>(
       message,
       description,
       confirmText = '예',
+      confirmDisabled = false,
       cancelText = '아니오',
       onConfirm,
       onCancel,
@@ -138,7 +140,8 @@ const Confirm = forwardRef<HTMLDivElement, ConfirmProps>(
             {description && (
               <p
                 id={descriptionId}
-                className="mt-2 text-center text-sm text-text-primary font-pretendard"
+                aria-live="polite"
+                className="mx-auto mt-2 max-h-[40dvh] max-w-md overflow-y-auto break-words text-center text-sm text-text-primary font-pretendard"
               >
                 {description}
               </p>
@@ -157,6 +160,7 @@ const Confirm = forwardRef<HTMLDivElement, ConfirmProps>(
             <button
               ref={confirmButtonRef}
               type="button"
+              disabled={confirmDisabled}
               aria-disabled={isBusy || undefined}
               className={cn(
                 buttonClassName,

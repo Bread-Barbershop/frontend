@@ -3,6 +3,7 @@ import { act, renderHook } from '@testing-library/react';
 import { DEFAULT_SCROLL_ANIMATION } from '@/components/molecules/scroll-fade-in/animationConfig';
 import { useBgmStore } from '@/components/organisms/bgm/store/useBgmStore';
 import { createInvitationTemplate } from '@/shared/data/invitationTemplates';
+import { CUSTOM_FONTS } from '@/shared/fonts/fonts';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import { preloadFonts } from '@/widgets/mainPoster/hooks/useTemplate';
 
@@ -213,41 +214,64 @@ describe('useInvitationTemplate', () => {
     expect(mockConfirm.mock.calls[0][0].message).toContain('현재 표지만 교체');
   });
 
-  it('표지의 기본·부분 글꼴이 준비되면 본문 글꼴이 로딩 중이어도 적용한다', async () => {
-    const pendingBodyFont = new Promise<FontFace[]>(() => {});
-    const load = jest.fn((font: string) =>
-      font.includes('SUIT') ? pendingBodyFont : Promise.resolve([])
-    );
-    const originalFonts = Object.getOwnPropertyDescriptor(document, 'fonts');
-    Object.defineProperty(document, 'fonts', {
-      configurable: true,
-      value: { load, ready: pendingBodyFont },
-    });
-    const realFonts = jest.requireActual<{ preloadFonts: typeof preloadFonts }>(
-      '@/widgets/mainPoster/hooks/useTemplate'
-    );
-    mockPreloadFonts.mockImplementationOnce(realFonts.preloadFonts);
-    jest.useFakeTimers();
-    try {
-      const { result } = renderHook(() => useInvitationTemplate());
-      await act(async () => {
-        const applied = result.current.applyTemplate('test-template', {
-          posterOnly: true,
-        });
-        await jest.advanceTimersByTimeAsync(6000);
-        expect(await applied).toBe(true);
+  it.each([
+    { mode: '표지 교체', posterOnly: true },
+    { mode: '전체 템플릿 교체', posterOnly: false },
+  ])(
+    '$mode 시 필요한 글꼴이 준비되면 다른 글꼴이 로딩 중이어도 적용한다',
+    async ({ posterOnly }) => {
+      jest.useFakeTimers();
+      const bodyFontReady = new Promise<FontFace[]>(resolve =>
+        setTimeout(() => resolve([]), 1000)
+      );
+      const load = jest.fn((font: string) =>
+        font.includes('SUIT') ? bodyFontReady : Promise.resolve([])
+      );
+      const originalFonts = Object.getOwnPropertyDescriptor(document, 'fonts');
+      Object.defineProperty(document, 'fonts', {
+        configurable: true,
+        value: Object.assign(new Set(CUSTOM_FONTS), {
+          load,
+          ready: new Promise(() => {}),
+        }),
       });
-      expect(load.mock.calls.flat()).toEqual([
-        'normal 400 10px "Georgia"',
-        'normal 400 10px "Arial"',
-      ]);
-      expect(mockCanvas.loadFromJSON).toHaveBeenCalledTimes(1);
-    } finally {
-      jest.useRealTimers();
-      if (originalFonts) Object.defineProperty(document, 'fonts', originalFonts);
-      else Reflect.deleteProperty(document, 'fonts');
+      const realFonts = jest.requireActual<{
+        preloadFonts: typeof preloadFonts;
+      }>('@/widgets/mainPoster/hooks/useTemplate');
+      mockPreloadFonts.mockImplementationOnce(realFonts.preloadFonts);
+      try {
+        const { result } = renderHook(() => useInvitationTemplate());
+        await act(async () => {
+          const applied = result.current.applyTemplate('test-template', {
+            posterOnly,
+          });
+          await jest.advanceTimersByTimeAsync(0);
+          expect(mockCanvas.loadFromJSON).toHaveBeenCalledTimes(
+            posterOnly ? 1 : 0
+          );
+          await jest.advanceTimersByTimeAsync(1000);
+          expect(mockCanvas.loadFromJSON).toHaveBeenCalledTimes(1);
+          expect(await applied).toBe(true);
+        });
+        const expectedFonts = [
+          'normal 400 10px "Georgia"',
+          'normal 400 10px "Arial"',
+        ];
+        if (!posterOnly)
+          expectedFonts.push(
+            'normal 500 10px "Hahmlet"',
+            'normal 400 10px "SUIT"'
+          );
+        expect(new Set(load.mock.calls.flat())).toEqual(new Set(expectedFonts));
+        expect(mockError).not.toHaveBeenCalled();
+      } finally {
+        jest.useRealTimers();
+        if (originalFonts)
+          Object.defineProperty(document, 'fonts', originalFonts);
+        else Reflect.deleteProperty(document, 'fonts');
+      }
     }
-  });
+  );
 
   it('확인 창이 열린 동안 중복 적용 요청을 막는다', async () => {
     mockConfirm.mockImplementation(
@@ -280,15 +304,6 @@ describe('useInvitationTemplate', () => {
     });
 
     const state = useEditorStore.getState();
-    expect(mockPreloadFonts).toHaveBeenCalledWith(
-      {
-        objects: expect.arrayContaining([
-          expect.objectContaining({ fontFamily: 'Hahmlet', fontWeight: '500' }),
-          expect.objectContaining({ fontFamily: 'SUIT', fontWeight: '400' }),
-        ]),
-      },
-      { waitForDocumentFonts: true }
-    );
     expect(setStateSpy).toHaveBeenCalledTimes(1);
     expect(state.block[0].id).toBe('new-page');
     expect(state.backgroundColor).toBe('#FAF8F2');

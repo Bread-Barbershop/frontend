@@ -22,7 +22,6 @@ const refreshMock = jest.fn();
 const successToastMock = jest.fn();
 const errorToastMock = jest.fn();
 const infoToastMock = jest.fn();
-const confirmMock = jest.fn();
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
@@ -37,12 +36,6 @@ jest.mock('@/shared/hooks/useToast', () => ({
     success: successToastMock,
     error: errorToastMock,
     info: infoToastMock,
-  }),
-}));
-
-jest.mock('@/shared/hooks/useConfirm', () => ({
-  useConfirm: () => ({
-    confirm: confirmMock,
   }),
 }));
 

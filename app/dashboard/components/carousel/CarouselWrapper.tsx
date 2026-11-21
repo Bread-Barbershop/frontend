@@ -16,6 +16,7 @@ import { dashboardCarouselLayout } from './carouselLayout';
 import { CarouselCardItem } from './carouselTypes';
 import CopyInvitationDialog from './CopyInvitationDialog';
 import DashboardCarouselSkeleton from './DashboardCarouselSkeleton';
+import DeleteInvitationDialog from './DeleteInvitationDialog';
 import EmptyInvitationCard from './EmptyInvitationCard';
 
 type CarouselWrapperProps = {
@@ -153,6 +154,11 @@ function CarouselWrapper({
   const [visibilityTarget, setVisibilityTarget] =
     useState<InviteListItem | null>(null);
   const closeVisibility = useCallback(() => setVisibilityTarget(null), []);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const deleteTarget =
+    deleteTargetId &&
+    invites.find(invite => invite.folderId === deleteTargetId);
+  const closeDeleteDialog = useCallback(() => setDeleteTargetId(null), []);
   const [focusCardId, setFocusCardId] = useState<string | null>(null);
   const closeCloneDialog = useCallback(() => {
     setCloneTarget(null);
@@ -280,6 +286,17 @@ function CarouselWrapper({
           }}
         />
       )}
+      {deleteTarget && (
+        <DeleteInvitationDialog
+          key={deleteTarget.folderId}
+          invite={deleteTarget}
+          onClose={closeDeleteDialog}
+          onConfirm={() => {
+            closeDeleteDialog();
+            void handleDelete(deleteTarget.folderId);
+          }}
+        />
+      )}
       {cloneTarget && (
         <CopyInvitationDialog
           key={cloneTarget.folderId}
@@ -302,7 +319,7 @@ function CarouselWrapper({
         showCenterActions
         focusCardId={focusCardId}
         onClone={setCloneTarget}
-        onDelete={handleDelete}
+        onDelete={setDeleteTargetId}
         onPreview={preview.openPreview}
         onUpdate={handleUpdate}
         onToggleVisibility={(folderId, nextVisible) => {
