@@ -2,6 +2,7 @@ import type {
   InvitationPreviewTarget,
   InviteListItem,
 } from '@/app/dashboard/types';
+import { cn } from '@/shared/utils/cn';
 
 import {
   dashboardCarouselLayout,
@@ -13,6 +14,17 @@ import {
   type ShareAudienceWithKakao,
 } from './carouselTypes';
 import CarouselItem from './item/CarouselItem';
+
+import type { SyntheticEvent } from 'react';
+
+const SHOWCASE_FADE = 'motion-safe:animate-[fade-in_360ms_ease-out]';
+
+function fadeLoadedCover(event: SyntheticEvent<HTMLDivElement>) {
+  // Images still loading after the track appears fade as they arrive.
+  if (event.target instanceof HTMLImageElement) {
+    event.target.classList.add(SHOWCASE_FADE);
+  }
+}
 
 type CarouselTrackProps = {
   emblaRef: (instance: HTMLDivElement | null) => void;
@@ -71,9 +83,12 @@ function CarouselTrack({
   return (
     <div
       ref={emblaRef}
-      className={`h-full w-full overflow-hidden ${
-        isReady ? 'opacity-100' : 'opacity-0'
-      }`}
+      className={cn(
+        'h-full w-full overflow-hidden',
+        showPreviewLabel && SHOWCASE_FADE,
+        !showPreviewLabel && !isReady && 'opacity-0'
+      )}
+      onLoadCapture={showPreviewLabel ? fadeLoadedCover : undefined}
       style={{
         ...dashboardCarouselVars,
         paddingTop: 'var(--carousel-safe-top)',

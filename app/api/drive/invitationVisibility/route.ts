@@ -3,6 +3,10 @@ import 'server-only';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 
+import {
+  applyAudienceVisibility,
+  withVisibilityLock,
+} from '@/app/api/drive/_lib/audienceVisibility';
 import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
 import { ensureDataJsonFile } from '@/app/api/drive/_lib/ensureDataJsonFile';
 import {
@@ -18,13 +22,17 @@ import {
   getInvitationPublicOrigin,
   getOwnedAudienceLink,
 } from '@/app/api/drive/_lib/invitationAudiences';
-import { PreviewAccessError } from '@/app/api/drive/_lib/previewAccess';
+import {
+  getDriveFile,
+  PreviewAccessError,
+} from '@/app/api/drive/_lib/previewAccess';
 import { publishPermissionWithRetry } from '@/app/api/drive/_lib/publishPermissionWithRetry';
 import { revokePublicPermissionWithRetry } from '@/app/api/drive/_lib/revokePublicPermissionWithRetry';
 
 type Body = {
   invitationFolderId?: string;
   visible?: boolean;
+  preserveAudienceScope?: boolean;
 };
 
 const VERIFY_MAX_ATTEMPTS = 3;
@@ -51,7 +59,8 @@ async function resolveVisibilityGuestUrl(
 }
 
 export async function POST(req: Request) {
-  const { invitationFolderId, visible } = (await req.json()) as Body;
+  const { invitationFolderId, visible, preserveAudienceScope } =
+    (await req.json()) as Body;
 
   if (!invitationFolderId) {
     return NextResponse.json(
@@ -108,6 +117,50 @@ export async function POST(req: Request) {
     );
   }
 
+  try {
+    return await withVisibilityLock(invitationFolderId, async () => {
+      const folder = await getDriveFile(invitationFolderId);
+      if (folder?.appProperties?.audience_visibility) {
+        const result = await applyAudienceVisibility(
+          invitationFolderId,
+          visible,
+          undefined,
+          preserveAudienceScope === true
+        );
+        const baseVisible =
+          result.visibility.published &&
+          !result.visibility.pending &&
+          result.visibility.publicSlugs.includes('');
+        revalidateGuestCaches(result.dataJsonFileId);
+        return NextResponse.json({
+          ok: true,
+          published: preserveAudienceScope
+            ? baseVisible
+            : result.visibility.published,
+          ready:
+            baseVisible &&
+            (
+              await waitUntilGuestReady(result.dataJsonFileId, {
+                maxAttempts: VERIFY_MAX_ATTEMPTS,
+                delayMs: VERIFY_DELAY_MS,
+              })
+            ).ok,
+          guestUrl: result.guestUrl,
+          dataJsonFileId: result.dataJsonFileId,
+        });
+      }
+      return setRootVisibility(invitationFolderId, visible);
+    });
+  } catch (error) {
+    captureDriveError({ error, operation: 'drive_visibility_update' });
+    return NextResponse.json(
+      { ok: false, error: '초대장의 공개 상태를 변경하지 못했어요.' },
+      { status: error instanceof DriveHttpError ? error.status : 502 }
+    );
+  }
+}
+
+async function setRootVisibility(invitationFolderId: string, visible: boolean) {
   const { dataJsonFileId } = await ensureDataJsonFile(invitationFolderId);
   const guestUrl = await resolveVisibilityGuestUrl(
     invitationFolderId,

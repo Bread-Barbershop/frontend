@@ -5,10 +5,12 @@ export type ToastAnimation = 'slide' | 'fade';
 
 export interface ToastOptions {
   animation?: ToastAnimation;
+  id?: string;
 }
 
 const defaultToastOptions: Required<ToastOptions> = {
   animation: 'slide',
+  id: '',
 };
 
 interface ToastState {
@@ -21,15 +23,18 @@ interface ToastState {
     variant?: ToastVariant,
     options?: ToastOptions
   ) => void;
-  hideToast: () => void;
+  hideToast: (id?: string) => void;
 }
 
-export const useToastStore = create<ToastState>(set => ({
+let toastTimer: ReturnType<typeof setTimeout>;
+
+export const useToastStore = create<ToastState>((set, get) => ({
   message: null,
   variant: 'success',
   isVisible: false,
   options: defaultToastOptions,
   showToast: (message, variant = 'success', options = {}) => {
+    clearTimeout(toastTimer);
     set({
       message,
       variant,
@@ -38,9 +43,14 @@ export const useToastStore = create<ToastState>(set => ({
     });
 
     // 3초 후 자동으로 숨김
-    setTimeout(() => {
+    toastTimer = setTimeout(() => {
       set({ isVisible: false });
+      toastTimer = setTimeout(() => set({ message: null }), 300);
     }, 3000);
   },
-  hideToast: () => set({ isVisible: false }),
+  hideToast: id => {
+    if (id !== undefined && id !== get().options.id) return;
+    clearTimeout(toastTimer);
+    set({ isVisible: false, message: null });
+  },
 }));

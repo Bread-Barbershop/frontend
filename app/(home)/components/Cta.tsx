@@ -6,7 +6,6 @@ import DrivePermissionRequiredModal from '@/features/session/components/DrivePer
 import LoginModal from '@/features/session/components/LoginModal';
 import PrivacyNoticeModal from '@/features/session/components/PrivacyNoticeModal';
 import { useAuthGate } from '@/features/session/hooks/useAuthGate';
-import { useViewportScale } from '@/shared/hooks/useViewportScale';
 
 type CtaProps = {
   initialIsLoggedIn: boolean;
@@ -14,7 +13,6 @@ type CtaProps = {
 
 function Cta({ initialIsLoggedIn }: CtaProps) {
   const router = useRouter();
-  const ctaScale = useViewportScale();
   const {
     isBusy,
     isLoginOpen,
@@ -38,13 +36,11 @@ function Cta({ initialIsLoggedIn }: CtaProps) {
 
   return (
     <>
-      <section
-        className="flex origin-top-left flex-col gap-10 border-none"
-        style={{ transform: `scale(${ctaScale})` }}
-      >
+      {/* At the 1920px design width, 1em is 16px. CSS sizes the first paint too. */}
+      <section className="flex flex-col gap-[2.5em] text-[length:min(1rem,calc(100vw/120))]">
         <div
           className="
-          inline-flex w-fit flex-col gap-2 rounded-4xl p-8
+          inline-flex w-fit flex-col gap-[0.5em] rounded-[2em] p-[2em]
           bg-white/6 backdrop-blur-xs
           border-x border-white/30
           shadow-2xl
@@ -54,16 +50,16 @@ function Cta({ initialIsLoggedIn }: CtaProps) {
             boxShadow: 'inset 8px 8px 16px rgba(0, 0, 0, 0.06)',
           }}
         >
-          <p className="text-2xl font-medium text-text-plain select-none">
+          <p className="text-[1.5em] leading-[1.333333] font-medium text-text-plain select-none">
             Signature Invitation
           </p>
 
-          <h1 className="text-[64px] font-black leading-tight text-text-plain select-none whitespace-nowrap">
+          <h1 className="text-[4em] font-black leading-tight text-text-plain select-none whitespace-nowrap">
             우리의 이야기
             <br />첫 시작은 초대장으로.
           </h1>
 
-          <p className="text-2xl font-medium text-text-plain select-none whitespace-nowrap">
+          <p className="text-[1.5em] leading-[1.333333] font-medium text-text-plain select-none whitespace-nowrap">
             폰트·컬러·레이아웃까지, 우리만의 시그니처로 마무리해요.
           </p>
         </div>
@@ -73,12 +69,14 @@ function Cta({ initialIsLoggedIn }: CtaProps) {
           onClick={handleStart}
           disabled={isBusy}
           className="
-          flex h-13.25 w-53.5 items-center justify-center rounded-full
-          bg-bg-plain text-2xl font-medium text-white
-          transition-all hover:bg-[#202020] active:scale-95 active:bg-[#0D0D0D] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed
+          flex h-[3.3125em] w-[13.375em] items-center justify-center rounded-full
+          bg-bg-plain font-medium text-white
+          transition-[background-color,scale] hover:bg-[#202020] active:scale-95 active:bg-[#0D0D0D] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed
         "
         >
-          무료로 제작하기
+          <span className="text-[1.5em] leading-[1.333333]">
+            무료로 제작하기
+          </span>
         </button>
       </section>
       <LoginModal

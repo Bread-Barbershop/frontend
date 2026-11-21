@@ -17,6 +17,7 @@ export async function uploadAllSettled(params: {
   folderId: string;
   accessToken: string;
   concurrency?: number;
+  onFileUploaded?: () => void;
 }): Promise<{ ok: UploadOk[]; fail: UploadFail[] }> {
   const { originFile, folderId, accessToken, concurrency = originFile.length } = params;
   const workerCount = Math.min(originFile.length, Math.max(1, concurrency || 1));
@@ -31,7 +32,9 @@ export async function uploadAllSettled(params: {
         results[index] = { id, file, ...result };
       } catch (error) {
         results[index] = { file: item, error };
+        continue;
       }
+      params.onFileUploaded?.();
     }
   }
 

@@ -155,7 +155,9 @@ describe('saveInvitationFlow', () => {
   });
 
   it('shareUrl API가 돌려준 짧은 URL을 최종 guestUrl로 사용한다', async () => {
+    const onProgress = jest.fn();
     const result = await saveInvitationFlow({
+      onProgress,
       bulkData,
       images: [],
       audio: null,
@@ -178,6 +180,7 @@ describe('saveInvitationFlow', () => {
 
     expect(result.success).toBe(true);
     expect(result.guestUrl).toBe('http://localhost/i/aB7kQ2x');
+    expect(onProgress.mock.calls.map(([step]) => step)).not.toContain('loadingPhotos');
     expect(mockFetch).toHaveBeenCalledWith(
       '/api/drive/shareUrl',
       expect.objectContaining({
@@ -306,6 +309,7 @@ describe('saveInvitationFlow', () => {
     jest.useFakeTimers();
     const uploads = jest.mocked(uploadFileToDrive);
     const files = Array.from({ length: 10 }, (_, i) => new File([], `photo-${i + 1}.jpg`));
+    const completedCounts: number[] = [];
     let active = 0;
     let peak = 0;
     uploads.mockImplementation(async file => {
@@ -319,6 +323,9 @@ describe('saveInvitationFlow', () => {
 
     try {
       const saving = saveInvitationFlow({
+        onProgress: (_, photos) => {
+          if (photos) completedCounts.push(photos.completed);
+        },
         bulkData,
         shareUrl,
         bgmData,
@@ -351,6 +358,7 @@ describe('saveInvitationFlow', () => {
       await jest.advanceTimersByTimeAsync(4000);
       expect((await saving).success).toBe(true);
       expect(peak).toBe(5);
+      expect(completedCounts).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     } finally {
       jest.useRealTimers();
     }
@@ -365,6 +373,98 @@ describe('saveInvitationFlow', () => {
     const payload = JSON.parse(await savedText);
     expect(payload.blocks[0].props.images).toEqual(files.map(file => `drive-${file.name}`));
   });
+
+  it.each([
+    { folder: 'image-folder-id', expectedRetry: [1, 2], secondId: 'drive-1' },
+    {
+      folder: 'new-image-folder',
+      expectedRetry: [0, 1, 2],
+      secondId: 'drive-3',
+    },
+  ])(
+    '폴더 복구 후 $folder 안에 저장된 사진만 재사용한다',
+    async ({ folder, expectedRetry, secondId }) => {
+      const first = new File([], 'first.jpg');
+      const second = new File([], 'second.jpg');
+      const normalFetch = mockFetch.getMockImplementation()!;
+      mockFetch.mockImplementation(async (input, init) => {
+        const response = await normalFetch(input, init);
+        if (
+          input === '/api/drive/saveInvitation' &&
+          JSON.parse(init.body).invitationUuid
+        ) {
+          return jsonResponse({
+            ...(await response.json()),
+            imageFolderId: folder,
+          });
+        }
+        return response;
+      });
+      let created = 0;
+      const upload = jest
+        .mocked(uploadFileToDrive)
+        .mockRejectedValueOnce(new Error('Drive upload failed: 403'))
+        .mockImplementation(async file => ({
+          name: file.name,
+          fileId: `drive-${++created}`,
+        }));
+      const firstAttempt: number[] = [];
+      const retryAttempt: number[] = [];
+      const result = await saveInvitationFlow({
+        bulkData,
+        shareUrl,
+        bgmData,
+        audio: null,
+        data: [],
+        images: [first, second].map(file => ({ id: 'gallery', file })),
+        mainPoster: { version: '7.1.0', objects: [] },
+        invitationThumbnail: {
+          name: '',
+          mimeType: 'image/png',
+          dataUrl: '',
+          width: 0,
+          height: 0,
+          createdAt: '',
+        },
+        onProgress: (_, photos) => {
+          if (!photos) return;
+          expect(photos.total).toBe(2);
+          const counts = photos.retrying ? retryAttempt : firstAttempt;
+          counts.push(photos.completed);
+        },
+      });
+      expect(result.success).toBe(true);
+      const sameFolder = folder === 'image-folder-id';
+      expect(created).toBe(sameFolder ? 2 : 3);
+      expect(
+        upload.mock.calls.slice(2).map(([file, id]) => [file.name, id])
+      ).toEqual(
+        sameFolder
+          ? [[first.name, folder]]
+          : [
+              [first.name, folder],
+              [second.name, folder],
+            ]
+      );
+      expect(
+        result.results.images.ok.map(image => image.fileId).sort()
+      ).toEqual(['drive-2', secondId].sort());
+      expect(updateFileToDrive).toHaveBeenCalledTimes(1);
+      const [jsonFile] = jest.mocked(updateFileToDrive).mock.calls[0];
+      const saved = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(reader.error);
+        reader.readAsText(jsonFile);
+      });
+      expect(JSON.parse(saved).invitationImage).toEqual([
+        { id: 'gallery', file: 'drive-2' },
+        { id: 'gallery', file: secondId },
+      ]);
+      expect(firstAttempt).toEqual([0, 1]);
+      expect(retryAttempt).toEqual(expectedRetry);
+    }
+  );
 
   it('후원사 로고를 Drive ID로 저장하고 이름만 있는 후원사와 구분해 다시 읽는다', async () => {
     const logo = new File(['logo'], 'logo.png', { type: 'image/png' });

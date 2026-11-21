@@ -7,7 +7,7 @@ import { MealMenuPreview } from '@/components/organisms/mealMenu/MealMenuPreview
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 import type { EditorBlock } from '@/shared/types/block';
 
-import ComponentsPopup from './ComponentsPopup';
+import AddPageButton from './AddPageButton';
 
 jest.mock('next/navigation', () => ({ usePathname: () => '/i/example' }));
 jest.mock('@/widgets/editor/preview/hooks/useInvitationTemplate', () => ({
@@ -49,8 +49,9 @@ describe('식사 메뉴 블록', () => {
   });
 
   it('기타의 식사 메뉴를 누르면 디자인 여덟 가지를 보고 원하는 디자인의 블록을 추가할 수 있다', () => {
-    const onClose = jest.fn();
-    render(<ComponentsPopup onPopClose={onClose} />);
+    render(<AddPageButton />);
+    const addPage = screen.getByRole('button', { name: '+페이지 추가' });
+    fireEvent.click(addPage);
     fireEvent.change(screen.getByPlaceholderText('블록 검색'), {
       target: { value: '셰프' },
     });
@@ -82,7 +83,7 @@ describe('식사 메뉴 블록', () => {
       component: 'mealMenu',
       props: { menuStyle: 'artDeco' },
     });
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(addPage).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('요리와 코스를 옮긴 뒤 디자인을 바꿔도 서빙 순서가 저장되어 공유 화면에 표시된다', async () => {

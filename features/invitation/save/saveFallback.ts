@@ -24,23 +24,9 @@ function getErrorStatus(err: unknown): number | null {
   return null;
 }
 
-function hasStatus(failures: UploadFail[], statuses: number[]) {
+export function shouldPrepareFallback(failures: UploadFail[]) {
   return failures.some(failure => {
     const status = getErrorStatus(failure.error);
-    return status !== null && statuses.includes(status);
+    return status === 403 || status === 404;
   });
-}
-
-export function shouldPrepareFallback(params: {
-  imageFailures: UploadFail[];
-  audioFailures: UploadFail[];
-  dataFailures: UploadFail[];
-}) {
-  const fallbackStatuses = [403, 404];
-
-  return (
-    hasStatus(params.imageFailures, fallbackStatuses) ||
-    hasStatus(params.audioFailures, fallbackStatuses) ||
-    hasStatus(params.dataFailures, fallbackStatuses)
-  );
 }

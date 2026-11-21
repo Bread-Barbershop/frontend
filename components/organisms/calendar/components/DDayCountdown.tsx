@@ -6,6 +6,8 @@ import { parseStrictDate } from '@/shared/utils/dateValidation';
 interface Props {
   date: string;
   messageHtml: string;
+  showCountdown: boolean;
+  isDefaultMessage: boolean;
   time?: string;
 }
 
@@ -42,27 +44,43 @@ function getTargetDate(date: string, time?: string) {
   return target;
 }
 
-export function DDayCountdown({ date, time, messageHtml }: Props) {
+export function DDayCountdown({
+  date,
+  time,
+  messageHtml,
+  showCountdown,
+  isDefaultMessage,
+}: Props) {
   const targetDate = useMemo(() => getTargetDate(date, time), [date, time]);
   const targetTime = targetDate?.getTime();
   const [clock, setClock] = useState<{ now: number; target: number }>();
+  const needsClock = showCountdown || messageHtml.includes('(D-Day)');
 
   useEffect(() => {
-    if (targetTime === undefined) return;
+    if (!needsClock || targetTime === undefined) return;
 
     let timer: ReturnType<typeof setTimeout>;
     const tick = () => {
       const now = Date.now();
       setClock({ now, target: targetTime });
       const remaining = targetTime - now;
-      if (remaining > 0)
-        timer = setTimeout(tick, Math.min(MS_PER_SECOND, remaining));
+      if (remaining > 0) {
+        const nextUpdate = showCountdown
+          ? MS_PER_SECOND
+          : new Date(now).setHours(24, 0, 0, 0) - now;
+        timer = setTimeout(tick, Math.min(nextUpdate, remaining));
+      }
     };
 
     // Read the client clock after hydration so the initial markup stays stable.
     timer = setTimeout(tick, 0);
     return () => clearTimeout(timer);
-  }, [targetTime]);
+  }, [targetTime, needsClock, showCountdown]);
+
+  const hasText = Boolean(
+    messageHtml.replace(/<[^>]*>|&(?:nbsp|#160|#xa0);/gi, '').trim()
+  );
+  if (!needsClock) return hasText ? <PreviewBody html={messageHtml} /> : null;
 
   if (!targetDate || !clock || clock.target !== targetTime) return null;
 
@@ -83,33 +101,38 @@ export function DDayCountdown({ date, time, messageHtml }: Props) {
   );
 
   return (
-    <div className="w-full bg-transparent border-t border-[color:var(--calendar-divider,var(--color-border-divider))] py-6 px-6 flex flex-col items-center justify-center gap-4 text-center font-bold">
-      {ended ? (
-        <p className={summaryClassName}>종료된 일정이에요</p>
-      ) : (
-        <>
-          <div className="flex w-full justify-between items-center text-center text-[color:var(--calendar-muted-text,#8e8e8e)]">
-            {segments.map(([label, value]) => (
-              <div
-                key={label}
-                className="flex flex-col gap-1 items-center w-1/4"
-              >
-                <span className="text-xs font-serif tracking-wider">
-                  {label}
-                </span>
-                <span className="text-base font-serif">
-                  {String(value).padStart(2, '0')}
-                </span>
-              </div>
-            ))}
-          </div>
-          {messageHtml && (
-            <PreviewBody
-              html={messageHtml.replace(/\(D-Day\)/g, String(dayDifference))}
-            />
+    <>
+      {showCountdown && (
+        <div className="w-full bg-transparent border-t border-[color:var(--calendar-divider,var(--color-border-divider))] py-6 px-6 flex flex-col items-center justify-center gap-4 text-center font-bold">
+          {ended ? (
+            <p className={summaryClassName}>종료된 일정이에요</p>
+          ) : (
+            <div className="flex w-full justify-between items-center text-center text-[color:var(--calendar-muted-text,#8e8e8e)]">
+              {segments.map(([label, value]) => (
+                <div
+                  key={label}
+                  className="flex flex-col gap-1 items-center w-1/4"
+                >
+                  <span className="text-xs font-serif tracking-wider">
+                    {label}
+                  </span>
+                  <span className="text-base font-serif">
+                    {String(value).padStart(2, '0')}
+                  </span>
+                </div>
+              ))}
+            </div>
           )}
-        </>
+        </div>
       )}
-    </div>
+      {hasText && (!ended || !isDefaultMessage) && (
+        <PreviewBody
+          html={messageHtml.replace(
+            /\(D-Day\)/g,
+            String(Math.max(0, dayDifference))
+          )}
+        />
+      )}
+    </>
   );
 }

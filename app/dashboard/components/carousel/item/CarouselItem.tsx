@@ -152,6 +152,11 @@ function CarouselItem({
       style={{
         width: cardWidth,
         height: dashboardCarouselLayout.cardHeight,
+        // Match Embla's centered first snap before its measurements are available.
+        marginInlineStart:
+          showPreviewLabel && index === 0
+            ? `calc(50% - ${cardWidth} / 2)`
+            : undefined,
       }}
     >
       <div
@@ -247,6 +252,8 @@ function CarouselItem({
           {isSelected && showHeader && (
             <div className="absolute top-0 left-0 z-10">
               <ItemHeader
+                hasAudienceGroups={invite?.hasAudienceGroups}
+                audienceVisibility={invite?.audienceVisibility}
                 invitationTitle={title}
                 createdTime={invite?.createdTime}
                 isPublished={isPublished}
@@ -271,7 +278,10 @@ function CarouselItem({
             }}
           >
             {collectionTemplate ? (
-              <InvitationTemplatePoster template={collectionTemplate} />
+              <InvitationTemplatePoster
+                template={collectionTemplate}
+                sizes={cardWidth}
+              />
             ) : (
               <Image
                 src={displayImage}

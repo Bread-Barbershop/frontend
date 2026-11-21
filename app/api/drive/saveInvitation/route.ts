@@ -2,6 +2,7 @@ import 'server-only';
 
 import { NextResponse } from 'next/server';
 
+import { syncNewBaseFiles } from '@/app/api/drive/_lib/audienceVisibility';
 import { captureDriveError } from '@/app/api/drive/_lib/captureDriveError';
 import {
   createAssetsFolders,
@@ -57,6 +58,14 @@ export async function POST(req: Request) {
     const assets = invitationReused
       ? await ensureAssetsFolder(invitationFolderId)
       : await createAssetsFolders(invitationFolderId);
+
+    if (invitationReused && !audienceSlug) {
+      await syncNewBaseFiles(invitationFolderId, [
+        dataJson.dataJsonFileId,
+        assets.imageFolderId,
+        assets.audioFolderId,
+      ]);
+    }
 
     return NextResponse.json({
       workspaceFolderId,

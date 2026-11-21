@@ -21,6 +21,10 @@
 // ensureWorkspace 모듈 안의 DriveHttpError를 route가 사용하므로
 // 클래스까지 포함해서 mock 처리한다.
 // ------------------------------
+jest.mock('@/app/api/drive/_lib/audienceVisibility', () => ({
+  syncNewBaseFiles: jest.fn(),
+}));
+
 jest.mock('@/app/api/drive/_lib/ensureWorkspace', () => ({
   ensureWorkspace: jest.fn(),
   DriveHttpError: class DriveHttpError extends Error {
@@ -239,9 +243,7 @@ describe('saveInvitation Route Handler 테스트', () => {
       },
     });
 
-    expect(createDataJsonFile).toHaveBeenCalledWith(
-      'new-invitation-folder-id'
-    );
+    expect(createDataJsonFile).toHaveBeenCalledWith('new-invitation-folder-id');
     expect(createAssetsFolders).toHaveBeenCalledWith(
       'new-invitation-folder-id'
     );

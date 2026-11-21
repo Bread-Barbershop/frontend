@@ -28,6 +28,10 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('@/shared/data/registry/registry', () => ({
   blockRegistry: {
+    organizerInformation: { viewComponent: () => <p>주최사</p> },
+    speakerInformation: { viewComponent: () => <p>연사정보</p> },
+    myChild: { viewComponent: () => <p>아기소개</p> },
+    interview: { viewComponent: () => <p>인터뷰</p> },
     calendar: {
       viewComponent: (props: Record<string, unknown>) =>
         mockCalendarView(props),
@@ -92,10 +96,94 @@ const bulkData: NormalizedGuestPayload['bulkData'] = {
     isDefault: false,
   },
   isZoom: false,
-  scrollAnimation: { animationType: 'fade-up', triggerMode: 'down-only', animationDurationMs: 700, animationEasing: 'natural' },
+  scrollAnimation: {
+    animationType: 'fade-up',
+    triggerMode: 'down-only',
+    animationDurationMs: 700,
+    animationEasing: 'natural',
+  },
 };
 
 describe('GuestRenderer', () => {
+  it('빈 소개와 인터뷰는 발행 화면의 제목과 여백까지 숨기고 편집 화면에는 남긴다', () => {
+    const blocks: NormalizedGuestPayload['blocks'] = [
+      {
+        id: 'o',
+        type: 'seminar',
+        component: 'organizerInformation',
+        props: { title: '주최사', messageHtml: '<p>&nbsp;<br></p>' },
+      },
+      {
+        id: 's',
+        type: 'seminar',
+        component: 'speakerInformation',
+        props: { speakers: [{ id: 'blank', name: ' ', image: [] }] },
+      },
+      {
+        id: 'c',
+        type: 'firstBirthday',
+        component: 'myChild',
+        props: { title: '아기소개' },
+      },
+      {
+        id: 'i',
+        type: 'wedding',
+        component: 'interview',
+        props: { questions: [] },
+      },
+    ];
+    const { rerender } = render(
+      <GuestRenderer blocks={blocks} bulkData={bulkData} />
+    );
+    expect(screen.queryAllByTestId('scroll-animation')).toHaveLength(0);
+    rerender(
+      <GuestRenderer blocks={blocks} bulkData={bulkData} isGuestPage={false} />
+    );
+    expect(screen.getAllByTestId('scroll-animation')).toHaveLength(4);
+  });
+
+  it('사진, 본문, 생일 중 하나만 있어도 표시하고 개인정보 안내도 유지한다', () => {
+    const blocks: NormalizedGuestPayload['blocks'] = [
+      {
+        id: 'o',
+        type: 'seminar',
+        component: 'organizerInformation',
+        props: {
+          messageJson: {
+            type: 'doc',
+            content: [
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: '운영팀' }],
+              },
+            ],
+          },
+        },
+      },
+      {
+        id: 's',
+        type: 'seminar',
+        component: 'speakerInformation',
+        props: { speakers: [{ image: ['/speaker.jpg'] }] },
+      },
+      {
+        id: 'c',
+        type: 'firstBirthday',
+        component: 'myChild',
+        props: { birthday: '2026.05.22' },
+      },
+      {
+        id: 'hidden',
+        type: 'firstBirthday',
+        component: 'myChild',
+        props: {},
+        privacyMediaHidden: true,
+      },
+    ];
+    render(<GuestRenderer blocks={blocks} bulkData={bulkData} />);
+    expect(screen.getAllByTestId('scroll-animation')).toHaveLength(4);
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     mockResolveGuestFontFamiliesToPreload.mockReturnValue([]);
@@ -164,7 +252,10 @@ describe('GuestRenderer', () => {
   it('바로 시작하고 축하 효과를 켜면 첫 화면에서 컨페티를 재생한다', () => {
     render(
       <GuestRenderer
-        bulkData={{ ...bulkData, invitationEffects: { opening: 'direct', confetti: true } }}
+        bulkData={{
+          ...bulkData,
+          invitationEffects: { opening: 'direct', confetti: true },
+        }}
         blocks={[]}
       />
     );
@@ -190,7 +281,10 @@ describe('GuestRenderer', () => {
     ];
     render(
       <GuestRenderer
-        bulkData={{ ...bulkData, invitationEffects: { opening: 'direct', confetti: false } }}
+        bulkData={{
+          ...bulkData,
+          invitationEffects: { opening: 'direct', confetti: false },
+        }}
         blocks={blocks}
       />
     );

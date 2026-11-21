@@ -23,6 +23,7 @@ function UploadButton({
     isCleaningUp,
     pendingInvitation,
     loadingMessage,
+    photoProgress,
   } = upload;
   const { confirm } = useConfirm();
   const { canvas } = useFabricViewContext();
@@ -77,6 +78,7 @@ function UploadButton({
           pendingInvitation={pendingInvitation}
           skipDashboardHandoff={Boolean(pendingInvitation?.audienceSlug)}
           loadingMessage={loadingMessage}
+          photoProgress={photoProgress}
           retry={() => void handleUpload()}
           onClose={handleClose}
         />

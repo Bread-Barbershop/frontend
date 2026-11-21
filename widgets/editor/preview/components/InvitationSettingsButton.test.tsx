@@ -1,6 +1,8 @@
 import { fireEvent, render, renderHook, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { useEditorDirtyTracker } from '@/app/editor/hooks/useEditorDirtyTracker';
+import { INVITATION_PRIVACY_FIELDS } from '@/features/invitation/privacy/settings';
 import { useEditorStore } from '@/shared/store/editorStore/useEditorStore';
 
 import InvitationSettingsButton from './AdditionalFeaturesButton';
@@ -32,10 +34,10 @@ describe('초대장 설정', () => {
     fireEvent.click(
       screen.getByRole('button', { name: '가릴 정보 옵션 펼치기' })
     );
-    const phone = screen.getByRole('checkbox', { name: /전화번호/ });
+    const phone = screen.getByRole('switch', { name: '전화번호' });
     fireEvent.click(phone);
     fireEvent.click(phone);
-    const zoom = screen.getByRole('checkbox', { name: '초대장 확대 방지' });
+    const zoom = screen.getByRole('switch', { name: '초대장 확대 방지' });
     fireEvent.click(zoom);
     fireEvent.click(zoom);
     fireEvent.click(screen.getByRole('button', { name: '적용' }));
@@ -48,7 +50,7 @@ describe('초대장 설정', () => {
     renderHook(() => useEditorDirtyTracker(true));
     render(<InvitationSettingsButton />);
     fireEvent.click(screen.getByRole('button', { name: '초대장 설정' }));
-    fireEvent.click(screen.getByRole('checkbox', { name: '초대장 확대 방지' }));
+    fireEvent.click(screen.getByRole('switch', { name: '초대장 확대 방지' }));
     fireEvent.click(screen.getByRole('button', { name: '적용' }));
 
     expect(useEditorStore.getState()).toMatchObject({
@@ -62,14 +64,19 @@ describe('초대장 설정', () => {
     jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-11-19T12:00:00Z'));
     render(<InvitationSettingsButton />);
     fireEvent.click(screen.getByRole('button', { name: '초대장 설정' }));
-    const enabled = screen.getByRole('checkbox', {
-      name: /일정이 끝나면 개인정보 가리기/,
+    const enabled = screen.getByRole('switch', {
+      name: '일정이 끝나면 개인정보 가리기',
     });
-    expect(
-      screen.getByText('일정 다음 날 00:00부터 · 한국 시간 기준')
-    ).toBeInTheDocument();
-    fireEvent.click(enabled);
-    const media = screen.getByRole('checkbox', { name: /사진·영상/ });
+    expect(enabled).toHaveAccessibleDescription(
+      '일정 다음 날 00:00부터 · 한국 시간 기준'
+    );
+    fireEvent.click(screen.getByText('일정이 끝나면 개인정보 가리기'));
+    for (const { label, description } of INVITATION_PRIVACY_FIELDS) {
+      expect(
+        screen.getByRole('switch', { name: label })
+      ).toHaveAccessibleDescription(description);
+    }
+    const media = screen.getByRole('switch', { name: '사진·영상' });
     fireEvent.click(media);
     fireEvent.click(screen.getByRole('button', { name: '일정이 끝나는 날' }));
     fireEvent.click(screen.getByRole('button', { name: '2026년 11월 21일' }));
@@ -78,7 +85,7 @@ describe('초대장 설정', () => {
     );
     expect(enabled).toBeChecked();
     expect(
-      screen.queryByRole('checkbox', { name: /사진·영상/ })
+      screen.queryByRole('switch', { name: '사진·영상' })
     ).not.toBeInTheDocument();
     fireEvent.click(
       screen.getByRole('button', { name: '가릴 정보 옵션 펼치기' })
@@ -90,6 +97,22 @@ describe('초대장 설정', () => {
       eventDate: '2026-11-21',
       fields: ['phone', 'account', 'media'],
     });
+  });
+
+  it('스페이스 키로 스위치를 전환한 뒤 취소하면 변경을 버리고 버튼으로 돌아간다', async () => {
+    const user = userEvent.setup();
+    render(<InvitationSettingsButton />);
+    const trigger = screen.getByRole('button', { name: '초대장 설정' });
+    await user.click(trigger);
+    const zoom = screen.getByRole('switch', { name: '초대장 확대 방지' });
+    expect(zoom).toHaveFocus();
+
+    await user.keyboard('[Space]');
+
+    expect(zoom).toBeChecked();
+    await user.click(screen.getByRole('button', { name: '취소' }));
+    expect(trigger).toHaveFocus();
+    expect(useEditorStore.getState().isZoom).toBe(false);
   });
 
   it('달력에서 키보드로 날짜를 이동하고 Escape로 달력만 닫는다', () => {
@@ -114,7 +137,9 @@ describe('초대장 설정', () => {
       selected
     );
     fireEvent.keyDown(selected, { key: 'ArrowRight' });
-    expect(screen.getByRole('grid', { name: '2026년 12월' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('grid', { name: '2026년 12월' })
+    ).toBeInTheDocument();
     const nextDay = screen.getByRole('button', { name: '2026년 12월 1일' });
     expect(nextDay).toHaveFocus();
     fireEvent.keyDown(nextDay, { key: 'Escape' });
@@ -122,7 +147,9 @@ describe('초대장 설정', () => {
     expect(screen.queryByRole('grid')).not.toBeInTheDocument();
     expect(trigger).toHaveFocus();
     expect(trigger).toHaveAccessibleDescription('2026년 11월 30일');
-    expect(screen.getByRole('dialog', { name: '초대장 설정' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('dialog', { name: '초대장 설정' })
+    ).toBeInTheDocument();
   });
 
   it('날짜를 비우면 적용할 수 없으며 취소하면 기존 날짜를 유지한다', () => {

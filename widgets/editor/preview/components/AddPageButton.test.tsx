@@ -30,7 +30,25 @@ describe('페이지 추가 단축키', () => {
   });
 
   afterEach(() => {
+    jest.restoreAllMocks();
     window.innerWidth = originalInnerWidth;
+  });
+
+  it('버튼 바로 아래에 열고 화면 크기가 변하면 버튼 위치를 다시 따른다', () => {
+    render(<AddPageButton />);
+    const button = screen.getByRole('button', { name: '+페이지 추가' });
+    const bounds = jest.spyOn(button, 'getBoundingClientRect');
+    bounds.mockReturnValue(new DOMRect(900, 160, 112, 44));
+    jest
+      .spyOn(HTMLElement.prototype, 'offsetWidth', 'get')
+      .mockReturnValue(656);
+    fireEvent.click(button);
+    const dialog = screen.getByRole('dialog', { name: '블록 추가' });
+    expect(dialog).toHaveStyle({ top: '212px', left: '356px' });
+
+    bounds.mockReturnValue(new DOMRect(450, 220, 112, 44));
+    fireEvent(window, new Event('resize'));
+    expect(dialog).toHaveStyle({ top: '272px', left: '12px' });
   });
 
   it('/ 키를 누르면 블록 검색창을 열고 포커스한다', () => {
