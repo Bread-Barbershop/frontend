@@ -32,13 +32,21 @@ export function StylePanelSection({
         <SectionArrow
           aria-hidden="true"
           className={cn(
-            'absolute right-6 h-[7px] w-[14px] transition-default',
+            'absolute right-6 h-[7px] w-[14px] transition-transform duration-(--duration-accordion) ease-(--ease-accordion) motion-reduce:transition-none',
             expanded && 'rotate-180'
           )}
         />
       </button>
-      <div id={panelId} hidden={!expanded}>
-        {children}
+      <div
+        id={panelId}
+        aria-hidden={!expanded}
+        inert={!expanded}
+        className={cn(
+          'accordion-motion motion-reduce:transition-none',
+          expanded ? 'accordion-motion-open' : 'accordion-motion-close'
+        )}
+      >
+        <div className="min-h-0 overflow-hidden">{children}</div>
       </div>
     </div>
   );

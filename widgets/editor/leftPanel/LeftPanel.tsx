@@ -31,10 +31,8 @@ function LeftPanel() {
         expanded={isEdit}
         onToggle={() => setIsEdit(!isEdit)}
       >
-        <div key={`bulk-edit-${isEdit}`} className="max-h-158 overflow-hidden">
-          <div className="overflow-hidden rounded-b-lg">
-            <BulkEdit />
-          </div>
+        <div className="max-h-158 overflow-hidden rounded-b-lg">
+          <BulkEdit />
         </div>
       </StylePanelSection>
 
